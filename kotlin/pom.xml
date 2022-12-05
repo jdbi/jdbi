@@ -24,9 +24,7 @@
     <artifactId>jdbi3-kotlin</artifactId>
 
     <name>jdbi3 kotlin</name>
-    <description>
-        Idiomatic core API support for the Kotlin programming language.
-    </description>
+    <description>Idiomatic core API support for the Kotlin programming language.</description>
 
     <properties>
         <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>

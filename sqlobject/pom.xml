@@ -24,16 +24,14 @@
     <artifactId>jdbi3-sqlobject</artifactId>
 
     <name>jdbi3 sqlobject</name>
-    <description>
-        SqlObject is a declarative, annotation-driven API
+    <description>SqlObject is a declarative, annotation-driven API
         for database access. It complements the core API.
 
         Jdbi 3 is designed to provide convenient tabular data access in
         Java(tm) and other JVM based languages.
         It uses the Java collections framework for query results,
         provides a convenient means of externalizing SQL statements, and
-        named parameter support for any database that supports JDBC.
-    </description>
+        named parameter support for any database that supports JDBC.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.sqlobject</moduleName>

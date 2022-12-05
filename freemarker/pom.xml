@@ -24,9 +24,7 @@
     <artifactId>jdbi3-freemarker</artifactId>
 
     <name>jdbi3 freemarker</name>
-    <description>
-        Use Apache Freemarker for query templating.
-    </description>
+    <description>Use Apache Freemarker for query templating.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.freemarker</moduleName>

@@ -24,9 +24,7 @@
     <artifactId>jdbi3-docs</artifactId>
 
     <name>jdbi3 - internal - documentation</name>
-    <description>
-        Source, build system and examples for https://jdbi.org/
-    </description>
+    <description>Source, build system and examples for https://jdbi.org/</description>
 
     <properties>
         <!-- Javadocs refer to jars without actual code references -->

@@ -24,9 +24,7 @@
     <artifactId>jdbi3-stringtemplate4</artifactId>
 
     <name>jdbi3 stringtemplate4</name>
-    <description>
-        Use Stringtemplate 4 for query templating.
-    </description>
+    <description>Use Stringtemplate 4 for query templating.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.stringtemplate4</moduleName>

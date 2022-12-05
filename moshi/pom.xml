@@ -23,9 +23,7 @@
     <artifactId>jdbi3-moshi</artifactId>
 
     <name>jdbi3 moshi</name>
-    <description>
-        Use Square Moshi for JSON column serialization/deserialization.
-    </description>
+    <description>Use Square Moshi for JSON column serialization/deserialization.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.moshi</moduleName>

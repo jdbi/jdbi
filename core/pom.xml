@@ -24,15 +24,13 @@
     <artifactId>jdbi3-core</artifactId>
 
     <name>jdbi3 core</name>
-    <description>
-        The Jdbi core API.
+    <description>The Jdbi core API.
 
         Jdbi 3 is designed to provide convenient tabular data access in
         Java(tm) and other JVM based languages.
         It uses the Java collections framework for query results,
         provides a convenient means of externalizing SQL statements, and
-        named parameter support for any database that supports JDBC.
-    </description>
+        named parameter support for any database that supports JDBC.</description>
 
     <properties>
         <basepom.check.phase-license>validate</basepom.check.phase-license>

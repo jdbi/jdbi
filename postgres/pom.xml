@@ -24,9 +24,7 @@
     <artifactId>jdbi3-postgres</artifactId>
 
     <name>jdbi3 postgres</name>
-    <description>
-        Support for additional PostgreSQL features and data types.
-    </description>
+    <description>Support for additional PostgreSQL features and data types.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.postgres</moduleName>

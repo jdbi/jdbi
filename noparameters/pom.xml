@@ -24,9 +24,7 @@
     <artifactId>jdbi3-noparameters</artifactId>
     <name>jdbi3 - internal - noparameters tests</name>
 
-    <description>
-        Unit tests for scenarios where javac compiles without -parameters flag. This is a Jdbi internal module and not part of the public API.
-    </description>
+    <description>Unit tests for scenarios where javac compiles without -parameters flag. This is a Jdbi internal module and not part of the public API.</description>
 
     <properties>
         <basepom.check.skip-pmd>true</basepom.check.skip-pmd>

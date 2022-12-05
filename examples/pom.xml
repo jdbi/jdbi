@@ -24,9 +24,7 @@
     <artifactId>jdbi3-examples</artifactId>
 
     <name>jdbi3 examples</name>
-    <description>
-        Jdbi code examples.
-    </description>
+    <description>Jdbi code examples.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.examples</moduleName>

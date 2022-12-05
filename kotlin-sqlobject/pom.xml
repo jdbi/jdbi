@@ -24,9 +24,7 @@
     <artifactId>jdbi3-kotlin-sqlobject</artifactId>
 
     <name>jdbi3 kotlin-sqlobject</name>
-    <description>
-        Idiomatic SqlObject API support for the Kotlin programming language.
-    </description>
+    <description>Idiomatic SqlObject API support for the Kotlin programming language.</description>
 
     <properties>
         <basepom.check.skip-spotbugs>true</basepom.check.skip-spotbugs>

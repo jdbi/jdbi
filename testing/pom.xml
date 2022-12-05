@@ -24,11 +24,9 @@
     <artifactId>jdbi3-testing</artifactId>
 
     <name>jdbi3 testing</name>
-    <description>
-        Support for testing frameworks. Provides integration to spin up and access databases using Jdbi in unit tests.
+    <description>Support for testing frameworks. Provides integration to spin up and access databases using Jdbi in unit tests.
 
-        Currently supports JUnit 4 and JUnit 5.
-    </description>
+        Currently supports JUnit 4 and JUnit 5.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.testing</moduleName>

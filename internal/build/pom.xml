@@ -29,9 +29,7 @@
     <packaging>pom</packaging>
 
     <name>jdbi3 - internal - build parent</name>
-    <description>
-        Jdbi3 build settings. This is a Jdbi internal module and not part of the public API.
-    </description>
+    <description>Jdbi3 build settings. This is a Jdbi internal module and not part of the public API.</description>
 
     <!-- do not remove URL and SCM, otherwise OSS refuses to accept the release -->
     <url>https://jdbi.org/</url>

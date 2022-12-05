@@ -23,10 +23,8 @@
     <artifactId>jdbi3-json</artifactId>
 
     <name>jdbi3 json</name>
-    <description>
-        Support for JSON column types. In addition to this module, a
-        serialization module (jackson2, gson2, moshi) is required.
-    </description>
+    <description>Support for JSON column types. In addition to this module, a
+        serialization module (jackson2, gson2, moshi) is required.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.json</moduleName>

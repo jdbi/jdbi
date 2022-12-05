@@ -23,13 +23,11 @@
     <artifactId>jdbi3-vavr</artifactId>
 
     <name>jdbi3 vavr</name>
-    <description>
-        Support for vavr datatypes.
+    <description>Support for vavr datatypes.
 
         Vavr is a functional programming library for the JVM.
         It is greatly inspired by scala and brings persistent,
-        immutable datastructures to the Java World
-    </description>
+        immutable datastructures to the Java World</description>
 
     <properties>
         <moduleName>org.jdbi.v3.vavr</moduleName>

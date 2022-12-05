@@ -24,9 +24,7 @@
     <artifactId>jdbi3-jpa</artifactId>
 
     <name>jdbi3 jpa</name>
-    <description>
-        Minimal support for JPA annotations.
-    </description>
+    <description>Minimal support for JPA annotations.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.jpa</moduleName>

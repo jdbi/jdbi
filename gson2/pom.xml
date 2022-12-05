@@ -23,9 +23,7 @@
     <artifactId>jdbi3-gson2</artifactId>
 
     <name>jdbi3 gson2</name>
-    <description>
-        Use Google gson 2 for JSON column serialization/deserialization.
-    </description>
+    <description>Use Google gson 2 for JSON column serialization/deserialization.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.gson2</moduleName>

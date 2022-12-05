@@ -24,9 +24,7 @@
     <artifactId>jdbi3-jodatime2</artifactId>
 
     <name>jdbi3 jodatime2</name>
-    <description>
-        Support for Joda-Time 2 data types.
-    </description>
+    <description>Support for Joda-Time 2 data types.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.jodatime2</moduleName>

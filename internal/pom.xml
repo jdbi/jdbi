@@ -26,9 +26,7 @@
     <packaging>pom</packaging>
 
     <name>jdbi3 - internal - parent</name>
-    <description>
-        This is a Jdbi internal module and not part of the public API.
-    </description>
+    <description>This is a Jdbi internal module and not part of the public API.</description>
 
     <modules>
         <module>policy</module>

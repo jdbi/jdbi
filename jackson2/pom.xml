@@ -23,9 +23,7 @@
     <artifactId>jdbi3-jackson2</artifactId>
 
     <name>jdbi3 jackson2</name>
-    <description>
-        Use Jackson 2.x for JSON column serialization/deserialization.
-    </description>
+    <description>Use Jackson 2.x for JSON column serialization/deserialization.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.jackson2</moduleName>

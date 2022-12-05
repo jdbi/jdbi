@@ -23,9 +23,7 @@
     <artifactId>jdbi3-spring5</artifactId>
 
     <name>jdbi3 spring5</name>
-    <description>
-        SpringFramework and SpringBoot support.
-    </description>
+    <description>SpringFramework and SpringBoot support.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.spring5</moduleName>

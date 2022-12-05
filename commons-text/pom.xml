@@ -23,9 +23,7 @@
     <artifactId>jdbi3-commons-text</artifactId>
 
     <name>jdbi3 commons-text</name>
-    <description>
-        Use Apache Commons Text for query templating.
-    </description>
+    <description>Use Apache Commons Text for query templating.</description>
 
     <properties>
         <moduleName>org.jdbi.v3.commonstext</moduleName>

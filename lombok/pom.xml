@@ -25,9 +25,7 @@
 
     <name>jdbi3 - internal - lombok tests</name>
 
-    <description>
-        Unit tests for various lombok specific scenarios. This is a Jdbi internal module and not part of the public API.
-    </description>
+    <description>Unit tests for various lombok specific scenarios. This is a Jdbi internal module and not part of the public API.</description>
 
     <properties>
         <basepom.deploy.skip>true</basepom.deploy.skip>
