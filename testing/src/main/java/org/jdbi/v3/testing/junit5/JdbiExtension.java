@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -28,13 +29,18 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Handles;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.config.ConfiguringPlugin;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.testing.junit5.internal.JdbiLeakChecker;
+import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
@@ -54,7 +60,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
  * @see JdbiExternalPostgresExtension
  * @see JdbiOtjPostgresExtension
  */
-public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
+public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
     private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
@@ -69,6 +75,13 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
 
     private volatile boolean dataSourceInitialized = false;
     private volatile DataSource dataSource;
+
+    // JUnit API
+
+    private static final Object JDBI_ID_KEY = new Object();
+    // multiple JUnit extension instances must use different namespaces
+    private final Namespace jdbiNamespace = Namespace.create(UUID.randomUUID());
+
 
     /**
      * Creates a new extension using a managed, embedded postgres database. Using this method requires the <code>de.softwareforge.testing:pg-embedded</code>
@@ -206,8 +219,8 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
     }
 
     /**
-     * When creating the {@link Jdbi} instance, call the {@link Jdbi#installPlugins()} method, which loads all plugins discovered by the {@link
-     * java.util.ServiceLoader} API.
+     * When creating the {@link Jdbi} instance, call the {@link Jdbi#installPlugins()} method, which loads all plugins discovered by the
+     * {@link java.util.ServiceLoader} API.
      *
      * @return The extension itself for chaining method calls.
      */
@@ -218,8 +231,8 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
     }
 
     /**
-     * Enable tracking of cleanable resources and handles when running tests. This is useful to find code paths where JDBI managed resources
-     * are not correctly handled and "leak" out.
+     * Enable tracking of cleanable resources and handles when running tests. This is useful to find code paths where JDBI managed resources are not correctly
+     * handled and "leak" out.
      *
      * @param enable If true, enables the leak checker, otherwise disables it.
      */
@@ -324,8 +337,11 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
         return dataSource;
     }
 
-    @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
+    //
+    // subclass extension points
+    //
+
+    protected void startExtension() throws Exception {
         if (jdbi != null) {
             throw new IllegalStateException("jdbi has been set!");
         }
@@ -352,8 +368,7 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
         initializerMaybe.ifPresent(i -> i.initialize(ds, sharedHandleInstance));
     }
 
-    @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    protected void stopExtension() throws Exception {
         if (sharedHandle == null) {
             throw new IllegalStateException("shared handle was not initialized!");
         }
@@ -381,6 +396,30 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
         }
     }
 
+    //
+    // JUnit 5 API
+    //
+
+    @Override
+    public void beforeEach(ExtensionContext context) throws Exception {
+        junit5Before(context);
+    }
+
+    @Override
+    public void beforeAll(ExtensionContext context) throws Exception {
+        junit5Before(context);
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) throws Exception {
+        junit5After(context);
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) throws Exception {
+        junit5After(context);
+    }
+
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
         Type type = parameterContext.getParameter().getType();
@@ -398,23 +437,25 @@ public abstract class JdbiExtension implements BeforeEachCallback, AfterEachCall
         return null;
     }
 
-    private static final class ConfiguringPlugin<C extends JdbiConfig<C>> implements JdbiPlugin {
+    private void junit5Before(ExtensionContext extensionContext) throws Exception {
+        final Store jdbiStore = extensionContext.getStore(jdbiNamespace);
+        final String uniqueId = extensionContext.getUniqueId();
 
-        private final Class<C> configClass;
-        private final Consumer<C> configurer;
+        final String extensionId = jdbiStore.getOrComputeIfAbsent(JDBI_ID_KEY, k -> uniqueId, String.class);
 
-        private ConfiguringPlugin(Class<C> configClass, Consumer<C> configurer) {
-            this.configClass = configClass;
-            this.configurer = configurer;
+        if (extensionId.equals(uniqueId)) {
+            startExtension();
         }
+    }
 
-        static <C extends JdbiConfig<C>> ConfiguringPlugin<C> of(Class<C> configClass, Consumer<C> configurer) {
-            return new ConfiguringPlugin<>(configClass, configurer);
-        }
+    private void junit5After(ExtensionContext extensionContext) throws Exception {
+        final Store jdbiStore = extensionContext.getStore(jdbiNamespace);
+        final String uniqueId = extensionContext.getUniqueId();
 
-        @Override
-        public void customizeJdbi(Jdbi jdbi) {
-            jdbi.configure(configClass, configurer);
+        final String extensionId = jdbiStore.getOrComputeIfAbsent(JDBI_ID_KEY, k -> uniqueId, String.class);
+
+        if (extensionId.equals(uniqueId)) {
+            stopExtension();
         }
     }
 }

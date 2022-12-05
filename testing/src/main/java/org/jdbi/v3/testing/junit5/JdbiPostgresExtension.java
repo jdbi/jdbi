@@ -59,7 +59,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 public class JdbiPostgresExtension extends JdbiExtension {
 
     private final EmbeddedPgExtension pg;
-    private final boolean extendsWith;
+    private final boolean pgIsManaged;
 
     private volatile DatabaseInfo info;
 
@@ -69,12 +69,12 @@ public class JdbiPostgresExtension extends JdbiExtension {
 
     protected JdbiPostgresExtension(EmbeddedPgExtension pg) {
         this.pg = pg;
-        this.extendsWith = false;
+        this.pgIsManaged = false;
     }
 
     public JdbiPostgresExtension() {
         this.pg = SingleDatabaseBuilder.instanceWithDefaults().build();
-        this.extendsWith = true;
+        this.pgIsManaged = true;
     }
 
     @Override
@@ -90,33 +90,74 @@ public class JdbiPostgresExtension extends JdbiExtension {
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
 
-        if (info != null) {
-            throw new IllegalStateException("info has been set!");
+        try {
+            if (this.pgIsManaged) {
+                pg.beforeEach(context);
+            }
+        } finally {
+            super.beforeEach(context);
         }
+    }
 
-        if (this.extendsWith) {
-            pg.beforeEach(context);
+    @Override
+    public void beforeAll(ExtensionContext context) throws Exception {
+
+        try {
+            if (this.pgIsManaged) {
+                pg.beforeAll(context);
+            }
+        } finally {
+            super.beforeAll(context);
         }
-
-        info = pg.createDatabaseInfo();
-
-        super.beforeEach(context);
     }
 
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
-        if (info == null) {
-            throw new IllegalStateException("info has not been set!");
-        }
 
         try {
             super.afterEach(context);
         } finally {
-            this.info = null;
-
-            if (this.extendsWith) {
+            if (this.pgIsManaged) {
                 pg.afterEach(context);
             }
+        }
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) throws Exception {
+
+        try {
+            super.afterAll(context);
+        } finally {
+            if (this.pgIsManaged) {
+                pg.afterAll(context);
+            }
+        }
+    }
+
+    @Override
+    protected void startExtension() throws Exception {
+
+        if (info != null) {
+            throw new IllegalStateException("Extension was already started!");
+        }
+
+        info = pg.createDatabaseInfo();
+
+        super.startExtension();
+    }
+
+    @Override
+    protected void stopExtension() throws Exception {
+
+        if (info == null) {
+            throw new IllegalStateException("Extension was already stopped!");
+        }
+
+        try {
+            super.stopExtension();
+        } finally {
+            this.info = null;
         }
     }
 }
