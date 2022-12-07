@@ -342,8 +342,8 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
     //
 
     protected void startExtension() throws Exception {
-        if (jdbi != null) {
-            throw new IllegalStateException("jdbi has been set!");
+        if (this.jdbi != null || this.sharedHandle != null) {
+            throw new IllegalStateException("Extension was already started!");
         }
 
         final DataSource ds = getDataSource();
@@ -369,8 +369,8 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
     }
 
     protected void stopExtension() throws Exception {
-        if (sharedHandle == null) {
-            throw new IllegalStateException("shared handle was not initialized!");
+        if (this.jdbi == null || this.sharedHandle == null) {
+            throw new IllegalStateException("Extension was already stopped!");
         }
 
         try {
