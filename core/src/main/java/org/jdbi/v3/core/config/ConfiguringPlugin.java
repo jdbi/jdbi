@@ -18,9 +18,9 @@ import java.util.function.Consumer;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 
-public class ConfiguringPlugin<C extends JdbiConfig<C>> implements JdbiPlugin {
-    private Class<C> configClass;
-    private Consumer<C> configurer;
+public final class ConfiguringPlugin<C extends JdbiConfig<C>> implements JdbiPlugin {
+    private final Class<C> configClass;
+    private final Consumer<C> configurer;
 
     private ConfiguringPlugin(Class<C> configClass, Consumer<C> configurer) {
         this.configClass = configClass;

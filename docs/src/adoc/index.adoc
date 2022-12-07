@@ -4814,8 +4814,14 @@ public class Test {
 }
 ----
 
+The link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] and all its database specific subclasses can be registered as instance fields or as class-level (static) fields.
+
 [NOTE]
-link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] and all the database specific subclasses are intended to be registered as instance fields. Fields annotated with the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^] that hold JdbiExtension instances should *not* be static! While this may work, the behavior is currently undefined and should be avoided.
+Registration as class-level (static) fields is *only supported in Jdbi version 3.35.1 and beyond*. For all releases before this, the behavior of the link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] instances is undefined.
+
+When registered as an instance field, each test will get a new Jdbi instance. The in-memory database specific subclasses (H2, SQLite or HsqlDB with the generic extension) will reset their content and provide a new instance.
+
+When registered as a static field, the extension will be initialized before all test methods are executed. All tests share the same extension instance and its associated fields. The in-memory database specfic subclasses will retain their contents across multiple tests.
 
 The javadoc page for link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] contains additional information on how to customize a programmatically registered instance.
 

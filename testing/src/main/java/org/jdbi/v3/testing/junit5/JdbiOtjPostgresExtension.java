@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 import javax.sql.DataSource;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
-import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * Jdbi PostgreSQL JUnit 5 rule using the otj-pg-embedded component.
@@ -95,33 +94,33 @@ public class JdbiOtjPostgresExtension extends JdbiExtension {
     }
 
     @Override
-    @SuppressWarnings("PMD.UseTryWithResources")
-    public void afterEach(ExtensionContext context) throws Exception {
+    protected void startExtension() throws Exception {
 
-        super.afterEach(context);
-
-        final EmbeddedPostgres pg = this.epg;
-        final Connection c = this.postgresConnection;
-
-        if (pg == null || c == null) {
-            throw new IllegalStateException("not within a Junit test!");
+        if (this.epg != null || this.postgresConnection != null) {
+            throw new IllegalStateException("Extension was already started!");
         }
 
-        try {
-            this.postgresConnection = null;
-            c.close();
-        } finally {
-            this.epg = null;
-            pg.close();
-        }
-    }
-
-    @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
         this.epg = this.createEmbeddedPostgres();
         this.postgresConnection = createDataSource().getConnection();
 
-        super.beforeEach(context);
+        super.startExtension();
+    }
+
+    @Override
+    protected void stopExtension() throws Exception {
+
+        if (this.epg == null || this.postgresConnection == null) {
+            throw new IllegalStateException("Extension was already stopped!");
+        }
+
+        try (EmbeddedPostgres pg = this.epg;
+            Connection c = this.postgresConnection) {
+
+            super.stopExtension();
+        } finally {
+            this.postgresConnection = null;
+            this.epg = null;
+        }
     }
 
     private EmbeddedPostgres createEmbeddedPostgres() throws IOException {

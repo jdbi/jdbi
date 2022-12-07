@@ -1,5 +1,7 @@
 # Unreleased
 
+  - Support class-level (static) instance fields for JdbiExtension and its subclasses.
+
 # 3.35.0
 
   - Fix `JdbiFlywayMigration` to work with Flyway 9 (#2179, thanks @broccolai)
