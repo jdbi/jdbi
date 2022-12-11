@@ -1,4 +1,4 @@
-name: Code style checks
+name: Run all container database tests
 
 on:
   push:
@@ -9,22 +9,27 @@ on:
     - master
 
 jobs:
-  style:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
 
     - uses: actions/setup-java@v3
+      id: build_jdk
       with:
         java-version: 17
         distribution: temurin
         cache: maven
 
-    - name: run code checkers
+    - name: build distribution
       env:
-        JDBI_MAVEN_OPTS: "-DskipITs -DskipTests -B -fae"
+        JDBI_MAVEN_OPTS: "-B -fn"
       run: |
-        ./mvnw --version
-        echo $PATH
-        make install
+        make install-fast
+
+    - name: run container tests
+      env:
+        JDBI_MAVEN_OPTS: "-B -fn"
+      run: |
+        make tests-container

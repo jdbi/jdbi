@@ -1,6 +1,7 @@
 # Unreleased
 
   - Support class-level (static) instance fields for JdbiExtension and its subclasses.
+  - Add jdbi3-testing support for testcontainer based databases
 
 # 3.35.0
 

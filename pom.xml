@@ -60,6 +60,7 @@
         <module>sqlite</module>
         <module>sqlobject</module>
         <module>stringtemplate4</module>
+        <module>testcontainers</module>
         <module>testing</module>
         <module>vavr</module>
 

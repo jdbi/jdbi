@@ -136,8 +136,15 @@ jdbi3-core::
     The core Jdbi library. Required by all other components.
 jdbi3-sqlobject::
     SQL Object extension for declarative database access.
+
+
+===== Testing support
+
 jdbi3-testing::
     Testing framework support. Currently, only supports JUnit4 and JUnit5.
+
+jdbi3-testcontainers::
+    Support for arbitrary databases running in link:https://testcontainers.org/[Testcontainers^]. Currently, only suports JUnit 5.
 
 
 ===== External data types and libraries
@@ -4843,12 +4850,13 @@ The instances injected are the same instances as returned by link:{jdbidocs}/tes
 
 Currently supported databases:
 
-* link:https://www.postgresql.org/[Postgres] - link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^]
-* link:https://www.h2database.com/[H2] - link:{jdbidocs}/testing/junit5/JdbiH2Extension.html[JdbiH2Extension^]
-* link:https://www.sqlite.org/[Sqlite] - link:{jdbidocs}/testing/junit5/JdbiSqliteExtension.html[JdbiSqliteExtension^]
+* link:https://www.postgresql.org/[Postgres^] - link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^]
+* link:https://www.h2database.com/[H2^] - link:{jdbidocs}/testing/junit5/JdbiH2Extension.html[JdbiH2Extension^]
+* link:https://www.sqlite.org/[Sqlite^] - link:{jdbidocs}/testing/junit5/JdbiSqliteExtension.html[JdbiSqliteExtension^]
 * Generic JDBC database support - link:{jdbidocs}/testing/junit5/JdbiGenericExtension.html[JdbiGenericExtension^]. This is a minimal extension that can support any database that support JDBC. The driver for the database must be on the classpath. All database management (schema creation, DDL object management etc.) must be done by the calling code.
+* link:https://testcontainers.org/[Testcontainers^] - link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^]. See <<Using Testcontainers>> for detailed documentation.
 
-Support for other databases is wanted!
+Support for other databases wanted!
 
 The link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] provides a number of convenience methods:
 
@@ -4896,6 +4904,80 @@ Postgres is supported through multiple test classes:
 * link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^] supports an external Postgres database and can run tests against any local or remote database.
 * link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^] supports the link:https://github.com/opentable/otj-pg-embedded[OpenTable Java Embedded PostgreSQL component].
 
+
+=== Using Testcontainers
+
+The link:https://testcontainers.org[Testcontainers^] project provides a number of services as docker containers with a programmatic interface for JVM code. Jdbi supports JDBC type databases with the link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^]:
+
+[source,java, indent=0]
+----
+@Testcontainers
+class TestWithContainers {
+    @Container
+    static JdbcDatabaseContainer<?> dbContainer = new YugabyteDBYSQLContainer("yugabytedb/yugabyte");
+
+    @RegisterExtension
+    JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer);
+
+    // ... test code using the yugabyte engine
+}
+----
+
+The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] has builtin support to isolate each test method in a test class. The container can be declared as a static class member which speeds up test execution significantly.
+
+There is builtin support for MySQL, MariaDB, TiDB, PostgreSQL, CockroachDB, YugabyteDB, ClickHouse, Oracle XE and Trino. It also supports the various compatible flavors (such as PostGIS for PostgreSQL).
+
+==== Providing custom database information
+
+The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] creates a new database or schema (depending on the database engine) for each test. This speeds up test execution. In some cases (e.g. when using a not yet supported database engine or when using a custom docker image), it may be necessary to provide a custom instance of the link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html[TestcontainersDatabaseInformation^] class that describes how to manage a specific database engine.
+
+Here are examples for MySQL and PostgreSQL:
+
+[source,java, indent=0]
+----
+// MySQL has only databases, no schemata. The Jdbi extension creates a new database
+// for each test method.
+private static final TestcontainersDatabaseInformation MYSQL = TestcontainersDatabaseInformation.of(
+        "root",  // Testcontainers provides the 'root' superuser for MySQL instances.
+        null,    // do not override the generated catalog name
+        null,    // do not override the generated schema name (which is not used by MySQL)
+        // create a new database from the catalog name
+        (catalogName, schemaName) -> format("CREATE DATABASE %s", catalogName)
+);
+
+// PostgreSQL knows about schemata but needs to use the predefined "test" database.
+// The Jdbi extension creates a new schema for each test method
+private static final TestcontainersDatabaseInformation POSTGRES = TestcontainersDatabaseInformation.of(
+        null,   // Use the default user that testcontainers provides
+        "test", // override the generated catalog name with 'test'
+        null,   // do not override the generated schema name
+        // create a new schema from the schema name
+        (catalogName, schemaName) -> format("CREATE SCHEMA %s", schemaName)
+);
+----
+
+See the Javadoc for the link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html[TestcontainersDatabaseInformation^] class for further details.
+
+The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] provides the link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html#instance(org.jdbi.v3.testing.junit5.tc.TestcontainersDatabaseInformation,org.testcontainers.containers.JdbcDatabaseContainer)[instance(TestcontainersDatabaseInformation, JdbcDatabaseContainer)^] method which uses a custom database information object:
+
+[source,java,indent=0]
+----
+@Testcontainers
+class TestWithCustomContainer {
+    @Container
+    static JdbcDatabaseContainer<?> dbContainer = new PostgreSQLContainer<>(
+       DockerImageName.parse("custom-image").asCompatibleSubstituteFor("postgres"));
+
+
+    static final TestcontainersDatabaseInformation CUSTOM_DATABASE =
+       TestcontainersDatabaseInformation.of( ... custom setup ...);
+
+    @RegisterExtension
+    JdbiExtension extension = JdbiTestcontainersExtension.instance(CUSTOM_DATABASE, dbContainer);
+
+    // ... test code using the custom engine
+}
+----
 
 
 == Third-Party Integration
