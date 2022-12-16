@@ -15,7 +15,7 @@
 #
 SHELL = /bin/sh
 .SUFFIXES:
-.PHONY: help clean install install-nodocker install-fast docs tests tests-nodocker publish-docs deploy release
+.PHONY: help clean install install-nodocker install-fast docs tests tests-container tests-nodocker publish-docs deploy release
 
 # replace JDBI_MAVEN_OPTS with implicit MAVEN_OPTS, once 3.9.x or later has been released
 MAVEN = ./mvnw ${JDBI_MAVEN_OPTS}
@@ -42,6 +42,10 @@ tests: JDBI_MAVEN_OPTS += -Dbasepom.it.skip=false
 tests:
 	${MAVEN} surefire:test invoker:integration-test invoker:verify
 
+tests-container: JDBI_MAVEN_OPTS += -Dbasepom.test.skip=false
+tests-container:
+	${MAVEN} surefire:test -pl :jdbi3-testcontainers
+
 tests-nodocker: JDBI_MAVEN_OPTS += -Dno-docker
 tests-nodocker: tests
 
@@ -62,8 +66,9 @@ help:
 	@echo " * install-nodocker - same as 'install', but skip all tests that require a local docker installation"
 	@echo " * install-fast     - same as 'install', but skip test execution and code analysis (Checkstyle/PMD/Spotbugs)"
 	@echo " * docs             - build up-to-date documentation in docs/target/generated-docs/"
-	@echo " * tests            - run all unit and integration tests"
+	@echo " * tests            - run all unit and integration tests except really slow tests"
 	@echo " * tests-nodocker   - same as 'tests', but skip all tests that require a local docker installation"
+	@echo " * tests-container  - run the full multi-database container test suite"
 	@echo " *"
 	@echo " ***********************************************************************"
 	@echo " *"

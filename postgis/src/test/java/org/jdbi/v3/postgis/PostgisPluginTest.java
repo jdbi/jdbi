@@ -18,6 +18,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.postgres.PostgresPlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,23 +28,27 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Testcontainers
 final class PostgisPluginTest {
 
-    static {
-        if (System.getProperty("PG_FULL_IMAGE") == null) {
-            System.setProperty("PG_FULL_IMAGE", "postgis/postgis:13-3.2-alpine");
-        }
-    }
+    @Container
+    public static JdbcDatabaseContainer<?> pgContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgis/postgis:13-3.3-alpine")
+        .asCompatibleSubstituteFor("postgres"));
 
     @RegisterExtension
-    public JdbiExtension pgExtension = JdbiExtension.otjEmbeddedPostgres()
+    public JdbiExtension pgExtension = JdbiTestcontainersExtension.instance(pgContainer)
         .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new PostgisPlugin())
-        .withInitializer((ds, h) -> {
-            h.execute("CREATE TABLE record (id INTEGER PRIMARY KEY, point geometry(point), linestring geometry(linestring), polygon geometry(polygon))");
-        });
+        .withInitializer((ds, h) -> h.execute(
+            "CREATE TABLE record (id INTEGER PRIMARY KEY, point public.geometry(point), linestring public.geometry(linestring), polygon public.geometry(polygon))"));
+
 
     private Handle handle;
 
