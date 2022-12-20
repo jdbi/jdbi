@@ -29,7 +29,9 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
     public PojoTypes() {}
 
     private PojoTypes(PojoTypes other) {
-        factories.putAll(other.factories);
+        synchronized (other.factories) {
+            factories.putAll(other.factories);
+        }
     }
 
     @Override
@@ -38,13 +40,17 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
     }
 
     public PojoTypes register(Class<?> key, PojoPropertiesFactory factory) {
-        factories.put(key, factory);
+        synchronized (factories) {
+            factories.put(key, factory);
+        }
         return this;
     }
 
     public Optional<PojoProperties<?>> findFor(Type type) {
-        return Optional.ofNullable(factories.get(GenericTypes.getErasedType(type)))
+        synchronized (factories) {
+            return Optional.ofNullable(factories.get(GenericTypes.getErasedType(type)))
                 .map(ppf -> ppf.create(type, registry));
+        }
     }
 
     @Override
