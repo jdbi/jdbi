@@ -14,7 +14,7 @@
 package org.jdbi.v3.core.mapper.reflect.internal;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,15 +23,13 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericTypes;
 
 public class PojoTypes implements JdbiConfig<PojoTypes> {
-    private final Map<Class<?>, PojoPropertiesFactory> factories = new HashMap<>();
+    private final Map<Class<?>, PojoPropertiesFactory> factories = new ConcurrentHashMap<>();
     private ConfigRegistry registry;
 
     public PojoTypes() {}
 
     private PojoTypes(PojoTypes other) {
-        synchronized (other.factories) {
-            factories.putAll(other.factories);
-        }
+        factories.putAll(other.factories);
     }
 
     @Override
@@ -40,17 +38,13 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
     }
 
     public PojoTypes register(Class<?> key, PojoPropertiesFactory factory) {
-        synchronized (factories) {
-            factories.put(key, factory);
-        }
+        factories.put(key, factory);
         return this;
     }
 
     public Optional<PojoProperties<?>> findFor(Type type) {
-        synchronized (factories) {
-            return Optional.ofNullable(factories.get(GenericTypes.getErasedType(type)))
+        return Optional.ofNullable(factories.get(GenericTypes.getErasedType(type)))
                 .map(ppf -> ppf.create(type, registry));
-        }
     }
 
     @Override
