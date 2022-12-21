@@ -158,7 +158,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Sets the Caffeine cache used to avoid repeatedly parsing SQL statements.
+     * Sets the Caffeine cache used to avoid repeatedly parsing SQL statements.<br>
+     * The provided cache should be thread-safe.
      *
      * @param caffeineSpec the cache builder to use to cache parsed SQL
      * @return this

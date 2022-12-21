@@ -15,8 +15,6 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -34,7 +32,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     private static final Consumer<AccessibleObject> FORCE_MAKE_ACCESSIBLE = accessibleObject -> accessibleObject.setAccessible(true);
     private static final Consumer<AccessibleObject> DO_NOT_MAKE_ACCESSIBLE = accessibleObject -> {};
 
-    private List<ColumnNameMatcher> columnNameMatchers;
+    private final List<ColumnNameMatcher> columnNameMatchers;
     private boolean strictMatching;
     private UnaryOperator<String> caseChange;
     private Consumer<AccessibleObject> makeAccessible;
@@ -44,9 +42,9 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * snake_case matching for names.
      */
     public ReflectionMappers() {
-        columnNameMatchers = Arrays.asList(
-                new CaseInsensitiveColumnNameMatcher(),
-                new SnakeCaseColumnNameMatcher());
+        columnNameMatchers = new ArrayList<>();
+        columnNameMatchers.add(new CaseInsensitiveColumnNameMatcher());
+        columnNameMatchers.add(new SnakeCaseColumnNameMatcher());
         strictMatching = false;
         caseChange = CaseStrategy.LOCALE_LOWER;
         makeAccessible = FORCE_MAKE_ACCESSIBLE;
@@ -60,21 +58,25 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     }
 
     /**
-     * Returns the registered column name mappers.
+     * Returns the registered column name mappers in a new list
+     * that may be iterated and modified by the caller.
      *
      * @return the registered column name mappers.
      */
     public List<ColumnNameMatcher> getColumnNameMatchers() {
-        return Collections.unmodifiableList(columnNameMatchers);
+        return new ArrayList<>(columnNameMatchers);
     }
 
     /**
-     * Replace all column name matchers with the given list.
+     * Replaces all column name matchers with the given list.
      * @param columnNameMatchers the column name matchers to use
      * @return this
      */
     public ReflectionMappers setColumnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
-        this.columnNameMatchers = new ArrayList<>(columnNameMatchers);
+        synchronized (this.columnNameMatchers) {
+            this.columnNameMatchers.clear();
+            this.columnNameMatchers.addAll(columnNameMatchers);
+        }
         return this;
     }
 
