@@ -14,9 +14,9 @@
 package org.jdbi.v3.core.mapper.reflect.internal;
 
 import java.lang.reflect.Type;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
