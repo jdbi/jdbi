@@ -14,16 +14,16 @@
 package org.jdbi.v3.core.mapper.reflect.internal;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericTypes;
 
 public class PojoTypes implements JdbiConfig<PojoTypes> {
-    private final Map<Class<?>, PojoPropertiesFactory> factories = new HashMap<>();
+    private final Map<Class<?>, PojoPropertiesFactory> factories = new ConcurrentHashMap<>();
     private ConfigRegistry registry;
 
     public PojoTypes() {}
