@@ -1,7 +1,10 @@
 # Unreleased
 
+# 3.36.0
+
+  - fix concurrency issue when copying the config registry (#2236), thanks @npetryk
   - Support class-level (static) instance fields for JdbiExtension and its subclasses.
-  - Add jdbi3-testing support for testcontainer based databases
+  - Add jdbi3-testing support for testcontainer based databases, see http://jdbi.org/#_using_testcontainers for details
 
 # 3.35.0
 
