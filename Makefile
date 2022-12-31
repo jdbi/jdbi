@@ -34,13 +34,13 @@ install-nodocker: install
 install-fast: JDBI_MAVEN_OPTS += -Pfast
 install-fast: install
 
-docs: JDBI_MAVEN_OPTS += -Dbasepom.check.skip-all=true -Dbasepom.javadoc.skip=false -DskipTests=true
+docs: JDBI_MAVEN_OPTS += -Pfast -Dbasepom.javadoc.skip=false
 docs: install
 	${MAVEN} -pl :jdbi3-docs clean install
 
 tests: JDBI_MAVEN_OPTS += -Dbasepom.it.skip=false
 tests:
-	${MAVEN} surefire:test invoker:integration-test invoker:verify
+	${MAVEN} surefire:test invoker:install invoker:integration-test invoker:verify
 
 tests-container: JDBI_MAVEN_OPTS += -Dbasepom.test.skip=false
 tests-container:
@@ -49,7 +49,7 @@ tests-container:
 tests-nodocker: JDBI_MAVEN_OPTS += -Dno-docker
 tests-nodocker: tests
 
-publish-docs: JDBI_MAVEN_OPTS += -Dbasepom.check.skip-all=true -Dbasepom.javadoc.skip=false -DskipTests=true
+publish-docs: JDBI_MAVEN_OPTS += -Pfast -Dbasepom.javadoc.skip=false
 publish-docs: install
 	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
 

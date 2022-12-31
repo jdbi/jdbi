@@ -24,12 +24,12 @@ jobs:
 
     - name: build distribution
       env:
-        JDBI_MAVEN_OPTS: "-B -fn"
+        JDBI_MAVEN_OPTS: "-B -fae"
       run: |
         make install-fast
 
     - name: run container tests
       env:
-        JDBI_MAVEN_OPTS: "-B -fn"
+        JDBI_MAVEN_OPTS: "-B -fae"
       run: |
         make tests-container
