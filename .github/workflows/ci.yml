@@ -42,7 +42,7 @@ jobs:
     - name: build distribution
       env:
         JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
-        JDBI_MAVEN_OPTS: "-DskipTests -DskipITs -Dbasepom.check.skip-all=true -Dbasepom.check.skip-enforcer=false -B -fae"
+        JDBI_MAVEN_OPTS: "-Pfast -Dbasepom.check.skip-enforcer=false -B -fae"
       run: |
         ./mvnw --version
         echo $PATH
