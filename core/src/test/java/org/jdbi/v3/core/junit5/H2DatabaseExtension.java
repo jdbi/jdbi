@@ -121,6 +121,8 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
         }
         jdbi = Jdbi.create(uri);
 
+        installTestPlugins(jdbi);
+
         if (enableLeakchecker) {
             jdbi.getConfig(Handles.class).addListener(leakChecker);
             jdbi.getConfig(SqlStatements.class).addContextListener(leakChecker);

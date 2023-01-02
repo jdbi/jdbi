@@ -96,7 +96,7 @@ Already using Jdbi v2? See <<Upgrading from v2 to v3>>
 
 Jdbi is licensed under the commercial friendly link:https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0^] license.
 
-The core Jdbi module which offers programmatic access uses only link:https://slf4j.org/[slf4j^], link:https://github.com/ben-manes/caffeine[caffeine^] and link:https://github.com/leangen/geantyref[geantryref^] as hard dependencies.
+The core Jdbi module which offers programmatic access uses only link:https://slf4j.org/[slf4j^] and link:https://github.com/leangen/geantyref[geantryref^] as hard dependencies.
 
 All Jdbi modules are available through link:https://search.maven.org[Maven Central^]. Jdbi also offers a BOM (Bill of materials) module for easy dependency management.
 
@@ -4762,6 +4762,20 @@ public interface AccountDao extends CrudDao<Account, UUID> {
 <1> Method annotations are not inherited on override, so we must duplicate
     those we want to keep.
 
+== Statement caching
+
+Jdbi caches statement information in multiple places:
+
+- preparsed SQL where placeholders have been replaced.
+- rendered statement templates if the template engine supports it.
+
+Caching can dramatically speed up the execution of statements. By default, Jdbi uses a simple LRU in-memory cache with 1,000 entries. This cache is sufficient for most use cases.
+
+For applications than run a lot of different SQL operations, it is possible to use different cache implementations. Jdbi provides link:{jdbidocs}/core/cache/package-summary.html[a cache SPI^] for this.
+
+[TIP]
+If the underlying cache library exposes per-cache statistics, these can be accessed through the link:{jdbidocs}//core/statement/SqlStatements.html#cacheStats()[SqlStatements#cacheStats()^] and link:https://{jdbidocs}/core/statement/CachingSqlParser.html#cacheStats()[CachingSqlParser#cacheStats()] methods.
+
 
 == Testing
 
@@ -6453,7 +6467,7 @@ Jdbi jdbi = Jdbi.create("jdbc:sqlite:database")
 
 === StringTemplate 4
 
-This module allows you to plug in the StringTemplate 4 templating engine, in
+This module allows you to plug in the link:https://www.stringtemplate.org/[StringTemplate 4^] templating engine, in
 place of the standard Jdbi templating engine.
 
 To use module plugin, add a Maven dependency:
@@ -6466,8 +6480,7 @@ To use module plugin, add a Maven dependency:
 </dependency>
 ----
 
-To use StringTemplate format in SQL statements, set the template engine
-to `StringTemplateEngine`.
+To use StringTemplate format in SQL statements, set the template engine to link:{jdbidocs}/stringtemplate4/StringTemplateEngine.html[StringTemplateEngine^].
 
 Defined attributes are provided to the StringTemplate engine to render the SQL:
 
@@ -6487,12 +6500,15 @@ List<Account> accounts = handle
     .list();
 ----
 
-[WARNING]
 Since StringTemplate by default uses the `<` character to mark ST expressions,
-you might need to escape some SQL: `String datePredSql = "<if(datePredicate)> <dateColumn> \\< :dateFilter <endif>"`
+you might need to escape some SQL:
 
-Alternatively, SQL templates can be loaded from StringTemplate group files on
-the classpath:
+[source, java]
+----
+String datePredicateSql = "<if(datePredicate)> <dateColumn> \\< :dateFilter <endif>";
+----
+
+Alternatively, SQL templates can be loaded from StringTemplate group files on  the classpath:
 
 [source,stringtemplate]
 .com/foo/AccountDao.sql.stg
@@ -7472,10 +7488,10 @@ order of decorations is important, use the `@DecoratorOrder` annotation. If no o
 is declared, type decorators apply first, then method decorators, but the order is
 not further specified.
 
-For example, suppose a method were annotated both with `@Cached` and
-`@Transaction` (just go with it..). We would probably want the `@Cached`
-annotation to go first, so that transactions are not created unnecessarily when
-the cache already contains the entry.
+For example, if a method were annotated both with a custom `@Cached` and
+`@Transaction` annotation, then  `@DecoratorOrder` can be used to ensure that the `@Cached`
+annotation is evaluated first to avoid that transactions are not created unnecessarily when
+the result may already be cached.
 
 [source,java]
 ----
@@ -7561,7 +7577,7 @@ implementation to render templates into SQL. Template engines take a SQL
 template string and the `StatementContext` as input, and produce a parseable
 SQL string as output.
 
-Out of the box, Jdbi is configured to use `DefinedAttributeTemplateEngine`,
+Out of the box, Jdbi is configured to use link:{jdbidocs}/core/statement/DefinedAttributeTemplateEngine.html[DefinedAttributeTemplateEngine^],
 which replaces angle-bracked tokens like `<name>` in your SQL statements with
 the string value of the named attribute:
 
@@ -7596,9 +7612,12 @@ jdbi.setTemplateEngine(templateEngine);
 ----
 
 [TIP]
-Jdbi also provides `StringTemplateEngine`,
-which renders templates using the StringTemplate library. See
-<<StringTemplate 4>>.
+Jdbi also provides link:{jdbidocs}/stringtemplate4/StringTemplateEngine.html[StringTemplateEngine^],
+which renders templates using the link:https://www.stringtemplate.org/[StringTemplate library^]. See <<StringTemplate 4>>.
+
+Template engines interact with the SQL template caching. A template engine may implement the link:{jdbidocs}/core/statement/TemplateEngine.html#parse(java.lang.String,org.jdbi.v3.core.config.ConfigRegistry)[TemplateEngine#parse()^] methods to create an intermediary representation of a template that can be used to render a template faster. The output of this method will be cached. Depending on the implementation, defined attributes may be resolved at parse time and not at render time.
+
+The most commonly used template engines (link:{jdbidocs}/core/statement/DefinedAttributeTemplateEngine.html[DefinedAttributeTemplateEngine^] and link:{jdbidocs}/stringtemplate4/StringTemplateEngine.html[StringTemplateEngine^] do *not* support caching).
 
 
 === SqlParser

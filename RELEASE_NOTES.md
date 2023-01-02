@@ -1,6 +1,7 @@
 # Unreleased
 
   - upgrade to geantyref 1.3.14
+  - removes the core dependency on the caffeine library. This now uses a simple LRU cache for sql parser and sql statements.
 
 # 3.36.0
 

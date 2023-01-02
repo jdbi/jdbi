@@ -43,6 +43,16 @@ public interface DatabaseExtension<T extends DatabaseExtension<T>> {
         return withPlugin(ConfiguringPlugin.of(configClass, configurer));
     }
 
+    default void installTestPlugins(Jdbi jdbi) throws Exception {
+        // cache plugin tests
+        String cachePluginName = System.getProperty("jdbi.test.cache-plugin");
+        if (cachePluginName != null) {
+            Class<? extends JdbiPlugin> cachePluginClass = (Class<? extends JdbiPlugin>) Class.forName(cachePluginName);
+            JdbiPlugin cachePlugin = cachePluginClass.getConstructor().newInstance();
+            jdbi.installPlugin(cachePlugin);
+        }
+    }
+
     @FunctionalInterface
     interface DatabaseInitializer {
         void initialize(Handle handle);

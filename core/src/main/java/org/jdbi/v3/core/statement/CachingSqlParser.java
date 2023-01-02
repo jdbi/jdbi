@@ -13,21 +13,24 @@
  */
 package org.jdbi.v3.core.statement;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import org.jdbi.v3.core.cache.JdbiCache;
+import org.jdbi.v3.core.cache.JdbiCacheBuilder;
+import org.jdbi.v3.core.cache.internal.DefaultJdbiCacheBuilder;
 import org.jdbi.v3.meta.Beta;
 
-abstract class CachingSqlParser implements SqlParser {
-    private final LoadingCache<String, ParsedSql> parsedSqlCache;
+public abstract class CachingSqlParser implements SqlParser {
+
+    /** The default size of the parsed SQL cache. */
+    public static final int PARSED_SQL_CACHE_SIZE = 1_000;
+
+    private final JdbiCache<String, ParsedSql> parsedSqlCache;
 
     CachingSqlParser() {
-        this(Caffeine.newBuilder()
-                     .maximumSize(1_000));
+        this(DefaultJdbiCacheBuilder.builder().maxSize(PARSED_SQL_CACHE_SIZE));
     }
 
-    CachingSqlParser(Caffeine<Object, Object> cache) {
-        parsedSqlCache = cache.build(this::internalParse);
+    CachingSqlParser(JdbiCacheBuilder cacheBuilder) {
+        parsedSqlCache = cacheBuilder.buildWithLoader(this::internalParse);
     }
 
     @Override
@@ -39,9 +42,13 @@ abstract class CachingSqlParser implements SqlParser {
         }
     }
 
+    /**
+     * Returns cache statistics for the internal sql parser cache. This returns a cache specific object,
+     * so the user needs to know what caching library is in use.
+     */
     @Beta
-    public CacheStats cacheStats() {
-        return parsedSqlCache.stats();
+    public <T> T cacheStats() {
+        return parsedSqlCache.getStats();
     }
 
     abstract ParsedSql internalParse(String sql);
