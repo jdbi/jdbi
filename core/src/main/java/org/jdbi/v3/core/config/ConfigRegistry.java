@@ -23,6 +23,7 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.collector.JdbiCollectors;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
@@ -43,7 +44,7 @@ public final class ConfigRegistry {
      */
     public ConfigRegistry() {
         configFactories = new ConcurrentHashMap<>();
-        get(JdbiCaches.class);
+        get(ConfigCaches.class);
         get(SqlStatements.class);
         get(Arguments.class);
         get(RowMappers.class);

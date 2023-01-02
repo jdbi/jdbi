@@ -21,8 +21,8 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.enums.DatabaseValue;
 import org.jdbi.v3.core.enums.EnumByName;
 import org.jdbi.v3.core.enums.EnumByOrdinal;
@@ -66,8 +66,8 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
     }
 
     static class EnumByNameColumnMapper<E extends Enum<E>> implements ColumnMapper<E> {
-        private static final JdbiCache<Class<? extends Enum<?>>, JdbiCache<String, Enum<?>>> BY_NAME_CACHE =
-                JdbiCaches.declare(e -> JdbiCaches.declare(
+        private static final ConfigCache<Class<? extends Enum<?>>, ConfigCache<String, Enum<?>>> BY_NAME_CACHE =
+                ConfigCaches.declare(e -> ConfigCaches.declare(
                         name -> e.cast(getValueByName(e, name))));
         private final Class<E> enumClass;
 

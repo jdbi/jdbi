@@ -23,19 +23,19 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.internal.CollectionCollectors;
 
 /**
  * Utility class for type qualifiers supported by Jdbi core.
  */
 public class Qualifiers implements JdbiConfig<Qualifiers> {
-    private static final JdbiCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = JdbiCaches.declare(
+    private static final ConfigCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = ConfigCaches.declare(
             elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
             (Function<AnnotatedElement[], Set<Annotation>>) Qualifiers::getQualifiers);
-    private static final JdbiCache<AnnotatedElement, QualifiedType<?>> QUALIFIED_TYPE_CACHE = JdbiCaches.declare(
+    private static final ConfigCache<AnnotatedElement, QualifiedType<?>> QUALIFIED_TYPE_CACHE = ConfigCaches.declare(
             type -> QualifiedType.of((Type) type).withAnnotations(getQualifiers(type)));
     private ConfigRegistry registry;
 

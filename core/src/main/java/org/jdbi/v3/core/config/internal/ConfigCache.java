@@ -11,17 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.config;
+package org.jdbi.v3.core.config.internal;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.meta.Beta;
 
 /**
  * Simple cache interface.
- * @see JdbiCaches
+ * @see ConfigCaches
  */
 @Beta
-public interface JdbiCache<K, V> {
+public interface ConfigCache<K, V> {
     V get(K key, ConfigRegistry config);
 
     default V get(K key, Configurable<?> configurable) {
