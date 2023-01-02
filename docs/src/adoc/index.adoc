@@ -215,6 +215,11 @@ jdbi3-freemarker::
     Use link:https://freemarker.apache.org/[Apache Freemarker^] to render SQL statements.
 
 
+===== Cache support
+
+jdbi3-caffeine-cache::
+    Use the link:https://github.com/ben-manes/caffeine[Caffeine^] caching library for SQL template and parse caching.
+
 ===== Additional Language support
 
 Jdbi can be used from any language and technology running on the JVM that can use Java code (Kotlin, Scala, Clojure, JRuby etc).
@@ -4772,6 +4777,41 @@ Jdbi caches statement information in multiple places:
 Caching can dramatically speed up the execution of statements. By default, Jdbi uses a simple LRU in-memory cache with 1,000 entries. This cache is sufficient for most use cases.
 
 For applications than run a lot of different SQL operations, it is possible to use different cache implementations. Jdbi provides link:{jdbidocs}/core/cache/package-summary.html[a cache SPI^] for this.
+
+The following cache implementations are included:
+
+- `jdbi3-caffeine-cache` - using the link:https://github.com/ben-manes/caffeine[Caffeine^] cache library. This used to be the default cache up to version 3.36.0
+
+A cache module can provide a plugin to enable it. Only one plugin can be in use at a time (last one installed wins):
+
+[source,java]
+----
+    // use the caffeine cache library
+    jdbi.installPlugin(new CaffeineCachePlugin());
+----
+
+=== Using custom cache instances
+
+The default cache instances are installed when the Jdbi object is created. When using a cache plugin, the implementation is changed but only very few aspects of the cache can be modified.
+
+Full customization is possible by creating the cache outside Jdbi and then use a cache builder adapter:
+
+[source,java]
+----
+    // create a custom Caffeine cache
+    JdbiCacheBuilder customCacheBuilder = new CaffeineCacheBuilder(
+        Caffeine.newBuilder()
+            .maximumSize(100_000)
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .recordStats());
+
+    SqlStatements config = jdbi.getConfig(SqlStatements.class);
+    config.setTemplateCache(customCacheBuilder));
+    config.setSqlParser(new ColonPrefixSqlParser(customCacheBuilder));
+----
+
+When setting the caches explicitly, no cache plugin needs to be installed.
+
 
 [TIP]
 If the underlying cache library exposes per-cache statistics, these can be accessed through the link:{jdbidocs}//core/statement/SqlStatements.html#cacheStats()[SqlStatements#cacheStats()^] and link:https://{jdbidocs}/core/statement/CachingSqlParser.html#cacheStats()[CachingSqlParser#cacheStats()] methods.

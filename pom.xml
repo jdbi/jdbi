@@ -39,6 +39,8 @@
         <module>internal</module>
         <module>bom</module>
 
+        <module>cache</module>
+
         <!-- alphabetical list of the documented (public) modules that we ship -->
         <module>commons-text</module>
         <module>core</module>
