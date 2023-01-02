@@ -26,7 +26,7 @@ public class SnakeCaseColumnNameMatcher extends AbstractSeparatorCharColumnNameM
         super('_');
     }
 
-   @Override
+    @Override
     public String toString() {
         return getClass().getSimpleName();
     }

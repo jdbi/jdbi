@@ -137,23 +137,21 @@ public class TestVavrMapCollectorWithDB {
         Handle h = h2Extension.getSharedHandle();
         h.execute("create table \"user\" (id int, name varchar)");
         h.prepareBatch("insert into \"user\" (id, name) values (?, ?)")
-                .add(1, "alice")
-                .add(2, "bob")
-                .add(3, "alice")
-                .execute();
+            .add(1, "alice")
+            .add(2, "bob")
+            .add(3, "alice")
+            .execute();
 
         Multimap<String, User> usersByName = h.createQuery("select * from \"user\"")
-                .setMapKeyColumn("name")
-                .registerRowMapper(ConstructorMapper.factory(User.class))
-                .collectInto(new GenericType<Multimap<String, User>>() {});
+            .setMapKeyColumn("name")
+            .registerRowMapper(ConstructorMapper.factory(User.class))
+            .collectInto(new GenericType<Multimap<String, User>>() {});
 
         assertThat(usersByName.apply("alice")).hasSize(2).containsExactly(
-                new User(1, "alice"),
-                new User(3, "alice")
-       );
+            new User(1, "alice"),
+            new User(3, "alice"));
         assertThat(usersByName.apply("bob")).hasSize(1).containsExactly(
-                new User(2, "bob")
-       );
+            new User(2, "bob"));
     }
 
     public static class User {

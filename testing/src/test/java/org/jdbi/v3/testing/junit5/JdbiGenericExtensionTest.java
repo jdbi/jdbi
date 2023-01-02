@@ -37,10 +37,10 @@ public class JdbiGenericExtensionTest {
     @Test
     public void testApacheDerby() {
         List<String> userNames = derbyExtension.getJdbi().withHandle(h -> {
-                    try (Query query = h.createQuery("SELECT name FROM users ORDER BY id")) {
-                        return query.mapTo(String.class).list();
-                    }
-                });
+            try (Query query = h.createQuery("SELECT name FROM users ORDER BY id")) {
+                return query.mapTo(String.class).list();
+            }
+        });
 
         assertThat(userNames).hasSize(2);
         assertThat(userNames).containsExactly("Alice", "Bob");

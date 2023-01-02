@@ -73,10 +73,10 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
                                                                           E value,
                                                                           Function<E, A> transform,
                                                                           ConfigRegistry config) {
-            if (value == null) {
-                return Optional.of(new NullArgument(nullType));
-            }
+        if (value == null) {
+            return Optional.of(new NullArgument(nullType));
+        }
 
-            return config.get(Arguments.class).findFor(attributeType, transform.apply(value));
+        return config.get(Arguments.class).findFor(attributeType, transform.apply(value));
     }
 }

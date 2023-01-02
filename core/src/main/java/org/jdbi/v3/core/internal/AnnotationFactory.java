@@ -39,16 +39,16 @@ public class AnnotationFactory {
     }
     public static <T extends Annotation> T create(Class<T> annotationType, Map<String, ?> values) {
         Arrays.stream(annotationType.getDeclaredMethods())
-            .filter(m -> m.getDefaultValue() == null)
-            .filter(m -> !values.containsKey(m.getName()))
-            .findAny()
-            .ifPresent(m -> {
-                throw new IllegalArgumentException(String.format(
-                        "Cannot synthesize annotation @%s from %s.class because it has attribute '%s' without a default or specified value",
-                        annotationType.getSimpleName(),
-                        annotationType.getName(),
-                        m.getName()));
-        });
+                .filter(m -> m.getDefaultValue() == null)
+                .filter(m -> !values.containsKey(m.getName()))
+                .findAny()
+                .ifPresent(m -> {
+                    throw new IllegalArgumentException(String.format(
+                            "Cannot synthesize annotation @%s from %s.class because it has attribute '%s' without a default or specified value",
+                            annotationType.getSimpleName(),
+                            annotationType.getName(),
+                            m.getName()));
+                });
 
         Class<?>[] interfaces = {annotationType};
         InvocationHandler invocationHandler = getInvocationHandler(annotationType, values);
@@ -130,13 +130,12 @@ public class AnnotationFactory {
             Object valueA = invoker.apply(a);
             Object valueB = invoker.apply(b);
             if (valueA != null
-             && valueB != null
-             && valueA.getClass().isArray()
-             && valueA.getClass().equals(valueB.getClass())
-             && Boolean.FALSE.equals(Unchecked.supplier(() ->
-                    MethodHandles.publicLookup()
-                        .findStatic(Arrays.class, "equals", MethodType.methodType(boolean.class, valueA.getClass(), valueB.getClass()))
-                        .invoke(a, b)).get())) {
+                    && valueB != null
+                    && valueA.getClass().isArray()
+                    && valueA.getClass().equals(valueB.getClass())
+                    && Boolean.FALSE.equals(Unchecked.supplier(() -> MethodHandles.publicLookup()
+                            .findStatic(Arrays.class, "equals", MethodType.methodType(boolean.class, valueA.getClass(), valueB.getClass()))
+                            .invoke(a, b)).get())) {
                 return false;
             }
             if (!Objects.equals(valueA, valueB)) {

@@ -47,12 +47,12 @@ public class BitStringEnumSetColumnMapper<E extends Enum<E>> implements ColumnMa
             .filter(i -> {
                 char bit = bits.charAt(i);
                 switch (bit) {
-                case '1':
-                    return true;
-                case '0':
-                    return false;
-                default:
-                    throw new IllegalArgumentException("bit string \"" + bits + "\" contains non-bit character " + bit);
+                    case '1':
+                        return true;
+                    case '0':
+                        return false;
+                    default:
+                        throw new IllegalArgumentException("bit string \"" + bits + "\" contains non-bit character " + bit);
                 }
             })
             .mapToObj(i -> enumConstants[i])

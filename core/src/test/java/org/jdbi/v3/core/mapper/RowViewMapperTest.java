@@ -35,7 +35,7 @@ public class RowViewMapperTest {
     @Test
     public void testRowViewMap() {
         Handle h = h2Extension.getSharedHandle();
-        final Map<Integer, String> expected = new HashMap<>();
+        Map<Integer, String> expected = new HashMap<>();
         expected.put(1, "SFO");
         expected.put(2, "OAK");
         expected.put(3, "YYZ");

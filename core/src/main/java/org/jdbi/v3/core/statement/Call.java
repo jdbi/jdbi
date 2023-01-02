@@ -182,7 +182,7 @@ public class Call extends SqlStatement<Call> {
                     case Types.BIGINT:
                         return stmt.getLong(position);
                     case Types.TIMESTAMP:
-                        case Types.TIME:
+                    case Types.TIME:
                         return stmt.getTimestamp(position);
                     case Types.DATE:
                         return stmt.getDate(position);

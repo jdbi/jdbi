@@ -40,7 +40,7 @@ public class BeanMapperPropagateNullableTest {
         this.handle = h2Extension.getSharedHandle();
     }
 
-   @Test
+    @Test
     public void propagateNull() {
         assertThat(handle
             .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))

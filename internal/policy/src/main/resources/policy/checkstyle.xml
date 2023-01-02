@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 ~   Licensed under the Apache License, Version 2.0 (the "License");
 ~   you may not use this file except in compliance with the License.
@@ -12,15 +12,20 @@
 ~   See the License for the specific language governing permissions and
 ~   limitations under the License.
 -->
-<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+<!DOCTYPE module PUBLIC
+          "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+          "https://checkstyle.org/dtds/configuration_1_3.dtd">
 <module name="Checker">
     <property name="fileExtensions" value="java,properties,xml"/>
+    <property name="tabWidth" value="4"/>
 
-    <module name="SuppressWarningsFilter" />
+    <module name="FileTabCharacter"/>
 
     <module name="NewlineAtEndOfFile">
         <property name="lineSeparator" value="lf"/>
     </module>
+
+    <module name="SuppressWarningsFilter"/>
 
     <module name="RegexpMultiline">
         <property name="format" value="(?s:(\r\n|\r).*)"/>
@@ -37,12 +42,13 @@
 
     <module name="TreeWalker">
         <module name="ArrayTypeStyle"/>
+        <module name="AvoidNestedBlocks"/>
         <module name="AvoidStarImport"/>
         <module name="ConstantName"/>
         <!--<module name="DeclarationOrder"/>-->
         <module name="EmptyCatchBlock">
             <!-- this value is a message to readers that also serves to "disable" the check, we don't expect this literal text in a comment inside the catch... -->
-            <property name="commentFormat" value="please always name the exception correctly and write a comment if necessary"/>
+            <property name="commentFormat" value="Please always name the exception correctly and write a comment if necessary."/>
             <property name="exceptionVariableName" value="expected|ignored?"/>
         </module>
         <module name="EmptyForInitializerPad"/>
@@ -64,8 +70,13 @@
             <property name="sortStaticImportsAlphabetically" value="true"/>
         </module>
         <!--<module name="InnerAssignment"/>-->
+        <module name="Indentation"/>
         <module name="InnerTypeLast"/>
         <module name="InterfaceIsType"/>
+        <module name="JavadocStyle">
+            <property name="checkFirstSentence" value="false"/>
+            <property name="checkHtml" value="false"/>
+        </module>
         <module name="LeftCurly"/>
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
@@ -100,13 +111,15 @@
         <module name="StringLiteralEquality"/>
         <module name="SuperClone"/>
         <module name="SuperFinalize"/>
-        <module name="SuppressWarningsHolder" />
+        <module name="SuppressWarningsHolder"/>
         <module name="TodoComment"/>
         <module name="TypecastParenPad"/>
         <module name="TypeName"/>
         <module name="UnusedImports"/>
         <module name="UpperEll"/>
-        <module name="VariableDeclarationUsageDistance"/>
+        <module name="VariableDeclarationUsageDistance">
+            <property name="allowedDistance" value="10"/>
+        </module>
         <!--<module name="VisibilityModifier"/>-->
         <module name="WhitespaceAfter"/>
         <module name="WhitespaceAround">
@@ -118,26 +131,14 @@
         </module>
 
         <module name="RegexpSinglelineJava">
-            <property name="format" value="^ *\t"/>
-            <property name="message" value="Line contains leading tabs (instead of spaces)."/>
-            <property name="ignoreComments" value="true"/>
-        </module>
-        <module name="RegexpSinglelineJava">
-            <property name="format" value="@(org\.junit\.)?Test\s*\(\s*expected\s*="/>
-            <property name="message" value="Use AssertJ's assertThatThrownBy instead of @Test.expected"/>
-        </module>
-        <module name="RegexpSinglelineJava">
             <property name="format" value="\s+$"/>
             <property name="message" value="Line has trailing whitespace."/>
         </module>
         <module name="RegexpSinglelineJava">
-            <property name="format" value="^ {6}\S"/>
-            <property name="message" value="Indent of 6 spaces is suspicious. We indent with multiples of 4."/>
-        </module>
-        <module name="RegexpSinglelineJava">
-            <property name="format" value="\S {2,}\S"/>
-            <property name="message" value="Multiple consecutive space characters found."/>
+            <property name="format" value="\S\s{2,}\S"/>
+            <property name="message" value="Line has multiple consecutive whitespace characters."/>
             <property name="ignoreComments" value="true"/>
         </module>
+
     </module>
 </module>

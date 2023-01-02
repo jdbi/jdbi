@@ -37,8 +37,7 @@ public class JoinRowMapper implements RowMapper<JoinRow> {
     }
 
     @Override
-    public JoinRow map(ResultSet r, StatementContext ctx)
-    throws SQLException {
+    public JoinRow map(ResultSet r, StatementContext ctx) throws SQLException {
         return specialize(r, ctx).map(r, ctx);
     }
 
