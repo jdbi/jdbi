@@ -32,4 +32,9 @@
         <module>policy</module>
         <module>build</module>
     </modules>
+
+    <properties>
+        <basepom.deploy.skip>true</basepom.deploy.skip>
+        <basepom.install.skip>true</basepom.install.skip>
+    </properties>
 </project>
