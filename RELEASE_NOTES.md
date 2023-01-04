@@ -1,5 +1,7 @@
 # Unreleased
 
+  - upgrade to geantyref 1.3.14
+
 # 3.36.0
 
   - fix concurrency issue when copying the config registry (#2236), thanks @npetryk
