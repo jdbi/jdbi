@@ -25,8 +25,8 @@ import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -38,8 +38,8 @@ import org.jdbi.v3.core.statement.StatementContext;
  */
 @Deprecated
 public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
-    private static final JdbiCache<Class<?>, Map<String, Function<Object, TypedValue>>> FIELD_CACHE =
-            JdbiCaches.declare((config, beanClazz) ->
+    private static final ConfigCache<Class<?>, Map<String, Function<Object, TypedValue>>> FIELD_CACHE =
+            ConfigCaches.declare((config, beanClazz) ->
                 Stream.of(beanClazz.getFields())
                     .filter(JdbiAnnotations::isBound)
                     .collect(Collectors.toMap(Field::getName, f -> {

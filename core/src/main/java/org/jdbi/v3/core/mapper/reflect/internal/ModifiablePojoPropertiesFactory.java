@@ -21,16 +21,16 @@ import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 
 public interface ModifiablePojoPropertiesFactory extends PojoPropertiesFactory {
-    JdbiCache<ModifiableSpec<?, ?>, ModifiablePojoProperties<?, ?>> MODIFIABLE_CACHE =
-            JdbiCaches.declare(s -> s.type, ModifiablePojoProperties::new);
+    ConfigCache<ModifiableSpec<?, ?>, ModifiablePojoProperties<?, ?>> MODIFIABLE_CACHE =
+            ConfigCaches.declare(s -> s.type, ModifiablePojoProperties::new);
 
     static <T, M extends T> PojoPropertiesFactory modifiable(Class<T> defn, Class<M> impl, Supplier<M> constructor) {
         return (t, config) -> MODIFIABLE_CACHE.get(new ModifiableSpec<>(t, config, defn, impl, constructor), config);

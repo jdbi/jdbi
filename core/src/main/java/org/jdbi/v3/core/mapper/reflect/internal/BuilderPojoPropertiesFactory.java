@@ -15,12 +15,12 @@ package org.jdbi.v3.core.mapper.reflect.internal;
 
 import java.util.function.Supplier;
 
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 
 public interface BuilderPojoPropertiesFactory extends PojoPropertiesFactory {
-    JdbiCache<BuilderSpec<?, ?>, BuilderPojoProperties<?, ?>> BUILDER_CACHE =
-        JdbiCaches.declare(s -> s.type, BuilderPojoProperties::new);
+    ConfigCache<BuilderSpec<?, ?>, BuilderPojoProperties<?, ?>> BUILDER_CACHE =
+        ConfigCaches.declare(s -> s.type, BuilderPojoProperties::new);
 
     static <T, B> PojoPropertiesFactory builder(Class<T> defn, Supplier<B> builder) {
         return (t, config) -> BUILDER_CACHE.get(new BuilderSpec<>(t, config, defn, builder), config);

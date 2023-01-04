@@ -37,8 +37,8 @@ import java.util.stream.Stream;
 
 import io.leangen.geantyref.GenericTypeReflector;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
@@ -48,8 +48,8 @@ import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 public class BeanPropertiesFactory {
-    private static final JdbiCache<Type, PropertiesHolder<?>> PROPERTY_CACHE =
-            JdbiCaches.declare(PropertiesHolder::new);
+    private static final ConfigCache<Type, PropertiesHolder<?>> PROPERTY_CACHE =
+            ConfigCaches.declare(PropertiesHolder::new);
 
     private BeanPropertiesFactory() {}
 

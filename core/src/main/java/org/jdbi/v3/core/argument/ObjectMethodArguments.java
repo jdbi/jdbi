@@ -28,8 +28,8 @@ import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -41,8 +41,8 @@ import org.jdbi.v3.core.statement.StatementContext;
  */
 @Deprecated
 public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
-    private static final JdbiCache<Class<?>, Map<String, Function<Object, TypedValue>>> NULLARY_METHOD_CACHE =
-            JdbiCaches.declare(ObjectMethodArguments::load);
+    private static final ConfigCache<Class<?>, Map<String, Function<Object, TypedValue>>> NULLARY_METHOD_CACHE =
+            ConfigCaches.declare(ObjectMethodArguments::load);
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param object the object to bind functions on

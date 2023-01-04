@@ -35,8 +35,8 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
@@ -50,8 +50,8 @@ import org.jdbi.v3.sqlobject.internal.SqlObjectInitData.InContextInvoker;
  * Creates implementations for SqlObject interfaces.
  */
 public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Factory {
-    private final JdbiCache<Class<?>, SqlObjectInitData> sqlObjectCache =
-            JdbiCaches.declare(SqlObjectFactory::initDataFor);
+    private final ConfigCache<Class<?>, SqlObjectInitData> sqlObjectCache =
+            ConfigCaches.declare(SqlObjectFactory::initDataFor);
 
     SqlObjectFactory() {}
 

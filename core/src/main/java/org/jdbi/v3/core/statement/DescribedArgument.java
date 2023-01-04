@@ -18,12 +18,12 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.config.JdbiCache;
-import org.jdbi.v3.core.config.JdbiCaches;
+import org.jdbi.v3.core.config.internal.ConfigCache;
+import org.jdbi.v3.core.config.internal.ConfigCaches;
 
 class DescribedArgument implements Argument {
-    private static final JdbiCache<Class<?>, Boolean> ARG_CLASS_HAS_TOSTRING =
-            JdbiCaches.declare(type -> {
+    private static final ConfigCache<Class<?>, Boolean> ARG_CLASS_HAS_TOSTRING =
+            ConfigCaches.declare(type -> {
                 try {
                     return type.getMethod("toString")
                                .getDeclaringClass() != Object.class;
