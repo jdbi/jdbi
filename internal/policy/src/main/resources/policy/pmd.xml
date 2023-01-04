@@ -13,11 +13,12 @@
 ~   limitations under the License.
 -->
 <ruleset name="Custom Jdbi Ruleset"
-		 xmlns="http://pmd.sf.net/ruleset/1.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
-		 xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
-	<description>custom rules for jdbi</description>
+    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd"
+    xsi:noNamespaceSchemaLocation="https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>custom rules for jdbi</description>
 
     <exclude-pattern>.*/org/jdbi/v3/core/internal/lexer/.+Lexer.*</exclude-pattern>
 
@@ -31,7 +32,7 @@
         <exclude name="LooseCoupling"/>
         <exclude name="UnusedFormalParameter"/>
         <exclude name="UseVarargs"/>
-        <exclude name="LiteralsFirstInComparisons" />
+        <exclude name="LiteralsFirstInComparisons"/>
     </rule>
 
     <rule ref="category/java/codestyle.xml">
@@ -57,7 +58,7 @@
         <exclude name="ShortVariable"/>
         <exclude name="TooManyStaticImports"/>
         <exclude name="UnnecessaryConstructor"/>
-        <exclude name="UselessParentheses" />
+        <exclude name="UselessParentheses"/>
     </rule>
 
     <rule ref="category/java/design.xml">
@@ -90,15 +91,17 @@
         <exclude name="AvoidDuplicateLiterals"/>
         <exclude name="AvoidFieldNameMatchingMethodName"/>
         <exclude name="AvoidLiteralsInIfCondition"/>
-        <exclude name="BeanMembersShouldSerialize"/>
         <exclude name="CloseResource"/>
         <exclude name="ConstructorCallsOverridableMethod"/>
         <exclude name="DataflowAnomalyAnalysis"/>
         <exclude name="EmptyCatchBlock"/>
+        <exclude name="NonSerializableClass"/>
         <exclude name="NullAssignment"/>
         <exclude name="UseLocaleWithCaseConversions"/>
         <exclude name="UseProperClassLoader"/>
-        <exclude name="ReturnEmptyCollectionRatherThanNull" />
+        <exclude name="ReturnEmptyCollectionRatherThanNull"/>
+        <!-- exclude b/c TestingInitializers -->
+        <exclude name="TestClassWithoutTestCases"/>
     </rule>
     <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
         <properties>
