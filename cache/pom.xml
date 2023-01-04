@@ -30,6 +30,7 @@
 
     <modules>
         <module>caffeine-cache</module>
+        <module>noop-cache</module>
     </modules>
 
     <properties>
