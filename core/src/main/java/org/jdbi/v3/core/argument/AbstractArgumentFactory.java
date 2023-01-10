@@ -95,12 +95,16 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
         if (!isInstance.test(type, value)) {
             return Optional.empty();
         }
-        return innerBuild(value, config);
+        Optional<Argument> arg = innerBuild(value, config);
+        if (!arg.isPresent()) {
+            throw new UnableToCreateStatementException("Prepared argument " + value + " of type " + type + " failed to build");
+        }
+        return arg;
     }
 
     @SuppressWarnings("unchecked")
     private Optional<Argument> innerBuild(Object value, ConfigRegistry config) {
-        return Optional.of(value == null
+        return Optional.ofNullable(value == null
                 ? new NullArgument(sqlType)
                 : build((T) value, config));
     }
