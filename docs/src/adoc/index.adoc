@@ -6424,7 +6424,7 @@ Global defined attributes may be configured on the factory bean:
 
 === SQLite
 The *jdbi3-sqlite* plugin provides support for using the
-link:https://bitbucket.org/xerial/sqlite-jdbc/[SQLite JDBC Driver^]
+link:https://github.com/xerial/sqlite-jdbc[SQLite JDBC Driver^]
 with Jdbi.
 
 The plugin configures mapping for the Java *URL* type which is not
