@@ -80,8 +80,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return isInstance.test(type, null)
-                ? Optional.of(value -> innerBuild(value, config)
-                        .orElseThrow(() -> new UnableToCreateStatementException("Prepared argument " + value + " of type " + type + " failed to bind")))
+                ? Optional.of(value -> innerBuild(type, value, config))
                 : Optional.empty();
     }
 
@@ -92,25 +91,33 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
 
     @Override
     public final Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        if (!isInstance.test(type, value)) {
-            return Optional.empty();
-        }
-        return innerBuild(value, config);
+        return isInstance.test(type, value)
+                ? Optional.of(innerBuild(type, value, config))
+                : Optional.empty();
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<Argument> innerBuild(Object value, ConfigRegistry config) {
-        return Optional.of(value == null
-                ? new NullArgument(sqlType)
-                : build((T) value, config));
+    private Argument innerBuild(Type type, Object value, ConfigRegistry config) {
+        if (value == null) {
+            return new NullArgument(sqlType);
+        }
+
+        Argument argument = build((T) value, config);
+
+        if (argument == null) {
+            throw new UnableToCreateStatementException("Prepared argument " + value + " of type " + type + " failed to build");
+        }
+
+        return argument;
     }
 
     /**
-     * Produce an argument object for the given value.
+     * Produce an argument object for the given value. When the implementation class has accepted a given
+     * type, it must then produce an argument instance or throw an exception.
      *
      * @param value  the value to convert to an argument
      * @param config the config registry
-     * @return an {@link Argument} for the given {@code value}.
+     * @return An {@link Argument} for the given {@code value}. Must not be null!
      */
     protected abstract Argument build(T value, ConfigRegistry config);
 
