@@ -282,10 +282,10 @@ Jdbi components in use are declared in the `<dependencies>` section *without a v
 [source,xml,subs="specialchars"]
 ----
 <dependencies>
-  <dependency>
-    <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-core</artifactId>
-  </dependency>
+    <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-core</artifactId>
+    </dependency>
 </dependencies>
 ----
 
@@ -505,7 +505,7 @@ result has zero or multiple rows.
 
 [source,java]
 ----
-String name = handle.select("select name from users where id = ?", 3)
+String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
     .mapTo(String.class)
     .one();
 ----
@@ -527,7 +527,7 @@ zero rows.
 
 [source,java]
 ----
-String name = handle.select("select name from users where id = ?", 3)
+String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
     .mapTo(String.class)
     .first();
 ----
@@ -547,7 +547,7 @@ Multiple result rows can be returned in a list:
 [source,java]
 ----
 List<String> name = handle
-    .createQuery("select title from films where genre = :genre order by title")
+    .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
     .bind("genre", "Action")
     .mapTo(String.class)
     .list();
@@ -559,7 +559,7 @@ link:{jdkdocs}/java/util/stream/Collector.html[collector^]:
 [source,java]
 ----
 Set<String> name = handle
-    .createQuery("select title from films where genre = :genre order by title")
+    .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
     .bind("genre", "Action")
     .mapTo(String.class)
     .collect(Collectors.toSet());
@@ -570,7 +570,7 @@ You can also stream results:
 [source,java]
 ----
 handle.createQuery(
-    "select title from films where genre = :genre order by title")
+    "SELECT title FROM films WHERE genre = :genre ORDER BY title")
     .mapTo(String.class)
     .useStream(stream -> {
         // do stuff with stream
@@ -583,7 +583,7 @@ map to many other data types:
 [source,java]
 ----
 LocalDate releaseDate = handle
-    .createQuery("select release_date from films where name = :name")
+    .createQuery("SELECT release_date FROM films WHERE name = :name")
     .bind("name", "Star Wars: A New Hope")
     .mapTo(LocalDate.class)
     .one();
@@ -675,14 +675,14 @@ handling into your code. It is very common to forget to handle this situation
 and end up with logs that say nothing other than
 
 ----
-java.sql.BatchUpdateException: Batch entry 1 insert into something (id, name) values (0, '') was aborted. Call getNextException to see the cause.
+java.sql.BatchUpdateException: Batch entry 1 INSERT INTO something (id, name) VALUES (0, '') was aborted. Call getNextException to see the cause.
 ----
 
 Jdbi will attempt to rewrite such nextExceptions into "suppressed exceptions"
 (new in Java 8) so that your logs are more helpful:
 
 ----
-java.sql.BatchUpdateException: Batch entry 1 insert into something (id, name) values (0, 'Keith') was aborted. Call getNextException to see the cause.
+java.sql.BatchUpdateException: Batch entry 1 INSERT INTO something (id, name) VALUES (0, 'Keith') was aborted. Call getNextException to see the cause.
 Suppressed: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "something_pkey"
   Detail: Key (id)=(0) already exists.
 ----
@@ -806,7 +806,7 @@ UserDao userDao = jdbi.onDemand(UserDao.class);
 User user = userDao.getUser(id);
 
 public interface UserDao {
-    @SqlQuery("select * from users where id = :id")
+    @SqlQuery("SELECT * FROM users WHERE id = :id")
     @UseRowMapper(UserMapper.class)
     User getUser(@Bind("id") int id);
 }
@@ -819,7 +819,7 @@ public interface UserDao {
 User user = jdbi.withExtension(UserDao.class, dao -> dao.getUser(id));
 
 public interface UserDao {
-    @SqlQuery("select * from users where id = :id")
+    @SqlQuery("SELECT * FROM users WHERE id = :id")
     @UseRowMapper(UserMapper.class)
     User getUser(@Bind("id") int id);
 }
@@ -855,7 +855,7 @@ User user = jdbi.withHandle(handle -> { // <2>
 });
 
 public interface UserDao {
-    @SqlQuery("select * from users where id = :id")
+    @SqlQuery("SELECT * FROM users WHERE id = :id")
     @UseRowMapper(UserMapper.class)
     User getUser(@Bind("id") int id);
 }
@@ -1009,7 +1009,7 @@ Methods on the Jdbi object that take a callback (link:{jdbidocs}/core/Jdbi.html#
 
 [source,java]
 ----
-User user = jdbi.withHandle(handle -> handle.createQuery("select * from users where id = :id")
+User user = jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM users WHERE id = :id")
     .attachToHandleForCleanup() // <1>
     .bind("id", id)
     .mapTo(User.class)
@@ -1021,7 +1021,7 @@ User user = jdbi.withHandle(handle -> handle.createQuery("select * from users wh
 
 == Arguments
 
-Arguments are Jdbi's representation of JDBC statement parameters (the `?` in `select * from Foo where bar = ?`).
+Arguments are Jdbi's representation of JDBC statement parameters (the `?` in `SELECT * FROM Foo WHERE bar = ?`).
 
 To set a parameter `?` on a JDBC `PreparedStatement`, you would `ps.setString(1, "Baz")`.
 With Jdbi, when you bind the string `"Baz"`, it will search through all registered _ArgumentFactory_ instances
@@ -1097,7 +1097,7 @@ You can bind individual arguments:
 
 [source,java]
 ----
-handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
+handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
     .bind("id", 1)
     .bind("name", "Alice")
     .execute();
@@ -1111,7 +1111,7 @@ Map<String, Object> contact = new HashMap<>();
 contact.put("id", 2)
 contact.put("name", "Bob");
 
-handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
+handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
     .bindMap(contact)
     .execute();
 ----
@@ -1149,7 +1149,7 @@ Contact contact = new Contact();
 contact.setId(3);
 contact.setName("Cindy");
 
-handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
+handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
     .bindBean(contact)
     .execute();
 ----
@@ -1163,7 +1163,7 @@ Object contact = new Object() {
     public String name = "Cindy";
 };
 
-handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
+handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
     .bindFields(contact)
     .execute();
 ----
@@ -1182,7 +1182,7 @@ Object contact = new Object() {
     }
 };
 
-handle.createUpdate("insert into contacts (id, name) values (:theId, :theName)")
+handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:theId, :theName)")
     .bindMethods(contact)
     .execute();
 ----
@@ -1197,8 +1197,8 @@ Folder folder = new Folder(1, "Important Documents");
 Document document =
     new Document(100, "memo.txt", "Business business business. Numbers.");
 
-handle.createUpdate("insert into documents (id, folder_id, name, contents) " +
-                    "values (:d.id, :f.id, :d.name, :d.contents)")
+handle.createUpdate("INSERT INTO documents (id, folder_id, name, contents) " +
+                    "VALUES (:d.id, :f.id, :d.name, :d.contents)")
     .bindBean("f", folder)
     .bindMethods("f", folder)
     .bindFields("d", document)
@@ -1577,7 +1577,7 @@ query using a lambda expression:
 [source,java]
 ----
 List<Money> amounts = handle
-    .select("select amount from transactions where account_id = ?", accountId)
+    .select("SELECT amount FROM transactions WHERE account_id = ?", accountId)
     .map((rs, col, ctx) -> Money.parse(rs.getString(col))) // <1>
     .list();
 ----
@@ -1599,7 +1599,7 @@ public class MoneyMapper implements ColumnMapper<Money> {
 [source,java]
 ----
 List<Money> amounts = handle
-    .select("select amount from transactions where account_id = ?", accountId)
+    .select("SELECT amount FROM transactions WHERE account_id = ?", accountId)
     .map(new MoneyMapper())
     .list();
 ----
@@ -1619,7 +1619,7 @@ jdbi.registerColumnMapper(Money.class,
     (rs, col, ctx) -> Money.parse(rs.getString(col)));
 
 List<Money> amounts = jdbi.withHandle(handle ->
-    handle.select("select amount from transactions where account_id = ?", accountId)
+    handle.select("SELECT amount FROM transactions WHERE account_id = ?", accountId)
         .mapTo(Money.class)
         .list());
 ----
@@ -1792,7 +1792,7 @@ jdbi.registerColumnMapper(new OptionalColumnMapperFactory());
 
 try (Handle handle = jdbi.open()) {
     List<Optional<String>> middleNames = handle
-        .createQuery("select middle_name from contacts")
+        .createQuery("SELECT middle_name FROM contacts")
         .mapTo(new GenericType<Optional<String>>() {})
         .list();
 }
@@ -1919,10 +1919,10 @@ handle.registerRowMapper(ConstructorMapper.factory(Contact.class, "c"));
 handle.registerRowMapper(ConstructorMapper.factory(Phone.class, "p"));
 handle.registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class);
 
-List<JoinRow> contactPhones = handle.select("select " +
+List<JoinRow> contactPhones = handle.select("SELECT " +
     "c.id cid, c.name cname, " +
     "p.id pid, p.name pname, p.number pnumber " +
-    "from contacts c left join phones p on c.id = p.contact_id")
+    "FROM contacts c LEFT JOIN phones p ON c.id = p.contact_id")
     .mapTo(JoinRow.class)
     .list();
 ----
@@ -1973,7 +1973,7 @@ public class Address {
 handle.registerRowMapper(ConstructorMapper.factory(User.class));
 
 List<User> users = handle
-    .select("select id, name, street, city, state, zip from users")
+    .select("SELECT id, name, street, city, state, zip FROM users")
     .mapTo(User.class)
     .list();
 ----
@@ -1995,7 +1995,7 @@ public User(int id,
 handle.registerRowMapper(ConstructorMapper.factory(User.class));
 
 List<User> users = handle
-    .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
+    .select("SELECT id, name, addr_street, addr_city, addr_state, addr_zip FROM users")
     .mapTo(User.class)
     .list();
 ----
@@ -2124,7 +2124,7 @@ public class Address {
 handle.registerRowMapper(BeanMapper.factory(User.class));
 
 List<User> users = handle
-    .select("select id, name, street, city, state, zip from users")
+    .select("SELECT id, name, street, city, state, zip FROM users")
     .mapTo(User.class)
     .list();
 ----
@@ -2143,7 +2143,7 @@ public Address getAddress() { ... }
 handle.registerRowMapper(BeanMapper.factory(User.class));
 
 List<User> users = handle
-    .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
+    .select("SELECT id, name, addr_street, addr_city, addr_state, addr_zip FROM users")
     .mapTo(User.class)
     .list();
 ----
@@ -2174,7 +2174,7 @@ Register a field mapper for your mapped class, using the `factory()` method:
 handle.registerRowMapper(FieldMapper.factory(User.class));
 
 List<UserBean> users = handle
-    .createQuery("select id, name from user")
+    .createQuery("SELECT id, name FROM user")
     .mapTo(User.class)
     .list();
 ----
@@ -2189,10 +2189,10 @@ handle.registerRowMapper(FieldMapper.factory(Contact.class, "c"));
 handle.registerRowMapper(FieldMapper.factory(Phone.class, "p"));
 handle.registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class);
 List<JoinRow> contactPhones = handle.select(
-    "select " +
+    "SELECT " +
     "c.id cid, c.name cname, " +
     "p.id pid, p.name pname, p.number pnumber " +
-    "from contacts c left join phones p on c.id = p.contact_id")
+    "FROM contacts c LEFT JOIN phones p ON c.id = p.contact_id")
     .mapTo(JoinRow.class)
     .list();
 ----
@@ -2235,7 +2235,7 @@ public class Address {
 handle.registerRowMapper(FieldMapper.factory(User.class));
 
 List<User> users = handle
-    .select("select id, name, street, city, state, zip from users")
+    .select("SELECT id, name, street, city, state, zip FROM users")
     .mapTo(User.class)
     .list();
 ----
@@ -2259,7 +2259,7 @@ public class User {
 handle.registerRowMapper(FieldMapper.factory(User.class));
 
 List<User> users = handle
-    .select("select id, name, addr_street, addr_city, addr_state, addr_zip from users")
+    .select("SELECT id, name, addr_street, addr_city, addr_state, addr_zip FROM users")
     .mapTo(User.class)
     .list();
 ----
@@ -2588,8 +2588,8 @@ found rows into a *Map*:
 
 [source,java]
 ----
-h.execute("insert into something (id, name) values (1, 'Alice'), (2, 'Bob'), (3, 'Chuckles')");
-Map<Integer, Something> users = h.createQuery("select id, name from something")
+h.execute("INSERT INTO something (id, name) VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Chuckles')");
+Map<Integer, Something> users = h.createQuery("SELECT id, name FROM something")
     .mapTo(Something.class)
     .collect(Collector.of(HashMap::new, (accum, item) -> {
         accum.put(item.getId(), item);   // Each entry is added into an accumulator map
@@ -2660,9 +2660,9 @@ We've left out getters, setters, and access modifiers for brevity.
 Since we'll be reusing the same queries, we'll define them as constants now:
 
 ----
-static final String SELECT_ALL = "select contacts.id c_id, name c_name, "
+static final String SELECT_ALL = "SELECT contacts.id c_id, name c_name, "
     + "phones.id p_id, type p_type, phones.phone p_phone "
-    + "from contacts left join phones on contacts.id = phones.contact_id "
+    + "FROM contacts LEFT JOIN phones ON contacts.id = phones.contact_id "
     + "order by c_name, p_type ";
 
 static final String SELECT_ONE = SELECT_ALL + "where phones.id = :id";
@@ -2975,12 +2975,12 @@ Jdbi can bind/map Java arrays to/from SQL arrays:
 
 [source,java]
 ----
-handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
+handle.createUpdate("INSERT INTO groups (id, user_ids) VALUES (:id, :userIds)")
     .bind("id", 1)
     .bind("userIds", new int[] {10, 5, 70})
     .execute();
 
-int[] userIds = handle.createQuery("select user_ids from groups where id = :id")
+int[] userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id = :id")
     .bind("id", 1)
     .mapTo(int[].class)
     .one();
@@ -2991,12 +2991,12 @@ the element type if you're using the fluent API, since it's erased:
 
 [source,java]
 ----
-handle.createUpdate("insert into groups (id, user_ids) values (:id, :userIds)")
+handle.createUpdate("INSERT INTO groups (id, user_ids) VALUES (:id, :userIds)")
     .bind("id", 1)
     .bindArray("userIds", int.class, Arrays.asList(10, 5, 70))
     .execute();
 
-List<Integer> userIds = handle.createQuery("select user_ids from groups where id = :id")
+List<Integer> userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id = :id")
     .bind("id", 1)
     .mapTo(new GenericType<List<Integer>>() {})
     .one();
@@ -3007,7 +3007,7 @@ Use `@SingleValue` for mapping an array result with the SqlObject API:
 [source,java]
 ----
 public interface GroupsDao {
-    @SqlQuery("select user_ids from groups where id = ?")
+    @SqlQuery("SELECT user_ids FROM groups WHERE id = ?")
     @SingleValue
     List<Integer> getUserIds(int groupId);
 }
@@ -3066,7 +3066,7 @@ User user1 = new User(1, "bob");
 User user2 = new User(42, "alice");
 
 handle.registerArrayType(new UserArrayType());
-handle.createUpdate("insert into groups (id, user_ids) values (:id, :users)")
+handle.createUpdate("INSERT INTO groups (id, user_ids) VALUES (:id, :users)")
     .bind("id", 1)
     .bind("users", new User[] {user1, user2})
     .execute();
@@ -3096,7 +3096,7 @@ public class UserIdColumnMapper implements ColumnMapper<UserId> {
 [source,java]
 ----
 handle.registerColumnMapper(new UserIdColumnMapper());
-List<UserId> userIds = handle.createQuery("select user_ids from groups where id = :id")
+List<UserId> userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id = :id")
     .bind("id", 1)
     .mapTo(new GenericType<List<UserId>>() {})
     .one();
@@ -3121,12 +3121,12 @@ link:https://www.xkcd.com/327/[Query templating is a common attack vector!^] Alw
 
 [source,java]
 ----
-handle.createQuery("select * from <TABLE> where name = :n")
+handle.createQuery("SELECT * FROM <TABLE> WHERE name = :n")
 
-    // -> "select * from Person where name = :n"
+    // -> "SELECT * FROM Person WHERE name = :n"
     .define("TABLE", "Person")
 
-    // -> "select * from Person where name = 'MyName'"
+    // -> "SELECT * FROM Person WHERE name = 'MyName'"
     .bind("n", "MyName");
 ----
 
@@ -3142,7 +3142,7 @@ If the TemplateEngine outputs text matching the parameter format of the SqlParse
 ----
 String paramName = "arg";
 
-handle.createQuery("select * from Foo where bar = :<attr>")
+handle.createQuery("SELECT * FROM Foo WHERE bar = :<attr>")
     .define("attr", paramName)
     // ...
     .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
@@ -3150,8 +3150,8 @@ handle.createQuery("select * from Foo where bar = :<attr>")
 
 [source,java]
 ----
-handle.createQuery("select * from emotion where emoticon = <sticker>")
-    .define("sticker", ":-)") // -> "... where emoticon = :-)"
+handle.createQuery("SELECT * FROM emotion WHERE emoticon = <sticker>")
+    .define("sticker", ":-)") // -> "... WHERE emoticon = :-)"
     .mapToMap()
     // exception: no binding/argument named "-)" present
     .list();
@@ -3173,7 +3173,7 @@ class MyBean {
     Instant getModified();
 }
 
-handle.createUpdate("update mybeans set <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() where id=:id")
+handle.createUpdate("UPDATE mybeans SET <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() WHERE id=:id")
     .bindBean(mybean)
     .defineNamedBindings()
     .execute();
@@ -3375,7 +3375,7 @@ SQL statement result mapped into the method return type.
 
 [source,java]
 ----
-@SqlQuery("select id, name from users")
+@SqlQuery("SELECT id, name FROM users")
 void forEachUser(Consumer<User> consumer);
 ----
 
@@ -3388,8 +3388,8 @@ updates, deletes).
 [source,java]
 ----
 public interface UserDao {
-  @SqlUpdate("insert into users (id, name) values (?, ?)")
-  void insert(long id, String name);
+    @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)")
+    void insert(long id, String name);
 }
 ----
 
@@ -3432,7 +3432,7 @@ generated key from the SQL statement, instead of the update count.
 [source,java]
 ----
 public interface UserDao {
-    @SqlUpdate("insert into users (id, name) values (nextval('user_seq'), ?)")
+    @SqlUpdate("INSERT INTO users (id, name) VALUES (nextval('user_seq'), ?)")
     @GetGeneratedKeys("id")
     long insert(String name);
 }
@@ -3443,7 +3443,7 @@ Multiple columns may be generated and returned in this way:
 [source,java]
 ----
 public interface UserDao {
-    @SqlUpdate("insert into users (id, name, created_on) values (nextval('user_seq'), ?, now())")
+    @SqlUpdate("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
     @GetGeneratedKeys({"id", "created_on"})
     @RegisterBeanMapper(IdCreateTime.class)
     IdCreateTime insert(String name);
@@ -3465,7 +3465,7 @@ in the SQL statement.
 [source,java]
 ----
 public interface UserDao {
-    @SqlUpdate("insert into users (id, name) values (?, ?)")
+    @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)")
     void insert(long id, String name);
 }
 ----
@@ -3474,7 +3474,7 @@ You can use named arguments with the `@Bind` annotation:
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@Bind("id") long id, @Bind("name") String name);
 ----
 
@@ -3484,7 +3484,7 @@ to the parameter's name.
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(long id, String name);
 ----
 
@@ -3492,7 +3492,7 @@ Binding a list of values is done through the `@BindList` annotation. This will e
 
 [source,java]
 ----
-@SqlQuery("select name from users where id in (<userIds>)")
+@SqlQuery("SELECT name FROM users WHERE id in (<userIds>)")
 List<String> getFromIds(@BindList("userIds") List<Long> userIds)
 ----
 
@@ -3500,7 +3500,7 @@ You can bind from the entries of a `Map`:
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@BindMap Map<String, ?> map);
 ----
 
@@ -3508,7 +3508,7 @@ In SQL Object (but not in Core), you can qualify a bound map with a prefix:
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:user.id, :user.name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:user.id, :user.name)")
 void insert(@BindMap("user") Map<String, ?> map);
 ----
 
@@ -3516,7 +3516,7 @@ You can bind from the properties of a Java Bean:
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@BindBean User user);
 ----
 
@@ -3524,7 +3524,7 @@ You can bind from the public fields of an object:
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@BindFields User user);
 ----
 
@@ -3532,7 +3532,7 @@ Or you can bind from public, parameterless methods of an object:
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:functionThatReturnsTheId, :functionThatReturnsTheName)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:functionThatReturnsTheId, :functionThatReturnsTheName)")
 void insert(@BindMethods User user);
 ----
 
@@ -3541,7 +3541,7 @@ can have an optional prefix:
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:user.id, :user.name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:user.id, :user.name)")
 void insert(@BindBean("user") User user);
 //void insert(@BindFields("user") User user);
 //void insert(@BindMethods("user") User user);
@@ -3577,13 +3577,13 @@ method return type looks like a collection.
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select name from users")
+    @SqlQuery("SELECT name FROM users")
     List<String> listNames(); // <1>
 
-    @SqlQuery("select name from users where id = ?")
+    @SqlQuery("SELECT name FROM users WHERE id = ?")
     String getName(long id); // <2> <3>
 
-    @SqlQuery("select name from users where id = ?")
+    @SqlQuery("SELECT name FROM users WHERE id = ?")
     Optional<String> findName(long id); // <4>
 }
 ----
@@ -3612,13 +3612,13 @@ link:{jdkdocs}/java/util/stream/Stream.html[Stream^].
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select name from users")
+    @SqlQuery("SELECT name FROM users")
     ResultIterable<String> getNamesAsIterable();
 
-    @SqlQuery("select name from users")
+    @SqlQuery("SELECT name FROM users")
     ResultIterator<String> getNamesAsIterator();
 
-    @SqlQuery("select name from users")
+    @SqlQuery("SELECT name FROM users")
     Stream<String> getNamesAsStream();
 }
 ----
@@ -3653,7 +3653,7 @@ Use `@RegisterRowMapper` to register a concrete row mapper class:
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select * from users")
+    @SqlQuery("SELECT * FROM users")
     @RegisterRowMapper(UserMapper.class)
     List<User> list();
 }
@@ -3690,7 +3690,7 @@ Use `@RegisterRowMapperFactory` to register a `RowMapperFactory`.
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select * from users")
+    @SqlQuery("SELECT * FROM users")
     @RegisterRowMapperFactory(UserMapperFactory.class)
     List<User> list();
 }
@@ -3725,7 +3725,7 @@ Use `@RegisterColumnMapper` to register a column mapper:
 [source,java]
 ----
 public interface AccountDao {
-    @SqlQuery("select balance from accounts where id = ?")
+    @SqlQuery("SELECT balance FROM accounts WHERE id = ?")
     @RegisterColumnMapper(MoneyMapper.class)
     Money getBalance(long id);
 }
@@ -3762,7 +3762,7 @@ Use `@RegisterColumnMapperFactory` to register a column mapper factory:
 [source,java]
 ----
 public interface AccountDao {
-    @SqlQuery("select * from users")
+    @SqlQuery("SELECT * FROM users")
     @RegisterColumnMapperFactory(MoneyMapperFactory.class)
     List<User> list();
 }
@@ -3797,7 +3797,7 @@ Use `@RegisterBeanMapper` to register a <<BeanMapper>> for a bean class:
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select * from users")
+    @SqlQuery("SELECT * FROM users")
     @RegisterBeanMapper(User.class)
     List<User> list();
 }
@@ -3809,8 +3809,8 @@ that begin with the prefix:
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
-              "from users u left join roles r on u.role_id = r.id")
+    @SqlQuery("SELECT u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
+              "FROM users u LEFT JOIN roles r ON u.role_id = r.id")
     @RegisterBeanMapper(value = User.class, prefix = "u")
     @RegisterBeanMapper(value = Role.class, prefix = "r")
     Map<User,Role> getRolesPerUser();
@@ -3834,7 +3834,7 @@ that are instantiated with all properties through the constructor.
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select * from users")
+    @SqlQuery("SELECT * FROM users")
     @RegisterConstructorMapper(User.class)
     List<User> list();
 }
@@ -3846,8 +3846,8 @@ columns that begin with the prefix:
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
-              "from users u left join roles r on u.role_id = r.id")
+    @SqlQuery("SELECT u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
+              "FROM users u LEFT JOIN roles r ON u.role_id = r.id")
     @RegisterConstructorMapper(value = User.class, prefix = "u")
     @RegisterConstructorMapper(value = Role.class, prefix = "r")
     Map<User,Role> getRolesPerUser();
@@ -3871,7 +3871,7 @@ Use `@RegisterFieldMapper` to register a <<FieldMapper>> for a given class.
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select * from users")
+    @SqlQuery("SELECT * FROM users")
     @RegisterFieldMapper(User.class)
     List<User> list();
 }
@@ -3883,8 +3883,8 @@ that begin with the prefix:
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
-              "from users u left join roles r on u.role_id = r.id")
+    @SqlQuery("SELECT u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
+              "FROM users u LEFT JOIN roles r ON u.role_id = r.id")
     @RegisterFieldMapper(value = User.class, prefix = "u")
     @RegisterFieldMapper(value = Role.class, prefix = "r")
     Map<User,Role> getRolesPerUser();
@@ -3916,7 +3916,7 @@ For example, suppose we want to select a `varchar[]` column from a single row:
 [source,java]
 ----
 public interface UserDao {
-    @SqlQuery("select roles from users where id = ?")
+    @SqlQuery("SELECT roles FROM users WHERE id = ?")
     @SingleValue
     List<String> getUserRoles(long userId)
 }
@@ -4000,7 +4000,7 @@ type is treated as a single value instead of a collection:
 
 [source,java]
 ----
-@SqlQuery("select * from users where id = ?")
+@SqlQuery("SELECT * FROM users WHERE id = ?")
 @RegisterRowMapper(MapMapper.class)
 @SingleValue
 Map<String, Object> getById(long userId);
@@ -4013,7 +4013,7 @@ as long as a suitable ColumnMapper is registered and all columns are of this typ
 
 [source,java]
 ----
-@SqlQuery("select 1.0 as LOW, 2.0 as MEDIUM, 3.0 as HIGH")
+@SqlQuery("SELECT 1.0 AS LOW, 2.0 AS MEDIUM, 3.0 AS HIGH")
 @RegisterRowMapperFactory(GenericMapMapperFactory.class)
 @SingleValue
 Map<String, BigDecimal> getNumericLevels();
@@ -4039,22 +4039,22 @@ prefix folder columns with `f_` and document columns with `d_`.
 @RegisterBeanMapper(value = Folder.class, prefix = "f") // <1>
 @RegisterBeanMapper(value = Document.class, prefix = "d")
 public interface DocumentDao {
-    @SqlQuery("select " +
+    @SqlQuery("SELECT " +
         "f.id f_id, f.name f_name, " +
         "d.id d_id, d.name d_name, d.contents d_contents " +
-        "from folders f left join documents d " +
-        "on f.id = d.folder_id " +
-        "where f.id = :folderId" +
-        "order by d.name")
+        "FROM folders f LEFT JOIN documents d " +
+        "ON f.id = d.folder_id " +
+        "WHERE f.id = :folderId" +
+        "ORDER BY d.name")
     @UseRowReducer(FolderDocReducer.class) // <2>
     Optional<Folder> getFolder(int folderId); // <3>
 
-    @SqlQuery("select " +
+    @SqlQuery("SELECT " +
         "f.id f_id, f.name f_name, " +
         "d.id d_id, d.name d_name, d.contents d_contents " +
-        "from folders f left join documents d " +
-        "on f.id = d.folder_id " +
-        "order by f.name, d.name")
+        "FROM folders f LEFT JOIN documents d " +
+        "ON f.id = d.folder_id " +
+        "ORDER BY f.name, d.name")
     @UseRowReducer(FolderDocReducer.class) // <2>
     List<Folder> listFolders(); // <3>
 
@@ -4095,7 +4095,7 @@ analogous to <<Prepared Batches,PreparedBatch>> in Core.
 [source,java]
 ----
 public interface ContactDao {
-    @SqlBatch("insert into contacts (id, name, email) values (?, ?, ?)")
+    @SqlBatch("INSERT INTO contacts (id, name, email) VALUES (?, ?, ?)")
     void bulkInsert(List<Integer> ids,
                     Iterator<String> names,
                     String... emails);
@@ -4123,9 +4123,9 @@ would execute:
 
 [source,sql]
 ----
-insert into contacts (id, name, email) values (1, 'foo', 'a@example.com');
-insert into contacts (id, name, email) values (2, 'bar', 'b@example.com');
-insert into contacts (id, name, email) values (3, 'baz', 'c@fake.com');
+INSERT INTO contacts (id, name, email) VALUES (1, 'foo', 'a@example.com');
+INSERT INTO contacts (id, name, email) VALUES (2, 'bar', 'b@example.com');
+INSERT INTO contacts (id, name, email) VALUES (3, 'baz', 'c@fake.com');
 ----
 
 Constant values may also be used as parameters to a SQL batch. In this case,
@@ -4134,8 +4134,8 @@ the same value is bound to that parameter for every SQL statement in the batch.
 [source,java]
 ----
 public interface UserDao {
-    @SqlBatch("insert into users (tenant_id, id, name) " +
-              "values (:tenantId, :user.id, :user.name)")
+    @SqlBatch("INSERT INTO users (tenant_id, id, name) " +
+              "VALUES (:tenantId, :user.id, :user.name)")
     void bulkInsert(@Bind("tenantId") long tenantId, // <1>
         @BindBean("user") User... users);
 }
@@ -4167,7 +4167,7 @@ instead of the update count. See
 [source,java]
 ----
 public interface UserDao {
-    @SqlBatch("insert into users (id, name) values (nextval('user_seq'), ?)")
+    @SqlBatch("INSERT INTO users (id, name) VALUES (nextval('user_seq'), ?)")
     @GetGeneratedKeys("id")
     long[] bulkInsert(List<String> names); // <1>
 }
@@ -4178,7 +4178,7 @@ Multiple columns may be generated and returned in this way:
 [source,java]
 ----
 public interface UserDao {
-    @SqlBatch("insert into users (id, name, created_on) values (nextval('user_seq'), ?, now())")
+    @SqlBatch("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
     @GetGeneratedKeys({"id", "created_on"})
     @RegisterBeanMapper(IdCreateTime.class)
     List<IdCreateTime> bulkInsert(String... names);
@@ -4197,7 +4197,7 @@ statement in the batch (typically as a SQL Array parameter).
 [source,java]
 ----
 public interface UserDao {
-    @SqlBatch("insert into users (id, name, roles) values (?, ?, ?)")
+    @SqlBatch("INSERT INTO users (id, name, roles) VALUES (?, ?, ?)")
     void bulkInsert(List<Long> ids,
                     List<String> names,
                     @SingleValue List<String> roles);
@@ -4326,7 +4326,7 @@ as part of the transaction. Jdbi won't open a new handle for a call to the child
 [source,java]
 ----
 public interface Bar {
-    @SqlUpdate("insert into bar (name) values (:name)")
+    @SqlUpdate("INSERT INTO bar (name) VALUES (:name)")
     @GetGeneratedKeys
     int insert(@Bind("name") String name);
 }
@@ -4336,7 +4336,7 @@ public interface Foo {
     @CreateSqlObject
     Bar createBar();
 
-    @SqlUpdate("insert into foo (bar_id, name) values (:bar_id, :name)")
+    @SqlUpdate("INSERT INTO foo (bar_id, name) VALUES (:bar_id, :name)")
     void insert(@Bind("bar_id") int barId, @Bind("name") String name);
 
     @Transaction
@@ -4356,7 +4356,7 @@ of which the value is the current time, under the binding `now`:
 [source,java]
 ----
 public interface Bar {
-    @SqlUpdate("insert into times(val) values(:now)")
+    @SqlUpdate("INSERT INTO times(val) VALUES(:now)")
     @Timestamped
     int insert();
 }
@@ -4500,10 +4500,10 @@ Default methods can also be used to group multiple SQL operations into a single 
 [source,java]
 ----
 public interface ContactPhoneDao {
-    @SqlUpdate("insert into contacts (id, name) values (nextval('contact_id'), :name)")
+    @SqlUpdate("INSERT INTO contacts (id, name) VALUES (nextval('contact_id'), :name)")
     long insertContact(@BindBean Contact contact);
 
-    @SqlBatch("insert into phones (contact_id, type, phone) values (:contactId, :type, :phone)")
+    @SqlBatch("INSERT INTO phones (contact_id, type, phone) VALUES (:contactId, :type, :phone)")
     void insertPhone(long contactId, @BindBean Iterable<Phone> phones);
 
     default long insertFullContact(Contact contact) {
@@ -5000,8 +5000,8 @@ To use this plugin, add a Maven dependency:
 [source,xml,subs="specialchars"]
 ----
 <dependency>
-  <groupId>org.jdbi</groupId>
-  <artifactId>jdbi3-guava</artifactId>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-guava</artifactId>
 </dependency>
 ----
 
@@ -5148,11 +5148,11 @@ class MyJson {}
 
 // use @Json qualifier:
 interface MyJsonDao {
-    @SqlUpdate("insert into myjsons (json) values(:value)")
+    @SqlUpdate("INSERT INTO myjsons (json) VALUES(:value)")
     // on parameters
     int insert(@Json MyJson value);
 
-    @SqlQuery("select value from myjsons")
+    @SqlQuery("SELECT value FROM myjsons")
     // on result types
     @Json
     List<MyJson> select();
@@ -5172,11 +5172,11 @@ With the Fluent API, you provide a `QualifiedType<T>` any place you'd normally p
 ----
 QualifiedType<MyJson> qualifiedType = QualifiedType.of(MyJson.class).with(Json.class);
 
-h.createUpdate("insert into myjsons(json) values(:json)")
+h.createUpdate("INSERT INTO myjsons(json) VALUES(:json)")
     .bindByType("json", new MyJson(), qualifiedType)
     .execute();
 
-MyJson result = h.createQuery("select json from myjsons")
+MyJson result = h.createQuery("SELECT json FROM myjsons")
     .mapTo(qualifiedType)
     .one();
 ----
@@ -6015,7 +6015,7 @@ Allowing code like:
 
 [source,kotlin]
 ----
-val qry = handle.createQuery("select id, name from something where id = :id")
+val qry = handle.createQuery("SELECT id, name FROM something WHERE id = :id")
 val things = qry.bind("id", brian.id).mapTo<Thing>.list()
 ----
 
@@ -6191,7 +6191,7 @@ and vice versa argument factory:
 [source,java]
 ----
 Map<String, String> accountAttributes = handle
-    .select("select attributes from account where id = ?", userId)
+    .select("SELECT attributes FROM account WHERE id = ?", userId)
     .mapTo(new GenericType<Map<String, String>>() {})
     .one();
 ----
@@ -6203,7 +6203,7 @@ With `@HStore` qualified type:
 QualifiedType<> HSTORE_MAP = QualifiedType.of(new GenericType<Map<String, String>>() {})
     .with(HStore.class);
 
-Map<String, String> caps = handle.createUpdate("update account set attributes = :hstore")
+Map<String, String> caps = handle.createUpdate("UPDATE account SET attributes = :hstore")
     .bindByType("hstore", mapOfStrings, HSTORE_MAP)
     .execute();
 ----
@@ -6215,7 +6215,7 @@ type is treated as a single value instead of a collection:
 [source,java]
 ----
 public interface AccountDao {
-    @SqlQuery("select attributes from account where id = ?")
+    @SqlQuery("SELECT attributes FROM account WHERE id = ?")
     @SingleValue
     Map<String, String> getAccountAttributes(long accountId);
 }
@@ -6242,7 +6242,7 @@ request generated keys without naming any columns.
 [source,java]
 ----
 public interface UserDao {
-    @SqlUpdate("insert into users (id, name, created_on) values (nextval('user_seq'), ?, now())")
+    @SqlUpdate("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
     @GetGeneratedKeys
     @RegisterBeanMapper(User.class)
     User insert(String name);
@@ -6255,7 +6255,7 @@ several rows), your method can return all the modified rows in a collection:
 [source,java]
 ----
 public interface UserDao {
-    @SqlUpdate("update users set active = false where id = any(?)")
+    @SqlUpdate("UPDATE users SET active = false WHERE id = any(?)")
     @GetGeneratedKeys
     @RegisterBeanMapper(User.class)
     List<User> deactivateUsers(long... userIds);
@@ -6285,13 +6285,13 @@ public void blobCrud(InputStream myStream) throws IOException {
 
 public interface Lobject {
     // CREATE TABLE lob (id int, lob oid
-    @SqlUpdate("insert into lob (id, lob) values (:id, :blob)")
+    @SqlUpdate("INSERT INTO lob (id, lob) VALUES (:id, :blob)")
     void insert(int id, InputStream blob);
 
-    @SqlQuery("select lob from lob where id = :id")
+    @SqlQuery("SELECT lob FROM lob WHERE id = :id")
     InputStream readBlob(int id);
 
-    @SqlUpdate("delete from lob where id = :id returning lo_unlink(lob)")
+    @SqlUpdate("DELETE FROM lob WHERE id = :id RETURNING lo_unlink(lob)")
     void deleteLob(int id);
 }
 ----
@@ -6474,9 +6474,9 @@ Defined attributes are provided to the StringTemplate engine to render the SQL:
 [source,java]
 ----
 String sortColumn = "name";
-String sql = "select id, name " +
-             "from account " +
-             "order by <if(sort)> <sortBy>, <endif> id";
+String sql = "SELECT id, name " +
+             "FROM account " +
+             "ORDER BY <if(sort)> <sortBy>, <endif> id";
 
 List<Account> accounts = handle
     .createQuery(sql)
@@ -6500,9 +6500,9 @@ the classpath:
 group AccountDao;
 
 selectAll(sort,sortBy) ::= <<
-  select id, name
-  from account
-  order by <if(sort)> <sortBy>, <endif> id
+  SELECT id, name
+  FROM account
+  ORDER BY <if(sort)> <sortBy>, <endif> id
 >>
 ----
 
@@ -6524,12 +6524,12 @@ statement locator, similar to first example above.
 package com.foo;
 
 public interface AccountDao {
-  @SqlQuery("select id, name " +
-            "from account " +
-            "order by <if(sort)> <sortBy>, <endif> id")
-  @UseStringTemplateEngine
-  List<Account> selectAll(@Define boolean sort,
-                          @Define String sortBy);
+    @SqlQuery("SELECT id, name " +
+              "FROM account " +
+              "ORDER BY <if(sort)> <sortBy>, <endif> id")
+    @UseStringTemplateEngine
+    List<Account> selectAll(@Define boolean sort,
+                            @Define String sortBy);
 }
 ----
 
@@ -6614,7 +6614,7 @@ Here are some usage examples of the features listed above:
 
 [source,java]
 ----
-String query = "select * from users where :name is null or name = :name";
+String query = "SELECT * FROM users WHERE :name is null or name = :name";
 Option<String> param = Option.of("eric");
 
 // will fetch first user with given name or first user with any name (Option.none)
@@ -6632,7 +6632,7 @@ be 'present' otherwise a `null` value is used (e.g. for `Either.Left` or
 
 [source,java]
 ----
-handle.createQuery("select name from users")
+handle.createQuery("SELECT name FROM users")
       .collectInto(new GenericType<Seq<String>>() {});
 ----
 
@@ -6642,7 +6642,7 @@ Therefore, the following would work and can make sense if the column is nullable
 
 [source,java]
 ----
-handle.createQuery("select middle_name from users") // nulls incoming!
+handle.createQuery("SELECT middle_name FROM users") // nulls incoming!
       .collectInto(new GenericType<Seq<Option<String>>>() {});
 ----
 
@@ -6653,7 +6653,7 @@ by their name, which is not necessarily unique.
 [source,java]
 ----
 Multimap<String, User> usersByName = handle
-    .createQuery("select * from users")
+    .createQuery("SELECT * FROM users")
     .setMapKeyColumn("name")
     .collectInto(new GenericType<Multimap<String, User>>() {});
 ----
@@ -6664,7 +6664,7 @@ Last but not least we can now project simple queries to Vavr tuples like that:
 ----
 // given a 'tuples' table with t1 int, t2 varchar, t3 varchar, ...
 List<Tuple3<Integer, String, String>> tupleProjection = handle
-    .createQuery("select t1, t2, t3 from tuples")
+    .createQuery("SELECT t1, t2, t3 FROM tuples")
     .mapTo(new GenericType<Tuple3<Integer, String, String>>() {})
     .list();
 ----
@@ -6676,8 +6676,8 @@ registered.
 ----
 // given that there are row mappers registered for both complex types
 Tuple2<City, Address> tupleProjection = handle
-    .createQuery("select cityname, zipcode, street, housenumber from " +
-                 "addresses where user_id = 1")
+    .createQuery("SELECT cityname, zipcode, street, housenumber FROM " +
+                 "addresses WHERE user_id = 1")
     .mapTo(new GenericType<Tuple2<City, Address>>() {})
     .one();
 ----
@@ -6691,8 +6691,8 @@ you have to - read below!)
 handle.configure(TupleMappers.class, c -> c.setColumn(2, "street").setColumn(3, "housenumber"));
 
 Tuple3<City, String, Integer> result = handle
-    .createQuery("select cityname, zipcode, street, housenumber from " +
-        "addresses where user_id = 1")
+    .createQuery("SELECT cityname, zipcode, street, housenumber " +
+                 "FROM addresses WHERE user_id = 1")
     .mapTo(new GenericType<Tuple3<City, String, Integer>>() {})
     .one();
 ----
@@ -6748,7 +6748,7 @@ Incorrect usage:
 
 [source,java]
 ----
-handle.createQuery("select name from things where name like '%:search%'")
+handle.createQuery("SELECT name FROM things WHERE name like '%:search%'")
     .bind("search", "foo")
     .mapTo(String.class)
     .list()
@@ -6764,7 +6764,7 @@ The solution is to use SQL string concatenation:
 
 [source,java]
 ----
-handle.createQuery("select name from things where name like '%' || :search || '%'")
+handle.createQuery("SELECT name FROM things WHERE name like '%' || :search || '%'")
     .bind("search", "foo")
     .mapTo(String.class)
     .list()
@@ -6822,7 +6822,7 @@ e.g.:
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@Bind("id") long id, @Bind("name") String name); // <1>
 ----
 <1> Such verbose, very boilerplate. Wow.
@@ -6832,7 +6832,7 @@ these annotations is removed -- Jdbi automatically uses the method parameter nam
 
 [source,java]
 ----
-@SqlUpdate("insert into users (id, name) values (:id, :name)")
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(long id, String name);
 ----
 
@@ -6895,7 +6895,7 @@ This type reference can be passed to any Jdbi method that accepts a
 [source,java]
 ----
 List<Optional<String>> middleNames = handle
-    .select("select middle_name from contacts")
+    .select("SELECT middle_name FROM contacts")
     .mapTo(new GenericType<Optional<String>>() {})
     .list();
 ----
@@ -7239,12 +7239,12 @@ Your statement customizing annotation is now ready to use on any SQL object:
 [source,java]
 ----
 public interface Dao {
-  @SqlQuery("select * from contacts")
-  @MaxRows(100)
-  List<Contact> list();
+    @SqlQuery("SELECT * FROM contacts")
+    @MaxRows(100)
+    List<Contact> list();
 
-  @SqlQuery("select * from contacts")
-  List<Contact> list(@MaxRows int maxRows);
+    @SqlQuery("SELECT * FROM contacts")
+    List<Contact> list(@MaxRows int maxRows);
 }
 ----
 
@@ -7310,32 +7310,32 @@ the annotation and apply the configuration:
 [source,java]
 ----
 public class RegisterColumnMapperImpl implements Configurer {
-  @Override
-  public void configureForMethod(ConfigRegistry registry,
+    @Override
+    public void configureForMethod(ConfigRegistry registry,
+                                   Annotation annotation,
+                                   Class<?> sqlObjectType,
+                                   Method method) {
+        configure(registry, (RegisterColumnMapper) annotation);
+    }
+
+    @Override
+    public void configureForType(ConfigRegistry registry,
                                  Annotation annotation,
-                                 Class<?> sqlObjectType,
-                                 Method method) {
-    configure(registry, (RegisterColumnMapper) annotation);
-  }
-
-  @Override
-  public void configureForType(ConfigRegistry registry,
-                               Annotation annotation,
-                               Class<?> sqlObjectType) {
-    configure(registry, (RegisterColumnMapper) annotation);
-  }
-
-  private void configure(ConfigRegistry registry,
-                         RegisterColumnMapper registerColumnMapper) { // <1>
-    try {
-      Class<? extends ColumnMapper> mapperType = registerColumnMapper.value();
-      ColumnMapper mapper = mapperType.getConstructor().newInstance();
-      registry.get(ColumnMappers.class).register(mapper);
+                                 Class<?> sqlObjectType) {
+        configure(registry, (RegisterColumnMapper) annotation);
     }
-    catch (NoSuchMethodException e) {
-      throw new RuntimeException("Cannot construct " + mapperType, e);
+
+    private void configure(ConfigRegistry registry,
+                           RegisterColumnMapper registerColumnMapper) { // <1>
+        try {
+            Class<? extends ColumnMapper> mapperType = registerColumnMapper.value();
+            ColumnMapper mapper = mapperType.getConstructor().newInstance();
+            registry.get(ColumnMappers.class).register(mapper);
+        }
+        catch (NoSuchMethodException e) {
+            throw new RuntimeException("Cannot construct " + mapperType, e);
+        }
     }
-  }
 }
 ----
 <1> In this example, we're applying the same configuration, whether the
@@ -7369,9 +7369,9 @@ Your configuration annotation is now ready to use in any SQL object:
 [source,java]
 ----
 public interface AccountDao {
-  @SqlQuery("select balance from accounts where id = ?")
-  @RegisterColumnMapper(MoneyMapper.class)
-  public Money getBalance(long accountId);
+    @SqlQuery("SELECT balance FROM accounts WHERE id = ?")
+    @RegisterColumnMapper(MoneyMapper.class)
+    public Money getBalance(long accountId);
 }
 ----
 
@@ -7458,7 +7458,7 @@ Your decorating annotation is now ready to use in any SQL object:
 [source,java]
 ----
 public interface ContactDao {
-    @SqlBatch("insert into contacts (id, name) values (:id, :name)")
+    @SqlBatch("INSERT INTO contacts (id, name) VALUES (:id, :name)")
     @Transaction
     void batchInsert(@BindBean Contact... contacts);
 }
@@ -7480,11 +7480,11 @@ the cache already contains the entry.
 [source,java]
 ----
 public interface ContactDao {
-  @SqlQuery("select * from contacts where id = ?")
-  @Cached
-  @Transaction
-  @DecoratorOrder(Cached.class, Transaction.class)
-  Contact getById(long id);
+    @SqlQuery("SELECT * FROM contacts WHERE id = ?")
+    @Cached
+    @Transaction
+    @DecoratorOrder(Cached.class, Transaction.class)
+    Contact getById(long id);
 }
 ----
 
@@ -7549,8 +7549,8 @@ TODO:
 * SqlStatement.bindList / @BindList
 * SqlStatement.bindBeanList / @BindBeanList
 * usage examples:
-** `insert into <table> (<columns>) values (<values>)`
-** `select <columns> from <table> where <conditions> order by <order>`
+** `INSERT INTO <table> (<columns>) VALUES (<values>)`
+** `SELECT <columns> FROM <table> WHERE <conditions> ORDER BY <order>`
 ////
 
 
@@ -7570,11 +7570,11 @@ the string value of the named attribute:
 String tableName = "customers";
 Class<?> entityClass = Customer.class;
 
-handle.createQuery("select <columns> from <table>")
+handle.createQuery("SELECT <columns> FROM <table>")
       .define("table", "customers")
       .defineList("columns", "id", "name")
       .mapToMap()
-      .list() // => "select id, name from customers"
+      .list() // => "SELECT id, name FROM customers"
 ----
 
 [NOTE]
@@ -7614,7 +7614,7 @@ recognizes colon-prefixed named parameters, e.g. `:name`.
 
 [source,java]
 ----
-handle.createUpdate("insert into characters (id, name) values (:id, :name)")
+handle.createUpdate("INSERT INTO characters (id, name) VALUES (:id, :name)")
       .bind("id", 1)
       .bind("name", "Dolores Abernathy")
       .execute();
@@ -7627,7 +7627,7 @@ link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^]
 [source,java]
 ----
 handle.setSqlParser(new HashPrefixSqlParser())
-      .createUpdate("insert into characters (id, name) values (#id, #name)")
+      .createUpdate("INSERT INTO characters (id, name) VALUES (#id, #name)")
       .bind("id", 2)
       .bind("name", "Teddy Flood")
       .execute();
