@@ -11,25 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject;
+package org.jdbi.v3.core;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.h2.jdbc.JdbcSQLNonTransientException;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.result.ResultSetException;
+import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.Update;
-import org.jdbi.v3.sqlobject.customizer.BindBean;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.sqlobject.statement.UseRowMapper;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -43,9 +39,15 @@ class TestStream {
     static final Something TWO = new Something(4, "bar");
     static final Something THREE = new Something(5, "baz");
 
-
     @RegisterExtension
-    JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+            .withPlugin(new JdbiPlugin() {
+                @Override
+                public void customizeJdbi(Jdbi jdbi) {
+                    jdbi.registerRowMapper(new SomethingMapper());
+                    jdbi.registerExtension(new SpiffyFactory());
+                }
+            });
 
     Handle handle;
     Jdbi jdbi;
@@ -231,17 +233,23 @@ class TestStream {
         });
     }
 
+    static class SpiffyFactory implements ExtensionFactory {
+
+        @Override
+        public boolean accepts(Class<?> extensionType) {
+            return extensionType == Spiffy.class;
+        }
+
+        @Override
+        public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
+            return (E) new SpiffyImpl(handleSupplier);
+        }
+    }
+
     public interface Spiffy {
 
-        @SqlQuery("select id, name from something order by id desc")
-        @UseRowMapper(SomethingMapper.class)
         Stream<Something> stream();
 
-        @SqlUpdate("insert into something (id, name) values (:id, :name)")
-        void insert(@BindBean Something something);
-
-        @SqlQuery("select id, name from something order by id desc")
-        @UseRowMapper(SomethingMapper.class)
         void stream(Consumer<Stream<Something>> consumer);
 
         default void streamTester() {
@@ -257,6 +265,32 @@ class TestStream {
 
         default Stream<Something> sneakyStream() {
             return stream();
+        }
+    }
+
+    static class SpiffyImpl implements Spiffy {
+
+        private final HandleSupplier handleSupplier;
+
+        SpiffyImpl(HandleSupplier handleSupplier) {
+            this.handleSupplier = handleSupplier;
+        }
+
+        @Override
+        public Stream<Something> stream() {
+            Handle handle = handleSupplier.getHandle();
+            Query query = handle.createQuery("SELECT id, name FROM something ORDER BY id DESC");
+
+            // attach to the handle for cleanup, otherwise the statement will leak if the stream does not
+            // finish.
+            return query.attachToHandleForCleanup().mapTo(Something.class).stream();
+        }
+
+        public void stream(Consumer<Stream<Something>> consumer) {
+            Handle handle = handleSupplier.getHandle();
+            try (Query query = handle.createQuery("SELECT id, name FROM something ORDER BY id DESC")) {
+                query.mapTo(Something.class).useStream(consumer::accept);
+            }
         }
     }
 }
