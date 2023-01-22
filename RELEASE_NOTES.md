@@ -4,6 +4,7 @@
   - removes the core dependency on the caffeine library. This now uses a simple LRU cache for sql parser and sql statements.
   - adds pluggable cache implementation using caffeine. The old caching behavior can now be restored by using the
     `jdbi3-caffeine-cache` dependency and adding `jdbi.installPlugin(new CaffeineCachePlugin());`.
+  - adds pluggable no-op cache implementation for testing and debugging
 
 # 3.36.0
 

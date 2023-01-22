@@ -219,6 +219,9 @@ jdbi3-freemarker::
 
 jdbi3-caffeine-cache::
     Use the link:https://github.com/ben-manes/caffeine[Caffeine^] caching library for SQL template and parse caching.
+jdbi3-noop-cache::
+    Turn off SQL template and parse caching for testing and debugging.
+
 
 ===== Additional Language support
 
@@ -4781,6 +4784,7 @@ For applications than run a lot of different SQL operations, it is possible to u
 The following cache implementations are included:
 
 - `jdbi3-caffeine-cache` - using the link:https://github.com/ben-manes/caffeine[Caffeine^] cache library. This used to be the default cache up to version 3.36.0
+- `jdbi3-noop-cache`, - disables caching. This is useful for testing and debugging.
 
 A cache module can provide a plugin to enable it. Only one plugin can be in use at a time (last one installed wins):
 
