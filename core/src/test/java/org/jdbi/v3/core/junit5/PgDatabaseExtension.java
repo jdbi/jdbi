@@ -114,6 +114,8 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
 
         jdbi = Jdbi.create(info.asDataSource());
 
+        installTestPlugins(jdbi);
+
         if (enableLeakchecker) {
             jdbi.getConfig(Handles.class).addListener(leakChecker);
             jdbi.getConfig(SqlStatements.class).addContextListener(leakChecker);

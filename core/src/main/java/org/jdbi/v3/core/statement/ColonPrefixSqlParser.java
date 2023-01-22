@@ -13,9 +13,9 @@
  */
 package org.jdbi.v3.core.statement;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
+import org.jdbi.v3.core.cache.JdbiCacheBuilder;
 import org.jdbi.v3.core.internal.lexer.ColonStatementLexer;
 import org.jdbi.v3.core.statement.internal.ErrorListener;
 import org.jdbi.v3.meta.Beta;
@@ -41,8 +41,8 @@ public class ColonPrefixSqlParser extends CachingSqlParser {
     public ColonPrefixSqlParser() {}
 
     @Beta
-    public ColonPrefixSqlParser(Caffeine<Object, Object> cache) {
-        super(cache);
+    public ColonPrefixSqlParser(JdbiCacheBuilder cacheBuilder) {
+        super(cacheBuilder);
     }
 
     @Override

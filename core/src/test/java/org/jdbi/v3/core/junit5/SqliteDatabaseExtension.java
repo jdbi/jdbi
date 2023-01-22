@@ -114,6 +114,8 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
         }
         jdbi = Jdbi.create(uri);
 
+        installTestPlugins(jdbi);
+
         if (enableLeakchecker) {
             jdbi.getConfig(Handles.class).addListener(leakChecker);
             jdbi.getConfig(SqlStatements.class).addContextListener(leakChecker);
