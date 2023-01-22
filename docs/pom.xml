@@ -46,6 +46,10 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-caffeine-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-commons-text</artifactId>
         </dependency>
         <dependency>
