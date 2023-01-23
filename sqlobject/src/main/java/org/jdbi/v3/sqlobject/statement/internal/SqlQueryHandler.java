@@ -26,10 +26,20 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
     private final ResultReturner magic;
+    private final UseRowMapper useRowMapper;
+    private final UseRowReducer useRowReducer;
+
 
     public SqlQueryHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
         this.magic = ResultReturner.forMethod(sqlObjectType, method);
+
+        this.useRowMapper = method.getAnnotation(UseRowMapper.class);
+        this.useRowReducer = method.getAnnotation(UseRowReducer.class);
+
+        if (this.useRowReducer != null && this.useRowMapper != null) {
+            throw new IllegalStateException("Cannot declare @UseRowMapper and @UseRowReducer on the same method.");
+        }
     }
 
     @Override
@@ -40,12 +50,6 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
 
     @Override
     void configureReturner(Query q, SqlObjectStatementConfiguration cfg) {
-        UseRowMapper useRowMapper = getMethod().getAnnotation(UseRowMapper.class);
-        UseRowReducer useRowReducer = getMethod().getAnnotation(UseRowReducer.class);
-
-        if (useRowReducer != null && useRowMapper != null) {
-            throw new IllegalStateException("Cannot declare @UseRowMapper and @UseRowReducer on the same method.");
-        }
 
         cfg.setReturner(() -> {
             StatementContext ctx = q.getContext();
