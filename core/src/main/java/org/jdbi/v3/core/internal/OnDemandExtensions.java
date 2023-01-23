@@ -33,7 +33,7 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
     private static final Method HASHCODE_METHOD;
     private static final Method TOSTRING_METHOD;
 
-    private Factory factory;
+    private Factory onDemandExtensionFactory;
 
     static {
         try {
@@ -46,21 +46,21 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
     }
 
     public OnDemandExtensions() {
-        factory = (d, x, t) -> Optional.empty();
+        onDemandExtensionFactory = (jdbi, extensionType, extraTypes) -> Optional.empty();
     }
 
     private OnDemandExtensions(OnDemandExtensions other) {
-        factory = other.factory;
+        onDemandExtensionFactory = other.onDemandExtensionFactory;
     }
 
-    public OnDemandExtensions setFactory(Factory factory) {
-        this.factory = factory;
+    public OnDemandExtensions setFactory(Factory onDemandExtensionFactory) {
+        this.onDemandExtensionFactory = onDemandExtensionFactory;
         return this;
     }
 
     public <E> E create(Jdbi db, Class<E> extensionType, Class<?>... extraTypes) {
         return extensionType.cast(
-               factory.onDemand(db, extensionType, extraTypes)
+               onDemandExtensionFactory.onDemand(db, extensionType, extraTypes)
                   .orElseGet(() -> createProxy(db, extensionType, extraTypes)));
     }
 
@@ -110,6 +110,6 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
 
     @FunctionalInterface
     public interface Factory {
-        Optional<Object> onDemand(Jdbi db, Class<?> extensionType, Class<?>... extraTypes);
+        Optional<Object> onDemand(Jdbi jdbi, Class<?> extensionType, Class<?>... extraTypes);
     }
 }
