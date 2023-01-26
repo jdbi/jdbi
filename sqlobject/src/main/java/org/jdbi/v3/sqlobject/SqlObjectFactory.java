@@ -173,7 +173,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
                                 if (!SqlObjectInitData.isConcrete(sqlObjectType) && !method.isSynthetic() && !Modifier.isPrivate(method.getModifiers())) {
                                     throw x.get();
                                 }
-                                return (t, a, h) -> {
+                                return (target, args, handleSupplier) -> {
                                     throw x.get();
                                 };
                             }),

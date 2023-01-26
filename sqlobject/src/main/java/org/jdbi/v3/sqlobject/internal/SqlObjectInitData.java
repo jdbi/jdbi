@@ -150,6 +150,7 @@ public final class SqlObjectInitData {
     public interface InContextInvoker {
         Object invoke(Object[] args);
         Object call(Callable<?> task);
+
         default Object call(Runnable task) { // NOPMD
             return call(() -> {
                 task.run();

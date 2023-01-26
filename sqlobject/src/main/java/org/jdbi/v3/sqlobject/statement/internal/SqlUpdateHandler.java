@@ -30,8 +30,9 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
-    private final Function<Update, Object> returner;
-    private final ResultReturner magic;
+
+    private final Function<Update, Object> resultTransformer;
+    private final ResultReturner resultReturner;
 
     public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -40,18 +41,18 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
             throw new UnsupportedOperationException("Cannot declare @UseRowReducer on a @SqlUpdate method.");
         }
 
-        boolean isGetGeneratedKeys = method.isAnnotationPresent(GetGeneratedKeys.class);
+        GetGeneratedKeys getGeneratedKeys = method.getAnnotation(GetGeneratedKeys.class);
 
         QualifiedType<?> returnType = QualifiedType.of(
-            GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
-            .withAnnotations(new Qualifiers().findFor(method));
+                        GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
+                .withAnnotations(new Qualifiers().findFor(method));
 
-        if (isGetGeneratedKeys) {
-            magic = ResultReturner.forMethod(sqlObjectType, method);
+        if (getGeneratedKeys != null) {
+            this.resultReturner = ResultReturner.forMethod(sqlObjectType, method);
 
-            String[] columnNames = method.getAnnotation(GetGeneratedKeys.class).value();
+            String[] columnNames = getGeneratedKeys.value();
 
-            this.returner = update -> {
+            this.resultTransformer = update -> {
                 ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(columnNames);
 
                 UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
@@ -59,14 +60,14 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
                         ? resultBearing.mapTo(returnType)
                         : resultBearing.map(rowMapperFor(useRowMapper));
 
-                return magic.mappedResult(iterable, update.getContext());
+                return resultReturner.mappedResult(iterable, update.getContext());
             };
         } else if (isNumeric(method.getReturnType())) {
-            this.returner = Update::execute;
-            magic = null;
+            this.resultTransformer = Update::execute;
+            this.resultReturner = null;
         } else if (isBoolean(method.getReturnType())) {
-            this.returner = update -> update.execute() > 0;
-            magic = null;
+            this.resultTransformer = update -> update.execute() > 0;
+            this.resultReturner = null;
         } else {
             throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
         }
@@ -75,8 +76,8 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     @Override
     public void warm(ConfigRegistry config) {
         super.warm(config);
-        if (magic != null) {
-            magic.warm(config);
+        if (resultReturner != null) {
+            resultReturner.warm(config);
         }
     }
 
@@ -87,14 +88,14 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
     @Override
     void configureReturner(Update u, SqlObjectStatementConfiguration cfg) {
-        cfg.setReturner(() -> returner.apply(u));
+        cfg.setReturner(() -> resultTransformer.apply(u));
     }
 
     private boolean isNumeric(Class<?> type) {
         return Number.class.isAssignableFrom(type)
-            || type.equals(int.class)
-            || type.equals(long.class)
-            || type.equals(void.class);
+                || type.equals(int.class)
+                || type.equals(long.class)
+                || type.equals(void.class);
     }
 
     private boolean isBoolean(Class<?> type) {

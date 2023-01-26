@@ -61,7 +61,7 @@ abstract class ResultReturner {
      *
      * @param extensionType the type that owns the Method
      * @param method        the method whose return type chooses the ResultReturner
-     * @return an instance that takes a ResultIterable and constructs the return value
+     * @return an instance that takes a ResultIterable and constructs the return value. Never null.
      */
     static ResultReturner forMethod(Class<?> extensionType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), extensionType);
