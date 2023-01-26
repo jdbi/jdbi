@@ -102,6 +102,26 @@ final class PostgisPluginTest {
         assertThat(record.getPolygon()).isEqualTo(result.getPolygon());
     }
 
+    @Test
+    void postgisNullSafetyTest() {
+        PostgisRecord record = new PostgisRecord();
+        record.setId(2);
+
+        handle.createUpdate(
+                "INSERT INTO record (id, point, linestring, polygon) VALUES (:id, :point, :lineString, :polygon)")
+            .bindBean(record)
+            .execute();
+
+        PostgisRecord result = handle
+            .createQuery("SELECT * FROM record ORDER BY id")
+            .mapToBean(PostgisRecord.class)
+            .first();
+
+        assertThat(record.getPoint()).isNull();
+        assertThat(record.getLineString()).isNull();
+        assertThat(record.getPolygon()).isNull();
+    }
+
     public static final class PostgisRecord {
 
         private Integer id;

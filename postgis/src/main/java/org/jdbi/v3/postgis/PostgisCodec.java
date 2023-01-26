@@ -76,6 +76,9 @@ final class PostgisCodec implements Codec<Geometry> {
     }
 
     private static byte[] hexStringToByteArray(String s) {
+        if (s == null) {
+            return null;
+        }
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
