@@ -14,6 +14,8 @@
 package org.jdbi.v3.sqlobject;
 
 import java.sql.Types;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
@@ -49,12 +51,27 @@ public class TestOutParameterAnnotation {
     }
 
     @Test
-    public void testOutParameter() {
+    public void testOutParameterReturn() {
         MyDao myDao = db.onDemand(MyDao.class);
 
         OutParameters outParameters = myDao.callStoredProc();
 
         assertThat(outParameters.getInt("outparam")).isEqualTo(100);
+    }
+
+    @Test
+    public void testUseOutParameter() {
+        MyDao myDao = db.onDemand(MyDao.class);
+
+        myDao.useStoredProc(outParameters -> assertThat(outParameters.getInt("outparam")).isEqualTo(100));
+    }
+
+    @Test
+    public void testWithOutParameter() {
+        MyDao myDao = db.onDemand(MyDao.class);
+
+        assertThat(myDao.withStoredProc((Function<OutParameters, Integer>) outParameters -> outParameters.getInt("outparam")))
+                .isEqualTo(100);
     }
 
     @Test
@@ -71,6 +88,15 @@ public class TestOutParameterAnnotation {
         @SqlCall("{call set100(:outparam)}")
         @OutParameter(name = "outparam", sqlType = Types.INTEGER)
         OutParameters callStoredProc();
+
+        @SqlCall("{call set100(:outparam)}")
+        @OutParameter(name = "outparam", sqlType = Types.INTEGER)
+        void useStoredProc(Consumer<OutParameters> consumer);
+
+        @SqlCall("{call set100(:outparam)}")
+        @OutParameter(name = "outparam", sqlType = Types.INTEGER)
+        <T> T withStoredProc(Function<OutParameters, T> transformer);
+
 
         @SqlCall("{call swap(:a, :b, :c, :d)}")
         @OutParameter(name = "c", sqlType = Types.INTEGER)

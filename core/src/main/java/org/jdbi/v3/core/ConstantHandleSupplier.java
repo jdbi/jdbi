@@ -16,6 +16,7 @@ package org.jdbi.v3.core;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionContext;
@@ -24,6 +25,7 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 
 class ConstantHandleSupplier implements HandleSupplier {
 
+    private final AtomicBoolean closed = new AtomicBoolean();
     private final Handle handle;
     private final Deque<ExtensionContext> extensionContexts = new LinkedList<>();
 
@@ -63,6 +65,14 @@ class ConstantHandleSupplier implements HandleSupplier {
         } finally {
             popExtensionContext();
         }
+    }
+
+    @Override
+    public void close() {
+        if (closed.getAndSet(true)) {
+            throw new IllegalStateException("Handle is closed");
+        }
+        extensionContexts.clear();
     }
 
     private void pushExtensionContext(ExtensionContext extensionContext) {

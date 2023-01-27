@@ -25,7 +25,7 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.OnDemandHandleSupplier;
 
-class LazyHandleSupplier implements HandleSupplier, AutoCloseable, OnDemandHandleSupplier {
+class LazyHandleSupplier implements HandleSupplier, OnDemandHandleSupplier {
 
     private final Jdbi db;
     private final AtomicBoolean closed = new AtomicBoolean();

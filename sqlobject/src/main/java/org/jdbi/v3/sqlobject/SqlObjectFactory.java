@@ -92,12 +92,13 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
-        final SqlObjectInitData data = sqlObjectCache.get(extensionType, handleSupplier.getConfig());
-        final ConfigRegistry instanceConfig = data.configureInstance(handleSupplier.getConfig().createCopy());
+        final SqlObjectInitData sqlObjectInitData = sqlObjectCache.get(extensionType, handleSupplier.getConfig());
+        final ConfigRegistry instanceConfig = sqlObjectInitData.configureInstance(handleSupplier.getConfig().createCopy());
 
-        if (data.isConcrete()) {
-            return data.instantiate(extensionType, handleSupplier, instanceConfig);
+        if (sqlObjectInitData.isConcrete()) {
+            return sqlObjectInitData.instantiate(extensionType, handleSupplier, instanceConfig);
         }
+
         instanceConfig.get(Extensions.class).onCreateProxy();
 
         Map<Method, Supplier<InContextInvoker>> handlers = new HashMap<>();
@@ -106,22 +107,24 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
                 new Class[] {extensionType},
                 (proxyInstance, method, args) -> handlers.get(method).get().invoke(args));
 
-        data.forEachMethodHandler((m, h) ->
-                handlers.put(m, data.lazyInvoker(proxy, m, handleSupplier, instanceConfig)));
+        sqlObjectInitData.forEachMethodHandler((method, handler) ->
+                handlers.put(method, sqlObjectInitData.lazyInvoker(proxy, method, handleSupplier, instanceConfig)));
         return extensionType.cast(proxy);
     }
 
     @Override
-    public Optional<Object> onDemand(Jdbi db, Class<?> extensionType, Class<?>... extraTypes) {
-        SqlObjectInitData data = sqlObjectCache.get(extensionType, db);
-        if (!data.isConcrete()) {
+    public Optional<Object> onDemand(Jdbi jdbi, Class<?> extensionType, Class<?>... extraTypes) {
+        SqlObjectInitData sqlObjectInitData = sqlObjectCache.get(extensionType, jdbi);
+
+        if (!sqlObjectInitData.isConcrete()) {
             return Optional.empty();
         }
+
         try {
             return Optional.of(Class.forName(
                     extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl$OnDemand")
                 .getConstructor(Jdbi.class)
-                .newInstance(db));
+                .newInstance(jdbi));
         } catch (ReflectiveOperationException | ExceptionInInitializerError e) {
             throw new UnableToCreateSqlObjectException(e);
         }
@@ -170,7 +173,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
                                 if (!SqlObjectInitData.isConcrete(sqlObjectType) && !method.isSynthetic() && !Modifier.isPrivate(method.getModifiers())) {
                                     throw x.get();
                                 }
-                                return (t, a, h) -> {
+                                return (target, args, handleSupplier) -> {
                                     throw x.get();
                                 };
                             }),

@@ -25,40 +25,44 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
-    private final ResultReturner magic;
+    private final ResultReturner resultReturner;
+    private final UseRowMapper useRowMapper;
+    private final UseRowReducer useRowReducer;
+
 
     public SqlQueryHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
-        this.magic = ResultReturner.forMethod(sqlObjectType, method);
+        this.resultReturner = ResultReturner.forMethod(sqlObjectType, method);
+
+        this.useRowMapper = method.getAnnotation(UseRowMapper.class);
+        this.useRowReducer = method.getAnnotation(UseRowReducer.class);
+
+        if (this.useRowReducer != null && this.useRowMapper != null) {
+            throw new IllegalStateException("Cannot declare @UseRowMapper and @UseRowReducer on the same method.");
+        }
     }
 
     @Override
     public void warm(ConfigRegistry config) {
         super.warm(config);
-        magic.warm(config);
+        resultReturner.warm(config);
     }
 
     @Override
-    void configureReturner(Query q, SqlObjectStatementConfiguration cfg) {
-        UseRowMapper useRowMapper = getMethod().getAnnotation(UseRowMapper.class);
-        UseRowReducer useRowReducer = getMethod().getAnnotation(UseRowReducer.class);
-
-        if (useRowReducer != null && useRowMapper != null) {
-            throw new IllegalStateException("Cannot declare @UseRowMapper and @UseRowReducer on the same method.");
-        }
+    void configureReturner(Query query, SqlObjectStatementConfiguration cfg) {
 
         cfg.setReturner(() -> {
-            StatementContext ctx = q.getContext();
-            QualifiedType<?> elementType = magic.elementType(ctx.getConfig());
+            StatementContext ctx = query.getContext();
+            QualifiedType<?> elementType = resultReturner.elementType(ctx.getConfig());
 
             if (useRowReducer != null) {
-                return magic.reducedResult(q.reduceRows(rowReducerFor(useRowReducer)), ctx);
+                return resultReturner.reducedResult(query.reduceRows(rowReducerFor(useRowReducer)), ctx);
             }
 
             ResultIterable<?> iterable = useRowMapper == null
-                    ? q.mapTo(elementType)
-                    : q.map(rowMapperFor(useRowMapper));
-            return magic.mappedResult(iterable, ctx);
+                    ? query.mapTo(elementType)
+                    : query.map(rowMapperFor(useRowMapper));
+            return resultReturner.mappedResult(iterable, ctx);
         });
     }
 

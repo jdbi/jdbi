@@ -23,7 +23,7 @@ import org.jdbi.v3.core.config.Configurable;
 /**
  * A handle supplier for extension implementors.
  */
-public interface HandleSupplier extends Configurable<HandleSupplier> {
+public interface HandleSupplier extends Configurable<HandleSupplier>, AutoCloseable {
     /**
      * Returns a handle, possibly creating it lazily. A Handle holds a database connection, so extensions should only
      * call this method in order to interact with the database.
@@ -69,5 +69,10 @@ public interface HandleSupplier extends Configurable<HandleSupplier> {
      */
     default <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
         return invokeInContext(extensionContext.getExtensionMethod(), extensionContext.getConfig(), task);
+    }
+
+    @Override
+    default void close() {
+        // does nothing.
     }
 }

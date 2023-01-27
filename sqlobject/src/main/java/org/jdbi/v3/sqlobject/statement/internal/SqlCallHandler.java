@@ -26,33 +26,32 @@ import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.OutParameters;
 
 public class SqlCallHandler extends CustomizingStatementHandler<Call> {
-    private final BiFunction<OutParameters, Call, ?> returner;
+    private final BiFunction<OutParameters, Call, ?> resultTransformer;
 
     public SqlCallHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
-        returner = createReturner(sqlObjectType, method);
+        resultTransformer = createResultTransformer(sqlObjectType, method);
     }
 
-    private BiFunction<OutParameters, Call, ?> createReturner(Class<?> sqlObjectType, Method method) {
+    private BiFunction<OutParameters, Call, ?> createResultTransformer(Class<?> sqlObjectType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
         Class<?> returnClass = GenericTypes.getErasedType(returnType);
         for (int idx = 0; idx < method.getParameterCount(); idx++) {
             final int pIdx = idx;
             Parameter p = method.getParameters()[idx];
             if (p.getType().equals(Function.class)) {
-                return (op, c) -> ((Function) c.getConfig(SqlObjectStatementConfiguration.class).getArgs()[pIdx]).apply(op);
-            }
-            if (p.getType().equals(Consumer.class)) {
-                return (op, c) -> {
-                    ((Consumer) c.getConfig(SqlObjectStatementConfiguration.class).getArgs()[pIdx]).accept(op);
+                return (outParameters, call) -> ((Function) call.getConfig(SqlObjectStatementConfiguration.class).getArgs()[pIdx]).apply(outParameters);
+            } else if (p.getType().equals(Consumer.class)) {
+                return (outParameters, call) -> {
+                    ((Consumer) call.getConfig(SqlObjectStatementConfiguration.class).getArgs()[pIdx]).accept(outParameters);
                     return null;
                 };
             }
         }
         if (Void.TYPE.equals(returnClass)) {
-            return (p, c) -> null;
+            return (outParameters, call) -> null;
         } else if (OutParameters.class.isAssignableFrom(returnClass)) {
-            return (p, c) -> p;
+            return (outParameters, call) -> outParameters;
         } else {
             throw new IllegalArgumentException("@SqlCall methods may only return null or OutParameters at present");
         }
@@ -64,7 +63,7 @@ public class SqlCallHandler extends CustomizingStatementHandler<Call> {
     }
 
     @Override
-    void configureReturner(Call c, SqlObjectStatementConfiguration cfg) {
-        cfg.setReturner(() -> returner.apply(c.invoke(), c));
+    void configureReturner(Call call, SqlObjectStatementConfiguration cfg) {
+        cfg.setReturner(() -> resultTransformer.apply(call.invoke(), call));
     }
 }

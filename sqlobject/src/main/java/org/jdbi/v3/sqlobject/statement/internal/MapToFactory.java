@@ -32,7 +32,7 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
                                                               Parameter param,
                                                               int index,
                                                               Type type) {
-        return (stmt, arg) -> {
+        return (sqlStatement, arg) -> {
             final QualifiedType<?> mapTo;
 
             if (arg instanceof QualifiedType) {
@@ -46,8 +46,8 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
             }
 
             ResultReturner returner = ResultReturner.forMethod(sqlObjectType, method);
-            stmt.getConfig(SqlObjectStatementConfiguration.class).setReturner(
-                    () -> returner.mappedResult(((ResultBearing) stmt).mapTo(mapTo), stmt.getContext()));
+            sqlStatement.getConfig(SqlObjectStatementConfiguration.class).setReturner(
+                    () -> returner.mappedResult(((ResultBearing) sqlStatement).mapTo(mapTo), sqlStatement.getContext()));
         };
     }
 }

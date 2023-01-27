@@ -105,9 +105,9 @@ public class TestSqlMethodDecorators {
     public void testRegisteredDecorator() {
         testHandle.getConfig(HandlerDecorators.class).register(
                 (base, sqlObjectType, method) ->
-                        (obj, args, handle) -> {
+                        (target, args, handleSupplier) -> {
                             invoked("custom");
-                            return base.invoke(obj, args, handle);
+                            return base.invoke(target, args, handleSupplier);
                         });
 
         testHandle.attach(Dao.class).orderedFooBar();
@@ -181,9 +181,9 @@ public class TestSqlMethodDecorators {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, args, handle) -> {
+                return (target, args, handleSupplier) -> {
                     invoked("foo");
-                    return base.invoke(obj, args, handle);
+                    return base.invoke(target, args, handleSupplier);
                 };
             }
         }
@@ -196,9 +196,9 @@ public class TestSqlMethodDecorators {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, args, handle) -> {
+                return (target, args, handleSupplier) -> {
                     invoked("bar");
-                    return base.invoke(obj, args, handle);
+                    return base.invoke(target, args, handleSupplier);
                 };
             }
         }
@@ -210,7 +210,7 @@ public class TestSqlMethodDecorators {
         class Factory implements HandlerDecorator {
             @Override
             public Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method) {
-                return (obj, args, handle) -> {
+                return (target, args, handleSupplier) -> {
                     invoked("abort");
                     return null;
                 };

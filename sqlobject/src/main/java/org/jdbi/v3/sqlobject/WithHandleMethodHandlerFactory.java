@@ -30,10 +30,10 @@ class WithHandleMethodHandlerFactory implements HandlerFactory {
             return Optional.empty();
         }
         ExtensionMethod extensionMethod = new ExtensionMethod(sqlObjectType, method);
-        return Optional.of((target, arguments, handleSupplier) -> {
+        return Optional.of((target, args, handleSupplier) -> {
             ExtensionContext extensionContext = new ExtensionContext(handleSupplier.getConfig(), extensionMethod);
             return handleSupplier.invokeInContext(extensionContext,
-                () -> ((HandleCallback<?, RuntimeException>) arguments[0]).withHandle(handleSupplier.getHandle()));
+                () -> ((HandleCallback<?, RuntimeException>) args[0]).withHandle(handleSupplier.getHandle()));
         });
     }
 }
