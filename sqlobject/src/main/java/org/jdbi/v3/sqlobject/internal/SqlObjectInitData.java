@@ -33,10 +33,10 @@ import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 
 public final class SqlObjectInitData {
+
     private static final Object[] NO_ARGS = new Object[0];
     public static final ThreadLocal<SqlObjectInitData> INIT_DATA = new ThreadLocal<>();
 
-    private final boolean concrete;
     private final Class<?> extensionType;
     private final UnaryOperator<ConfigRegistry> instanceConfigurer;
     private final Map<Method, UnaryOperator<ConfigRegistry>> methodConfigurers;
@@ -47,7 +47,6 @@ public final class SqlObjectInitData {
             UnaryOperator<ConfigRegistry> instanceConfigurer,
             Map<Method, UnaryOperator<ConfigRegistry>> methodConfigurers,
             Map<Method, Handler> methodHandlers) {
-        concrete = isConcrete(extensionType);
         this.extensionType = extensionType;
         this.instanceConfigurer = instanceConfigurer;
         this.methodConfigurers = methodConfigurers;
@@ -87,10 +86,6 @@ public final class SqlObjectInitData {
             throw new IllegalStateException(
                     String.format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
         }
-    }
-
-    public boolean isConcrete() {
-        return concrete;
     }
 
     public Class<?> extensionType() {

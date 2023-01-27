@@ -95,7 +95,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
         final SqlObjectInitData sqlObjectInitData = sqlObjectCache.get(extensionType, handleSupplier.getConfig());
         final ConfigRegistry instanceConfig = sqlObjectInitData.configureInstance(handleSupplier.getConfig().createCopy());
 
-        if (sqlObjectInitData.isConcrete()) {
+        if (SqlObjectInitData.isConcrete(extensionType)) {
             return sqlObjectInitData.instantiate(extensionType, handleSupplier, instanceConfig);
         }
 
@@ -114,9 +114,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
 
     @Override
     public Optional<Object> onDemand(Jdbi jdbi, Class<?> extensionType, Class<?>... extraTypes) {
-        SqlObjectInitData sqlObjectInitData = sqlObjectCache.get(extensionType, jdbi);
-
-        if (!sqlObjectInitData.isConcrete()) {
+        if (!SqlObjectInitData.isConcrete(extensionType)) {
             return Optional.empty();
         }
 
