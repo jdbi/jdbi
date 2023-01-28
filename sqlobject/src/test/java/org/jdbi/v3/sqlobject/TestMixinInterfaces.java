@@ -13,9 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.HandleConsumer;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -31,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestMixinInterfaces {
 
@@ -62,10 +68,25 @@ public class TestMixinInterfaces {
     @Test
     public void testWithHandle() {
         WithGetHandle g = handle.attach(WithGetHandle.class);
-        String name = g.withHandle(handle1 -> {
-            handle1.execute("insert into something (id, name) values (8, 'Mike')");
+        String name = g.withHandle(h -> {
+            h.execute("insert into something (id, name) values (8, 'Mike')");
 
-            return handle1.createQuery("select name from something where id = 8").mapTo(String.class).one();
+            return h.createQuery("select name from something where id = 8").mapTo(String.class).one();
+        });
+
+        assertThat(name).isEqualTo("Mike");
+    }
+
+    @Test
+    public void testWithHandleExtensionMethod() throws Exception {
+        Method withHandleMethod = SqlObject.class.getMethod("withHandle", HandleCallback.class);
+
+        WithGetHandle g = handle.attach(WithGetHandle.class);
+        String name = g.withHandle(h -> {
+            ExtensionMethod extensionMethod = handle.getExtensionMethod();
+            // ensure that the current extension method on the handle is the method that is currently executing
+            assertThat(extensionMethod.getMethod()).isEqualTo(withHandleMethod);
+            return "Mike";
         });
 
         assertThat(name).isEqualTo("Mike");
@@ -74,12 +95,39 @@ public class TestMixinInterfaces {
     @Test
     public void testUseHandle() {
         WithGetHandle g = handle.attach(WithGetHandle.class);
-        g.useHandle(h -> h.execute("insert into something(id, name) values (9, 'James')"));
+        g.useHandle(h -> {
+            h.execute("insert into something(id, name) values (9, 'James')");
 
-        assertThat(handle.createQuery("select name from something where id = 9")
-                .mapTo(String.class)
-                .one())
-                .isEqualTo("James");
+            assertThat(h.createQuery("select name from something where id = 9")
+                    .mapTo(String.class)
+                    .one())
+                    .isEqualTo("James");
+        });
+    }
+
+    @Test
+    public void testOverrideUseHandleFails() throws Exception {
+        Method getHandleMethod = ExplicitUseHandle.class.getMethod("useHandle", HandleConsumer.class);
+
+        assertThatThrownBy(() -> {
+            ExplicitUseHandle g = handle.attach(ExplicitUseHandle.class);
+            g.useHandle(h -> {
+                assertThat(h).isNotNull();
+                assertThat(h.getExtensionMethod().getMethod()).isEqualTo(getHandleMethod);
+            });
+        }).isInstanceOf(IllegalStateException.class).hasMessageContaining("Method ExplicitUseHandle.useHandle must have an implementation or be annotated with a SQL method annotation.");
+    }
+
+    @Test
+    public void testUseHandleExtensionMethod() throws Exception {
+        Method withHandleMethod = SqlObject.class.getMethod("withHandle", HandleCallback.class);
+
+        WithGetHandle g = handle.attach(WithGetHandle.class);
+        g.useHandle(h -> {
+            // useHandle is delegated to withHandle
+            ExtensionMethod extensionMethod = handle.getExtensionMethod();
+            assertThat(extensionMethod.getMethod()).isEqualTo(withHandleMethod);
+        });
     }
 
     @Test
@@ -141,7 +189,7 @@ public class TestMixinInterfaces {
     @Test
     public void testJustJdbiTransactions() {
         try (Handle h1 = jdbi.open();
-             Handle h2 = jdbi.open()) {
+                Handle h2 = jdbi.open()) {
             h1.execute("insert into something (id, name) values (8, 'Mike')");
 
             h1.begin();
@@ -156,6 +204,10 @@ public class TestMixinInterfaces {
     }
 
     private interface WithGetHandle extends SqlObject {}
+
+    private interface ExplicitUseHandle extends SqlObject {
+        void useHandle(HandleConsumer consumer);
+    }
 
     private interface TransactionStuff extends Transactional<TransactionStuff> {
 
