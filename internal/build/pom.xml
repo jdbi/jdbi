@@ -69,7 +69,7 @@
         <dep.antlr.version>4.10.1</dep.antlr.version>
         <dep.assertj-core.version>3.23.1</dep.assertj-core.version>
         <dep.assertj-guava.version>3.4.0</dep.assertj-guava.version>
-        <dep.caffeine.version>3.0.3</dep.caffeine.version>
+        <dep.caffeine.version>3.1.2</dep.caffeine.version>
         <dep.commons-text.version>1.10.0</dep.commons-text.version>
         <dep.derby.version>10.15.2.0</dep.derby.version>
         <dep.detekt.version>1.21.0-RC2</dep.detekt.version>
