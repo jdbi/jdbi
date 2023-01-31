@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.generic.GenericType;
@@ -146,6 +147,35 @@ public class MapEntryMapperTest {
                             entry(new User(2, "bob"), new Phone(20, "555-0002")),
                             entry(new User(3, "cathy"), new Phone(30, "555-0003")));
                 });
+    }
+
+    @Test
+    public void testMapEntryMapper() {
+        h.execute("create table \"user\" (id int, name varchar)");
+        h.execute("create table phone (id int, user_id int, phone varchar)");
+        h.prepareBatch("insert into \"user\" (id, name) values (?, ?)")
+                .add(1, "alice")
+                .add(2, "bob")
+                .add(3, "cathy")
+                .execute();
+        h.prepareBatch("insert into phone (id, user_id, phone) values (?, ?, ?)")
+                .add(10, 1, "555-0001")
+                .add(20, 2, "555-0002")
+                .add(30, 3, "555-0003")
+                .execute();
+
+        h.registerRowMapper(ConstructorMapper.factory(User.class, "u"));
+        h.registerRowMapper(ConstructorMapper.factory(Phone.class, "p"));
+
+        Map<User, Phone> map =
+                h.createQuery("SELECT u.id u_id, u.name u_name, p.id p_id, p.phone p_phone FROM \"user\" u LEFT JOIN phone p ON u.id = p.user_id")
+                        .mapTo(new GenericType<Map.Entry<User, Phone>>() {})
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        assertThat(map).containsOnly(
+                entry(new User(1, "alice"), new Phone(10, "555-0001")),
+                entry(new User(2, "bob"), new Phone(20, "555-0002")),
+                entry(new User(3, "cathy"), new Phone(30, "555-0003")));
     }
 
     public static class User {
