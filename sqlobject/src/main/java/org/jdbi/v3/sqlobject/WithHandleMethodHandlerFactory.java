@@ -17,10 +17,10 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 
 class WithHandleMethodHandlerFactory implements HandlerFactory {
-
-    private static final Method WITH_HANDLE = Handlers.methodLookup(SqlObject.class, "withHandle", HandleCallback.class);
+    private static final Method WITH_HANDLE = JdbiClassUtils.methodLookup(SqlObject.class, "withHandle", HandleCallback.class);
 
     @SuppressWarnings("unchecked")
     @Override
