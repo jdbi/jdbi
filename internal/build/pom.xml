@@ -111,6 +111,7 @@
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
+        <jdbi.test.pg-version>13</jdbi.test.pg-version>
         <kotlin.compiler.apiVersion>1.5</kotlin.compiler.apiVersion>
         <!-- remove the '1.' once we move past JDK8 compatibility -->
         <kotlin.compiler.jvmTarget>1.${project.build.targetJdk}</kotlin.compiler.jvmTarget>
@@ -120,7 +121,6 @@
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -775,6 +775,16 @@
                         <hideClasses>true</hideClasses>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${dep.plugin.surefire.version}</version>
+                    <configuration>
+                        <systemPropertyVariables combine.children="append">
+                            <pg-embedded.postgres-version>${jdbi.test.pg-version}</pg-embedded.postgres-version>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -1118,5 +1128,19 @@
             </properties>
         </profile>
 
+        <profile>
+            <id>macos arm</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+
+            <properties>
+                <!-- the pg binaries for pg 13 do not support native mac arm64. Choose a version that does -->
+                <jdbi.test.pg-version>15</jdbi.test.pg-version>
+            </properties>
+        </profile>
     </profiles>
 </project>
