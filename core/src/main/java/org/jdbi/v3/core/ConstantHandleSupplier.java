@@ -13,21 +13,14 @@
  */
 package org.jdbi.v3.core;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionContext;
-import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
 
-class ConstantHandleSupplier implements HandleSupplier {
+final class ConstantHandleSupplier extends AbstractHandleSupplier {
 
-    private final AtomicBoolean closed = new AtomicBoolean();
     private final Handle handle;
-    private final Deque<ExtensionContext> extensionContexts = new LinkedList<>();
 
     static HandleSupplier of(Handle handle) {
         return new ConstantHandleSupplier(handle);
@@ -53,35 +46,7 @@ class ConstantHandleSupplier implements HandleSupplier {
     }
 
     @Override
-    public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        return invokeInContext(new ExtensionContext(config, extensionMethod), task);
-    }
-
-    @Override
-    public <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
-        try {
-            pushExtensionContext(extensionContext);
-            return task.call();
-        } finally {
-            popExtensionContext();
-        }
-    }
-
-    @Override
-    public void close() {
-        if (closed.getAndSet(true)) {
-            throw new IllegalStateException("Handle is closed");
-        }
-        extensionContexts.clear();
-    }
-
-    private void pushExtensionContext(ExtensionContext extensionContext) {
-        extensionContexts.addFirst(extensionContext);
-        handle.acceptExtensionContext(extensionContext);
-    }
-
-    private void popExtensionContext() {
-        extensionContexts.pollFirst();
-        handle.acceptExtensionContext(extensionContexts.peek());
+    protected void withHandle(Consumer<Handle> handleConsumer) {
+        handleConsumer.accept(handle);
     }
 }

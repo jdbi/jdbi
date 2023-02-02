@@ -13,42 +13,31 @@
  */
 package org.jdbi.v3.core;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionContext;
-import org.jdbi.v3.core.extension.ExtensionMethod;
-import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.OnDemandHandleSupplier;
 
-class LazyHandleSupplier implements HandleSupplier, OnDemandHandleSupplier {
+final class LazyHandleSupplier extends AbstractHandleSupplier implements OnDemandHandleSupplier {
 
-    private final Jdbi db;
-    private final AtomicBoolean closed = new AtomicBoolean();
-    private final Deque<ExtensionContext> extensionContexts = new LinkedList<>();
+    private final Jdbi jdbi;
     private final MemoizingSupplier<Handle> handleHolder = MemoizingSupplier.of(this::createHandle);
 
-    LazyHandleSupplier(Jdbi db) {
-        this.db = db;
+    LazyHandleSupplier(Jdbi jdbi) {
+        this.jdbi = jdbi;
     }
 
     @Override
     public ConfigRegistry getConfig() {
-        ExtensionContext extensionContext = extensionContexts.peek();
-        if (extensionContext != null) {
-            return extensionContext.getConfig();
-        }
-
-        return db.getConfig();
+        ExtensionContext extensionContext = currentExtensionContext();
+        return extensionContext != null ? extensionContext.getConfig() : jdbi.getConfig();
     }
 
     @Override
     public Jdbi getJdbi() {
-        return db;
+        return jdbi;
     }
 
     @Override
@@ -57,44 +46,21 @@ class LazyHandleSupplier implements HandleSupplier, OnDemandHandleSupplier {
     }
 
     private Handle createHandle() {
-        if (closed.get()) {
-            throw new IllegalStateException("Handle is closed");
-        }
-        return db.open().acceptExtensionContext(extensionContexts.peek());
+        // push the current top context into the new Jdbi
+        return jdbi.open().acceptExtensionContext(currentExtensionContext());
     }
 
     @Override
-    public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
-        return invokeInContext(new ExtensionContext(config, extensionMethod), task);
-    }
-
-    @Override
-    public <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
-        try {
-            pushExtensionContext(extensionContext);
-            return task.call();
-        } finally {
-            popExtensionContext();
-        }
-    }
-
-    private void pushExtensionContext(ExtensionContext extensionContext) {
-        extensionContexts.addFirst(extensionContext);
-        handleHolder.ifInitialized(h -> h.acceptExtensionContext(extensionContext));
-    }
-
-    private void popExtensionContext() {
-        // pop from the stack, then set the new top-of-stack in the handle
-        extensionContexts.pollFirst();
-        handleHolder.ifInitialized(h -> h.acceptExtensionContext(extensionContexts.peek()));
+    protected void withHandle(Consumer<Handle> handleConsumer) {
+        handleHolder.ifInitialized(handleConsumer::accept);
     }
 
     @Override
     public void close() {
-        if (closed.getAndSet(true)) {
-            throw new IllegalStateException("Handle is closed");
+        try {
+            super.close();
+        } finally {
+            handleHolder.ifInitialized(Handle::close);
         }
-        handleHolder.ifInitialized(Handle::close);
-        extensionContexts.clear();
     }
 }

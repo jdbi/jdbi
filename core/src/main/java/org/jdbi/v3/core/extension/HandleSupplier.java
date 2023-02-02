@@ -18,61 +18,45 @@ import java.util.concurrent.Callable;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.Configurable;
 
 /**
  * A handle supplier for extension implementors.
  */
-public interface HandleSupplier extends Configurable<HandleSupplier>, AutoCloseable {
+public interface HandleSupplier extends AutoCloseable {
+
     /**
      * Returns a handle, possibly creating it lazily. A Handle holds a database connection, so extensions should only
      * call this method in order to interact with the database.
      *
-     * @return an open Handle
+     * @return An open Handle.
      */
     Handle getHandle();
 
     /**
      * Returns the owning Jdbi instance.
      *
-     * @return the owning Jdbi instance.
+     * @return The owning Jdbi instance.
      */
     Jdbi getJdbi();
 
     /**
-     * Bind an extension method and configuration registry to the Handle,
-     * invoke the given task, then reset the Handle's extension state.
+     * Returns the current Jdbi config.
      *
-     * Note that the binding is done by a thread local, so the binding
-     * will not propagate to other threads you may call out to.
-     *
-     * @param <V> the result type of the task
-     * @param extensionMethod the method invoked
-     * @param config the configuration registry
-     * @param task the code to execute in an extension context
-     * @return the callable's result
-     * @throws Exception if any exception is thrown
-     * @deprecated New code should implement the {@link #invokeInContext(ExtensionContext, Callable)} method and use this as a retrofit.
-     * @see HandleSupplier#invokeInContext(ExtensionContext, Callable)
+     * @return The current Jdbi configuration.
      */
-    @Deprecated
-    <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception;
+    ConfigRegistry getConfig();
 
     /**
      * Bind a new {@link ExtensionContext} to the Handle, invoke the given task, then restore the Handle's extension state.
      *
-     * @param <V> the result type of the task
+     * @param <V>              the result type of the task
      * @param extensionContext An {@link ExtensionContext} object that manages the extension state.
-     * @param task the code to execute in an extension context
+     * @param task             the code to execute in an extension context
      * @return the callable's result
      * @throws Exception if any exception is thrown
      */
-    default <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
-        return invokeInContext(extensionContext.getExtensionMethod(), extensionContext.getConfig(), task);
-    }
+    <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception;
 
     @Override
-    default void close() {
-        // does nothing.
-    }
+    default void close() {}
 }
