@@ -1,11 +1,14 @@
 # Unreleased
 
+# 3.37.0
+
   - upgrade to geantyref 1.3.14
   - removes the core dependency on the caffeine library. This now uses a simple LRU cache for sql parser and sql statements.
   - adds pluggable cache implementation using caffeine. The old caching behavior can now be restored by using the
     `jdbi3-caffeine-cache` dependency and adding `jdbi.installPlugin(new CaffeineCachePlugin());`.
   - adds pluggable no-op cache implementation for testing and debugging
-  - improve PostGIS null value handling
+  - improve PostGIS null value handling (#2260, thanks @tprebs)
+  - use Postgres 15 (native arm64) for building on MacOS arm64
 
 # 3.36.0
 
