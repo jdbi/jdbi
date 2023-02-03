@@ -23,7 +23,6 @@ import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionContext;
-import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
@@ -124,36 +123,41 @@ public final class SqlObjectInitData {
     }
 
     public Supplier<InContextInvoker> lazyInvoker(Object target, Method method, HandleSupplier handleSupplier, ConfigRegistry instanceConfig) {
-        return MemoizingSupplier.of(() -> {
-            ConfigRegistry methodConfig = methodConfigurers.get(method).apply(instanceConfig.createCopy());
-            ExtensionContext extensionContext = new ExtensionContext(methodConfig, new ExtensionMethod(extensionType, method));
-            Handler methodHandler = methodHandlers.get(method);
-            methodHandler.warm(methodConfig);
-            return new InContextInvoker() {
-                @Override
-                public Object invoke(Object[] args) {
-                    return call(() -> methodHandler.invoke(target, args == null ? NO_ARGS : args, handleSupplier));
-                }
-
-                @Override
-                public Object call(Callable<?> task) {
-                    try {
-                        return handleSupplier.invokeInContext(extensionContext, task);
-                    } catch (Exception x) {
-                        throw Sneaky.throwAnyway(x);
-                    }
-                }
-            };
-        });
+        return MemoizingSupplier.of(() -> new InContextInvoker(target, method, handleSupplier, instanceConfig));
     }
 
-    public interface InContextInvoker {
-        Object invoke(Object[] args);
-        Object call(Callable<?> task);
+    public final class InContextInvoker {
+        private final Object target;
+        private final HandleSupplier handleSupplier;
+        private final ExtensionContext extensionContext;
+        private final Handler methodHandler;
 
-        default Object call(Runnable task) { // NOPMD
+        InContextInvoker(Object target, Method method, HandleSupplier handleSupplier, ConfigRegistry config) {
+            this.target = target;
+            this.handleSupplier = handleSupplier;
+            ConfigRegistry methodConfig = methodConfigurers.get(method).apply(config.createCopy());
+            this.extensionContext = ExtensionContext.forExtensionMethod(methodConfig, extensionType, method);
+            this.methodHandler = methodHandlers.get(method);
+
+            methodHandler.warm(methodConfig);
+        }
+
+        public Object invoke(Object[] args) {
+            final Callable<Object> callable = () -> methodHandler.invoke(target, args == null ? NO_ARGS : args, handleSupplier);
+            return call(callable);
+        }
+
+        public Object call(Callable<?> callable) {
+            try {
+                return handleSupplier.invokeInContext(extensionContext, callable);
+            } catch (Exception x) {
+                throw Sneaky.throwAnyway(x);
+            }
+        }
+
+        public Object call(Runnable runnable) {
             return call(() -> {
-                task.run();
+                runnable.run();
                 return null;
             });
         }
