@@ -14,7 +14,6 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -62,14 +61,5 @@ public class Handlers implements JdbiConfig<Handlers> {
     @Override
     public Handlers createCopy() {
         return new Handlers(this);
-    }
-
-    static Method methodLookup(Class<?> klass, String methodName, Class<?>... parameterTypes) {
-        try {
-            return klass.getMethod(methodName, parameterTypes);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException(
-                    String.format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
-        }
     }
 }

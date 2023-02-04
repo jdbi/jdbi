@@ -36,13 +36,9 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
     private Factory onDemandExtensionFactory;
 
     static {
-        try {
-            EQUALS_METHOD = Object.class.getMethod("equals", Object.class);
-            HASHCODE_METHOD = Object.class.getMethod("hashCode");
-            TOSTRING_METHOD = Object.class.getMethod("toString");
-        } catch (NoSuchMethodException wat) {
-            throw new IllegalStateException("OnDemandExtensions initialization failed", wat);
-        }
+        EQUALS_METHOD = JdbiClassUtils.methodLookup(Object.class, "equals", Object.class);
+        HASHCODE_METHOD = JdbiClassUtils.methodLookup(Object.class, "hashCode");
+        TOSTRING_METHOD = JdbiClassUtils.methodLookup(Object.class, "toString");
     }
 
     public OnDemandExtensions() {

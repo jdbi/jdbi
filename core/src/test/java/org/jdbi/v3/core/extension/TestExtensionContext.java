@@ -60,7 +60,7 @@ public class TestExtensionContext {
 
         default void checkContextInDefaultMethod() throws Exception {
             Method m = TestExtension.class.getMethod("checkContextInDefaultMethod");
-            // there is not extension method set in default methods. These methods
+            // there is no extension method set in default methods. These methods
             // are executed as is and not invoked in context
             Handle handle = getHandle();
             assertThat(handle.getExtensionMethod()).isNull();

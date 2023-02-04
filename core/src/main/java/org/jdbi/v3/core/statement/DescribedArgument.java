@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -20,18 +21,14 @@ import java.util.Objects;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.internal.ConfigCache;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 
 class DescribedArgument implements Argument {
     private static final ConfigCache<Class<?>, Boolean> ARG_CLASS_HAS_TOSTRING =
-            ConfigCaches.declare(type -> {
-                try {
-                    return type.getMethod("toString")
-                               .getDeclaringClass() != Object.class;
-                } catch (ReflectiveOperationException ignored) {
-                    // this can be ignored, in this case just don't have a descriptive string in that case.
-                }
-                return false;
-            });
+            ConfigCaches.declare(type -> JdbiClassUtils.safeMethodLookup(type, "toString")
+                    .map(Method::getDeclaringClass)
+                    .map(c -> c != Object.class)
+                    .orElse(false));
     private final Argument arg;
     private final String description;
 

@@ -40,6 +40,7 @@ import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
@@ -194,7 +195,7 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
     }
 
     private static void addMethodHandler(Map<Method, Handler> handlerMap, Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
-        Method method = Handlers.methodLookup(klass, methodName, parameterTypes);
+        Method method = JdbiClassUtils.methodLookup(klass, methodName, parameterTypes);
         handlerMap.put(method, handler);
     }
 
