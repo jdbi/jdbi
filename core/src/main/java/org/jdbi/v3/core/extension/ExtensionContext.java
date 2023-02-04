@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.extension;
 
+import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
@@ -23,8 +25,17 @@ public final class ExtensionContext {
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
 
+    /**
+     * Create an extension context for a configuration only. No extension method information is set.
+     * @param config A {@link ConfigRegistry} object.
+     * @return An ExtensionContext.
+     */
     public static ExtensionContext forConfig(ConfigRegistry config) {
         return new ExtensionContext(config, null);
+    }
+
+    public static ExtensionContext forExtensionMethod(ConfigRegistry config, Class<?> type, Method method) {
+        return new ExtensionContext(config, new ExtensionMethod(type, method));
     }
 
     public ExtensionContext(ConfigRegistry config, ExtensionMethod extensionMethod) {
