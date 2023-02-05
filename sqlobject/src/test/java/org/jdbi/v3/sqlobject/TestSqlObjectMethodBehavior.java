@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionMethod;
+import org.jdbi.v3.core.extension.ExtensionContext;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ public class TestSqlObjectMethodBehavior {
             }
 
             @Override
-            public <V> V invokeInContext(ExtensionMethod extensionMethod, ConfigRegistry config, Callable<V> task) throws Exception {
+            public <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
                 return task.call();
             }
         };

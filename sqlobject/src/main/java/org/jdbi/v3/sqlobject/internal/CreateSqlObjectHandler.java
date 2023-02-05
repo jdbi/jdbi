@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.internal;
 
 import java.lang.reflect.Method;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
@@ -32,10 +33,12 @@ public class CreateSqlObjectHandler implements Handler {
 
     @Override
     public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) throws Exception {
+        ConfigRegistry config = handleSupplier.getConfig();
+
         if (handleSupplier instanceof OnDemandHandleSupplier) {
-            return handleSupplier.getConfig(OnDemandExtensions.class).create(handleSupplier.getJdbi(), method.getReturnType(), SqlObject.class);
+            return config.get(OnDemandExtensions.class).create(handleSupplier.getJdbi(), method.getReturnType(), SqlObject.class);
         }
-        return handleSupplier.getConfig(Extensions.class)
+        return config.get(Extensions.class)
                 .findFactory(SqlObjectFactory.class)
                 .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
                 .attach(method.getReturnType(), handleSupplier);
