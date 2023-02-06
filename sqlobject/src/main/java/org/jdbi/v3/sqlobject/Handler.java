@@ -22,11 +22,17 @@ import org.jdbi.v3.meta.Beta;
  */
 @FunctionalInterface
 public interface Handler {
+
+    Handler EQUALS_HANDLER = (target, args, handleSupplier) -> target == args[0];
+    Handler HASHCODE_HANDLER = (target, args, handleSupplier) -> System.identityHashCode(target);
+    Handler GET_HANDLE_HANDLER = (target, args, handleSupplier) -> handleSupplier.getHandle();
+    Handler NULL_HANDLER = (target, args, handleSupplier) -> null;
+
     /**
      * Executes a SQL Object method, and returns the result.
      *
-     * @param target the SQL Object instance being invoked
-     * @param args   the arguments that were passed to the method.
+     * @param target         the SQL Object instance being invoked
+     * @param args           the arguments that were passed to the method.
      * @param handleSupplier a (possibly lazy) Handle supplier.
      * @return the method return value, or null if the method has a void return type.
      * @throws Exception any exception thrown by the method.
@@ -36,6 +42,7 @@ public interface Handler {
     /**
      * Called after the method handler is constructed to pre-initialize any important
      * configuration data structures.
+     *
      * @param config the method configuration to warm
      */
     @Beta

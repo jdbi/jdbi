@@ -47,6 +47,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.sqlobject.GeneratorSqlObjectFactory;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData.InContextInvoker;
@@ -105,7 +106,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
         implSpec.addSuperinterface(SqlObject.class);
 
         final CodeBlock.Builder staticInit = CodeBlock.builder()
-                .add("initData = $T.initData();\n", SqlObjectInitData.class);
+                .add("initData = $T.initData();\n", GeneratorSqlObjectFactory.class);
         final CodeBlock.Builder constructor = CodeBlock.builder();
 
         implSpec.addField(SqlObjectInitData.class, "initData", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
@@ -166,8 +167,9 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
         typeBuilder.addField(Method.class, methodField, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
         typeBuilder.addField(new GenericType<Supplier<InContextInvoker>>() {}.getType(), invokerField, Modifier.PRIVATE, Modifier.FINAL);
 
-        staticInit.add("$L = initData.lookupMethod($S, new Class<?>[] {$L});\n",
+        staticInit.add("$L = $T.lookupMethod($S, new Class<?>[] {$L});\n",
                 methodField,
+                GeneratorSqlObjectFactory.class,
                 el.getSimpleName(),
                 paramTypes);
 
