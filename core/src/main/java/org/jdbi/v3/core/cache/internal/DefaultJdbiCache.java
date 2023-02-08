@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.cache.internal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -103,6 +105,23 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
     }
 
     private void expunge() {
+        // If the code would not use a purge list, it would acquire
+        // first the expunge lock and then the stripe lock.
+        //
+        // however any call to the wrapLoader method above happens
+        // while the stripe lock is held and then acquires the
+        // expunge lock afterwards. ( stripe lock -> expunge lock)
+        //
+        // these two paths combined then create a lock inversion and
+        // a thread deadlock (#2274, only 3.37.0 is affected).
+        //
+        // the purge list is filled within the expunge lock but does
+        // not touch the cache. The cache is then purged outside the lock
+        // so the stripe lock is not nested within the expunge lock.
+        //
+        // multithreading is hard.
+        final List<K> purgeList = new ArrayList<>();
+
         synchronized (expungeQueue) {
             if (maxSize <= 0 || expungeQueue.size <= maxSize) {
                 // unbounded or not yet full
@@ -112,13 +131,11 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
             while (expungeQueue.size > maxSize) {
                 DoubleLinkedList.Node<K, V> node = expungeQueue.removeTail();
                 if (node != null) {
-                    cache.remove(node.key);
-                } else {
-                    // expunge queue is empty. This should never happen.
-                    // Reset the cache as well.
-                    cache.clear();
+                    purgeList.add(node.key);
                 }
             }
         }
+
+        purgeList.forEach(cache::remove);
     }
 }
