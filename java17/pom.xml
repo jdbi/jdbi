@@ -30,6 +30,7 @@
     <properties>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.install.skip>true</basepom.install.skip>
+        <jdbi.check.skip-revapi>true</jdbi.check.skip-revapi>
         <moduleName>org.jdbi.v3.java17</moduleName>
         <project.build.targetJdk>17</project.build.targetJdk>
     </properties>

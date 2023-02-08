@@ -34,6 +34,7 @@
         <basepom.test.skip>true</basepom.test.skip>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
+        <jdbi.check.skip-revapi>true</jdbi.check.skip-revapi>
         <!-- Sigh. Java is really hard. Leave this at 0.3.2, all other versions are worse -->
         <dep.clickhouse.version>0.3.2</dep.clickhouse.version>
         <dep.mysql.version>8.0.33</dep.mysql.version>

@@ -107,6 +107,8 @@
         <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
         <dep.plugin.kotlin.version>1.8.21</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
+        <dep.plugin.revapi.version>0.15.0</dep.plugin.revapi.version>
+        <dep.plugin.revapi-java.version>0.28.0</dep.plugin.revapi-java.version>
         <dep.plugin.sortpom.version>3.2.1</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
@@ -775,6 +777,52 @@
                     </dependencies>
                 </plugin>
                 <plugin>
+                    <groupId>org.revapi</groupId>
+                    <artifactId>revapi-maven-plugin</artifactId>
+                    <version>${dep.plugin.revapi.version}</version>
+                    <configuration>
+                        <skip>${jdbi.check.skip-revapi}</skip>
+                        <failBuildOnProblemsFound>${jdbi.check.fail-revapi}</failBuildOnProblemsFound>
+                        <failSeverity>breaking</failSeverity>
+                        <checkDependencies>false</checkDependencies>
+                        <ignoreSuggestionsFormat>xml</ignoreSuggestionsFormat>
+                        <analysisConfiguration>
+                            <revapi.versions>
+                                <enabled>true</enabled>
+                            </revapi.versions>
+                            <revapi.differences>
+                                <classify>
+                                    <SOURCE>EQUIVALENT</SOURCE>
+                                    <SEMANTIC>EQUIVALENT</SEMANTIC>
+                                    <OTHER>EQUIVALENT</OTHER>
+                                </classify>
+                            </revapi.differences>
+                            <revapi.filter>
+                                <elements>
+                                    <exclude>
+                                        <item>
+                                            <matcher>java-package</matcher>
+                                            <match>/.*\\..(?:impl|internal)\\..*</match>
+                                        </item>
+                                    </exclude>
+                                </elements>
+                            </revapi.filter>
+                            <revapi.java>
+                                <missing-classes>
+                                    <behavior>ignore</behavior>
+                                </missing-classes>
+                            </revapi.java>
+                        </analysisConfiguration>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.revapi</groupId>
+                            <artifactId>revapi-java</artifactId>
+                            <version>${dep.plugin.revapi-java.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
                     <version>${dep.plugin.flatten.version}</version>
@@ -1147,5 +1195,50 @@
                 <jdbi.test.pg-version>15</jdbi.test.pg-version>
             </properties>
         </profile>
+
+        <!-- Profiles for Revapi API analysis (https://revapi.org/) -->
+        <profile>
+            <id>revapi</id>
+            <properties>
+                <jdbi.check.fail-revapi>true</jdbi.check.fail-revapi>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.revapi</groupId>
+                        <artifactId>revapi-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <!-- Binds by default to the lifecycle phase verify -->
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>revapi-report</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.revapi</groupId>
+                        <artifactId>revapi-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 </project>

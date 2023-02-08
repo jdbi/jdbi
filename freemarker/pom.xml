@@ -79,6 +79,32 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.revapi</groupId>
+                    <artifactId>revapi-maven-plugin</artifactId>
+                    <configuration>
+                        <analysisConfiguration>
+                            <revapi.filter>
+                                <elements>
+                                    <exclude>
+                                        <item>
+                                            <matcher>java-package</matcher>
+                                            <match>/freemarker\\..*/</match>
+                                        </item>
+                                    </exclude>
+                                </elements>
+                            </revapi.filter>
+
+                        </analysisConfiguration>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
     <profiles>
         <profile>
             <id>jdk8</id>

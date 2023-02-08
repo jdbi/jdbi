@@ -28,6 +28,7 @@
     <description>Jdbi code examples.</description>
 
     <properties>
+        <jdbi.check.skip-revapi>true</jdbi.check.skip-revapi>
         <moduleName>org.jdbi.v3.examples</moduleName>
     </properties>
 
