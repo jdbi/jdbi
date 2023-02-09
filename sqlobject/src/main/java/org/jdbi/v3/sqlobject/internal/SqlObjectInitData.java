@@ -42,7 +42,6 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
-import org.jdbi.v3.sqlobject.GeneratorSqlObjectFactory;
 import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.HandlerDecorators;
 import org.jdbi.v3.sqlobject.Handlers;
@@ -60,6 +59,7 @@ public final class SqlObjectInitData {
 
     // This should be a field in InContextInvoker but static fields are not allowed in inner classes in Java 8
     private static final Object[] NO_ARGS = new Object[0];
+
     private static final ConfigCache<Class<?>, SqlObjectInitData> INIT_DATA_CACHE =
             ConfigCaches.declare(SqlObjectInitData::initDataFor);
     private final Class<?> extensionType;
@@ -100,24 +100,6 @@ public final class SqlObjectInitData {
 
     public Supplier<InContextInvoker> lazyInvoker(Object target, Method method, HandleSupplier handleSupplier, ConfigRegistry instanceConfig) {
         return MemoizingSupplier.of(() -> new InContextInvoker(target, method, handleSupplier, instanceConfig));
-    }
-
-    /**
-     * Legacy generator classes that refer to this method directly. Do not use in new code.
-     * @deprecated
-     */
-    @Deprecated
-    SqlObjectInitData initData() {
-        return GeneratorSqlObjectFactory.initData();
-    }
-
-    /**
-     * Legacy generator classes that refer to this method directly. Do not use in new code.
-     * @deprecated
-     */
-    @Deprecated
-    public static Method lookupMethod(String methodName, Class<?>... parameterTypes) {
-        return GeneratorSqlObjectFactory.lookupMethod(methodName, parameterTypes);
     }
 
     private static SqlObjectInitData initDataFor(ConfigRegistry handlersConfig, Class<?> sqlObjectType) {
@@ -251,7 +233,7 @@ public final class SqlObjectInitData {
             methodHandler.warm(methodConfig);
         }
 
-        public Object invoke(Object[] args) {
+        public Object invoke(Object... args) {
             final Callable<Object> callable = () -> methodHandler.invoke(target, args == null ? NO_ARGS : args, handleSupplier);
             return call(callable);
         }

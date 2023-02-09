@@ -13,24 +13,21 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.reflect.Method;
 import java.util.Optional;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
 
 import static java.lang.String.format;
 
 /**
- * Support for generator instances (concrete classes that have been create by the Jdbi generator.
+ * Support for generator instances (concrete classes that have been created by the Jdbi generator).
  */
 public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Factory {
-    private static final ThreadLocal<SqlObjectInitData> CURRENT_INIT_DATA = new ThreadLocal<>();
 
     GeneratorSqlObjectFactory() {}
 
@@ -57,19 +54,11 @@ public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDema
                 .configureInstance(handleSupplier.getConfig().createCopy());
 
         try {
-            // prime the init data holder to the specific data object
-            CURRENT_INIT_DATA.set(sqlObjectInitData);
-
-            // matches the class structure that the jdbi-generator writes
-            return extensionType.cast(
-                    Class.forName(getGeneratedClassName(extensionType))
-                            .getConstructor(HandleSupplier.class, ConfigRegistry.class)
-                            .newInstance(handleSupplier, instanceConfig));
-        } catch (Exception | ExceptionInInitializerError e) {
+            Class<?> klazz = Class.forName(getGeneratedClassName(extensionType));
+            return extensionType.cast(klazz.getConstructor(SqlObjectInitData.class, HandleSupplier.class, ConfigRegistry.class)
+                    .newInstance(sqlObjectInitData, handleSupplier, instanceConfig));
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new UnableToCreateSqlObjectException(e);
-        } finally {
-            // clean the init data holder again
-            CURRENT_INIT_DATA.remove();
         }
     }
 
@@ -94,22 +83,5 @@ public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDema
 
     private String getOnDemandClassName(Class<?> extensionType) {
         return getGeneratedClassName(extensionType) + "$OnDemand";
-    }
-
-
-    //
-    // The following methods are matched by the jdbi-generator code. Do not change their signatures unless also changing the generator code
-    //
-    public static SqlObjectInitData initData() {
-        final SqlObjectInitData result = CURRENT_INIT_DATA.get();
-        if (result == null) {
-            throw new IllegalStateException("Implemented SqlObject types must be initialized by the GeneratorSqlObjectFactory");
-        }
-        return result;
-    }
-
-    public static Method lookupMethod(String methodName, Class<?>... parameterTypes) {
-        return JdbiClassUtils.safeMethodLookup(initData().extensionType(), methodName, parameterTypes)
-                .orElseGet(() -> JdbiClassUtils.methodLookup(SqlObject.class, methodName, parameterTypes));
     }
 }
