@@ -24,9 +24,15 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlObjectStatementConfiguration;
 public class SqlObjectPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi db) {
-        SqlObjectFactory sqlObjectFactory = new SqlObjectFactory();
-        db.registerExtension(sqlObjectFactory);
-        db.getConfig(OnDemandExtensions.class).setFactory(sqlObjectFactory);
+
+        // support for generated classes (jdbi-generator)
+        GeneratorSqlObjectFactory generatorSqlObjectFactory = new GeneratorSqlObjectFactory();
+        db.registerExtension(generatorSqlObjectFactory);
+        db.getConfig(OnDemandExtensions.class).setFactory(generatorSqlObjectFactory);
+
+        // register SQL object proxy factory
+        db.registerExtension(new SqlObjectFactory());
+
         db.getConfig(SqlObjectStatementConfiguration.class);
     }
 }

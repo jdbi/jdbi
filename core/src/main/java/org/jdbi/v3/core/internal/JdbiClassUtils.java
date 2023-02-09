@@ -16,10 +16,14 @@ package org.jdbi.v3.core.internal;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
 public final class JdbiClassUtils {
+
     private JdbiClassUtils() {
         throw new UtilityClassException();
     }
@@ -37,6 +41,11 @@ public final class JdbiClassUtils {
         try {
             return klass.getMethod(methodName, parameterTypes);
         } catch (ReflectiveOperationException | SecurityException e) {
+            try {
+                return klass.getDeclaredMethod(methodName, parameterTypes);
+            } catch (ReflectiveOperationException | SecurityException e2) {
+                e.addSuppressed(e2);
+            }
             throw new IllegalStateException(format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
         }
     }
@@ -45,7 +54,11 @@ public final class JdbiClassUtils {
         try {
             return Optional.of(klass.getMethod(methodName, parameterTypes));
         } catch (ReflectiveOperationException | SecurityException ignored) {
-            return Optional.empty();
+            try {
+                return Optional.of(klass.getDeclaredMethod(methodName, parameterTypes));
+            } catch (ReflectiveOperationException | SecurityException ignored2) {
+                return Optional.empty();
+            }
         }
     }
 
@@ -55,5 +68,17 @@ public final class JdbiClassUtils {
         } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException(format("Unable to instantiate class %s", factoryClass), e);
         }
+    }
+
+    public static Stream<Class<?>> superTypes(Class<?> type) {
+        Class<?>[] interfaces = type.getInterfaces();
+        // collect into a set to deduplicate the classes found.
+        // this can happen if e.g. a extends b and both implement c.
+        Set<Class<?>> result = Stream.concat(
+                Arrays.stream(interfaces).flatMap(JdbiClassUtils::superTypes),
+                Arrays.stream(interfaces))
+                .collect(Collectors.toSet());
+
+        return result.stream();
     }
 }
