@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.meta.Beta;
@@ -26,6 +27,8 @@ public interface Handler {
     Handler EQUALS_HANDLER = (target, args, handleSupplier) -> target == args[0];
     Handler HASHCODE_HANDLER = (target, args, handleSupplier) -> System.identityHashCode(target);
     Handler GET_HANDLE_HANDLER = (target, args, handleSupplier) -> handleSupplier.getHandle();
+
+    Handler WITH_HANDLE_HANDLER = (target, args, handleSupplier) -> ((HandleCallback<?, RuntimeException>) args[0]).withHandle(handleSupplier.getHandle());
     Handler NULL_HANDLER = (target, args, handleSupplier) -> null;
 
     /**
