@@ -100,8 +100,8 @@ public final class SqlObjectInitData {
         methodHandlers.forEach(action);
     }
 
-    public Supplier<InContextInvoker> lazyInvoker(Object target, Method method, HandleSupplier handleSupplier, ConfigRegistry instanceConfig) {
-        return MemoizingSupplier.of(() -> new InContextInvoker(target, method, handleSupplier, instanceConfig));
+    public InContextInvoker getInvoker(Object target, Method method, HandleSupplier handleSupplier, ConfigRegistry instanceConfig) {
+        return new InContextInvoker(target, method, handleSupplier, instanceConfig);
     }
 
     private static SqlObjectInitData initDataFor(ConfigRegistry handlersConfig, Class<?> sqlObjectType) {
@@ -227,20 +227,23 @@ public final class SqlObjectInitData {
         private final Object target;
         private final HandleSupplier handleSupplier;
         private final ExtensionContext extensionContext;
-        private final Handler methodHandler;
+        private final Supplier<Handler> supplier;
 
         InContextInvoker(Object target, Method method, HandleSupplier handleSupplier, ConfigRegistry config) {
             this.target = target;
             this.handleSupplier = handleSupplier;
             ConfigRegistry methodConfig = methodConfigurers.get(method).apply(config.createCopy());
             this.extensionContext = ExtensionContext.forExtensionMethod(methodConfig, extensionType, method);
-            this.methodHandler = methodHandlers.get(method);
-
-            methodHandler.warm(methodConfig);
+            this.supplier = MemoizingSupplier.of(() -> {
+                Handler methodHandler = methodHandlers.get(method);
+                methodHandler.warm(methodConfig);
+                return methodHandler;
+            });
         }
 
         public Object invoke(Object... args) {
-            final Callable<Object> callable = () -> methodHandler.invoke(target, args == null ? NO_ARGS : args, handleSupplier);
+            Handler handler = supplier.get();
+            final Callable<Object> callable = () -> handler.invoke(target, args == null ? NO_ARGS : args, handleSupplier);
             return call(callable);
         }
 

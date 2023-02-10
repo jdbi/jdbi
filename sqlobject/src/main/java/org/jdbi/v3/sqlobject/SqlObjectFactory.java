@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -79,14 +78,14 @@ public class SqlObjectFactory implements ExtensionFactory {
 
         instanceConfig.get(Extensions.class).onCreateProxy();
 
-        Map<Method, Supplier<InContextInvoker>> handlers = new HashMap<>();
+        Map<Method, InContextInvoker> handlers = new HashMap<>();
         final Object proxy = Proxy.newProxyInstance(
                 extensionType.getClassLoader(),
                 new Class[] {extensionType},
-                (proxyInstance, method, args) -> handlers.get(method).get().invoke(args));
+                (proxyInstance, method, args) -> handlers.get(method).invoke(args));
 
         sqlObjectInitData.forEachMethodHandler((method, handler) ->
-                handlers.put(method, sqlObjectInitData.lazyInvoker(proxy, method, handleSupplier, instanceConfig)));
+                handlers.put(method, sqlObjectInitData.getInvoker(proxy, method, handleSupplier, instanceConfig)));
         return extensionType.cast(proxy);
     }
 }
