@@ -14,8 +14,11 @@
 package org.jdbi.v3.core.async;
 
 import java.time.Duration;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
@@ -30,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.spy;
@@ -91,7 +95,7 @@ public class JdbiExecutorTest {
     void setup() {
         h2Extension.getJdbi().useHandle(H2DatabaseExtension.USERS_INITIALIZER::initialize);
         jdbi = spy(h2Extension.getJdbi().registerExtension(new TestExtensionFactory()));
-        jdbiExecutor = new JdbiExecutorImpl(jdbi, Executors.newSingleThreadExecutor());
+        jdbiExecutor = new JdbiExecutorImpl(jdbi, Executors.newFixedThreadPool(2));
     }
 
     @Test
@@ -182,5 +186,49 @@ public class JdbiExecutorTest {
             jdbiExecutor.useExtension(TestExtension.class, TestExtension::set)
         ).succeedsWithin(Duration.ofSeconds(10));
         verify(jdbi).useExtension(eq(TestExtension.class), any());
+    }
+
+    @Test
+    void testParallelExecutionIsSeparate() {
+        CountDownLatch before = new CountDownLatch(1);
+        CountDownLatch after = new CountDownLatch(2);
+
+        CompletionStage<Integer> stage1 = jdbiExecutor.inTransaction(TransactionIsolationLevel.REPEATABLE_READ, handle -> {
+            // modify in thread 1
+            RUN_UPDATE.useHandle(handle);
+            // notify update is done
+            before.countDown();
+            assertThat(handle.getTransactionIsolationLevel()).isEqualTo(TransactionIsolationLevel.REPEATABLE_READ);
+            int count = RUN_QUERY.withHandle(handle);
+            after.countDown();
+            // wait for both before continuing
+            if (!after.await(10, TimeUnit.SECONDS)) {
+                fail("after.await timed out");
+            }
+            return count;
+        });
+
+        CompletionStage<Integer> stage2 = jdbiExecutor.inTransaction(TransactionIsolationLevel.READ_COMMITTED, handle -> {
+            // check in thread 2
+            // wait for update done
+            if (!before.await(10, TimeUnit.SECONDS)) {
+                fail("before.await timed out");
+            }
+            assertThat(handle.getTransactionIsolationLevel()).isEqualTo(TransactionIsolationLevel.READ_COMMITTED);
+            int count = RUN_QUERY.withHandle(handle);
+            after.countDown();
+            // wait for both before continuing
+            if (!after.await(10, TimeUnit.SECONDS)) {
+                fail("after.await timed out");
+            }
+            return count;
+        });
+
+        assertThat(stage1)
+            .succeedsWithin(Duration.ofSeconds(10))
+            .isEqualTo(3);
+        assertThat(stage2)
+            .succeedsWithin(Duration.ofSeconds(10))
+            .isEqualTo(2);
     }
 }
