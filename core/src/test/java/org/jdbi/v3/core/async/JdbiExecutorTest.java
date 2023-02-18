@@ -95,7 +95,7 @@ public class JdbiExecutorTest {
     void setup() {
         h2Extension.getJdbi().useHandle(H2DatabaseExtension.USERS_INITIALIZER::initialize);
         jdbi = spy(h2Extension.getJdbi().registerExtension(new TestExtensionFactory()));
-        jdbiExecutor = new JdbiExecutorImpl(jdbi, Executors.newFixedThreadPool(2));
+        jdbiExecutor = JdbiExecutor.create(jdbi, Executors.newFixedThreadPool(2));
     }
 
     @Test
