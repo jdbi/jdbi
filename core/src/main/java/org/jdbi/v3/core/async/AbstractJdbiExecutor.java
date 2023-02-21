@@ -25,7 +25,7 @@ import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 public abstract class AbstractJdbiExecutor implements JdbiExecutor {
 
     /**
-     * Single method through which all other methods converge. If you want to override JdbiExecutorImpl, you only need to override this one method.
+     * Single method through which all other methods converge. If you want to override AbstractJdbiExecutor, you only need to override this one method.
      *
      * @param handler the handler that takes a Jdbi instance and returns a value
      * @param <R>     type returned by the callback
