@@ -20,74 +20,72 @@ import org.jdbi.v3.core.HandleConsumer;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.ExtensionCallback;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
+import org.jdbi.v3.core.internal.exceptions.CheckedConsumer;
+import org.jdbi.v3.core.internal.exceptions.CheckedFunction;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 
 public abstract class AbstractJdbiExecutor implements JdbiExecutor {
 
     /**
-     * Single method through which all other methods converge. If you want to override AbstractJdbiExecutor, you only need to override this one method.
+     * Single method through which all other with* methods converge. Since useExecute also calls this, any implementation of AbstractJdbiExecutor only needs to
+     * implement this method
      *
-     * @param handler the handler that takes a Jdbi instance and returns a value
-     * @param <R>     type returned by the callback
-     * @param <X>     exception type thrown by the callback, if any.
+     * @param callback the callback that takes a Jdbi instance and returns a value
+     * @param <T>      type returned by the callback
+     * @return a completion stage that will complete when the handler returns a value or throws an exception
+     */
+    protected abstract <T> CompletionStage<T> withExecute(CheckedFunction<Jdbi, T> callback);
+
+    /**
+     * Single method through which all other use* methods converge. This method calls {@link #withExecute(CheckedFunction)}
+     *
+     * @param callback the callback that takes a Jdbi instance
      * @return a completion stage that will complete when the handler returns or throws an exception
      */
-    protected abstract <R, X extends Exception> CompletionStage<R> doExecute(Handler<R, X> handler);
+    protected CompletionStage<Void> useExecute(CheckedConsumer<Jdbi> callback) {
+        return withExecute(jdbi -> {
+            callback.accept(jdbi);
+            return null;
+        });
+    }
 
     @Override
     public <R, X extends Exception> CompletionStage<R> withHandle(final HandleCallback<R, X> callback) {
-        return doExecute(jdbi -> jdbi.withHandle(callback));
+        return withExecute(jdbi -> jdbi.withHandle(callback));
     }
 
     @Override
     public <R, X extends Exception> CompletionStage<R> inTransaction(final HandleCallback<R, X> callback) {
-        return doExecute(jdbi -> jdbi.inTransaction(callback));
+        return withExecute(jdbi -> jdbi.inTransaction(callback));
     }
 
     @Override
     public <R, X extends Exception> CompletionStage<R> inTransaction(final TransactionIsolationLevel level, final HandleCallback<R, X> callback) {
-        return doExecute(jdbi -> jdbi.inTransaction(level, callback));
+        return withExecute(jdbi -> jdbi.inTransaction(level, callback));
     }
 
     @Override
     public <X extends Exception> CompletionStage<Void> useHandle(final HandleConsumer<X> consumer) {
-        return doExecute(jdbi -> {
-            jdbi.useHandle(consumer);
-            return null;
-        });
+        return useExecute(jdbi -> jdbi.useHandle(consumer));
     }
 
     @Override
     public <X extends Exception> CompletionStage<Void> useTransaction(final HandleConsumer<X> callback) {
-        return doExecute(jdbi -> {
-            jdbi.useTransaction(callback);
-            return null;
-        });
+        return useExecute(jdbi -> jdbi.useTransaction(callback));
     }
 
     @Override
     public <X extends Exception> CompletionStage<Void> useTransaction(final TransactionIsolationLevel level, final HandleConsumer<X> callback) {
-        return doExecute(jdbi -> {
-            jdbi.useTransaction(level, callback);
-            return null;
-        });
+        return useExecute(jdbi -> jdbi.useTransaction(level, callback));
     }
 
     @Override
     public <R, E, X extends Exception> CompletionStage<R> withExtension(final Class<E> extensionType, final ExtensionCallback<R, E, X> callback) {
-        return doExecute(jdbi -> jdbi.withExtension(extensionType, callback));
+        return withExecute(jdbi -> jdbi.withExtension(extensionType, callback));
     }
 
     @Override
     public <E, X extends Exception> CompletionStage<Void> useExtension(final Class<E> extensionType, final ExtensionConsumer<E, X> callback) {
-        return doExecute(jdbi -> {
-            jdbi.useExtension(extensionType, callback);
-            return null;
-        });
-    }
-
-    protected interface Handler<R, X extends Exception> {
-
-        R apply(Jdbi jdbi) throws X;
+        return useExecute(jdbi -> jdbi.useExtension(extensionType, callback));
     }
 }

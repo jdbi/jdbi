@@ -19,6 +19,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.internal.exceptions.CheckedFunction;
 
 class JdbiExecutorImpl extends AbstractJdbiExecutor {
 
@@ -37,20 +38,19 @@ class JdbiExecutorImpl extends AbstractJdbiExecutor {
     }
 
     /**
-     * Make sure to run the handler in a thread supplied by the executor
+     * Make sure to run the callback in a thread supplied by the executor
      *
-     * @param handler the handler that takes a Jdbi instance and returns a value
-     * @param <R>     type returned by the callback
-     * @param <X>     exception type thrown by the callback, if any.
-     * @return a completion stage that will complete when the handler returns or throws an exception
+     * @param callback the callback that takes a Jdbi instance and returns a value
+     * @param <T>      type returned by the callback
+     * @return a completion stage that will complete when the callback returns a value or throws an exception
      */
     @Override
-    protected <R, X extends Exception> CompletionStage<R> doExecute(final Handler<R, X> handler) {
+    protected <T> CompletionStage<T> withExecute(final CheckedFunction<Jdbi, T> callback) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return handler.apply(jdbi);
-            } catch (Exception e) {
-                throw new CompletionException(e);
+                return callback.apply(jdbi);
+            } catch (Throwable t) {
+                throw new CompletionException(t);
             }
         }, executor);
     }
