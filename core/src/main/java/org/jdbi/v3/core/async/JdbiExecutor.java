@@ -23,7 +23,9 @@ import org.jdbi.v3.core.extension.ExtensionCallback;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.meta.Beta;
 
+@Beta
 public interface JdbiExecutor {
 
     /**

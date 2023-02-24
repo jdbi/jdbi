@@ -20,7 +20,9 @@ import java.util.concurrent.Executor;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.internal.exceptions.CheckedFunction;
+import org.jdbi.v3.meta.Beta;
 
+@Beta
 class JdbiExecutorImpl extends AbstractJdbiExecutor {
 
     private final Jdbi jdbi;

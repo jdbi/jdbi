@@ -23,7 +23,9 @@ import org.jdbi.v3.core.extension.ExtensionConsumer;
 import org.jdbi.v3.core.internal.exceptions.CheckedConsumer;
 import org.jdbi.v3.core.internal.exceptions.CheckedFunction;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.meta.Beta;
 
+@Beta
 public abstract class AbstractJdbiExecutor implements JdbiExecutor {
 
     /**
