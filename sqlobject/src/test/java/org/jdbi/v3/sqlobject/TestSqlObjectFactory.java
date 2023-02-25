@@ -13,16 +13,34 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class TestSqlObjectFactory {
-    private SqlObjectFactory factory = new SqlObjectFactory();
+
+    private Jdbi jdbi;
+
+    @BeforeEach
+    public void setUp() {
+        jdbi = Jdbi.create(() -> {
+            throw new UnsupportedOperationException();
+        });
+
+        jdbi.registerExtension(new SqlObjectFactory());
+    }
 
     @Test
     public void accepts() {
+        ExtensionFactory factory = jdbi.getConfig(Extensions.class).findFactory(SqlObjectFactory.class)
+                .orElseGet(() -> fail("Could not retrieve factory"));
+
         assertThat(factory.accepts(NotASqlObject.class)).isFalse();
 
         assertThat(factory.accepts(SqlObjectClass.class)).isFalse();
@@ -32,6 +50,7 @@ public class TestSqlObjectFactory {
     }
 
     abstract class NotASqlObject {
+
         abstract String foo(String id);
     }
 
@@ -40,6 +59,7 @@ public class TestSqlObjectFactory {
     public abstract class SqlObjectClass implements SqlObject {}
 
     public interface HasAnnotatedMethod {
+
         @SqlQuery("select foo from bar")
         String foo();
     }

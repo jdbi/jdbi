@@ -19,6 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.jdbi.v3.core.enums.EnumStrategy;
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.UseEnumStrategyImpl;
 
 /**
@@ -29,7 +30,7 @@ import org.jdbi.v3.sqlobject.config.internal.UseEnumStrategyImpl;
  * @see org.jdbi.v3.core.enums.Enums#setEnumStrategy(EnumStrategy)
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(UseEnumStrategyImpl.class)
+@UseExtensionConfigurer(UseEnumStrategyImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseEnumStrategy {
     EnumStrategy value();

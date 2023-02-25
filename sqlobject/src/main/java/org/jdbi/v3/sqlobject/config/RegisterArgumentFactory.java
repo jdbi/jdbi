@@ -20,13 +20,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.RegisterArgumentFactoryImpl;
 
 /**
  * Used to register an argument factory with either a sql object type or for a specific method.
  * This annotation may be repeated to register multiple argument factories.
  */
-@ConfiguringAnnotation(RegisterArgumentFactoryImpl.class)
+@UseExtensionConfigurer(RegisterArgumentFactoryImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(RegisterArgumentFactories.class)

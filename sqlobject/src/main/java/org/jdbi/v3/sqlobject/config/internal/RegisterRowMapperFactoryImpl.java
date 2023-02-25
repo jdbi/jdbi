@@ -17,11 +17,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 
-public class RegisterRowMapperFactoryImpl implements Configurer {
+public class RegisterRowMapperFactoryImpl implements ExtensionConfigurer {
 
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
@@ -33,8 +33,8 @@ public class RegisterRowMapperFactoryImpl implements Configurer {
         RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
         RowMappers mappers = registry.get(RowMappers.class);
         try {
-            mappers.register(registerRowMapperFactory.value().getDeclaredConstructor().newInstance());
-        } catch (ReflectiveOperationException e) {
+            mappers.register(registerRowMapperFactory.value().getConstructor().newInstance());
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate row mapper factory class " + registerRowMapperFactory.value(), e);
         }
     }

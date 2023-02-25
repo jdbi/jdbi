@@ -19,15 +19,15 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.extension.ExtensionHandler;
+import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
-import org.jdbi.v3.sqlobject.Handler;
-import org.jdbi.v3.sqlobject.HandlerDecorator;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 
-public class TransactionDecorator implements HandlerDecorator {
+public class TransactionDecorator implements ExtensionHandlerCustomizer {
     @Override
-    public Handler decorateHandler(Handler delegate, Class<?> sqlObjectType, Method method) {
+    public ExtensionHandler customize(ExtensionHandler delegate, Class<?> sqlObjectType, Method method) {
         final Transaction txnAnnotation = Stream.of(method, sqlObjectType)
                 .map(ae -> ae.getAnnotation(Transaction.class))
                 .filter(Objects::nonNull)
@@ -36,7 +36,7 @@ public class TransactionDecorator implements HandlerDecorator {
         final TransactionIsolationLevel isolation = txnAnnotation.value();
         final boolean readOnly = txnAnnotation.readOnly();
 
-        return (target, args, handleSupplier) -> {
+        return (handleSupplier, target, args) -> {
             Handle handle = handleSupplier.getHandle();
 
             if (handle.isInTransaction() && handle.isReadOnly() && !readOnly) {
@@ -44,7 +44,7 @@ public class TransactionDecorator implements HandlerDecorator {
                         + "inside a readOnly transaction");
             }
 
-            HandleCallback<Object, Exception> callback = transactionHandle -> delegate.invoke(target, args, handleSupplier);
+            HandleCallback<Object, Exception> callback = transactionHandle -> delegate.invoke(handleSupplier, target, args);
 
             final boolean flipReadOnly = readOnly != handle.isReadOnly();
             if (flipReadOnly) {

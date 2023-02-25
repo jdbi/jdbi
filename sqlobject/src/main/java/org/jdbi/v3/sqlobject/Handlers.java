@@ -18,27 +18,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
  * Registry for {@link HandlerFactory handler factories}, which produce {@link Handler handlers} for SQL object methods.
- * By default, a factory is registered for default methods ({@link DefaultMethodHandlerFactory}) and for methods annotated
+ * By default, a factory is registered for methods annotated
  * with SQL annotations such as {@code @SqlUpdate} or {@code SqlQuery}. Clients may register additional factories to provide
  * support for other use cases. In the case that two or more registered factories would support a particular SQL object
  * method, the last-registered factory takes precedence.
+ *
+ * @deprecated Use {@link org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory} instances that are returned
+ * from the {@link org.jdbi.v3.core.extension.ExtensionFactory#getExtensionHandlerFactories(ConfigRegistry)} method.
  */
+@Deprecated
 public class Handlers implements JdbiConfig<Handlers> {
     private final List<HandlerFactory> factories = new CopyOnWriteArrayList<>();
 
-    public Handlers() {
-        register(new DefaultMethodHandlerFactory());
-        register(new SqlMethodHandlerFactory());
-        register(new BridgeMethodHandlerFactory());
-    }
+    public Handlers() {}
 
     private Handlers(Handlers that) {
         factories.addAll(that.factories);
+    }
+
+    List<HandlerFactory> getFactories() {
+        return factories;
     }
 
     /**

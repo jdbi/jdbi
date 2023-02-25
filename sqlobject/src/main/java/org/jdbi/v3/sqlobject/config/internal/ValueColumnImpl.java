@@ -17,11 +17,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.mapper.MapEntryMappers;
-import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ValueColumn;
 
-public class ValueColumnImpl implements Configurer {
+public class ValueColumnImpl implements ExtensionConfigurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         ValueColumn valueColumn = (ValueColumn) annotation;

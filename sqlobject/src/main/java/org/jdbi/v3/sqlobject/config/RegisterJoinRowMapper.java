@@ -18,6 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.core.mapper.JoinRowMapper;
 import org.jdbi.v3.sqlobject.config.internal.RegisterJoinRowMapperImpl;
 
@@ -25,7 +26,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterJoinRowMapperImpl;
  * Used to register a {@link JoinRowMapper} factory.  Will attempt to map all
  * types given in the annotation declaration.
  */
-@ConfiguringAnnotation(RegisterJoinRowMapperImpl.class)
+@UseExtensionConfigurer(RegisterJoinRowMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterJoinRowMapper {

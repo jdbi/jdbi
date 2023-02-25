@@ -19,13 +19,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.sqlobject.config.internal.RegisterRowMapperImpl;
 
 /**
  * Register a row mapper in the context of a SQL Object type or method.
  */
-@ConfiguringAnnotation(RegisterRowMapperImpl.class)
+@UseExtensionConfigurer(RegisterRowMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterRowMappers.class)

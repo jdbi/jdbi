@@ -18,9 +18,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.RegisterObjectArgumentFactoriesImpl;
 
-@ConfiguringAnnotation(RegisterObjectArgumentFactoriesImpl.class)
+@UseExtensionConfigurer(RegisterObjectArgumentFactoriesImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterObjectArgumentFactories {

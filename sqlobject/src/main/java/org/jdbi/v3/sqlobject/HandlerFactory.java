@@ -16,13 +16,20 @@ package org.jdbi.v3.sqlobject;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
+import org.jdbi.v3.core.extension.ExtensionHandler;
+import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
+
 /**
  * Creates Handler objects for methods annotated with a specific SQL method annotation, which satisfy the contract of
  * that annotation.
  *
  * @see SqlOperation
+ *
+ * @deprecated Use {@link ExtensionHandlerFactory} instances directly.
  */
-public interface HandlerFactory {
+@Deprecated
+public interface HandlerFactory extends ExtensionHandlerFactory {
+
     /**
      * Returns a {@link Handler} instance for executing the given SQL Object method.
      *
@@ -31,4 +38,15 @@ public interface HandlerFactory {
      * @return a handler, if applicable
      */
     Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method);
+
+    @Override
+    default boolean accepts(Class<?> extensionType, Method method) {
+        return true;
+    }
+
+    @Override
+    default Optional<ExtensionHandler> buildExtensionHandler(Class<?> extensionType, Method method) {
+        return buildHandler(extensionType, method)
+                .map(h -> h); // ugh, Java.
+    }
 }

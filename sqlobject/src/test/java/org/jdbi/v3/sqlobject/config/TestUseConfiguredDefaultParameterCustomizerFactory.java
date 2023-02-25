@@ -75,7 +75,8 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
         SomethingDao h = handle.attach(SomethingDao.class);
         h.findByNameAndIdWithBindAnnotation(1, "Joy");
 
-        assertThat(invocationCounter.get()).isZero();
+        // called twice for each parameter
+        assertThat(invocationCounter.get()).isEqualTo(2);
     }
 
     @RegisterRowMapper(SomethingMapper.class)

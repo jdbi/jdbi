@@ -18,10 +18,10 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.enums.Enums;
-import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.UseEnumStrategy;
 
-public class UseEnumStrategyImpl implements Configurer {
+public class UseEnumStrategyImpl implements ExtensionConfigurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);

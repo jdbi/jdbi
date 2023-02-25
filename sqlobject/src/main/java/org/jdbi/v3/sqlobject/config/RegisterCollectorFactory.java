@@ -19,6 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.jdbi.v3.core.collector.CollectorFactory;
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.RegisterCollectorFactoryImpl;
 
 /**
@@ -26,7 +27,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterCollectorFactoryImpl;
  * {@link org.jdbi.v3.core.statement.SqlStatement} either for a sql object type
  * or for a method.
  */
-@ConfiguringAnnotation(RegisterCollectorFactoryImpl.class)
+@UseExtensionConfigurer(RegisterCollectorFactoryImpl.class)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterCollectorFactory {

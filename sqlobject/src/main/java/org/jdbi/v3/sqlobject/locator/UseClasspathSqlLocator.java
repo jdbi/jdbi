@@ -16,8 +16,8 @@ package org.jdbi.v3.sqlobject.locator;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.locator.internal.UseClasspathSqlLocatorImpl;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -41,7 +41,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *     }
  * </pre>
  */
-@ConfiguringAnnotation(UseClasspathSqlLocatorImpl.class)
+@UseExtensionConfigurer(UseClasspathSqlLocatorImpl.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface UseClasspathSqlLocator {

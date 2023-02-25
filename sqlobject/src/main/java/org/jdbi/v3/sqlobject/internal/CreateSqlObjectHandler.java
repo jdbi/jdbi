@@ -16,15 +16,15 @@ package org.jdbi.v3.sqlobject.internal;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.core.internal.OnDemandHandleSupplier;
-import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.SqlObjectFactory;
 
-public class CreateSqlObjectHandler implements Handler {
+public class CreateSqlObjectHandler implements ExtensionHandler {
     private final Method method;
 
     public CreateSqlObjectHandler(Method method) {
@@ -32,7 +32,7 @@ public class CreateSqlObjectHandler implements Handler {
     }
 
     @Override
-    public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) throws Exception {
+    public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
         ConfigRegistry config = handleSupplier.getConfig();
 
         if (handleSupplier instanceof OnDemandHandleSupplier) {

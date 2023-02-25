@@ -18,6 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.v3.sqlobject.internal.CreateSqlObjectHandler;
 
 /**
@@ -26,5 +27,6 @@ import org.jdbi.v3.sqlobject.internal.CreateSqlObjectHandler;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@SqlOperation(CreateSqlObjectHandler.class)
+@UseExtensionHandler(id = SqlObjectFactory.EXTENSION_ID, value = CreateSqlObjectHandler.class)
+
 public @interface CreateSqlObject {}

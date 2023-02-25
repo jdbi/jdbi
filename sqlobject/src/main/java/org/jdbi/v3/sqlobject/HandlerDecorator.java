@@ -15,14 +15,20 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
 
+import org.jdbi.v3.core.extension.ExtensionHandler;
+import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
+
 /**
  * Decorates Handler objects with additional behavior.
  *
  * @see SqlMethodDecoratingAnnotation
  * @see HandlerDecorators
+ *
+ * @deprecated Use {@link ExtensionHandlerCustomizer} directly.
  */
+@Deprecated
 @FunctionalInterface
-public interface HandlerDecorator {
+public interface HandlerDecorator extends ExtensionHandlerCustomizer {
     /**
      * Decorates the {@link Handler} to add or substitute behavior on the given SQL Object method. Implementations may
      * alternatively return the base handler, e.g. if the conditions for applying a particular decoration are not met.
@@ -33,4 +39,13 @@ public interface HandlerDecorator {
      * @return the base handle, or a decorated handler (depending on the decorator implementation).
      */
     Handler decorateHandler(Handler base, Class<?> sqlObjectType, Method method);
+
+    @Override
+    default ExtensionHandler customize(ExtensionHandler defaultHandler, Class<?> extensionType, Method method) {
+        ExtensionHandler handler = defaultHandler;
+        if (handler instanceof Handler) {
+            handler = decorateHandler((Handler) handler, extensionType, method);
+        }
+        return handler;
+    }
 }

@@ -13,39 +13,44 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-import org.jdbi.v3.core.internal.exceptions.Sneaky;
+import org.jdbi.v3.core.extension.ExtensionHandler;
+import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.exceptions.CheckedCallable;
 
-import static java.util.stream.Collectors.toList;
+import static java.lang.String.format;
 
-class SqlMethodHandlerFactory implements HandlerFactory {
+class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
+
     @Override
-    public Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method) {
-        List<Class<?>> sqlMethodAnnotations = Stream.of(method.getAnnotations())
-                .map(Annotation::annotationType)
-                .filter(type -> type.isAnnotationPresent(SqlOperation.class))
-                .collect(toList());
+    public boolean accepts(Class<?> extensionType, Method method) {
 
-        if (sqlMethodAnnotations.isEmpty()) {
-            return Optional.empty();
+        if (method.isBridge()) {
+            return false;
         }
+
+        return !SqlObjectAnnotationHelper.findSqlMethodAnnotations(method).isEmpty();
+    }
+
+    @Override
+    public Optional<ExtensionHandler> buildExtensionHandler(Class<?> sqlObjectType, Method method) {
+
+        List<Class<?>> sqlMethodAnnotations = SqlObjectAnnotationHelper.findSqlMethodAnnotations(method);
 
         if (sqlMethodAnnotations.size() > 1) {
             throw new IllegalStateException(
-                    String.format("Mutually exclusive annotations on method %s.%s: %s",
+                    format("Mutually exclusive annotations on method %s.%s: %s",
                             sqlObjectType.getName(),
                             method.getName(),
                             sqlMethodAnnotations));
         }
 
         if (method.isDefault() && !method.isSynthetic()) {
-            throw new IllegalStateException(String.format(
+            throw new IllegalStateException(format(
                     "Default method %s.%s has @%s annotation. "
                             + "SQL object methods may be default, or have a SQL method annotation, but not both.",
                     sqlObjectType.getSimpleName(),
@@ -53,41 +58,33 @@ class SqlMethodHandlerFactory implements HandlerFactory {
                     sqlMethodAnnotations.get(0).getSimpleName()));
         }
 
-        return Optional.of(sqlMethodAnnotations.stream()
+        return Optional.of(SqlObjectAnnotationHelper.findOldAnnotations(method)
                 .map(type -> type.getAnnotation(SqlOperation.class))
-                .map(a -> buildHandler(a.value(), sqlObjectType, method))
+                .map(a -> createHandler(a.value(), sqlObjectType, method))
                 .findFirst()
-                .<IllegalStateException>orElseThrow(() -> new IllegalStateException(String.format(
+                .orElseThrow(() -> new IllegalStateException(format(
                         "Method %s.%s must be default or be annotated with a SQL method annotation.",
                         sqlObjectType.getSimpleName(),
                         method.getName()))));
     }
 
-    @SuppressWarnings("PMD.PreserveStackTrace")
-    private Handler buildHandler(Class<? extends Handler> handlerType, Class<?> sqlObjectType, Method method) {
-        try {
-            return handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method);
-        } catch (InvocationTargetException e) {
-            throw Sneaky.throwAnyway(e.getCause());
-        } catch (ReflectiveOperationException ignored) {
-            // fall-through
+
+    private Handler createHandler(Class<? extends Handler> handlerType, Class<?> sqlObjectType, Method method) {
+
+        CheckedCallable[] callables = {
+                () -> handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method),
+                () -> handlerType.getConstructor(Method.class).newInstance(method),
+                () -> handlerType.getConstructor().newInstance()
+        };
+
+        for (CheckedCallable<Handler> callable : callables) {
+            Optional<Handler> handler = JdbiClassUtils.createInstanceIfPossible(callable);
+            if (handler.isPresent()) {
+                return handler.get();
+            }
         }
 
-        try {
-            return handlerType.getConstructor(Method.class).newInstance(method);
-        } catch (InvocationTargetException e) {
-            throw Sneaky.throwAnyway(e.getCause());
-        } catch (ReflectiveOperationException ignored) {
-            // fall-through
-        }
-
-        try {
-            return handlerType.getConstructor().newInstance();
-        } catch (InvocationTargetException e) {
-            throw Sneaky.throwAnyway(e.getCause());
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Handler class " + handlerType + " cannot be instantiated. "
-                    + "Expected a constructor with parameters (Class, Method), (Method), or ().", e);
-        }
+        throw new IllegalStateException(format("Handler class %s cannot be instantiated. "
+                + "Expected a constructor with parameters (Class, Method), (Method), or ().", handlerType));
     }
 }

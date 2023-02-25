@@ -18,10 +18,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.RegisterBeanMappersImpl;
 
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(RegisterBeanMappersImpl.class)
+@UseExtensionConfigurer(RegisterBeanMappersImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface RegisterBeanMappers {
     RegisterBeanMapper[] value();

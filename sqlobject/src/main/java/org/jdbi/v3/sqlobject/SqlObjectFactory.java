@@ -13,40 +13,32 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionFactory;
-import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
-import org.jdbi.v3.sqlobject.internal.SqlObjectInitData.InContextInvoker;
 
-import static java.lang.String.format;
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.VIRTUAL_FACTORY;
 
 /**
  * Creates implementations for SqlObject interfaces.
  */
-public class SqlObjectFactory implements ExtensionFactory {
+public final class SqlObjectFactory extends AbstractSqlObjectFactory {
+
+    public static final String EXTENSION_ID = "SQL_OBJECT";
 
     SqlObjectFactory() {}
 
     @Override
     public boolean accepts(Class<?> extensionType) {
-
-        // the sql generator only deals with interfaces
+        // only allow interfaces.
         if (!extensionType.isInterface()) {
             return false;
         }
 
         // ignore generator types
-        if (SqlObjectInitData.isConcrete(extensionType)) {
+        if (isConcrete(extensionType)) {
             return false;
         }
 
@@ -55,15 +47,15 @@ public class SqlObjectFactory implements ExtensionFactory {
             return true;
         }
 
-        // otherwise at least one method must be marked with a SqlOperation
+        // otherwise at least one method must be marked with a SqlOperation or UseExtensionMethod with the SQL id.
         return Stream.of(extensionType.getMethods())
                 .flatMap(m -> Stream.of(m.getAnnotations()))
-                .anyMatch(a -> a.annotationType().isAnnotationPresent(SqlOperation.class));
+                .anyMatch(SqlObjectAnnotationHelper::matchSqlAnnotations);
     }
 
     @Override
     public Set<FactoryFlag> getFactoryFlags() {
-        return EnumSet.of(FactoryFlag.CLASSES_ARE_SUPPORTED);
+        return EnumSet.of(VIRTUAL_FACTORY);
     }
 
     /**
@@ -76,23 +68,6 @@ public class SqlObjectFactory implements ExtensionFactory {
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
-        if (SqlObjectInitData.isConcrete(extensionType)) {
-            throw new IllegalStateException(format("Can not process %s, it is a generated SQL object", extensionType.getSimpleName()));
-        }
-
-        final SqlObjectInitData sqlObjectInitData = SqlObjectInitData.lookup(extensionType, handleSupplier.getConfig());
-        final ConfigRegistry instanceConfig = sqlObjectInitData.configureInstance(handleSupplier.getConfig().createCopy());
-
-        instanceConfig.get(Extensions.class).onCreateProxy();
-
-        Map<Method, InContextInvoker> handlers = new HashMap<>();
-        final Object proxy = Proxy.newProxyInstance(
-                extensionType.getClassLoader(),
-                new Class[] {extensionType},
-                (proxyInstance, method, args) -> handlers.get(method).invoke(args));
-
-        sqlObjectInitData.forEachMethodHandler((method, handler) ->
-                handlers.put(method, sqlObjectInitData.getInvoker(proxy, method, handleSupplier, instanceConfig)));
-        return extensionType.cast(proxy);
+        throw new UnsupportedOperationException();
     }
 }

@@ -22,9 +22,12 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * Annotation used to modify configuration in the context of a SQL object or method. Use this to annotate an annotation.
+ *
+ * @deprecated Use {@link org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
+@Deprecated
 public @interface ConfiguringAnnotation {
     /**
      * A {@link Configurer} type, which will be used to configure {@link ConfigRegistry} instances.

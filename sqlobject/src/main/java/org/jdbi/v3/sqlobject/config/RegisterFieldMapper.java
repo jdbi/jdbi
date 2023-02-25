@@ -19,6 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.jdbi.v3.sqlobject.config.internal.RegisterFieldMapperImpl;
 
@@ -26,7 +27,7 @@ import org.jdbi.v3.sqlobject.config.internal.RegisterFieldMapperImpl;
  * Register types to reflectively assign fields with {@link FieldMapper}.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(RegisterFieldMapperImpl.class)
+@UseExtensionConfigurer(RegisterFieldMapperImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterFieldMappers.class)
 public @interface RegisterFieldMapper {

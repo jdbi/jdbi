@@ -19,13 +19,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.RegisterBeanMapperImpl;
 
 /**
  * Registers a BeanMapper for a specific bean class
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(RegisterBeanMapperImpl.class)
+@UseExtensionConfigurer(RegisterBeanMapperImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterBeanMappers.class)
 public @interface RegisterBeanMapper {

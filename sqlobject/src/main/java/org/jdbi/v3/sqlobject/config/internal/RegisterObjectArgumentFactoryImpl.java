@@ -19,10 +19,10 @@ import java.lang.reflect.Method;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.ObjectArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterObjectArgumentFactory;
 
-public class RegisterObjectArgumentFactoryImpl implements Configurer {
+public class RegisterObjectArgumentFactoryImpl implements ExtensionConfigurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterObjectArgumentFactory registerObjectArgumentFactory = (RegisterObjectArgumentFactory) annotation;

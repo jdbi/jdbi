@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -28,6 +29,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
@@ -36,7 +38,6 @@ import org.jdbi.v3.core.result.RowReducer;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
-import org.jdbi.v3.sqlobject.Handler;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -51,7 +52,8 @@ import static java.util.stream.Stream.concat;
 /**
  * Base handler for annotations' implementation classes.
  */
-abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements Handler {
+abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements ExtensionHandler {
+
     private final List<BoundCustomizer> statementCustomizers;
     private final Class<?> sqlObjectType;
     private final Method method;
@@ -59,20 +61,24 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     CustomizingStatementHandler(Class<?> type, Method method) {
         this.sqlObjectType = type;
         this.method = method;
+        this.statementCustomizers = new ArrayList<>();
 
-        // Include annotations on the interface's supertypes
-        final Stream<BoundCustomizer> typeCustomizers = concat(JdbiClassUtils.superTypes(type), Stream.of(type))
-            .flatMap(CustomizingStatementHandler::annotationsFor)
-            .map(a -> instantiateFactory(a).createForType(a, type))
-            .map(BoundCustomizer::of);
+        // type customizers, including annotations on the interface's supertypes
+        concat(JdbiClassUtils.superTypes(type), Stream.of(type))
+                .flatMap(CustomizingStatementHandler::annotationsFor)
+                .map(a -> instantiateFactory(a).createForType(a, type))
+                .map(BoundCustomizer::of)
+                .collect(Collectors.toCollection(() -> statementCustomizers));
 
-        final Stream<BoundCustomizer> methodCustomizers = annotationsFor(method)
-            .map(a -> instantiateFactory(a).createForMethod(a, type, method))
-            .map(BoundCustomizer::of);
+        // method customizers
+        annotationsFor(method)
+                .map(a -> instantiateFactory(a).createForMethod(a, type, method))
+                .map(BoundCustomizer::of)
+                .collect(Collectors.toCollection(() -> statementCustomizers));
 
-        statementCustomizers = Stream.of(typeCustomizers, methodCustomizers, parameterCustomizers())
-            .reduce(Stream.empty(), Stream::concat)
-            .collect(Collectors.toList());
+        // parameter customizers
+        parameterCustomizers()
+                .collect(Collectors.toCollection(() -> statementCustomizers));
     }
 
     @Override
@@ -96,7 +102,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     private Stream<BoundCustomizer> eachParameterCustomizers(Parameter parameter,
-                                                             Integer i) {
+            Integer i) {
 
         List<BoundCustomizer> customizers = annotationsFor(parameter)
                 .map(a -> instantiateFactory(a).createForParameter(a, sqlObjectType, method, parameter, i, getParameterType(parameter)))
@@ -120,7 +126,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         if (parameter.getType() == Consumer.class) {
             if (method.getReturnType() != Void.TYPE) {
                 throw new IllegalStateException(
-                  "SQL Object methods with a Consumer parameter must have void return type.");
+                        "SQL Object methods with a Consumer parameter must have void return type.");
             }
             return Stream.empty();
         }
@@ -135,7 +141,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
      * Default parameter customizer for parameters with no annotations.
      */
     private BoundCustomizer defaultParameterCustomizer(Parameter parameter,
-                                                       Integer i) {
+            Integer i) {
         return new BoundCustomizer() {
             @Override
             public void warm(ConfigRegistry config) {
@@ -167,13 +173,13 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                 .getAnnotation(SqlStatementCustomizingAnnotation.class);
         try {
             return sqlStatementCustomizingAnnotation.value().getConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate sql statement customizer factory class " + sqlStatementCustomizingAnnotation.value(), e);
         }
     }
 
     @Override
-    public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) {
+    public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
         final Handle h = handleSupplier.getHandle();
         final String locatedSql = locateSql(h);
         final StatementType stmt = createStatement(h, locatedSql);
@@ -184,7 +190,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
         cfg.setArgs(args);
         configureReturner(stmt, cfg);
-        applyCustomizers(stmt, args);
+        applyCustomizers(stmt, JdbiClassUtils.safeVarargs(args));
         return cfg.getReturner().get();
     }
 
@@ -199,6 +205,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     abstract void configureReturner(StatementType stmt, SqlObjectStatementConfiguration cfg);
+
     abstract StatementType createStatement(Handle handle, String locatedSql);
 
     String locateSql(final Handle h) {
@@ -213,7 +220,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         Class<? extends RowMapper<?>> mapperClass = annotation.value();
         try {
             return mapperClass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new UnableToCreateStatementException("Could not create mapper " + mapperClass.getName(), e, null);
         }
     }
@@ -222,7 +229,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         Class<? extends RowReducer<?, ?>> reducerClass = annotation.value();
         try {
             return reducerClass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new UnableToCreateStatementException("Could not create reducer " + reducerClass.getName(), e, null);
         }
     }

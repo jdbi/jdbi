@@ -17,12 +17,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
-import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
 
-public class RegisterColumnMapperFactoryImpl implements Configurer {
+public class RegisterColumnMapperFactoryImpl implements ExtensionConfigurer {
 
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
@@ -33,9 +33,9 @@ public class RegisterColumnMapperFactoryImpl implements Configurer {
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterColumnMapperFactory registerColumnMapperFactory = (RegisterColumnMapperFactory) annotation;
         try {
-            ColumnMapperFactory factory = registerColumnMapperFactory.value().getDeclaredConstructor().newInstance();
+            ColumnMapperFactory factory = registerColumnMapperFactory.value().getConstructor().newInstance();
             registry.get(ColumnMappers.class).register(factory);
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate column mapper factory class " + registerColumnMapperFactory.value(), e);
         }
     }
