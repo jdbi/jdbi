@@ -60,10 +60,9 @@ public class TestExtensionContext {
 
         default void checkContextInDefaultMethod() throws Exception {
             Method m = TestExtension.class.getMethod("checkContextInDefaultMethod");
-            // there is no extension method set in default methods. These methods
-            // are executed as is and not invoked in context
             Handle handle = getHandle();
-            assertThat(handle.getExtensionMethod()).isNull();
+            assertThat(handle.getExtensionMethod()).isNotNull();
+            assertThat(handle.getExtensionMethod().getMethod()).isEqualTo(m);
         }
 
         void checkContextInImplementedMethod() throws Exception;
@@ -85,14 +84,9 @@ public class TestExtensionContext {
         @Override
         public void checkContextInImplementedMethod() throws Exception {
             Method m = TestExtension.class.getMethod("checkContextInImplementedMethod");
-
-            ExtensionContext context = new ExtensionContext(handleSupplier.getConfig(), new ExtensionMethod(TestExtension.class, m));
-            handleSupplier.invokeInContext(context, () -> {
-                Handle handle = getHandle();
-                assertThat(handle.getExtensionMethod()).isNotNull();
-                assertThat(handle.getExtensionMethod().getMethod()).isEqualTo(m);
-                return null;
-            });
+            Handle handle = getHandle();
+            assertThat(handle.getExtensionMethod()).isNotNull();
+            assertThat(handle.getExtensionMethod().getMethod()).isEqualTo(m);
         }
     }
 

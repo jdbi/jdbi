@@ -51,6 +51,8 @@ import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 
+import static java.lang.String.format;
+
 import static org.jdbi.v3.sqlobject.Handler.EQUALS_HANDLER;
 import static org.jdbi.v3.sqlobject.Handler.GET_HANDLE_HANDLER;
 import static org.jdbi.v3.sqlobject.Handler.HASHCODE_HANDLER;
@@ -169,7 +171,7 @@ public final class SqlObjectInitData {
             handlerMap.put(method, handlerDecorators.applyDecorators(
                         handlers.findFor(sqlObjectType, method)
                             .orElseGet(() -> {
-                                Supplier<IllegalStateException> x = () -> new IllegalStateException(String.format(
+                                Supplier<IllegalStateException> x = () -> new IllegalStateException(format(
                                         "Method %s.%s must have an implementation or be annotated with a SQL method annotation.",
                                         method.getDeclaringClass().getSimpleName(),
                                         method.getName()));
@@ -209,8 +211,14 @@ public final class SqlObjectInitData {
                 .filter(a -> a.annotationType().isAnnotationPresent(ConfiguringAnnotation.class))
                 .map(a -> {
                     ConfiguringAnnotation meta = a.annotationType().getAnnotation(ConfiguringAnnotation.class);
-                    Configurer configurer = JdbiClassUtils.createInstance(meta.value());
-                    return (Consumer<ConfigRegistry>) config -> consumer.configure(configurer, config, a);
+                    Class<? extends Configurer> klass = meta.value();
+
+                    try {
+                        Configurer configurer = klass.getConstructor().newInstance();
+                        return (Consumer<ConfigRegistry>) config -> consumer.configure(configurer, config, a);
+                    } catch (ReflectiveOperationException | SecurityException e) {
+                        throw new IllegalStateException(format("Unable to instantiate class %s", klass), e);
+                    }
                 })
                 .collect(Collectors.toList());
         return config -> {
