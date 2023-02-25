@@ -33,6 +33,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.internal.ConfigCache;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
@@ -54,6 +55,7 @@ import static org.jdbi.v3.sqlobject.Handler.EQUALS_HANDLER;
 import static org.jdbi.v3.sqlobject.Handler.GET_HANDLE_HANDLER;
 import static org.jdbi.v3.sqlobject.Handler.HASHCODE_HANDLER;
 import static org.jdbi.v3.sqlobject.Handler.NULL_HANDLER;
+import static org.jdbi.v3.sqlobject.Handler.WITH_HANDLE_HANDLER;
 
 public final class SqlObjectInitData {
 
@@ -146,8 +148,12 @@ public final class SqlObjectInitData {
         addMethodHandler(handlerMap, EQUALS_HANDLER, Object.class, "equals", Object.class);
         addMethodHandler(handlerMap, HASHCODE_HANDLER, Object.class, "hashCode");
 
-        // SQL Object methods
+        // SQL Object methods. Add those unconditionally, this ensures that any generator class
+        // that implements SqlObject when the interface does not will find methods to execute.
+        // for any proxy interface that does not extend SqlObject, these methods are unreachable and
+        // do no harm.
         addMethodHandler(handlerMap, GET_HANDLE_HANDLER, SqlObject.class, "getHandle");
+        addMethodHandler(handlerMap, WITH_HANDLE_HANDLER, SqlObject.class, "withHandle", HandleCallback.class);
 
         addMethodHandler(handlerMap, NULL_HANDLER, sqlObjectType, "finalize");
 
