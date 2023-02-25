@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.sqlobject.kotlin
 
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer
 import kotlin.reflect.KClass
 
 /**
  * Registers a KotlinMapper for a specific kotlin class.
  */
 @Retention(AnnotationRetention.RUNTIME)
-@ConfiguringAnnotation(RegisterKotlinMapperImpl::class)
+@UseExtensionConfigurer(RegisterKotlinMapperImpl::class)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Repeatable
 annotation class RegisterKotlinMapper(

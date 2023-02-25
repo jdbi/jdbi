@@ -14,12 +14,12 @@
 package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.config.ConfigRegistry
+import org.jdbi.v3.core.extension.ExtensionConfigurer
 import org.jdbi.v3.core.kotlin.KotlinMapper
 import org.jdbi.v3.core.mapper.RowMappers
-import org.jdbi.v3.sqlobject.config.Configurer
 import java.lang.reflect.Method
 
-class RegisterKotlinMapperImpl : Configurer {
+class RegisterKotlinMapperImpl : ExtensionConfigurer {
 
     override fun configureForType(registry: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
         val registerKotlinMapper = annotation as RegisterKotlinMapper
