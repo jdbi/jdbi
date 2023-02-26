@@ -783,6 +783,60 @@ List<String> catalogNames = h.queryMetadata(DatabaseMetaData::getCatalogs)
 ----
 
 
+
+
+=== Usage in asynchronous applications
+
+Calling Jdbc and by extension Jdbi is inherently a blocking operation.
+In asynchronous applications
+(where results are returned as a link:https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html[CompletionStage^]
+or a link:https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html[CompletableFuture^])
+it is very important never to block on threads that the caller doesn't control. For this, there is the
+link:{jdbidocs}/core/async/JdbiExecutor.html[JdbiExcecutor^] class that wraps around a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance
+and makes sure calls are made on a specific thread pool.
+
+To create a link:{jdbidocs}/core/async/JdbiExecutor.html[JdbiExcecutor^] instance, we first need to create
+a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance (see <<The Jdbi class>>). Then pass that instance into
+link:{jdbidocs}/core/async/JdbiExecutor.html#create(org.jdbi.v3.core.Jdbi,java.util.concurrent.Executor)[JdbiExecutor.create]:
+
+[source,java,indent=0]
+----
+include::{exampledir}/AsyncTest.java[tags=createJdbiExecutor]
+----
+
+It is important to size the executor to the specific implementation.
+See link:{jdbidocs}/core/async/JdbiExecutor.html#create(org.jdbi.v3.core.Jdbi,java.util.concurrent.Executor)[here] for some hints.
+
+To use the `jdbiExecutor`, we make similar calls to link:{jdbidocs}/core/async/JdbiExecutor.html[JdbiExcecutor^]
+as we do to link:{jdbidocs}/core/Jdbi.html[Jdbi^]
+
+[source,java,indent=0]
+----
+include::{exampledir}/AsyncTest.java[tags=useHandle]
+----
+
+Or
+
+[source,java,indent=0]
+----
+include::{exampledir}/AsyncTest.java[tags=withHandle]
+----
+
+Or
+
+[source,java,indent=0]
+----
+include::{exampledir}/AsyncTest.java[tags=withExtension]
+----
+
+Note, since the handle closes as soon as the callback returns, you cannot return
+an iterator, since iteration will call upon the (now closed) handle
+
+[source,java,indent=0]
+----
+include::{exampledir}/AsyncTest.java[tags=failReturningIterator]
+----
+
 == Resource Management
 
 JDBC operations involve stateful objects: link:{jdkdocs}/java/sql/Connection.html[Connection^], link:{jdkdocs}/java/sql/PreparedStatement.html[PreparedStatement^] and link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] are the most common ones. Jdbi understands the lifecycle of these objects and can often fully manage them.
