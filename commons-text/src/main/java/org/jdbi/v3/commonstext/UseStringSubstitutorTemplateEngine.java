@@ -19,10 +19,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.jdbi.v3.commonstext.internal.UseStringSubstitutorTemplateEngineImpl;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(UseStringSubstitutorTemplateEngineImpl.class)
+@UseExtensionConfigurer(UseStringSubstitutorTemplateEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseStringSubstitutorTemplateEngine {
     String prefix() default StringSubstitutorTemplateEngine.DEFAULT_PREFIX;

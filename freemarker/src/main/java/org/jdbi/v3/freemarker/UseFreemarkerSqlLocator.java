@@ -18,8 +18,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.freemarker.internal.UseFreemarkerSqlLocatorImpl;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 
 /**
  * Configures SQL Object to locate SQL using the {@link FreemarkerSqlLocator} class.
@@ -35,7 +35,7 @@ import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
  *     }
  * </pre>
  */
-@ConfiguringAnnotation(UseFreemarkerSqlLocatorImpl.class)
+@UseExtensionConfigurer(UseFreemarkerSqlLocatorImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseFreemarkerSqlLocator {}

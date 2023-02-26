@@ -47,7 +47,7 @@ public class JpaMapper<C> implements RowMapper<C> {
         Constructor<C> constructor;
         try {
             constructor = clazz.getDeclaredConstructor();
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new EntityMemberAccessException("Unable to get constructor for " + clazz, e);
         }
         constructor.setAccessible(true);
@@ -71,7 +71,7 @@ public class JpaMapper<C> implements RowMapper<C> {
             C obj;
             try {
                 obj = constructor.newInstance();
-            } catch (ReflectiveOperationException e) {
+            } catch (ReflectiveOperationException | SecurityException e) {
                 throw new EntityMemberAccessException("Unable to invoke " + constructor, e);
             }
             for (MemberSetter<C> setter : setters) {

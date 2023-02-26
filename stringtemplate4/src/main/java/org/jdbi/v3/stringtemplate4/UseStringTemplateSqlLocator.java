@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateSqlLocatorImpl;
 
 /**
@@ -38,7 +38,7 @@ import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateSqlLocatorImpl;
  *     }
  * </pre>
  */
-@ConfiguringAnnotation(UseStringTemplateSqlLocatorImpl.class)
+@UseExtensionConfigurer(UseStringTemplateSqlLocatorImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseStringTemplateSqlLocator {}
