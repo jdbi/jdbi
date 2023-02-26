@@ -16,11 +16,9 @@ package org.jdbi.v3.generator;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -53,7 +51,6 @@ import com.squareup.javapoet.TypeSpec;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
@@ -67,8 +64,6 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
     public static final String GENERATE_SQL_OBJECT_ANNOTATION_NAME = "org.jdbi.v3.sqlobject.GenerateSqlObject";
 
     private static final Set<ElementKind> ACCEPTABLE_ELEMENT_TYPES = EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
-
-    private static final Type INVOKER_FIELD_TYPE = new GenericType<Supplier<InContextInvoker>>() {}.getType();
 
     private Elements elementUtils;
     private Types typeUtils;
@@ -227,9 +222,9 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                     .build());
 
             // the invoker field is initialized in the c'tor with a Supplier<InContextInvoker> instance
-            implementationBuilder.addField(INVOKER_FIELD_TYPE, invokerField, Modifier.PRIVATE, Modifier.FINAL);
+            implementationBuilder.addField(InContextInvoker.class, invokerField, Modifier.PRIVATE, Modifier.FINAL);
 
-            implementationCtorBuilder.add("$L = sqlObjectInitData.lazyInvoker(this, $L, handleSupplier, config);\n",
+            implementationCtorBuilder.add("$L = sqlObjectInitData.getInvoker(this, $L, handleSupplier, config);\n",
                     invokerField,
                     methodField);
 
@@ -240,9 +235,9 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
             final String paramList = paramList(method);
 
             if (method.getModifiers().contains(Modifier.ABSTRACT)) {
-                body.add("$L $L.get().invoke($L);\n", castReturn, invokerField, paramList);
+                body.add("$L $L.invoke($L);\n", castReturn, invokerField, paramList);
             } else {
-                body.add("$L $L.get().call(() -> ", castReturn, invokerField);
+                body.add("$L $L.call(() -> ", castReturn, invokerField);
 
                 if (method.getModifiers().contains(Modifier.DEFAULT)) {
                     body.add("$T.", method.getEnclosingElement().asType());
