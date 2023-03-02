@@ -20,19 +20,21 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.async.JdbiExecutor;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.junit.jupiter.api.AfterEach;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 
 public class AsyncTest {
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
     public interface SomethingDao {
 
@@ -40,34 +42,22 @@ public class AsyncTest {
         String getName(int id);
     }
 
-    private Jdbi jdbi;
     private JdbiExecutor jdbiExecutor;
-    private Handle handle;
 
     @BeforeEach
     public void setUp() {
-        // H2 in-memory database
-        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test").installPlugin(new SqlObjectPlugin());
-
         // tag::createJdbiExecutor[]
         Executor executor = Executors.newFixedThreadPool(8);
-        JdbiExecutor jdbiExecutor = JdbiExecutor.create(jdbi, executor);
+        JdbiExecutor jdbiExecutor = JdbiExecutor.create(h2Extension.getJdbi(), executor);
         // end::createJdbiExecutor[]
 
-        this.jdbi = jdbi;
         this.jdbiExecutor = jdbiExecutor;
-        this.handle = jdbi.open();
 
-        jdbi.useHandle(handle -> {
+        h2Extension.getJdbi().useHandle(handle -> {
             handle.execute("create table contacts (id int primary key, name varchar(100))");
             handle.execute("insert into contacts (id, name) values (?, ?)", 1, "Alice");
             handle.execute("insert into contacts (id, name) values (?, ?)", 2, "Bob");
         });
-    }
-
-    @AfterEach
-    public void tearDown() {
-        handle.close();
     }
 
     @Test
@@ -95,7 +85,7 @@ public class AsyncTest {
 
         // wait for stage to complete (don't do this in production code!)
         futureResult.toCompletableFuture().join();
-        assertThat(handle.createQuery("select name from contacts where id = 3")
+        assertThat(h2Extension.getSharedHandle().createQuery("select name from contacts where id = 3")
             .mapTo(String.class)
             .list()).contains("Erin");
         // end::useHandle[]
@@ -115,6 +105,8 @@ public class AsyncTest {
 
     @Test
     public void failsWhenReturningAnIterator() {
+        // need to turn off leak checker here, because this code broken does leak handles
+        h2Extension.enableLeakChecker(false);
         // tag::failReturningIterator[]
         CompletionStage<Iterator<String>> futureResult = jdbiExecutor.withHandle(handle -> {
             return handle.createQuery("select name from contacts where id = 1")
