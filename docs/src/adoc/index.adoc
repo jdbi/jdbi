@@ -789,8 +789,8 @@ List<String> catalogNames = h.queryMetadata(DatabaseMetaData::getCatalogs)
 
 Calling Jdbc and by extension Jdbi is inherently a blocking operation.
 In asynchronous applications
-(where results are returned as a link:https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html[CompletionStage^]
-or a link:https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html[CompletableFuture^])
+(where results are returned as a link:{jdkdocs}/java/util/concurrent/CompletionStage.html[CompletionStage^]
+or a link:{jdkdocs}/java/util/concurrent/CompletableFuture.html[CompletableFuture^])
 it is very important never to block on threads that the caller doesn't control. For this, there is the
 link:{jdbidocs}/core/async/JdbiExecutor.html[JdbiExcecutor^] class that wraps around a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance
 and makes sure calls are made on a specific thread pool.
