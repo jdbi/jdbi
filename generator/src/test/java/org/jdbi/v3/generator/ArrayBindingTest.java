@@ -62,6 +62,11 @@ public class ArrayBindingTest {
                 .containsExactlyInAnyOrder(baz1, baz2);
     }
 
+    @Test
+    public void testForHandle() {
+        ((BazDaoImpl) dao).withHandle(h -> assertThat(h).isNotNull());
+    }
+
     @GenerateSqlObject
     @RegisterConstructorMapper(Baz.class)
     interface BazDao {

@@ -1,6 +1,15 @@
 # Unreleased
 
+# 3.37.1
+  - fix deadlock in default Jdbi cache (#2274)
+
 # 3.37.0
+
+** DO NOT USE **
+
+The default cache contains a thread deadlock when the cache is
+evicting while adding new entries through multiple threads.  This has
+been fixed in 3.37.1
 
   - upgrade to geantyref 1.3.14
   - removes the core dependency on the caffeine library. This now uses a simple LRU cache for sql parser and sql statements.

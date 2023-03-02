@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -31,6 +30,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.RowReducer;
 import org.jdbi.v3.core.statement.SqlStatement;
@@ -61,7 +61,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         this.method = method;
 
         // Include annotations on the interface's supertypes
-        final Stream<BoundCustomizer> typeCustomizers = concat(superTypes(type), Stream.of(type))
+        final Stream<BoundCustomizer> typeCustomizers = concat(JdbiClassUtils.superTypes(type), Stream.of(type))
             .flatMap(CustomizingStatementHandler::annotationsFor)
             .map(a -> instantiateFactory(a).createForType(a, type))
             .map(BoundCustomizer::of);
@@ -78,14 +78,6 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     @Override
     public void warm(ConfigRegistry config) {
         statementCustomizers.forEach(s -> s.warm(config));
-    }
-
-    // duplicate implementation in SqlObjectFactory
-    private static Stream<Class<?>> superTypes(Class<?> type) {
-        Class<?>[] interfaces = type.getInterfaces();
-        return concat(
-            Arrays.stream(interfaces).flatMap(CustomizingStatementHandler::superTypes),
-            Arrays.stream(interfaces));
     }
 
     private static Stream<Annotation> annotationsFor(AnnotatedElement... elements) {

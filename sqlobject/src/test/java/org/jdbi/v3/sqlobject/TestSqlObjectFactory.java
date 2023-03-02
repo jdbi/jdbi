@@ -17,7 +17,6 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestSqlObjectFactory {
     private SqlObjectFactory factory = new SqlObjectFactory();
@@ -26,8 +25,7 @@ public class TestSqlObjectFactory {
     public void accepts() {
         assertThat(factory.accepts(NotASqlObject.class)).isFalse();
 
-        assertThatThrownBy(() -> factory.accepts(SqlObjectClass.class))
-                .hasMessageContaining("only supported for interfaces");
+        assertThat(factory.accepts(SqlObjectClass.class)).isFalse();
 
         assertThat(factory.accepts(HasAnnotatedMethod.class)).isTrue();
         assertThat(factory.accepts(ExtendsSqlObject.class)).isTrue();

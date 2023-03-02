@@ -13,71 +13,47 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.internal.ConfigCache;
-import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.internal.JdbiClassUtils;
-import org.jdbi.v3.core.internal.OnDemandExtensions;
-import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData.InContextInvoker;
+
+import static java.lang.String.format;
 
 /**
  * Creates implementations for SqlObject interfaces.
  */
-public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Factory {
-    private final ConfigCache<Class<?>, SqlObjectInitData> sqlObjectCache =
-            ConfigCaches.declare(SqlObjectFactory::initDataFor);
+public class SqlObjectFactory implements ExtensionFactory {
 
     SqlObjectFactory() {}
 
     @Override
     public boolean accepts(Class<?> extensionType) {
-        if (looksLikeSqlObject(extensionType)) {
-            if (extensionType.getAnnotation(GenerateSqlObject.class) != null) {
-                return true;
-            }
 
-            if (!extensionType.isInterface()) {
-                throw new IllegalArgumentException("SQL Objects are only supported for interfaces.");
-            }
-
-            return true;
+        // the sql generator only deals with interfaces
+        if (!extensionType.isInterface()) {
+            return false;
         }
 
-        return false;
-    }
+        // ignore generator types
+        if (SqlObjectInitData.isConcrete(extensionType)) {
+            return false;
+        }
 
-    private boolean looksLikeSqlObject(Class<?> extensionType) {
+        // extending SqlObject is ok
         if (SqlObject.class.isAssignableFrom(extensionType)) {
             return true;
         }
 
+        // otherwise at least one method must be marked with a SqlOperation
         return Stream.of(extensionType.getMethods())
                 .flatMap(m -> Stream.of(m.getAnnotations()))
                 .anyMatch(a -> a.annotationType().isAnnotationPresent(SqlOperation.class));
@@ -87,182 +63,29 @@ public class SqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Fa
      * Create a sql object of the specified type bound to this handle. Any state changes to the handle, or the sql
      * object, such as transaction status, closing it, etc, will apply to both the object and the handle.
      *
-     * @param extensionType the type of sql object to create
+     * @param extensionType  the type of sql object to create
      * @param handleSupplier the Handle instance to attach ths sql object to
      * @return the new sql object bound to this handle
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
-        final SqlObjectInitData sqlObjectInitData = sqlObjectCache.get(extensionType, handleSupplier.getConfig());
-        final ConfigRegistry instanceConfig = sqlObjectInitData.configureInstance(handleSupplier.getConfig().createCopy());
-
         if (SqlObjectInitData.isConcrete(extensionType)) {
-            return sqlObjectInitData.instantiate(extensionType, handleSupplier, instanceConfig);
+            throw new IllegalStateException(format("Can not process %s, it is a generated SQL object", extensionType.getSimpleName()));
         }
+
+        final SqlObjectInitData sqlObjectInitData = SqlObjectInitData.lookup(extensionType, handleSupplier.getConfig());
+        final ConfigRegistry instanceConfig = sqlObjectInitData.configureInstance(handleSupplier.getConfig().createCopy());
 
         instanceConfig.get(Extensions.class).onCreateProxy();
 
-        Map<Method, Supplier<InContextInvoker>> handlers = new HashMap<>();
+        Map<Method, InContextInvoker> handlers = new HashMap<>();
         final Object proxy = Proxy.newProxyInstance(
                 extensionType.getClassLoader(),
                 new Class[] {extensionType},
-                (proxyInstance, method, args) -> handlers.get(method).get().invoke(args));
+                (proxyInstance, method, args) -> handlers.get(method).invoke(args));
 
         sqlObjectInitData.forEachMethodHandler((method, handler) ->
-                handlers.put(method, sqlObjectInitData.lazyInvoker(proxy, method, handleSupplier, instanceConfig)));
+                handlers.put(method, sqlObjectInitData.getInvoker(proxy, method, handleSupplier, instanceConfig)));
         return extensionType.cast(proxy);
-    }
-
-    @Override
-    public Optional<Object> onDemand(Jdbi jdbi, Class<?> extensionType, Class<?>... extraTypes) {
-        if (!SqlObjectInitData.isConcrete(extensionType)) {
-            return Optional.empty();
-        }
-
-        try {
-            return Optional.of(Class.forName(
-                    extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl$OnDemand")
-                .getConstructor(Jdbi.class)
-                .newInstance(jdbi));
-        } catch (ReflectiveOperationException | ExceptionInInitializerError e) {
-            throw new UnableToCreateSqlObjectException(e);
-        }
-    }
-
-    private static Map<Method, Handler> buildMethodHandlers(
-            Class<?> sqlObjectType,
-            Handlers registry,
-            HandlerDecorators decorators) {
-        final Map<Method, Handler> handlerMap = new HashMap<>();
-
-        addMethodHandler(handlerMap, (target, args, handleSupplier) ->
-                        "Jdbi sqlobject proxy for " + sqlObjectType.getName() + "@" + Integer.toHexString(target.hashCode()),
-                Object.class, "toString");
-        addMethodHandler(handlerMap, (target, args, handleSupplier) -> target == args[0],
-                Object.class, "equals", Object.class);
-        addMethodHandler(handlerMap, (target, args, handleSupplier) -> System.identityHashCode(target),
-                Object.class, "hashCode");
-
-        // this should probably have a check whether the sqlObjectType actually implements SqlObject
-        addMethodHandler(handlerMap, (target, args, handleSupplier) -> handleSupplier.getHandle(),
-                SqlObject.class, "getHandle");
-
-        try {
-            addMethodHandler(handlerMap, (target, args, handleSupplier) -> null, sqlObjectType, "finalize");
-        } catch (IllegalStateException expected) {
-            // ignore - optional implementation
-        }
-
-        final Set<Method> methods = new LinkedHashSet<>();
-        methods.addAll(Arrays.asList(sqlObjectType.getMethods()));
-        methods.addAll(Arrays.asList(sqlObjectType.getDeclaredMethods()));
-
-        final Set<Method> seen = new HashSet<>(handlerMap.keySet());
-        for (Method method : methods) {
-            if (Modifier.isStatic(method.getModifiers()) || !seen.add(method)) {
-                continue;
-            }
-            handlerMap.put(method, decorators.applyDecorators(
-                        registry.findFor(sqlObjectType, method)
-                            .orElseGet(() -> {
-                                Supplier<IllegalStateException> x = () -> new IllegalStateException(String.format(
-                                        "Method %s.%s must have an implementation or be annotated with a SQL method annotation.",
-                                        method.getDeclaringClass().getSimpleName(),
-                                        method.getName()));
-                                if (!SqlObjectInitData.isConcrete(sqlObjectType) && !method.isSynthetic() && !Modifier.isPrivate(method.getModifiers())) {
-                                    throw x.get();
-                                }
-                                return (target, args, handleSupplier) -> {
-                                    throw x.get();
-                                };
-                            }),
-                        sqlObjectType,
-                        method));
-        }
-
-        methods.stream()
-            .filter(m -> !m.isSynthetic())
-            .collect(Collectors.groupingBy(m -> Arrays.asList(m.getName(), Arrays.asList(m.getParameterTypes()))))
-            .values()
-            .stream()
-            .filter(l -> l.size() > 1)
-            .findAny()
-            .ifPresent(ms -> {
-                throw new UnableToCreateSqlObjectException(sqlObjectType + " has ambiguous methods " + ms + ", please resolve with an explicit override");
-            });
-
-        return handlerMap;
-    }
-
-    private static void addMethodHandler(Map<Method, Handler> handlerMap, Handler handler, Class<?> klass, String methodName, Class<?>... parameterTypes) {
-        Method method = JdbiClassUtils.methodLookup(klass, methodName, parameterTypes);
-        handlerMap.put(method, handler);
-    }
-
-    private static UnaryOperator<ConfigRegistry> buildConfigurers(Stream<AnnotatedElement> elements, ConfigurerMethod consumer) {
-        List<Consumer<ConfigRegistry>> myConfigurers = elements
-                .flatMap(ae -> Arrays.stream(ae.getAnnotations()))
-                .filter(a -> a.annotationType().isAnnotationPresent(ConfiguringAnnotation.class))
-                .map(a -> {
-                    ConfiguringAnnotation meta = a.annotationType()
-                            .getAnnotation(ConfiguringAnnotation.class);
-
-                    Configurer configurer = getConfigurer(meta.value());
-                    return (Consumer<ConfigRegistry>) config -> consumer.configure(configurer, config, a);
-                })
-                .collect(Collectors.toList());
-        return config -> {
-            myConfigurers.forEach(configurer -> configurer.accept(config));
-            return config;
-        };
-    }
-
-    private static Configurer getConfigurer(Class<? extends Configurer> factoryClass) {
-        try {
-            return factoryClass.getDeclaredConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Unable to instantiate configurer factory class " + factoryClass, e);
-        }
-    }
-
-    static SqlObjectInitData initDataFor(ConfigRegistry handlersConfig, Class<?> sqlObjectType) {
-        Map<Method, Handler> methodHandlers = buildMethodHandlers(
-                sqlObjectType,
-                handlersConfig.get(Handlers.class),
-                handlersConfig.get(HandlerDecorators.class));
-
-        UnaryOperator<ConfigRegistry> instanceConfigurer = buildConfigurers(
-                Stream.concat(
-                    superTypes(sqlObjectType),
-                    Stream.of(sqlObjectType)),
-                (configurer, config, annotation) ->
-                    configurer.configureForType(config, annotation, sqlObjectType));
-
-        Map<Method, UnaryOperator<ConfigRegistry>> methodConfigurers =
-            methodHandlers.keySet().stream().collect(
-                Collectors.toMap(
-                        Function.identity(),
-                        method -> buildConfigurers(
-                            Stream.of(method),
-                            (configurer, config, annotation) ->
-                                configurer.configureForMethod(config, annotation, sqlObjectType, method))));
-
-        return new SqlObjectInitData(
-                sqlObjectType,
-                instanceConfigurer,
-                methodConfigurers,
-                methodHandlers);
-    }
-
-    // duplicate implementation in CustomizingStatementHandler
-    private static Stream<Class<?>> superTypes(Class<?> type) {
-        Class<?>[] interfaces = type.getInterfaces();
-        return Stream.concat(
-            Arrays.stream(interfaces).flatMap(SqlObjectFactory::superTypes),
-            Arrays.stream(interfaces));
-    }
-
-    interface ConfigurerMethod {
-        void configure(Configurer configurer, ConfigRegistry config, Annotation annotation);
     }
 }

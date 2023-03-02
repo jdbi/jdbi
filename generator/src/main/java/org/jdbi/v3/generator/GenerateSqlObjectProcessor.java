@@ -16,14 +16,15 @@ package org.jdbi.v3.generator;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
@@ -31,14 +32,18 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.JavaFileObject;
 
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -46,201 +51,267 @@ import com.squareup.javapoet.TypeSpec;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
 import org.jdbi.v3.sqlobject.internal.SqlObjectInitData.InContextInvoker;
 
-@SupportedAnnotationTypes("org.jdbi.v3.sqlobject.GenerateSqlObject")
+import static java.lang.String.format;
+
+@SupportedAnnotationTypes(GenerateSqlObjectProcessor.GENERATE_SQL_OBJECT_ANNOTATION_NAME)
 public class GenerateSqlObjectProcessor extends AbstractProcessor {
-    private static final Set<ElementKind> ACCEPTABLE = EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
-    private long counter = 0;
+
+    public static final String GENERATE_SQL_OBJECT_ANNOTATION_NAME = "org.jdbi.v3.sqlobject.GenerateSqlObject";
+
+    private static final Set<ElementKind> ACCEPTABLE_ELEMENT_TYPES = EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
+
+    private Elements elementUtils;
+    private Types typeUtils;
+    private Filer filer;
+    private Messager messager;
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
-        // We should be able to output generated code for any supported releases >= 8.
-        // Considering the bytecode we output for the artifact (i.e. the processor, not the
-        //   generated code) is always Java 8 or newer as of writing, this will not be an issue.
-        //
-        // We return the latest supported version for javac instead of the lowest version we expect
-        //   to support, because javac will print warnings in that case.  This breaks -Werror builds
-        //   on versions higher than this is made to support (i.e. Java 9+ as of writing).
+        // latest supported version of javac. The code itself builds on all release >= 8.
         return SourceVersion.latestSupported();
     }
 
     @Override
+    @SuppressWarnings("PMD.AvoidSynchronizedAtMethodLevel")
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+        this.elementUtils = processingEnv.getElementUtils();
+        this.typeUtils = processingEnv.getTypeUtils();
+        this.filer = processingEnv.getFiler();
+        this.messager = processingEnv.getMessager();
+    }
+
+    @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        if (annotations.isEmpty()) {
-            return false;
+        TypeElement generateSqlAnnotation = elementUtils.getTypeElement(GENERATE_SQL_OBJECT_ANNOTATION_NAME);
+
+        Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(generateSqlAnnotation);
+
+        for (Element element : annotatedElements) {
+            if (!ACCEPTABLE_ELEMENT_TYPES.contains(element.getKind())) {
+                throw new IllegalStateException("@GenerateSqlObject annotation on unsupported element: " + element);
+            }
+            if (!element.getModifiers().contains(Modifier.ABSTRACT)) {
+                throw new IllegalStateException("@GenerateSqlObject on a non-abstract class: " + element);
+            }
+
+            generateSourceFile(element);
         }
-        final TypeElement gens = annotations.iterator().next();
-        final Set<? extends Element> annoTypes = roundEnv.getElementsAnnotatedWith(gens);
-        annoTypes.forEach(this::tryGenerate);
+
         return false;
     }
 
-    private void tryGenerate(Element sqlObj) {
+    private void generateSourceFile(Element element) {
+        messager.printMessage(Kind.NOTE, format("[jdbi] generating for %s", element));
+
         try {
-            generate(sqlObj);
-        } catch (Exception ex) {
-            processingEnv.getMessager().printMessage(Kind.ERROR, "Failure: " + ex, sqlObj);
-            throw new RuntimeException(ex);
+            final SqlObjectFile sqlObjectFile = new SqlObjectFile((TypeElement) element);
+
+            // create extra methods
+            sqlObjectFile.addMethod(forMethod(SqlObject.class, "getHandle"));
+            sqlObjectFile.addMethod(forMethod(SqlObject.class, "withHandle"));
+
+            // write the source file
+            sqlObjectFile.writeFile();
+
+        } catch (RuntimeException e) {
+            messager.printMessage(Kind.ERROR, format("@GenerateSqlObject processor threw an exception for '%s': %s", element, e));
+            throw e;
         }
     }
 
-    private void generate(Element sqlObjE) throws IOException {
-        processingEnv.getMessager().printMessage(Kind.NOTE, String.format("[jdbi] generating for %s", sqlObjE));
-        if (!ACCEPTABLE.contains(sqlObjE.getKind())) {
-            throw new IllegalStateException("Generate on non-class: " + sqlObjE);
-        }
-        if (!sqlObjE.getModifiers().contains(Modifier.ABSTRACT)) {
-            throw new IllegalStateException("Generate on non-abstract class: " + sqlObjE);
-        }
-
-        final TypeElement sqlObj = (TypeElement) sqlObjE;
-        final String implName = sqlObj.getSimpleName() + "Impl";
-        final TypeSpec.Builder implSpec = TypeSpec.classBuilder(implName).addModifiers(Modifier.PUBLIC);
-        final TypeName superName = TypeName.get(sqlObj.asType());
-        addSuper(implSpec, sqlObj, superName);
-        implSpec.addSuperinterface(SqlObject.class);
-
-        final CodeBlock.Builder staticInit = CodeBlock.builder()
-                .add("initData = $T.initData();\n", SqlObjectInitData.class);
-        final CodeBlock.Builder constructor = CodeBlock.builder();
-
-        implSpec.addField(SqlObjectInitData.class, "initData", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
-
-        List<ExecutableElement> implMethods = sqlObj.getEnclosedElements().stream()
-                .filter(ee -> ee.getKind() == ElementKind.METHOD)
-                .map(ExecutableElement.class::cast)
-                .filter(ee -> !ee.getModifiers().contains(Modifier.PRIVATE))
-                .collect(Collectors.toCollection(ArrayList::new));
-        implMethods.add(element(SqlObject.class, "getHandle"));
-        implMethods.add(element(SqlObject.class, "withHandle"));
-
-        implMethods.stream()
-                   .map(ee -> generateMethod(implSpec, staticInit, constructor, ee))
-                   .forEach(implSpec::addMethod);
-
-        final TypeSpec.Builder onDemand = TypeSpec.classBuilder("OnDemand");
-        onDemand.addSuperinterface(SqlObject.class);
-        onDemand.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
-        onDemand.addField(Jdbi.class, "db", Modifier.PRIVATE, Modifier.FINAL);
-        onDemand.addMethod(MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(Jdbi.class, "db")
-                .addCode("this.db = db;\n")
-                .build());
-        addSuper(onDemand, sqlObj, superName);
-        implMethods.stream()
-                   .map(method -> generateOnDemand(sqlObj, method))
-                   .forEach(onDemand::addMethod);
-        implSpec.addType(onDemand.build());
-
-        implSpec.addMethod(MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(HandleSupplier.class, "handleSupplier")
-                .addParameter(ConfigRegistry.class, "config")
-                .addCode(constructor.build())
-                .build());
-
-        implSpec.addStaticBlock(staticInit.build());
-
-        final JavaFileObject file = processingEnv.getFiler().createSourceFile(processingEnv.getElementUtils().getPackageOf(sqlObjE) + "." + implName, sqlObjE);
-        try (Writer out = file.openWriter()) {
-            JavaFile.builder(packageName(sqlObj), implSpec.build()).build().writeTo(out);
-        }
-    }
-
-    private MethodSpec generateMethod(TypeSpec.Builder typeBuilder, CodeBlock.Builder staticInit, CodeBlock.Builder init, Element el) {
-        final Types typeUtils = processingEnv.getTypeUtils();
-        final ExecutableElement method = (ExecutableElement) el;
-        final String paramList = paramList(method);
-        final String paramTypes = method.getParameters().stream()
-                .map(VariableElement::asType)
-                .map(typeUtils::erasure)
-                .map(t -> t + ".class")
-                .collect(Collectors.joining(","));
-        final String methodField = "m_" + el.getSimpleName() + "_" + counter;
-        final String invokerField = "i_" + el.getSimpleName() + "_" + counter++;
-        typeBuilder.addField(Method.class, methodField, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
-        typeBuilder.addField(new GenericType<Supplier<InContextInvoker>>() {}.getType(), invokerField, Modifier.PRIVATE, Modifier.FINAL);
-
-        staticInit.add("$L = initData.lookupMethod($S, new Class<?>[] {$L});\n",
-                methodField,
-                el.getSimpleName(),
-                paramTypes);
-
-        init.add("$L = initData.lazyInvoker(this, $L, handleSupplier, config);\n",
-                invokerField,
-                methodField);
-
-        final String castReturn =
-                method.getReturnType().getKind() == TypeKind.VOID
-                ? ""
-                : ("return (" + method.getReturnType().toString() + ")"); // NOPMD
-        final CodeBlock.Builder body;
-        if (method.getModifiers().contains(Modifier.ABSTRACT)) {
-            body = CodeBlock.builder()
-                    .add("$L $L.get().invoke(new Object[] {$L});\n",
-                            castReturn, invokerField, paramList);
-        } else {
-            body = CodeBlock.builder()
-                    .add("$L $L.get().call(() -> ",
-                            castReturn,
-                            invokerField);
-            if (el.getModifiers().contains(Modifier.DEFAULT)) {
-                body.add("$T.", method.getEnclosingElement().asType());
-            }
-            body.add("super.$L($L));\n",
-                            el.getSimpleName(),
-                            paramList);
-        }
-
-        return MethodSpec.overriding(method)
-                .addCode(body.build())
-                .build();
-    }
-
-    private MethodSpec generateOnDemand(TypeElement sqlObjectType, ExecutableElement method) {
-        return MethodSpec.overriding(method)
-                .addCode(CodeBlock.builder()
-                    .add("$L db.$L($T.class, e -> (($L) e).$L($L));\n",
-                            method.getReturnType().getKind() == TypeKind.VOID ? "" : ("return (" + method.getReturnType().toString() + ")"), // NOPMD
-                            method.getReturnType().getKind() == TypeKind.VOID ? "useExtension" : "withExtension",
-                            sqlObjectType.asType(),
-                            sqlObjectType.getSimpleName() + "Impl",
-                            method.getSimpleName(),
-                            paramList(method))
-                    .build())
-                .build();
-    }
-
-    private ExecutableElement element(Class<?> klass, String name) {
-        return processingEnv.getElementUtils().getTypeElement(klass.getName()).getEnclosedElements()
+    private ExecutableElement forMethod(Class<?> klass, String name) {
+        return elementUtils.getTypeElement(klass.getName()).getEnclosedElements()
                 .stream()
                 .filter(e -> e.getSimpleName().toString().equals(name))
                 .findFirst()
                 .map(ExecutableElement.class::cast)
-                .orElseThrow(() -> new IllegalStateException("no " + klass + "." + name + " found"));
+                .orElseThrow(() -> new IllegalStateException(format("no %s.%s found!", klass, name)));
     }
 
-    private String paramList(final ExecutableElement method) {
-        return method.getParameters().stream()
-                .map(VariableElement::getSimpleName)
-                .map(Object::toString)
-                .collect(Collectors.joining(","));
+    // can't be in the inner class b/c static.
+    private static String getImplementationClassName(TypeElement typeElement) {
+        return typeElement.getSimpleName() + "Impl";
     }
 
-    private String packageName(Element e) {
-        return processingEnv.getElementUtils().getPackageOf(e).toString();
-    }
+    private final class SqlObjectFile {
 
-    private void addSuper(TypeSpec.Builder spec, TypeElement el, TypeName superName) {
-        if (el.getKind() == ElementKind.CLASS) {
-            spec.superclass(superName);
-        } else {
-            spec.addSuperinterface(superName);
+        private final TypeElement typeElement;
+        private final TypeName typeName;
+        private final TypeSpec.Builder implementationBuilder;
+        private final TypeSpec.Builder onDemandBuilder;
+        private final CodeBlock.Builder implementationCtorBuilder = CodeBlock.builder();
+        private long counter = 0;
+
+
+        private SqlObjectFile(TypeElement typeElement) {
+            this.typeElement = typeElement;
+            this.typeName = TypeName.get(typeElement.asType());
+
+            // create the implementation type, by convention its name ends with "Impl"
+            this.implementationBuilder = TypeSpec.classBuilder(getImplementationClassName(typeElement))
+                    .addModifiers(Modifier.PUBLIC);
+            // add SqlObject and the element itself as supertypes
+            addSupertypes(this.implementationBuilder);
+
+            // create the onDemand type, by convention it is a nested class within the implementation type
+            this.onDemandBuilder = TypeSpec.classBuilder("OnDemand")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+            // add SqlObject and the element itself as supertypes
+            addSupertypes(this.onDemandBuilder);
+
+            // OnDemand has a c'tor that takes a Jdbi object.
+            this.onDemandBuilder.addField(Jdbi.class, "jdbi", Modifier.PRIVATE, Modifier.FINAL);
+            this.onDemandBuilder.addMethod(MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(Jdbi.class, "jdbi")
+                    .addCode("this.jdbi = jdbi;\n")
+                    .build());
+
+            // create all internal methods
+            getMethods().forEach(this::addMethod);
+        }
+
+        private void addMethod(ExecutableElement method) {
+            addImplementationMethod(method);
+            addOnDemandMethod(method);
+        }
+
+        private List<ExecutableElement> getMethods() {
+            // returns all non-private methods enclosed by the type
+            return typeElement.getEnclosedElements().stream()
+                    .filter(element -> element.getKind() == ElementKind.METHOD)
+                    .map(ExecutableElement.class::cast)
+                    .filter(element -> !element.getModifiers().contains(Modifier.PRIVATE))
+                    .collect(Collectors.toList());
+        }
+
+        private void addSupertypes(TypeSpec.Builder builder) {
+            if (this.typeElement.getKind() == ElementKind.CLASS) {
+                builder.superclass(this.typeName);
+            } else {
+                builder.addSuperinterface(this.typeName);
+            }
+            builder.addSuperinterface(SqlObject.class);
+        }
+
+        private void addImplementationMethod(ExecutableElement method) {
+            final String paramTypes = method.getParameters().stream()
+                    .map(VariableElement::asType)
+                    .map(typeUtils::erasure)
+                    .map(t -> t + ".class")
+                    .collect(Collectors.joining(","));
+
+            final Name methodName = method.getSimpleName();
+            final String methodField = "m_" + methodName + "_" + counter;
+            final String invokerField = "i_" + methodName + "_" + counter++;
+
+            // the method field is initialized with a call to JdbiClassUtils.methodLookup
+            implementationBuilder.addField(FieldSpec.builder(Method.class, methodField, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                    .initializer("$T.methodLookup($T.class, $S$L$L)",
+                            JdbiClassUtils.class,
+                            method.getEnclosingElement().asType(),
+                            methodName,
+                            paramTypes.isEmpty() ? "" : ", ",
+                            paramTypes)
+                    .build());
+
+            // the invoker field is initialized in the c'tor with a Supplier<InContextInvoker> instance
+            implementationBuilder.addField(InContextInvoker.class, invokerField, Modifier.PRIVATE, Modifier.FINAL);
+
+            implementationCtorBuilder.add("$L = sqlObjectInitData.getInvoker(this, $L, handleSupplier, config);\n",
+                    invokerField,
+                    methodField);
+
+            final CodeBlock.Builder body = CodeBlock.builder();
+            final String castReturn = method.getReturnType().getKind() == TypeKind.VOID
+                            ? ""
+                            : format("return (%s)", method.getReturnType());
+            final String paramList = paramList(method);
+
+            if (method.getModifiers().contains(Modifier.ABSTRACT)) {
+                body.add("$L $L.invoke($L);\n", castReturn, invokerField, paramList);
+            } else {
+                body.add("$L $L.call(() -> ", castReturn, invokerField);
+
+                if (method.getModifiers().contains(Modifier.DEFAULT)) {
+                    body.add("$T.", method.getEnclosingElement().asType());
+                }
+                body.add("super.$L($L));\n", methodName, paramList);
+            }
+
+            implementationBuilder.addMethod(MethodSpec.overriding(method)
+                    .addCode(body.build())
+                    .build());
+        }
+
+        private void addOnDemandMethod(ExecutableElement method) {
+            final String castReturn;
+            final String jdbiMethod;
+
+            if (method.getReturnType().getKind() == TypeKind.VOID) {
+                jdbiMethod = "useExtension";
+                castReturn = "";
+            } else {
+                jdbiMethod = "withExtension";
+                castReturn = format("return (%s)", method.getReturnType());
+            }
+
+            onDemandBuilder.addMethod(MethodSpec.overriding(method)
+                    .addCode(CodeBlock.builder()
+                            .add("$L jdbi.$L($T.class, e -> (($L) e).$L($L));\n",
+                                    castReturn,
+                                    jdbiMethod,
+                                    typeElement.asType(),
+                                    getImplementationClassName(typeElement),
+                                    method.getSimpleName(),
+                                    paramList(method))
+                            .build())
+                    .build());
+        }
+
+        private String paramList(final ExecutableElement method) {
+            return method.getParameters().stream()
+                    .map(VariableElement::getSimpleName)
+                    .map(Object::toString)
+                    .collect(Collectors.joining(","));
+        }
+
+        private void writeFile() {
+            implementationBuilder.addType(onDemandBuilder.build());
+
+            // add constructor at the end, every method added code to it.
+            implementationBuilder.addMethod(MethodSpec.constructorBuilder()
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(SqlObjectInitData.class, "sqlObjectInitData")
+                    .addParameter(HandleSupplier.class, "handleSupplier")
+                    .addParameter(ConfigRegistry.class, "config")
+                    .addCode(implementationCtorBuilder.build())
+                    .build());
+
+            try {
+                final PackageElement typePackage = elementUtils.getPackageOf(typeElement);
+
+                final JavaFileObject file = filer.createSourceFile(format("%s.%s", typePackage, getImplementationClassName(typeElement)), typeElement);
+                try (Writer out = file.openWriter()) {
+                    JavaFile.builder(typePackage.toString(), implementationBuilder.build())
+                            .build()
+                            .writeTo(out);
+                }
+            } catch (IOException e) {
+                // Similar to the auto/value annotation processor, try to work around
+                // https://bugs.eclipse.org/bugs/show_bug.cgi?id=367599. If that bug manifests, we may get
+                // invoked more than once for the same file, so ignoring the ability to overwrite it is the
+                // right thing to do. If we are unable to write for some other reason, we should get a compile
+                // error later because user code will have a reference to the code we were supposed to
+                // generate.
+                messager.printMessage(Kind.WARNING, format("Could not write generated class %s: %s", typeElement, e));
+            }
         }
     }
 }
