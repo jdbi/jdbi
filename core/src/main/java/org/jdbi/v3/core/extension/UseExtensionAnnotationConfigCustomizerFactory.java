@@ -31,8 +31,6 @@ import static java.lang.String.format;
 /**
  * Applies configuration customizers according to {@link UseExtensionConfigurer} decorating annotations.
  * present on the method.
- *
- * @since 3.38.0
  */
 final class UseExtensionAnnotationConfigCustomizerFactory implements ConfigCustomizerFactory {
 

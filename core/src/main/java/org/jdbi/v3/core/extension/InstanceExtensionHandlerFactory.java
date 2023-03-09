@@ -26,8 +26,6 @@ import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
  * interface, this forwards the call to the method on the implementation. The extension framework
  * wraps these calls into invocations that manage the extension context for the handle correctly
  * so that logging will work for all extension.
- *
- * @since 3.38.0
  */
 final class InstanceExtensionHandlerFactory implements ExtensionHandlerFactory {
 

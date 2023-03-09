@@ -27,6 +27,8 @@ import org.jdbi.v3.core.extension.ExtensionMetadata.Builder;
 import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 
+import static java.lang.String.format;
+
 import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.CLASSES_ARE_SUPPORTED;
 import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.VIRTUAL_FACTORY;
 import static org.jdbi.v3.core.extension.ExtensionHandler.EQUALS_HANDLER;
@@ -80,15 +82,21 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
 
         Set<FactoryFlag> factoryFlags = getFactoryFlags();
 
-        // backstop for anything that supports classes or abstract classes. if those get
-        // passed in, then the delegated factory is responsible for everything else as the
-        // proxy code can not extend abstract classes. While it would be possible to
-        // wrap an abstract class, any subsequent cast would fail.
+        // If the extension declares that it supports classes, then the proxy logic
+        // in the delegate is bypassed. This code uses the Java proxy class which does not
+        // work for Classes (when extending a class, the assumption is that the returned
+        // object can be cast to the class itself, something that can not be done with a
+        // java proxy object).
         //
-        // this is a hack to be backwards compatible with the old extension framework.
+        // The extension factory is now responsible for managing the method invocations itself.
         //
-        if (!extensionType.isInterface() || factoryFlags.contains(CLASSES_ARE_SUPPORTED)) {
+        if (factoryFlags.contains(CLASSES_ARE_SUPPORTED)) {
             return delegatedFactory.attach(extensionType, handleSupplier);
+        }
+
+        if (extensionType == null || !extensionType.isInterface()) {
+            throw new IllegalArgumentException(format("Can not attach %s as an extension with %s",
+                    extensionType, delegatedFactory.getClass().getSimpleName()));
         }
 
         final ConfigRegistry config = handleSupplier.getConfig();

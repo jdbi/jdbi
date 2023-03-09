@@ -29,8 +29,6 @@ import static java.lang.String.format;
 
 /**
  * Processes {@link UseExtensionHandler} annotations on methods.
- *
- * @since 3.38.0
  */
 final class UseExtensionAnnotationHandlerFactory implements ExtensionHandlerFactory {
 

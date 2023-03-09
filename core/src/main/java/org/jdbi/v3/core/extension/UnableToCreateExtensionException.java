@@ -24,15 +24,26 @@ import static java.lang.String.format;
  * @since 3.38.0
  */
 @Beta
-public class UnableToCreateExtensionException extends JdbiException {
+public final class UnableToCreateExtensionException extends JdbiException {
 
     private static final long serialVersionUID = 1L;
 
-    UnableToCreateExtensionException(String s, Object... args) {
-        super(format(s, args));
+    /**
+     * Constructs a new instance with a message.
+     * @param format A {@link String#format} format string
+     * @param args Arguments for the format string
+     */
+    public UnableToCreateExtensionException(String format, Object... args) {
+        super(format(format, args));
     }
 
-    UnableToCreateExtensionException(Exception e, String s, Object... args) {
-        super(format(s, args));
+    /**
+     * Constructs a new instance with an exception and a message.
+     * @param throwable A throwable
+     * @param format A {@link String#format} format string
+     * @param args Arguments for the format string
+     */
+    public UnableToCreateExtensionException(Throwable throwable, String format, Object... args) {
+        super(format(format, args), throwable);
     }
 }

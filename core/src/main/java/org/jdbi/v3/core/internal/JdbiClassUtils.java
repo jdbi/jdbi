@@ -37,8 +37,8 @@ public final class JdbiClassUtils {
 
     /**
      * Returns true if a specific class can be loaded.
-     * @param klass The class.
-     * @return True if it can be loaded, false otherwise.
+     * @param klass The class
+     * @return True if it can be loaded, false otherwise
      */
     public static boolean isPresent(String klass) {
         try {
@@ -52,11 +52,11 @@ public final class JdbiClassUtils {
     /**
      * Lookup a specific method name related to a class. This helper tries {@link Class#getMethod(String, Class[])} first, then
      * falls back to {@link Class#getDeclaredMethod(String, Class[])}.
-     * @param klass The class.
-     * @param methodName The method name
-     * @param parameterTypes All parameter types for the method.
-     * @return A {@link Method} object.
-     * @throws IllegalStateException If the method could not be found.
+     * @param klass A class
+     * @param methodName A method name
+     * @param parameterTypes All parameter types for the method
+     * @return A {@link Method} object
+     * @throws IllegalStateException If the method could not be found
      */
     public static Method methodLookup(Class<?> klass, String methodName, Class<?>... parameterTypes) {
         try {
@@ -74,10 +74,10 @@ public final class JdbiClassUtils {
     /**
      * Lookup a specific method name related to a class. This helper tries {@link Class#getMethod(String, Class[])} first, then
      * falls back to {@link Class#getDeclaredMethod(String, Class[])}.
-     * @param klass The class.
-     * @param methodName The method name
-     * @param parameterTypes All parameter types for the method.
-     * @return A {@link Method} object wrapped in an {@link Optional} if the method could be found, {@link Optional#empty()} otherwise.
+     * @param klass A class
+     * @param methodName A method name
+     * @param parameterTypes All parameter types for the method
+     * @return A {@link Method} object wrapped in an {@link Optional} if the method could be found, {@link Optional#empty()} otherwise
      */
     public static Optional<Method> safeMethodLookup(Class<?> klass, String methodName, Class<?>... parameterTypes) {
         try {
@@ -97,10 +97,10 @@ public final class JdbiClassUtils {
      * @param creator A {@link CheckedCallable} instance which returns
      *                a new instance or throws any of the exceptions out
      *                of {@link Class#getConstructor(Class[])} or
-     *                {@link java.lang.reflect.Constructor#newInstance(Object...)}.
+     *                {@link java.lang.reflect.Constructor#newInstance(Object...)}
      * @return A new instance wrapped in an {@link Optional} or {@link Optional#empty()}
-     * if a {@link ReflectiveOperationException} or {@link SecurityException} occured.
-     * @param <T> The type of the new instance.
+     * if a {@link ReflectiveOperationException} or {@link SecurityException} occured
+     * @param <T> The type of the new instance
      */
     @SuppressWarnings("PMD.PreserveStackTrace")
     public static <T> Optional<T> createInstanceIfPossible(CheckedCallable<T> creator) {
@@ -118,7 +118,7 @@ public final class JdbiClassUtils {
     /**
      * Returns all supertypes to a given type.
      * @param type A type
-     * @return A {@link Stream} of {@link Class} objects.
+     * @return A {@link Stream} of {@link Class} objects
      */
     public static Stream<Class<?>> superTypes(Class<?> type) {
         Class<?>[] interfaces = type.getInterfaces();
@@ -136,8 +136,8 @@ public final class JdbiClassUtils {
 
     /**
      * Safely move arguments passed from from a varargs call to a call that expects an array of objects.
-     * @param args A list of objects. May be null or empty.
-     * @return Returns an Array of objects. If the input was null, returns an empty array, otherwise all arguments as an array.
+     * @param args A list of objects. May be null or empty
+     * @return Returns an Array of objects. If the input was null, returns an empty array, otherwise all arguments as an array
      */
     public static Object[] safeVarargs(Object... args) {
         return (args == null) ? NO_ARGS : args;

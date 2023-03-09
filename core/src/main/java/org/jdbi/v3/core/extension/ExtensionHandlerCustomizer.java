@@ -29,11 +29,11 @@ public interface ExtensionHandlerCustomizer {
     /**
      * Customize an extension handler.
      *
-     * @param handler       The {@link ExtensionHandler} to customize.
-     * @param extensionType The extension type class.
-     * @param method        A method.
+     * @param handler       The {@link ExtensionHandler} to customize
+     * @param extensionType The extension type class
+     * @param method        A method
      * @return An {@link ExtensionHandler} object. This can be the same as the <code>handler</code> parameter
-     * or another instance that delegates to the original handler.
+     * or another instance that delegates to the original handler
      */
     ExtensionHandler customize(ExtensionHandler handler, Class<?> extensionType, Method method);
 }

@@ -30,17 +30,17 @@ public interface ConfigCustomizerFactory {
     /**
      * Creates a collection of {@link ConfigCustomizer} instances for an extension type.
      *
-     * @param extensionType The extension type.
-     * @return A {@link Collection} of {@link ConfigCustomizer} objects. Must not be null.
+     * @param extensionType The extension type
+     * @return A {@link Collection} of {@link ConfigCustomizer} objects. Must not be null
      */
     Collection<ConfigCustomizer> forExtensionType(Class<?> extensionType);
 
     /**
      * Creates a collection of {@link ConfigCustomizer} instances for an extension type method.
      *
-     * @param extensionType The extension type.
-     * @param method        The method on the extension type.
-     * @return A {@link Collection} of {@link ConfigCustomizer} objects. Must not be null.
+     * @param extensionType The extension type
+     * @param method        The method on the extension type
+     * @return A {@link Collection} of {@link ConfigCustomizer} objects. Must not be null
      */
     Collection<ConfigCustomizer> forExtensionMethod(Class<?> extensionType, Method method);
 }

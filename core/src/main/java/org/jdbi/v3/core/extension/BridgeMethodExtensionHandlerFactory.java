@@ -25,8 +25,6 @@ import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 
 /**
  * Extension handler factory for bridge methods. Forwards bridge methods to matching candidates.
- *
- * @since 3.38.0
  */
 final class BridgeMethodExtensionHandlerFactory implements ExtensionHandlerFactory {
 

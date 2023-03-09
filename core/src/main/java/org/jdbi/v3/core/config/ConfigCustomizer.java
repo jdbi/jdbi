@@ -27,7 +27,7 @@ public interface ConfigCustomizer {
     /**
      * Manipulates the {@link ConfigRegistry} object.
      *
-     * @param config A {@link ConfigRegistry} object.
+     * @param config A {@link ConfigRegistry} object
      */
     void customize(ConfigRegistry config);
 }

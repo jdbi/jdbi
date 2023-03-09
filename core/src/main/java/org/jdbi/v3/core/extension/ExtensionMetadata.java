@@ -51,8 +51,8 @@ public final class ExtensionMetadata {
 
     /**
      * Returns a new {@link ExtensionMetadata.Builder} instance.
-     * @param extensionType The extension type for which metadata is collected.
-     * @return A new {@link ExtensionMetadata.Builder} instance.
+     * @param extensionType The extension type for which metadata is collected
+     * @return A new {@link ExtensionMetadata.Builder} instance
      */
     public static ExtensionMetadata.Builder builder(Class<?> extensionType) {
         return new Builder(extensionType);
@@ -77,8 +77,8 @@ public final class ExtensionMetadata {
      * Create an instance specific configuration based on all instance customizers. The instance configuration holds all
      * custom configuration that was applied e.g. through instance annotations.
      *
-     * @param config A configuration object. The object is not changed.
-     * @return A new configuration object with all changes applied.
+     * @param config A configuration object. The object is not changed
+     * @return A new configuration object with all changes applied
      */
     public ConfigRegistry createInstanceConfiguration(ConfigRegistry config) {
         ConfigRegistry instanceConfiguration = config.createCopy();
@@ -90,9 +90,9 @@ public final class ExtensionMetadata {
      * Create an method specific configuration based on all method customizers. The method configuration holds all
      * custom configuration that was applied e.g. through method annotations.
      *
-     * @param method The method that is about to be called.
-     * @param config A configuration object. The object is not changed.
-     * @return A new configuration object with all changes applied.
+     * @param method The method that is about to be called
+     * @param config A configuration object. The object is not changed
+     * @return A new configuration object with all changes applied
      */
     public ConfigRegistry createMethodConfiguration(Method method, ConfigRegistry config) {
         ConfigRegistry methodConfiguration = config.createCopy();
@@ -112,12 +112,12 @@ public final class ExtensionMetadata {
 
     /**
      * Creates an {@link ExtensionHandlerInvoker} instance for a specific method.
-     * @param target The target object on which the invoker should work.
-     * @param method The method which will trigger the invocation.
-     * @param handleSupplier A {@link HandleSupplier} that will provide the handle object for the extension method.
-     * @param config The configuration object which should be used as base for the method specific configuration.
-     * @return A {@link ExtensionHandlerInvoker} object that is linked to the method.
-     * @param <E> THe type of the target object.
+     * @param target The target object on which the invoker should work
+     * @param method The method which will trigger the invocation
+     * @param handleSupplier A {@link HandleSupplier} that will provide the handle object for the extension method
+     * @param config The configuration object which should be used as base for the method specific configuration
+     * @return A {@link ExtensionHandlerInvoker} object that is linked to the method
+     * @param <E> THe type of the target object
      */
     public <E> ExtensionHandlerInvoker createExtensionHandlerInvoker(E target, Method method,
             HandleSupplier handleSupplier, ConfigRegistry config) {
@@ -162,8 +162,8 @@ public final class ExtensionMetadata {
 
         /**
          * Adds an {@link ExtensionHandlerFactory} that will be used to find extension handlers when the {@link Builder#build()}} method is called.
-         * @param extensionHandlerFactory An {@link ExtensionHandlerFactory} instance.
-         * @return The builder instance.
+         * @param extensionHandlerFactory An {@link ExtensionHandlerFactory} instance
+         * @return The builder instance
          */
         public Builder addExtensionHandlerFactory(ExtensionHandlerFactory extensionHandlerFactory) {
             this.extensionHandlerFactories.add(extensionHandlerFactory);
@@ -172,8 +172,8 @@ public final class ExtensionMetadata {
 
         /**
          * Adds an {@link ExtensionHandlerCustomizer} that will be used to customize extension handlers when the {@link Builder#build()}} method is called.
-         * @param extensionHandlerCustomizer An {@link ExtensionHandlerCustomizer} instance.
-         * @return
+         * @param extensionHandlerCustomizer An {@link ExtensionHandlerCustomizer} instance
+         * @return The builder instance
          */
         public Builder addExtensionHandlerCustomizer(ExtensionHandlerCustomizer extensionHandlerCustomizer) {
             this.extensionHandlerCustomizers.add(extensionHandlerCustomizer);
@@ -182,8 +182,8 @@ public final class ExtensionMetadata {
 
         /**
          * Adds an {@link ConfigCustomizerFactory} that will be used to find configuration customizers when the {@link Builder#build()}} method is called.
-         * @param configCustomizerFactory An {@link ConfigCustomizerFactory} instance.
-         * @return The builder instance.
+         * @param configCustomizerFactory An {@link ConfigCustomizerFactory} instance
+         * @return The builder instance
          */
         public Builder addConfigCustomizerFactory(ConfigCustomizerFactory configCustomizerFactory) {
             this.configCustomizerFactories.add(configCustomizerFactory);
@@ -192,8 +192,8 @@ public final class ExtensionMetadata {
 
         /**
          * Add an instance specific configuration customizer. This customizer will be applied to all methods on the extension type.
-         * @param configCustomizer A {@link ConfigCustomizer}.
-         * @return The builder instance.
+         * @param configCustomizer A {@link ConfigCustomizer}
+         * @return The builder instance
          */
         public Builder addInstanceConfigCustomizer(ConfigCustomizer configCustomizer) {
             instanceConfigCustomizer.addCustomizer(configCustomizer);
@@ -202,9 +202,9 @@ public final class ExtensionMetadata {
 
         /**
          * Add a method specific configuration customizer. This customizer will be applied only to the method given here.
-         * @param method A method object.
-         * @param configCustomizer A {@link ConfigCustomizer}.
-         * @return The builder instance.
+         * @param method A method object
+         * @param configCustomizer A {@link ConfigCustomizer}
+         * @return The builder instance
          */
         public Builder addMethodConfigCustomizer(Method method, ConfigCustomizer configCustomizer) {
             ConfigCustomizerChain methodConfigCustomizer = methodConfigCustomizers.computeIfAbsent(method, m -> new ConfigCustomizerChain());
@@ -216,8 +216,8 @@ public final class ExtensionMetadata {
          * Adds a new extension handler for a method.
          *
          * @param method The method for which an extension handler should be registered.
-         * @param handler An {@link ExtensionHandler} instance.
-         * @return The builder instance.
+         * @param handler An {@link ExtensionHandler} instance
+         * @return The builder instance
          */
         public Builder addMethodHandler(Method method, ExtensionHandler handler) {
             methodHandlers.put(method, handler);
@@ -226,7 +226,7 @@ public final class ExtensionMetadata {
 
         /**
          * Returns the extension type from the builder.
-         * @return The extension type.
+         * @return The extension type
          */
         public Class<?> getExtensionType() {
             return extensionType;
@@ -235,7 +235,7 @@ public final class ExtensionMetadata {
         /**
          * Creates a new {@link ExtensionMetadata} object.
          *
-         * @return A {@link ExtensionMetadata} object.
+         * @return A {@link ExtensionMetadata} object
          */
         public ExtensionMetadata build() {
             // add all methods that are declared on the extension type and
@@ -315,8 +315,8 @@ public final class ExtensionMetadata {
          * extension context is registered with the underlying handle to configure the handle when
          * executing the registered {@link ExtensionHandler}.
          *
-         * @param args The arguments to pass into the extension handler.
-         * @return The result of the extension handler invocation.
+         * @param args The arguments to pass into the extension handler
+         * @return The result of the extension handler invocation
          */
         public Object invoke(Object... args) {
             final Object[] handlerArgs = JdbiClassUtils.safeVarargs(args);
@@ -333,8 +333,8 @@ public final class ExtensionMetadata {
          * This method is used by the generated classes from the <code>jdbi3-generator</code> annotation
          * processor to execute predefined {@link ExtensionHandler} instances.
          *
-         * @param callable The callable to use.
-         * @return The result of the extension handler invocation.
+         * @param callable The callable to use
+         * @return The result of the extension handler invocation
          */
         public Object call(Callable<?> callable) {
             try {
@@ -353,7 +353,7 @@ public final class ExtensionMetadata {
          * This method is used by the generated classes from the <code>jdbi3-generator</code> annotation
          * processor to execute predefined {@link ExtensionHandler} instances.
          *
-         * @param runnable The runnable to use.
+         * @param runnable The runnable to use
          */
         public void call(Runnable runnable) {
             call(() -> {

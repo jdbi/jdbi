@@ -69,7 +69,7 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * Create an extension configuration by cloning another.
      *
-     * @param that the configuration to clone.
+     * @param that the configuration to clone
      */
     private Extensions(Extensions that) {
         allowProxy = that.allowProxy;
@@ -84,7 +84,7 @@ public class Extensions implements JdbiConfig<Extensions> {
      * Register a {@link ExtensionFactory} instance with the extension framework.
      *
      * @param factory the factory to register
-     * @return This instance.
+     * @return This instance
      */
     public Extensions register(ExtensionFactory factory) {
         extensionFactories.add(0, new ExtensionFactoryDelegate(factory));
@@ -94,8 +94,8 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * Registers a global {@link ExtensionHandlerFactory} instance. This factory is registered globally and will be used
      * with all registered {@link ExtensionFactory} instances.
-     * @param extensionHandlerFactory The {@link ExtensionHandlerFactory} to register.
-     * @return This instance.
+     * @param extensionHandlerFactory The {@link ExtensionHandlerFactory} to register
+     * @return This instance
      *
      * @since 3.38.0
      */
@@ -108,8 +108,8 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * Registers a global {@link ExtensionHandlerCustomizer} instance. This customizer is registered globally and will be used
      * with all registered {@link ExtensionFactory} instances.
-     * @param extensionHandlerCustomizer The {@link ExtensionHandlerCustomizer} to register.
-     * @return This instance.
+     * @param extensionHandlerCustomizer The {@link ExtensionHandlerCustomizer} to register
+     * @return This instance
      *
      * @since 3.38.0
      */
@@ -122,8 +122,8 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * Registers a global {@link ConfigCustomizerFactory} instance. This factory is registered globally and will be used
      * with all registered {@link ExtensionFactory} instances.
-     * @param configCustomizerFactory The {@link ConfigCustomizerFactory} to register.
-     * @return This instance.
+     * @param configCustomizerFactory The {@link ConfigCustomizerFactory} to register
+     * @return This instance
      *
      * @since 3.38.0
      */
@@ -136,8 +136,8 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * Returns true if an extension is registered for the given extension type.
      *
-     * @param extensionType the type to query. Must not be null.
-     * @return true if a registered extension factory handles the type.
+     * @param extensionType the type to query. Must not be null
+     * @return true if a registered extension factory handles the type
      */
     public boolean hasExtensionFor(Class<?> extensionType) {
         return findFactoryFor(extensionType).isPresent();
@@ -150,10 +150,10 @@ public class Extensions implements JdbiConfig<Extensions> {
      * within an extension implementation of inside the Jdbi code. It should rarely be called by
      * user code.</b>
      *
-     * @param <E>            the extension type to create.
-     * @param extensionType  the extension type to create.
-     * @param handleSupplier A handle supplier object.
-     * @return an attached extension instance if a factory is found, {@link Optional#empty()} otherwise.
+     * @param <E>            the extension type to create
+     * @param extensionType  the extension type to create
+     * @param handleSupplier A handle supplier object
+     * @return an attached extension instance if a factory is found, {@link Optional#empty()} otherwise
      */
     public <E> Optional<E> findFor(Class<E> extensionType, HandleSupplier handleSupplier) {
         return findFactoryFor(extensionType)
@@ -161,43 +161,39 @@ public class Extensions implements JdbiConfig<Extensions> {
     }
 
     private Optional<ExtensionFactory> findFactoryFor(Class<?> extensionType) {
-        Optional<ExtensionFactory> result = Optional.empty();
         for (ExtensionFactory factory : extensionFactories) {
             if (factory.accepts(extensionType)) {
-                result = Optional.of(factory);
-                break;
+                return Optional.of(factory);
             }
         }
 
-        return result;
+        return Optional.empty();
     }
 
     /**
      * Find the registered factory of the given type. The factory returned from this call
      * may not be the same instance that was registered with {@link Extensions#register(ExtensionFactory)}.
      *
-     * @param factoryType the factory's type to find.
-     * @return the found factory, if any or {@link Optional#empty()} otherwise.
+     * @param factoryType the factory's type to find
+     * @return the found factory, if any or {@link Optional#empty()} otherwise
      */
     public Optional<ExtensionFactory> findFactory(Class<? extends ExtensionFactory> factoryType) {
-        Optional<ExtensionFactory> result = Optional.empty();
         for (ExtensionFactoryDelegate factory : extensionFactories) {
             if (factoryType.isInstance(factory.getDelegatedFactory())) {
-                result = Optional.of(factory);
-                break;
+                return Optional.of(factory);
             }
         }
 
-        return result;
+        return Optional.empty();
     }
 
     /**
      * Retrieves all extension metadata for a specific extension type.
      *
-     * @param extensionType The extension type.
-     * @param config A config registry that can be used to look up other configuration elements.
-     * @param extensionFactory The extension factory for this extension type.
-     * @return A {@link ExtensionMetadata} object describing the extension handlers and customizers for this extension type.
+     * @param extensionType The extension type
+     * @param config A config registry that can be used to look up other configuration elements
+     * @param extensionFactory The extension factory for this extension type
+     * @return A {@link ExtensionMetadata} object describing the extension handlers and customizers for this extension type
      *
      * @since 3.38.0
      */

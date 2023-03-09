@@ -32,7 +32,7 @@ public final class ConfigCustomizerChain implements ConfigCustomizer {
 
     /**
      * Adds a customizer to the end of the chain.
-     * @param configCustomizer A {@link ConfigCustomizer} instance. Must not be null.
+     * @param configCustomizer A {@link ConfigCustomizer} instance. Must not be null
      */
     public void addCustomizer(final ConfigCustomizer configCustomizer) {
         configCustomizers.add(configCustomizer);
@@ -40,7 +40,7 @@ public final class ConfigCustomizerChain implements ConfigCustomizer {
 
     /**
      * Applies all customizers in the chain to the given {@link ConfigRegistry} object.
-     * @param config A {@link ConfigRegistry} object.
+     * @param config A {@link ConfigRegistry} object
      */
     @Override
     public void customize(final ConfigRegistry config) {

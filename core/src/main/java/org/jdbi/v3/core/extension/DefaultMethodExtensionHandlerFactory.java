@@ -20,8 +20,6 @@ import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 
 /**
  * Provides {@link ExtensionHandler} instances for interface default methods.
- *
- * @since 3.38.0
  */
 final class DefaultMethodExtensionHandlerFactory implements ExtensionHandlerFactory {
 

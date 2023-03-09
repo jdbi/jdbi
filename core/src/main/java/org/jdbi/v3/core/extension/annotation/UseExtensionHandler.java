@@ -39,16 +39,16 @@ public @interface UseExtensionHandler {
      * a {@code (Class<?> extensionType, Method method)} constructor. If the constructor takes one or more
      * arguments, it will get the extension type and the invoked method passed in at construction time.
      *
-     * @return the {@link ExtensionHandler} class.
+     * @return the {@link ExtensionHandler} class
      */
     Class<? extends ExtensionHandler> value();
 
     /**
-     * An extension should declare an id and tag all annotations with it. This allows the {@link ExtensionFactory} to decide
+     * An extension must declare an id and tag all annotations with it. This allows the {@link ExtensionFactory} to decide
      * whether it will process a class or not by looking at the annotations on the class and method and determine whether these
      * have the right id for the extension.
      *
-     * @return A string with the extension identifier.
+     * @return A string with the extension identifier
      */
-    String id() default "";
+    String id();
 }

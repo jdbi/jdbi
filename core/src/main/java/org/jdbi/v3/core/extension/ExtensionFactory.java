@@ -59,21 +59,21 @@ public interface ExtensionFactory {
     /**
      * Returns true if the factory can process the given extension type.
      *
-     * @param extensionType the extension type.
-     * @return whether the factory can produce an extension of the given type.
+     * @param extensionType the extension type
+     * @return whether the factory can produce an extension of the given type
      */
     boolean accepts(Class<?> extensionType);
 
     /**
      * Attaches an extension type. This method is not called if {@link #getFactoryFlags()} contains {@link FactoryFlag#VIRTUAL_FACTORY}.
      *
-     * @param extensionType  The extension type.
+     * @param extensionType  The extension type
      * @param handleSupplier Supplies the database handle. This supplier may lazily open a Handle on the first
      *                       invocation. Extension implementors should take care not to fetch the handle before it is
-     *                       needed, to avoid opening handles unnecessarily.
+     *                       needed, to avoid opening handles unnecessarily
      * @param <E>            the extension type
-     * @return An extension of the given type, attached to the given handle.
-     * @throws IllegalArgumentException if the extension type is not supported by this factory.
+     * @return An extension of the given type, attached to the given handle
+     * @throws IllegalArgumentException if the extension type is not supported by this factory
      * @see org.jdbi.v3.core.Jdbi#onDemand(Class)
      */
     <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier);
@@ -84,7 +84,8 @@ public interface ExtensionFactory {
      * <br>
      * Handler factories returned here can customize the behavior of the Extension factory itself.
      *
-     * @return A collection of {@link ExtensionHandlerFactory} objects. Can be empty, must not be null.
+     * @param config A Configuration registry object that can be used to look up additional information
+     * @return A collection of {@link ExtensionHandlerFactory} objects. Can be empty, must not be null
      *
      * @since 3.38.0
      */
@@ -99,8 +100,8 @@ public interface ExtensionFactory {
      * <br>
      * Handler customizers returned here can customize the behavior of the Handlers returned by the handler factories.
      *
-     * @param config A Configuration registry object that can be used to look up additional information.
-     * @return A collection of {@link ExtensionHandlerCustomizer} objects. Can be empty, must not be null.
+     * @param config A Configuration registry object that can be used to look up additional information
+     * @return A collection of {@link ExtensionHandlerCustomizer} objects. Can be empty, must not be null
      *
      * @since 3.38.0
      */
@@ -116,8 +117,8 @@ public interface ExtensionFactory {
      * type. They can return {@link ConfigCustomizer} instances that will affect the specific configuration for
      * each method and extension type.
      *
-     * @param config A Configuration registry object that can be used to look up additional information.
-     * @return A collection of {@link ConfigCustomizerFactory} objects. Can be empty, must not be null.
+     * @param config A Configuration registry object that can be used to look up additional information
+     * @return A collection of {@link ConfigCustomizerFactory} objects. Can be empty, must not be null
      *
      * @since 3.38.0
      */
@@ -132,6 +133,8 @@ public interface ExtensionFactory {
      * <br/>
      * Code here can call methods on the builder to configure the metadata object.
      *
+     * @param builder The builder object that is used to create the {@link ExtensionMetadata} object
+     *
      * @since 3.38.0
      */
     @Alpha
@@ -140,7 +143,7 @@ public interface ExtensionFactory {
     /**
      * Returns a set of {@link FactoryFlag}s that describe the extension factory.
      *
-     * @return A set of {@link FactoryFlag} elements. Default is the empty set.
+     * @return A set of {@link FactoryFlag} elements. Default is the empty set
      *
      * @since 3.38.0
      */

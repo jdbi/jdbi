@@ -38,7 +38,7 @@ public @interface UseExtensionCustomizer {
      * a {@code (Class<?> extensionType, Method method)} constructor. If the constructor takes one or more
      * arguments, it will get the extension type and the invoked method passed in at construction time.
      *
-     * @return the {@link ExtensionHandlerCustomizer} class.
+     * @return the {@link ExtensionHandlerCustomizer} class
      */
     Class<? extends ExtensionHandlerCustomizer> value();
 }

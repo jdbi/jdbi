@@ -35,7 +35,7 @@ public @interface UseExtensionConfigurer {
     /**
      * A {@link ExtensionConfigurer} type, which will be used to configure {@link ConfigRegistry} instances.
      *
-     * @return the Configurer type used to configure a {@link ConfigRegistry} for the configuring annotation.
+     * @return the Configurer type used to configure a {@link ConfigRegistry} for the configuring annotation
      */
     Class<? extends ExtensionConfigurer> value();
 }

@@ -16,6 +16,7 @@ package org.jdbi.v3.core.extension;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -29,14 +30,13 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.CheckedCallable;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
 /**
  * Applies decorations to method handlers, according to any {@link UseExtensionCustomizer} decorating annotations
  * present on the method. If multiple decorating annotations are present, the order of application can be controlled
  * using the {@link ExtensionCustomizationOrder} annotation.
- *
- * @since 3.38.0
  */
 final class UseExtensionAnnotationHandlerCustomizer implements ExtensionHandlerCustomizer {
 
@@ -51,7 +51,7 @@ final class UseExtensionAnnotationHandlerCustomizer implements ExtensionHandlerC
                 .flatMap(Arrays::stream)
                 .map(Annotation::annotationType)
                 .filter(type -> type.isAnnotationPresent(UseExtensionCustomizer.class))
-                .collect(toList());
+                .collect(toCollection(ArrayList::new));
 
         Stream.of(method, extensionType)
                 .map(e -> e.getAnnotation(ExtensionCustomizationOrder.class))

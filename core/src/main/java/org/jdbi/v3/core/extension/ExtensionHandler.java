@@ -46,11 +46,11 @@ public interface ExtensionHandler {
 
     /**
      * Gets invoked to return a value for the method that this handler was bound to.
-     * @param handleSupplier A {@link HandleSupplier} instance for accessing the handle and its related objects.
-     * @param target The target object on which the handler should operate.
-     * @param args Optional arguments for the handler.
-     * @return The return value for the method that was bound to the extension handler. Can be null.
-     * @throws Exception Any exception from the underlying code.
+     * @param handleSupplier A {@link HandleSupplier} instance for accessing the handle and its related objects
+     * @param target The target object on which the handler should operate
+     * @param args Optional arguments for the handler
+     * @return The return value for the method that was bound to the extension handler. Can be null
+     * @throws Exception Any exception from the underlying code
      */
     Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception;
 
@@ -58,15 +58,15 @@ public interface ExtensionHandler {
      * Called after the method handler is constructed to pre-initialize any important
      * configuration data structures.
      *
-     * @param config the method configuration to use for warming up.
+     * @param config the method configuration to use for warming up
      */
     @Beta
     default void warm(ConfigRegistry config) {}
 
     /**
      * Returns a default handler for missing functionality. The handler will throw an exception when invoked.
-     * @param method The method to which this specific handler instance is bound.
-     * @return An {@link ExtensionHandler} instance.
+     * @param method The method to which this specific handler instance is bound
+     * @return An {@link ExtensionHandler} instance
      */
     static ExtensionHandler missingExtensionHandler(Method method) {
         return (target, args, handleSupplier) -> {
@@ -80,9 +80,9 @@ public interface ExtensionHandler {
     /**
      * Create an extension handler and bind it to a method that will be called on the
      * target object when invoked.
-     * @param method The {@link Method} to bind to.
-     * @return An {@link ExtensionHandler}.
-     * @throws IllegalAccessException If the method could not be unreflected.
+     * @param method The {@link Method} to bind to
+     * @return An {@link ExtensionHandler}
+     * @throws IllegalAccessException If the method could not be unreflected
      */
     static ExtensionHandler createForMethod(Method method) throws IllegalAccessException {
         Class<?> declaringClass = method.getDeclaringClass();
@@ -93,9 +93,9 @@ public interface ExtensionHandler {
     /**
      * Create an extension handler and bind it to a special method that will be called on the
      * target object when invoked. This is needed e.g. for interface default methods.
-     * @param method The {@link Method} to bind to.
-     * @return An {@link ExtensionHandler}.
-     * @throws IllegalAccessException If the method could not be unreflected.
+     * @param method The {@link Method} to bind to
+     * @return An {@link ExtensionHandler}
+     * @throws IllegalAccessException If the method could not be unreflected
      */
     static ExtensionHandler createForSpecialMethod(Method method) throws IllegalAccessException {
         Class<?> declaringClass = method.getDeclaringClass();
@@ -105,9 +105,9 @@ public interface ExtensionHandler {
 
     /**
      * Create an extension handler and bind it to a {@link MethodHandle} instance.
-     * @param methodHandle The {@link MethodHandle} to bind to.
-     * @return An {@link ExtensionHandler}.
-     * @throws IllegalAccessException If the method could not be unreflected.
+     * @param methodHandle The {@link MethodHandle} to bind to
+     * @return An {@link ExtensionHandler}
+     * @throws IllegalAccessException If the method could not be unreflected
      */
     static ExtensionHandler createForMethodHandle(MethodHandle methodHandle) {
         return (handleSupplier, target, args) -> {
@@ -126,19 +126,19 @@ public interface ExtensionHandler {
         /**
          * Determines whether the factory can create an {@link ExtensionHandler} for combination of extension type and method.
          *
-         * @param extensionType The extension type class.
-         * @param method A method.
-         * @return True if the factory can create an extension handler for extension type and method, false otherwise.
+         * @param extensionType The extension type class
+         * @param method A method
+         * @return True if the factory can create an extension handler for extension type and method, false otherwise
          */
         boolean accepts(Class<?> extensionType, Method method);
 
         /**
          * Returns an {@link ExtensionHandler} for a extension type and method combination.
-         * @param extensionType The extension type class.
-         * @param method A method.
+         * @param extensionType The extension type class
+         * @param method A method
          * @return An {@link ExtensionHandler} instance wrapped into an {@link Optional}. The optional can be empty. This is necessary to retrofit old code
          * that does not have an accept/build code pair but unconditionally tries to build a handler and returns empty if it can not. New code should always
-         * return <code>Optional.of(extensionHandler}</code> and never return <code>Optional.empty()</code>.
+         * return <code>Optional.of(extensionHandler}</code> and never return <code>Optional.empty()</code>
          */
         Optional<ExtensionHandler> buildExtensionHandler(Class<?> extensionType, Method method);
     }
