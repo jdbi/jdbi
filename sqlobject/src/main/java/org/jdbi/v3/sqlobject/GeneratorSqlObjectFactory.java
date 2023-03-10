@@ -13,7 +13,9 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -34,6 +36,11 @@ public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDema
     @Override
     public boolean accepts(Class<?> extensionType) {
         return SqlObjectInitData.isConcrete(extensionType);
+    }
+
+    @Override
+    public Set<FactoryFlag> getFactoryFlags() {
+        return EnumSet.of(FactoryFlag.CLASSES_ARE_SUPPORTED);
     }
 
     /**

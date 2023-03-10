@@ -275,7 +275,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
         private T construct() {
             try {
                 return constructor.newInstance();
-            } catch (ReflectiveOperationException e) {
+            } catch (ReflectiveOperationException | SecurityException e) {
                 throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
             }
         }

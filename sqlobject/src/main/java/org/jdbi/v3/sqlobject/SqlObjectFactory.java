@@ -15,8 +15,10 @@ package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -57,6 +59,11 @@ public class SqlObjectFactory implements ExtensionFactory {
         return Stream.of(extensionType.getMethods())
                 .flatMap(m -> Stream.of(m.getAnnotations()))
                 .anyMatch(a -> a.annotationType().isAnnotationPresent(SqlOperation.class));
+    }
+
+    @Override
+    public Set<FactoryFlag> getFactoryFlags() {
+        return EnumSet.of(FactoryFlag.CLASSES_ARE_SUPPORTED);
     }
 
     /**
