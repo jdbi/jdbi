@@ -14,11 +14,12 @@
 package org.jdbi.v3.core.result;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -30,6 +31,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.result.internal.ResultSetResultIterable;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
@@ -50,27 +52,22 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @param mapper   row mapper
      * @param ctx      statement context
      * @param <T>      the mapped type
+     * @deprecated the ResultIterable type is not intended to be constructed by user code
      * @return the result iterable
      */
+    @Deprecated
     static <T> ResultIterable<T> of(Supplier<ResultSet> resultSetSupplier, RowMapper<T> mapper, StatementContext ctx) {
-        return () -> {
-            try {
-                ResultSet resultSet = resultSetSupplier.get();
-                ctx.addCleanable(resultSet::close);
-
-                return new ResultSetResultIterator<>(resultSet, mapper, ctx);
-            } catch (SQLException e) {
-                throw new ResultSetException("Unable to iterate result set", e, ctx);
-            }
-        };
+        return new ResultSetResultIterable<>(mapper, ctx, resultSetSupplier, null);
     }
 
     /**
      * Returns a ResultIterable backed by the given iterator.
      * @param iterator the result iterator
      * @param <T> iterator element type
+     * @deprecated the ResultIterable type is not intended to be constructed by user code
      * @return a ResultIterable
      */
+    @Deprecated
     static <T> ResultIterable<T> of(ResultIterator<T> iterator) {
         return () -> iterator;
     }
@@ -308,10 +305,19 @@ public interface ResultIterable<T> extends Iterable<T> {
     /**
      * Returns results in a {@link List}.
      *
-     * @return results in a {@link List}.
+     * @return results in a {@link List}
      */
     default List<T> list() {
-        return collect(Collectors.toList());
+        return collect(Collectors.toList()); // Always overridden by Jdbi
+    }
+
+    /**
+     * Returns results in a {@link Set}.
+     *
+     * @return results in a {@link Set}
+     */
+    default Set<T> set() {
+        return collect(Collectors.toSet()); // Always overridden by Jdbi
     }
 
     /**
@@ -325,6 +331,18 @@ public interface ResultIterable<T> extends Iterable<T> {
         try (Stream<T> stream = stream()) {
             return stream.collect(collector);
         }
+    }
+
+    /**
+     * Collect the results into a Map, using the given functions to compute keys and values.
+     * @param <K> the key type
+     * @param <V> the value type
+     * @param keyFunction a function that transforms the query result to a map key
+     * @param valueFunction a function that transforms the query result to a map value
+     * @return the collected Map
+     */
+    default <K, V> Map<K, V> collectToMap(Function<? super T, ? extends K> keyFunction, Function<? super T, ? extends V> valueFunction) {
+        return collect(Collectors.toMap(keyFunction, valueFunction));
     }
 
     /**

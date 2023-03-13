@@ -11,13 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.result;
+package org.jdbi.v3.core.result.internal;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.result.ResultIterator;
+import org.jdbi.v3.core.result.ResultSetException;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static java.util.Objects.requireNonNull;

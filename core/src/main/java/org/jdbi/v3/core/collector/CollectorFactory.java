@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.stream.Collector;
 
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -54,4 +55,12 @@ public interface CollectorFactory {
      * @see JdbiCollectors#findFor(Type)
      */
     Collector<?, ?, ?> build(Type containerType);
+
+    static CollectorFactory collectorFactory(GenericType<?> containerType, Collector<?, ?, ?> collector) {
+        return new SimpleCollectorFactory(containerType.getType(), collector);
+    }
+
+    static CollectorFactory collectorFactory(Type containerType, Collector<?, ?, ?> collector) {
+        return new SimpleCollectorFactory(containerType, collector);
+    }
 }

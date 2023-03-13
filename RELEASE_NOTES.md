@@ -6,6 +6,8 @@
   - add `JdbiExecutor` for async Jdbi operations (#2280, thanks @leblonk)
   - rewrite the core extension framework, move functionality from sqlobject to core
   - rewrite sqlobject and the generator to use the new extension framework, deprecate functionality that moved to the core
+  - ResultIterable list() may be customized by registering List collector; new set() and collectToMap() method
+  - Helpers to make registering CollectorFactory easier
 
 # 3.37.1
   - fix deadlock in default Jdbi cache (#2274)
