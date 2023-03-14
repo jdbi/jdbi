@@ -19,23 +19,23 @@ import java.util.Set;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.ExtensionMetadata;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
-import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
 
 import static java.lang.String.format;
 
 /**
  * Support for generator instances (concrete classes that have been created by the Jdbi generator).
  */
-public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDemandExtensions.Factory {
+public final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implements OnDemandExtensions.Factory {
 
     GeneratorSqlObjectFactory() {}
 
     @Override
     public boolean accepts(Class<?> extensionType) {
-        return SqlObjectInitData.isConcrete(extensionType);
+        return isConcrete(extensionType);
     }
 
     @Override
@@ -44,7 +44,7 @@ public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDema
     }
 
     /**
-     * Create a sql object from a jdbi generator created class.
+     * Attach a sql object from a jdbi generator created class.
      *
      * @param extensionType  the type of sql object to create.
      * @param handleSupplier the Handle instance to attach this sql object to.
@@ -52,18 +52,19 @@ public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDema
      */
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
-        if (!SqlObjectInitData.isConcrete(extensionType)) {
+        if (!isConcrete(extensionType)) {
             throw new IllegalStateException(format("Can not process %s, not generated SQL object", extensionType.getSimpleName()));
         }
 
-        final SqlObjectInitData sqlObjectInitData = SqlObjectInitData.lookup(extensionType, handleSupplier.getConfig());
-        final ConfigRegistry instanceConfig = sqlObjectInitData
-                .configureInstance(handleSupplier.getConfig().createCopy());
+        ConfigRegistry config = handleSupplier.getConfig();
+
+        final ExtensionMetadata extensionMetaData = config.get(Extensions.class).findMetadata(extensionType, config, this);
+        final ConfigRegistry instanceConfig = extensionMetaData.createInstanceConfiguration(config);
 
         try {
             Class<?> klazz = Class.forName(getGeneratedClassName(extensionType));
-            return extensionType.cast(klazz.getConstructor(SqlObjectInitData.class, HandleSupplier.class, ConfigRegistry.class)
-                    .newInstance(sqlObjectInitData, handleSupplier, instanceConfig));
+            return extensionType.cast(klazz.getConstructor(ExtensionMetadata.class, HandleSupplier.class, ConfigRegistry.class)
+                    .newInstance(extensionMetaData, handleSupplier, instanceConfig));
         } catch (ReflectiveOperationException | SecurityException e) {
             throw new UnableToCreateSqlObjectException(e);
         }
@@ -71,7 +72,7 @@ public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDema
 
     @Override
     public Optional<Object> onDemand(Jdbi jdbi, Class<?> extensionType, Class<?>... extraTypes) {
-        if (!SqlObjectInitData.isConcrete(extensionType)) {
+        if (!isConcrete(extensionType)) {
             return Optional.empty();
         }
 
@@ -79,7 +80,7 @@ public final class GeneratorSqlObjectFactory implements ExtensionFactory, OnDema
             return Optional.of(Class.forName(getOnDemandClassName(extensionType))
                     .getConstructor(Jdbi.class)
                     .newInstance(jdbi));
-        } catch (ReflectiveOperationException | ExceptionInInitializerError e) {
+        } catch (ReflectiveOperationException | SecurityException | ExceptionInInitializerError e) {
             throw new UnableToCreateSqlObjectException(e);
         }
     }

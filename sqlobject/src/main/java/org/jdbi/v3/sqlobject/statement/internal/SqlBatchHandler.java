@@ -31,6 +31,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.IterableLike;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
@@ -176,11 +177,12 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
     @Override
     @SuppressWarnings("PMD.ExcessiveMethodLength")
-    public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) {
+    public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
+        final Object[] safeArgs = JdbiClassUtils.safeVarargs(args);
         final Handle handle = handleSupplier.getHandle();
         final String sql = locateSql(handle);
-        final int chunkSize = batchChunkSize.call(args);
-        final Iterator<Object[]> batchArgs = zipArgs(getMethod(), args);
+        final int chunkSize = batchChunkSize.call(safeArgs);
+        final Iterator<Object[]> batchArgs = zipArgs(getMethod(), safeArgs);
 
         final class BatchChunkIterator implements ResultIterator<Object> {
             private ResultIterator<?> batchResult = null;

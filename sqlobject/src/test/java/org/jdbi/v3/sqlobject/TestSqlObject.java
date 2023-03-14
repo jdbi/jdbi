@@ -74,16 +74,17 @@ public class TestSqlObject {
 
     @Test
     public void testUnimplementedMethod() {
-        assertThatThrownBy(() -> handle.attach(UnimplementedDao.class))
+        UnimplementedDao dao = handle.attach(UnimplementedDao.class);
+        assertThatThrownBy(() -> dao.totallyBroken())
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Method UnimplementedDao.totallyBroken must have an implementation or be annotated with a SQL method annotation.");
+                .hasMessageContaining("Method UnimplementedDao.totallyBroken has no registered extension handler!");
     }
 
     @Test
     public void testRedundantMethodHasDefaultImplementAndAlsoSqlMethodAnnotation() {
         assertThatThrownBy(() -> handle.attach(RedundantDao.class))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Default method RedundantDao.list has @SqlQuery annotation. SQL object methods may be default, or have a SQL method annotation, but not both.");
+                .hasMessageContaining("Default method RedundantDao.list has @SqlQuery annotation. Extension type methods may be default, or have a @UseExtensionHandler annotation, but not both.");
     }
 
     @Test
@@ -97,7 +98,12 @@ public class TestSqlObject {
 
     @Test
     public void testUnimplementedMethodWithDaoInAnotherPackage() {
-        assertThatThrownBy(() -> handle.attach(BrokenDao.class)).isInstanceOf(IllegalStateException.class);
+        // new extension framework no longer fails here.
+        BrokenDao dao = handle.attach(BrokenDao.class);
+
+        assertThatThrownBy(() -> dao.totallyBroken())
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Method BrokenDao.totallyBroken has no registered extension handler!");
     }
 
     @Test
@@ -160,24 +166,21 @@ public class TestSqlObject {
     }
 
     @Test
-    public void testRedundantMethodCustomizingAnnotation() {
-        assertThatThrownBy(() -> handle.attach(RedundantMethodStatementCustomizingAnnotation.class))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Statement customizing annotations don't work on default methods.");
+    public void testDefaultMethodCustomizingAnnotation() {
+        AnnotatedDefaultMethodDao dao = handle.attach(AnnotatedDefaultMethodDao.class);
+        assertThat(dao.annotatedMethod()).isEmpty();
     }
 
     @Test
-    public void testRedundantParameterCustomizingAnnotation() {
-        assertThatThrownBy(() -> handle.attach(RedundantParameterStatementCustomizingAnnotation.class))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Statement customizing annotations don't work on default methods.");
+    public void testDefaultMethodParameterDefineAnnotation() {
+        AnnotatedDefaultMethodDao dao = handle.attach(AnnotatedDefaultMethodDao.class);
+        assertThat(dao.annotatedDefineParameter(20)).isEmpty();
     }
 
     @Test
-    public void testRedundantParameterBindingAnnotation() {
-        assertThatThrownBy(() -> handle.attach(RedundantParameterBindingAnnotation.class))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Statement customizing annotations don't work on default methods.");
+    public void testDefaultMethodParameterBindAnnotation() {
+        AnnotatedDefaultMethodDao dao = handle.attach(AnnotatedDefaultMethodDao.class);
+        assertThat(dao.annotatedBindParameter(20)).isEqualTo("foo");
     }
 
     @Test
@@ -264,21 +267,17 @@ public class TestSqlObject {
         }
     }
 
-    public interface RedundantMethodStatementCustomizingAnnotation extends SqlObject {
+    public interface AnnotatedDefaultMethodDao extends SqlObject {
         @MaxRows(10)
-        default List<String> broken() {
+        default List<String> annotatedMethod() {
             return emptyList();
         }
-    }
 
-    public interface RedundantParameterStatementCustomizingAnnotation extends SqlObject {
-        default List<String> broken(@Define int wut) {
+        default List<String> annotatedDefineParameter(@Define int wut) {
             return emptyList();
         }
-    }
 
-    public interface RedundantParameterBindingAnnotation extends SqlObject {
-        default String broken(@Bind int wat) {
+        default String annotatedBindParameter(@Bind int wat) {
             return "foo";
         }
     }

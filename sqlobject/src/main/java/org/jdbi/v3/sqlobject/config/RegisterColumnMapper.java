@@ -19,13 +19,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.sqlobject.config.internal.RegisterColumnMapperImpl;
 
 /**
  * Registers a column mapper in the scope of a SQL Object type or method.
  */
-@ConfiguringAnnotation(RegisterColumnMapperImpl.class)
+@UseExtensionConfigurer(RegisterColumnMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterColumnMappers.class)

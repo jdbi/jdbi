@@ -25,13 +25,13 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
-import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.UseTemplateEngine;
 
-public class UseTemplateEngineImpl implements Configurer {
+public class UseTemplateEngineImpl implements ExtensionConfigurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, @Nullable Method method) {
         UseTemplateEngine anno = (UseTemplateEngine) annotation;

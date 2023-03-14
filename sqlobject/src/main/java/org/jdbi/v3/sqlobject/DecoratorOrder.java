@@ -22,9 +22,13 @@ import java.lang.annotation.Target;
 /**
  * Determines the order in which SQL method decorators are invoked. If this annotation is absent, the decorator order
  * is undefined. A <code>@DecoratorOrder</code> annotation on a method takes precedence over an annotation on a type.
+ *
+ * @deprecated Use {@link org.jdbi.v3.core.extension.annotation.UseExtensionCustomizer} to mark annotations and
+ * {@link org.jdbi.v3.core.extension.annotation.ExtensionCustomizationOrder} instead.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
+@Deprecated
 public @interface DecoratorOrder {
     /**
      * The order that decorator annotations will be applied, from outermost to innermost. Decorator order is undefined

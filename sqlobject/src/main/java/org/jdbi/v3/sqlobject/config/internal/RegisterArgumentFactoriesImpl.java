@@ -18,13 +18,13 @@ import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactories;
 
-public class RegisterArgumentFactoriesImpl implements Configurer {
+public class RegisterArgumentFactoriesImpl implements ExtensionConfigurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        Configurer delegate = new RegisterArgumentFactoryImpl();
+        ExtensionConfigurer delegate = new RegisterArgumentFactoryImpl();
         RegisterArgumentFactories factories = (RegisterArgumentFactories) annotation;
         Stream.of(factories.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
     }

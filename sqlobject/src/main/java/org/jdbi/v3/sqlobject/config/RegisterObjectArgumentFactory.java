@@ -20,13 +20,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Types;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.RegisterObjectArgumentFactoryImpl;
 
 /**
  * Registers an argument factory for a type compatible with
  * {@link java.sql.PreparedStatement#setObject(int, Object)}.
  */
-@ConfiguringAnnotation(RegisterObjectArgumentFactoryImpl.class)
+@UseExtensionConfigurer(RegisterObjectArgumentFactoryImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(RegisterObjectArgumentFactories.class)

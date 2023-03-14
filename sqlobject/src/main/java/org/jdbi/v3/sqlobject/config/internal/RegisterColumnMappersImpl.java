@@ -18,10 +18,10 @@ import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMappers;
 
-public class RegisterColumnMappersImpl implements Configurer {
+public class RegisterColumnMappersImpl implements ExtensionConfigurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
@@ -29,7 +29,7 @@ public class RegisterColumnMappersImpl implements Configurer {
 
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        Configurer delegate = new RegisterColumnMapperImpl();
+        ExtensionConfigurer delegate = new RegisterColumnMapperImpl();
 
         RegisterColumnMappers registerColumnMappers = (RegisterColumnMappers) annotation;
         Stream.of(registerColumnMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));

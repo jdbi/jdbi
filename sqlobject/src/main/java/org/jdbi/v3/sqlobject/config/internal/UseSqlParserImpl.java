@@ -25,13 +25,13 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
-import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.UseSqlParser;
 
-public class UseSqlParserImpl implements Configurer {
+public class UseSqlParserImpl implements ExtensionConfigurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         UseSqlParser anno = (UseSqlParser) annotation;

@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -29,7 +28,7 @@ import static java.util.stream.Collectors.toList;
  * present on the method. If multiple decorating annotations are present, the order of application can be controlled
  * using the {@link DecoratorOrder} annotation.
  * <p>
- * This decorator is registered out of the box.
+ * This decorator is registered out of the box and supports the deprecated {@link SqlMethodDecoratingAnnotation} annotations.
  * </p>
  */
 class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
@@ -44,10 +43,7 @@ class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
                 .filter(type -> type.isAnnotationPresent(SqlMethodDecoratingAnnotation.class))
                 .collect(toList());
 
-        Stream.of(method, sqlObjectType)
-                .map(e -> e.getAnnotation(DecoratorOrder.class))
-                .filter(Objects::nonNull)
-                .findFirst()
+        SqlObjectAnnotationHelper.findAnnotation(DecoratorOrder.class, method, sqlObjectType)
                 .ifPresent(order -> annotationTypes.sort(createDecoratorComparator(order).reversed()));
 
         List<HandlerDecorator> decorators = annotationTypes.stream()
@@ -74,7 +70,7 @@ class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
     private static HandlerDecorator buildDecorator(Class<? extends HandlerDecorator> decoratorClass) {
         try {
             return decoratorClass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Decorator class " + decoratorClass + "cannot be instantiated", e);
         }
     }

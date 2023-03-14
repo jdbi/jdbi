@@ -20,6 +20,8 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionContext;
+import org.jdbi.v3.core.extension.ExtensionFactory;
+import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,11 +30,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 public class TestSqlObjectMethodBehavior {
+
+    private Jdbi jdbi;
     private UselessDao dao;
     private UselessDao anotherDao;
 
     @BeforeEach
     public void setUp() {
+        jdbi = Jdbi.create(() -> {
+            throw new UnsupportedOperationException();
+        });
+
+        jdbi.registerExtension(new SqlObjectFactory());
+
         HandleSupplier handleSupplier = new HandleSupplier() {
             @Override
             public ConfigRegistry getConfig() {
@@ -54,7 +64,10 @@ public class TestSqlObjectMethodBehavior {
                 return task.call();
             }
         };
-        SqlObjectFactory factory = new SqlObjectFactory();
+
+        ExtensionFactory factory = jdbi.getConfig(Extensions.class).findFactory(SqlObjectFactory.class)
+                .orElseGet(() -> fail("Could not retrieve factory"));
+
         dao = factory.attach(UselessDao.class, handleSupplier);
         anotherDao = factory.attach(UselessDao.class, handleSupplier);
     }

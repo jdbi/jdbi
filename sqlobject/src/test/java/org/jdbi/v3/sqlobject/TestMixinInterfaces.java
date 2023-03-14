@@ -115,7 +115,8 @@ public class TestMixinInterfaces {
                 assertThat(h).isNotNull();
                 assertThat(h.getExtensionMethod().getMethod()).isEqualTo(getHandleMethod);
             });
-        }).isInstanceOf(IllegalStateException.class).hasMessageContaining("Method ExplicitUseHandle.useHandle must have an implementation or be annotated with a SQL method annotation.");
+        }).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Method ExplicitUseHandle.useHandle has no registered extension handler!");
     }
 
     @Test

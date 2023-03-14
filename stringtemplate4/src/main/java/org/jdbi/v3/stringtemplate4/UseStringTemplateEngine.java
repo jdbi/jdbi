@@ -18,7 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateEngineImpl;
 
@@ -27,7 +27,7 @@ import org.jdbi.v3.stringtemplate4.internal.UseStringTemplateEngineImpl;
  * with {@link Define @Define} are passed to the StringTemplate as template
  * attributes.
  */
-@ConfiguringAnnotation(UseStringTemplateEngineImpl.class)
+@UseExtensionConfigurer(UseStringTemplateEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UseStringTemplateEngine {}

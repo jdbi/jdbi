@@ -19,10 +19,10 @@ import java.lang.reflect.Method;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterCollectorFactory;
 
-public class RegisterCollectorFactoryImpl implements Configurer {
+public class RegisterCollectorFactoryImpl implements ExtensionConfigurer {
     @Override
     public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
         configureForType(registry, annotation, sqlObjectType);
@@ -34,8 +34,8 @@ public class RegisterCollectorFactoryImpl implements Configurer {
         JdbiCollectors collectors = registry.get(JdbiCollectors.class);
         Class<? extends CollectorFactory> type = registerCollectorFactory.value();
         try {
-            collectors.register(type.getDeclaredConstructor().newInstance());
-        } catch (ReflectiveOperationException e) {
+            collectors.register(type.getConstructor().newInstance());
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate collector factory class " + registerCollectorFactory.value(), e);
         }
     }

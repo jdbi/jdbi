@@ -18,6 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.KeyColumnImpl;
 
 /**
@@ -29,7 +30,7 @@ import org.jdbi.v3.sqlobject.config.internal.KeyColumnImpl;
  * Map&lt;Long, User&gt; getUsersById();
  * </pre>
  */
-@ConfiguringAnnotation(KeyColumnImpl.class)
+@UseExtensionConfigurer(KeyColumnImpl.class)
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface KeyColumn {

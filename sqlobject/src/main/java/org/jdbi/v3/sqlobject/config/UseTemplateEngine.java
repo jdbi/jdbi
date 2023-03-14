@@ -18,6 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.config.internal.UseTemplateEngineImpl;
 
@@ -32,7 +33,7 @@ import org.jdbi.v3.sqlobject.config.internal.UseTemplateEngineImpl;
  * </ul>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@ConfiguringAnnotation(UseTemplateEngineImpl.class)
+@UseExtensionConfigurer(UseTemplateEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface UseTemplateEngine {
     /**

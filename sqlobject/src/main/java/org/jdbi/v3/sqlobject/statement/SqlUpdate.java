@@ -18,7 +18,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.SqlOperation;
+import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
+import org.jdbi.v3.sqlobject.SqlObjectFactory;
 import org.jdbi.v3.sqlobject.statement.internal.SqlUpdateHandler;
 
 /**
@@ -26,8 +27,9 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlUpdateHandler;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlOperation(SqlUpdateHandler.class)
+@UseExtensionHandler(id = SqlObjectFactory.EXTENSION_ID, value = SqlUpdateHandler.class)
 public @interface SqlUpdate {
+
     /**
      * The sql (or statement name if using a statement locator) to be executed. The default value will use
      * the method name of the method being annotated. This default behavior is only useful in conjunction

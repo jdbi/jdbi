@@ -18,13 +18,13 @@ import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMappers;
 
-public class RegisterBeanMappersImpl implements Configurer {
+public class RegisterBeanMappersImpl implements ExtensionConfigurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        Configurer delegate = new RegisterBeanMapperImpl();
+        ExtensionConfigurer delegate = new RegisterBeanMapperImpl();
 
         RegisterBeanMappers registerBeanMappers = (RegisterBeanMappers) annotation;
         Stream.of(registerBeanMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));

@@ -19,11 +19,11 @@ import java.lang.reflect.Method;
 import org.jdbi.v3.commonstext.StringSubstitutorTemplateEngine;
 import org.jdbi.v3.commonstext.UseStringSubstitutorTemplateEngine;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
-import org.jdbi.v3.sqlobject.config.Configurer;
 
-public class UseStringSubstitutorTemplateEngineImpl implements Configurer {
+public class UseStringSubstitutorTemplateEngineImpl implements ExtensionConfigurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         UseStringSubstitutorTemplateEngine anno = (UseStringSubstitutorTemplateEngine) annotation;

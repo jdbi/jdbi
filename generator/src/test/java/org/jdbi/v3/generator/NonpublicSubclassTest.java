@@ -27,14 +27,14 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.Extensions;
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.GenerateSqlObject;
 import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.config.Configurer;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -131,24 +131,24 @@ public class NonpublicSubclassTest {
         }
     }
 
-    @ConfiguringAnnotation(GeneratorConfigurerTypeImpl.class)
+    @UseExtensionConfigurer(GeneratorConfigurerTypeImpl.class)
     @Target({ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface GeneratorConfigurerType {}
 
-    @ConfiguringAnnotation(GeneratorConfigurerMethodImpl.class)
+    @UseExtensionConfigurer(GeneratorConfigurerMethodImpl.class)
     @Target({ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface GeneratorConfigurerMethod {}
 
-    public static class GeneratorConfigurerTypeImpl implements Configurer {
+    public static class GeneratorConfigurerTypeImpl implements ExtensionConfigurer {
         @Override
         public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
             registry.get(GeneratorConfig.class).configuredType = true;
         }
     }
 
-    public static class GeneratorConfigurerMethodImpl implements Configurer {
+    public static class GeneratorConfigurerMethodImpl implements ExtensionConfigurer {
         @Override
         public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
             registry.get(GeneratorConfig.class).configuredMethod = true;

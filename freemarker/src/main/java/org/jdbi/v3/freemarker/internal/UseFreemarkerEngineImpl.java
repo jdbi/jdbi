@@ -17,11 +17,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.freemarker.FreemarkerEngine;
-import org.jdbi.v3.sqlobject.config.Configurer;
 
-public class UseFreemarkerEngineImpl implements Configurer {
+public class UseFreemarkerEngineImpl implements ExtensionConfigurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         registry.get(SqlStatements.class).setTemplateEngine(new FreemarkerEngine());

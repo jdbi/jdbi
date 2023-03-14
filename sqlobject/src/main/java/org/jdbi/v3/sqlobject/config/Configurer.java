@@ -13,36 +13,14 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 
 /**
  * Configures {@link ConfigRegistry} instances to satisfy the contract of a
  * {@link ConfiguringAnnotation}-annotated annotation.
+ *
+ * @deprecated Use {@link ExtensionConfigurer} directly.
  */
-public interface Configurer {
-    /**
-     * Configures the registry for the given annotation on a sql object type.
-     *
-     * @param registry      the registry to configure
-     * @param annotation    the annotation
-     * @param sqlObjectType the sql object type which was annotated
-     */
-    default void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        throw new UnsupportedOperationException("Not supported for type");
-    }
-
-    /**
-     * Configures the registry for the given annotation on a sql object method.
-     *
-     * @param registry      the registry to configure
-     * @param annotation    the annotation
-     * @param sqlObjectType the sql object type
-     * @param method        the method which was annotated
-     */
-    default void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        throw new UnsupportedOperationException("Not supported for method");
-    }
-}
+@Deprecated
+public interface Configurer extends ExtensionConfigurer {}

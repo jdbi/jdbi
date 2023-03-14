@@ -21,9 +21,12 @@ import java.lang.annotation.Target;
 /**
  * Annotation used to identify SQL operation annotations. Use this to annotate
  * an annotation.
+ *
+ * @deprecated Use {@link org.jdbi.v3.core.extension.annotation.UseExtensionHandler} and {@link SqlObjectFactory#EXTENSION_ID} as the id marker.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
+@Deprecated
 public @interface SqlOperation {
     /**
      * Handler class for methods annotated with the associated annotation.

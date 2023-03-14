@@ -20,9 +20,13 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation used to identify SQL method decorating annotations. Use this to annotate an annotation.
+ *
+ * @deprecated Use {@link org.jdbi.v3.core.extension.annotation.UseExtensionCustomizer} instead
+ * and implement {@link org.jdbi.v3.core.extension.ExtensionHandlerCustomizer} for the value.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
+@Deprecated
 public @interface SqlMethodDecoratingAnnotation {
     /**
      * Factory class that decorates {@link Handler} instances for methods annotated with the associated annotation.

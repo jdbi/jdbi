@@ -13,24 +13,26 @@
  */
 package org.jdbi.v3.sqlobject.kotlin
 
+import org.jdbi.v3.core.extension.ExtensionHandler
+import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory
 import org.jdbi.v3.core.kotlin.isKotlinClass
-import org.jdbi.v3.sqlobject.Handler
-import org.jdbi.v3.sqlobject.HandlerFactory
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.Collections
 import java.util.Optional
 import java.util.WeakHashMap
 
-class KotlinDefaultMethodHandlerFactory : HandlerFactory {
+class KotlinDefaultMethodHandlerFactory : ExtensionHandlerFactory {
 
     private val implsClassCache = Collections.synchronizedMap(WeakHashMap<Class<*>, Map<MethodKey, Method>>())
 
-    override fun buildHandler(sqlObjectType: Class<*>, method: Method): Optional<Handler> {
+    override fun accepts(extensionType: Class<*>?, method: Method?): Boolean = extensionType?.isKotlinClass() ?: false
+
+    override fun buildExtensionHandler(sqlObjectType: Class<*>, method: Method): Optional<ExtensionHandler> {
         val implementation = getImplementation(sqlObjectType, method) ?: return Optional.empty()
 
         return Optional.of(
-            Handler { t, a, _ ->
+            ExtensionHandler { _, t, a ->
                 @Suppress("SwallowedException")
                 try {
                     @Suppress("SpreadOperator")
@@ -42,14 +44,14 @@ class KotlinDefaultMethodHandlerFactory : HandlerFactory {
         )
     }
 
-    fun getImplementation(type: Class<*>, method: Method): Method? {
-        if (!type.isKotlinClass()) return null
+    private fun getImplementation(extensionType: Class<*>, method: Method): Method? {
+        if (!extensionType.isKotlinClass()) return null
 
-        val implMethods: Map<MethodKey, Method> = implsClassCache.computeIfAbsent(type) {
-            findImplClass(it)?.methods?.associateBy { MethodKey(it.name, it.parameters.map { p -> p.type }, it.returnType) } ?: emptyMap()
+        val implMethods: Map<MethodKey, Method> = implsClassCache.computeIfAbsent(extensionType) { type ->
+            findImplClass(type)?.methods?.associateBy { MethodKey(it.name, it.parameters.map { p -> p.type }, it.returnType) } ?: emptyMap()
         }!!
 
-        return findImplMethod(type, method, implMethods)
+        return findImplMethod(extensionType, method, implMethods)
     }
 
     private fun findImplMethod(type: Class<*>, method: Method, implMethods: Map<MethodKey, Method>): Method? {

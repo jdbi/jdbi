@@ -18,15 +18,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.freemarker.internal.UseFreemarkerEngineImpl;
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 import org.jdbi.v3.sqlobject.customizer.Define;
 
 /**
  * Configures a SQL object class or method to rewrite SQL statements using Freemarker. Method parameters annotated
  * with {@link Define @Define} are passed to the Freemarker as template attributes.
  */
-@ConfiguringAnnotation(UseFreemarkerEngineImpl.class)
+@UseExtensionConfigurer(UseFreemarkerEngineImpl.class)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UseFreemarkerEngine {}

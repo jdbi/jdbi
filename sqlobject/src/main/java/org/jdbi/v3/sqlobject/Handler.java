@@ -13,23 +13,18 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import org.jdbi.v3.core.HandleCallback;
-import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.meta.Beta;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 
 /**
  * Implements the contract of a SQL Object method.
+ *
+ * @deprecated Use {@link ExtensionHandler} directly.
  */
 @FunctionalInterface
-public interface Handler {
-
-    Handler EQUALS_HANDLER = (target, args, handleSupplier) -> target == args[0];
-    Handler HASHCODE_HANDLER = (target, args, handleSupplier) -> System.identityHashCode(target);
-    Handler GET_HANDLE_HANDLER = (target, args, handleSupplier) -> handleSupplier.getHandle();
-
-    Handler WITH_HANDLE_HANDLER = (target, args, handleSupplier) -> ((HandleCallback<?, RuntimeException>) args[0]).withHandle(handleSupplier.getHandle());
-    Handler NULL_HANDLER = (target, args, handleSupplier) -> null;
+@Deprecated
+public interface Handler extends ExtensionHandler {
 
     /**
      * Executes a SQL Object method, and returns the result.
@@ -42,12 +37,8 @@ public interface Handler {
      */
     Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) throws Exception;
 
-    /**
-     * Called after the method handler is constructed to pre-initialize any important
-     * configuration data structures.
-     *
-     * @param config the method configuration to warm
-     */
-    @Beta
-    default void warm(ConfigRegistry config) {}
+    @Override
+    default Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
+        return invoke(target, JdbiClassUtils.safeVarargs(args), handleSupplier);
+    }
 }

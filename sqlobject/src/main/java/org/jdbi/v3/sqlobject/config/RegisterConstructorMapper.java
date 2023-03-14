@@ -19,12 +19,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.RegisterConstructorMapperImpl;
 
 /**
  * Registers a constructor mapper factory for the given type(s).
  */
-@ConfiguringAnnotation(RegisterConstructorMapperImpl.class)
+@UseExtensionConfigurer(RegisterConstructorMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Repeatable(RegisterConstructorMappers.class)

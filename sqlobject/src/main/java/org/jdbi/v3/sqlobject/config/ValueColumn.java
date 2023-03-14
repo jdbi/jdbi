@@ -18,6 +18,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.internal.ValueColumnImpl;
 
 /**
@@ -30,7 +31,7 @@ import org.jdbi.v3.sqlobject.config.internal.ValueColumnImpl;
  * Map&lt;String, String&gt; getConfigs();
  * </pre>
  */
-@ConfiguringAnnotation(ValueColumnImpl.class)
+@UseExtensionConfigurer(ValueColumnImpl.class)
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValueColumn {

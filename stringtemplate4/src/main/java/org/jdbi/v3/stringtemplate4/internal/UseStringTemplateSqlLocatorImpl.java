@@ -17,10 +17,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.SqlObjects;
-import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.internal.SqlAnnotations;
 import org.jdbi.v3.sqlobject.locator.SqlLocator;
 import org.stringtemplate.v4.ST;
@@ -28,7 +28,7 @@ import org.stringtemplate.v4.STGroup;
 
 import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTemplateGroup;
 
-public class UseStringTemplateSqlLocatorImpl implements Configurer {
+public class UseStringTemplateSqlLocatorImpl implements ExtensionConfigurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         SqlLocator locator = (type, method, config) -> {

@@ -18,18 +18,18 @@ import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.config.Configurer;
+import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 
-public class RegisterArgumentFactoryImpl implements Configurer {
+public class RegisterArgumentFactoryImpl implements ExtensionConfigurer {
     @Override
     public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
         RegisterArgumentFactory registerArgumentFactory = (RegisterArgumentFactory) annotation;
         Arguments arguments = registry.get(Arguments.class);
 
         try {
-            arguments.register(registerArgumentFactory.value().getDeclaredConstructor().newInstance());
-        } catch (ReflectiveOperationException e) {
+            arguments.register(registerArgumentFactory.value().getConstructor().newInstance());
+        } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate argument factory class " + registerArgumentFactory.value(), e);
         }
     }

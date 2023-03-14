@@ -22,6 +22,7 @@ import java.util.concurrent.Future;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.HandleConsumer;
+import org.jdbi.v3.core.JdbiException;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -127,8 +128,8 @@ public class TestVariousOddities {
     public void testInterfaceAmbiguousMethods() {
         assertThatThrownBy(() ->
             h2Extension.getSharedHandle().attach(AmbiguousMethods.class))
-            .isInstanceOf(UnableToCreateSqlObjectException.class)
-            .hasMessageContaining("AmbiguousMethods has ambiguous methods");
+            .hasMessageContaining("AmbiguousMethods has ambiguous methods")
+            .isInstanceOf(JdbiException.class);
     }
 
     @Test

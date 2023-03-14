@@ -50,11 +50,11 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.ExtensionMetadata;
+import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.SqlObject;
-import org.jdbi.v3.sqlobject.internal.SqlObjectInitData;
-import org.jdbi.v3.sqlobject.internal.SqlObjectInitData.InContextInvoker;
 
 import static java.lang.String.format;
 
@@ -221,10 +221,10 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                             paramTypes)
                     .build());
 
-            // the invoker field is initialized in the c'tor with a Supplier<InContextInvoker> instance
-            implementationBuilder.addField(InContextInvoker.class, invokerField, Modifier.PRIVATE, Modifier.FINAL);
+            // the invoker field is initialized in the c'tor
+            implementationBuilder.addField(ExtensionHandlerInvoker.class, invokerField, Modifier.PRIVATE, Modifier.FINAL);
 
-            implementationCtorBuilder.add("$L = sqlObjectInitData.getInvoker(this, $L, handleSupplier, config);\n",
+            implementationCtorBuilder.add("$L = extensionMetadata.createExtensionHandlerInvoker(this, $L, handleSupplier, config);\n",
                     invokerField,
                     methodField);
 
@@ -288,7 +288,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
             // add constructor at the end, every method added code to it.
             implementationBuilder.addMethod(MethodSpec.constructorBuilder()
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(SqlObjectInitData.class, "sqlObjectInitData")
+                    .addParameter(ExtensionMetadata.class, "extensionMetadata")
                     .addParameter(HandleSupplier.class, "handleSupplier")
                     .addParameter(ConfigRegistry.class, "config")
                     .addCode(implementationCtorBuilder.build())

@@ -16,7 +16,7 @@ package org.jdbi.v3.sqlobject.locator;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
+import org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer;
 import org.jdbi.v3.sqlobject.locator.internal.UseAnnotationSqlLocatorImpl;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -26,7 +26,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * Configures SQL Object to use AnnotationSqlLocator (the default SqlLocator).
  */
-@ConfiguringAnnotation(UseAnnotationSqlLocatorImpl.class)
+@UseExtensionConfigurer(UseAnnotationSqlLocatorImpl.class)
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
 public @interface UseAnnotationSqlLocator {}

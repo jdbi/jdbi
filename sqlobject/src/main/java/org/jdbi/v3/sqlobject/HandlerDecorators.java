@@ -17,7 +17,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.extension.ExtensionHandler;
 
 /**
  * Registry for {@link HandlerDecorator handler decorators}. Decorators may modify or augment the behavior of a method
@@ -26,7 +28,11 @@ import org.jdbi.v3.core.config.JdbiConfig;
  * {@link org.jdbi.v3.sqlobject.transaction.Transaction} annotation will cause a SQL method to be executed within a
  * transaction. Decorators are applied in the order registered, from innermost to outermost: the last registered
  * decorator will be the outermost decorator around the method handler.
+ *
+ * @deprecated Use {@link org.jdbi.v3.core.extension.ExtensionHandlerCustomizer} instances which are returned directly
+ * from the {@link org.jdbi.v3.core.extension.ExtensionFactory#getExtensionHandlerCustomizers(ConfigRegistry)}.
  */
+@Deprecated
 public class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
     private final List<HandlerDecorator> decorators = new CopyOnWriteArrayList<>();
 
@@ -61,6 +67,14 @@ public class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
         Handler handler = base;
         for (HandlerDecorator decorator : decorators) {
             handler = decorator.decorateHandler(handler, sqlObjectType, method);
+        }
+        return handler;
+    }
+
+    ExtensionHandler customize(ExtensionHandler base, Class<?> sqlObjectType, Method method) {
+        ExtensionHandler handler = base;
+        for (HandlerDecorator decorator : decorators) {
+            handler = decorator.customize(handler, sqlObjectType, method);
         }
         return handler;
     }

@@ -18,8 +18,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionCustomizer;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
-import org.jdbi.v3.sqlobject.SqlMethodDecoratingAnnotation;
 import org.jdbi.v3.sqlobject.transaction.internal.TransactionDecorator;
 
 /**
@@ -32,7 +32,7 @@ import org.jdbi.v3.sqlobject.transaction.internal.TransactionDecorator;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-@SqlMethodDecoratingAnnotation(TransactionDecorator.class)
+@UseExtensionCustomizer(TransactionDecorator.class)
 public @interface Transaction {
     /**
      * The transaction isolation level.
@@ -40,9 +40,11 @@ public @interface Transaction {
      * @return the transaction isolation level. If not specified, invoke with the default isolation level.
      */
     TransactionIsolationLevel value() default TransactionIsolationLevel.UNKNOWN;
+
     /**
      * Set the connection readOnly property before the transaction starts, and restore it before it returns.
      * Databases may use this as a performance or concurrency hint.
+     *
      * @return whether the transaction is read only
      */
     boolean readOnly() default false;
