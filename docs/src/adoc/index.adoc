@@ -1105,15 +1105,32 @@ Methods on the Jdbi object that take a callback (link:{jdbidocs}/core/Jdbi.html#
 
 [source,java,indent=0]
 ----
-User user = jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM users WHERE id = :id")
-    .attachToHandleForCleanup() // <1>
-    .bind("id", id)
-    .mapTo(User.class)
-    .one());
+User user = jdbi.withHandle(handle ->
+    handle.createQuery("SELECT * FROM users WHERE id = :id")
+        .attachToHandleForCleanup() // <1>
+        .bind("id", id)
+        .mapTo(User.class)
+        .one());
 ----
 
 <1> By attaching the statement to the handle, all resources are now managed by Jdbi and released even if the operation throws an exception.
 
+It is possible to attach all created statements by default to the handle by calling link:{jdbidocs}/core/statement/SqlStatements.html#setAttachAllStatementsForCleanup(boolean)[setAttachAllStatementsForCleanup(true)^] on the SqlStatements config object:
+
+[source,java,indent=0]
+----
+jdbi.getConfig(SqlStatements.class)
+    .setAttachAllStatementsForCleanup(true);
+
+User user = jdbi.withHandle(handle ->
+    handle.createQuery("SELECT * FROM users WHERE id = :id")
+        .bind("id", id)
+        .mapTo(User.class)
+        .stream()
+        .findAny());
+----
+
+This setting can be per Jdbi object or per Handle.
 
 == Arguments
 

@@ -51,6 +51,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
     private boolean allowUnusedBindings;
+    private boolean attachAllStatementsForCleanup;
     private final Collection<StatementCustomizer> customizers = new CopyOnWriteArrayList<>();
 
     private final Collection<StatementContextListener> contextListeners = new CopyOnWriteArraySet<>();
@@ -71,6 +72,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.sqlLogger = that.sqlLogger;
         this.queryTimeout = that.queryTimeout;
         this.allowUnusedBindings = that.allowUnusedBindings;
+        this.attachAllStatementsForCleanup = that.attachAllStatementsForCleanup;
         this.customizers.addAll(that.customizers);
         this.contextListeners.addAll(that.contextListeners);
         this.templateCache = that.templateCache;
@@ -266,6 +268,24 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     public SqlStatements setUnusedBindingAllowed(boolean unusedBindingAllowed) {
         this.allowUnusedBindings = unusedBindingAllowed;
         return this;
+    }
+
+    public boolean isAttachAllStatementsForCleanup() {
+        return attachAllStatementsForCleanup;
+    }
+
+    /**
+     * Sets whether all statements created will automatically attached to the corresponding {@link org.jdbi.v3.core.Handle} object automatically.
+     * This can be useful when mostly short-lived handles are used because closing the handle will now clean up all outstanding resources from
+     * any statement.
+     *
+     * @param attachAllStatementsForCleanup If true, all statements are automatically attached to the Handle.
+     *
+     * @since 3.38.0
+     */
+    @Beta
+    public void setAttachAllStatementsForCleanup(boolean attachAllStatementsForCleanup) {
+        this.attachAllStatementsForCleanup = attachAllStatementsForCleanup;
     }
 
     /**

@@ -107,6 +107,44 @@ public class LeakTest {
     }
 
     @Test
+    void testUnmanagedHandleExplodingStatemenCleanupBySetting() {
+        h2Extension.getJdbi().getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+
+        assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
+            try (Handle handle = h2Extension.openHandle()) {
+                List<String> userNames = handle.createQuery("SELECT name from users")
+                        .setFetchSize(-1)
+                        .mapTo(String.class)
+                        .list();
+            }
+        });
+    }
+
+    @Test
+    void testStatementStreamCleanupBySetting() {
+        h2Extension.getJdbi().getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+
+        try (Handle handle = h2Extension.openHandle()) {
+            Optional<String> userName = handle.createQuery("SELECT name from users")
+                    .mapTo(String.class)
+                    .stream().findFirst();
+            assertThat(userName).isPresent();
+        }
+    }
+
+    @Test
+    void testStatementStreamCleanupByHandleSetting() {
+
+        try (Handle handle = h2Extension.openHandle()) {
+            handle.getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+            Optional<String> userName = handle.createQuery("SELECT name from users")
+                    .mapTo(String.class)
+                    .stream().findFirst();
+            assertThat(userName).isPresent();
+        }
+    }
+
+    @Test
     void testStatementManagedStream() {
         try (Handle handle = h2Extension.openHandle()) {
             try (Query query = handle.createQuery("SELECT name from users")) {
