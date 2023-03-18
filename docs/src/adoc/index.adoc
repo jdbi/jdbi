@@ -83,7 +83,7 @@ Please see our link:https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Con
 [WARNING]
 *JDBI v2 is no longer under active development!*
 
-* link:/jdbi2/[JDBI v2 documentation^]
+* link:/jdbi2/[Jdbi v2 documentation^]
 
 [TIP]
 Already using Jdbi v2? See <<Upgrading from v2 to v3>>
@@ -773,7 +773,7 @@ boolean supportsTransactions = h.queryMetadata(DatabaseMetaData::supportsTransac
 
 Many methods on the link:{jdkdocs}/java/sql/DatabaseMetaData.html[DatabaseMetaData^] return a link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^]. These can be used with the `queryMetadata` method that returns a <<ResultBearing>>.
 
-All JDBI <<Row Mappers>> and <<Column Mappers>> are available to map these results:
+All Jdbi <<Row Mappers>> and <<Column Mappers>> are available to map these results:
 
 [source,java,indent=0]
 ----
@@ -1098,7 +1098,7 @@ The use of Jdbi arguments is limited to JDBC prepared statement parameters.
 Notably, arguments usually cannot be used to change the structure of a query
 (for example the table or column name, `SELECT` or `INSERT`, etc.)
 nor may they be interpolated into string literals.
-See <<Query templating>> and <<TemplateEngine>> for more information.
+See <<Query Templating>> and <<TemplateEngine>> for more information.
 
 
 === Positional Arguments
@@ -1468,7 +1468,7 @@ Implementing a factory might be preferable to a regular row mapper if:
   columns to bean properties for any bean class.
 * The mapped type has a generic signature, and/or the mapper could be composed
   of other registered mappers. For example, Jdbi provides a
-  <<Map.Entry mapping,Map.Entry<K,V> mapper>>, provided a mapper is registered
+  <<mapentry-mapping,Map.Entry<K,V> mapper>>, provided a mapper is registered
   for types `K` and `V`.
 * You want to bundle multiple mappers into a single class.
 
@@ -2339,7 +2339,7 @@ TODO:
 * default column name matchers out of the box
 ////
 
-
+[#mapentry-mapping]
 === Map.Entry Mapping
 
 Out of the box, Jdbi registers a `RowMapper<Map.Entry<K,V>>`. Since each row in
@@ -2450,7 +2450,7 @@ Codec example:
 include::{exampledir}/Counter.java[tags=counterCodec]
 ----
 
-JDBI core API:
+Jdbi core API:
 
 [source,java,indent=0]
 ----
@@ -3992,7 +3992,7 @@ implies that the database itself has a column of a type like `optional<varchar>`
 
 ===== Map<K,V> Results
 
-SQL Object methods may return `Map<K,V>` types (see <<Map.Entry mapping>> in
+SQL Object methods may return `Map<K,V>` types (see <<mapentry-mapping, Map.Entry mapping>> in
 the Core API). In this scenario, each row is mapped to a `Map.Entry<K,V>`,
 and the entries for each row are collected into a single link:{jdkdocs}/java/util/Map.html[Map^] instance.
 
@@ -4729,7 +4729,7 @@ Jdbi provides dozens of annotations out of the box:
   <<SQL Object Transactions>> for details.
 
 Jdbi is designed to support user-defined annotations. See
-<<User-Defined Annotations>> for a guide to creating your own.
+<<user-defined-annotations,User-Defined Annotations>> for a guide to creating your own.
 
 
 === Annotations and Inheritance
@@ -4874,7 +4874,7 @@ If the underlying cache library exposes per-cache statistics, these can be acces
 == Testing
 
 [NOTE]
-The official test support from JDBI is in the `jdbi-testing` package. There are a number of additional JUnit 5 extensions in the `jdbi-core` test artifact. These are only intended for JDBI internal use and not part of the official, public API.
+The official test support from Jdbi is in the `jdbi-testing` package. There are a number of additional JUnit 5 extensions in the `jdbi-core` test artifact. These are only intended for Jdbi internal use and not part of the official, public API.
 
 
 === JUnit 4
@@ -5436,7 +5436,7 @@ When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jd
 [%header, cols=3*]
 .Supported bindings
 |=====
-| Method | Type of binding | JDBI function
+| Method | Type of binding | Jdbi function
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper()[bindRowMapper()^]
 .3+| link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<?>^]
@@ -5461,7 +5461,7 @@ When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jd
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindPlugin()[bindPlugin()^]
 | link:{jdbidocs}/core/spi/JdbiPlugin.html[JdbiPlugin^]
-| <<Installing plugins>>
+| <<Installing Plugins>>
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindCustomizer()[bindCustomizer()^]
 | link:{jdbidocs}/guice/GuiceJdbiCustomizer.html[GuiceJdbiCustomizer^]
@@ -5907,7 +5907,7 @@ class DropwizardStoreModule extends AbstractModule {
 class StoreJdbiModule extends AbstractJdbiDefinitionModule {
     @Override
     public void configureJdbi() {
-        // ... other JDBI code bindings for the store ...
+        // ... other Jdbi code bindings for the store ...
 
         importBindingLoosely(bindCustomizer(), GuiceJdbiCustomizer.class)
                 .withDefault(GuiceJdbiCustomizer.NOP)
@@ -6214,7 +6214,7 @@ Classes annotated with `@Value` are immutable, classes annotated with `@Data` be
 - Use `bindBean()` or `@BindBean` to bind `@Data` or `@Value` classes.
 
 Lombok must be configured to propagate annotations from the source code into the generated classes. Since version 1.18.4, lombok
-supports the `lombok.copyableAnnotations` setting in its config file. To support all JDBI features, the following lines must be added:
+supports the `lombok.copyableAnnotations` setting in its config file. To support all Jdbi features, the following lines must be added:
 
 [source,java,indent=0]
 ----
@@ -7209,7 +7209,7 @@ The statement context object is passed into most user extension points, e.g. lin
 
 The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext^] is not intended to be extended and extension points should use it to get access to other parts of the system (especially the config registry). They rarely need to make changes to it.
 
-
+[#user-defined-annotations]
 === User-defined Annotations
 
 SQL Object is designed to be extended with user-defined annotations. In fact,
