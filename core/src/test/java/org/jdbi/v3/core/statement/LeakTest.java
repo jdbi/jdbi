@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.junit.jupiter.api.BeforeEach;
@@ -142,6 +143,18 @@ public class LeakTest {
                     .stream().findFirst();
             assertThat(userName).isPresent();
         }
+    }
+
+    @Test
+    void testStatementStreamCallbackCleanup() {
+        final Jdbi jdbi = h2Extension.getJdbi();
+
+        Optional<String> userName = jdbi.withHandle(h ->
+                h.createQuery("SELECT name from users")
+                        .mapTo(String.class)
+                        .stream().findFirst());
+
+        assertThat(userName).isPresent();
     }
 
     @Test

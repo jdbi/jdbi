@@ -36,6 +36,7 @@ import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementBuilderFactory;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
@@ -362,6 +363,9 @@ public class Jdbi implements Configurable<Jdbi> {
         }
 
         try (Handle h = this.open()) {
+            SqlStatements sqlStatements = h.getConfig(SqlStatements.class);
+            sqlStatements.setAttachAllStatementsForCleanup(sqlStatements.isAttachCallbackStatementsForCleanup());
+
             handleSupplier = ConstantHandleSupplier.of(h);
             threadHandleSupplier.set(handleSupplier);
             return callback.withHandle(h);
@@ -398,7 +402,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R inTransaction(final HandleCallback<R, X> callback) throws X {
-        return withHandle(handle -> handle.<R, X>inTransaction(callback));
+        return withHandle(handle -> handle.inTransaction(callback));
     }
 
     /**

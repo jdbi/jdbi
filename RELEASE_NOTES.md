@@ -1,5 +1,9 @@
 # Unreleased
 
+# 3.38.0
+  - add `SqlStatements#setAttachAllStatementsForCleanup`. Setting this configuration flag will attach all created statements to their handles for resource cleanup. Default is `false`.
+  - add `SqlStatements#setAttachCallbackStatementsForCleanup`. Setting this configuration flag will attach all created statements within one of the `Jdbi` callback methods to the handle. This allows code that uses the `Jdbi` callback methods to delegate resource management fully to Jdbi. This flag is set by default.
+
 # 3.37.1
   - fix deadlock in default Jdbi cache (#2274)
 
