@@ -1096,9 +1096,6 @@ While it is not strictly necessary to execute the query in a _try-with-resources
 
 ==== Attaching statements to the handle lifecycle
 
-[NOTE]
-This functionality is only available in version 3.35.0 and beyond!
-
 An elegant way to manage resources is attaching the statement to the handle lifecycle. Calling the `attachToHandleForCleanup()` method, which is available on <<Statement types, SQL statements>>, associates the statement with the handle. When the handle is closed, all attached statements that have not been cleaned up yet, will also be released.
 
 This works best for short-lived handles with a few statement operations. As the resources may not be released until the handle is closed, running a large number of SQL statements that all may need cleaning up could lead to resource exhaustion. When in doubt, prefer the _try-with-resources_ construct over attaching a SQL statements to the handle.
@@ -4969,9 +4966,6 @@ public class Test {
 ----
 
 The link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] and all its database specific subclasses can be registered as instance fields or as class-level (static) fields.
-
-[NOTE]
-Registration as class-level (static) fields is *only supported in Jdbi version 3.35.1 and beyond*. For all releases before this, the behavior of the link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] instances is undefined.
 
 When registered as an instance field, each test will get a new Jdbi instance. The in-memory database specific subclasses (H2, SQLite or HsqlDB with the generic extension) will reset their content and provide a new instance.
 
