@@ -53,26 +53,26 @@ ifndef::release[]
 
 This is the documentation for the current development state of Jdbi. All information in here reflects the current state of development on the `master` branch and is subject to change until it has been released as a numbered version.
 
-* https://jdbi.org/[Permalink to this document^]
+* https://jdbi.org/[Permalink to this document]
 * https://github.com/jdbi/jdbi/blob/master/RELEASE_NOTES.md[Current release notes^]
 * https://github.com/jdbi/jdbi/[Development source tree^]
 
 === Release documentation
 
-* https://jdbi.org/releases/3.37.1[Release 3.37.1 - 2023-02-08]
-* https://jdbi.org/releases/3.37.0[Release 3.37.0 - 2023-02-03]
-* https://jdbi.org/releases/3.36.0[Release 3.36.0 - 2022-12-31]
-* https://jdbi.org/releases/3.35.0[Release 3.35.0 - 2022-12-03]
-* https://jdbi.org/releases/3.34.0[Release 3.34.0 - 2022-10-05]
-* https://jdbi.org/releases/3.33.0[Release 3.33.0 - 2022-09-28]
-* https://jdbi.org/releases/3.32.0[Release 3.32.0 - 2022-07-25]
-* https://jdbi.org/releases/3.31.0[Release 3.31.0 - 2022-07-17]
-* https://jdbi.org/releases/3.30.0[Release 3.30.0 - 2022-06-02]
-* https://jdbi.org/releases/3.29.0[Release 3.29.0 - 2022-05-21]
-* https://jdbi.org/releases/3.28.0[Release 3.28.0 - 2022-03-08]
-* https://jdbi.org/releases/3.27.2[Release 3.27.2 - 2022-02-18]
-* https://jdbi.org/releases/3.27.1[Release 3.27.1 - 2022-01-25]
-* https://jdbi.org/releases/3.27.0[Release 3.27.0 - 2022-01-06]
+* https://jdbi.org/releases/3.37.1[Release 3.37.1 - 2023-02-08^]
+* https://jdbi.org/releases/3.37.0[Release 3.37.0 - 2023-02-03^]
+* https://jdbi.org/releases/3.36.0[Release 3.36.0 - 2022-12-31^]
+* https://jdbi.org/releases/3.35.0[Release 3.35.0 - 2022-12-03^]
+* https://jdbi.org/releases/3.34.0[Release 3.34.0 - 2022-10-05^]
+* https://jdbi.org/releases/3.33.0[Release 3.33.0 - 2022-09-28^]
+* https://jdbi.org/releases/3.32.0[Release 3.32.0 - 2022-07-25^]
+* https://jdbi.org/releases/3.31.0[Release 3.31.0 - 2022-07-17^]
+* https://jdbi.org/releases/3.30.0[Release 3.30.0 - 2022-06-02^]
+* https://jdbi.org/releases/3.29.0[Release 3.29.0 - 2022-05-21^]
+* https://jdbi.org/releases/3.28.0[Release 3.28.0 - 2022-03-08^]
+* https://jdbi.org/releases/3.27.2[Release 3.27.2 - 2022-02-18^]
+* https://jdbi.org/releases/3.27.1[Release 3.27.1 - 2022-01-25^]
+* https://jdbi.org/releases/3.27.0[Release 3.27.0 - 2022-01-06^]
 
 endif::[]
 
@@ -92,27 +92,27 @@ endif::[]
 === Quick Links
 
 ifndef::release[]
-* link:https://jdbi.org/apidocs/[Jdbi Javadoc (API Docs)^]
-* link:https://github.com/jdbi/jdbi/blob/master/examples/README.md[Jdbi sample code^]
+* https://jdbi.org/apidocs/[Jdbi Javadoc (API Docs)^]
+* https://github.com/jdbi/jdbi/blob/master/examples/README.md[Jdbi sample code^]
 endif::[]
 ifdef::release[]
-* link:https://jdbi.org/releases/{revnumber}[Jdbi {revnumber} documentation^]
-* link:https://jdbi.org/releases/{revnumber}/apidocs[Jdbi {revnumber} Javadoc (API Docs)^]
-* link:https://github.com/jdbi/jdbi/tree/v{revnumber}[Jdbi {revnumber} source code^]
-* link:https://github.com/jdbi/jdbi/tree/v{revnumber}/examples/README.md[Jdbi sample code^]
+* https://jdbi.org/releases/{revnumber}[Jdbi {revnumber} documentation]
+* https://jdbi.org/releases/{revnumber}/apidocs[Jdbi {revnumber} Javadoc (API Docs)^]
+* https://github.com/jdbi/jdbi/tree/v{revnumber}[Jdbi {revnumber} source code^]
+* https://github.com/jdbi/jdbi/tree/v{revnumber}/examples/README.md[Jdbi sample code^]
 endif::[]
-* link:https://github.com/jdbi/jdbi[GitHub Jdbi repository^]
+* https://github.com/jdbi/jdbi[GitHub Jdbi repository^]
 
-* link:https://github.com/jdbi/jdbi/discussions[Discussion groups for Jdbi^]
-* link:https://groups.google.com/group/jdbi[Mailing list^]
-* link:https://stackoverflow.com/questions/tagged/jdbi[Stack Overflow^]
+* https://github.com/jdbi/jdbi/discussions[Discussion groups for Jdbi^]
+* https://groups.google.com/group/jdbi[Mailing list^]
+* https://stackoverflow.com/questions/tagged/jdbi[Stack Overflow^]
 
 
 === Getting involved
 
-Jdbi uses link:https://github.com/jdbi/jdbi[GitHub^] as the central development hub. link:https://github.com/jdbi/jdbi/issues[Issues^], link:https://github.com/jdbi/jdbi/pulls[Pull Requests^] and link:https://github.com/jdbi/jdbi/discussions[Discussions^] all happen here.
+Jdbi uses https://github.com/jdbi/jdbi[GitHub^] as the central development hub. https://github.com/jdbi/jdbi/issues[Issues^], https://github.com/jdbi/jdbi/pulls[Pull Requests^] and https://github.com/jdbi/jdbi/discussions[Discussions^] all happen here.
 
-Please see our link:https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribution guide^] for more information on how to contribute to Jdbi.
+Please see our https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribution guide^] for more information on how to contribute to Jdbi.
 
 
 === JDBI v2 (legacy version)
@@ -131,11 +131,11 @@ Already using Jdbi v2? See <<Upgrading from v2 to v3>>
 
 === License, Dependencies and availability
 
-Jdbi is licensed under the commercial friendly link:https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0^] license.
+Jdbi is licensed under the commercial friendly https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0^] license.
 
-The core Jdbi module which offers programmatic access uses only link:https://slf4j.org/[slf4j^] and link:https://github.com/leangen/geantyref[geantryref^] as hard dependencies.
+The core Jdbi module which offers programmatic access uses only https://slf4j.org/[slf4j^] and https://github.com/leangen/geantyref[geantryref^] as hard dependencies.
 
-All Jdbi modules are available through link:https://search.maven.org[Maven Central^]. Jdbi also offers a BOM (Bill of materials) module for easy dependency management.
+All Jdbi modules are available through https://search.maven.org[Maven Central^]. Jdbi also offers a BOM (Bill of materials) module for easy dependency management.
 
 
 === JVM version compatibility
@@ -146,7 +146,7 @@ Jdbi runs on all Java versions 8 or later. 11 or later is required to build. All
 Java 8 has been deprecated for a while now. While there is no cutoff date yet to drop JDK 8 support,
 it will go away. We are already require JDK 11+ to build and run all the tests.
 
-In order to run on JDK 8, some dependencies, such as link:https://github.com/ben-manes/caffeine[the caffeine caching library^] need to be explicitly version managed to a version that is supported on JDK 8.
+In order to run on JDK 8, some dependencies, such as https://github.com/ben-manes/caffeine[the caffeine caching library^] need to be explicitly version managed to a version that is supported on JDK 8.
 
 
 === Getting started
@@ -181,20 +181,20 @@ jdbi3-testing::
     Testing framework support. Currently, only supports JUnit4 and JUnit5.
 
 jdbi3-testcontainers::
-    Support for arbitrary databases running in link:https://testcontainers.org/[Testcontainers^]. Currently, only supports JUnit 5.
+    Support for arbitrary databases running in https://testcontainers.org/[Testcontainers^]. Currently, only supports JUnit 5.
 
 
 ===== External data types and libraries
 
-The core module contains support for the link:https://immutables.github.io/[Immutables^] and link:https://github.com/inferred/FreeBuilder[Freebuilder^] libraries.
+The core module contains support for the https://immutables.github.io/[Immutables^] and https://github.com/inferred/FreeBuilder[Freebuilder^] libraries.
 
 [glossary]
 jdbi3-guava::
-    Support for link:https://guava.dev/[Google Guava^] collection and Optional types.
+    Support for https://guava.dev/[Google Guava^] collection and Optional types.
 jdbi3-jodatime2::
-    Support for link:https://www.joda.org/joda-time/[JodaTime v2^] data types.
+    Support for https://www.joda.org/joda-time/[JodaTime v2^] data types.
 jdbi3-vavr::
-    Support for link:https://www.vavr.io/[Vavr^] Tuples, Collections and Value arguments.
+    Support for https://www.vavr.io/[Vavr^] Tuples, Collections and Value arguments.
 
 
 ===== JSON Mapping
@@ -203,22 +203,22 @@ Support for various JSON libraries to map data from the database onto JSON types
 
 [glossary]
 jdbi3-jackson2::
-  Support for link:https://github.com/FasterXML/jackson[Jackson v2^].
+  Support for https://github.com/FasterXML/jackson[Jackson v2^].
 jdbi3-gson::
-  Support for link:https://github.com/google/gson[Google Gson^].
+  Support for https://github.com/google/gson[Google Gson^].
 jdbi3-moshi::
-  Support for link:https://github.com/square/moshi[Square Moshi^].
+  Support for https://github.com/square/moshi[Square Moshi^].
 
 
 ===== Frameworks
 
 [glossary]
 jdbi3-guice::
-    Support dependency injection and modules with link:https://github.com/google/guice[Google Guice^].
+    Support dependency injection and modules with https://github.com/google/guice[Google Guice^].
 jdbi3-spring5::
-    Provides a link:https://spring.io/[Spring Framework^] factory bean to set up Jdbi singleton.
+    Provides a https://spring.io/[Spring Framework^] factory bean to set up Jdbi singleton.
 jdbi3-jpa::
-    Some support for link:https://www.oracle.com/java/technologies/persistence-jsp.html[JPA^] annotations.
+    Some support for https://www.oracle.com/java/technologies/persistence-jsp.html[JPA^] annotations.
 
 
 ===== Database specific types and functions
@@ -227,13 +227,13 @@ While Jdbi supports _any_ data source that has a `JDBC` driver "out of the box",
 
 [glossary]
 jdbi3-postgres::
-    Support for link:https://www.postgresql.org/[Postgres^] data types.
+    Support for https://www.postgresql.org/[Postgres^] data types.
 jdbi3-sqlite::
-    Support for link:https://www.sqlite.org/index.html[sqlite^] data types.
+    Support for https://www.sqlite.org/index.html[sqlite^] data types.
 jdbi3-oracle12::
     Support Oracle returning DML statements.
 jdbi3-postgis::
-    Support for link:https://postgis.net/[PostGIS^] types.
+    Support for https://postgis.net/[PostGIS^] types.
 
 [NOTE]
 While Oracle support is considered part of Jdbi, the actual library is developed and shipped as a separate component for historic reasons.
@@ -245,17 +245,17 @@ SQL statements can be rendered before they are sent to the database driver. Unle
 
 [glossary]
 jdbi3-stringtemplate4::
-    Use the link:https://www.stringtemplate.org/[StringTemplate 4^] template engine to render SQL statements.
+    Use the https://www.stringtemplate.org/[StringTemplate 4^] template engine to render SQL statements.
 jdbi3-commons-text::
-    Use link:https://commons.apache.org/proper/commons-text/[Apache Commons Text^] to render SQL statements.
+    Use https://commons.apache.org/proper/commons-text/[Apache Commons Text^] to render SQL statements.
 jdbi3-freemarker::
-    Use link:https://freemarker.apache.org/[Apache Freemarker^] to render SQL statements.
+    Use https://freemarker.apache.org/[Apache Freemarker^] to render SQL statements.
 
 
 ===== Cache support
 
 jdbi3-caffeine-cache::
-    Use the link:https://github.com/ben-manes/caffeine[Caffeine^] caching library for SQL template and parse caching.
+    Use the https://github.com/ben-manes/caffeine[Caffeine^] caching library for SQL template and parse caching.
 jdbi3-noop-cache::
     Turn off SQL template and parse caching for testing and debugging.
 
@@ -275,7 +275,7 @@ Kotlin support for the SQL Object extension.
 
 ==== Build tools
 
-All Jdbi modules are available through link:https://search.maven.org[Maven Central^], so any project that uses a dependency management tool (Apache Maven, Gradle, sbt, leiningen, Apache Ivy etc.) can access these.
+All Jdbi modules are available through https://search.maven.org[Maven Central^], so any project that uses a dependency management tool (Apache Maven, Gradle, sbt, leiningen, Apache Ivy etc.) can access these.
 
 For Apache Maven:
 
@@ -2504,7 +2504,7 @@ include::{exampledir}/CodecSqlObjectTest.java[tags=dao;register;load;store]
 
 === Resolving Types
 
-By using the `TypeResolvingCodecFactory` from the link:{jdbidocs}/guava/package-summary.html[guava^] module, it is possible to use codecs that are registered for subclasses or interface types for concrete classes. This is necessary to e.g. map link:https://github.com/google/auto/blob/master/value/userguide/index.md[Auto Value^] generated classes to database columns.
+By using the `TypeResolvingCodecFactory` from the link:{jdbidocs}/guava/package-summary.html[guava^] module, it is possible to use codecs that are registered for subclasses or interface types for concrete classes. This is necessary to e.g. map https://github.com/google/auto/blob/master/value/userguide/index.md[Auto Value^] generated classes to database columns.
 
 In the following example, there is only a codec for `Value<String>` registered, but the code uses beans and classes that are concrete implementations (`StringBean` contains a `StringValue` and `StringValue` implements the `Value<String>` interface). The `TypeResolvingCodecFactory` will inspect the types to find a codec for an interface or superclass if no perfect match can be found.
 
@@ -3215,7 +3215,7 @@ Bound parameters are not always enough. Sometimes a query needs complicated or s
 Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
 
 [CAUTION]
-link:https://www.xkcd.com/327/[Query templating is a common attack vector!^] Always prefer binding parameters to static SQL over dynamic SQL when possible.
+https://www.xkcd.com/327/[Query templating is a common attack vector!^] Always prefer binding parameters to static SQL over dynamic SQL when possible.
 
 [source,java,indent=0]
 ----
@@ -3494,7 +3494,7 @@ second.
 
 [TIP]
 link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] can also be used for DDL (Data Definition Language) operations like creating or altering tables. However, we recommend using a schema migration tool such
-as link:https://flywaydb.org/[Flyway^] or link:https://www.liquibase.org/[Liquibase^] to maintain your database schemas.
+as https://flywaydb.org/[Flyway^] or https://www.liquibase.org/[Liquibase^] to maintain your database schemas.
 
 By default, a link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] method may return a handful of types:
 
@@ -4870,7 +4870,7 @@ For applications than run a lot of different SQL operations, it is possible to u
 
 The following cache implementations are included:
 
-- `jdbi3-caffeine-cache` - using the link:https://github.com/ben-manes/caffeine[Caffeine^] cache library. This used to be the default cache up to version 3.36.0
+- `jdbi3-caffeine-cache` - using the https://github.com/ben-manes/caffeine[Caffeine^] cache library. This used to be the default cache up to version 3.36.0
 - `jdbi3-noop-cache`, - disables caching. This is useful for testing and debugging.
 
 A cache module can provide a plugin to enable it. Only one plugin can be in use at a time (last one installed wins):
@@ -4905,7 +4905,7 @@ When setting the caches explicitly, no cache plugin needs to be installed.
 
 
 [TIP]
-If the underlying cache library exposes per-cache statistics, these can be accessed through the link:{jdbidocs}//core/statement/SqlStatements.html#cacheStats()[SqlStatements#cacheStats()^] and link:https://{jdbidocs}/core/statement/CachingSqlParser.html#cacheStats()[CachingSqlParser#cacheStats()] methods.
+If the underlying cache library exposes per-cache statistics, these can be accessed through the link:{jdbidocs}//core/statement/SqlStatements.html#cacheStats()[SqlStatements#cacheStats()^] and https://{jdbidocs}/core/statement/CachingSqlParser.html#cacheStats()[CachingSqlParser#cacheStats()] methods.
 
 
 == Testing
@@ -4917,7 +4917,7 @@ The official test support from Jdbi is in the `jdbi-testing` package. There are 
 === JUnit 4
 
 The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/JdbiRule.html[JdbiRule]
-class which implements link:https://junit.org/junit4/javadoc/latest/org/junit/rules/TestRule.html[TestRule^] and can be used with the link:https://junit.org/junit4/javadoc/latest/org/junit/Rule.html[Rule^] and link:https://junit.org/junit4/javadoc/latest/org/junit/ClassRule.html[ClassRule^] annotations.
+class which implements https://junit.org/junit4/javadoc/latest/org/junit/rules/TestRule.html[TestRule^] and can be used with the https://junit.org/junit4/javadoc/latest/org/junit/Rule.html[Rule^] and https://junit.org/junit4/javadoc/latest/org/junit/ClassRule.html[ClassRule^] annotations.
 
 It provides helpers for writing JUnit 4 tests integrated with a managed database instance. This makes writing unit tests quick and easy!  You must remember to include the database dependency itself, for example to get a pure H2 Java database:
 
@@ -4948,9 +4948,9 @@ JUnit 4 supports the OTJ embedded postgres component, which needs to be included
 
 The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] for JUnit 5 based tests.
 
-It supports both the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^] and link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] annotations.
+It supports both the https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^] and https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] annotations.
 
-When using link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^], the extensions can be customized further:
+When using https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^], the extensions can be customized further:
 
 [source,java,indent=0]
 ----
@@ -4979,7 +4979,7 @@ When registered as a static field, the extension will be initialized before all 
 
 The javadoc page for link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] contains additional information on how to customize a programmatically registered instance.
 
-When using the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] declarative extension, test methods can access the link:{jdbidocs}/core/Jdbi.html[Jdbi^] and link:{jdbidocs}/core/Handle.html[Handle^] objects through method parameters:
+When using the https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] declarative extension, test methods can access the link:{jdbidocs}/core/Jdbi.html[Jdbi^] and link:{jdbidocs}/core/Handle.html[Handle^] objects through method parameters:
 
 [source,java,indent=0]
 ----
@@ -4997,11 +4997,11 @@ The instances injected are the same instances as returned by link:{jdbidocs}/tes
 
 Currently supported databases:
 
-* link:https://www.postgresql.org/[Postgres^] - link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^]
-* link:https://www.h2database.com/[H2^] - link:{jdbidocs}/testing/junit5/JdbiH2Extension.html[JdbiH2Extension^]
-* link:https://www.sqlite.org/[Sqlite^] - link:{jdbidocs}/testing/junit5/JdbiSqliteExtension.html[JdbiSqliteExtension^]
+* https://www.postgresql.org/[Postgres^] - link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^]
+* https://www.h2database.com/[H2^] - link:{jdbidocs}/testing/junit5/JdbiH2Extension.html[JdbiH2Extension^]
+* https://www.sqlite.org/[Sqlite^] - link:{jdbidocs}/testing/junit5/JdbiSqliteExtension.html[JdbiSqliteExtension^]
 * Generic JDBC database support - link:{jdbidocs}/testing/junit5/JdbiGenericExtension.html[JdbiGenericExtension^]. This is a minimal extension that can support any database that support JDBC. The driver for the database must be on the classpath. All database management (schema creation, DDL object management etc.) must be done by the calling code.
-* link:https://testcontainers.org/[Testcontainers^] - link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^]. See <<Using Testcontainers>> for detailed documentation.
+* https://testcontainers.org/[Testcontainers^] - link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^]. See <<Using Testcontainers>> for detailed documentation.
 
 Support for other databases wanted!
 
@@ -5047,14 +5047,14 @@ extension.withCredentials("h2-user", "h2-password");
 
 Postgres is supported through multiple test classes:
 
-* link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^] manages a local database on the host. It uses the link:https://pg-embedded.softwareforge.de/[pg-embedded] library that can spin up Postgres instances on various OS and architectures. This is the fastest way to get to a Postgres instance. Most of the Jdbi test classes that use Postgres use this extension.
+* link:{jdbidocs}/testing/junit5/JdbiPostgresExtension.html[JdbiPostgresExtension^] manages a local database on the host. It uses the https://pg-embedded.softwareforge.de/[pg-embedded] library that can spin up Postgres instances on various OS and architectures. This is the fastest way to get to a Postgres instance. Most of the Jdbi test classes that use Postgres use this extension.
 * link:{jdbidocs}/testing/junit5/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^] supports an external Postgres database and can run tests against any local or remote database.
-* link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^] supports the link:https://github.com/opentable/otj-pg-embedded[OpenTable Java Embedded PostgreSQL component].
+* link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^] supports the https://github.com/opentable/otj-pg-embedded[OpenTable Java Embedded PostgreSQL component].
 
 
 === Using Testcontainers
 
-The link:https://testcontainers.org[Testcontainers^] project provides a number of services as docker containers with a programmatic interface for JVM code. Jdbi supports JDBC type databases with the link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^]:
+The https://testcontainers.org[Testcontainers^] project provides a number of services as docker containers with a programmatic interface for JVM code. Jdbi supports JDBC type databases with the link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^]:
 
 [source,java,indent=0]
 ----
@@ -5329,7 +5329,7 @@ MyJson result = h.createQuery("SELECT json FROM myjsons")
 
 === Immutables
 
-link:https://immutables.github.io/[Immutables^] is an annotation processor that generates
+https://immutables.github.io/[Immutables^] is an annotation processor that generates
 value types based on simple interface descriptions.  The value types naturally map very well
 to property binding and row mapping.
 
@@ -5350,7 +5350,7 @@ include::{coreexampledir}/ImmutablesTest.java[tags=example]
 
 
 === Freebuilder
-link:https://freebuilder.inferred.org/[Freebuilder^] is an annotation
+https://freebuilder.inferred.org/[Freebuilder^] is an annotation
 processor that generates value types based on simple interface or abstract
 class descriptions. Jdbi supports Freebuilder in much the same way that it
 supports Immutables.
@@ -5401,7 +5401,7 @@ jdbi.installPlugin(new JodaTimePlugin());
 [CAUTION]
 Guice support is experimental.
 
-The Guice module adds support for configuring and injecting link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances in applications and services that use the link:https://github.com/google/guice/wiki[Google Guice ^] dependency injection framework.
+The Guice module adds support for configuring and injecting link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances in applications and services that use the https://github.com/google/guice/wiki[Google Guice ^] dependency injection framework.
 
 Guice support for Jdbi is split into two module types:
 
@@ -5510,7 +5510,7 @@ Each Jdbi definition module is completely independent and all definitions within
 
 ==== Using Guice injection in Jdbi classes
 
-The Jdbi related guice modules store the various related elements (mappers, codecs etc.) using link:https://github.com/google/guice/wiki/Multibindings[Multibindings^]. As a result, it is not possible to use injection directly when constructing mapper instances.
+The Jdbi related guice modules store the various related elements (mappers, codecs etc.) using https://github.com/google/guice/wiki/Multibindings[Multibindings^]. As a result, it is not possible to use injection directly when constructing mapper instances.
 
 The following example *does not work*:
 
@@ -6086,7 +6086,7 @@ Honestly though... just tear off the bandage and switch to Jdbi proper.
 
 === Kotlin
 
-link:https://kotlinlang.org/[Kotlin^] support is provided by *jdbi3-kotlin* and
+https://kotlinlang.org/[Kotlin^] support is provided by *jdbi3-kotlin* and
 *jdbi3-kotlin-sqlobject* modules.
 
 Kotlin API documentation:
@@ -6293,7 +6293,7 @@ to get the returned DML.
 === PostgreSQL
 
 The *jdbi3-postgres* plugin provides enhanced integration with the
-link:https://jdbc.postgresql.org/[PostgreSQL JDBC Driver^].
+https://jdbc.postgresql.org/[PostgreSQL JDBC Driver^].
 
 To use this feature, add a Maven dependency:
 
@@ -6441,7 +6441,7 @@ public interface Lobject {
 ----
 
 Please refer to
-link:https://jdbc.postgresql.org/documentation/head/binary-data.html[Pg-JDBC docs^]
+https://jdbc.postgresql.org/documentation/head/binary-data.html[Pg-JDBC docs^]
 for upstream driver documentation.
 
 
@@ -6570,7 +6570,7 @@ Global defined attributes may be configured on the factory bean:
 
 === SQLite
 The *jdbi3-sqlite* plugin provides support for using the
-link:https://github.com/xerial/sqlite-jdbc[SQLite JDBC Driver^]
+https://github.com/xerial/sqlite-jdbc[SQLite JDBC Driver^]
 with Jdbi.
 
 The plugin configures mapping for the Java *URL* type which is not
@@ -6597,7 +6597,7 @@ Jdbi jdbi = Jdbi.create("jdbc:sqlite:database")
 
 === StringTemplate 4
 
-This module allows you to plug in the link:https://www.stringtemplate.org/[StringTemplate 4^] templating engine, in
+This module allows you to plug in the https://www.stringtemplate.org/[StringTemplate 4^] templating engine, in
 place of the standard Jdbi templating engine.
 
 To use module plugin, add a Maven dependency:
@@ -6928,8 +6928,8 @@ Check the string concatenation syntax of your database before doing this.
 === High Availability
 
 Jdbi can be combined with connection pools and high-availability features in your database driver.
-We've used link:https://github.com/brettwooldridge/HikariCP[HikariCP^] in combination
-with the link:https://jdbc.postgresql.org/documentation/head/connect.html[PgJDBC connection load balancing^]
+We've used https://github.com/brettwooldridge/HikariCP[HikariCP^] in combination
+with the https://jdbc.postgresql.org/documentation/head/connect.html[PgJDBC connection load balancing^]
 features with good success.
 
 [source,java,indent=0]
@@ -7684,7 +7684,7 @@ SQL statements that is executed.
 [CAUTION]
 Be careful using this feature! This can become a vector for SQL injection
 attacks if you fail to
-link:https://xkcd.com/327/[sanitize your database inputs^].
+https://xkcd.com/327/[sanitize your database inputs^].
 
 TODO:
 
@@ -7743,7 +7743,7 @@ jdbi.setTemplateEngine(templateEngine);
 
 [TIP]
 Jdbi also provides link:{jdbidocs}/stringtemplate4/StringTemplateEngine.html[StringTemplateEngine^],
-which renders templates using the link:https://www.stringtemplate.org/[StringTemplate library^]. See <<StringTemplate 4>>.
+which renders templates using the https://www.stringtemplate.org/[StringTemplate library^]. See <<StringTemplate 4>>.
 
 Template engines interact with the SQL template caching. A template engine may implement the link:{jdbidocs}/core/statement/TemplateEngine.html#parse(java.lang.String,org.jdbi.v3.core.config.ConfigRegistry)[TemplateEngine#parse()^] methods to create an intermediary representation of a template that can be used to render a template faster. The output of this method will be cached. Depending on the implementation, defined attributes may be resolved at parse time and not at render time.
 
@@ -7791,7 +7791,7 @@ The default parsers try to ignore parameter-like constructions inside of string 
 since JDBC drivers wouldn't let you bind parameters there anyway.
 
 For you fearless adventurers who have read the
-link:https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811[Dragon book^],
+https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811[Dragon book^],
 any custom SQL parser can be used. Simply implement the `SqlParser` interface,
 then set it on the Jdbi, Handle, or SQL statement:
 
@@ -7881,13 +7881,13 @@ compilation.
 
 === Related Projects
 
-link:https://github.com/opentable/otj-pg-embedded[Embedded Postgres^]
+https://github.com/opentable/otj-pg-embedded[Embedded Postgres^]
 makes testing against a real database quick and easy.
 
-link:https://github.com/arteam/dropwizard-jdbi3[dropwizard-jdbi3^]
+https://github.com/arteam/dropwizard-jdbi3[dropwizard-jdbi3^]
 provides integration with DropWizard.
 
-link:https://github.com/arteam/metrics-jdbi3[metrics-jdbi3^]
+https://github.com/arteam/metrics-jdbi3[metrics-jdbi3^]
 instruments using DropWizard-Metrics to emit statement timing statistics.
 
 Do you know of a project related to Jdbi? Send us an issue, and we'll add a link
