@@ -32,6 +32,7 @@
         <basepom.check.skip-license>true</basepom.check.skip-license>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.site.scm.branch>master</basepom.site.scm.branch>
+        <basepom.site.scm.checkout-directory>${java.io.tmpdir}/gh-pages-publish/jdbi-docs</basepom.site.scm.checkout-directory>
         <basepom.site.scm.id>github</basepom.site.scm.id>
         <basepom.site.scm.site-path>/</basepom.site.scm.site-path>
         <basepom.site.scm.skip-deploy>false</basepom.site.scm.skip-deploy>
@@ -330,6 +331,8 @@
                                     <dependencySourceIncludes>
                                         <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
                                     </dependencySourceIncludes>
+                                    <doctitle>Jdbi3 ${project.version} API</doctitle>
+                                    <windowtitle>Jdbi3 ${project.version} API</windowtitle>
                                 </configuration>
                             </execution>
                         </executions>
