@@ -47,6 +47,35 @@ Style guidelines:
 ////
 
 
+ifndef::release[]
+[preface]
+== Development documentation ({revnumber})
+
+This is the documentation for the current development state of Jdbi. All information in here reflects the current state of development on the `master` branch and is subject to change until it has been released as a numbered version.
+
+* https://jdbi.org/[Permalink to this document^]
+* https://github.com/jdbi/jdbi/blob/master/RELEASE_NOTES.md[Current release notes^]
+* https://github.com/jdbi/jdbi/[Development source tree^]
+
+=== Release documentation
+
+* https://jdbi.org/releases/3.37.1[Release 3.37.1 - 2023-02-08]
+* https://jdbi.org/releases/3.37.0[Release 3.37.0 - 2023-02-03]
+* https://jdbi.org/releases/3.36.0[Release 3.36.0 - 2022-12-31]
+* https://jdbi.org/releases/3.35.0[Release 3.35.0 - 2022-12-03]
+* https://jdbi.org/releases/3.34.0[Release 3.34.0 - 2022-10-05]
+* https://jdbi.org/releases/3.33.0[Release 3.33.0 - 2022-09-28]
+* https://jdbi.org/releases/3.32.0[Release 3.32.0 - 2022-07-25]
+* https://jdbi.org/releases/3.31.0[Release 3.31.0 - 2022-07-17]
+* https://jdbi.org/releases/3.30.0[Release 3.30.0 - 2022-06-02]
+* https://jdbi.org/releases/3.29.0[Release 3.29.0 - 2022-05-21]
+* https://jdbi.org/releases/3.28.0[Release 3.28.0 - 2022-03-08]
+* https://jdbi.org/releases/3.27.2[Release 3.27.2 - 2022-02-18]
+* https://jdbi.org/releases/3.27.1[Release 3.27.1 - 2022-01-25]
+* https://jdbi.org/releases/3.27.0[Release 3.27.0 - 2022-01-06]
+
+endif::[]
+
 == Introduction to Jdbi 3
 
 *Jdbi provides convenient, idiomatic, access to relational data in Java.* Jdbi 3 is the third major release, which introduces enhanced support for Java 8, countless refinements to the design and implementation, and enhanced support for modular development through plugins and extensions.
@@ -62,9 +91,17 @@ Style guidelines:
 
 === Quick Links
 
-* link:https://jdbi.org/apidocs/[JDBI Javadoc (API Docs)^]
-* link:https://github.com/jdbi/jdbi/blob/master/examples/README.md[JDBI sample code^]
-* link:https://github.com/jdbi/jdbi[GitHub JDBI repository^]
+ifndef::release[]
+* link:https://jdbi.org/apidocs/[Jdbi Javadoc (API Docs)^]
+* link:https://github.com/jdbi/jdbi/blob/master/examples/README.md[Jdbi sample code^]
+endif::[]
+ifdef::release[]
+* link:https://jdbi.org/releases/{revnumber}[Jdbi {revnumber} documentation^]
+* link:https://jdbi.org/releases/{revnumber}/apidocs[Jdbi {revnumber} Javadoc (API Docs)^]
+* link:https://github.com/jdbi/jdbi/tree/v{revnumber}[Jdbi {revnumber} source code^]
+* link:https://github.com/jdbi/jdbi/tree/v{revnumber}/examples/README.md[Jdbi sample code^]
+endif::[]
+* link:https://github.com/jdbi/jdbi[GitHub Jdbi repository^]
 
 * link:https://github.com/jdbi/jdbi/discussions[Discussion groups for Jdbi^]
 * link:https://groups.google.com/group/jdbi[Mailing list^]
@@ -83,7 +120,7 @@ Please see our link:https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Con
 [WARNING]
 *JDBI v2 is no longer under active development!*
 
-* link:/jdbi2/[JDBI v2 documentation^]
+* link:/jdbi2/[Jdbi v2 documentation^]
 
 [TIP]
 Already using Jdbi v2? See <<Upgrading from v2 to v3>>
@@ -242,7 +279,7 @@ All Jdbi modules are available through link:https://search.maven.org[Maven Centr
 
 For Apache Maven:
 
-[source,xml,subs="attributes,specialchars"]
+[source,xml,indent=0,subs="attributes,specialchars"]
 ----
 <dependencies>
     <dependency>
@@ -268,7 +305,7 @@ Jdbi offers a BOM (Bill of Materials) that can be used to provide a consistent v
 
 For Apache Maven:
 
-[source,xml,subs="attributes,specialchars"]
+[source,xml,indent=0,subs="attributes,specialchars"]
 ----
 <dependencyManagement>
     <dependencies>
@@ -287,7 +324,7 @@ adds the Jdbi BOM module into the `dependencyManagement` section.
 
 Jdbi components in use are declared in the `<dependencies>` section *without a version*:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependencies>
     <dependency>
@@ -362,7 +399,7 @@ See the <<Core API concepts, chapter introducing the core API>> for details abou
 
 === Declarative API
 
-The SQL Object extension is an additional module, which provides a declarative API.
+The <<SQL Objects, SQL Object extension>> is an additional module, which provides a declarative API.
 
 Define the SQL to execute and the shape of the results by creating  an annotated Java interface.
 
@@ -403,7 +440,7 @@ include::{exampledir}/FiveMinuteTourTest.java[tags=createJdbi]
 
 - directly use a `DataSource` object which was created outside Jdbi.
 
-[source,java]
+[source,java,indent=0]
 ----
 DataSource ds = ...
 Jdbi jdbi = Jdbi.create(ds);
@@ -511,7 +548,7 @@ Call `one()` when you expect the result to contain exactly one row. Returns
 `null` only if the returned row maps to `null`. Throws an exception if the
 result has zero or multiple rows.
 
-[source,java]
+[source,java,indent=0]
 ----
 String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
     .mapTo(String.class)
@@ -522,7 +559,7 @@ Call `findOne()` when you expect the result to contain zero or one row. Returns
 `Optional.empty()` if there are no rows, or one row that maps to `null`. Throws
 an exception if the result has multiple rows.
 
-[source,java]
+[source,java,indent=0]
 ----
 Optional<String> name = handle.select(...)
     .mapTo(String.class)
@@ -533,7 +570,7 @@ Call `first()` when you expect the result to contain at least one row. Returns
 `null` if the first row maps to `null`. Throws an exception if the result has
 zero rows.
 
-[source,java]
+[source,java,indent=0]
 ----
 String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
     .mapTo(String.class)
@@ -543,7 +580,7 @@ String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
 Call `findFirst()` when the result may contain any number of rows. Returns
 `Optional.empty()` if there are no rows, or the first row maps to `null`.
 
-[source,java]
+[source,java,indent=0]
 ----
 Optional<String> name = handle.select(...)
     .mapTo(String.class)
@@ -552,7 +589,7 @@ Optional<String> name = handle.select(...)
 
 Multiple result rows can be returned in a list:
 
-[source,java]
+[source,java,indent=0]
 ----
 List<String> name = handle
     .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
@@ -564,7 +601,7 @@ List<String> name = handle
 For other collections, use `collect()` with a
 link:{jdkdocs}/java/util/stream/Collector.html[collector^]:
 
-[source,java]
+[source,java,indent=0]
 ----
 Set<String> name = handle
     .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
@@ -575,7 +612,7 @@ Set<String> name = handle
 
 You can also stream results:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createQuery(
     "SELECT title FROM films WHERE genre = :genre ORDER BY title")
@@ -588,7 +625,7 @@ handle.createQuery(
 Thus far, all examples have shown a `String` result type. Of course, you can
 map to many other data types:
 
-[source,java]
+[source,java,indent=0]
 ----
 LocalDate releaseDate = handle
     .createQuery("SELECT release_date FROM films WHERE name = :name")
@@ -765,7 +802,7 @@ Jdbi allows access to the Database Metadata through `queryMetadata` methods on t
 
 Simple values can be queried directly using a method reference:
 
-[source, java]
+[source,java,indent=0]
 ----
 String url = h.queryMetadata(DatabaseMetaData::getURL);
 boolean supportsTransactions = h.queryMetadata(DatabaseMetaData::supportsTransactions);
@@ -773,9 +810,9 @@ boolean supportsTransactions = h.queryMetadata(DatabaseMetaData::supportsTransac
 
 Many methods on the link:{jdkdocs}/java/sql/DatabaseMetaData.html[DatabaseMetaData^] return a link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^]. These can be used with the `queryMetadata` method that returns a <<ResultBearing>>.
 
-All JDBI <<Row Mappers>> and <<Column Mappers>> are available to map these results:
+All Jdbi <<Row Mappers>> and <<Column Mappers>> are available to map these results:
 
-[source, java]
+[source,java,indent=0]
 ----
 List<String> catalogNames = h.queryMetadata(DatabaseMetaData::getCatalogs)
             .mapTo(String.class)
@@ -845,7 +882,7 @@ Within Jdbi, two types of stateful objects exist that need to be managed: <<Hand
 
 Manual resource management for Jdbi objects uses the standard Java _try-with-resources_ construct:
 
-[source,java]
+[source,java,indent=0]
 ----
 try (Handle handle = jdbi.open();
     Query query = handle.createQuery("SELECT * from users")) {
@@ -935,14 +972,13 @@ All statement types may use resources that need to be released. There are multip
 * <<Attaching statements to the handle lifecycle>> delegates to the Handle lifecycle
 
 
-
 ==== Explicit statement resource management
 
 All <<Statement types, SQL statement types>> implement the link:{jdkdocs}/java/lang/AutoCloseable.html[AutoCloseable^] interface and can be used in a _try-with-resources_ block. This is the recommended way to manually manage statements, and it ensures that all resources are properly released when they are no longer needed. The _try-with-resources_ pattern ensures that the link:{jdkdocs}/java/lang/AutoCloseable.html#close--[close()^] method on the SQL statement is called which releases the resources.
 
 Create, execute and release 100,000 update statements:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.useHandle(handle -> {
     for (int i = 0; i < 100_000; i++) {
@@ -957,7 +993,7 @@ jdbi.useHandle(handle -> {
 
 It is not necessary to use a _try-with-resources_ block, the close() method can be called manually as well:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.useHandle(handle -> {
     for (int i = 0; i < 100_000; i++) {
@@ -986,7 +1022,7 @@ All terminal operations on the link:{jdbidocs}/core/result/ResultIterable.html[R
 
 For all other operations, the resources will be released if the operation succeeds and does not throw an exception.
 
-[source,java]
+[source,java,indent=0]
 ----
 try (Handle handle = jdbi.open()) {
     List<User> users = handle
@@ -1018,7 +1054,7 @@ The link:{jdkdocs}/java/util/stream/Stream.html[stream^] and link:{jdkdocs}/java
 
 When using a stream or iterator, *either* the statement *or* the result object *must* be managed. Calling link:{jdkdocs}/java/lang/AutoCloseable.html#close--[close()^] on either the statement or the stream/iterator will terminate the operation and release all resources.
 
-[source,java]
+[source,java,indent=0]
 ----
 // managing resources through the query SQL statement
 try (Handle handle = jdbi.open()) {
@@ -1044,7 +1080,7 @@ The same pattern applies to a result iterator.
 
 ResultIterable also offers callbacks (link:{jdbidocs}/core/result/ResultIterable.html#withIterator(org.jdbi.v3.core.result.IteratorCallback)[withIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.v3.core.result.IteratorConsumer)[useIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^], link:{jdbidocs}/core/result/ResultIterable.htmll#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^]) that manage the iterator / stream through Jdbi:
 
-[source,java]
+[source,java,indent=0]
 ----
 try (Handle handle = jdbi.open()) {
     try (Query query = handle.createQuery("SELECT * from users")) { // <1>
@@ -1069,7 +1105,7 @@ This works best for short-lived handles with a few statement operations. As the 
 
 Methods on the Jdbi object that take a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]) can use this to attach statements to the handle passed into the callback. These handles are fully managed and will be closed when the callback exits.
 
-[source,java]
+[source,java,indent=0]
 ----
 User user = jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM users WHERE id = :id")
     .attachToHandleForCleanup() // <1>
@@ -1099,7 +1135,7 @@ The use of Jdbi arguments is limited to JDBC prepared statement parameters.
 Notably, arguments usually cannot be used to change the structure of a query
 (for example the table or column name, `SELECT` or `INSERT`, etc.)
 nor may they be interpolated into string literals.
-See <<Query templating>> and <<TemplateEngine>> for more information.
+See <<Query Templating>> and <<TemplateEngine>> for more information.
 
 
 === Positional Arguments
@@ -1157,7 +1193,7 @@ Arguments to SQL statement can be bound in a few different ways.
 
 You can bind individual arguments:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
     .bind("id", 1)
@@ -1165,9 +1201,9 @@ handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
     .execute();
 ----
 
-You can bind multiple arguments at once from the entries of a `Map`:
+You can bind multiple arguments at once from the entries of a link:{jdkdocs}/java/util/Map.html[Map^]:
 
-[source,java]
+[source,java,indent=0]
 ----
 Map<String, Object> contact = new HashMap<>();
 contact.put("id", 2)
@@ -1180,7 +1216,7 @@ handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
 
 You can bind multiple values at once, from either a `List<T>` or a vararg:
 
-[source,java]
+[source,java,indent=0]
 ----
 List<String> keys = new ArrayList<String>()
 keys.add("user_name");
@@ -1205,7 +1241,7 @@ safely rendered to a comma-separated list of binding placeholders.
 
 You can bind multiple arguments from properties of a Java Bean:
 
-[source,java]
+[source,java,indent=0]
 ----
 Contact contact = new Contact();
 contact.setId(3);
@@ -1218,7 +1254,7 @@ handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
 
 You can also bind an Object's public fields:
 
-[source,java]
+[source,java,indent=0]
 ----
 Object contact = new Object() {
     public int id = 0;
@@ -1232,7 +1268,7 @@ handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
 
 Alternatively, you can bind public, parameter-less methods of an Object:
 
-[source,java]
+[source,java,indent=0]
 ----
 Object contact = new Object() {
     public int theId() {
@@ -1253,7 +1289,7 @@ Optionally, you can qualify each bound bean/object with a prefix. This can help
 remove ambiguity in situations where two or more bound beans have similar
 property names:
 
-[source,java]
+[source,java,indent=0]
 ----
 Folder folder = new Folder(1, "Important Documents");
 Document document =
@@ -1425,7 +1461,7 @@ Row mappers can be registered for particular types. This simplifies usage,
 requiring only that you specify what type you want to map to. Jdbi
 automatically looks up the mapper from the registry, and uses it.
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.registerRowMapper(User.class,
     (rs, ctx) -> new User(rs.getInt("id"), rs.getString("name"));
@@ -1442,7 +1478,7 @@ A mapper which implements `RowMapper` with an explicit mapped type (such as the
 `UserMapper` class in the previous section) may be registered without specifying
 the mapped type:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(new UserMapper());
 ----
@@ -1469,13 +1505,13 @@ Implementing a factory might be preferable to a regular row mapper if:
   columns to bean properties for any bean class.
 * The mapped type has a generic signature, and/or the mapper could be composed
   of other registered mappers. For example, Jdbi provides a
-  <<Map.Entry mapping,Map.Entry<K,V> mapper>>, provided a mapper is registered
+  <<mapentry-mapping,Map.Entry<K,V> mapper>>, provided a mapper is registered
   for types `K` and `V`.
 * You want to bundle multiple mappers into a single class.
 
 Let's take an example `Pair<L, R>` class:
 
-[source,java]
+[source,java,indent=0]
 ----
 public final class Pair<L, R> {
     public final L left;
@@ -1495,7 +1531,7 @@ mappers registered for both `L` and `R`.
 
 Let's take this one step at a time:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class PairMapperFactory implements RowMapperFactory {
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
@@ -1510,7 +1546,7 @@ The `build` method accepts a mapped type, and a config registry. It may return
 
 First we check whether the mapped type is a `Pair`:
 
-[source,java]
+[source,java,indent=0]
 ----
 if (!Pair.class.equals(GenericTypes.getErasedType(type))) {
     return Optional.empty();
@@ -1522,7 +1558,7 @@ The `GenericTypes` utility class is discussed in <<Working with Generic Types>>.
 
 Next, we extract the `L` and `R` generic parameters from the mapped type:
 
-[source,java]
+[source,java,indent=0]
 ----
 Type leftType = GenericTypes.resolveType(Pair.class.getTypeParameters()[0], type);
 Type rightType = GenericTypes.resolveType(Pair.class.getTypeParameters()[1], type);
@@ -1539,7 +1575,7 @@ Now that we have the types for `L` and `R`, we can look up the column mappers
 for those types from the `ColumnMappers` config class, through the config
 registry:
 
-[source,java]
+[source,java,indent=0]
 ----
 ColumnMappers columnMappers = config.get(ColumnMappers.class);
 
@@ -1570,7 +1606,7 @@ working as expected.
 
 Finally, we construct a pair mapper, and return it:
 
-[source,java]
+[source,java,indent=0]
 ----
 RowMapper<?> pairMapper = (rs, ctx) ->
     new Pair(leftMapper.map(rs, 1, ctx), // In JDBC, column numbers start at 1
@@ -1581,7 +1617,7 @@ return Optional.of(pairMapper);
 
 Here is the factory class all together:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class PairMapperFactory implements RowMapperFactory {
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
@@ -1611,7 +1647,7 @@ public class PairMapperFactory implements RowMapperFactory {
 
 Row mapper factories may be registered similar to regular row mappers:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.registerRowMapper(new PairMapperFactory());
 
@@ -1636,7 +1672,7 @@ link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] to a mapped type.
 Since `ColumnMapper` is a functional interface, they can be provided inline to a
 query using a lambda expression:
 
-[source,java]
+[source,java,indent=0]
 ----
 List<Money> amounts = handle
     .select("SELECT amount FROM transactions WHERE account_id = ?", accountId)
@@ -1649,7 +1685,7 @@ is mapped.
 
 Column mappers may be defined as classes, which allows for re-use:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class MoneyMapper implements ColumnMapper<Money> {
     public Money map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
@@ -1658,7 +1694,7 @@ public class MoneyMapper implements ColumnMapper<Money> {
 }
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 List<Money> amounts = handle
     .select("SELECT amount FROM transactions WHERE account_id = ?", accountId)
@@ -1675,7 +1711,7 @@ Column mappers may be registered for specific types. This simplifies usage,
 requiring only that you specify what type you want to map to. Jdbi automatically
 looks up the mapper from the registry, and uses it.
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.registerColumnMapper(Money.class,
     (rs, col, ctx) -> Money.parse(rs.getString(col)));
@@ -1690,7 +1726,7 @@ A mapper which implements `ColumnMapper` with an explicit mapped type (such as
 the `MoneyMapper` class in the previous section) may be registered without
 specifying the mapped type:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerColumnMapper(new MoneyMapper());
 ----
@@ -1746,7 +1782,7 @@ mapper is registered for `T`.
 
 Let's take this one step at a time:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class OptionalColumnMapperFactory implements ColumnMapperFactory {
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
@@ -1761,7 +1797,7 @@ The `build` method accepts a mapped type, and a config registry. It may return
 
 First, we check whether the mapped type is an `Optional`:
 
-[source,java]
+[source,java,indent=0]
 ----
 if (!Optional.class.equals(GenericTypes.getErasedType(type))) {
     return Optional.empty();
@@ -1773,7 +1809,7 @@ The `GenericTypes` utility class is discussed in <<Working with Generic Types>>.
 
 Next, extract the `T` generic parameter from the mapped type:
 
-[source,java]
+[source,java,indent=0]
 ----
 Type t = GenericTypes.resolveType(Optional.class.getTypeParameters()[0], type);
 ----
@@ -1787,7 +1823,7 @@ type.
 Now that we have the type of `T`, we can look up a column mapper for that type
 from the `ColumnMappers` config class, through the config registry:
 
-[source,java]
+[source,java,indent=0]
 ----
 ColumnMapper<?> tMapper = config.get(ColumnMappers.class)
     .findFor(embeddedType)
@@ -1814,7 +1850,7 @@ expected.
 
 Finally, we construct the column mapper for optionals, and return it:
 
-[source,java]
+[source,java,indent=0]
 ----
 ColumnMapper<?> optionalMapper = (rs, col, ctx) ->
     Optional.ofNullable(tMapper.map(rs, col, ctx));
@@ -1824,7 +1860,7 @@ return Optional.of(optionalMapper);
 
 Here is the factory class all together:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class OptionalColumnMapperFactory implements ColumnMapperFactory {
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
@@ -1848,7 +1884,7 @@ public class OptionalColumnMapperFactory implements ColumnMapperFactory {
 
 Column mapper factories may be registered similar to regular column mappers:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.registerColumnMapper(new OptionalColumnMapperFactory());
 
@@ -1937,7 +1973,7 @@ include::{exampledir}/ResultsTest.java[tags=userConstructor]
 Otherwise, the names can be explictly set with the `@ColumnName`
 annotation on each constructor parameter:
 
-[source,java]
+[source,java,indent=0]
 ----
 public User(@ColumnName("id") int id, @ColumnName("name") String name) {
     this.id = id;
@@ -1947,7 +1983,7 @@ public User(@ColumnName("id") int id, @ColumnName("name") String name) {
 
 The standard Java Bean `@ConstructorProperties` annotation can also be used:
 
-[source,java]
+[source,java,indent=0]
 ----
 @ConstructorProperties({"id", "name"})
 public User(int id, String name) {
@@ -1975,7 +2011,7 @@ Constructor mappers can be configured with a column name prefix for each mapped
 constructor parameter. This can help to disambiguate mapping joins, e.g. when
 two mapped classes have identical property names (like `id` or `name`):
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(ConstructorMapper.factory(Contact.class, "c"));
 handle.registerRowMapper(ConstructorMapper.factory(Phone.class, "p"));
@@ -2000,7 +2036,7 @@ constructors, Jdbi will pick one based on these rules:
 For legacy column names that don't match up to property names, use the
 `@ColumnName` annotation to provide an exact column name.
 
-[source,java]
+[source,java,indent=0]
 ----
 public User(@ColumnName("user_id") int id, String name) {
     this.id = id;
@@ -2010,7 +2046,7 @@ public User(@ColumnName("user_id") int id, String name) {
 
 Nested constructor-injected types can be mapped using the `@Nested` annotation:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class User {
     public User(int id,
@@ -2030,7 +2066,7 @@ public class Address {
 }
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(ConstructorMapper.factory(User.class));
 
@@ -2043,7 +2079,7 @@ List<User> users = handle
 The `@Nested` annotation has an optional `value()` attribute, which can be used
 to apply a column name prefix to each nested constructor parameter:
 
-[source,java]
+[source,java,indent=0]
 ----
 public User(int id,
             String name,
@@ -2052,7 +2088,7 @@ public User(int id,
 }
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(ConstructorMapper.factory(User.class));
 
@@ -2069,7 +2105,7 @@ cannot be mapped.
 Parameters annotated `@Nullable` may be omitted from the result set, in which
 `ConstructorMapper` will pass `null` to the constructor for that parameter.
 
-[source,java]
+[source,java,indent=0]
 ----
 public class User {
     public User(int id,
@@ -2094,7 +2130,7 @@ Any `@Nullable` annotation from any package may be used.
 
 link:{jdbidocs}/core/mapper/reflect/BeanMapper.html[BeanMapper^] assigns columns to bean properties. This mapper uses the standard Java Bean conventions.
 
-[source,java]
+[source,java,indent=0]
 ----
 include::{exampledir}/UserBean.java[tags=beanMapper]
 ----
@@ -2137,7 +2173,7 @@ include::{exampledir}/ResultsTest.java[tags=beanMapperPrefix]
 For legacy column names that don't match up to property names, use the
 `@ColumnName` annotation to provide an exact column name.
 
-[source,java]
+[source,java,indent=0]
 ----
 public class User {
     private int id;
@@ -2154,7 +2190,7 @@ method. If conflicting annotations exist, then Annotations on the setter are pre
 
 Nested Java Bean types can be mapped using the `@Nested` annotation:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class User {
     private int id;
@@ -2181,7 +2217,7 @@ public class Address {
 <1> The `@Nested` annotation can be placed on either the getter or setter
     method. The setter is preferred.
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(BeanMapper.factory(User.class));
 
@@ -2194,13 +2230,13 @@ List<User> users = handle
 The `@Nested` annotation has an optional `value()` attribute, which can be used
 to apply a column name prefix to each nested bean property:
 
-[source,java]
+[source,java,indent=0]
 ----
 @Nested("addr")
 public Address getAddress() { ... }
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(BeanMapper.factory(User.class));
 
@@ -2220,7 +2256,7 @@ columns matching any properties of the nested object.
 link:{jdbidocs}/core/mapper/reflect/FieldMapper.html[FieldMapper^] uses reflection
 to map database columns directly to object fields (including private fields).
 
-[source,java]
+[source,java,indent=0]
 ----
 public class User {
     public int id;
@@ -2231,7 +2267,7 @@ public class User {
 
 Register a field mapper for your mapped class, using the `factory()` method:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(FieldMapper.factory(User.class));
 
@@ -2245,7 +2281,7 @@ Field mappers can be configured with a column name prefix for each mapped
 field. This can help to disambiguate mapping joins, e.g. when two mapped
 classes have identical property names (like `id` or `name`):
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(FieldMapper.factory(Contact.class, "c"));
 handle.registerRowMapper(FieldMapper.factory(Phone.class, "p"));
@@ -2262,7 +2298,7 @@ List<JoinRow> contactPhones = handle.select(
 For legacy column names that don't match up to field names, use the
 `@ColumnName` annotation to provide an exact column name:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class User {
     @ColumnName("user_id")
@@ -2274,7 +2310,7 @@ public class User {
 
 Nested field-mapped types can be mapped using the `@Nested` annotation:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class User {
     public int id;
@@ -2292,7 +2328,7 @@ public class Address {
 }
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(FieldMapper.factory(User.class));
 
@@ -2305,7 +2341,7 @@ List<User> users = handle
 The `@Nested` annotation has an optional `value()` attribute, which can be used
 to apply a column name prefix to each nested field:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class User {
     public int id;
@@ -2316,7 +2352,7 @@ public class User {
 }
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerRowMapper(FieldMapper.factory(User.class));
 
@@ -2340,7 +2376,7 @@ TODO:
 * default column name matchers out of the box
 ////
 
-
+[#mapentry-mapping]
 === Map.Entry Mapping
 
 Out of the box, Jdbi registers a `RowMapper<Map.Entry<K,V>>`. Since each row in
@@ -2386,7 +2422,7 @@ values per key.
 First, follow the instructions in the <<Google Guava>> section to install
 `GuavaPlugin` into Jdbi.
 
-Then, simply ask for a `Multimap` instead of a `Map`:
+Then, simply ask for a `Multimap` instead of a link:{jdkdocs}/java/util/Map.html[Map^]:
 
 [source,java,indent=0]
 ----
@@ -2423,7 +2459,7 @@ A codec is a replacement for registering an argument and a column mapper for a t
 
 Codecs are collected in a codec factory, which can be registered with the registerCodecFactory convenience method.
 
-[source,java]
+[source,java,indent=0]
 ----
 // register a single codec
 jdbi.registerCodecFactory(CodecFactory.forSingleCodec(type, codec));
@@ -2451,7 +2487,7 @@ Codec example:
 include::{exampledir}/Counter.java[tags=counterCodec]
 ----
 
-JDBI core API:
+Jdbi core API:
 
 [source,java,indent=0]
 ----
@@ -2610,7 +2646,7 @@ The link:{jdbidocs}/core/result/ResultIterable.html#stream()[stream()^] method r
 
 The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^] and link:{jdbidocs}/core/result/ResultIterable.htmll#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^] methods pass the Stream into a callback.
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
     .map(new UserMapper())
@@ -2630,7 +2666,7 @@ These methods handle closing the stream for the caller. The link:{jdbidocs}/core
 
 *#list* emits a *List<T>*. This necessarily buffers all results in memory.
 
-[source,java]
+[source,java,indent=0]
 ----
 List<User> users =
     handle.createQuery("SELECT id, name FROM user")
@@ -2648,7 +2684,7 @@ List<User> users =
 You can also write your own custom collectors.  For example, to accumulate
 found rows into a *Map*:
 
-[source,java]
+[source,java,indent=0]
 ----
 h.execute("INSERT INTO something (id, name) VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Chuckles')");
 Map<Integer, Something> users = h.createQuery("SELECT id, name FROM something")
@@ -2698,7 +2734,7 @@ Consider a contact list app as an example. The contact list contains any
 number of contacts. Contacts have a name, and any number of phone numbers.
 Phone numbers have a type (e.g. home, work) and a phone number:
 
-[source,java]
+[source,java,indent=0]
 ----
 class Contact {
     Long id;
@@ -2747,7 +2783,7 @@ result set. The value returned for each row becomes the input accumulator
 passed in for the next row. After the last row has been processed,
 `reducedRows()` returns the last value returned from the lambda.
 
-[source,java]
+[source,java,indent=0]
 ----
 List<Contact> contacts = handle.createQuery(SELECT_ALL)
     .registerRowMapper(BeanMapper.factory(Contact.class, "c"))
@@ -2801,7 +2837,7 @@ method makes it easy to reduce these joins into a stream of master elements.
 
 Adapting the example above:
 
-[source,java]
+[source,java,indent=0]
 ----
 List<Contact> contacts = handle.createQuery(SELECT_ALL)
     .registerRowMapper(BeanMapper.factory(Contact.class, "c"))
@@ -2838,7 +2874,7 @@ to map the `my_value` column of the current row to a `MyValueType` object.
 
 Now let's do the same thing, but for a single contact:
 
-[source,java]
+[source,java,indent=0]
 ----
 Optional<Contact> contact = handle.createQuery(SELECT_ONE)
     .bind("id", contactId)
@@ -2864,7 +2900,7 @@ to the JDBC link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] instead of a `Row
 This method can provide superior performance compared to `reduceRows()`, at the
 expense of verbosity:
 
-[source,java]
+[source,java,indent=0]
 ----
 List<Contact> contacts = handle.createQuery(SELECT_ALL)
     .reduceResultSet(new LinkedHashMap<Long, Contact>(),
@@ -3035,7 +3071,7 @@ include::{exampledir}/GeneratedKeysTest.java[tags=fluent]
 
 Jdbi can bind/map Java arrays to/from SQL arrays:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createUpdate("INSERT INTO groups (id, user_ids) VALUES (:id, :userIds)")
     .bind("id", 1)
@@ -3051,7 +3087,7 @@ int[] userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id = :id")
 You can also use Collections in place of arrays, but you'll need to provide
 the element type if you're using the fluent API, since it's erased:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createUpdate("INSERT INTO groups (id, user_ids) VALUES (:id, :userIds)")
     .bind("id", 1)
@@ -3066,7 +3102,7 @@ List<Integer> userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id
 
 Use `@SingleValue` for mapping an array result with the SqlObject API:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface GroupsDao {
     @SqlQuery("SELECT user_ids FROM groups WHERE id = ?")
@@ -3082,7 +3118,7 @@ Any Java array element type you want binding support for needs to be registered
 with Jdbi's `SqlArrayTypes` registry. An array type that is directly supported
 by your JDBC driver can be registered using:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.registerArrayType(int.class, "integer");
 ----
@@ -3104,7 +3140,7 @@ where `"colors"` is a user-defined enum type name in your database.
 You can also provide your own implementation of `SqlArrayType` that converts
 a custom Java element type to a type supported by the JDBC driver:
 
-[source,java]
+[source,java,indent=0]
 ----
 class UserArrayType implements SqlArrayType<User> {
 
@@ -3122,7 +3158,7 @@ class UserArrayType implements SqlArrayType<User> {
 
 You can now bind instances of `User[]` to arguments of data type `integer[]`:
 
-[source,java]
+[source,java,indent=0]
 ----
 User user1 = new User(1, "bob");
 User user2 = new User(42, "alice");
@@ -3145,7 +3181,7 @@ registered for the same data type, the last registered wins.
 SQL counterparts. To map SQL array columns back to Java types, you can register
 a regular `ColumnMapper`:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class UserIdColumnMapper implements ColumnMapper<UserId> {
     @Override
@@ -3155,7 +3191,7 @@ public class UserIdColumnMapper implements ColumnMapper<UserId> {
 }
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.registerColumnMapper(new UserIdColumnMapper());
 List<UserId> userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id = :id")
@@ -3181,7 +3217,7 @@ Typical uses for templating are optional or repeating segments (conditions and l
 [CAUTION]
 link:https://www.xkcd.com/327/[Query templating is a common attack vector!^] Always prefer binding parameters to static SQL over dynamic SQL when possible.
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createQuery("SELECT * FROM <TABLE> WHERE name = :n")
 
@@ -3200,7 +3236,7 @@ TemplateEngines and SqlParsers operate sequentially: the initial String will be 
 
 If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
 
-[source,java]
+[source,java,indent=0]
 ----
 String paramName = "arg";
 
@@ -3210,7 +3246,7 @@ handle.createQuery("SELECT * FROM Foo WHERE bar = :<attr>")
     .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createQuery("SELECT * FROM emotion WHERE emoticon = <sticker>")
     .define("sticker", ":-)") // -> "... WHERE emoticon = :-)"
@@ -3226,7 +3262,7 @@ binding is present and not `null`.  You can use this to
 craft conditional updates and query clauses.
 
 For example,
-[source,java]
+[source,java,indent=0]
 ----
 class MyBean {
     long id();
@@ -3252,7 +3288,7 @@ classpath, rather than in string inside Java code.
 The `ClasspathSqlLocator` converts Java type and method names into classpath locations,
 and then reads, parses, and caches the loaded statements.
 
-[source,java]
+[source,java,indent=0]
 ----
 // reads classpath resource com/foo/BarDao/query.sql
 ClasspathSqlLocator.create().locate(com.foo.BarDao.class, "query");
@@ -3264,7 +3300,7 @@ ClasspathSqlLocator.create().locate("com.foo.BarDao.query");
 By default, any comments in the loaded file are left untouched. Comments can be stripped out by
 instantiating the `ClasspathSqlLocator` with the `removingComments()` method:
 
-[source,java]
+[source,java,indent=0]
 ----
 // reads classpath resource com/foo/BarDao/query.sql, stripping all comments
 ClasspathSqlLocator.removingComments().locate(com.foo.BarDao.class, "query");
@@ -3289,7 +3325,7 @@ configuration defines a configuration class, for example the `SqlStatements`
 class stores SqlStatement related configuration.  Then, on any `Configurable` context
 (like a link:{jdbidocs}/core/Jdbi.html[Jdbi^] or link:{jdbidocs}/core/Handle.html[Handle^]) you can change configuration in a type safe way:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
 jdbi.getConfig(Arguments.class).register(new MyTypeArgumentFactory());
@@ -3319,7 +3355,7 @@ a `String` could be `varchar` plaintext, `nvarchar` text, `json` data, etc, all 
 
 link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType] allows you to add such context to a Java type:
 
-[source,java]
+[source,java,indent=0]
 ----
 QualifiedType.of(String.class).with(Json.class);
 ----
@@ -3329,7 +3365,7 @@ It can be used in a way similar to <<GenericType>>, to make components
 handling values (mainly `ArgumentFactories` and `ColumnMapperFactories`) perform their work differently,
 and to have the values handled by different implementations altogether:
 
-[source,java]
+[source,java,indent=0]
 ----
 @Json
 public class JsonArgumentFactory extends AbstractArgumentFactory<String> {
@@ -3343,7 +3379,7 @@ public class JsonArgumentFactory extends AbstractArgumentFactory<String> {
 Once registered, this `@Json` qualified factory will receive *only* `@Json String` values.
 Other factories _not_ qualified as such will *not* receive this value:
 
-[source,java]
+[source,java,indent=0]
 ----
 QualifiedType<String> json = QualifiedType.of(String.class).with(Json.class);
 query.bindByType("jsonValue", "{\"foo\":1}", json);
@@ -3387,11 +3423,11 @@ and setter parameters.
 
 == SQL Objects
 
-SQL Objects are a declarative-style alternative to the fluent-style Core API.
+SQL Objects are a declarative-style extension to the fluent-style Core APIs. SQL Objects are implemented as an extension to the core API using the Extension API.
 
 To start using the SQL Object plugin, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -3401,7 +3437,7 @@ To start using the SQL Object plugin, add a Maven dependency:
 
 Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
-[source,java]
+[source,java,indent=0]
 ----
 Jdbi jdbi = ...
 jdbi.installPlugin(new SqlObjectPlugin());
@@ -3422,20 +3458,17 @@ At runtime, you can request an instance of your interface, and Jdbi synthesizes
 an implementation based on the annotations and methods you declared.
 
 
-=== Annotated Methods
+=== SQL Method annotations
 
-Methods annotated with one of Jdbi's SQL method annotations
-(link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^],
+Interface methods can be annotated with one of Jdbi's SQL method annotations (link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^],
 link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^],
-link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^], or
-link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^]) have their
-implementation generated automatically, based on the annotations on the method,
-and its parameters.
+link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^],
+link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] and
+link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^]) will get a generated implementation based on the annotations on the method and its parameters.
 
-The parameters to the method are used as arguments to the statement, and the
-SQL statement result mapped into the method return type.
+The parameters to the method are used as arguments to the statement, and the SQL statement result mapped into the method return type.
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlQuery("SELECT id, name FROM users")
 void forEachUser(Consumer<User> consumer);
@@ -3444,10 +3477,10 @@ void forEachUser(Consumer<User> consumer);
 
 ==== @SqlUpdate Annotation
 
-Use the `@SqlUpdate` annotation for operations that modify data (i.e. inserts,
+Use the link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] annotation for operations that modify data (i.e. inserts,
 updates, deletes).
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)")
@@ -3460,12 +3493,10 @@ respective positions. So `id` is bound to the first `?`, and `name` to the
 second.
 
 [TIP]
-`@SqlUpdate` can also be used for DDL (Data Definition Language) operations like
-creating or altering tables. We recommend using a schema migration tool such
-as link:https://flywaydb.org/[Flyway^] or
-link:https://www.liquibase.org/[Liquibase^] to maintain your database schemas.
+link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] can also be used for DDL (Data Definition Language) operations like creating or altering tables. However, we recommend using a schema migration tool such
+as link:https://flywaydb.org/[Flyway^] or link:https://www.liquibase.org/[Liquibase^] to maintain your database schemas.
 
-By default, a `@SqlUpdate` method may return a handful of types:
+By default, a link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] method may return a handful of types:
 
 * `void`: returns nothing (obviously)
 * `int` or `long`: returns the update count. Depending on the database vendor
@@ -3488,10 +3519,9 @@ key column per statement, and some (such as Postgres) can return the entire row.
 You should check your database vendor's documentation before relying on this
 behavior.
 
-The `@GetGeneratedKeys` annotation tells Jdbi that the return value should be
-generated key from the SQL statement, instead of the update count.
+The link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotation tells Jdbi that the return value should be generated key from the SQL statement, instead of the update count.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlUpdate("INSERT INTO users (id, name) VALUES (nextval('user_seq'), ?)")
@@ -3502,7 +3532,7 @@ public interface UserDao {
 
 Multiple columns may be generated and returned in this way:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlUpdate("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
@@ -3524,43 +3554,46 @@ arguments are bound as parameters to the SQL statement.
 By default, arguments passed to the method are bound as positional parameters
 in the SQL statement.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
-    @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)")
-    void insert(long id, String name);
+    @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)") <1>
+    void insert(long id, String name); <2>
 }
 ----
+<1> declares two positional parameters
+<2> provides two method parameters. `id` will be bound as the first, `name` as the second parameter.
 
-You can use named arguments with the `@Bind` annotation:
 
-[source,java]
+Arguments can be named with the link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation:
+
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@Bind("id") long id, @Bind("name") String name);
 ----
 
-<<compiling_with_parameter_names,Compiling with parameter names>> removes the
-need for the `@Bind` annotation. Jdbi will then bind each un-annotated parameter
+<<compiling_with_parameter_names,Compiling code with parameter names>> removes the
+need for the link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation. Jdbi will then bind each un-annotated parameter
 to the parameter's name.
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(long id, String name);
 ----
 
-Binding a list of values is done through the `@BindList` annotation. This will expand the list in a 'a,b,c,d,...' form. Note that this annotation requires you to use the `<binding>` notation, unlike `@Bind` (which uses :binding)
+Binding a list of values is done through the link:{jdbidocs}/sqlobject/customizer/BindList.html[@BindList^] annotation. This will expand the list in a 'a,b,c,d,...' form. Note that this annotation requires you to use the `<binding>` notation, unlike link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] (which uses :binding)
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlQuery("SELECT name FROM users WHERE id in (<userIds>)")
 List<String> getFromIds(@BindList("userIds") List<Long> userIds)
 ----
 
-You can bind from the entries of a `Map`:
+You can bind from the entries of a link:{jdkdocs}/java/util/Map.html[Map^]:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@BindMap Map<String, ?> map);
@@ -3568,7 +3601,7 @@ void insert(@BindMap Map<String, ?> map);
 
 In SQL Object (but not in Core), you can qualify a bound map with a prefix:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:user.id, :user.name)")
 void insert(@BindMap("user") Map<String, ?> map);
@@ -3576,7 +3609,7 @@ void insert(@BindMap("user") Map<String, ?> map);
 
 You can bind from the properties of a Java Bean:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@BindBean User user);
@@ -3584,7 +3617,7 @@ void insert(@BindBean User user);
 
 You can bind from the public fields of an object:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@BindFields User user);
@@ -3592,7 +3625,7 @@ void insert(@BindFields User user);
 
 Or you can bind from public, parameterless methods of an object:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:functionThatReturnsTheId, :functionThatReturnsTheName)")
 void insert(@BindMethods User user);
@@ -3601,7 +3634,7 @@ void insert(@BindMethods User user);
 Like `@BindMap`, the `@BindBean`, `@BindMethods`, and `@BindFields` annotations
 can have an optional prefix:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:user.id, :user.name)")
 void insert(@BindBean("user") User user);
@@ -3636,7 +3669,7 @@ Use the `@SqlQuery` annotation for select operations.
 Query methods may return a single- or multi-row result, depending on whether the
 method return type looks like a collection.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT name FROM users")
@@ -3671,7 +3704,7 @@ Query methods may also return a <<ResultIterable>>,
 link:{jdbidocs}/core/result/ResultIterator.html[ResultIterator^], or a
 link:{jdkdocs}/java/util/stream/Stream.html[Stream^].
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT name FROM users")
@@ -3689,7 +3722,7 @@ The objects returned from these methods hold database resources that must be
 explicitly closed when you are done with them. We strongly recommend the use of
 _try-with-resource_ blocks when calling these methods, to prevent resource leaks:
 
-[source,java]
+[source,java,indent=0]
 ----
 try (ResultIterable<String> names = dao.getNamesAsIterable()) {
     // ...
@@ -3712,7 +3745,7 @@ Methods returning link:{jdbidocs}/core/result/ResultIterable.html[ResultIterable
 
 Use `@RegisterRowMapper` to register a concrete row mapper class:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT * FROM users")
@@ -3723,7 +3756,7 @@ public interface UserDao {
 
 Row mappers used with this annotation must meet a few requirements:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class UserMapper implements RowMapper<User> { // <1> <2>
     public UserMapper() { // <3>
@@ -3749,7 +3782,7 @@ type or method to register multiple mappers.
 
 Use `@RegisterRowMapperFactory` to register a `RowMapperFactory`.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT * FROM users")
@@ -3760,7 +3793,7 @@ public interface UserDao {
 
 Row mapper factories used with this annotation must meet a few requirements:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class UserMapperFactory implements RowMapperFactory { // <1>
     public UserMapperFactory() { // <2>
@@ -3784,7 +3817,7 @@ same type or method to register multiple factories.
 
 Use `@RegisterColumnMapper` to register a column mapper:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface AccountDao {
     @SqlQuery("SELECT balance FROM accounts WHERE id = ?")
@@ -3795,7 +3828,7 @@ public interface AccountDao {
 
 Column mappers used with this annotation must meet a few requirements:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class MoneyMapper implements ColumnMapper<Money> { // <1> <2>
     public MoneyMapper() { // <3>
@@ -3821,7 +3854,7 @@ same type or method to register multiple mappers.
 
 Use `@RegisterColumnMapperFactory` to register a column mapper factory:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface AccountDao {
     @SqlQuery("SELECT * FROM users")
@@ -3832,7 +3865,7 @@ public interface AccountDao {
 
 Row mapper factories used with this annotation must meet a few requirements:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class UserMapperFactory implements RowMapperFactory { // <1>
     public UserMapperFactory() { // <2>
@@ -3856,7 +3889,7 @@ the same type or method to register multiple factories.
 
 Use `@RegisterBeanMapper` to register a <<BeanMapper>> for a bean class:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT * FROM users")
@@ -3868,7 +3901,7 @@ public interface UserDao {
 Using the `prefix` attribute causes the bean mapper to map only those columns
 that begin with the prefix:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
@@ -3893,7 +3926,7 @@ the same type or method to register multiple bean mappers.
 Use `@RegisterConstructorMapper` to register a <<ConstructorMapper>> for classes
 that are instantiated with all properties through the constructor.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT * FROM users")
@@ -3905,7 +3938,7 @@ public interface UserDao {
 Using the `prefix` attribute causes the constructor mapper to only map those
 columns that begin with the prefix:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
@@ -3930,7 +3963,7 @@ the same type or method to register multiple constructor mappers.
 
 Use `@RegisterFieldMapper` to register a <<FieldMapper>> for a given class.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT * FROM users")
@@ -3942,7 +3975,7 @@ public interface UserDao {
 Using the `prefix` attribute causes the field mapper to only map those columns
 that begin with the prefix:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT u.id u_id, u.name u_name, r.id r_id, r.name r_name " +
@@ -3975,7 +4008,7 @@ annotate a return type as `@SingleValue` to override this.
 
 For example, suppose we want to select a `varchar[]` column from a single row:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlQuery("SELECT roles FROM users WHERE id = ?")
@@ -3996,9 +4029,9 @@ implies that the database itself has a column of a type like `optional<varchar>`
 
 ===== Map<K,V> Results
 
-SQL Object methods may return `Map<K,V>` types (see <<Map.Entry mapping>> in
+SQL Object methods may return `Map<K,V>` types (see <<mapentry-mapping, Map.Entry mapping>> in
 the Core API). In this scenario, each row is mapped to a `Map.Entry<K,V>`,
-and the entries for each row are collected into a single `Map` instance.
+and the entries for each row are collected into a single link:{jdkdocs}/java/util/Map.html[Map^] instance.
 
 NOTE: A mapper must be registered for both the key and value types.
 
@@ -4038,15 +4071,15 @@ type, which supports mapping multiple values per key.
 First, follow the instructions in the <<Google Guava>> section to install
 `GuavaPlugin`.
 
-Then, simply specify a `Multimap` return type instead of `Map`:
+Then, simply specify a `Multimap` return type instead of link:{jdkdocs}/java/util/Map.html[Map^]:
 
 [source,java,indent=0]
 ----
 include::{sqlobjectexampledir}/TestReturningMap.java[tags=joinRowMultimap]
 ----
 
-All the examples so far have been `Map` types where each row in the result set
-is a single `Map.Entry`. However, what if the `Map` we want to return is
+All the examples so far have been link:{jdkdocs}/java/util/Map.html[Map^] types where each row in the result set
+is a single `Map.Entry`. However, what if the link:{jdkdocs}/java/util/Map.html[Map^] we want to return is
 actually a single row or even a single column?
 
 Jdbi's link:{jdbidocs}/core/mapper/MapMapper.html[MapMapper^] maps each row to a
@@ -4056,11 +4089,11 @@ Jdbi's link:{jdbidocs}/core/mapper/MapMapper.html[MapMapper^] maps each row to a
 Jdbi's default setting is to convert column names to lowercase for Map keys. This behavior can be
 changed via the `MapMappers` config class.
 
-By default, SQL Object treats `Map` return types as a collection of `Map.Entry`
+By default, SQL Object treats link:{jdkdocs}/java/util/Map.html[Map^] return types as a collection of `Map.Entry`
 values. Use the `@SingleValue` annotation to override this, so that the return
 type is treated as a single value instead of a collection:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlQuery("SELECT * FROM users WHERE id = ?")
 @RegisterRowMapper(MapMapper.class)
@@ -4073,7 +4106,7 @@ link:{jdbidocs}/core/mapper/GenericMapMapperFactory.html[GenericMapMapperFactory
 which provides the same feature but allows value types other than `Object`
 as long as a suitable ColumnMapper is registered and all columns are of this type:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlQuery("SELECT 1.0 AS LOW, 2.0 AS MEDIUM, 3.0 AS HIGH")
 @RegisterRowMapperFactory(GenericMapMapperFactory.class)
@@ -4096,7 +4129,7 @@ an introduction to row reducers.
 Consider a filesystem metaphor with folders and documents. In the join, we'll
 prefix folder columns with `f_` and document columns with `d_`.
 
-[source,java]
+[source,java,indent=0]
 ----
 @RegisterBeanMapper(value = Folder.class, prefix = "f") // <1>
 @RegisterBeanMapper(value = Document.class, prefix = "d")
@@ -4154,7 +4187,7 @@ public interface DocumentDao {
 Use the `@SqlBatch` annotation for bulk update operations. `@SqlBatch` is
 analogous to <<Prepared Batches,PreparedBatch>> in Core.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface ContactDao {
     @SqlBatch("INSERT INTO contacts (id, name, email) VALUES (?, ?, ?)")
@@ -4173,7 +4206,7 @@ each parameter.
 
 Thus, a statement like:
 
-[source,java]
+[source,java,indent=0]
 ----
 contactDao.bulkInsert(
     ImmutableList.of(1, 2, 3),
@@ -4193,7 +4226,7 @@ INSERT INTO contacts (id, name, email) VALUES (3, 'baz', 'c@fake.com');
 Constant values may also be used as parameters to a SQL batch. In this case,
 the same value is bound to that parameter for every SQL statement in the batch.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlBatch("INSERT INTO users (tenant_id, id, name) " +
@@ -4221,12 +4254,12 @@ By default, a `@SqlBatch` method may return a handful of types:
 [#sqlbatch-getgeneratedkeys]
 ===== @GetGeneratedKeys
 
-Similar to `@SqlUpdate`, the `@GetGeneratedKeys` annotations tells SQL Object
+Similar to link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^], the link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotations tells SQL Object
 that the return value should be the generated keys from each SQL statement,
 instead of the update count. See
 <<sqlupdate-getgeneratedkeys,@GetGeneratedKeys>> for a more thorough discussion.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlBatch("INSERT INTO users (id, name) VALUES (nextval('user_seq'), ?)")
@@ -4237,7 +4270,7 @@ public interface UserDao {
 <1> Returns the generated ID for each inserted name.
 
 Multiple columns may be generated and returned in this way:
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlBatch("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
@@ -4256,7 +4289,7 @@ constant--use the `@SingleValue` annotation on the method parameter. This causes
 SQL Object to bind the whole iterable as the parameter value for every SQL
 statement in the batch (typically as a SQL Array parameter).
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlBatch("INSERT INTO users (id, name, roles) VALUES (?, ?, ?)")
@@ -4274,7 +4307,7 @@ In the above example, each new row would get the same `varchar[]` value in the
 
 Use the `@SqlCall` annotation to call stored procedures.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface AccountDao {
     @SqlCall("{call suspend_account(:id)}")
@@ -4286,7 +4319,7 @@ public interface AccountDao {
 stored procedure has any output parameters. Each output parameter must be
 registered with the `@OutParameter` annotation.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface OrderDao {
     @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
@@ -4300,7 +4333,7 @@ Individual output parameters can be extracted from the
 link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] returned from
 the method:
 
-[source,java]
+[source,java,indent=0]
 ----
 OutParameters outParams = orderDao.prepareOrderFromCart(cartId);
 long orderId = outParams.getLong("orderId");
@@ -4325,7 +4358,7 @@ include::{sqlobjectexampledir}/statement/TestSqlScripts.java[tags=scripts]
 
 ==== @GetGeneratedKeys Annotation
 
-The `@GetGeneratedKeys` annotation may be used on a `@SqlUpdate` or `@SqlBatch`
+The link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotation may be used on a link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] or `@SqlBatch`
 method to return the keys generated from the SQL statement:
 
 [source,java,indent=0]
@@ -4346,7 +4379,7 @@ load SQL statements.
 * @UseClasspathSqlLocator - loads SQL from a file on the classpath, based on
   the package and name of the SQL Object interface type.
 
-[source,java]
+[source,java,indent=0]
 ----
 package com.foo;
 @UseClasspathSqlLocator
@@ -4362,7 +4395,7 @@ interface BarDao {
 [WARNING]
 <<ClasspathSqlLocator>> loads a file unchanged by default. Using the `@UseClasspathSqlLocator` annotation will strip out comments by default! This may lead to unexpected behavior, e.g. SQL Server uses the `#` character to denote temporary tables. This can be controlled with the `stripComments` annotation attribute.
 
-[source,java]
+[source,java,indent=0]
 ----
 package com.foo;
 @UseClasspathSqlLocator(stripComments=false)
@@ -4385,7 +4418,7 @@ Use the @CreateSqlObject annotation to reuse a SqlObject inside another SqlObjec
 you can build a transactional method which performs an SQL update defined in other SqlObject
 as part of the transaction. Jdbi won't open a new handle for a call to the child SqlObject.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface Bar {
     @SqlUpdate("INSERT INTO bar (name) VALUES (:name)")
@@ -4415,7 +4448,7 @@ public interface Foo {
 You can annotate any statement with `@Timestamped` to bind an `OffsetDateTime`,
 of which the value is the current time, under the binding `now`:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface Bar {
     @SqlUpdate("INSERT INTO times(val) VALUES(:now)")
@@ -4426,7 +4459,7 @@ public interface Bar {
 
 You can customize the binding name:
 
-[source,java]
+[source,java,indent=0]
 ----
 @Timestamped("timestamp")
 ----
@@ -4445,7 +4478,7 @@ it:
 
 You can get a SQL Object that is attached to an open handle.
 
-[source,java]
+[source,java,indent=0]
 ----
 try (Handle handle = jdbi.open()) {
     ContactPhoneDao dao = handle.attach(ContactPhoneDao.class);
@@ -4466,7 +4499,7 @@ for operations that return a result, or
 link:{jdbidocs}/core/Jdbi.html#useExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer-[useExtension^]
 for operations with no result.
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.useExtension(ContactPhoneDao.class, dao -> dao.insertFullContact(alice));
 long bobId = jdbi.withExtension(ContactPhoneDao.class, dao -> dao.insertFullContact(bob));
@@ -4483,7 +4516,7 @@ On-demand instances are constructed with the link:{jdbidocs}/core/Jdbi.html#onDe
 
 This is handy when you only need to make single calls at a time.
 
-[source,java]
+[source,java,indent=0]
 ----
 ContactPhoneDao dao = jdbi.onDemand(ContactPhoneDao.class);
 long aliceId = dao.insertFullContact(alice);
@@ -4494,7 +4527,7 @@ There is a performance penalty every time a connection is allocated and  release
 
 This can be avoided by keeping the handle open for the duration of the operation:
 
-[source,java]
+[source,java,indent=0]
 ----
 dao.useTransaction(txn -> { // <1>
     User bob = txn.readContact(bobId);
@@ -4522,7 +4555,7 @@ SQL Objects use the same core API as normal SQL statements. There is an underlyi
 
 It is possible to get access to the Handle directly from a SQL object by extending the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface SomeDao extends SqlObject {
     // ...
@@ -4547,7 +4580,7 @@ This is most useful for SQL object instances that get passed from other code or 
 
 Occasionally a use case comes up where SQL Method annotations don't fit. In these situations, it is possible to "drop down" to the Core API using interface `default` methods and the SqlObject mixin interface:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface SplineDao extends SqlObject {
     default void reticulateSplines(Spline spline) {
@@ -4559,7 +4592,7 @@ public interface SplineDao extends SqlObject {
 
 Default methods can also be used to group multiple SQL operations into a single method call:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface ContactPhoneDao {
     @SqlUpdate("INSERT INTO contacts (id, name) VALUES (nextval('contact_id'), :name)")
@@ -4635,7 +4668,7 @@ Similar to the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] interface, i
 
 With this mixin interface, the link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[useTransaction^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalCallback)[inTransaction^] methods group statements into a single transaction by using a callback:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao extends Transactional<UserDao> {
     @Transaction
@@ -4655,7 +4688,7 @@ public void createUsers(Jdbi jdbi) {
 ----
 
 Nested calls can be used as well:
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao extends Transactional<UserDao> {
     @Transaction
@@ -4678,7 +4711,7 @@ public void createUsers(Jdbi jdbi) {
 ----
 
 SQL object calls and core API calls can be mixed:
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao extends Transactional<UserDao> {
     @Transaction
@@ -4733,7 +4766,7 @@ Jdbi provides dozens of annotations out of the box:
   <<SQL Object Transactions>> for details.
 
 Jdbi is designed to support user-defined annotations. See
-<<User-Defined Annotations>> for a guide to creating your own.
+<<user-defined-annotations,User-Defined Annotations>> for a guide to creating your own.
 
 
 === Annotations and Inheritance
@@ -4767,7 +4800,7 @@ public interface CrudDao<T, ID> {
 <3> Method and parameter annotations are inherited by subtypes, unless the
     subtype overrides the method.
 
-[source,java]
+[source,java,indent=0]
 ----
 package com.app.contact;
 
@@ -4775,7 +4808,7 @@ package com.app.contact;
 public interface ContactDao extends CrudDao<Contact, Long> {}
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 package com.app.account;
 
@@ -4806,7 +4839,7 @@ case, we'd want `AccountDao` to use `@BindMethods` instead of `@BindBean`.
 
 Let's override those methods with the right annotations:
 
-[source,java]
+[source,java,indent=0]
 ----
 package com.app.account;
 
@@ -4842,7 +4875,7 @@ The following cache implementations are included:
 
 A cache module can provide a plugin to enable it. Only one plugin can be in use at a time (last one installed wins):
 
-[source,java]
+[source,java,indent=0]
 ----
     // use the caffeine cache library
     jdbi.installPlugin(new CaffeineCachePlugin());
@@ -4854,7 +4887,7 @@ The default cache instances are installed when the Jdbi object is created. When 
 
 Full customization is possible by creating the cache outside Jdbi and then use a cache builder adapter:
 
-[source,java]
+[source,java,indent=0]
 ----
     // create a custom Caffeine cache
     JdbiCacheBuilder customCacheBuilder = new CaffeineCacheBuilder(
@@ -4878,7 +4911,7 @@ If the underlying cache library exposes per-cache statistics, these can be acces
 == Testing
 
 [NOTE]
-The official test support from JDBI is in the `jdbi-testing` package. There are a number of additional JUnit 5 extensions in the `jdbi-core` test artifact. These are only intended for JDBI internal use and not part of the official, public API.
+The official test support from Jdbi is in the `jdbi-testing` package. There are a number of additional JUnit 5 extensions in the `jdbi-core` test artifact. These are only intended for Jdbi internal use and not part of the official, public API.
 
 
 === JUnit 4
@@ -4888,7 +4921,7 @@ class which implements link:https://junit.org/junit4/javadoc/latest/org/junit/ru
 
 It provides helpers for writing JUnit 4 tests integrated with a managed database instance. This makes writing unit tests quick and easy!  You must remember to include the database dependency itself, for example to get a pure H2 Java database:
 
-[source,xml]
+[source,xml,indent=0]
 ----
 <dependency>
     <groupId>com.h2database</groupId>
@@ -4900,7 +4933,7 @@ It provides helpers for writing JUnit 4 tests integrated with a managed database
 
 JUnit 4 supports the OTJ embedded postgres component, which needs to be included when using Postgres:
 
-[source,xml]
+[source,xml,indent=0]
 ----
 <dependency>
     <groupId>com.opentable.components</groupId>
@@ -4919,7 +4952,7 @@ It supports both the link:https://junit.org/junit5/docs/current/api/org.junit.ju
 
 When using link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^], the extensions can be customized further:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class Test {
     @RegisterExtension
@@ -4948,7 +4981,7 @@ The javadoc page for link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExten
 
 When using the link:https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] declarative extension, test methods can access the link:{jdbidocs}/core/Jdbi.html[Jdbi^] and link:{jdbidocs}/core/Handle.html[Handle^] objects through method parameters:
 
-[source,java]
+[source,java,indent=0]
 ----
 @ExtendWith(JdbiH2Extension.class)
 public class Test {
@@ -4974,7 +5007,7 @@ Support for other databases wanted!
 
 The link:{jdbidocs}/testing/junit5/JdbiExtension.html[JdbiExtension^] provides a number of convenience methods:
 
-[source,java, indent=0]
+[source,java,indent=0]
 ----
 public class JdbiExtension {
     public JdbiExtension postgres(...) // new JdbiPostgresExtension(...)
@@ -4996,7 +5029,7 @@ Additional functionality may be available by using the database specific impleme
 
 The H2 database is one of the most popular choices for embedded testing. The link:{jdbidocs}/testing/junit5/JdbiH2Extension.html[JdbiH2Extension^] class allows for a few additional customizations:
 
-[source,java]
+[source,java,indent=0]
 ----
 // JdbiH2Extension(String) constructor allows H2 options
 // JDBC URL is jdbc:h2:mem:<UUID>;MODE=MySQL
@@ -5023,7 +5056,7 @@ Postgres is supported through multiple test classes:
 
 The link:https://testcontainers.org[Testcontainers^] project provides a number of services as docker containers with a programmatic interface for JVM code. Jdbi supports JDBC type databases with the link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^]:
 
-[source,java, indent=0]
+[source,java,indent=0]
 ----
 @Testcontainers
 class TestWithContainers {
@@ -5047,7 +5080,7 @@ The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestc
 
 Here are examples for MySQL and PostgreSQL:
 
-[source,java, indent=0]
+[source,java,indent=0]
 ----
 // MySQL has only databases, no schemata. The Jdbi extension creates a new database
 // for each test method.
@@ -5109,7 +5142,7 @@ This plugin adds support for the following types:
 
 To use this plugin, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
@@ -5119,7 +5152,7 @@ To use this plugin, add a Maven dependency:
 
 Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.installPlugin(new GuavaPlugin());
 ----
@@ -5142,7 +5175,7 @@ This plugin is included with the core jar (but may be extracted to separate
 artifact in the future). Use it by installing the plugin into your link:{jdbidocs}/core/Jdbi.html[Jdbi^]
 instance:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.installPlugin(new H2DatabasePlugin());
 ----
@@ -5167,7 +5200,7 @@ and `varchar` columns in H2 and Sqlite.
 
 This plugin provides JSON backing through Jackson 2.
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -5175,7 +5208,7 @@ This plugin provides JSON backing through Jackson 2.
 </dependency>
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.installPlugin(new Jackson2Plugin());
 // optionally configure your ObjectMapper (recommended)
@@ -5190,7 +5223,7 @@ jdbi.getConfig(Jackson2Config.class).setView(ApiProperty.class);
 
 This plugin provides JSON backing through Gson 2.
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -5198,7 +5231,7 @@ This plugin provides JSON backing through Gson 2.
 </dependency>
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.installPlugin(new Gson2Plugin());
 // optional
@@ -5210,7 +5243,7 @@ jdbi.getConfig(Gson2Config.class).setGson(myGson);
 
 This plugin provides JSON backing through Moshi.
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
@@ -5218,7 +5251,7 @@ This plugin provides JSON backing through Moshi.
 </dependency>
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.installPlugin(new MoshiPlugin());
 // optional
@@ -5246,14 +5279,14 @@ bind/map the `@EncodedJson String` to/from `json` or `jsonb`-typed columns.
 
 ==== Usage
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.execute("create table myjsons (id serial not null, value json not null)");
 ----
 
 SqlObject:
 
-[source,java]
+[source,java,indent=0]
 ----
 // any json-serializable type
 class MyJson {}
@@ -5280,7 +5313,7 @@ class MyBean {
 
 With the Fluent API, you provide a `QualifiedType<T>` any place you'd normally provide a `Class<T>` or `GenericType<T>`:
 
-[source,java]
+[source,java,indent=0]
 ----
 QualifiedType<MyJson> qualifiedType = QualifiedType.of(MyJson.class).with(Json.class);
 
@@ -5347,7 +5380,7 @@ This plugin adds support for using joda-time's `DateTime` type.
 
 To use this plugin, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
@@ -5357,7 +5390,7 @@ To use this plugin, add a Maven dependency:
 
 Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.installPlugin(new JodaTimePlugin());
 ----
@@ -5385,7 +5418,7 @@ Every link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance is defined in its own Guice
 
 The  annotation instance or class used on the constructor is used to bind the resulting Jdbi object:
 
-[source,java]
+[source,java,indent=0]
 ----
 class GuiceJdbiModule extends AbstractJdbiDefinitionModule {
 
@@ -5440,7 +5473,7 @@ When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jd
 [%header, cols=3*]
 .Supported bindings
 |=====
-| Method | Type of binding | JDBI function
+| Method | Type of binding | Jdbi function
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper()[bindRowMapper()^]
 .3+| link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<?>^]
@@ -5465,7 +5498,7 @@ When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jd
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindPlugin()[bindPlugin()^]
 | link:{jdbidocs}/core/spi/JdbiPlugin.html[JdbiPlugin^]
-| <<Installing plugins>>
+| <<Installing Plugins>>
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindCustomizer()[bindCustomizer()^]
 | link:{jdbidocs}/guice/GuiceJdbiCustomizer.html[GuiceJdbiCustomizer^]
@@ -5481,7 +5514,7 @@ The Jdbi related guice modules store the various related elements (mappers, code
 
 The following example *does not work*:
 
-[source,java]
+[source,java,indent=0]
 ----
 class JdbiModule extends AbstractJdbiDefinitionModule {
 
@@ -5524,7 +5557,7 @@ class BrokenRowMapper implements RowMapper<DataRow> {
 
 Guice will report an error that it cannot locate the `CustomStringMapper` instance. The Guice Jdbi integration manages mappers etc. as groups and the separate instances are not directly accessible for injection. The right way to compose mappers is using the Jdbi configuration (see <<JdbiConfig>>), which is configured through Guice:
 
-[source,java]
+[source,java,indent=0]
 ----
 class JdbiModule extends AbstractJdbiDefinitionModule {
 
@@ -5570,7 +5603,7 @@ class WorkingRowMapper implements RowMapper<DataRow> {
 
 This limitation *only* applies to bindings that are made in through the various `bindXXX()` methods in Jdbi specific modules. Any other binding is available for injection into Jdbi elements:
 
-[source, java]
+[source,java,indent=0]
 ----
 class ThresholdMapper implements ColumnMapper<String> {
 
@@ -5662,7 +5695,7 @@ To support modular code design, any part of a code base that wants to contribute
 Jdbi element configuration modules extend link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^] and can define mappers, plugins etc. similar to a Jdbi definition module. Anything that is registered in such a module is global and will be applied to all instances even if they are defined in another module.
 
 
-[source,java]
+[source,java,indent=0]
 ----
 class DomainModule extends AbstractJdbiConfigurationModule {
 
@@ -5712,7 +5745,7 @@ Each definition module that defines a link:{jdbidocs}/core/Jdbi.html[Jdbi^] inst
 
 Consider a use case where two DataSource instances exist, one annotated as `Writer` and the other as `Reader`. Both are accessing databases with the same schema, and it makes sense to have two data access objects that are identical except that they are using the different data sources (this is often referred to as the "robot legs" problem of dependency injection).
 
-[source, java]
+[source,java,indent=0]
 ----
 interface DatabaseAccess {
     @SqlUpdate("INSERT INTO data_table ....")
@@ -5725,7 +5758,7 @@ interface DatabaseAccess {
 
 To bind two instances of this data access object and connect each to the appropriate Jdbi instance, add the binding to the Jdbi definition module and expose it with link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#exposeBinding(java.lang.Class)[exposeBinding(Class<?>)^] or link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#exposeBinding(com.google.inject.TypeLiteral)[exposeBinding(TypeLiteral<?>)^]:
 
-[source,java]
+[source,java,indent=0]
 ----
 class DatabaseModule extends AbstractJdbiDefinitionModule {
     public DatabaseModule(Class<? extends Annotation> a) {
@@ -5749,7 +5782,7 @@ class DatabaseModule extends AbstractJdbiDefinitionModule {
 
 Now install the module multiple times with different annotation classes:
 
-[source,java]
+[source,java,indent=0]
 ----
 Injector injector = Guice.createInjector(
     // bind existing data sources
@@ -5773,7 +5806,7 @@ The main use case of guice is code modularization and code reuse. Jdbi definitio
 `importBinding` requires a dependency to exist and pulls it into the definition module. The dependency must be defined using the same annotation or annotation class as the definition module uses.
 
 This example shows how to define an external dependency (`SpecialLogger`, annotated with `Store`) in a different module and then pull it into the definition module using `importBinding`:
-[source,java]
+[source,java,indent=0]
 ----
 
 //
@@ -5844,7 +5877,7 @@ Injector injector = Guice.createInjector(
 
 `importBinding` returns a binding builder, that allows different binding styles:
 
-[source,java]
+[source,java,indent=0]
 ----
 class DatabaseModule extends AbstractJdbiDefinitionModule {
     @Override
@@ -5874,7 +5907,7 @@ class DatabaseModule extends AbstractJdbiDefinitionModule {
 
 Static bindings require that the dependency is always defined. However, it is often desirable to have optional bindings that do not need to exist. This is supported using the `importLooseBinding` mechanism.
 
-[source,java]
+[source,java,indent=0]
 ----
 class DropwizardStoreModule extends AbstractModule {
 
@@ -5911,7 +5944,7 @@ class DropwizardStoreModule extends AbstractModule {
 class StoreJdbiModule extends AbstractJdbiDefinitionModule {
     @Override
     public void configureJdbi() {
-        // ... other JDBI code bindings for the store ...
+        // ... other Jdbi code bindings for the store ...
 
         importBindingLoosely(bindCustomizer(), GuiceJdbiCustomizer.class)
                 .withDefault(GuiceJdbiCustomizer.NOP)
@@ -5940,7 +5973,7 @@ The `StoreJdbiModule` uses `importBindingLoosely` to pull in the `DropwizardJdbi
 
 `importBindingLoosely` allows for full decoupling of optional dependencies without having to resort to conditionals or separate testing modules.
 
-[source, java]
+[source,java,indent=0]
 ----
 class DatabaseModule extends AbstractJdbiDefinitionModule {
     @Override
@@ -5986,7 +6019,7 @@ In larger projects, <<Element configuration modules>> help to organize the vario
 
 Sometimes it is useful to create separate configurations that only affect a subset of Jdbi definitions. This can be done by using a custom annotation for both the Jdbi element configuration and the Jdbi definition modules:
 
-[source,java]
+[source,java,indent=0]
 ----
 class CustomConfigurationModule extends AbstractJdbiConfigurationModule {
 
@@ -6033,7 +6066,7 @@ This plugin adds mapping support for a small subset of JPA entity annotations:
 
 To use this plugin, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -6043,7 +6076,7 @@ To use this plugin, add a Maven dependency:
 
 Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.installPlugin(new JpaPlugin());
 ----
@@ -6073,7 +6106,7 @@ not nullable and the value absent in the result set.
 
 To use this plugin, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -6082,7 +6115,7 @@ To use this plugin, add a Maven dependency:
 ----
 
 Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version] is set to at least 1.8:
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
 ----
@@ -6146,7 +6179,7 @@ qryAll.mapTo<Thing>.useSequence {
 The *jdbi3-kotlin-sqlobject* plugin adds automatic parameter binding by name
 for Kotlin methods in SqlObjects as well as support for Kotlin default methods.
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -6193,7 +6226,7 @@ jdbi.getConfig(Jackson2Config::class.java).mapper = jacksonObjectMapper()
 
 Lombok is a tool for auto-generation of mutable and immutable data classes through annotations.
 
-[source,java]
+[source,java,indent=0]
 ----
 @Data
 public void DataClass {
@@ -6218,7 +6251,7 @@ Classes annotated with `@Value` are immutable, classes annotated with `@Data` be
 - Use `bindBean()` or `@BindBean` to bind `@Data` or `@Value` classes.
 
 Lombok must be configured to propagate annotations from the source code into the generated classes. Since version 1.18.4, lombok
-supports the `lombok.copyableAnnotations` setting in its config file. To support all JDBI features, the following lines must be added:
+supports the `lombok.copyableAnnotations` setting in its config file. To support all Jdbi features, the following lines must be added:
 
 [source,java,indent=0]
 ----
@@ -6243,7 +6276,7 @@ This module adds support for Oracle `RETURNING` DML expressions.
 
 To use this feature, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -6264,7 +6297,7 @@ link:https://jdbc.postgresql.org/[PostgreSQL JDBC Driver^].
 
 To use this feature, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -6300,7 +6333,7 @@ escape operators to e.g. `??` or `\:`.
 The Postgres plugin provides an `hstore` to `Map<String, String>` column mapper
 and vice versa argument factory:
 
-[source,java]
+[source,java,indent=0]
 ----
 Map<String, String> accountAttributes = handle
     .select("SELECT attributes FROM account WHERE id = ?", userId)
@@ -6310,7 +6343,7 @@ Map<String, String> accountAttributes = handle
 
 With `@HStore` qualified type:
 
-[source,java]
+[source,java,indent=0]
 ----
 QualifiedType<> HSTORE_MAP = QualifiedType.of(new GenericType<Map<String, String>>() {})
     .with(HStore.class);
@@ -6320,11 +6353,11 @@ Map<String, String> caps = handle.createUpdate("UPDATE account SET attributes = 
     .execute();
 ----
 
-By default, SQL Object treats `Map` return types as a collection of `Map.Entry`
+By default, SQL Object treats link:{jdkdocs}/java/util/Map.html[Map^] return types as a collection of `Map.Entry`
 values. Use the `@SingleValue` annotation to override this, so that the return
 type is treated as a single value instead of a collection:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface AccountDao {
     @SqlQuery("SELECT attributes FROM account WHERE id = ?")
@@ -6334,7 +6367,7 @@ public interface AccountDao {
 ----
 
 [NOTE]
-The default variant to install the plugin adds unqualified mappings of raw `Map` types from and to the `hstore` Postgres data type. There are situations where this interferes with other mappings of maps. It is recommended to always use the variant with the `@HStore` qualified type.
+The default variant to install the plugin adds unqualified mappings of raw link:{jdkdocs}/java/util/Map.html[Map^] types from and to the `hstore` Postgres data type. There are situations where this interferes with other mappings of maps. It is recommended to always use the variant with the `@HStore` qualified type.
 
 To avoid binding the unqualified Argument and ColumnMapper bindings, install the plugin using the static factory method:
 
@@ -6348,10 +6381,9 @@ Jdbi jdbi = Jdbi.create("jdbc:postgresql://host:port/database")
 [#postgres-getgeneratedkeys]
 ==== @GetGeneratedKeys Annotation
 
-In Postgres, `@GetGeneratedKeys` can return the entire modified row if you
-request generated keys without naming any columns.
+In Postgres, link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] can return the entire modified row if you request generated keys without naming any columns.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlUpdate("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
@@ -6364,7 +6396,7 @@ public interface UserDao {
 If a database operation modifies multiple rows (e.g. an update that will modify
 several rows), your method can return all the modified rows in a collection:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface UserDao {
     @SqlUpdate("UPDATE users SET active = false WHERE id = any(?)")
@@ -6382,7 +6414,7 @@ table data.  Jdbi allows you to stream this data in and out of the database as p
 of an enclosing transaction.  Operations for storing, reading, and a hook for deletions are provided.
 The test case serves as a simple example:
 
-[source,java]
+[source,java,indent=0]
 ----
 
 public void blobCrud(InputStream myStream) throws IOException {
@@ -6420,7 +6452,7 @@ singleton in a Spring 5 (or Spring Boot) application context.
 
 To use this module, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
@@ -6430,7 +6462,7 @@ To use this module, add a Maven dependency:
 
 Then configure the Jdbi factory bean in your Spring container, e.g.:
 
-[source,xml]
+[source,xml,indent=0]
 ----
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -6479,7 +6511,7 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 Plugins may be automatically installed by scanning the classpath for
 link:{jdkdocs}/java/util/ServiceLoader.html[ServiceLoader^] manifests.
 
-[source,xml]
+[source,xml,indent=0]
 ----
 <bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
   ...
@@ -6489,7 +6521,7 @@ link:{jdkdocs}/java/util/ServiceLoader.html[ServiceLoader^] manifests.
 
 Plugins may also be installed explicitly:
 
-[source,xml]
+[source,xml,indent=0]
 ----
 <bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
   ...
@@ -6505,7 +6537,7 @@ Plugins may also be installed explicitly:
 Not all plugins are automatically installable. In these situations, you can
 auto-install some plugins and manually install the rest:
 
-[source,xml]
+[source,xml,indent=0]
 ----
 <bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
   ...
@@ -6523,7 +6555,7 @@ auto-install some plugins and manually install the rest:
 
 Global defined attributes may be configured on the factory bean:
 
-[source,xml]
+[source,xml,indent=0]
 ----
 <bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
   <property name="dataSource" ref="db"/>
@@ -6546,7 +6578,7 @@ supported by driver.
 
 To use this plugin, first add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -6570,7 +6602,7 @@ place of the standard Jdbi templating engine.
 
 To use module plugin, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -6582,7 +6614,7 @@ To use StringTemplate format in SQL statements, set the template engine to link:
 
 Defined attributes are provided to the StringTemplate engine to render the SQL:
 
-[source,java]
+[source,java,indent=0]
 ----
 String sortColumn = "name";
 String sql = "SELECT id, name " +
@@ -6601,7 +6633,7 @@ List<Account> accounts = handle
 Since StringTemplate by default uses the `<` character to mark ST expressions,
 you might need to escape some SQL:
 
-[source, java]
+[source,java,indent=0]
 ----
 String datePredicateSql = "<if(datePredicate)> <dateColumn> \\< :dateFilter <endif>";
 ----
@@ -6620,7 +6652,7 @@ selectAll(sort,sortBy) ::= <<
 >>
 ----
 
-[source,java]
+[source,java,indent=0]
 ----
 ST template = StringTemplateSqlLocator.findStringTemplate(
                   "com/foo/AccountDao.sql.stg", "selectAll");
@@ -6633,7 +6665,7 @@ String sql = template.add("sort", true)
 In SQL Objects, the `@UseStringTemplateEngine` annotation sets the
 statement locator, similar to first example above.
 
-[source,java]
+[source,java,indent=0]
 ----
 package com.foo;
 
@@ -6650,7 +6682,7 @@ public interface AccountDao {
 Alternatively, the `@UseStringTemplateSqlLocator` annotation sets the statement
 locator, and loads SQL from a StringTemplate group file on the classpath:
 
-[source,java]
+[source,java,indent=0]
 ----
 package com.foo;
 
@@ -6669,7 +6701,7 @@ classpath.
 By default, the template in the group with the same name as the method will be
 used. This can be overridden on the `@Sql___` annotation:
 
-[source,java]
+[source,java,indent=0]
 ----
 package com.foo;
 
@@ -6708,7 +6740,7 @@ The Vavr Plugin offers deep integration of Jdbi with the Vavr functional library
 
 To use the plugin, add a Maven dependency:
 
-[source,xml,subs="specialchars"]
+[source,xml,indent=0,indent=0,subs="specialchars"]
 ----
 <dependency>
   <groupId>org.jdbi</groupId>
@@ -6719,14 +6751,14 @@ To use the plugin, add a Maven dependency:
 Currently Vavr >= 0.9.0 is supported and tested. The plugin pulls a supported version of
 Vavr and is ready to be used. As with other plugins: install through a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance or use auto install.
 
-[source,java]
+[source,java,indent=0]
 ----
 jdbi.installPlugin(new VavrPlugin());
 ----
 
 Here are some usage examples of the features listed above:
 
-[source,java]
+[source,java,indent=0]
 ----
 String query = "SELECT * FROM users WHERE :name is null or name = :name";
 Option<String> param = Option.of("eric");
@@ -6744,7 +6776,7 @@ or `Validation<T>`. Note that in the case of these types, the nested value must
 be 'present' otherwise a `null` value is used (e.g. for `Either.Left` or
 `Validation.Invalid`).
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createQuery("SELECT name FROM users")
       .collectInto(new GenericType<Seq<String>>() {});
@@ -6754,7 +6786,7 @@ This works for all the collection types supported. For the nested value
 row and column mappers already installed in Jdbi will be used.
 Therefore, the following would work and can make sense if the column is nullable:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createQuery("SELECT middle_name FROM users") // nulls incoming!
       .collectInto(new GenericType<Seq<Option<String>>>() {});
@@ -6764,7 +6796,7 @@ The plugin will obey configured key and value columns for `Map<K, T>`
 and `Multimap<K, T>` return types. In the next example we will key users
 by their name, which is not necessarily unique.
 
-[source,java]
+[source,java,indent=0]
 ----
 Multimap<String, User> usersByName = handle
     .createQuery("SELECT * FROM users")
@@ -6774,7 +6806,7 @@ Multimap<String, User> usersByName = handle
 
 Last but not least we can now project simple queries to Vavr tuples like that:
 
-[source,java]
+[source,java,indent=0]
 ----
 // given a 'tuples' table with t1 int, t2 varchar, t3 varchar, ...
 List<Tuple3<Integer, String, String>> tupleProjection = handle
@@ -6786,7 +6818,7 @@ List<Tuple3<Integer, String, String>> tupleProjection = handle
 You can also project complex types into a tuple as long as a row mapper is
 registered.
 
-[source,java]
+[source,java,indent=0]
 ----
 // given that there are row mappers registered for both complex types
 Tuple2<City, Address> tupleProjection = handle
@@ -6800,7 +6832,7 @@ If you want to mix complex types and simple ones we also got you covered.
 Using the `TupleMappers` class you can configure your projections.(In fact,
 you have to - read below!)
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.configure(TupleMappers.class, c -> c.setColumn(2, "street").setColumn(3, "housenumber"));
 
@@ -6831,7 +6863,7 @@ This section includes examples of various things you might like to do with Jdbi.
 Jdbi tries to be independent of using a dependency injection framework,
 but it's straightforward to integrate yours.  Just do field injection on a simple custom config type:
 
-[source,java]
+[source,java,indent=0]
 ----
 class InjectedDependencies implements JdbiConfig<InjectedDependencies> {
     @Inject
@@ -6860,7 +6892,7 @@ you cannot interpolate bindings into `LIKE` clauses (`LIKE '%:param%'`).
 
 Incorrect usage:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createQuery("SELECT name FROM things WHERE name like '%:search%'")
     .bind("search", "foo")
@@ -6876,7 +6908,7 @@ because we don't allow unused argument bindings by default.
 
 The solution is to use SQL string concatenation:
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createQuery("SELECT name FROM things WHERE name like '%' || :search || '%'")
     .bind("search", "foo")
@@ -6900,7 +6932,7 @@ We've used link:https://github.com/brettwooldridge/HikariCP[HikariCP^] in combin
 with the link:https://jdbc.postgresql.org/documentation/head/connect.html[PgJDBC connection load balancing^]
 features with good success.
 
-[source,java]
+[source,java,indent=0]
 ----
 PGSimpleDataSource ds = new PGSimpleDataSource();
 ds.setServerName("host1,host2,host3");
@@ -6932,9 +6964,9 @@ Out of the box, Jdbi uses annotations to know what each parameter is called,
 e.g.:
 
 * `ConstructorMapper` uses the `@ConstructorProperties` annotation.
-* SQL Object method arguments use the `@Bind` annotation.
+* SQL Object method arguments use the link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation.
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(@Bind("id") long id, @Bind("name") String name); // <1>
@@ -6944,7 +6976,7 @@ void insert(@Bind("id") long id, @Bind("name") String name); // <1>
 If you compile your code with the `-parameters` compiler flag, then the need for
 these annotations is removed -- Jdbi automatically uses the method parameter name:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
 void insert(long id, String name);
@@ -6955,7 +6987,7 @@ void insert(long id, String name);
 
 Configure the `maven-compiler-plugin` in your POM:
 
-[source,xml]
+[source,xml,indent=0]
 ----
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
@@ -6998,7 +7030,7 @@ type signature that can be passed around in a type-safe way.
 
 Create a generic type reference by instantiating an anonymous inner class:
 
-[source,java]
+[source,java,indent=0]
 ----
 new GenericType<Optional<String>>() {}
 ----
@@ -7006,7 +7038,7 @@ new GenericType<Optional<String>>() {}
 This type reference can be passed to any Jdbi method that accepts a
 `GenericType<T>`, e.g.:
 
-[source,java]
+[source,java,indent=0]
 ----
 List<Optional<String>> middleNames = handle
     .select("SELECT middle_name FROM contacts")
@@ -7029,7 +7061,7 @@ All methods in `GenericTypes` operate in terms of `java.lang.reflect.Type`.
 The `getErasedType(Type)` method accepts a `Type` and returns the raw `Class`
 for that type, with any generic parameters erased:
 
-[source,java]
+[source,java,indent=0]
 ----
 Type listOfInteger = new GenericType<List<Integer>>() {}.getType();
 GenericTypes.getErasedType(listOfInteger); // => List.class
@@ -7042,14 +7074,14 @@ which to resolve it.
 
 For example, given the type variable `T` from `Optional<T>`:
 
-[source,java]
+[source,java,indent=0]
 ----
 Type t = Optional.class.getTypeParameters()[0];
 ----
 
 And given the context type `Optional<String>`:
 
-[source,java]
+[source,java,indent=0]
 ----
 Type optionalOfString = new GenericType<Optional<String>>() {}.getType();
 ----
@@ -7057,7 +7089,7 @@ Type optionalOfString = new GenericType<Optional<String>>() {}.getType();
 The `resolveType()` method answers the question: "what is type T, in the context
 of type Optional<String>?"
 
-[source,java]
+[source,java,indent=0]
 ----
 GenericTypes.resolveType(t, optionalOfString);
 // => String.class
@@ -7066,7 +7098,7 @@ GenericTypes.resolveType(t, optionalOfString);
 This scenario of resolving the first type parameter of some generic supertype is
 so common that we made a separate method for it:
 
-[source,java]
+[source,java,indent=0]
 ----
 GenericTypes.findGenericParameter(optionalOfString, Optional.class);
 // => Optional.of(String.class)
@@ -7079,7 +7111,7 @@ GenericTypes.findGenericParameter(listOfInteger, Collection.class);
 Note that this method will return `Optional.empty()` if the type parameter
 cannot be resolved, or the types have nothing to do with each other:
 
-[source,java]
+[source,java,indent=0]
 ----
 GenericTypes.findGenericParameter(optionalOfString, List.class);
 // => Optional.empty();
@@ -7097,7 +7129,7 @@ In cases where neither `bindBean()`, `bindFields()`, `bindMethods()`, nor
 `bindMap()` are a good fit, you can implement your own `NamedArgumentFinder` and
 bind that, instead of extracting and binding each argument individually.
 
-[source,java]
+[source,java,indent=0]
 ----
 Cache cache = ... // e.g. Guava Cache
 NamedArgumentFinder cacheFinder = (name, ctx) ->
@@ -7214,7 +7246,7 @@ The statement context object is passed into most user extension points, e.g. lin
 
 The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext^] is not intended to be extended and extension points should use it to get access to other parts of the system (especially the config registry). They rarely need to make changes to it.
 
-
+[#user-defined-annotations]
 === User-defined Annotations
 
 SQL Object is designed to be extended with user-defined annotations. In fact,
@@ -7227,7 +7259,7 @@ important to understand the differences between them:
 - <<Statement Customizing Annotations>> - configures the underlying
  link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] of a method
   prior to execution. These can only be used in tandem with annotations like
-  `@SqlQuery`, `@SqlUpdate`, etc., and do not work on default methods.
+  `@SqlQuery`, link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^], etc., and do not work on default methods.
 - <<Configuration Annotations>> - modifies configuration in the
  link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] within the
   scope of a SQL object or one of its methods.
@@ -7245,7 +7277,7 @@ SQL statement customizing annotations are used to apply some change to the
 link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] associated
 with a SQL method.
 
-Typically, these annotations correlate to an API method in core. e.g. `@Bind`
+Typically, these annotations correlate to an API method in core. e.g. link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^]
 corresponds to `SqlStatement.bind()`, `@MaxRows` corresponds to
 `Query.setMaxRows()`, etc.
 
@@ -7259,7 +7291,7 @@ behavior to them.
 First, create an annotation that you want to attach a statement customization
 to:
 
-[source,java]
+[source,java,indent=0]
 ----
 @Retention(RetentionPolicy.RUNTIME) // <1>
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER}) // <2>
@@ -7293,7 +7325,7 @@ link:{jdbidocs}/sqlobject/customizer/SqlStatementParameterCustomizer.html[SqlSta
 
 Let's implement a statement customizer factory for our annotation:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class MaxRowsFactory implements SqlStatementCustomizerFactory {
     @Override
@@ -7338,7 +7370,7 @@ link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizingAnnotation.html[@Sql
 annotation the `@MaxRows` annotation type. This tells Jdbi that `MaxRowsFactory`
 implements the behavior of the `@MaxRows` annotation:
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlStatementCustomizingAnnotation(MaxRowsFactory.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -7350,7 +7382,7 @@ public @interface MaxRows {
 
 Your statement customizing annotation is now ready to use on any SQL object:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface Dao {
     @SqlQuery("SELECT * FROM contacts")
@@ -7400,7 +7432,7 @@ registry.
 
 First, let's create the new annotation type:
 
-[source,java]
+[source,java,indent=0]
 ----
 @Retention(RetentionPolicy.RUNTIME) // <1>
 @Target({ElementType.TYPE, ElementType.METHOD}) // <2>
@@ -7421,7 +7453,7 @@ Next, we write an implementation of the
 link:{jdbidocs}/sqlobject/config/Configurer.html[Configurer^] class, to process
 the annotation and apply the configuration:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class RegisterColumnMapperImpl implements Configurer {
     @Override
@@ -7468,7 +7500,7 @@ annotation to your `@RegisterColumnMapper` annotation type. This tells Jdbi that
 `RegisterColumnMapperImpl` implements the behavior of the
 `@RegisterColumnMapper` annotation.
 
-[source,java]
+[source,java,indent=0]
 ----
 @ConfiguringAnnotation(RegisterColumnMapperImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -7480,7 +7512,7 @@ public @interface RegisterColumnMapper {
 
 Your configuration annotation is now ready to use in any SQL object:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface AccountDao {
     @SqlQuery("SELECT balance FROM accounts WHERE id = ?")
@@ -7511,7 +7543,7 @@ Let's re-implement the `@Transaction` annotation to see how it works:
 
 First, create the annotation type:
 
-[source,java]
+[source,java,indent=0]
 ----
 @Retention(RetentionPolicy.RUNTIME) // <1>
 @Target(ElementType.METHOD) // <2>
@@ -7532,7 +7564,7 @@ Next we write an implementation of the
 link:{jdbidocs}/sqlobject/HandlerDecorator.html[HandlerDecorator^] interface, to
 process the annotation and apply the decoration:
 
-[source,java]
+[source,java,indent=0]
 ----
 public class TransactionDecorator implements HandlerDecorator {
   public Handler decorateHandler(Handler base,
@@ -7557,7 +7589,7 @@ link:{jdbidocs}/sqlobject/SqlMethodDecoratingAnnotation.html[@SqlMethodDecoratin
 annotation to your `@Transaction` annotation type. This tells Jdbi that
 `TransactionDecorator` implements the behavior of the `@Transaction` annotation.
 
-[source,java]
+[source,java,indent=0]
 ----
 @SqlMethodDecoratingAnnotation(TransactionDecorator.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -7569,7 +7601,7 @@ public @interface Transaction {
 
 Your decorating annotation is now ready to use in any SQL object:
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface ContactDao {
     @SqlBatch("INSERT INTO contacts (id, name) VALUES (:id, :name)")
@@ -7591,7 +7623,7 @@ For example, if a method were annotated both with a custom `@Cached` and
 annotation is evaluated first to avoid that transactions are not created unnecessarily when
 the result may already be cached.
 
-[source,java]
+[source,java,indent=0]
 ----
 public interface ContactDao {
     @SqlQuery("SELECT * FROM contacts WHERE id = ?")
@@ -7679,7 +7711,7 @@ Out of the box, Jdbi is configured to use link:{jdbidocs}/core/statement/Defined
 which replaces angle-bracked tokens like `<name>` in your SQL statements with
 the string value of the named attribute:
 
-[source,java]
+[source,java,indent=0]
 ----
 String tableName = "customers";
 Class<?> entityClass = Customer.class;
@@ -7700,7 +7732,7 @@ Any custom template engine can be used. Simply implement the `TemplateEngine`
 interface, then call `setTemplateEngine()` on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or on a SQL
 statement like `Update` or `Query`:
 
-[source,java]
+[source,java,indent=0]
 ----
 TemplateEngine templateEngine = (template, ctx) -> {
   ...
@@ -7729,7 +7761,7 @@ statement.
 Out of the box, Jdbi is configured to use `ColonPrefixSqlParser`, which
 recognizes colon-prefixed named parameters, e.g. `:name`.
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.createUpdate("INSERT INTO characters (id, name) VALUES (:id, :name)")
       .bind("id", 1)
@@ -7741,7 +7773,7 @@ Jdbi also provides `HashPrefixSqlParser`, which recognizes hash-prefixed
 parameters, e.g. `#hashtag`. Use this parser by calling `setSqlParser()` on the
 link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement such as `Query` or `Update`.
 
-[source,java]
+[source,java,indent=0]
 ----
 handle.setSqlParser(new HashPrefixSqlParser())
       .createUpdate("INSERT INTO characters (id, name) VALUES (#id, #name)")
@@ -7763,7 +7795,7 @@ link:https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486
 any custom SQL parser can be used. Simply implement the `SqlParser` interface,
 then set it on the Jdbi, Handle, or SQL statement:
 
-[source,java]
+[source,java,indent=0]
 ----
 SqlParser parser = (sql, ctx) -> {
     // ...
@@ -7795,7 +7827,7 @@ retrieves the link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] over the query 
 An example alternate use is to just return the number of rows modified,
 as in an UPDATE or INSERT statement:
 
-[source,java]
+[source,java,indent=0]
 ----
 public static ResultProducer<Integer> returningUpdateCount() {
     return (statementSupplier, ctx) -> {
@@ -7925,7 +7957,7 @@ SQL Object API:
 * SQL Object support is not installed by default. It must be added as a
   separate dependency, and the plugin installed into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] object:
 
-[source,java]
+[source,java,indent=0]
 ----
 Jdbi jdbi = Jdbi.create(...);
 jdbi.installPlugin(new SqlObjectPlugin());
@@ -7939,9 +7971,9 @@ jdbi.installPlugin(new SqlObjectPlugin());
 * `SqlLocator` replaces `StatementLocator`, and only applies to SQL Objects.
 * `@RegisterMapper` divided into `@RegisterRowMapper` and
   `@RegisterColumnMapper`.
-* `@Bind` annotations on SQL Object method parameters can be made optional,
+* link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotations on SQL Object method parameters can be made optional,
   by compiling your code with the `-parameters` compiler flag enabled.
-* `@BindIn` -> `@BindList`, and no longer requires StringTemplate
+* `@BindIn` -> link:{jdbidocs}/sqlobject/customizer/BindList.html[@BindList^], and no longer requires StringTemplate
 * On-demand SQL objects don't play well with methods that return `Iterable`
   or `FluentIterable`. On-demand objects strictly close the handle after each
   method call, and no longer "hold the door open" for you to finish consuming

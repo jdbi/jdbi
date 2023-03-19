@@ -258,12 +258,20 @@
                     <sourceDirectory>src/adoc</sourceDirectory>
                     <sourceDocumentName>index.adoc</sourceDocumentName>
                     <backend>html5</backend>
+                    <logHandler>
+                        <failIf>
+                            <severity>WARN</severity>
+                        </failIf>
+                    </logHandler>
                     <attributes>
+                        <attribute-missing>warn</attribute-missing>
+                        <source-highlighter>coderay</source-highlighter>
+                        <imagesdir>images</imagesdir>
+
                         <project_version>${project.version}</project_version>
                         <revnumber>${project.version}</revnumber>
                         <revdate>${doc.timestamp}</revdate>
                         <docdatetime>${doc.timestamp}</docdatetime>
-                        <source-highlighter>coderay</source-highlighter>
                     </attributes>
                 </configuration>
                 <executions>
@@ -280,6 +288,25 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>jdbi-release</id>
+            <properties>
+                <basepom.site.scm.site-path>/releases/${project.version}</basepom.site.scm.site-path>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctor-maven-plugin</artifactId>
+                        <configuration>
+                            <attributes combine.children="append">
+                                <release>true</release>
+                            </attributes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>publish-docs</id>
             <properties>
@@ -362,8 +389,12 @@
                         <artifactId>maven-scm-publish-plugin</artifactId>
                         <configuration>
                             <content>${project.build.directory}/generated-docs</content>
-                            <!-- do not clobber the legacy api docs -->
-                            <ignorePathsToDelete>jdbi2</ignorePathsToDelete>
+                            <ignorePathsToDelete>
+                                <!-- do not clobber the legacy api docs -->
+                                <ignorePathToDelete>jdbi2</ignorePathToDelete>
+                                <!-- also don't touch the release folders -->
+                                <ignorePathToDelete>releases</ignorePathToDelete>
+                            </ignorePathsToDelete>
                         </configuration>
                         <executions>
                             <execution>
