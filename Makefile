@@ -36,7 +36,6 @@ install-fast: install
 
 docs: JDBI_MAVEN_OPTS += -Pfast -Dbasepom.javadoc.skip=false
 docs: install
-	${MAVEN} -pl :jdbi3-docs clean install
 
 tests: JDBI_MAVEN_OPTS += -Dbasepom.it.skip=false
 tests:

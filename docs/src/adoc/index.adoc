@@ -47,6 +47,35 @@ Style guidelines:
 ////
 
 
+ifndef::release[]
+[preface]
+== Development documentation ({revnumber})
+
+This is the documentation for the current development state of Jdbi. All information in here reflects the current state of development on the `master` branch and is subject to change until it has been released as a numbered version.
+
+* https://jdbi.org/[Permalink to this document^]
+* https://github.com/jdbi/jdbi/blob/master/RELEASE_NOTES.md[Current release notes^]
+* https://github.com/jdbi/jdbi/[Development source tree^]
+
+=== Release documentation
+
+* https://jdbi.org/releases/3.37.1[Release 3.37.1 - 2023-02-08]
+* https://jdbi.org/releases/3.37.0[Release 3.37.0 - 2023-02-03]
+* https://jdbi.org/releases/3.36.0[Release 3.36.0 - 2022-12-31]
+* https://jdbi.org/releases/3.35.0[Release 3.35.0 - 2022-12-03]
+* https://jdbi.org/releases/3.34.0[Release 3.34.0 - 2022-10-05]
+* https://jdbi.org/releases/3.33.0[Release 3.33.0 - 2022-09-28]
+* https://jdbi.org/releases/3.32.0[Release 3.32.0 - 2022-07-25]
+* https://jdbi.org/releases/3.31.0[Release 3.31.0 - 2022-07-17]
+* https://jdbi.org/releases/3.30.0[Release 3.30.0 - 2022-06-02]
+* https://jdbi.org/releases/3.29.0[Release 3.29.0 - 2022-05-21]
+* https://jdbi.org/releases/3.28.0[Release 3.28.0 - 2022-03-08]
+* https://jdbi.org/releases/3.27.2[Release 3.27.2 - 2022-02-18]
+* https://jdbi.org/releases/3.27.1[Release 3.27.1 - 2022-01-25]
+* https://jdbi.org/releases/3.27.0[Release 3.27.0 - 2022-01-06]
+
+endif::[]
+
 == Introduction to Jdbi 3
 
 *Jdbi provides convenient, idiomatic, access to relational data in Java.* Jdbi 3 is the third major release, which introduces enhanced support for Java 8, countless refinements to the design and implementation, and enhanced support for modular development through plugins and extensions.
@@ -62,9 +91,17 @@ Style guidelines:
 
 === Quick Links
 
-* link:https://jdbi.org/apidocs/[JDBI Javadoc (API Docs)^]
-* link:https://github.com/jdbi/jdbi/blob/master/examples/README.md[JDBI sample code^]
-* link:https://github.com/jdbi/jdbi[GitHub JDBI repository^]
+ifndef::release[]
+* link:https://jdbi.org/apidocs/[Jdbi Javadoc (API Docs)^]
+* link:https://github.com/jdbi/jdbi/blob/master/examples/README.md[Jdbi sample code^]
+endif::[]
+ifdef::release[]
+* link:https://jdbi.org/releases/{revnumber}[Jdbi {revnumber} documentation^]
+* link:https://jdbi.org/releases/{revnumber}/apidocs[Jdbi {revnumber} Javadoc (API Docs)^]
+* link:https://github.com/jdbi/jdbi/tree/v{revnumber}[Jdbi {revnumber} source code^]
+* link:https://github.com/jdbi/jdbi/tree/v{revnumber}/examples/README.md[Jdbi sample code^]
+endif::[]
+* link:https://github.com/jdbi/jdbi[GitHub Jdbi repository^]
 
 * link:https://github.com/jdbi/jdbi/discussions[Discussion groups for Jdbi^]
 * link:https://groups.google.com/group/jdbi[Mailing list^]
