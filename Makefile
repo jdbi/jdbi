@@ -34,7 +34,7 @@ install-nodocker: install
 install-fast: JDBI_MAVEN_OPTS += -Pfast
 install-fast: install
 
-docs: JDBI_MAVEN_OPTS += -Pfast -Dbasepom.javadoc.skip=false
+docs: JDBI_MAVEN_OPTS += -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false
 docs: install
 
 tests: JDBI_MAVEN_OPTS += -Dbasepom.it.skip=false

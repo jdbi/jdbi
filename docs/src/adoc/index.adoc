@@ -54,6 +54,7 @@ ifndef::release[]
 This is the documentation for the current development state of Jdbi. All information in here reflects the current state of development on the `master` branch and is subject to change until it has been released as a numbered version.
 
 * https://jdbi.org/[Permalink to this document]
+* https://jdbi.org/apidocs/[Jdbi Javadoc (API Docs)^]
 * https://github.com/jdbi/jdbi/blob/master/RELEASE_NOTES.md[Current release notes^]
 * https://github.com/jdbi/jdbi/[Development source tree^]
 
