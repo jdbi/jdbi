@@ -148,13 +148,6 @@
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-spring5</artifactId>
                 <version>${dep.jdbi3.version}</version>
-                <!--- it is always spring. always. -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-jcl</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
