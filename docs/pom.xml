@@ -30,6 +30,9 @@
         <!-- Javadocs refer to jars without actual code references -->
         <basepom.check.skip-dependency>true</basepom.check.skip-dependency>
         <basepom.check.skip-license>true</basepom.check.skip-license>
+
+        <!-- workaround because spring5 needs an exclusion. -->
+        <basepom.dependency-management.allow-exclusions>true</basepom.dependency-management.allow-exclusions>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.site.scm.branch>master</basepom.site.scm.branch>
         <basepom.site.scm.checkout-directory>${java.io.tmpdir}/gh-pages-publish/jdbi-docs</basepom.site.scm.checkout-directory>
@@ -120,6 +123,13 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-spring5</artifactId>
+            <!--- it is always spring. always. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
