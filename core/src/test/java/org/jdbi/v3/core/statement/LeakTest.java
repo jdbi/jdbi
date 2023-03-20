@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,6 +105,56 @@ public class LeakTest {
                         .list();
             }
         });
+    }
+
+    @Test
+    void testUnmanagedHandleExplodingStatemenCleanupBySetting() {
+        h2Extension.getJdbi().getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+
+        assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
+            try (Handle handle = h2Extension.openHandle()) {
+                List<String> userNames = handle.createQuery("SELECT name from users")
+                        .setFetchSize(-1)
+                        .mapTo(String.class)
+                        .list();
+            }
+        });
+    }
+
+    @Test
+    void testStatementStreamCleanupBySetting() {
+        h2Extension.getJdbi().getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+
+        try (Handle handle = h2Extension.openHandle()) {
+            Optional<String> userName = handle.createQuery("SELECT name from users")
+                    .mapTo(String.class)
+                    .stream().findFirst();
+            assertThat(userName).isPresent();
+        }
+    }
+
+    @Test
+    void testStatementStreamCleanupByHandleSetting() {
+
+        try (Handle handle = h2Extension.openHandle()) {
+            handle.getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+            Optional<String> userName = handle.createQuery("SELECT name from users")
+                    .mapTo(String.class)
+                    .stream().findFirst();
+            assertThat(userName).isPresent();
+        }
+    }
+
+    @Test
+    void testStatementStreamCallbackCleanup() {
+        final Jdbi jdbi = h2Extension.getJdbi();
+
+        Optional<String> userName = jdbi.withHandle(h ->
+                h.createQuery("SELECT name from users")
+                        .mapTo(String.class)
+                        .stream().findFirst());
+
+        assertThat(userName).isPresent();
     }
 
     @Test

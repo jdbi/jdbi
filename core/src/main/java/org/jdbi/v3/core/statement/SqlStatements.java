@@ -29,6 +29,8 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.cache.JdbiCache;
 import org.jdbi.v3.core.cache.JdbiCacheBuilder;
 import org.jdbi.v3.core.cache.JdbiCacheLoader;
@@ -51,6 +53,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
     private boolean allowUnusedBindings;
+    private boolean attachAllStatementsForCleanup;
+    private boolean attachCallbackStatementsForCleanup = true;
     private final Collection<StatementCustomizer> customizers = new CopyOnWriteArrayList<>();
 
     private final Collection<StatementContextListener> contextListeners = new CopyOnWriteArraySet<>();
@@ -71,6 +75,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.sqlLogger = that.sqlLogger;
         this.queryTimeout = that.queryTimeout;
         this.allowUnusedBindings = that.allowUnusedBindings;
+        this.attachAllStatementsForCleanup = that.attachAllStatementsForCleanup;
+        this.attachCallbackStatementsForCleanup = that.attachCallbackStatementsForCleanup;
         this.customizers.addAll(that.customizers);
         this.contextListeners.addAll(that.contextListeners);
         this.templateCache = that.templateCache;
@@ -266,6 +272,56 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     public SqlStatements setUnusedBindingAllowed(boolean unusedBindingAllowed) {
         this.allowUnusedBindings = unusedBindingAllowed;
         return this;
+    }
+
+    /**
+     * If true, all statements created within {@link Jdbi#withHandle}, {@link Jdbi#useHandle}, {@link Jdbi#inTransaction} and {@link Jdbi#useTransaction}
+     * are attached to the {@link Handle} object for cleanup.
+     *
+     * @return True if statements are attached to their handle for cleanup
+     *
+     * @since 3.38.0
+     */
+    public boolean isAttachAllStatementsForCleanup() {
+        return attachAllStatementsForCleanup;
+    }
+
+    /**
+     * Sets whether all statements created will automatically attached to the corresponding {@link Handle} object automatically.
+     * This can be useful when mostly short-lived handles are used because closing the handle will now clean up all outstanding resources from
+     * any statement. The default is false.
+     *
+     * @param attachAllStatementsForCleanup If true, all statements are automatically attached to the Handle
+     *
+     * @since 3.38.0
+     */
+    @Beta
+    public void setAttachAllStatementsForCleanup(boolean attachAllStatementsForCleanup) {
+        this.attachAllStatementsForCleanup = attachAllStatementsForCleanup;
+    }
+
+    /**
+     * If true, statements created within {@link Jdbi#withHandle}, {@link Jdbi#useHandle}, {@link Jdbi#inTransaction} and {@link Jdbi#useTransaction}
+     * will be attached to the {@link Handle} object in the callback for cleanup.
+     *
+     * @return True if statements are attached to their handle within Jdbi callbacks
+     *
+     * @since 3.38.0
+     */
+    public boolean isAttachCallbackStatementsForCleanup() {
+        return attachCallbackStatementsForCleanup;
+    }
+
+    /**
+     * Sets whether statements created within the {@link Jdbi#withHandle}, {@link Jdbi#useHandle}, {@link Jdbi#inTransaction} and {@link Jdbi#useTransaction}
+     * callback methods will automatically attached to the {@link Handle} object and therefore cleaned up when the callback ends. The default is true.
+
+     * @param attachCallbackStatementsForCleanup If true, statements created within the Jdbi callbacks are attached to the handle
+     *
+     * @since 3.38.0
+     */
+    public void setAttachCallbackStatementsForCleanup(boolean attachCallbackStatementsForCleanup) {
+        this.attachCallbackStatementsForCleanup = attachCallbackStatementsForCleanup;
     }
 
     /**

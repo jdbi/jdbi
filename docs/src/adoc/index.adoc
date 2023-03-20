@@ -981,7 +981,7 @@ Create, execute and release 100,000 update statements:
 
 [source,java,indent=0]
 ----
-jdbi.useHandle(handle -> {
+try (Handle handle = jdbi.open()) {
     for (int i = 0; i < 100_000; i++) {
         try (Update update = handle.createUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")) {
             update.bind("id", i)
@@ -989,14 +989,14 @@ jdbi.useHandle(handle -> {
                   .execute();
         }
     }
-});
+}
 ----
 
 It is not necessary to use a _try-with-resources_ block, the close() method can be called manually as well:
 
 [source,java,indent=0]
 ----
-jdbi.useHandle(handle -> {
+try (Handle handle = jdbi.open()) {
     for (int i = 0; i < 100_000; i++) {
         Update update = handle.createUpdate("INSERT INTO users (id, name) VALUES (:id, :name)");
         try {
@@ -1007,7 +1007,7 @@ jdbi.useHandle(handle -> {
             update.close();
         }
     }
-});
+}
 ----
 
 Explicit statement resource management, while a bit more involved ensures that all resources are always correctly released, especially when there are exceptions thrown during statement execution. While many examples and demo code omit managing the <<Statement types, statement types>>, it is strongly recommended to do so.
@@ -1079,14 +1079,33 @@ try (Handle handle = jdbi.open()) {
 
 The same pattern applies to a result iterator.
 
-ResultIterable also offers callbacks (link:{jdbidocs}/core/result/ResultIterable.html#withIterator(org.jdbi.v3.core.result.IteratorCallback)[withIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.v3.core.result.IteratorConsumer)[useIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^], link:{jdbidocs}/core/result/ResultIterable.htmll#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^]) that manage the iterator / stream through Jdbi:
+Streams and iterators are "live" objects. They require an active statement and result set. Any operation that closes and releases these resources will cause future operations on the stream or iterator to fail.
+
+The following code *does not work*:
+
+[source,java,indent=0]
+----
+Stream<User> userStream = jdbi.withHandle(handle ->
+    handle.createQuery("SELECT * from users")
+        .mapTo(User.class)
+        .stream();  <1>
+    });  <2>
+
+Optional<User> user = stream.findFirst(); <3>
+----
+
+<1> Creates a live stream object backed by the open result set of the query
+<2> leaving the callback closes the handle and releases all resources including the result set
+<3> throws an exception because the result set has already been closed
+
+This can be avoided by using one of the callback methods that ResultIterable offers: link:{jdbidocs}/core/result/ResultIterable.html#withIterator(org.jdbi.v3.core.result.IteratorCallback)[withIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.v3.core.result.IteratorConsumer)[useIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^], link:{jdbidocs}/core/result/ResultIterable.htmll#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^]. Each of these methods manages the iterator / stream through Jdbi and allow consumption of its contents within a callback:
 
 [source,java,indent=0]
 ----
 try (Handle handle = jdbi.open()) {
-    try (Query query = handle.createQuery("SELECT * from users")) { // <1>
+    try (Query query = handle.createQuery("SELECT * from users")) {
         query.mapTo(User.class).useIterator(it -> {
-            // consume the iterator
+            // consume the iterator contents
         });
     }
 }
@@ -1094,26 +1113,106 @@ try (Handle handle = jdbi.open()) {
 
 While it is not strictly necessary to execute the query in a _try-with-resources_ block because the link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.v3.core.result.IteratorConsumer)[useIterator()^] method will close the iterator and release all resources from the query, it is good practice and guards against possible errors that may happen between the creation of the query and the callback execution.
 
+Using a jdbi callback allows fully automated resource management:
+
+[source,java,indent=0]
+----
+jdbi.useHandle(handle -> {
+    handle.createQuery("SELECT * from users")
+        .mapTo(User.class)
+        .useIterator(it -> {
+            // consume the iterator contents
+        });
+    });
+----
+
 
 ==== Attaching statements to the handle lifecycle
 
 An elegant way to manage resources is attaching the statement to the handle lifecycle. Calling the `attachToHandleForCleanup()` method, which is available on <<Statement types, SQL statements>>, associates the statement with the handle. When the handle is closed, all attached statements that have not been cleaned up yet, will also be released.
 
-This works best for short-lived handles with a few statement operations. As the resources may not be released until the handle is closed, running a large number of SQL statements that all may need cleaning up could lead to resource exhaustion. When in doubt, prefer the _try-with-resources_ construct over attaching a SQL statements to the handle.
-
-Methods on the Jdbi object that take a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]) can use this to attach statements to the handle passed into the callback. These handles are fully managed and will be closed when the callback exits.
-
 [source,java,indent=0]
 ----
-User user = jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM users WHERE id = :id")
-    .attachToHandleForCleanup() // <1>
-    .bind("id", id)
-    .mapTo(User.class)
-    .one());
+Optional<User> user = handle.createQuery("SELECT * FROM users WHERE id = :id")
+        .attachToHandleForCleanup() <1>
+        .bind("id", id)
+        .mapTo(User.class)
+        .stream()
+        .findAny();
 ----
 
 <1> By attaching the statement to the handle, all resources are now managed by Jdbi and released even if the operation throws an exception.
 
+This works best for short-lived handles with a few statement operations. As the resources may not be released until the handle is closed, executing a large number of SQL statements that all may need cleaning up could lead to resource exhaustion. When in doubt, prefer the _try-with-resources_ construct over attaching a SQL statements to the handle.
+
+It is possible to attach all created statements by default to a handle by calling link:{jdbidocs}/core/statement/SqlStatements.html#setAttachAllStatementsForCleanup(boolean)[setAttachAllStatementsForCleanup(true)^] on the SqlStatements config object:
+
+[source,java,indent=0]
+----
+jdbi.getConfig(SqlStatements.class)
+    .setAttachAllStatementsForCleanup(true);
+
+try (Handle handle = jdbi.open()) {
+    Optional<User> user = handle.createQuery("SELECT * FROM users WHERE id = :id")
+        .bind("id", id)
+        .mapTo(User.class)
+        .stream()
+        .findAny();
+}
+----
+
+This setting can be controlled either per Jdbi object or per Handle.
+
+[source,java,indent=0]
+----
+try (Handle handle = jdbi.open()) {
+    handle.getConfig(SqlStatements.class)
+        .setAttachAllStatementsForCleanup(true);
+
+    Optional<User> user = handle.createQuery("SELECT * FROM users WHERE id = :id")
+        .bind("id", id)
+        .mapTo(User.class)
+        .stream()
+        .findAny();
+}
+----
+
+
+As a special case, any method on the Jdbi object that takes a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]) attaches statements created in the callback by default to the handle passed into the callback. These handles are fully managed and will be closed when the callback exits.
+
+[source,java,indent=0]
+----
+User user = jdbi.withHandle(handle ->
+    handle.createQuery("SELECT * FROM users WHERE id = :id")
+        .bind("id", id)
+        .mapTo(User.class)
+        .one());
+----
+
+This behavior can be controlled through the link:{jdbidocs}/core/statement/SqlStatements.html#setAttachCallbackStatementsForCleanup(boolean)[setAttachCallbackStatementsForCleanup()^] method.
+If a callback executes a huge number of statements, it may be preferable to manage resources manually:
+
+[source,java,indent=0]
+----
+jdbi.useHandle(handle -> {
+    handle.getConfig(SqlStatements.class).setAttachCallbackStatementsForCleanup(false); <1>
+
+    for (int i = 0; i < 100_000; i++) {
+        try (Update update = handle.createUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")) {
+            update.bind("id", i)
+                  .bind("name", "user_" + i)
+                  .execute();
+        }
+    }
+});
+----
+
+<1> Turn off automatic attachment of statements to the handle because the callback creates a large number of statements. Modifying this value only changes the setting for the current handle; it does not affect the global setting associated with the Jdbi object that created the handle.
+
+
+[NOTE]
+While the `attachAllStatementsForCleanup` setting affects all statements created *outside* a Jdbi callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]), *inside* these callbacks, the behavior is controlled by the `attachCallbackStatementsForCleanup` setting.
+The default value for the `attachAllStatementsForCleanup` is `false` while the default value for `attachCallbackStatementsForCleanup` is `true`.
 
 == Arguments
 

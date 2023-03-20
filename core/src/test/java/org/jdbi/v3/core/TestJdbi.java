@@ -17,8 +17,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementCustomizers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -78,7 +80,7 @@ public class TestJdbi {
 
     @Test
     public void testWithHandle() {
-        Jdbi db = Jdbi.create(h2Extension.getUri());
+        Jdbi db = h2Extension.getJdbi();
         String value = db.withHandle(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
             return handle.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
@@ -88,11 +90,33 @@ public class TestJdbi {
 
     @Test
     public void testUseHandle() {
-        Jdbi db = Jdbi.create(h2Extension.getUri());
+        Jdbi db = h2Extension.getJdbi();
         db.useHandle(handle -> {
             handle.execute("insert into something (id, name) values (1, 'Brian')");
             String value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
             assertThat(value).isEqualTo("Brian");
+        });
+    }
+
+    @Test
+    public void test10StatementsUseHandle() {
+        Jdbi db = h2Extension.getJdbi();
+        h2Extension.getSharedHandle().execute("insert into something (id, name) values (1, 'Brian')");
+        h2Extension.getSharedHandle().execute("insert into something (id, name) values (2, 'Steven')");
+
+        db.useHandle(handle -> {
+            // run a few of statements
+            for (int i = 0; i < 10; i++) {
+                // auto resource management is ok
+                Query q = handle.createQuery("select * from something order by id asc");
+                Optional<String> value = q.mapToBean(Something.class)
+                        .stream().findFirst()
+                        .map(Something::getName);
+
+                assertThat(value)
+                        .isPresent()
+                        .contains("Brian");
+            }
         });
     }
 
