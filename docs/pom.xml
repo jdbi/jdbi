@@ -397,6 +397,8 @@
                                 <ignorePathToDelete>jdbi2</ignorePathToDelete>
                                 <!-- also don't touch the release folders -->
                                 <ignorePathToDelete>releases</ignorePathToDelete>
+                                <ignorePathToDelete>.github</ignorePathToDelete>
+                                <ignorePathToDelete>README.md</ignorePathToDelete>
                             </ignorePathsToDelete>
                         </configuration>
                         <executions>
