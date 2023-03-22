@@ -6811,6 +6811,9 @@ In this example, the SQL template will still be loaded from the file
 `com/foo/AccountDao.sql.stg` on the classpath, however the `listSorted`
 template will be used, regardless of the method name.
 
+There are some options for StringTemplateEngine on the
+link:{jdbidocs}/stringtemplate4/StringTemplates.html[StringTemplates^] configuration class,
+like whether missing attributes are considered an error or not.
 
 === Vavr
 
