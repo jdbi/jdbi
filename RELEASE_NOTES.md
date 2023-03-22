@@ -7,6 +7,7 @@
   - rewrite the core extension framework, move functionality from sqlobject to core
   - rewrite sqlobject and the generator to use the new extension framework, deprecate functionality that moved to the core
   - StringTemplate engine: handle st4 errors rather than logging to stderr. Allow configuring missing attribute as a fatal error
+  - StringTemplate 4.3.3
 
 # 3.37.1
   - fix deadlock in default Jdbi cache (#2274)
