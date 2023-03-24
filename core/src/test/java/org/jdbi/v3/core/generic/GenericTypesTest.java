@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.generic;
 
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -75,6 +76,17 @@ public class GenericTypesTest {
             .contains(Integer.class);
         assertThat(GenericTypes.findGenericParameter(methodReturnType(Xyz.class, "sample"), Xyz.class, 2))
             .contains(Void.class);
+    }
+
+    @Test
+    void testGenericTypeWorksInParameterizedClasses() {
+        class Foo<T> {
+            Type getType() {
+                return new GenericType<List<String>>() {}.getType();
+            }
+        }
+
+        assertThat(new Foo<>().getType()).isNotNull();
     }
 
     @Test
