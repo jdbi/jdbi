@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.generic;
 
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -100,7 +102,20 @@ public class GenericTypes {
      * @return the parameter on the supertype, if it is concretely defined.
      * @throws ArrayIndexOutOfBoundsException if n &gt; the number of type variables the type has
      */
+    @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype, int n) {
+        if (type instanceof Class) {
+            // this is the same code as TypeToken#extractType
+            AnnotatedType t = ((Class) type).getAnnotatedSuperclass();
+            if (t instanceof AnnotatedParameterizedType) {
+                AnnotatedParameterizedType pt = (AnnotatedParameterizedType) t;
+                if (((ParameterizedType) pt.getType()).getRawType() == parameterizedSupertype) {
+                    return Optional.ofNullable(pt.getAnnotatedActualTypeArguments()[n]).map(AnnotatedType::getType);
+                }
+            }
+        }
+
+        // fall back to the type reflector
         return Optional.ofNullable(GenericTypeReflector.getTypeParameter(type, parameterizedSupertype.getTypeParameters()[n]));
     }
 

@@ -1,5 +1,6 @@
 # Unreleased
 
+  - fix `GenericType` creation in parameterized classes (#2305)
   - add `SqlStatements#setAttachAllStatementsForCleanup`. Setting this configuration flag will attach all created statements to their handles for resource cleanup. Default is `false`. (#2293, thanks @jodastephen)
   - add `SqlStatements#setAttachCallbackStatementsForCleanup`. Setting this configuration flag will attach all created statements within one of the `Jdbi` callback methods to the handle. This allows code that uses the `Jdbi` callback methods to delegate resource management fully to Jdbi. This flag is set by default. (#2293, thanks @jodastephen)
   - fix problem when using the jdbi bom in spring projects (#2295, thanks @jedvardsson)
