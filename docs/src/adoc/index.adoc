@@ -1,3 +1,4 @@
+// suppress inspection "AsciiDocLinkResolve" for whole file
 = Jdbi 3 Developer Guide
 :doctype: book
 :toc: left
@@ -3134,34 +3135,322 @@ Without serializable isolation, each transaction reads 10 and 20, and then retur
 With serializable isolation, one of the two transactions is forced to abort and retry. On the second go around, it calculates 10 + 20 + 30 = 60. Adding to 30 from the other, we get 30 + 60 = 90 and the assertion succeeds.
 
 
-== Generated Keys
+== Configuration
 
-An Update or PreparedBatch may automatically generate keys. These keys
-are treated separately from normal results. Depending on your database and
-configuration, the entire inserted row may be available.
+Jdbi aims to be useful out of the box with minimal configuration. If necessary,
+there is a wide range of configurations and customizations available to change the
+default behavior or add in extensions to handle additional database types.
 
-[CAUTION]
-There is a lot of variation between databases supporting
-this feature so please test this feature's interaction with your database
-thoroughly.
+Configuration is managed by the
+link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry] class.
+Each Jdbi object that represents a distinct database context (for
+example, link:{jdbidocs}/core/Jdbi.html[Jdbi^] itself, a
+link:{jdbidocs}/core/Handle.html[Handle^] instance, or an attached
+link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] class) has a
+separate config registry instance.
 
-In PostgreSQL, the entire row is available, so you can immediately map your
-inserted names back to full User objects!  This avoids the overhead of
-separately querying after the insert completes.
+When a new context is created, it inherits a copy of its parent
+configuration at the time of creation - further modifications to the
+original will not affect already created configuration contexts.
+Configuration context copies happen when creating a
+link:{jdbidocs}/core/Handle.html[Handle^] from
+link:{jdbidocs}/core/Jdbi.html[Jdbi^], when opening a
+link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] from
+the Handle, and when attaching or creating an on-demand extension such
+as link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^].
 
-Consider the following table:
+A configurable Jdbi object implements the
+link:{jdbidocs}/core/config/Configurable.html[Configurable^] interface
+which allows modification of its configuration as well as retrieving
+the current context's configuration for use by Jdbi core or
+extensions.
 
 [source,java,indent=0]
 ----
-include::{exampledir}/GeneratedKeysTest.java[tags=setup]
+
+// fetch the config registry object
+ConfigRegistry config = jdbi.getConfig();
+
+// access the SqlStatements configuration object:
+SqlStatements sqlStatements = jdbi.getConfig(SqlStatements.class);
+
+// modify a setting in SqlStatements with a callback
+jdbi.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true));
+
+// modify a setting in SqlStatements with direct method invocation
+jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
 ----
 
-You can get generated keys in the fluent style:
+The link:{jdbidocs}/core/config/Configurable.html[Configurable^]
+interface also adds a number of convenience methods for commonly used
+configuration objects.
 
-[source,java,indent=0]
-----
-include::{exampledir}/GeneratedKeysTest.java[tags=fluent]
-----
+
+See <<JdbiConfig>> for more advanced implementation details.
+
+
+=== core settings
+
+[%header, cols="<2, <2, ^1, ^1, <5a", stripe=none]
+|===
+| Object | Property | Type | Default | Description
+
+.3+| link:{jdbidocs}/core/argument/Arguments.html[Arguments^] | bindingNullToPrimitivesPermitted
+     | boolean  | `true`
+     | Allows binding `null` values for primitive types.
+
+| preparedArgumentsEnabled
+   ^| boolean  ^| `true`
+    <| PreparedArguments speed up argument processing but have some backwards compatibility risk with old (pre-3.24.0) releases.
+
+<| untypedNullArgument
+   ^| link:{jdbidocs}/core/argument/Argument.html[Argument^] ^| link:{jdbidocs}/core/argument/NullArgument.html[NullArgument^] using link:{jdkdocs}/java/sql/Types.html#OTHER[Types.OTHER^].
+    <| This argument instance is invoked when a `null` value is assigned to an argument whose type is unknown (this can happen in some corner cases).
+
+| link:{jdbidocs}/core/mapper/ColumnMappers.html[ColumnMappers^] | coalesceNullPrimitivesToDefaults
+    | boolean  | `true`
+    | Uses the driver default value for primitive types if a SQL NULL value was returned by the database. The exact value used is specific to the database driver.
+
+| link:{jdbidocs}/core/enums/Enums.html[Enums^] | enumStrategy
+    | link:{jdbidocs}/core/enums/EnumStrategy.html[EnumStrategy^] | `BY_NAME`
+    | Sets the strategy to map a Java enum value onto a database column. Available strategies are
+
+[cols="1,3"]
+!===
+! link:{jdbidocs}/core/enums/EnumStrategy.html#BY_NAME[BY_NAME^] ! map the name of the enum from and to the database column
+! link:{jdbidocs}/core/enums/EnumStrategy.html#BY_ORDINAL[BY_ORDINAL^] ! map the ordinal number of the enum value from and to the database column
+!===
+
+| link:{jdbidocs}/core/extension/Extensions.html[Extensions^] | allowProxy
+    | boolean  | `true`
+    | Whether Jdbi is allowed to create proxy instances for classes (as extension and on-demand reference). This is useful for debugging when using the generator to create java classes for sql objects.
+
+| link:{jdbidocs}/core/Handles.html[Handles^] | forceEndTransactions
+    | boolean  | `true`
+    | Whether to ensure transaction discipline. If `true`, transactions *must* be committed or rolled back before a Handle is closed. If `true`, any uncommitted
+transaction is rolled back and an exception is thrown when the Handle is closed.
+
+
+| link:{jdbidocs}/core/mapper/MapMappers.html[MapMappers^] | caseChange
+    | link:{jdkdocs}/java/util/function/UnaryOperator.html[UnaryOperator<String>^] | link:{jdbidocs}/core/mapper/CaseStrategy.html#LOCALE_LOWER[LOCALE_LOWER^]
+    | Defines the strategy for mapping the database column names to key names. Available strategies are:
+
+[cols="1,3"]
+!===
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#NOP[NOP^] ! no name mapping, use name as is
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#LOWER[LOWER^] ! lowercase column names using the `ROOT` locale
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#UPPER[UPPER^] ! uppercase column names using the `ROOT` locale
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#LOCALE_LOWER[LOCALE_LOWER^] ! lowercase column names using the current locale
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#LOCALE_UPPER[LOCALE_UPPER^] ! uppercase column names using the current locale
+!===
+
+Custom strategies can be set by implementing link:{jdkdocs}/java/util/function/UnaryOperator.html[UnaryOperator<String>^] with custom code.
+
+
+.2+| link:{jdbidocs}/core/mapper/reflect/ReflectionMappers.html[ReflectionMappers^] | caseChange
+    | link:{jdkdocs}/java/util/function/UnaryOperator.html[UnaryOperator<String>^] | link:{jdbidocs}/core/mapper/CaseStrategy.html#LOCALE_LOWER[LOCALE_LOWER^]
+    | Defines the strategy for mapping the database column names to key names. Available strategies are:
+
+[cols="1,3"]
+!===
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#NOP[NOP^] ! no name mapping, use name as is
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#LOWER[LOWER^] ! lowercase column names using the `ROOT` locale
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#UPPER[UPPER^] ! uppercase column names using the `ROOT` locale
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#LOCALE_LOWER[LOCALE_LOWER^] ! lowercase column names using the current locale
+! link:{jdbidocs}/core/mapper/CaseStrategy.html#LOCALE_UPPER[LOCALE_UPPER^] ! uppercase column names using the current locale
+!===
+
+Custom strategies can be set by implementing link:{jdkdocs}/java/util/function/UnaryOperator.html[UnaryOperator<String>^] with custom code.
+
+| strictMatching
+    ^| boolean ^| `false`
+    <| If `true`, all database columns must be mapped to a property. If any columns are unmatched or any property is unset, an exception is thrown.
+
+| link:{jdbidocs}/core/result/ResultProducers.html[ResultProducers^] | allowNoResults
+    ^| boolean ^| `false`
+    <| If `false`, Jdbi throws an exception if a query does not return a result set object (this is *different* from an empty result, e.g. no rows in a query). When setting this to `true`, Jdbi uses an empty result set instead.
+
+.4+| link:{jdbidocs}/core/transaction/SerializableTransactionRunner.Configuration.html[SerializableTransactionRunner.Configuration^] | maxRetries
+    | int | `5`
+    | number of times a transaction is retried if the database reports a serialization error.
+
+| onFailure
+    ^| link:{jdkdocs}/java/util/function/Consumer.html[Consumer<List<Exception>>^] ^| <unset>
+    <| Is called whenever a serialization failure occurs. Can be used e.g. for logging.
+
+| onSuccess
+    ^| link:{jdkdocs}/java/util/function/Consumer.html[Consumer<List<Exception>>^] ^| <unset>
+    <| Is called once a transaction successfully finishes with any exception that has happened during the transaction execution.
+
+| serializationFailureSqlState
+    ^| String ^| `40001`
+    <| SQL state value from a `SQLException` that is considered a serialization failure. This is defined in the SQL:2011 standard as `40001` but can be different depending on the database.
+
+| link:{jdbidocs}/core/array/SqlArrayTypes.html[SqlArrayTypes^] | argumentStrategy
+| link:{jdbidocs}/core/array/SqlArrayArgumentStrategy.html[SqlArrayArgumentStrategy^] | link:{jdbidocs}/core/array/SqlArrayArgumentStrategy.html#SQL_ARRAY[SQL_ARRAY^]
+| Sets the strategy on how to bind arrays in the database driver.
+
+[cols="1,3"]
+!===
+! link:{jdbidocs}/core/array/SqlArrayArgumentStrategy.html#SQL_ARRAY[SQL_ARRAY^]       ! create a SQL array using link:{jdkdocs}/java/sql/Connection.html#createArrayOf-java.lang.String-java.lang.Object:A-[Connection#createArrayOf^] and call link:{jdkdocs}/java/sql/PreparedStatement.html#setArray-int-java.sql.Array-[PreparedStatement#setArray^]. This is the default and any modern JDBC driver should support it.
+! link:{jdbidocs}/core/array/SqlArrayArgumentStrategy.html#OBJECT_ARRAY[OBJECT_ARRAY^] ! call link:{jdkdocs}/java/sql/PreparedStatement.html#setObject-int-java.lang.Object-[PreparedStatement#setObject^] and assume that the driver can handle this.
+!===
+
+.7+| link:{jdbidocs}/core/statement/SqlStatements.html[SqlStatements^]     | attachAllStatementsForCleanup
+    | boolean | `false`
+    | Jdbi supports automatic resource management by attaching statements to their handle so that closing the handle will free up all its resources.
+If this setting is `true`, then statements are attached by default.
+
+| attachCallbackStatementsForCleanup
+^| boolean ^| `true`
+<| Similar to `attachAllStatementsForCleanup` but for statements created in any of the Jdbi callback methods (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]).
+
+
+| queryTimeout
+^| Integer ^| <unset>
+<| Sets the query timeout value in seconds. This value is used to call link:{jdkdocs}/java/sql/Statement.html#setQueryTimeout-int-[Statement#setQueryTimeout^]. Enforcement of the timeout depends on the JDBC driver.
+
+
+<| sqlParser
+^| link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^] ^| link:{jdbidocs}/core/statement/ColonPrefixSqlParser.html[ColonPrefixSqlParser^]
+<a| The parser used to find the placeholders to bind arguments to.
+
+Jdbi currently provides the following parsers:
+
+[cols="1,3"]
+!===
+! link:{jdbidocs}/core/statement/ColonPrefixSqlParser.html[ColonPrefixSqlParser^] ! the default parser for `:name` placeholders.
+! link:{jdbidocs}/core/statement/HashPrefixSqlParser.html[HashPrefixSqlParser^] ! use `#name` placeholders
+!===
+
+Custom implementations must implement link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^] and may extend link:{jdbidocs}/core/statement/CachingSqlParser.html[CachingSqlParser^] to benefit from caching.
+
+| sqlLogger
+^| link:{jdbidocs}/core/statement/SqlLogger.html[SqlLogger^] ^| <unset>
+<| Controls logging around statement execution. A SqlLogger instance receives the statement context before and after query execution and the context and an exception in case of an execution problem.
+
+Jdbi provides link:{jdbidocs}/core/statement/Slf4jSqlLogger.html[Slf4jSqlLogger^] for the popular https://slf4j.org/[slf4j^] logging framework.
+
+| templateEngine
+^| link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^] ^| link:{jdbidocs}/core/statement/DefinedAttributeTemplateEngine.html[DefineAttributeTemplateEngine^]
+<a| The template engine to render SQL statements and substitute placeholders with values that have been defined on a statement (This is for *defined* attributes, not *bound* attributes!).
+
+[cols="1,1,3"]
+!===
+! jdbi core ! link:{jdbidocs}/core/statement/DefinedAttributeTemplateEngine.html[DefineAttributeTemplateEngine^] ! the default engine, replaces angle-bracket placeholders (`<name>`).
+! jdbi core ! link:{jdbidocs}/core/statement/NoTemplateEngine.html[NoTemplateEngine^] ! Ignore all defined values, do not do any substitutions.
+! jdbi commons-text ! link:{jdbidocs}/commonstext/StringSubstitutorTemplateEngine.html[StringSubstitutorTemplateEngine^] ! use the https://commons.apache.org/proper/commons-text/[Apache Commons Text^] `StringSubstitutor` class
+! jdbi freemarker ! link:{jdbidocs}/freemarker/FreemarkerEngine.html[FreemarkerEngine^] ! use https://freemarker.apache.org[Apache Freemarker^].
+! jdbi stringtemplate4 ! link:{jdbidocs}/stringtemplate4/StringTemplateEngine.html[StringTemplateEngine^] ! use https://www.stringtemplate.org/[StringTemplate 4^].
+!===
+
+Custom implementations must implement link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^].
+
+
+| unusedBindingsAllowed
+^| boolean ^| `false`
+<| All bindings to a SQL operation must be used or an exception is thrown. If this setting is `true`, then unused bindings in a SQL operation are
+ignored.
+
+.2+| link:{jdbidocs}/core/statement/StatementExceptions.html[StatementExceptions^] | lengthLimit
+    | int | `1024`
+    | Controls the maximum length for variable length strings when they are rendered using the `SHORT_STATEMENT` message rendering strategy.
+
+| messageRendering
+    ^| link:{jdbidocs}/core/statement/StatementExceptions.MessageRendering.html[MessageRendering^] ^| link:{jdbidocs}/core/statement/StatementExceptions.MessageRendering.html#SHORT_STATEMENT[SHORT_STATEMENT^]
+    <a| Sets the message rendering strategy when fetching the message from a link:{jdbidocs}/core/statement/StatementException.html[StatementException^] and its subclasses.
+
+Controls how error messages from a Statement are displayed (e.g. for logging).
+
+[cols="1,3"]
+!===
+! link:{jdbidocs}/core/statement/StatementExceptions.MessageRendering.html#NONE[NONE^] ! only render the statement exception message itself, do not add any information.
+! link:{jdbidocs}/core/statement/StatementExceptions.MessageRendering.html#PARAMETERS[PARAMETERS^] ! include exception message and the bound parameters
+! link:{jdbidocs}/core/statement/StatementExceptions.MessageRendering.html#SHORT_STATEMENT[SHORT_STATEMENT^] ! include exception message, SQL statement and the bound parameters. Truncate the SQL statement and the list of parameters each to the value of `lengthLimit`
+! link:{jdbidocs}/core/statement/StatementExceptions.MessageRendering.html#DETAIL[DETAIL^] ! include exception message, unrendered SQL statement, rendered SQL statement, parsed SQL statement and binding parameters.
+!===
+
+|===
+
+=== SQLObject configuration settings
+
+[%header, cols="<2, <2, ^1, ^1, <5a", stripe=none]
+|===
+| Object | Property | Type | Default | Description
+
+| link:{jdbidocs}/sqlobject/SqlObjects.html[SqlObjects^] | sqlLocator
+     | link:{jdbidocs}/sqlobject/SqlLocator.html[SqlLocator^] | link:{jdbidocs}/sqlobject/AnnotationSqlLocator.html[AnnotationSqlLocator^]
+     | Sets the locator for finding SQL statements. Default is to look for SQL operation annotations.
+
+Jdbi provides two implementations of the `SqlLocator` interface:
+
+[cols="1,3"]
+!===
+! link:{jdbidocs}/sqlobject/AnnotationSqlLocator.html[AnnotationSqlLocator^] ! Use annotations (
+link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^],
+link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^],
+link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^],
+link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^],
+link:{jdbidocs}/sqlobject/statement/SqlScripts.html[@SqlScripts^] and
+link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^]) to locate SQL statements
+! link:{jdbidocs}/sqlobject/SqlObjectClasspathSqlLocator.html[SqlObjectClasspathSqlLocator^] ! Associates a class or interface with a file located on the classpath (`com.foo.Bar#query()` becomes `com/foo/Bar/query.sql`) and loads the SQL from that file. The file may contain comments which are stripped.
+!===
+
+| link:{jdbidocs}/sqlobject/customizer/TimestampedConfig.html[TimestampedConfig^] | timezone
+     | link:{jdkdocs}/java/time/ZoneId.html[ZoneId^] | system zone id
+     | Sets the timezone for the link:{jdbidocs}/sqlobject/customizer/Timestamped.html[@Timestamped^] annotation.
+
+|===
+
+
+=== other configuration settings
+
+[%header, cols="<2, <2, ^1, ^1, <5a", stripe=none]
+|===
+| Object | Property | Type | Default | Description
+
+| link:{jdbidocs}/json/JsonConfig.html[JsonConfig^] | jsonMapper
+     | link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] | see description
+     | Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi3-gson2`, `jdbi3-jackson2` or `jdbi3-moshi` plugin, this is automatically set to the provided implementation.
+
+If none of these modules is loaded, it defaults to an implementation that throws an exception whenever serialization or deserialization is attempted.
+
+| link:{jdbidocs}/gson2/Gson2Config.html[Gson2Config^] | gson
+     | https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson/com/google/gson/Gson.html[Gson^] | A `Gson` instance created with the default constructor.
+     | Sets the Gson object used to parse and render json text.
+
+.4+| link:{jdbidocs}/jackson2/Jackson2Config.html[Jackson2Config^] | mapper
+     | https://javadoc.io/static/com.fasterxml.jackson.core/jackson-databind/2.10.5.1/com/fasterxml/jackson/databind/ObjectMapper.html[ObjectMapper^] | An `ObjectMapper` instance created with the default constructor.
+     | Sets the object mapper instance used to parse and render json text.
+| deserializationView
+     ^| link:{jdkdocs}/java/lang/Class.html[Class<?>^] ^| <unset>
+     <a| Sets a view (see https://javadoc.io/static/com.fasterxml.jackson.core/jackson-annotations/2.10.5/com/fasterxml/jackson/annotation/JsonView.html[@JsonView^]) for deserialization. Can be used to limit the values read when mapping a json column.
+| serializationView
+     ^| link:{jdkdocs}/java/lang/Class.html[Class<?>^] ^| <unset>
+     <a| Sets a view (see https://javadoc.io/static/com.fasterxml.jackson.core/jackson-annotations/2.10.5/com/fasterxml/jackson/annotation/JsonView.html[@JsonView^]) for serialization. Can be used to limit the values written when using a json argument.
+| view
+     ^| link:{jdkdocs}/java/lang/Class.html[Class<?>^] ^| <unset>
+     <a| Sets a view (see https://javadoc.io/static/com.fasterxml.jackson.core/jackson-annotations/2.10.5/com/fasterxml/jackson/annotation/JsonView.html[@JsonView^]) for serialization and deserialization. Can be used to limit the values read and written by json arguments and mappers.
+
+| link:{jdbidocs}/moshi/MoshiConfig.html[MoshiConfig^] | moshi
+     | https://javadoc.io/doc/com.squareup.moshi/moshi/latest/moshi/com.squareup.moshi/-moshi/index.html[Moshi^] | A `Moshi` instance created with the default constructor.
+     | Sets the Moshi instance used to parse and render json text.
+
+| link:{jdbidocs}/freemarker/FreemarkerConfig.html[FreemarkerConfig^] | freemarkerConfiguration
+     | https://javadoc.io/static/org.freemarker/freemarker/2.3.32/freemarker/template/Configuration.html[Configuration^] | The default configuration object.
+     | Sets the freemarker configuration object for the template engine. See the https://freemarker.apache.org[freemarker documentation^] for details.
+The default configuration has the following modifications for Jdbi:
+
+
+- uses `Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS`
+- configures a class template loader that loads templates from the root of the class path.
+- the number format is set to `computer`.
+
+| link:{jdbidocs}/stringtemplate4/StringTemplates.html[StringTemplates^] | failOnMissingAttribute
+     | boolean | `false`
+     | If `true`, fail rendering a template if a referenced attribute is missing.
+
+|===
 
 
 == SQL Arrays
@@ -3301,221 +3590,6 @@ List<UserId> userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id 
 Array columns can be mapped to any container type registered with the
 `JdbiCollectors` registry. E.g. a `VARCHAR[]` may be mapped to an
 `ImmutableList<String>` if the Guava plugin is installed.
-
-
-== Query Templating
-
-Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`\... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
-
-Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
-
-Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
-
-[CAUTION]
-https://www.xkcd.com/327/[Query templating is a common attack vector!^] Always prefer binding parameters to static SQL over dynamic SQL when possible.
-
-[source,java,indent=0]
-----
-handle.createQuery("SELECT * FROM <TABLE> WHERE name = :n")
-
-    // -> "SELECT * FROM Person WHERE name = :n"
-    .define("TABLE", "Person")
-
-    // -> "SELECT * FROM Person WHERE name = 'MyName'"
-    .bind("n", "MyName");
-----
-
-[TIP]
-Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
-
-[CAUTION]
-TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
-
-If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
-
-[source,java,indent=0]
-----
-String paramName = "arg";
-
-handle.createQuery("SELECT * FROM Foo WHERE bar = :<attr>")
-    .define("attr", paramName)
-    // ...
-    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
-----
-
-[source,java,indent=0]
-----
-handle.createQuery("SELECT * FROM emotion WHERE emoticon = <sticker>")
-    .define("sticker", ":-)") // -> "... WHERE emoticon = :-)"
-    .mapToMap()
-    // exception: no binding/argument named "-)" present
-    .list();
-----
-
-Bindings and definitions are usually separate.  You can link them in a limited manner
-using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
-For each bound parameter (including bean properties), this will define a boolean which is `true` if the
-binding is present and not `null`.  You can use this to
-craft conditional updates and query clauses.
-
-For example,
-[source,java,indent=0]
-----
-class MyBean {
-    long id();
-    String getA();
-    String getB();
-    Instant getModified();
-}
-
-handle.createUpdate("UPDATE mybeans SET <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() WHERE id=:id")
-    .bindBean(mybean)
-    .defineNamedBindings()
-    .execute();
-----
-
-Also see the section about <<TemplateEngine>>.
-
-
-=== ClasspathSqlLocator
-
-You may find it helpful to store your SQL templates in individual files on the
-classpath, rather than in string inside Java code.
-
-The `ClasspathSqlLocator` converts Java type and method names into classpath locations,
-and then reads, parses, and caches the loaded statements.
-
-[source,java,indent=0]
-----
-// reads classpath resource com/foo/BarDao/query.sql
-ClasspathSqlLocator.create().locate(com.foo.BarDao.class, "query");
-
-// same resource as above
-ClasspathSqlLocator.create().locate("com.foo.BarDao.query");
-----
-
-By default, any comments in the loaded file are left untouched. Comments can be stripped out by
-instantiating the `ClasspathSqlLocator` with the `removingComments()` method:
-
-[source,java,indent=0]
-----
-// reads classpath resource com/foo/BarDao/query.sql, stripping all comments
-ClasspathSqlLocator.removingComments().locate(com.foo.BarDao.class, "query");
-
-// same resource as above
-ClasspathSqlLocator.removingComments().locate("com.foo.BarDao.query");
-----
-
-Multiple comment styles are supported:
-
-* C-style (`/* \... */` and `//` to the end of the line)
-* SQL style (`--` to the end of the line)
-* shell style (`\#` to the end of the line; except when followed immediately by the `>` character; this is required for the Postgres `#>` and `#>>` operators).
-
-
-== Configuration
-
-Jdbi aims to be useful out of the box with minimal configuration.  Sometimes
-you need to change default behavior, or add in extensions to handle additional
-database types.  Each piece of core or extension that wishes to participate in
-configuration defines a configuration class, for example the `SqlStatements`
-class stores SqlStatement related configuration.  Then, on any `Configurable` context
-(like a link:{jdbidocs}/core/Jdbi.html[Jdbi^] or link:{jdbidocs}/core/Handle.html[Handle^]) you can change configuration in a type safe way:
-
-[source,java,indent=0]
-----
-jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
-jdbi.getConfig(Arguments.class).register(new MyTypeArgumentFactory());
-jdbi.getConfig(Handles.class).setForceEndTransactions(true);
-
-// Or, if you have a bunch of work to do:
-jdbi.configure(RowMappers.class, rm -> {
-    rm.register(new TypeARowMapperFactory();
-    rm.register(new TypeBRowMapperFactory();
-});
-----
-
-Generally, you should finalize all configuration changes before interacting with
-the database.
-
-When a new context is created, it inherits a copy of the parent context
-configuration at the time of creation, e.g. a link:{jdbidocs}/core/Handle.html[Handle^] inherits its
-configuration from the link:{jdbidocs}/core/Jdbi.html[Jdbi^] when it is created.
-
-See <<JdbiConfig>> for more advanced implementation details.
-
-
-=== Qualified Types
-
-Sometimes the same Java object can correspond to multiple data types in a database. For example,
-a `String` could be `varchar` plaintext, `nvarchar` text, `json` data, etc, all with different handling requirements.
-
-link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType] allows you to add such context to a Java type:
-
-[source,java,indent=0]
-----
-QualifiedType.of(String.class).with(Json.class);
-----
-
-This `QualifiedType` still represents the `String` _type_, but _qualified_ with the `@Json` annotation.
-It can be used in a way similar to <<GenericType>>, to make components
-handling values (mainly `ArgumentFactories` and `ColumnMapperFactories`) perform their work differently,
-and to have the values handled by different implementations altogether:
-
-[source,java,indent=0]
-----
-@Json
-public class JsonArgumentFactory extends AbstractArgumentFactory<String> {
-    @Override
-    protected Argument build(String value, ConfigRegistry config) {
-        // do something specifically for json data
-    }
-}
-----
-
-Once registered, this `@Json` qualified factory will receive *only* `@Json String` values.
-Other factories _not_ qualified as such will *not* receive this value:
-
-[source,java,indent=0]
-----
-QualifiedType<String> json = QualifiedType.of(String.class).with(Json.class);
-query.bindByType("jsonValue", "{\"foo\":1}", json);
-----
-
-[TIP]
-Jdbi chooses factories to handle values by *exactly matching* their _qualifiers_. It's up to the
-factory implementations to discriminate on the _type_ of the value afterwards.
-
-[NOTE]
-Qualifiers are implemented as `Annotations`. This allows factories to independently inspect values for qualifiers at the source,
-such as on their `Class`, to alter their own behavior or to _requalify_ a value
-and have it re-evaluated by Jdbi's lookup chain.
-
-[WARNING]
-Qualifiers being annotations does *not* mean they inherently activate
-their function when placed in source classes. Each feature decides its own
-rules regarding their use.
-
-[CAUTION]
-Arguments can only be qualified for binding via `bindByType` calls, not regular
-`bind` or `update.execute(Object\...)`. Also, arrays cannot be qualified.
-
-These features currently make use of qualified types:
-
-- `@NVarchar` and `@MacAddr` (the latter in `jdbi3-postgres`) bind and map Strings as `nvarchar` and `macaddr`
-respectively, instead of the usual `varchar`.
-- `jdbi3-postgres` offers <<postgres-hstore,HStore>>.
-- <<jdbi3-json,JSON>>
-- `BeanMapper`, `@BindBean`, `@RegisterBeanMapper`, `mapTobean()`, and `bindBean()` respect qualifiers on getters, setters,
-and setter parameters.
-- `ConstructorMapper` and `@RegisterConstructorMapper` respect qualifiers on constructor parameters.
-- `@BindMethods` and `bindMethods()` respect qualifiers on methods.
-- `@BindFields`, `@RegisterFieldMapper`, `FieldMapper` and `bindFields()` respect qualifiers on fields.
-- `SqlObject` respects qualifiers on methods (applies them to the return type) and parameters.
-* on parameters of type `Consumer<T>`, qualifiers are applied to the `T`.
-- `@MapTo`
-- `@BindJpa` and `JpaMapper` respect qualifiers on getters and setters.
-- `@BindKotlin`, `bindKotlin()`, and `KotlinMapper` respect qualifiers on constructor parameters, getters, setters, and setter parameters.
 
 
 == SQL Objects
@@ -4954,7 +5028,243 @@ public interface AccountDao extends CrudDao<Account, UUID> {
 <1> Method annotations are not inherited on override, so we must duplicate
     those we want to keep.
 
-== Statement caching
+
+== Miscellaneous
+
+
+=== Generated Keys
+
+An Update or PreparedBatch may automatically generate keys. These keys
+are treated separately from normal results. Depending on your database and
+configuration, the entire inserted row may be available.
+
+[CAUTION]
+There is a lot of variation between databases supporting
+this feature so please test this feature's interaction with your database
+thoroughly.
+
+In PostgreSQL, the entire row is available, so you can immediately map your
+inserted names back to full User objects!  This avoids the overhead of
+separately querying after the insert completes.
+
+Consider the following table:
+
+[source,java,indent=0]
+----
+include::{exampledir}/GeneratedKeysTest.java[tags=setup]
+----
+
+You can get generated keys in the fluent style:
+
+[source,java,indent=0]
+----
+include::{exampledir}/GeneratedKeysTest.java[tags=fluent]
+----
+
+
+=== Qualified Types
+
+Sometimes the same Java object can correspond to multiple data types in a database. For example,
+a `String` could be `varchar` plaintext, `nvarchar` text, `json` data, etc, all with different handling requirements.
+
+link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType] allows you to add such context to a Java type:
+
+[source,java,indent=0]
+----
+QualifiedType.of(String.class).with(Json.class);
+----
+
+This `QualifiedType` still represents the `String` _type_, but _qualified_ with the `@Json` annotation.
+It can be used in a way similar to <<GenericType>>, to make components
+handling values (mainly `ArgumentFactories` and `ColumnMapperFactories`) perform their work differently,
+and to have the values handled by different implementations altogether:
+
+[source,java,indent=0]
+----
+@Json
+public class JsonArgumentFactory extends AbstractArgumentFactory<String> {
+    @Override
+    protected Argument build(String value, ConfigRegistry config) {
+        // do something specifically for json data
+    }
+}
+----
+
+Once registered, this `@Json` qualified factory will receive *only* `@Json String` values.
+Other factories _not_ qualified as such will *not* receive this value:
+
+[source,java,indent=0]
+----
+QualifiedType<String> json = QualifiedType.of(String.class).with(Json.class);
+query.bindByType("jsonValue", "{\"foo\":1}", json);
+----
+
+[TIP]
+Jdbi chooses factories to handle values by *exactly matching* their _qualifiers_. It's up to the
+factory implementations to discriminate on the _type_ of the value afterwards.
+
+[NOTE]
+Qualifiers are implemented as `Annotations`. This allows factories to independently inspect values for qualifiers at the source,
+such as on their `Class`, to alter their own behavior or to _requalify_ a value
+and have it re-evaluated by Jdbi's lookup chain.
+
+[WARNING]
+Qualifiers being annotations does *not* mean they inherently activate
+their function when placed in source classes. Each feature decides its own
+rules regarding their use.
+
+[CAUTION]
+Arguments can only be qualified for binding via `bindByType` calls, not regular
+`bind` or `update.execute(Object\...)`. Also, arrays cannot be qualified.
+
+These features currently make use of qualified types:
+
+- `@NVarchar` and `@MacAddr` (the latter in `jdbi3-postgres`) bind and map Strings as `nvarchar` and `macaddr`
+respectively, instead of the usual `varchar`.
+- `jdbi3-postgres` offers <<postgres-hstore,HStore>>.
+- <<jdbi3-json,JSON>>
+- `BeanMapper`, `@BindBean`, `@RegisterBeanMapper`, `mapTobean()`, and `bindBean()` respect qualifiers on getters, setters,
+and setter parameters.
+- `ConstructorMapper` and `@RegisterConstructorMapper` respect qualifiers on constructor parameters.
+- `@BindMethods` and `bindMethods()` respect qualifiers on methods.
+- `@BindFields`, `@RegisterFieldMapper`, `FieldMapper` and `bindFields()` respect qualifiers on fields.
+- `SqlObject` respects qualifiers on methods (applies them to the return type) and parameters.
+* on parameters of type `Consumer<T>`, qualifiers are applied to the `T`.
+- `@MapTo`
+- `@BindJpa` and `JpaMapper` respect qualifiers on getters and setters.
+- `@BindKotlin`, `bindKotlin()`, and `KotlinMapper` respect qualifiers on constructor parameters, getters, setters, and setter parameters.
+
+
+=== Query Templating
+
+Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`\... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
+
+Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
+
+Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
+
+[CAUTION]
+https://www.xkcd.com/327/[Query templating is a common attack vector!^] Always prefer binding parameters to static SQL over dynamic SQL when possible.
+
+[source,java,indent=0]
+----
+handle.createQuery("SELECT * FROM <TABLE> WHERE name = :n")
+
+    // -> "SELECT * FROM Person WHERE name = :n"
+    .define("TABLE", "Person")
+
+    // -> "SELECT * FROM Person WHERE name = 'MyName'"
+    .bind("n", "MyName");
+----
+
+[TIP]
+Use a TemplateEngine to perform crude String manipulations on a query. Query parameters should be handled by Arguments.
+
+[CAUTION]
+TemplateEngines and SqlParsers operate sequentially: the initial String will be rendered by the TemplateEngine using attributes, then parsed by the SqlParser with Argument bindings.
+
+If the TemplateEngine outputs text matching the parameter format of the SqlParser, the parser will attempt to bind an Argument to it. This can be useful to e.g. have named parameters of which the name itself is also a variable, but can also cause confusing bugs:
+
+[source,java,indent=0]
+----
+String paramName = "arg";
+
+handle.createQuery("SELECT * FROM Foo WHERE bar = :<attr>")
+    .define("attr", paramName)
+    // ...
+    .bind(paramName, "baz"); // <- does not need to know the parameter's name ("arg")!
+----
+
+[source,java,indent=0]
+----
+handle.createQuery("SELECT * FROM emotion WHERE emoticon = <sticker>")
+    .define("sticker", ":-)") // -> "... WHERE emoticon = :-)"
+    .mapToMap()
+    // exception: no binding/argument named "-)" present
+    .list();
+----
+
+Bindings and definitions are usually separate.  You can link them in a limited manner
+using the `stmt.defineNamedBindings()` or `@DefineNamedBindings` customizers.
+For each bound parameter (including bean properties), this will define a boolean which is `true` if the
+binding is present and not `null`.  You can use this to
+craft conditional updates and query clauses.
+
+For example,
+[source,java,indent=0]
+----
+class MyBean {
+    long id();
+    String getA();
+    String getB();
+    Instant getModified();
+}
+
+handle.createUpdate("UPDATE mybeans SET <if(a)>a = :a,<endif> <if(b)>b = :b,<endif> modified=now() WHERE id=:id")
+    .bindBean(mybean)
+    .defineNamedBindings()
+    .execute();
+----
+
+Also see the section about <<TemplateEngine>>.
+
+
+==== ClasspathSqlLocator
+
+You may find it helpful to store your SQL templates in individual files on the
+classpath, rather than in string inside Java code.
+
+The `ClasspathSqlLocator` converts Java type and method names into classpath locations,
+and then reads, parses, and caches the loaded statements.
+
+[source,java,indent=0]
+----
+// reads classpath resource com/foo/BarDao/query.sql
+ClasspathSqlLocator.create().locate(com.foo.BarDao.class, "query");
+
+// same resource as above
+ClasspathSqlLocator.create().locate("com.foo.BarDao.query");
+----
+
+By default, any comments in the loaded file are left untouched. Comments can be stripped out by
+instantiating the `ClasspathSqlLocator` with the `removingComments()` method:
+
+[source,java,indent=0]
+----
+// reads classpath resource com/foo/BarDao/query.sql, stripping all comments
+ClasspathSqlLocator.removingComments().locate(com.foo.BarDao.class, "query");
+
+// same resource as above
+ClasspathSqlLocator.removingComments().locate("com.foo.BarDao.query");
+----
+
+Multiple comment styles are supported:
+
+* C-style (`/* \... */` and `//` to the end of the line)
+* SQL style (`--` to the end of the line)
+* shell style (`\#` to the end of the line; except when followed immediately by the `>` character; this is required for the Postgres `#>` and `#>>` operators).
+
+
+Each piece of core or extension that wishes to participate in
+configuration defines a configuration class, for example the `SqlStatements`
+class stores SqlStatement related configuration.  Then, on any `Configurable` context
+(like a link:{jdbidocs}/core/Jdbi.html[Jdbi^] or link:{jdbidocs}/core/Handle.html[Handle^]) you can change configuration in a type safe way:
+
+[source,java,indent=0]
+----
+jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+jdbi.getConfig(Arguments.class).register(new MyTypeArgumentFactory());
+jdbi.getConfig(Handles.class).setForceEndTransactions(true);
+
+// Or, if you have a bunch of work to do:
+jdbi.configure(RowMappers.class, rm -> {
+    rm.register(new TypeARowMapperFactory();
+    rm.register(new TypeBRowMapperFactory();
+});
+----
+
+
+=== Statement caching
 
 Jdbi caches statement information in multiple places:
 
@@ -4978,7 +5288,7 @@ A cache module can provide a plugin to enable it. Only one plugin can be in use 
     jdbi.installPlugin(new CaffeineCachePlugin());
 ----
 
-=== Using custom cache instances
+==== Using custom cache instances
 
 The default cache instances are installed when the Jdbi object is created. When using a cache plugin, the implementation is changed but only very few aspects of the cache can be modified.
 
@@ -7250,34 +7560,45 @@ methods are just creating and binding custom implementations of
 === JdbiConfig
 
 Configuration is managed by the
-link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry]
-class.  Each Jdbi object that represents a distinct database context
-(for example, Jdbi itself, a *Handle* instance, or an attached SqlObject
-class) gets its own configuration registry.  Most contexts implement the
-link:{jdbidocs}/core/config/Configurable.html[Configurable] interface which
-allows modification of its configuration as well as retrieving the current
-context's configuration for use by Jdbi core or extensions.
+link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry] class.
+Each Jdbi object that represents a distinct database context (for
+example, link:{jdbidocs}/core/Jdbi.html[Jdbi^] itself, a
+link:{jdbidocs}/core/Handle.html[Handle^] instance, or an attached
+link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] class) has a
+separate config registry instance.
 
-When a new configurable context is created, it inherits a copy of its parent
-configuration at the time of creation - further modifications to the original will
-not affect already created configuration contexts.  Configuration context
-copies happen when producing a Handle from Jdbi, when opening a *SqlStatement*
-from the Handle, and when attaching or creating an on-demand extension such as
-*SqlObject*.
+A context implements the
+link:{jdbidocs}/core/config/Configurable.html[Configurable] interface
+which allows modification of its configuration as well as retrieving
+the current context's configuration for use by Jdbi core or
+extensions.
 
-The configuration itself is stored in various implementations of the
+When a new context is created, it inherits a copy of its parent
+configuration at the time of creation - further modifications to the
+original will not affect already created configuration contexts.
+Configuration context copies happen when creating a
+link:{jdbidocs}/core/Handle.html[Handle^] from
+link:{jdbidocs}/core/Jdbi.html[Jdbi^], when opening a
+link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] from
+the Handle, and when attaching or creating an on-demand extension such
+as link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^].
+
+The configuration itself is stored in implementations of the
 link:{jdbidocs}/core/config/JdbiConfig.html[JdbiConfig] interface.
-Each implementation must adhere to the contract of the interface; in particular
-it must have a public no-argument constructor that provides useful defaults
-and a *createCopy* method that is invoked when a configuration registry is cloned.
+Each implementation must adhere to the contract of the interface; in
+particular it must have a public no-argument constructor that provides
+useful defaults and an implementation of the
+link:{jdbidocs}/core/config/JdbiConfig.html#createCopy()[JdbiConfig#createCopy^]
+method that is invoked when a configuration registry is cloned.
 
-Generally, configuration should be set on a context before that context is used,
-and not changed later.  Some configuration classes may be thread-safe but most are
+Configuration should be set on a context before that context is used,
+and not changed later. Some configuration classes may be thread-safe but most are
 not.
 
-Many of Jdbi's core features, for example argument or mapper registries, are simply
-implementations of *JdbiConfig* that store the registered mappings for later use
-during query execution.
+Many of Jdbi's core features, for example argument or mapper
+registries, are simply implementations of
+link:{jdbidocs}/core/config/JdbiConfig.html[JdbiConfig] that store the
+registered mappings for later use during query execution.
 
 [source,java,indent=0]
 ----

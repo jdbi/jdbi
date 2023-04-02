@@ -31,10 +31,18 @@ public class SqlObjectClasspathSqlLocator implements SqlLocator {
 
     private final ClasspathSqlLocator locator;
 
+    /**
+     * Creates a new SqlObjectClasspathSqlLocator. Uses a {@link ClasspathSqlLocator} instance that strips comments off.
+     */
     public SqlObjectClasspathSqlLocator() {
         this(ClasspathSqlLocator.removingComments());
     }
 
+    /**
+     * Creates a new SqlObjectClasspathSqlLocator.
+     *
+     * @param locator A {@link ClasspathSqlLocator} instance
+     */
     public SqlObjectClasspathSqlLocator(ClasspathSqlLocator locator) {
         this.locator = locator;
     }
