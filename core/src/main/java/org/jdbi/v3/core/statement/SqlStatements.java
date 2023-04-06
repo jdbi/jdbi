@@ -225,10 +225,19 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return this;
     }
 
+    /**
+     * Returns the current logger.
+     * @return A {@link SqlLogger} instance
+     */
     public SqlLogger getSqlLogger() {
         return sqlLogger;
     }
 
+    /**
+     * Sets a {@link SqlLogger} instance to log all SQL operations.
+     * @param sqlLogger The logger. Using <code>null</code> turns off all logging
+     * @return this
+     */
     public SqlStatements setSqlLogger(SqlLogger sqlLogger) {
         this.sqlLogger = sqlLogger == null ? SqlLogger.NOP_SQL_LOGGER : sqlLogger;
         return this;

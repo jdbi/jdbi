@@ -17,8 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Optional;
 
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
-
 /**
  * Provides {@link ExtensionHandler} instances for all methods that have not been covered in
  * any other way. It forwards a call to the handler to a method invocation on the target
@@ -38,7 +36,7 @@ final class InstanceExtensionHandlerFactory implements ExtensionHandlerFactory {
     }
 
     @Override
-    public Optional<ExtensionHandler> buildExtensionHandler(Class<?> extensionType, Method method) {
+    public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
         try {
             return Optional.of(ExtensionHandler.createForMethod(method));
         } catch (IllegalAccessException e) {

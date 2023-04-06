@@ -14,6 +14,8 @@
 package org.jdbi.v3.core.async;
 
 import java.time.Duration;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -33,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
@@ -52,6 +55,11 @@ public class JdbiExecutorTest {
         @Override
         public boolean accepts(Class<?> extensionType) {
             return TestExtension.class.equals(extensionType);
+        }
+
+        @Override
+        public Set<FactoryFlag> getFactoryFlags() {
+            return EnumSet.of(NON_VIRTUAL_FACTORY);
         }
 
         @Override

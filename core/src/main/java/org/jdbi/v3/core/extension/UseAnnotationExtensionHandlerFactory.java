@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.CheckedCallable;
@@ -30,9 +29,9 @@ import static java.lang.String.format;
 /**
  * Processes {@link UseExtensionHandler} annotations on methods.
  */
-final class UseExtensionAnnotationHandlerFactory implements ExtensionHandlerFactory {
+final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFactory {
 
-    static final ExtensionHandlerFactory FACTORY = new UseExtensionAnnotationHandlerFactory();
+    static final ExtensionHandlerFactory INSTANCE = new UseAnnotationExtensionHandlerFactory();
 
     @Override
     public boolean accepts(Class<?> extensionType, Method method) {
@@ -50,14 +49,14 @@ final class UseExtensionAnnotationHandlerFactory implements ExtensionHandlerFact
 
     static List<Class<?>> findAnnotations(Method method) {
         return Stream.of(method.getAnnotations())
-                .filter(UseExtensionAnnotationHandlerFactory::matchAnnotation)
+                .filter(UseAnnotationExtensionHandlerFactory::matchAnnotation)
                 .map(Annotation::annotationType)
                 .collect(Collectors.toList());
     }
 
 
     @Override
-    public Optional<ExtensionHandler> buildExtensionHandler(Class<?> extensionType, Method method) {
+    public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
 
         List<Class<?>> extensionAnnotations = findAnnotations(method);
 

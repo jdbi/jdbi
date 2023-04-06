@@ -18,10 +18,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
+
 /**
  * Annotation used to identify SQL method decorating annotations. Use this to annotate an annotation.
  *
- * @deprecated Use {@link org.jdbi.v3.core.extension.annotation.UseExtensionCustomizer} instead
+ * @deprecated Use {@link UseExtensionHandlerCustomizer} instead
  * and implement {@link org.jdbi.v3.core.extension.ExtensionHandlerCustomizer} for the value.
  */
 @Retention(RetentionPolicy.RUNTIME)

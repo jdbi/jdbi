@@ -24,8 +24,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.extension.annotation.ExtensionCustomizationOrder;
-import org.jdbi.v3.core.extension.annotation.UseExtensionCustomizer;
+import org.jdbi.v3.core.extension.annotation.ExtensionHandlerCustomizationOrder;
+import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.CheckedCallable;
 
@@ -34,13 +34,13 @@ import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Applies decorations to method handlers, according to any {@link UseExtensionCustomizer} decorating annotations
+ * Applies decorations to method handlers, according to any {@link UseExtensionHandlerCustomizer} decorating annotations
  * present on the method. If multiple decorating annotations are present, the order of application can be controlled
- * using the {@link ExtensionCustomizationOrder} annotation.
+ * using the {@link ExtensionHandlerCustomizationOrder} annotation.
  */
-final class UseExtensionAnnotationHandlerCustomizer implements ExtensionHandlerCustomizer {
+final class UseAnnotationExtensionHandlerCustomizer implements ExtensionHandlerCustomizer {
 
-    static final ExtensionHandlerCustomizer HANDLER = new UseExtensionAnnotationHandlerCustomizer();
+    static final ExtensionHandlerCustomizer INSTANCE = new UseAnnotationExtensionHandlerCustomizer();
 
     @Override
     public ExtensionHandler customize(ExtensionHandler delegate, Class<?> extensionType, Method method) {
@@ -50,17 +50,17 @@ final class UseExtensionAnnotationHandlerCustomizer implements ExtensionHandlerC
                 .map(AnnotatedElement::getAnnotations)
                 .flatMap(Arrays::stream)
                 .map(Annotation::annotationType)
-                .filter(type -> type.isAnnotationPresent(UseExtensionCustomizer.class))
+                .filter(type -> type.isAnnotationPresent(UseExtensionHandlerCustomizer.class))
                 .collect(toCollection(ArrayList::new));
 
         Stream.of(method, extensionType)
-                .map(e -> e.getAnnotation(ExtensionCustomizationOrder.class))
+                .map(e -> e.getAnnotation(ExtensionHandlerCustomizationOrder.class))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .ifPresent(order -> annotationTypes.sort(createComparator(order).reversed()));
 
         List<ExtensionHandlerCustomizer> customizers = annotationTypes.stream()
-                .map(type -> type.getAnnotation(UseExtensionCustomizer.class))
+                .map(type -> type.getAnnotation(UseExtensionHandlerCustomizer.class))
                 .map(a -> createCustomizer(a.value(), extensionType, method))
                 .collect(toList());
 
@@ -71,7 +71,7 @@ final class UseExtensionAnnotationHandlerCustomizer implements ExtensionHandlerC
         return extensionHandler;
     }
 
-    private Comparator<Class<? extends Annotation>> createComparator(ExtensionCustomizationOrder order) {
+    private Comparator<Class<? extends Annotation>> createComparator(ExtensionHandlerCustomizationOrder order) {
         List<Class<? extends Annotation>> ordering = Arrays.asList(order.value());
 
         return Comparator.comparingInt(type -> {

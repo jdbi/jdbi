@@ -19,13 +19,13 @@ import java.util.Set;
 
 import org.jdbi.v3.core.config.ConfigCustomizer;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 import org.jdbi.v3.meta.Alpha;
 
 /**
  * Factory interface used to produce Jdbi extension objects. A factory can provide additional
  * pieces of information by overriding the various default methods.
  */
+@FunctionalInterface
 public interface ExtensionFactory {
 
     /**
@@ -36,24 +36,29 @@ public interface ExtensionFactory {
     @Alpha
     enum FactoryFlag {
         /**
-         * The factory has no actual object to attach to. It will register a method handler for every method on an extension type.
+         * The factory provides a concrete instance to back the extension type.
          * <br>
-         * E.g. the SQLObject handler will process every method in an interface class without requiring an implementation of the extension
-         * type. The extension framework will execute the method handlers and pass in a proxy object instead of an underlying instance.
+         * Unless this flag is present, factories do not
+         * create an object to attach to but register method handlers for every method on an extension type.
+         * <br>
+         * E.g. the SQLObject handler is an example of a virtual factory that processes every method in an interface class without requiring
+         * an implementation of the extension type.
+         * The extension framework will execute the method handlers and pass in a proxy object instead of an underlying instance.
          * <br>
          * When this flag is present, the {@link ExtensionFactory#attach(Class, HandleSupplier)} method will never be called.
          */
-        VIRTUAL_FACTORY,
+        NON_VIRTUAL_FACTORY,
         /**
-         * The factory supports extending class objects (not just interfaces). Class objects are not wrapped into a proxy and
-         * the factory takes full responsibility for creating and managing invocation handlers.
+         * Do not wrap the backing object methods into {@link ExtensionHandler} instances and return a
+         * {@link java.lang.reflect.Proxy} instance but return it as is. This allows the factory to
+         * suport class objects as well as interfaces.
          * <br>
          * This is a corner use case and should normally not be used by any standard extension.
          * <br>
          * Legacy extension factories that need every method on an interface forwarded to the underlying implementation class
-         * can set this flag to bypass metadata creation and the proxy logic of the extension framework.
+         * can set this flag to bypass the proxy logic of the extension framework.
          */
-        CLASSES_ARE_SUPPORTED
+        DONT_USE_PROXY
     }
 
     /**
@@ -65,7 +70,7 @@ public interface ExtensionFactory {
     boolean accepts(Class<?> extensionType);
 
     /**
-     * Attaches an extension type. This method is not called if {@link #getFactoryFlags()} contains {@link FactoryFlag#VIRTUAL_FACTORY}.
+     * Attaches an extension type. This method is not called if {@link #getFactoryFlags()} contains {@link FactoryFlag#NON_VIRTUAL_FACTORY}.
      *
      * @param extensionType  The extension type
      * @param handleSupplier Supplies the database handle. This supplier may lazily open a Handle on the first
@@ -76,7 +81,9 @@ public interface ExtensionFactory {
      * @throws IllegalArgumentException if the extension type is not supported by this factory
      * @see org.jdbi.v3.core.Jdbi#onDemand(Class)
      */
-    <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier);
+    default <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
+        throw new UnsupportedOperationException("Virtual factories do not support attach()");
+    }
 
     /**
      * Returns a collection of {@link ExtensionHandlerFactory} objects. These factories are used in
@@ -138,7 +145,7 @@ public interface ExtensionFactory {
      * @since 3.38.0
      */
     @Alpha
-    default void buildExtensionInitData(ExtensionMetadata.Builder builder) {}
+    default void buildExtensionMetadata(ExtensionMetadata.Builder builder) {}
 
     /**
      * Returns a set of {@link FactoryFlag}s that describe the extension factory.

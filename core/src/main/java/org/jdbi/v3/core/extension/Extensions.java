@@ -22,12 +22,12 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
+import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
 import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.meta.Beta;
 
-import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.VIRTUAL_FACTORY;
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 
 /**
  * Configuration class for defining {@code Jdbi} extensions via {@link ExtensionFactory}
@@ -37,34 +37,41 @@ public class Extensions implements JdbiConfig<Extensions> {
 
     private final List<ExtensionFactoryDelegate> extensionFactories = new CopyOnWriteArrayList<>();
     private final ConcurrentMap<Class<?>, ExtensionMetadata> extensionMetadataCache = new ConcurrentHashMap<>();
-
     private final List<ExtensionHandlerCustomizer> extensionHandlerCustomizers = new CopyOnWriteArrayList<>();
     private final List<ExtensionHandlerFactory> extensionHandlerFactories = new CopyOnWriteArrayList<>();
     private final List<ConfigCustomizerFactory> configCustomizerFactories = new CopyOnWriteArrayList<>();
 
     private boolean allowProxy = true;
 
+    private ConfigRegistry registry;
+
     /**
      * Creates a new instance.
      * <ul>
      * <li>registers extension handlers factories for bridge and interface default methods and for the {@link UseExtensionHandler} annotation.</li>
-     * <li>registers extension handler customizers for the {@link org.jdbi.v3.core.extension.annotation.UseExtensionCustomizer} annotation.</li>
+     * <li>registers extension handler customizers for the {@link UseExtensionHandlerCustomizer} annotation.</li>
      * <li>registers extension configurer factories for {@link org.jdbi.v3.core.extension.annotation.UseExtensionConfigurer} annotation.</li>
      * </ul>
      */
     public Extensions() {
         // default handler factories for bridge and default methods
-        registerHandlerFactory(DefaultMethodExtensionHandlerFactory.INSTANCE);
-        registerHandlerFactory(BridgeMethodExtensionHandlerFactory.INSTANCE);
+        internalRegisterHandlerFactory(DefaultMethodExtensionHandlerFactory.INSTANCE);
+        internalRegisterHandlerFactory(BridgeMethodExtensionHandlerFactory.INSTANCE);
 
         // default handler factory for the UseExtensionHandler annotation.
-        registerHandlerFactory(UseExtensionAnnotationHandlerFactory.FACTORY);
+        registerHandlerFactory(UseAnnotationExtensionHandlerFactory.INSTANCE);
 
-        // default handler customizer for the UseExtensionCustomizer annotation.
-        registerHandlerCustomizer(UseExtensionAnnotationHandlerCustomizer.HANDLER);
+        // default handler customizer for the UseExtensionHandlerCustomizer annotation.
+        registerHandlerCustomizer(UseAnnotationExtensionHandlerCustomizer.INSTANCE);
 
-        registerConfigCustomizerFactory(UseExtensionAnnotationConfigCustomizerFactory.FACTORY);
+        registerConfigCustomizerFactory(UseAnnotationConfigCustomizerFactory.INSTANCE);
     }
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
+    }
+
 
     /**
      * Create an extension configuration by cloning another.
@@ -101,8 +108,7 @@ public class Extensions implements JdbiConfig<Extensions> {
      */
     @Alpha
     public Extensions registerHandlerFactory(ExtensionHandlerFactory extensionHandlerFactory) {
-        extensionHandlerFactories.add(0, extensionHandlerFactory);
-        return this;
+        return internalRegisterHandlerFactory(FilteringExtensionHandlerFactory.forDelegate(extensionHandlerFactory));
     }
 
     /**
@@ -190,42 +196,46 @@ public class Extensions implements JdbiConfig<Extensions> {
     /**
      * Retrieves all extension metadata for a specific extension type.
      *
-     * @param extensionType The extension type
-     * @param config A config registry that can be used to look up other configuration elements
+     * @param extensionType    The extension type
      * @param extensionFactory The extension factory for this extension type
      * @return A {@link ExtensionMetadata} object describing the extension handlers and customizers for this extension type
      *
      * @since 3.38.0
      */
     @Alpha
-    public ExtensionMetadata findMetadata(Class<?> extensionType, ConfigRegistry config, ExtensionFactory extensionFactory) {
-        return extensionMetadataCache.computeIfAbsent(extensionType, createMetadata(config, extensionFactory));
+    public ExtensionMetadata findMetadata(Class<?> extensionType, ExtensionFactory extensionFactory) {
+        return extensionMetadataCache.computeIfAbsent(extensionType, createMetadata(extensionFactory));
     }
 
-    private Function<Class<?>, ExtensionMetadata> createMetadata(ConfigRegistry config, ExtensionFactory extensionFactory) {
+    private Extensions internalRegisterHandlerFactory(ExtensionHandlerFactory extensionHandlerFactory) {
+        extensionHandlerFactories.add(0, extensionHandlerFactory);
+        return this;
+    }
+
+    private Function<Class<?>, ExtensionMetadata> createMetadata(ExtensionFactory extensionFactory) {
         return extensionType -> {
 
             ExtensionMetadata.Builder builder = ExtensionMetadata.builder(extensionType);
 
             // prep the extension handler set for this factory
-            extensionFactory.getExtensionHandlerFactories(config).forEach(builder::addExtensionHandlerFactory);
+            extensionFactory.getExtensionHandlerFactories(registry).forEach(builder::addExtensionHandlerFactory);
             extensionHandlerFactories.forEach(builder::addExtensionHandlerFactory);
 
             // InstanceExtensionHandlerFactory for non-virtual factories. These have a backing object and can invoke methods on those objects.
-            if (!extensionFactory.getFactoryFlags().contains(VIRTUAL_FACTORY)) {
+            if (extensionFactory.getFactoryFlags().contains(NON_VIRTUAL_FACTORY)) {
                 builder.addExtensionHandlerFactory(InstanceExtensionHandlerFactory.INSTANCE);
             }
 
             // prep the extension customizer set for this factory
-            extensionFactory.getExtensionHandlerCustomizers(config).forEach(builder::addExtensionHandlerCustomizer);
+            extensionFactory.getExtensionHandlerCustomizers(registry).forEach(builder::addExtensionHandlerCustomizer);
             extensionHandlerCustomizers.forEach(builder::addExtensionHandlerCustomizer);
 
             // prep the extension configurer set for this factory
-            extensionFactory.getConfigCustomizerFactories(config).forEach(builder::addConfigCustomizerFactory);
+            extensionFactory.getConfigCustomizerFactories(registry).forEach(builder::addConfigCustomizerFactory);
             configCustomizerFactories.forEach(builder::addConfigCustomizerFactory);
 
             // build metadata
-            extensionFactory.buildExtensionInitData(builder);
+            extensionFactory.buildExtensionMetadata(builder);
 
             return builder.build();
         };

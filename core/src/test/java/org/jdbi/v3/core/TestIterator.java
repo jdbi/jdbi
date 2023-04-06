@@ -13,7 +13,9 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -33,6 +35,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 
 class TestIterator {
 
@@ -288,6 +291,11 @@ class TestIterator {
         @Override
         public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
             return (E) new SpiffyImpl(handleSupplier);
+        }
+
+        @Override
+        public Set<FactoryFlag> getFactoryFlags() {
+            return EnumSet.of(NON_VIRTUAL_FACTORY);
         }
     }
 

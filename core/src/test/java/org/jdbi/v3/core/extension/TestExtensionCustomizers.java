@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.extension.annotation.ExtensionCustomizationOrder;
-import org.jdbi.v3.core.extension.annotation.UseExtensionCustomizer;
+import org.jdbi.v3.core.extension.annotation.ExtensionHandlerCustomizationOrder;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
+import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -142,24 +142,24 @@ public class TestExtensionCustomizers {
         @Foo
         @Bar
         @CustomExtensionHandler
-        @ExtensionCustomizationOrder({Foo.class, Bar.class})
+        @ExtensionHandlerCustomizationOrder({Foo.class, Bar.class})
         void orderedFooBar();
 
         @Foo
         @Bar
         @CustomExtensionHandler
-        @ExtensionCustomizationOrder({Bar.class, Foo.class})
+        @ExtensionHandlerCustomizationOrder({Bar.class, Foo.class})
         void orderedBarFoo();
 
         @Foo
         @Abort
         @Bar
         @CustomExtensionHandler
-        @ExtensionCustomizationOrder({Foo.class, Abort.class, Bar.class})
+        @ExtensionHandlerCustomizationOrder({Foo.class, Abort.class, Bar.class})
         void abortingDecorator();
     }
 
-    @ExtensionCustomizationOrder({Foo.class, Bar.class})
+    @ExtensionHandlerCustomizationOrder({Foo.class, Bar.class})
     public interface OrderedOnType {
 
         @Foo
@@ -170,7 +170,7 @@ public class TestExtensionCustomizers {
         @Foo
         @Bar
         @CustomExtensionHandler
-        @ExtensionCustomizationOrder({Bar.class, Foo.class})
+        @ExtensionHandlerCustomizationOrder({Bar.class, Foo.class})
         void orderedBarFooOnMethod();
     }
 
@@ -183,7 +183,7 @@ public class TestExtensionCustomizers {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @UseExtensionCustomizer(Foo.Factory.class)
+    @UseExtensionHandlerCustomizer(Foo.Factory.class)
     public @interface Foo {
 
         class Factory implements ExtensionHandlerCustomizer {
@@ -199,7 +199,7 @@ public class TestExtensionCustomizers {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @UseExtensionCustomizer(Bar.Factory.class)
+    @UseExtensionHandlerCustomizer(Bar.Factory.class)
     public @interface Bar {
 
         class Factory implements ExtensionHandlerCustomizer {
@@ -215,7 +215,7 @@ public class TestExtensionCustomizers {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @UseExtensionCustomizer(Abort.Factory.class)
+    @UseExtensionHandlerCustomizer(Abort.Factory.class)
     public @interface Abort {
 
         class Factory implements ExtensionHandlerCustomizer {

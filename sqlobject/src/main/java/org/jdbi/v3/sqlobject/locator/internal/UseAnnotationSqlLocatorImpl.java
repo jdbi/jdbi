@@ -14,21 +14,16 @@
 package org.jdbi.v3.sqlobject.locator.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
 
-public class UseAnnotationSqlLocatorImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        registry.get(SqlObjects.class).setSqlLocator(new AnnotationSqlLocator());
-    }
+public class UseAnnotationSqlLocatorImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        config.get(SqlObjects.class).setSqlLocator(new AnnotationSqlLocator());
     }
 }

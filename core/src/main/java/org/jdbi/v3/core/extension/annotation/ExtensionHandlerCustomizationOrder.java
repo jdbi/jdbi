@@ -23,14 +23,14 @@ import org.jdbi.v3.meta.Alpha;
 
 /**
  * Determines the order in which extension method decorators are invoked. If this annotation is absent, the decorator order
- * is undefined. A <code>@ExtensionCustomizationOrder</code> annotation on a method takes precedence over an annotation on a type.
+ * is undefined. A <code>@ExtensionHandlerCustomizationOrder</code> annotation on a method takes precedence over an annotation on a type.
  *
  * @since 3.38.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Alpha
-public @interface ExtensionCustomizationOrder {
+public @interface ExtensionHandlerCustomizationOrder {
     /**
      * The order that decorator annotations will be applied, from outermost to innermost. Decorator order is undefined
      * for any decorating annotation present on a method but not on this annotation.

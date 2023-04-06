@@ -14,25 +14,20 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMappers;
 
-public class RegisterConstructorMappersImpl implements ExtensionConfigurer {
+public class RegisterConstructorMappersImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
-    }
-
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         ExtensionConfigurer delegate = new RegisterConstructorMapperImpl();
 
         RegisterConstructorMappers registerConstructorMappers = (RegisterConstructorMappers) annotation;
-        Stream.of(registerConstructorMappers.value()).forEach(anno -> delegate.configureForType(registry, anno, sqlObjectType));
+        Stream.of(registerConstructorMappers.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
     }
 }

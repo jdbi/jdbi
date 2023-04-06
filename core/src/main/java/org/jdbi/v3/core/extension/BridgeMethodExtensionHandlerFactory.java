@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
-
 /**
  * Extension handler factory for bridge methods. Forwards bridge methods to matching candidates.
  */
@@ -36,7 +34,7 @@ final class BridgeMethodExtensionHandlerFactory implements ExtensionHandlerFacto
     }
 
     @Override
-    public Optional<ExtensionHandler> buildExtensionHandler(Class<?> extensionType, Method method) {
+    public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
 
         List<Method> candidates = Stream.of(extensionType.getMethods())
                 .filter(candidate -> !candidate.isBridge())

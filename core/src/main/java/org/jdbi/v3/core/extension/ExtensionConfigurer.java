@@ -30,27 +30,27 @@ import org.jdbi.v3.meta.Alpha;
  */
 @Alpha
 public interface ExtensionConfigurer {
+
     /**
      * Updates configuration for the given annotation on an extension type.
      *
-     * @param registry      the registry to configure
+     * @param config        the config to configure
      * @param annotation    the annotation
      * @param extensionType the extension type which was annotated
      */
-    default void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> extensionType) {
+    default void configureForType(ConfigRegistry config, Annotation annotation, Class<?> extensionType) {
         throw new UnsupportedOperationException("Not supported for type");
     }
 
     /**
-     * Configures the registry for the given annotation on a extension type method.
+     * Configures the config for the given annotation on a extension type method.
      *
-     * @param registry      the registry to configure
+     * @param config        the config to configure
      * @param annotation    the annotation
      * @param extensionType the extension type
      * @param method        the method which was annotated
      */
-    default void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> extensionType, Method method) {
+    default void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> extensionType, Method method) {
         throw new UnsupportedOperationException("Not supported for method");
     }
-
 }

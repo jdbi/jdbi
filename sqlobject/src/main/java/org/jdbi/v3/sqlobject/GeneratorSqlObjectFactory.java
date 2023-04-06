@@ -26,6 +26,8 @@ import org.jdbi.v3.core.internal.OnDemandExtensions;
 
 import static java.lang.String.format;
 
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_PROXY;
+
 /**
  * Support for generator instances (concrete classes that have been created by the Jdbi generator).
  */
@@ -40,7 +42,7 @@ public final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory im
 
     @Override
     public Set<FactoryFlag> getFactoryFlags() {
-        return EnumSet.of(FactoryFlag.CLASSES_ARE_SUPPORTED);
+        return EnumSet.of(DONT_USE_PROXY);
     }
 
     /**
@@ -58,7 +60,7 @@ public final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory im
 
         ConfigRegistry config = handleSupplier.getConfig();
 
-        final ExtensionMetadata extensionMetaData = config.get(Extensions.class).findMetadata(extensionType, config, this);
+        final ExtensionMetadata extensionMetaData = config.get(Extensions.class).findMetadata(extensionType, this);
         final ConfigRegistry instanceConfig = extensionMetaData.createInstanceConfiguration(config);
 
         try {

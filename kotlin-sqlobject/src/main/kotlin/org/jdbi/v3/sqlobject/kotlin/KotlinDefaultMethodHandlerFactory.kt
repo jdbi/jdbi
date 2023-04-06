@@ -14,7 +14,7 @@
 package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.extension.ExtensionHandler
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory
+import org.jdbi.v3.core.extension.ExtensionHandlerFactory
 import org.jdbi.v3.core.kotlin.isKotlinClass
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -28,7 +28,7 @@ class KotlinDefaultMethodHandlerFactory : ExtensionHandlerFactory {
 
     override fun accepts(extensionType: Class<*>?, method: Method?): Boolean = extensionType?.isKotlinClass() ?: false
 
-    override fun buildExtensionHandler(sqlObjectType: Class<*>, method: Method): Optional<ExtensionHandler> {
+    override fun createExtensionHandler(sqlObjectType: Class<*>, method: Method): Optional<ExtensionHandler> {
         val implementation = getImplementation(sqlObjectType, method) ?: return Optional.empty()
 
         return Optional.of(

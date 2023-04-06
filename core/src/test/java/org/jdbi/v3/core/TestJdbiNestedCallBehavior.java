@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
@@ -24,6 +27,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_COMMITTED;
 import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMMITTED;
 
@@ -50,6 +54,11 @@ public class TestJdbiNestedCallBehavior {
         @Override
         public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
             return extensionType.cast(new TestExtensionImpl(handleSupplier));
+        }
+
+        @Override
+        public Set<FactoryFlag> getFactoryFlags() {
+            return EnumSet.of(NON_VIRTUAL_FACTORY);
         }
     }
 

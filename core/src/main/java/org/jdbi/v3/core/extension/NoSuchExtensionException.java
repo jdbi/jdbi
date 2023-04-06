@@ -15,25 +15,57 @@ package org.jdbi.v3.core.extension;
 
 import org.jdbi.v3.core.JdbiException;
 
+import static java.lang.String.format;
+
 /**
- * Thrown when an extension of an unknown type is created.
+ * Thrown when no {@link ExtensionFactory} accepts a given extension type.
  */
-public class NoSuchExtensionException extends JdbiException {
+public final class NoSuchExtensionException extends JdbiException {
     private static final long serialVersionUID = 1L;
 
+    private static final String DEFAULT_MESSAGE = "Extension not found: %s [Hint: maybe you need to register a plugin, like SqlObjectPlugin]";
+
+    /**
+     * Creates an instance with an extension type and the default message.
+     *
+     * @param extensionClass The extension type. Can be null.
+     */
     public NoSuchExtensionException(Class<?> extensionClass) {
-        this("Extension not found: " + extensionClass + " [Hint: maybe you need to register a plugin, like SqlObjectPlugin]");
+        super(formatMessage(extensionClass, DEFAULT_MESSAGE));
     }
 
-    public NoSuchExtensionException(String string, Throwable throwable) {
-        super(string, throwable);
+    /**
+     * Creates an instance with an extension type and a custom message.
+     *
+     * @param message The message format for the exception. Must contain exactly one <code>%s</code> placeholder for the extension class name.
+     * @param extensionClass The extension type. Can be null.
+     */
+    public NoSuchExtensionException(Class<?> extensionClass, String message) {
+        super(formatMessage(extensionClass, message));
     }
 
-    public NoSuchExtensionException(Throwable cause) {
-        super(cause);
+    /**
+     * Creates an instance with an extension type and the default message.
+     *
+     * @param extensionClass The extension type. Can be null.
+     * @param cause A throwable that caused this exception.
+     */
+    public NoSuchExtensionException(Class<?> extensionClass, Throwable cause) {
+        super(formatMessage(extensionClass, DEFAULT_MESSAGE), cause);
     }
 
-    public NoSuchExtensionException(String message) {
-        super(message);
+    /**
+     * Creates an instance with an extension type and a custom message.
+     *
+     * @param message The message format for the exception. Must contain exactly one <code>%s</code> placeholder for the extension class name.
+     * @param extensionClass The extension type. Can be null.
+     * @param cause A throwable that caused this exception.
+     */
+    public NoSuchExtensionException(Class<?> extensionClass, String message, Throwable cause) {
+        super(formatMessage(extensionClass, message), cause);
+    }
+
+    private static String formatMessage(Class<?> extensionClass, String formatString) {
+        return format(formatString, extensionClass == null ? "<null>" : extensionClass.getSimpleName());
     }
 }

@@ -14,28 +14,23 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 
-public class RegisterArgumentFactoryImpl implements ExtensionConfigurer {
+public class RegisterArgumentFactoryImpl extends SimpleExtensionConfigurer {
+
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         RegisterArgumentFactory registerArgumentFactory = (RegisterArgumentFactory) annotation;
-        Arguments arguments = registry.get(Arguments.class);
+        Arguments arguments = config.get(Arguments.class);
 
         try {
             arguments.register(registerArgumentFactory.value().getConstructor().newInstance());
         } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate argument factory class " + registerArgumentFactory.value(), e);
         }
-    }
-
-    @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
     }
 }

@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 import org.jdbi.v3.core.extension.ExtensionHandler;
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
+import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
 
 /**
  * Creates Handler objects for methods annotated with a specific SQL method annotation, which satisfy the contract of
@@ -45,7 +45,7 @@ public interface HandlerFactory extends ExtensionHandlerFactory {
     }
 
     @Override
-    default Optional<ExtensionHandler> buildExtensionHandler(Class<?> extensionType, Method method) {
+    default Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
         return buildHandler(extensionType, method)
                 .map(h -> h); // ugh, Java.
     }

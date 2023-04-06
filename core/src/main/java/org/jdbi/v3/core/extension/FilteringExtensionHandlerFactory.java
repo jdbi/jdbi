@@ -16,24 +16,29 @@ package org.jdbi.v3.core.extension;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-/**
- * Provides {@link ExtensionHandler} instances for interface default methods.
- */
-final class DefaultMethodExtensionHandlerFactory implements ExtensionHandlerFactory {
+final class FilteringExtensionHandlerFactory implements ExtensionHandlerFactory {
 
-    static final ExtensionHandlerFactory INSTANCE = new DefaultMethodExtensionHandlerFactory();
+    private final ExtensionHandlerFactory delegate;
+
+    static ExtensionHandlerFactory forDelegate(ExtensionHandlerFactory delegate) {
+        return new FilteringExtensionHandlerFactory(delegate);
+    }
+
+    private FilteringExtensionHandlerFactory(ExtensionHandlerFactory delegate) {
+        this.delegate = delegate;
+    }
 
     @Override
     public boolean accepts(Class<?> extensionType, Method method) {
-        return extensionType.isInterface() && method.isDefault();  // interface default method
+        if (method == null || method.isSynthetic() || method.isBridge()) {
+            return false;
+        }
+
+        return delegate.accepts(extensionType, method);
     }
 
     @Override
     public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
-        try {
-            return Optional.of(ExtensionHandler.createForSpecialMethod(method));
-        } catch (IllegalAccessException e) {
-            throw new UnableToCreateExtensionException(e, "Default method handler for %s couldn't unreflect %s", extensionType, method);
-        }
+        return delegate.createExtensionHandler(extensionType, method);
     }
 }

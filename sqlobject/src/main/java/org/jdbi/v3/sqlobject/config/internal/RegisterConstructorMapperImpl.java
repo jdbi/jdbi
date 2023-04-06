@@ -14,25 +14,19 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 
-public class RegisterConstructorMapperImpl implements ExtensionConfigurer {
+public class RegisterConstructorMapperImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
-    }
-
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
-        RowMappers mappers = registry.get(RowMappers.class);
+        RowMappers mappers = config.get(RowMappers.class);
         Class<?> type = registerConstructorMapper.value();
         String prefix = registerConstructorMapper.prefix();
         if (prefix.isEmpty()) {

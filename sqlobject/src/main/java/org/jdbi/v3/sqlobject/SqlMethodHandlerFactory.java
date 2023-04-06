@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.core.extension.ExtensionHandler;
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
+import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.CheckedCallable;
 
@@ -37,7 +37,7 @@ class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
     }
 
     @Override
-    public Optional<ExtensionHandler> buildExtensionHandler(Class<?> sqlObjectType, Method method) {
+    public Optional<ExtensionHandler> createExtensionHandler(Class<?> sqlObjectType, Method method) {
 
         List<Class<?>> sqlMethodAnnotations = SqlObjectAnnotationHelper.findSqlMethodAnnotations(method);
 

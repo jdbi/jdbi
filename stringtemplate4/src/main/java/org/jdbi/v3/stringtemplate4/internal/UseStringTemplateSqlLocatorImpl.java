@@ -14,10 +14,9 @@
 package org.jdbi.v3.stringtemplate4.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.SqlObjects;
@@ -28,10 +27,11 @@ import org.stringtemplate.v4.STGroup;
 
 import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTemplateGroup;
 
-public class UseStringTemplateSqlLocatorImpl implements ExtensionConfigurer {
+public class UseStringTemplateSqlLocatorImpl extends SimpleExtensionConfigurer {
+
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        SqlLocator locator = (type, method, config) -> {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        SqlLocator locator = (type, method, c) -> {
             String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
             STGroup group = findStringTemplateGroup(type);
             if (!group.isDefined(templateName)) {
@@ -46,12 +46,7 @@ public class UseStringTemplateSqlLocatorImpl implements ExtensionConfigurer {
             ctx.getAttributes().forEach(template::add);
             return template.render();
         };
-        registry.get(SqlObjects.class).setSqlLocator(locator);
-        registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
-    }
-
-    @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
+        config.get(SqlObjects.class).setSqlLocator(locator);
+        config.get(SqlStatements.class).setTemplateEngine(templateEngine);
     }
 }

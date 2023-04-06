@@ -14,31 +14,26 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 
-public class RegisterBeanMapperImpl implements ExtensionConfigurer {
+public class RegisterBeanMapperImpl extends SimpleExtensionConfigurer {
+
     @Override
     @SuppressWarnings("deprecation")
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         RegisterBeanMapper registerBeanMapper = (RegisterBeanMapper) annotation;
         Class<?> beanClass = registerBeanMapper.value();
         String prefix = registerBeanMapper.prefix();
-        RowMappers mappers = registry.get(RowMappers.class);
+        RowMappers mappers = config.get(RowMappers.class);
         if (prefix.isEmpty()) {
             mappers.register(BeanMapper.factory(beanClass));
         } else {
             mappers.register(BeanMapper.factory(beanClass, prefix));
         }
-    }
-
-    @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
     }
 }

@@ -14,19 +14,19 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.ObjectArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterObjectArgumentFactory;
 
-public class RegisterObjectArgumentFactoryImpl implements ExtensionConfigurer {
+public class RegisterObjectArgumentFactoryImpl extends SimpleExtensionConfigurer {
+
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         RegisterObjectArgumentFactory registerObjectArgumentFactory = (RegisterObjectArgumentFactory) annotation;
-        Arguments arguments = registry.get(Arguments.class);
+        Arguments arguments = config.get(Arguments.class);
 
         Class<?> clazz = registerObjectArgumentFactory.value();
         int sqlType = registerObjectArgumentFactory.sqlType();
@@ -36,10 +36,5 @@ public class RegisterObjectArgumentFactoryImpl implements ExtensionConfigurer {
         } else {
             arguments.register(ObjectArgumentFactory.create(clazz, sqlType));
         }
-    }
-
-    @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
     }
 }

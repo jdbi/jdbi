@@ -23,9 +23,9 @@ import org.jdbi.v3.sqlobject.config.ValueColumn;
 
 public class ValueColumnImpl implements ExtensionConfigurer {
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
+    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
         ValueColumn valueColumn = (ValueColumn) annotation;
         String name = valueColumn.value();
-        registry.get(MapEntryMappers.class).setValueColumn(name.isEmpty() ? null : name);
+        config.get(MapEntryMappers.class).setValueColumn(name.isEmpty() ? null : name);
     }
 }

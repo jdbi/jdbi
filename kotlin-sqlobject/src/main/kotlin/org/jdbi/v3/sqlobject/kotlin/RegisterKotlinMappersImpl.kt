@@ -14,19 +14,14 @@
 package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.config.ConfigRegistry
-import org.jdbi.v3.core.extension.ExtensionConfigurer
-import java.lang.reflect.Method
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer
 
-class RegisterKotlinMappersImpl : ExtensionConfigurer {
+class RegisterKotlinMappersImpl : SimpleExtensionConfigurer() {
 
-    override fun configureForType(registry: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
+    override fun configure(config: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
         val delegate = RegisterKotlinMapperImpl()
 
         val registerKotlinMappers = annotation as RegisterKotlinMappers
-        registerKotlinMappers.value.forEach { anno -> delegate.configureForType(registry, anno, sqlObjectType) }
-    }
-
-    override fun configureForMethod(registry: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>, method: Method) {
-        configureForType(registry, annotation, sqlObjectType)
+        registerKotlinMappers.value.forEach { anno -> delegate.configureForType(config, anno, sqlObjectType) }
     }
 }

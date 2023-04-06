@@ -14,26 +14,21 @@
 package org.jdbi.v3.sqlobject.locator.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.locator.SqlObjectClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 
-public class UseClasspathSqlLocatorImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        registry.get(SqlObjects.class).setSqlLocator(new SqlObjectClasspathSqlLocator(
-            ((UseClasspathSqlLocator) annotation).stripComments()
-                ? ClasspathSqlLocator.removingComments()
-                : ClasspathSqlLocator.create()));
-    }
+public class UseClasspathSqlLocatorImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        config.get(SqlObjects.class).setSqlLocator(new SqlObjectClasspathSqlLocator(
+                ((UseClasspathSqlLocator) annotation).stripComments()
+                        ? ClasspathSqlLocator.removingComments()
+                        : ClasspathSqlLocator.create()));
     }
 }

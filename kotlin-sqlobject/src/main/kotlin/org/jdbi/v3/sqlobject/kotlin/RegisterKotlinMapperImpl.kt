@@ -14,22 +14,17 @@
 package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.config.ConfigRegistry
-import org.jdbi.v3.core.extension.ExtensionConfigurer
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer
 import org.jdbi.v3.core.kotlin.KotlinMapper
 import org.jdbi.v3.core.mapper.RowMappers
-import java.lang.reflect.Method
 
-class RegisterKotlinMapperImpl : ExtensionConfigurer {
+class RegisterKotlinMapperImpl : SimpleExtensionConfigurer() {
 
-    override fun configureForType(registry: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
+    override fun configure(config: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
         val registerKotlinMapper = annotation as RegisterKotlinMapper
         val kotlinClass = registerKotlinMapper.value
         val prefix = registerKotlinMapper.prefix
-        val mappers = registry.get(RowMappers::class.java)
+        val mappers = config.get(RowMappers::class.java)
         mappers.register(kotlinClass.java, KotlinMapper(kotlinClass.java, prefix))
-    }
-
-    override fun configureForMethod(registry: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>, method: Method) {
-        configureForType(registry, annotation, sqlObjectType)
     }
 }
