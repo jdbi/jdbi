@@ -24,7 +24,7 @@ import org.jdbi.v3.meta.Beta;
 @Beta
 public class StatementExceptions implements JdbiConfig<StatementExceptions> {
 
-    private MessageRendering messageRendering = MessageRendering.SHORT_STATEMENT;
+    private Function<StatementException, String> messageRendering = MessageRendering.SHORT_STATEMENT;
     private int lengthLimit = 1024;
 
     public StatementExceptions() {}
@@ -57,8 +57,9 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
      * Returns the statement exception message rendering strategy.
      *
      * @return the statement exception message rendering strategy.
+     * @see MessageRendering
      */
-    public MessageRendering getMessageRendering() {
+    public Function<StatementException, String> getMessageRendering() {
         return messageRendering;
     }
 
@@ -66,8 +67,9 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
      * Configure exception statement message generation.
      * @param messageRendering the message rendering strategy to use
      * @return this
+     * @see MessageRendering
      */
-    public StatementExceptions setMessageRendering(MessageRendering messageRendering) {
+    public StatementExceptions setMessageRendering(Function<StatementException, String> messageRendering) {
         this.messageRendering = messageRendering;
         return this;
     }
