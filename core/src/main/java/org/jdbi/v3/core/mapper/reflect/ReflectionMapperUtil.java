@@ -45,7 +45,7 @@ public final class ReflectionMapperUtil {
      * @return list of all the column names in {@code rs} (will contain duplicates if multiple columns have the same name)
      * @throws SQLException See {@link ResultSet#getMetaData()}, {@link ResultSetMetaData#getColumnCount()}, and {@link ResultSetMetaData#getColumnLabel(int)}
      * @see #getColumnNames(ResultSet, UnaryOperator)
-     * @deprecated
+     * @deprecated Use {@link #getColumnNames(ResultSet, UnaryOperator)} and {@link CaseStrategy} to control name capitalization
      */
     @Deprecated
     public static List<String> getColumnNames(ResultSet rs) throws SQLException {

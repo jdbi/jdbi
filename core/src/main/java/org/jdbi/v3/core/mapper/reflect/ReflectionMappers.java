@@ -24,7 +24,6 @@ import java.util.function.UnaryOperator;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.mapper.CaseStrategy;
 import org.jdbi.v3.meta.Alpha;
-import org.jdbi.v3.meta.Beta;
 
 import static org.jdbi.v3.core.mapper.reflect.AccessibleObjectStrategy.DO_NOT_MAKE_ACCESSIBLE;
 import static org.jdbi.v3.core.mapper.reflect.AccessibleObjectStrategy.FORCE_MAKE_ACCESSIBLE;
@@ -108,7 +107,6 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * @return The current case change strategy.
      * @see CaseStrategy
      */
-    @Beta
     public UnaryOperator<String> getCaseChange() {
         return caseChange;
     }
@@ -119,7 +117,6 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * @param caseChange The strategy to use. Must not be null.
      * @see CaseStrategy
      */
-    @Beta
     public ReflectionMappers setCaseChange(UnaryOperator<String> caseChange) {
         this.caseChange = caseChange;
         return this;

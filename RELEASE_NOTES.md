@@ -1,5 +1,6 @@
 # Unreleased
 
+  - `CaseStrategy` is now an official API (dropped @Beta) (#2309)
   - rewrite `AccessibleObjectStrategy` into an enum (#2310)
   - allow user defined functions for message rendering (#2311)
   - fix `GenericType` creation in parameterized classes (#2305)

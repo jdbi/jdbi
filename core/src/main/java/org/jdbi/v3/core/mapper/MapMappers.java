@@ -37,7 +37,6 @@ public class MapMappers implements JdbiConfig<MapMappers> {
      * @return The current case change strategy.
      * @see CaseStrategy
      */
-    @Beta
     public UnaryOperator<String> getCaseChange() {
         return caseChange;
     }
@@ -48,7 +47,6 @@ public class MapMappers implements JdbiConfig<MapMappers> {
      * @param caseChange The strategy to use. Must not be null.
      * @see CaseStrategy
      */
-    @Beta
     public MapMappers setCaseChange(UnaryOperator<String> caseChange) {
         this.caseChange = caseChange;
         return this;
