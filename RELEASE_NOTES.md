@@ -1,5 +1,6 @@
 # Unreleased
 
+  - rewrite `AccessibleObjectStrategy` into an enum (#2310)
   - allow user defined functions for message rendering (#2311)
   - fix `GenericType` creation in parameterized classes (#2305)
   - add `SqlStatements#setAttachAllStatementsForCleanup`. Setting this configuration flag will attach all created statements to their handles for resource cleanup. Default is `false`. (#2293, thanks @jodastephen)

@@ -26,13 +26,13 @@ import org.jdbi.v3.core.mapper.CaseStrategy;
 import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.meta.Beta;
 
+import static org.jdbi.v3.core.mapper.reflect.AccessibleObjectStrategy.DO_NOT_MAKE_ACCESSIBLE;
+import static org.jdbi.v3.core.mapper.reflect.AccessibleObjectStrategy.FORCE_MAKE_ACCESSIBLE;
+
 /**
  * Configuration class for reflective mappers.
  */
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
-
-    private static final Consumer<AccessibleObject> FORCE_MAKE_ACCESSIBLE = accessibleObject -> accessibleObject.setAccessible(true);
-    private static final Consumer<AccessibleObject> DO_NOT_MAKE_ACCESSIBLE = accessibleObject -> {};
 
     private List<ColumnNameMatcher> columnNameMatchers;
     private boolean strictMatching;
@@ -129,6 +129,10 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * Set the strategy Jdbi uses for Java accessibility rules.
      * The legacy default is to call {@code setAccessible(true)} in certain cases when we try to use a Constructor, Method, or Field.
      * In the future, this default will be changed to a no-op, to better interact with the Java module system.
+     *
+     * @param makeAccessible A {@link Consumer} instance that implements the strategy.
+     * @see AccessibleObjectStrategy
+     *
      */
     @Alpha
     public ReflectionMappers setAccessibleObjectStrategy(Consumer<AccessibleObject> makeAccessible) {
