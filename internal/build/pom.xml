@@ -61,7 +61,8 @@
         <basepom.at-end.deploy>true</basepom.at-end.deploy>
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <basepom.it.timeout>600</basepom.it.timeout>
-        <basepom.release.profiles>basepom.oss-release,jdbi-release</basepom.release.profiles>
+        <basepom.nexus-staging.staging-url>https://oss.sonatype.org/</basepom.nexus-staging.staging-url>
+        <basepom.release.profiles>basepom.deploy-release,jdbi-release</basepom.release.profiles>
         <basepom.release.tag-name-format>v@{project.version}</basepom.release.tag-name-format>
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.timeout>240</basepom.test.timeout>
