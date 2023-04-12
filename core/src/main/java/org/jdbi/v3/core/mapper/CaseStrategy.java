@@ -16,12 +16,9 @@ package org.jdbi.v3.core.mapper;
 import java.util.Locale;
 import java.util.function.UnaryOperator;
 
-import org.jdbi.v3.meta.Beta;
-
 /**
  * Strategies for comparing case sensitive strings.
  */
-@Beta
 public enum CaseStrategy implements UnaryOperator<String> {
     /**
      * No case sensitivity.
