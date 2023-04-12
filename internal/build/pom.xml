@@ -105,6 +105,7 @@
         <dep.postgresql.version>42.5.1</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
         <dep.spring.version>5.3.26</dep.spring.version>
+        <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
         <dep.testcontainers.version>1.17.6</dep.testcontainers.version>
         <dep.vavr.version>0.9.3</dep.vavr.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
@@ -453,7 +454,7 @@
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>ST4</artifactId>
-                <version>4.3.4</version>
+                <version>${dep.stringtemplate4.version}</version>
             </dependency>
 
             <dependency>
