@@ -54,14 +54,14 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
         return this;
     }
 
-    public <E> E create(Jdbi db, Class<E> extensionType, Class<?>... extraTypes) {
+    public <E> E create(Jdbi jdbi, Class<E> extensionType, Class<?>... extraTypes) {
         return extensionType.cast(
-               onDemandExtensionFactory.onDemand(db, extensionType, extraTypes)
-                  .orElseGet(() -> createProxy(db, extensionType, extraTypes)));
+               onDemandExtensionFactory.onDemand(jdbi, extensionType, extraTypes)
+                  .orElseGet(() -> createProxy(jdbi, extensionType, extraTypes)));
     }
 
-    private Object createProxy(Jdbi db, Class<?> extensionType, Class<?>... extraTypes) {
-        db.getConfig(Extensions.class).onCreateProxy();
+    private Object createProxy(Jdbi jdbi, Class<?> extensionType, Class<?>... extraTypes) {
+        jdbi.getConfig(Extensions.class).onCreateProxy();
 
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
@@ -76,7 +76,7 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
                 return "Jdbi on demand proxy for " + extensionType.getName() + "@" + Integer.toHexString(System.identityHashCode(proxy));
             }
 
-            return db.withExtension(extensionType, extension -> invoke(extension, method, args));
+            return jdbi.withExtension(extensionType, extension -> invoke(extension, method, args));
         };
 
         Class<?>[] types = Stream.of(

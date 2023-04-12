@@ -15,6 +15,8 @@ package org.jdbi.v3.core;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.EnumSet;
+import java.util.Set;
 
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.HandleSupplier;
@@ -26,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,6 +79,11 @@ public class TestOnDemandMethodBehavior {
                 @Override
                 public void foo() {}
             });
+        }
+
+        @Override
+        public Set<FactoryFlag> getFactoryFlags() {
+            return EnumSet.of(NON_VIRTUAL_FACTORY);
         }
     }
 

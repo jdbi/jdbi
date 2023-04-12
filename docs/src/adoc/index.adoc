@@ -1,3 +1,4 @@
+// -*- mode: adoc; fill-column: 160; -*-
 // suppress inspection "AsciiDocLinkResolve" for whole file
 = Jdbi 3 Developer Guide
 :doctype: book
@@ -899,7 +900,7 @@ Jdbi can manage and release resources automatically, so that _try-with-resources
 
 Automatic resource management is only available with the SQL Object API and the Extension API. In these situations, Jdbi can manage all resources:
 
-- with methods on a SQL object that was created with link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand^]:
+- with methods on a SQL object that was created with link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^]:
 
 [source,java,indent=0]
 ----
@@ -3223,7 +3224,7 @@ See <<JdbiConfig>> for more advanced implementation details.
 
 | link:{jdbidocs}/core/extension/Extensions.html[Extensions^] | allowProxy
     | boolean  | `true`
-    | Whether Jdbi is allowed to create proxy instances for classes (as extension and on-demand reference). This is useful for debugging when using the generator to create java classes for sql objects.
+    | Whether Jdbi is allowed to create link:{jdkdocs}/java/lang/reflect/Proxy.html[proxy ^] instances for classes (as extension and on-demand reference). This is useful for debugging when using the generator to create java classes for sql objects.
 
 | link:{jdbidocs}/core/Handles.html[Handles^] | forceEndTransactions
     | boolean  | `true`
@@ -3591,10 +3592,10 @@ Array columns can be mapped to any container type registered with the
 `JdbiCollectors` registry. E.g. a `VARCHAR[]` may be mapped to an
 `ImmutableList<String>` if the Guava plugin is installed.
 
-
+[#sql-objects]
 == SQL Objects
 
-SQL Objects are a declarative-style extension to the fluent-style Core APIs. SQL Objects are implemented as an extension to the core API using the Extension API.
+SQL Objects are a declarative-style extension to the fluent-style Core APIs. SQL Objects are implemented as an extension to the core API using the <<extension-framework,Extension framework>>.
 
 To start using the SQL Object plugin, add a Maven dependency:
 
@@ -3614,7 +3615,7 @@ Jdbi jdbi = ...
 jdbi.installPlugin(new SqlObjectPlugin());
 ----
 
-With SQL Object, you declare a public interface, add methods for each database
+With SQL Object, you declare a public interface as an extension type, add methods for each database
 operation, and specify what SQL statement to execute.
 
 You can specify what each method does in one of two ways:
@@ -4638,7 +4639,6 @@ You can customize the binding name:
 link:{jdbidocs}/sqlobject/customizer/TimestampedConfig.html[TimestampedConfig^] gives you control over
 the timezone used for this.
 
-
 === Using SQL Objects
 
 Once you've defined your interface, there are a few ways to get an instance of
@@ -4683,7 +4683,7 @@ the callback returns.
 
 ==== On-Demand
 
-On-demand instances are constructed with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand^] method. have an open-ended lifecycle, as they obtain and release a connection for each method call. They are thread-safe, and may be reused across an application.
+On-demand instances are constructed with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] method. have an open-ended lifecycle, as they obtain and release a connection for each method call. They are thread-safe, and may be reused across an application.
 
 This is handy when you only need to make single calls at a time.
 
@@ -4744,7 +4744,7 @@ void mixedCode() {
 This interface gives access to the handle and offers link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] and link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods that execute callback code using the same handle object as the methods on the SQL object interface itself.
 
 [NOTE]
-This is most useful for SQL object instances that get passed from other code or have been created from link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand^]. Any object that was created using the link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach^] method will return the handle it was attached to. This is useful for interface default methods.
+This is most useful for SQL object instances that get passed from other code or have been created from link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^]. Any object that was created using the link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] method will return the handle it was attached to. This is useful for interface default methods.
 
 
 ==== Default Methods
@@ -7328,6 +7328,697 @@ Now, `search` can be properly bound as a parameter to the statement, and it all 
 [NOTE]
 Check the string concatenation syntax of your database before doing this.
 
+[#extension-framework]
+== The Extension Framework
+
+The Jdbi core provides a rich, programmatic interface for database operations. It is possible to extend this core by writing extensions that plug into the
+Jdbi core framework and provide new functionality.
+
+The Extension framework is generic and supports any type of extension that can be registered with the Jdbi core.
+
+Jdbi provides the <<sql-objects,SQLObject plugin>>, which offers a declarative API by placing annotations on interface methods.
+
+
+=== Using Jdbi extensions
+
+_Extension types are usually java interface classes._ Any interface can be an extension type.
+
+Jdbi offers multiple ways to obtain an extension type implementation:
+
+- Calling either
+link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] or
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods with an extension type will pass an extension type implementation to a callback that contains user code.
+- The link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] attaches an extension type implementation directly to an existing  link:{jdbidocs}/core/Handle.html[Handle^] object.
+- Finally, the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] method creates an on-demand implementation of an extension type that is not limited to a callback.
+
+
+This is an extension type for the <<sql-objects,SQL Object extension>> which uses annotations to identify functionality:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionFrameworkTest.java[tags=dao]
+----
+
+If any of the SQL method annotations (link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^],
+link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^], link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^],
+link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] and link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^]) is present on either the
+extension type itself or any extension type method, the SQL Object extension will be used.
+
+The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] and
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods are used to access
+SQLObject functionality:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionFrameworkTest.java[tags=use]
+
+include::{exampledir}/ExtensionFrameworkTest.java[tags=with]
+----
+
+If a handle has already been created, an extension type can be directly attached with the
+link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] method:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionFrameworkTest.java[tags=handle_attach]
+----
+
+The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^], link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] and link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] methods are the most common way to use extension type implementations.
+
+
+==== On-demand extensions
+
+An extension type implementation can be acquired by calling the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] method which returns
+an implementation of the extension type that will transparently create a new handle instance when a method on the extension type is called.
+
+This is an example for an on-demand extension:
+
+[source,java,indent=0]
+----
+include::{exampledir}/OnDemandExtensionTest.java[tags=use]
+
+include::{exampledir}/OnDemandExtensionTest.java[tags=with]
+----
+
+[NOTE]
+The link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] uses a link:{jdkdocs}/java/lang/reflect/Proxy.html[Java proxy^] object to provide
+the on-demand handle object. Java proxies only support Java interface classes as extension types and may not be compatible with
+https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[GraalVM^] when creating native code.
+
+==== Handle lifecycle for extensions
+
+The difference between the methods to acquire an extension type implementation is the handle (and database connection) lifecycle:
+
+- link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] and
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] provides a managed handle object when the callback is entered and reuses it for any extension type method call as long as the code does not return from the callback.
+
+- The link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] does not manage the handle at all. Any extension type method call will use the handle that the object was attached to and be part of its lifecycle.
+
+- The link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] provides a managed handle object for every extension type method call. When the method call returns, the handle is closed.
+
+
+=== How an extension works
+
+_Any interface class can be an extension type._ There is nothing special to an extension type unless an extension requires some specific information
+(e.g. annotations present or specific naming).
+
+Extensions should document which information is needed for the extension framework to determine that a specific interface class represents an extension  type that they accept.
+
+The extension type creation methods (link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^],
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^],
+link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] and link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^]) all take the extension type as a parameter and provide an implementation either to the caller or within a callback object.
+
+The extension framework selects an link:{jdbidocs}/core/extension/ExtensionFactory.html[ExtensionFactory^] to handle the extension type and create an implementation. Extension factories must be registered ahead of time with the Jdbi core using the
+link:{jdbidocs}/core/extension/Extensions.html#register(org.jdbi.v3.core.extension.ExtensionFactory)[Extensions#register()^] method.
+
+The extension factory then creates an link:{jdbidocs}/core/extension/ExtensionMetadata.html[ExtensionMetadata^] object that contains information about each
+method on the extension type:
+
+- Which link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] to invoke for each method
+- All link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] instances that change the behavior of the extension handler
+- Per extension type and per extension type method specific link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^] instances to apply when an extension handler is invoked
+
+Extension metadata is created once for each extension type and then reused.
+
+Jdbi usually returns a link:{jdkdocs}/java/lang/reflect/Proxy.html[Java proxy^] object to user code. Calling a method on that proxy will invoke per-method extension handlers. For each extension handler, objects specific to the invocation
+(link:{jdbidocs}/core/Handle.html[Handle^], link:{jdbidocs}/core/config/ConfigRegistry.html[configuration^]) are managed separately .
+
+[ditaa, round-corners=true, transparent=false]
+----
+
+                                                         +--------------------------+
+User code --> [registers ExtensionFactory with Jdbi] --> | Extensions Config object |
+   |                                                     +--------------------------+
+   |
+   |                                          +------------------+
+   | ---> [calls Jdbi.use/withExtension] ---> | ExtensionFactory |
+   |                                          +------------------+
+   |                                                 |             +-------------------+             +------------------+
+   |                                                 +---> creates | ExtensionMetadata | --> defines | ExtensionHandler |
+   |                                                 |             +-------------------+             +------------------+
+   |                                                 |                                                       ^
+   |                                                 |                                                       |
+   |                                                 |                                                       | matches
+   |                                                 |                                                       |
+   |                                                 |                                                       |
+   |                                                 |             +-------------------+              +-------------------------+
+   |                                                 +---> creates | Java proxy object | --> contains | ExtensionHandlerInvoker |
+   | <------- [return to user code] <----------------------------- +-------------------+              +-------------------------+
+   |
+   |
+   |
+   |
+   |                                        +-------------------+              +-------------------------+
+   | --> [invoke extension type method] --> | Java proxy object | --> executes | ExtensionHandlerInvoker |
+   |                                        +-------------------+              +-------------------------+
+   |                                                                                       |
+   |                                                                                       | invokes with Handle
+   |                                                                                       | and Configuration
+   |                                                                                       v
+   |                                                                            +------------------+
+   | <---- [ return result to user code] <------------------------------------- | ExtensionHandler |
+                                                                                +------------------+
+
+----
+
+link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^],
+link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] and
+link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^] are the three main extension framework objects to implement:
+
+- An link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] object is created by an
+  link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html[ExtensionHandlerFactory^], which can be registered either globally (with the
+  link:{jdbidocs}/core/extension/Extensions.html[Extensions configuration^]) and then applied to all extensions types, or directly with an extension factory. It is also possible to specify extension handlers through annotations.
+- link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] objects can modify the behavior of an extension handler. They are
+  registered globally or provided by an extension factory. They can also be specified through annotations.
+- link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^] objects are created by a
+  link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html[ConfigCustomizerFactory^] and modify the configuration that is used when an extension handler is
+  executed. Factory instances are registered globally or with an extension factory. Config customization
+  can also be specified through annotations.
+
+
+=== Extension framework SDK
+
+[NOTE]
+This chapter is intended for developers who want to write a new extension for Jdbi and need to understand the Extension framework details. This chapter is only
+relevant if you plan to write an extension or implement specific extension objects.
+
+This chapter lists all the classes that make up the extension framework, their function and how to use them when writing a new extension. Not all pieces are
+needed for every extension.
+
+
+==== Extension configuration
+
+The link:{jdbidocs}/core/extension/Extensions.html[Extensions^] class is the configuration object for the extension framework. It contains a registry for
+extension factories and global extension objects (link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html[ExtensionHandlerFactory^],
+link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] and
+link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html[ConfigCustomizerFactory^]).
+
+Any extension object registered here will be applied to all extension types, independent of the extension factory which is ultimately chosen to process an
+extension type.
+
+By default, the following extension objects are globally registered and can not be removed. These are always processed last (after all user registered extension
+objects):
+
+- An extension handler factory for the link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[`@UseExtensionHandler`^] annotation.
+- An extension handler customizer for the link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[`@UseExtensionHandlerCustomizer`^]
+  annotation.
+- A config customizer factory for the link:{jdbidocs}/core/extension/annotation/UseExtensionConfigurer.html[`@UseExtensionConfigurer`^] annotation.
+
+
+[IMPORTANT]
+Order matters with extension objects! For each extension object, the extension specific instances are applied first, then the globally registered ones.
+
+
+==== The Extension factory
+
+Extension factories are the core piece for any extension. An link:{jdbidocs}/core/extension/ExtensionFactory.html[ExtensionFactory^] object can provide all the
+specific pieces that make up the extension functionality or delegate to annotations.
+
+The only method that must be implemented in this interface is
+link:{jdbidocs}/core/extension/ExtensionFactory.html#accepts(java.lang.Class)[ExtensionFactory#accepts()^]. If this method returns `true`, then the given
+extension type is handled by this factory. E.g. the link:{jdbidocs}/sqlobject/SqlObjectFactory.html[SQL Object factory^] accepts any interface that has at least
+one SQL annotation on the class itself or a method.
+
+[WARNING]
+Even though it is possible to implement all the functions of an extension with annotations, there still needs to be an extension factory that accepts the
+extension type. Without such a factory, the extension framework will throw a
+link:{jdbidocs}/core/extension/NoSuchExtensionException.html[NoSuchExtensionException^].
+
+
+Any extension factory can provide specific extension objects (by returning instances of
+link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html[ExtensionHandlerFactory^],
+link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] and
+link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html[ConfigCustomizerFactory^]) which are only applied when the factory has accepted an extension
+type. The extension factory provides the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerFactories()^],
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerCustomizers(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerCustomizers()^]
+and
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getConfigCustomizerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getConfigCustomizerFactories()^]
+getters that a factory can implement.  By default, each returns an empty collection.
+
+
+===== Java Object methods
+
+When the extension framework returns an implementation of an extension type, it usually returns a link:{jdkdocs}/java/lang/reflect/Proxy.html[Java proxy^]
+object which will invoke an extension handler for every method on the extension type.
+
+In addition to the methods defined by the extension type, the following methods also invoke extension handlers:
+
+- link:{jdkdocs}/java/lang/Object.html#toString--[Object#toString()^] returns "Jdbi extension proxy for _<extension type>_"
+- link:{jdkdocs}/java/lang/Object.html#equals-java.lang.Object-[Object#equals()^] and link:{jdkdocs}/java/lang/Object.html#hashCode--[Object#hashCode()^]
+  implementations that ensure that each instance is only equal to itself.
+- link:{jdkdocs}/java/lang/Object.html#finalize--[Object#finalize()^] has no effect.
+
+All methods except `finalize()` can be overridden by the extension type (e.g. through a interface default method).
+
+
+===== Non-virtual factories
+
+Normally, a factory will use extension handlers to provide functionality when an extension type method is called and a
+link:{jdkdocs}/java/lang/reflect/Proxy.html[Java proxy^] object is returned as an implementation of the extension type. This is a _virtual_
+factory (because there is no actual object implementing the interface). Extension factories are by default virtual factories.
+
+The <<sql-objects,SQL Object extension>> is an example of a virtual factory because it never provides an implementation for extension types but  dispatches any method calls to a specific handler to execute SQL operations.
+
+The extension framework also supports _non-virtual_ factories. These factories produce a backing object that implements the extension type. A non-virtual factory will still return a proxy object to the caller but calling any method on the proxy object may call the corresponding method on the backing object through a special extension handler.
+
+This is an example of a non-virtual factory that provides an implementation for a specific extension type:
+
+[source,java,indent=0]
+----
+include::{exampledir}/NonVirtualExtensionFactoryTest.java[tags=non-virtual-factory]
+----
+
+<1> An extension factory declares itself non-virtual by returning the
+link:{jdbidocs}/core/extension/ExtensionFactory.FactoryFlag.html#NO_VIRTUAL_FACTORY[`NON_VIRTUAL_FACTORY`^] flag on the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getFactoryFlags()[ExtensionFactory#getFactoryFlags()^] method.
+
+<2> The extension framework calls the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method with
+the current extension type and a handle supplier. The factory is expected to return an instance of the extension type. Methods on the instance will be wrapped
+in extension handlers and a proxy object is returned to the caller.
+
+
+===== Extensions without Java proxy objects
+
+A drawback of the standard extension factories is that returning a link:{jdkdocs}/java/lang/reflect/Proxy.html[Java proxy^] object limits factory functionality
+and is incompatible with some use cases (e.g. https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[using GraalVM
+for native compilation^]).
+
+A factory can return the link:{jdbidocs}/core/extension/ExtensionFactory.FactoryFlag.html#DONT_USE_PROXY[`DONT_USE_PROXY`^] flag on the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getFactoryFlags()[ExtensionFactory#getFactoryFlags()^] method to signal that the extension framework should
+return the backing object _as-is_.
+
+This is an example of a factory that supports abstract classes in addition to interfaces. Abstract classes are incompatible with java proxies, so the factory
+must use the link:{jdbidocs}/core/extension/ExtensionFactory.FactoryFlag.html#DONT_USE_PROXY[`DONT_USE_PROXY`^] flag:
+
+[source,java,indent=0]
+----
+include::{exampledir}/DontUseProxyExtensionFactoryTest.java[tags=abstract-class]
+
+include::{exampledir}/DontUseProxyExtensionFactoryTest.java[tags=abstract-class-factory]
+----
+
+<1> An extension factory declares that it does not want to use the proxy mechanism by returning the
+link:{jdbidocs}/core/extension/ExtensionFactory.FactoryFlag.html#DONT_USE_PROXY[`DONT_USE_PROXY`^] flag from the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getFactoryFlags()[ExtensionFactory#getFactoryFlags()^] method. Using this flag bypasses all the extension
+framework proxy mechanism and calls the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method
+immediately.
+
+<2> The extension factory creates an instance that must be compatible with the extension type. It can provide the current extension type and a handle supplier
+if needed. Unlike a non-virtual factory, this instance is returned _as-is_ to the caller. Neither proxy object nor extension handlers are created.
+
+Jdbi provides link:{jdbidocs}/generator/GenerateSqlObjectProcessor.html[an annotation processor^] that creates java implementations of extension types. In addition, it
+provides link:{jdbidocs}/sqlobject/GeneratorSqlObjectFactory.html[an extension factory^] which does not use proxy objects and returns these as extension type implementations. Calling a method on the extension type will invoke the methods on the generated classes directly.
+
+
+==== Extension handlers and their factories
+
+link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] objects are the main place for extension functionality. Each method on an extension type
+is mapped to an extension handler. Extension handlers are executed by calling the
+link:{jdbidocs}/core/extension/ExtensionHandler.html#invoke(org.jdbi.v3.core.extension.HandleSupplier,java.lang.Object,java.lang.Object%2e%2e%2e)[ExtensionHandler#invoke()^]
+method.
+
+This is an example of an extension handler that provides a value whenever a method on the extension type is called:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionHandlerTest.java[tags=extension-handler]
+----
+
+<1> Invoking this handler returns a `Something` instance.
+
+Extension handlers are not shared, so every extension type method maps onto a separate instance. The
+link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html[ExtensionHandlerFactory^] interface provides the
+link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html#accepts(java.lang.Class,java.lang.reflect.Method)[ExtensionHandlerFactory#accepts()^] method which
+is called for each method that needs to be mapped. If a factory accepts a method, the
+link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html#createExtensionHandler(java.lang.Class,java.lang.reflect.Method)[ExtensionHandlerFactory#createExtensionHandler()^]
+method is called, which should return an extension handler instance.
+
+This is an example for an extension handler factory that returns an extension handler for methods named `getSomething`:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionHandlerTest.java[tags=extension-handler-factory]
+
+include::{exampledir}/ExtensionHandlerTest.java[tags=extension-type]
+----
+
+<1> The extension handler factory tests that the method has the right name.
+
+<2> If the factory accepts the method, it returns a new instance of the extension handler shown above.
+
+The
+link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html#createExtensionHandler(java.lang.Class,java.lang.reflect.Method)[ExtensionHandlerFactory#createExtensionHandler()^]
+method returns an link:{jdkdocs}/java/util/Optional.html[Optional<ExtensionHandler>^] object for backwards compatibility reasons. While it is legal for a
+factory to accept a method on an extension type and then return an link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] object, it is discouraged
+in new code.
+
+[NOTE]
+The extension framework provides extension handlers for interface default methods and synthetic methods.
+
+An extension handler for a specific extension type can be either registered globally by adding a factory using the
+link:{jdbidocs}/core/extension/Extensions.html#registerHandlerFactory(org.jdbi.v3.core.extension.ExtensionHandlerFactory)[Extensions#registerHandlerFactory()^]
+method, or it can be returned on the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerFactories()^]
+method of the extension factory for the extension type. It can also be configured through an annotation.
+
+This is the extension factory for the `ExtensionType` extension type defined above:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionHandlerTest.java[tags=extension-factory]
+----
+
+<1> The factory will accept the `ExtensionType` extension type.
+
+<2> When processing the type, the `TestExtensionHandlerFactory` shown above will be used when creating the extension handlers.
+
+
+==== Extension handler customizers
+
+link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] objects can modify extension handler execution. They are
+either registered globally with the
+link:{jdbidocs}/core/extension/Extensions.html#registerHandlerCustomizer(org.jdbi.v3.core.extension.ExtensionHandlerCustomizer)[Extensions#registerHandlerCustomizer()^]
+and will augment any extension handler, or they can be provided by an extension factory by implementing the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getConfigCustomizerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getConfigCustomizerFactories()^]
+method.
+
+Here is an example for a extension handler customizer that logs every method handler invocation. It gets registered as a global extension handler customizer
+with the link:{jdbidocs}/core/extension/Extensions.html[Extensions configuration object^] and will then log every method invocation on an extension type.
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionHandlerCustomizerTest.java[tags=register-global]
+
+include::{exampledir}/ExtensionHandlerCustomizerTest.java[tags=extension-handler-customizer]
+----
+
+<1> Register as a global link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] instance to log every method invocation.
+
+[NOTE]
+This is example code. Jdbi actually offers better logging facilities with link:{jdbidocs}/core/statement/SqlLogger.html[SqlLogger^] and the
+link:{jdbidocs}/core/statement/SqlStatements.html#setSqlLogger(org.jdbi.v3.core.statement.SqlLogger)[SqlStatements#setSqlLogger()^] method.
+
+link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] instances usually wrap or replace an existing extension
+handler. They must be stateless and can only modify or operate on the link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] object
+that was passed into the link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html#customize(org.jdbi.v3.core.extension.ExtensionHandler,java.lang.Class,java.lang.reflect.Method)[ExtensionHandlerCustomizer#customize()^]
+method.
+
+
+==== Config customizers and their factories
+
+link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^] instances modify the link:{jdbidocs}/core/config/ConfigRegistry.html[configuration
+registry^] object which is used when an extension type method is invoked. This configuration object is passed to all extension handler customizers and the
+extension handler itself.
+
+Config customizer instances are created by link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html[ConfigCustomizerFactory^] instances which decide whether
+to provide a config customizer for every method on an extension type by implementing the
+link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html#forExtensionType(java.lang.Class)[ConfigCustomizerFactory#forExtensionType()^] method, or it can
+implement
+link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html#forExtensionMethod(java.lang.Class,java.lang.reflect.Method)[ConfigCustomizerFactory#forExtensionMethod()^]
+for per-method selection.
+
+
+This is an example for a global configuration customizer that registers a specific <<RowMappers registry, row mapper>> for all methods on every extension type.
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionConfigCustomizerTest.java[tags=register-global]
+
+include::{exampledir}/ExtensionConfigCustomizerTest.java[tags=config-customizer]
+----
+
+<1> Register a global config customizer. It will be applied to all extension types.
+
+<2> Register the `SomethingMapper` to the every extension handler for every extension type.
+
+
+=== Annotations
+
+A Jdbi extension like the <<sql-objects, SQL Object extension>> uses annotations on the extension types. It is possible to implement a large part of the
+functionality directly as annotation related objects without having to provide extension objects through an extension factory.
+
+The extension framework offers _meta-annotations_ to configure link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] and
+link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] instances directly and another _meta-annotation_ to define
+link:{jdbidocs}/core/extension/ExtensionConfigurer.html[ExtensionConfigurer^] instances which allows configuration modification similar to
+link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^]).
+
+Meta-annotations are used to annotate other annotation classes for processing by the extension framework.
+
+
+==== Extension handler annotation
+
+The link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[`@UseExtensionHandler`^] meta-annotation marks any other annotation as defining an
+extension handler.
+
+These annotations must be placed on a method in an extension type, therefore annotations that are marked with the meta-annotation should use the
+link:{jdkdocs}/java/lang/annotation/Target.html[`@Target({ElementType.METHOD})`^] annotation to limit their scope.
+
+The extension framework processes all annotations that use this meta-annotation. It will instantiate the extension handler by locating
+
+- a constructor that takes both the extension type and a method object
+- a constructor that takes only a method object
+- a no-argument constructor
+
+If none of those can be found, an exception will be thrown.
+
+When using this meta-annotation, the link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html#id()[UseExtensionHandler#id()^] method must return an id
+value that is specific for the extension factory that should process the annotation. This allows multiple extensions that use annotations to co-exist.
+
+This is an example of an annotation that provides the handler for the `getSomething` method on an extension type:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionHandlerAnnotationTest.java[tags=register-factory]
+
+include::{exampledir}/ExtensionHandlerAnnotationTest.java[tags=annotation-code]
+----
+
+<1> An extension factory that implements only the link:{jdbidocs}/core/extension/ExtensionFactory.html#accepts(java.lang.Class)[ExtensionFactory#accepts()^]
+method can be written as a lambda.
+
+<2> The factory accepts this extension type if it has at least one method that is annotated with the
+link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[`@UseExtensionHandler`^] meta-annotation.
+
+<3> Ensure that the annotation uses the `test` id value.
+
+<4> The `@SomethingAnnotation` provides the extension handler. Any method with this annotation will use the same extension handler.
+
+<5> The custom annotation targets only methods.
+
+<6> The `test` id value ensures that the registered factory will accept the extension type. Any extension type must be accepted by a factory, otherwise the
+extension framework will reject the extension type.
+
+<7> The annotation provides the extension handler class. An instance of this class is created by the extension framework directly without an extension handler
+factory.
+
+[IMPORTANT]
+Even though multiple extensions can can be used at the same time, they can not share an extension type.  Every extension type will only get extension handlers
+associated with a single factory. It is not possible to have an extension type where methods are processed by extension handlers that are annotated with
+annotations that use different id values. Any extension handler must be provided either by annotations that match the id value of the
+link:{jdbidocs}/core/extension/ExtensionFactory.html[ExtensionFactory^] or an extension handler factory.
+
+All SQL method annotations in the <<sql-objects,Jdbi SQL Object>> extension (link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^],
+link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^], link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^],
+link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] and link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^]) are marked with this
+meta-annotation.
+
+
+==== Extension handler customizer annotation
+
+The link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[`@UseExtensionHandlerCustomizer`^] meta-annotation marks any other annotation
+as defining an extension handler customizer.
+
+An example in the <<sql-objects,SQL object extension>> is the link:{jdbidocs}/sqlobject/transaction/Transaction.html[`@Transaction`^] annotation which allows
+wrapping multiple SQL operations into a database transaction.
+
+Extension handler customizers either apply to all methods in an extension type by adding an annotation to the extension type, or to specific methods by adding
+the annotation to a method:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionHandlerCustomizerAnnotationTest.java[tags=annotation]
+
+include::{exampledir}/ExtensionHandlerCustomizerAnnotationTest.java[tags=extension-types]
+----
+
+<1> An annotation that uses the link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[`@UseExtensionHandlerCustomizer`^] annotation can
+be placed on a method or the extension type itself.
+
+<2> The extension handler customizer is only applied to a annotated method.
+
+<3> The extension handler customizer is applied to all methods on the extension type.
+
+The extension framework processes all annotations that use this meta-annotation. It will instantiate the extension handler customizer by locating
+
+- a constructor that takes both the extension type and a method object
+- a constructor that takes only a method object
+- a no-argument constructor
+
+If none of those can be found, an exception will be thrown.
+
+This is an example for an annotation that provides a handler customizer which logs method entry and exit for any extension handler:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionHandlerCustomizerAnnotationTest.java[tags=extension-handler-customizer]
+----
+
+Extension handler customizer objects are not tied to a specific extension factory. This is an example where <<sql-objects,SQL Object>> method annotations are
+used with the custom logging annotation:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionHandlerCustomizerAnnotationTest.java[tags=mixed-annotation]
+----
+
+
+===== Specifying extension handler customization order
+
+When multiple extension customizers are used on the same extension type method, the order in which they are applied is undefined. If a specific order is
+required (e.g. because one customization depends on another), the
+link:{jdbidocs}/core/extension/annotation/ExtensionHandlerCustomizationOrder.html[`@ExtensionHandlerCustomizationOrder`^] annotation may be used to enforce a
+specific order.
+
+Listing the annotation classes orders the extension customizers from outermost to innermost (outermost is called first). Any unlisted annotation will still be
+applied but its position is undefined. It is recommended to list all applicable annotation classes when specifying the order.
+
+[source,java,indent=0]
+----
+interface OrderedCustomizers {
+    @Bar
+    @Foo
+    @ExtensionHandlerCustomizationOrder({Foo.class, Bar.class}) // <1>
+    void execute();
+}
+----
+
+<1> The annotation ensures that the `Foo` extension customizer is called first, then the `Bar` extension customizer. Otherwise the order is undefined.
+
+
+==== Extension handler configurer annotation
+
+The link:{jdbidocs}/core/extension/annotation/UseExtensionConfigurer.html[`@UseExtensionConfigurer`^] meta-annotation marks any other annotation as defining an
+extension configurer.
+
+Similar to extension handler customizers, configurers either apply to all methods in an extension type by adding an annotation to the extension type, or to
+specific methods by adding the annotation to a method.
+
+The meta-annotation provides an implementation of the link:{jdbidocs}/core/extension/ExtensionConfigurer.html[ExtensionConfigurer^].
+
+- the
+  link:{jdbidocs}/core/extension/ExtensionConfigurer.html#configureForType(org.jdbi.v3.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class)[ExtensionConfigurer#configureForType()^]
+  is called if the anntation is placed on the extension type
+- method provides and
+link:{jdbidocs}/core/extension/ExtensionConfigurer.html#configureForMethod(org.jdbi.v3.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class,java.lang.reflect.Method)[ExtensionConfigurer#configureForMethod()^]
+is called when the annotation is placed on an extension type method
+
+These methods are the equivalent of
+link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html#forExtensionType(java.lang.Class)[ConfigCustomizerFactory#forExtensionType()^] and
+link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html#forExtensionMethod(java.lang.Class,java.lang.reflect.Method)[ConfigCustomizerFactory#forExtensionMethod()^].
+
+The extension framework processes all annotations that use this meta-annotation. It will instantiate the extension configurer by locating a no-arguments
+constructor. If this can not be found, an exception will be thrown.
+
+This is an example of an extension configurer annotation that adds a specific <<Row Mappers, row mapper>>:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionConfigurerAnnotationTest.java[tags=annotation]
+
+include::{exampledir}/ExtensionConfigurerAnnotationTest.java[tags=dao]
+
+include::{exampledir}/ExtensionConfigurerAnnotationTest.java[tags=extension-configurer]
+----
+
+<1> define the extension configurer class in the annotation
+
+<2> add the custom annotation to a method in a SQL Object extension type
+
+<3> The implementation extends link:{jdbidocs}/core/extension/SimpleExtensionConfigurer.html[SimpleExtensionConfigurer^] as it should behave the same when used
+on an extension type or an extension type method.
+
+Similar to extension handler customizer objects, extension configurers are also not tied to a specific extension factory.  In the example above, a custom
+extension configurer is used in combination with the <<sql-objects,SQL Object extension>> annotations.
+
+[TIP]
+If an extension configurer should behave the same way independent of its position, the implementation should extend
+link:{jdbidocs}/core/extension/SimpleExtensionConfigurer.html[SimpleExtensionConfigurer^] and implement the
+link:{jdbidocs}/core/extension/SimpleExtensionConfigurer.html#configure(org.jdbi.v3.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class)[SimpleExtensionConfigurer#configure()^]
+method.
+
+The <<sql-objects,SQL Object extension>> implements all per-method and per-class registration of specific objects
+(e.g. link:{jdbidocs}/sqlobject/config/RegisterColumnMapper.html[`@RegisterColumnMapper`^] or
+link:{jdbidocs}/sqlobject/config/RegisterRowMapper.html[`@RegisterRowMapper`^]) through extension configurer objects which in turn create config customizer
+instances.
+
+
+=== Extension metadata
+
+[NOTE]
+Interacting directly with the link:{jdbidocs}/core/extension/ExtensionMetadata.html[ExtensionMetadata^] and
+link:{jdbidocs}/core/extension/ExtensionMetadata.ExtensionHandlerInvoker.html[ExtensionHandlerInvoker^] is an advanced use case when writing specific extension
+code. For most extensions, all metadata interactions are handled by the framework and don't require anything special.
+
+For every extension type that is processed by the framework, an link:{jdbidocs}/core/extension/ExtensionMetadata.html[ExtensionMetadata^] object is created. It
+collects all the information that is required to create the link:{jdkdocs}/java/lang/reflect/Proxy.html[java proxy^] object:
+
+- extension handlers for each extension type method including optional extension handler customizers.
+- instance config customizers which are applied to every method
+- method specific config customizers
+
+Extension metadata is created using a builder when an extension type is processed for the first time. It is possible for an
+link:{jdbidocs}/core/extension/ExtensionFactory.html[ExtensionFactory^] to participate in the metadata creation. E.g. the <<sql-objects,SQL Object extension>>
+uses this to add extension handlers for the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] interface methods.
+
+If an extension factory wants to participate in the metadata creation, it needs to implement the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#buildExtensionMetaData(org.jdbi.v3.core.extension.ExtensionMetadata.Builder)[ExtensionFactory#buildExtensionMetadata()^]
+method which is called with the extension metadata builder right before the actual metadata object is created. See the
+link:{jdbidocs}/core/extension/ExtensionMetadata.Builder.html[ExtensionMetadata.Builder^] documentation for all available methods.
+
+Metadata for an extension type can be retrieved from the link:{jdbidocs}/core/extension/Extensions.html[Extensions configuration object^] by calling the
+link:{jdbidocs}/core/extension/Extensions.html#findMetadata(java.lang.Class,org.jdbi.v3.core.extension.ExtensionFactory)[Extensions#findMetadata()^].
+
+A metadata object can create link:{jdbidocs}/core/extension/ExtensionMetadata.ExtensionHandlerInvoker.html[ExtensionHandlerInvoker^] instances for all methods
+on the extension type that is represents. An extension handler invoker binds the actual extension handler instance to a specific configuration object (and the
+config customizers applied to that configuration object).
+
+The main use case is within an extension type implementation class as it requires a link:{jdbidocs}/core/extension/HandleSupplier.html[HandlerSupplier^]
+instance, which is only available through the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method. By
+creating extension handler invokers and metadata manually, an implementation can sidestep all the proxy logic and directly wire up method invocation or redirect
+invocations between methods. The <<generator,jdbi SQL object generator>> uses this mechanism to create implementation classes that do not need the java proxy
+logic (which is problematic with https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[GraalVM^]).
+
+This is an example of creating and calling an extension handler invoker directly:
+
+[source,java,indent=0]
+----
+include::{exampledir}/ExtensionMetadataTest.java[tags=extension]
+----
+
+<1> The `getIdOne` method takes no parameters and returns a constant `Something` object
+
+<2> The extension factory retrieves the metadata for the `ExtensionType` class. This call is usually done by the extension framework but can be done manually
+when implementing the
+link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^].
+
+<3> The extension factory returns an implementation of the extension type.
+
+<4> The extension factory requests that the framework returns the implementation as is and not wrap it into extension handlers.
+
+<5> The extension factory adds an extension handler factory that provides the actual implementation.
+
+<6> The extension handler factory only accepts the `getSomething` method, it does *not* create an extension handler for `getIdOne`.
+
+<7> The extension type uses the metadata object to create an extension handler invoker for the `getSomething` method. This is handled by the custom extension
+handler factory.
+
+<8> The `getIdOne` method now invokes the extension handler for the `getSomething` method and passes constant values to the
+link:{jdbidocs}/core/extension/ExtensionMetadata.ExtensionHandlerInvoker.html#invoke(java.lang.Object%2E%2E%2E)[ExtensionHandlerInvoker#invoke()^] method.
+
 
 == Advanced Topics
 
@@ -7560,7 +8251,7 @@ methods are just creating and binding custom implementations of
 === JdbiConfig
 
 Configuration is managed by the
-link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry] class.
+link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] class.
 Each Jdbi object that represents a distinct database context (for
 example, link:{jdbidocs}/core/Jdbi.html[Jdbi^] itself, a
 link:{jdbidocs}/core/Handle.html[Handle^] instance, or an attached
@@ -7663,434 +8354,6 @@ The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext^] clas
 The statement context object is passed into most user extension points, e.g. link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^], link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^], or link:{jdbidocs}/core/collector/CollectorFactory.html[CollectorFactory^].
 
 The link:{jdbidocs}/core/statement/StatementContext.html[StatementContext^] is not intended to be extended and extension points should use it to get access to other parts of the system (especially the config registry). They rarely need to make changes to it.
-
-[#user-defined-annotations]
-=== User-defined Annotations
-
-SQL Object is designed to be extended with user-defined annotations. In fact,
-most of the annotations provided in Jdbi are wired up with the approach
-outlined below.
-
-There are a few different categories of annotations in SQL Object, and it's
-important to understand the differences between them:
-
-- <<Statement Customizing Annotations>> - configures the underlying
- link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] of a method
-  prior to execution. These can only be used in tandem with annotations like
-  `@SqlQuery`, link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^], etc., and do not work on default methods.
-- <<Configuration Annotations>> - modifies configuration in the
- link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] within the
-  scope of a SQL object or one of its methods.
-- <<Method Decorating Annotations>> - decorates a method invocation with
-  some additional behavior, e.g. the `@Transaction` annotation wraps the method
-  call in a `handle.inTransaction()` call.
-
-Once you know which type of annotation you want, proceed to the appropriate
-section below and follow the guide to set it up.
-
-
-==== Statement Customizing Annotations
-
-SQL statement customizing annotations are used to apply some change to the
-link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] associated
-with a SQL method.
-
-Typically, these annotations correlate to an API method in core. e.g. link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^]
-corresponds to `SqlStatement.bind()`, `@MaxRows` corresponds to
-`Query.setMaxRows()`, etc.
-
-Customizing annotations are applied only after the
-link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] has been
-created.
-
-You can create your own SQL statement customizing annotations and attach runtime
-behavior to them.
-
-First, create an annotation that you want to attach a statement customization
-to:
-
-[source,java,indent=0]
-----
-@Retention(RetentionPolicy.RUNTIME) // <1>
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER}) // <2>
-public @interface MaxRows {
-    int value();
-}
-----
-<1> All statement customizing annotations should have a `RUNTIME` retention
-    policy.
-<2> Statement customizing annotations only work on types, methods, or
-    parameters. Strictly speaking, the `@Target` annotation is not required, but
-    it's a good practice to include it, so that annotations can only be applied
-    where they will actually do something.
-
-Placing a customizing annotation on a type means "apply this customization to
-every method."
-
-When used on parameters, annotations may use the argument passed to the method
-while processing the annotation.
-
-Next, we write an implementation of the
-link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizerFactory.html[SqlStatementCustomizerFactory^]
-class, to process the annotation and apply the customization to the statement.
-
-The `SqlStatementCustomizerFactory` produces two different types of "statement
-customizer" command objects:
-link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizer.html[SqlStatementCustomizer^]
-(for annotations on types or methods), and
-link:{jdbidocs}/sqlobject/customizer/SqlStatementParameterCustomizer.html[SqlStatementParameterCustomizer^]
-(for annotations on method parameters).
-
-Let's implement a statement customizer factory for our annotation:
-
-[source,java,indent=0]
-----
-public class MaxRowsFactory implements SqlStatementCustomizerFactory {
-    @Override
-    public SqlStatementCustomizer createForType(Annotation annotation,
-                                                Class<?> sqlObjectType) {
-        final int maxRows = ((MaxRows)annotation).value(); // <1>
-        return stmt -> ((Query)stmt).setMaxRows(maxRows); // <2>
-    }
-
-    @Override
-    public SqlStatementCustomizer createForMethod(Annotation annotation,
-                                                  Class<?> sqlObjectType,
-                                                  Method method) {
-        return createForType(annotation, sqlObjectType); // <3>
-    }
-
-    @Override
-    public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
-                                                              Class<?> sqlObjectType,
-                                                              Method method,
-                                                              Parameter param,
-                                                              int index,
-                                                              Type type) {
-        return (stmt, maxRows) -> ((Query)stmt).setMaxRows((Integer) maxRows); // <4>
-    }
-}
-----
-<1> Extract the max rows from the annotation
-<2> link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizer.html[SqlStatementCustomizer^]
-    can be implemented as a lambda--it receives a link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] as a
-    parameter, calls whatever method it wants on the statement, and returns
-    void.
-<3> Since the customization for this annotation is the same at the method level
-    as at the type level, we simply delegate to the type-level method for
-    brevity.
-<4> link:{jdbidocs}/sqlobject/customizer/SqlStatementParameterCustomizer.html[SqlStatementParameterCustomizer^]
-    can also be implemented as a lambda. It accepts a `SqlStatement` and the
-    value that was passed into the method on the annotated parameter.
-
-Finally, add the
-link:{jdbidocs}/sqlobject/customizer/SqlStatementCustomizingAnnotation.html[@SqlStatementCustomizingAnnotation^]
-annotation the `@MaxRows` annotation type. This tells Jdbi that `MaxRowsFactory`
-implements the behavior of the `@MaxRows` annotation:
-
-[source,java,indent=0]
-----
-@SqlStatementCustomizingAnnotation(MaxRowsFactory.class)
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.PARAMETER})
-public @interface MaxRows {
-    int value() default -1;
-}
-----
-
-Your statement customizing annotation is now ready to use on any SQL object:
-
-[source,java,indent=0]
-----
-public interface Dao {
-    @SqlQuery("SELECT * FROM contacts")
-    @MaxRows(100)
-    List<Contact> list();
-
-    @SqlQuery("SELECT * FROM contacts")
-    List<Contact> list(@MaxRows int maxRows);
-}
-----
-
-TIP: We chose `@MaxRows` as an example here because it was easy to understand.
-In practice, you will get better database performance by using a `LIMIT` clause
-in your SQL statement than by using `@MaxRows`.
-
-
-==== Configuration Annotations
-
-Configuration annotations are used to apply some change to the
-link:{jdbidocs}/core/config/ConfigRegistry.html[ConfigRegistry^] associated with
-a SQL object or method.
-
-Typically, these annotations correlate to a method of
-link:{jdbidocs}/core/config/Configurable.html[Configurable^] (link:{jdbidocs}/core/Jdbi.html[Jdbi^],
-link:{jdbidocs}/core/Handle.html[Handle^], and `SqlStatement` all implement this interface). For example,
-`@RegisterColumnMapper` correlates to `Configurable.registerColumnMapper()`.
-
-You can create your own configuration annotations, and attach runtime behavior
-to them:
-
-- Write a new configuration annotation, with any attributes you need.
-- Write an implementation of
- link:{jdbidocs}/sqlobject/config/Configurer.html[Configurer^] which performs
-  the configuration associated with your annotation.
-- Add the `@ConfiguringAnnotation` annotation to your configuration annotation
-  type.
-
-With the above steps completed, Jdbi will invoke your configurer whenever it
-encounters the associated annotation.
-
-Let's re-implement one of Jdbi's built-in annotations as an example:
-
-The `@RegisterColumnMapper` annotation has an attribute to specify the class of
-the column mapper to register. Wherever the annotation is used, we want Jdbi to
-create an instance of that mapper type, and register it with the config
-registry.
-
-First, let's create the new annotation type:
-
-[source,java,indent=0]
-----
-@Retention(RetentionPolicy.RUNTIME) // <1>
-@Target({ElementType.TYPE, ElementType.METHOD}) // <2>
-public @interface RegisterColumnMapper{
-  Class<? extends ColumnMapper<?>> value();
-}
-----
-<1> All configuration annotations should have a `RUNTIME` retention policy.
-<2> Configuration annotations only work on types and methods. Strictly speaking,
-    the `@Target` annotation is not required, but it's a good practice to
-    include it, so that annotations can only be applied where they will actually
-    do something.
-
-Placing a configuration annotation on a type means "apply this configuration to
-every method."
-
-Next, we write an implementation of the
-link:{jdbidocs}/sqlobject/config/Configurer.html[Configurer^] class, to process
-the annotation and apply the configuration:
-
-[source,java,indent=0]
-----
-public class RegisterColumnMapperImpl implements Configurer {
-    @Override
-    public void configureForMethod(ConfigRegistry registry,
-                                   Annotation annotation,
-                                   Class<?> sqlObjectType,
-                                   Method method) {
-        configure(registry, (RegisterColumnMapper) annotation);
-    }
-
-    @Override
-    public void configureForType(ConfigRegistry registry,
-                                 Annotation annotation,
-                                 Class<?> sqlObjectType) {
-        configure(registry, (RegisterColumnMapper) annotation);
-    }
-
-    private void configure(ConfigRegistry registry,
-                           RegisterColumnMapper registerColumnMapper) { // <1>
-        try {
-            Class<? extends ColumnMapper> mapperType = registerColumnMapper.value();
-            ColumnMapper mapper = mapperType.getConstructor().newInstance();
-            registry.get(ColumnMappers.class).register(mapper);
-        }
-        catch (NoSuchMethodException e) {
-            throw new RuntimeException("Cannot construct " + mapperType, e);
-        }
-    }
-}
-----
-<1> In this example, we're applying the same configuration, whether the
-    `@RegisterColumnMapper` annotation is used on the SQL object type or method.
-    However, this is not a requirement--some annotations may choose to apply
-    configuration differently depending on whether the annotation is placed on
-    the type or the method.
-
-For configuration annotations with only one target, (e.g. `@KeyColumn` and
-`@ValueColumn` may only be applied to methods), you need only implement
-the `Configurer` method appropriate for the annotation target.
-
-Finally, add the
-link:{jdbidocs}/sqlobject/config/ConfiguringAnnotation.html[@ConfiguringAnnotation^]
-annotation to your `@RegisterColumnMapper` annotation type. This tells Jdbi that
-`RegisterColumnMapperImpl` implements the behavior of the
-`@RegisterColumnMapper` annotation.
-
-[source,java,indent=0]
-----
-@ConfiguringAnnotation(RegisterColumnMapperImpl.class)
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RegisterColumnMapper {
-    Class<? extends TemplateEngine> value();
-}
-----
-
-Your configuration annotation is now ready to use in any SQL object:
-
-[source,java,indent=0]
-----
-public interface AccountDao {
-    @SqlQuery("SELECT balance FROM accounts WHERE id = ?")
-    @RegisterColumnMapper(MoneyMapper.class)
-    public Money getBalance(long accountId);
-}
-----
-
-
-==== Method Decorating Annotations
-
-Method decorating annotations are used to enhance a SQL Object method with
-additional (or substitute) behavior.
-
-Internally, SQL Object represents the behavior of each method with an instance
-of the link:{jdbidocs}/sqlobject/Handler.html[Handler^] interface. Every time
-you call a method on a SQL Object instance, the method is executed by executing
-the handler for the given method.
-
-When you use a decorating annotation (like `@Transaction`), the regular handler
-for a method is wrapped in another handler which may perform some action before
-and/or after passing the call to the original handler.
-
-A decorator could even perform some action _instead_ of calling the original,
-e.g. for a caching annotation.
-
-Let's re-implement the `@Transaction` annotation to see how it works:
-
-First, create the annotation type:
-
-[source,java,indent=0]
-----
-@Retention(RetentionPolicy.RUNTIME) // <1>
-@Target(ElementType.METHOD) // <2>
-public @interface Transaction {
-    TransactionIsolationLevel value();
-}
-----
-<1> All decorating annotations should have a `RUNTIME` retention policy.
-<2> Decorating annotations only work on types and methods. Strictly speaking,
-    the `@Target` annotation is not required, but it's a good practice to
-    include it, so that annotations can only be applied where they will actually
-    do something.
-
-Placing a decorating annotation on a type means "apply this decoration to every
-method."
-
-Next we write an implementation of the
-link:{jdbidocs}/sqlobject/HandlerDecorator.html[HandlerDecorator^] interface, to
-process the annotation and apply the decoration:
-
-[source,java,indent=0]
-----
-public class TransactionDecorator implements HandlerDecorator {
-  public Handler decorateHandler(Handler base,
-                                 Class<?> sqlObjectType,
-                                 Method method) {
-    Transaction anno = method.getAnnotation(Transaction.class); // <1>
-    TransactionIsolationLevel isolation = anno.value(); // <2>
-
-    return (target, args, handleSupplier) -> handleSupplier.getHandle() // <3>
-        .inTransaction(isolation, h -> base.invoke(target, args, handleSupplier));
-  }
-}
-----
-<1> Get the `@Transaction` annotation
-<2> Extract the transaction isolation level from the annotation
-<3> The `Handler` interface accepts a target (the SQL Object instance being
-    invoked), an `Object[]` array of arguments passed to the method, and a
-    `HandleSupplier`.
-
-Finally, add the
-link:{jdbidocs}/sqlobject/SqlMethodDecoratingAnnotation.html[@SqlMethodDecoratingAnnotation^]
-annotation to your `@Transaction` annotation type. This tells Jdbi that
-`TransactionDecorator` implements the behavior of the `@Transaction` annotation.
-
-[source,java,indent=0]
-----
-@SqlMethodDecoratingAnnotation(TransactionDecorator.class)
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Transaction {
-    TransactionIsolationLevel value();
-}
-----
-
-Your decorating annotation is now ready to use in any SQL object:
-
-[source,java,indent=0]
-----
-public interface ContactDao {
-    @SqlBatch("INSERT INTO contacts (id, name) VALUES (:id, :name)")
-    @Transaction
-    void batchInsert(@BindBean Contact... contacts);
-}
-----
-
-
-===== Decorator Order
-
-If a SQL object method has two or more decorating annotations applied, and the
-order of decorations is important, use the `@DecoratorOrder` annotation. If no order
-is declared, type decorators apply first, then method decorators, but the order is
-not further specified.
-
-For example, if a method were annotated both with a custom `@Cached` and
-`@Transaction` annotation, then  `@DecoratorOrder` can be used to ensure that the `@Cached`
-annotation is evaluated first to avoid that transactions are not created unnecessarily when
-the result may already be cached.
-
-[source,java,indent=0]
-----
-public interface ContactDao {
-    @SqlQuery("SELECT * FROM contacts WHERE id = ?")
-    @Cached
-    @Transaction
-    @DecoratorOrder(Cached.class, Transaction.class)
-    Contact getById(long id);
-}
-----
-
-Decorator order is expressed from outermost to innermost.
-
-////
-=== SQL Object internal plumbing
-
-TODO:
-
-* SQL Object plumbing is exposed, so you can enhance the out-of-the-box
-  behavior of SQL Objects with your own behavior.
-* Handler interface - the implementation of an invokable SQL object method
-* HandlerDecorator - Add behavior to another Handler. This is how e.g.
-  transactional behavior is added to any SQL method.
-* Handlers, HandlerFactory - Introduce new SQL method behavior based on
-  any criteria, not just annotations.
-** DefaultMethodHandlerFactory
-** SqlMethodHandlerFactory
-* HandlerDecorators - Apply Handler decorations base on any criteria, not just
-  annotations.
-** SqlMethodAnnotatedHandlerDecorator
-////
-
-////
-=== Extensions
-
-Jdbi supports generic extensions. SQL Objects are just one implementation of
-that spec. If SQL Objects aren't doing it for you, you can create your own!
-
-TODO:
-
-* Regular extensions
-** Lifecycle tied to the handle it is attached to
-* On-demand extensions
-** Public interface only -- we like being lazy and just using Java proxies.
-** Lifecycle is indefinite
-** Opens and closes a handle for each entrant method call
-*** Reentrant calls like one method of the interface calling another, reuse
-    the already-open handle.
-* ExtensionFactory
-////
 
 ////
 === SQL interpolation
@@ -8264,13 +8527,15 @@ that the context is closed eventually to release database resources.
 Most users will not need to implement the *ResultProducer* interface.
 
 
-=== Generator
+[#generator]
+=== Jdbi SQL object code generator
 
-Jdbi includes an experimental SqlObject code generator.  If you include the
-`jdbi3-generator` artifact as an annotation processor and annotate your SqlObject
-definitions with `@GenerateSqlObject`, the generator will produce an implementing
-class and avoid using `Proxy` instances.  This may be useful for `graal-native`
-compilation.
+Jdbi includes an experimental SqlObject code generator.  If you
+include the `jdbi3-generator` artifact as an annotation processor and
+annotate your SqlObject definitions with `@GenerateSqlObject`, the
+generator will produce an implementing class and avoids using
+link:{jdkdocs}/java/lang/reflect/Proxy.html[Java proxy^] instances.
+This may be useful for `graal-native` compilation.
 
 
 == Appendix

@@ -23,8 +23,8 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ConfigCustomizerFactory;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionHandler;
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
+import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
 import org.jdbi.v3.core.extension.ExtensionMetadata;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 
@@ -35,7 +35,7 @@ abstract class AbstractSqlObjectFactory implements ExtensionFactory {
     private static final ExtensionHandler GET_HANDLE_HANDLER = (handleSupplier, target, args) -> handleSupplier.getHandle();
 
     @Override
-    public void buildExtensionInitData(ExtensionMetadata.Builder builder) {
+    public void buildExtensionMetadata(ExtensionMetadata.Builder builder) {
         final Class<?> extensionType = builder.getExtensionType();
 
         ExtensionHandler toStringHandler = (handlerSupplier, target, args) ->

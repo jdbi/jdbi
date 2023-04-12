@@ -19,12 +19,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.extension.annotation.ExtensionHandlerCustomizationOrder;
+import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
+
 /**
  * Determines the order in which SQL method decorators are invoked. If this annotation is absent, the decorator order
  * is undefined. A <code>@DecoratorOrder</code> annotation on a method takes precedence over an annotation on a type.
  *
- * @deprecated Use {@link org.jdbi.v3.core.extension.annotation.UseExtensionCustomizer} to mark annotations and
- * {@link org.jdbi.v3.core.extension.annotation.ExtensionCustomizationOrder} instead.
+ * @deprecated Use {@link UseExtensionHandlerCustomizer} to mark annotations and
+ * {@link ExtensionHandlerCustomizationOrder} instead.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})

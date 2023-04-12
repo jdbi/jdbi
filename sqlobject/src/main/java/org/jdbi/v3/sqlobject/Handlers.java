@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
@@ -29,7 +30,7 @@ import org.jdbi.v3.core.internal.JdbiOptionals;
  * support for other use cases. In the case that two or more registered factories would support a particular SQL object
  * method, the last-registered factory takes precedence.
  *
- * @deprecated Use {@link org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory} instances that are returned
+ * @deprecated Use {@link ExtensionHandlerFactory} instances that are returned
  * from the {@link org.jdbi.v3.core.extension.ExtensionFactory#getExtensionHandlerFactories(ConfigRegistry)} method.
  */
 @Deprecated

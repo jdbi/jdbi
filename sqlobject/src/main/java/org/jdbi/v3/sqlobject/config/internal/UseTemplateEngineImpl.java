@@ -33,15 +33,15 @@ import org.jdbi.v3.sqlobject.config.UseTemplateEngine;
 
 public class UseTemplateEngineImpl implements ExtensionConfigurer {
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, @Nullable Method method) {
+    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, @Nullable Method method) {
         UseTemplateEngine anno = (UseTemplateEngine) annotation;
         TemplateEngine templateEngine = instantiate(anno.value(), sqlObjectType, method);
-        registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
+        config.get(SqlStatements.class).setTemplateEngine(templateEngine);
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        configureForMethod(registry, annotation, sqlObjectType, null);
+    public void configureForType(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        configureForMethod(config, annotation, sqlObjectType, null);
     }
 
     private static TemplateEngine instantiate(Class<? extends TemplateEngine> engineClass, Class<?> sqlObjectType, @Nullable Method method) {

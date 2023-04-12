@@ -16,21 +16,22 @@ package org.jdbi.v3.core.extension;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 import org.jdbi.v3.core.extension.ExtensionMetadata.Builder;
 import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 
 import static java.lang.String.format;
 
-import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.CLASSES_ARE_SUPPORTED;
-import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.VIRTUAL_FACTORY;
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_PROXY;
+import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 import static org.jdbi.v3.core.extension.ExtensionHandler.EQUALS_HANDLER;
 import static org.jdbi.v3.core.extension.ExtensionHandler.HASHCODE_HANDLER;
 import static org.jdbi.v3.core.extension.ExtensionHandler.NULL_HANDLER;
@@ -54,7 +55,9 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
 
     @Override
     public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigRegistry config) {
-        return delegatedFactory.getExtensionHandlerFactories(config);
+        return Collections.unmodifiableCollection(delegatedFactory.getExtensionHandlerFactories(config).stream()
+                .map(FilteringExtensionHandlerFactory::forDelegate)
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -68,8 +71,8 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
     }
 
     @Override
-    public void buildExtensionInitData(Builder builder) {
-        delegatedFactory.buildExtensionInitData(builder);
+    public void buildExtensionMetadata(Builder builder) {
+        delegatedFactory.buildExtensionMetadata(builder);
     }
 
     @Override
@@ -90,7 +93,7 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
         //
         // The extension factory is now responsible for managing the method invocations itself.
         //
-        if (factoryFlags.contains(CLASSES_ARE_SUPPORTED)) {
+        if (factoryFlags.contains(DONT_USE_PROXY)) {
             return delegatedFactory.attach(extensionType, handleSupplier);
         }
 
@@ -104,7 +107,7 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
 
         extensions.onCreateProxy();
 
-        final ExtensionMetadata extensionMetaData = extensions.findMetadata(extensionType, config, delegatedFactory);
+        final ExtensionMetadata extensionMetaData = extensions.findMetadata(extensionType, delegatedFactory);
         final ConfigRegistry instanceConfig = extensionMetaData.createInstanceConfiguration(config);
 
         Map<Method, ExtensionHandlerInvoker> handlers = new HashMap<>();
@@ -116,7 +119,7 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
         // if the object created by the delegated factory has actual methods (it is not delegating), attach the
         // delegate and pass it to the handlers. Otherwise assume that there is no backing object and do not call
         // attach.
-        final Object delegatedInstance = factoryFlags.contains(VIRTUAL_FACTORY) ? proxy : delegatedFactory.attach(extensionType, handleSupplier);
+        final Object delegatedInstance = factoryFlags.contains(NON_VIRTUAL_FACTORY) ? delegatedFactory.attach(extensionType, handleSupplier) : proxy;
 
         // add proxy specific methods (toString, equals, hashCode, finalize)
         // those will only be added if they don't already exist in the method handler map.

@@ -15,6 +15,7 @@ package org.jdbi.v3.core.extension;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.jdbi.v3.core.config.ConfigCustomizer;
 import org.jdbi.v3.meta.Alpha;
@@ -33,7 +34,9 @@ public interface ConfigCustomizerFactory {
      * @param extensionType The extension type
      * @return A {@link Collection} of {@link ConfigCustomizer} objects. Must not be null
      */
-    Collection<ConfigCustomizer> forExtensionType(Class<?> extensionType);
+    default Collection<ConfigCustomizer> forExtensionType(Class<?> extensionType) {
+        return Collections.emptyList();
+    }
 
     /**
      * Creates a collection of {@link ConfigCustomizer} instances for an extension type method.
@@ -42,5 +45,7 @@ public interface ConfigCustomizerFactory {
      * @param method        The method on the extension type
      * @return A {@link Collection} of {@link ConfigCustomizer} objects. Must not be null
      */
-    Collection<ConfigCustomizer> forExtensionMethod(Class<?> extensionType, Method method);
+    default Collection<ConfigCustomizer> forExtensionMethod(Class<?> extensionType, Method method) {
+        return Collections.emptyList();
+    }
 }

@@ -67,6 +67,8 @@
         <basepom.test.timeout>240</basepom.test.timeout>
 
         <dep.antlr.version>4.10.1</dep.antlr.version>
+        <dep.asciidoctorj-diagram.version>2.2.3</dep.asciidoctorj-diagram.version>
+        <dep.asciidoctorj.version>2.5.6</dep.asciidoctorj.version>
         <dep.assertj-core.version>3.23.1</dep.assertj-core.version>
         <dep.assertj-guava.version>3.4.0</dep.assertj-guava.version>
         <dep.caffeine.version>3.0.3</dep.caffeine.version>
@@ -634,6 +636,26 @@
                     <groupId>org.asciidoctor</groupId>
                     <artifactId>asciidoctor-maven-plugin</artifactId>
                     <version>${dep.plugin.asciidoctor.version}</version>
+                    <configuration>
+                        <attributes>
+                            <imagesdir>${project.build.directory}/generated-docs/images</imagesdir>
+                        </attributes>
+                        <requires>
+                            <require>asciidoctor-diagram</require>
+                        </requires>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.asciidoctor</groupId>
+                            <artifactId>asciidoctorj</artifactId>
+                            <version>${dep.asciidoctorj.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.asciidoctor</groupId>
+                            <artifactId>asciidoctorj-diagram</artifactId>
+                            <version>${dep.asciidoctorj-diagram.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>com.github.ekryd.sortpom</groupId>

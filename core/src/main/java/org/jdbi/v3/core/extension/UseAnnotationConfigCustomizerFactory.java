@@ -32,9 +32,9 @@ import static java.lang.String.format;
  * Applies configuration customizers according to {@link UseExtensionConfigurer} decorating annotations.
  * present on the method.
  */
-final class UseExtensionAnnotationConfigCustomizerFactory implements ConfigCustomizerFactory {
+final class UseAnnotationConfigCustomizerFactory implements ConfigCustomizerFactory {
 
-    static final ConfigCustomizerFactory FACTORY = new UseExtensionAnnotationConfigCustomizerFactory();
+    static final ConfigCustomizerFactory INSTANCE = new UseAnnotationConfigCustomizerFactory();
 
     @Override
     public Collection<ConfigCustomizer> forExtensionType(Class<?> extensionType) {

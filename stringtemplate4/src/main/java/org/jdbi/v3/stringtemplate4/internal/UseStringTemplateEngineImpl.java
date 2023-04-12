@@ -14,21 +14,16 @@
 package org.jdbi.v3.stringtemplate4.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.stringtemplate4.StringTemplateEngine;
 
-public class UseStringTemplateEngineImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        registry.get(SqlStatements.class).setTemplateEngine(new StringTemplateEngine());
-    }
+public class UseStringTemplateEngineImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        config.get(SqlStatements.class).setTemplateEngine(new StringTemplateEngine());
     }
 }

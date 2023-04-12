@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import org.jdbi.v3.core.config.ConfigCustomizer;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.internal.ConfigCustomizerChain;
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.meta.Alpha;
@@ -249,7 +248,7 @@ public final class ExtensionMetadata {
                 }
 
                 // look through the registered extension handler factories to find extension handlers
-                ExtensionHandler handler = ((Optional<ExtensionHandler>) findExtensionHandlerFor(extensionType, method))
+                ExtensionHandler handler = findExtensionHandlerFor(extensionType, method)
                         .orElseGet(() -> ExtensionHandler.missingExtensionHandler(method));
 
 
@@ -274,10 +273,10 @@ public final class ExtensionMetadata {
             return new ExtensionMetadata(extensionType, instanceConfigCustomizer, methodConfigCustomizers, methodHandlers);
         }
 
-        private Optional<? extends ExtensionHandler> findExtensionHandlerFor(Class<?> extensionType, Method method) {
+        private Optional<ExtensionHandler> findExtensionHandlerFor(Class<?> extensionType, Method method) {
             for (ExtensionHandlerFactory extensionHandlerFactory : extensionHandlerFactories) {
                 if (extensionHandlerFactory.accepts(extensionType, method)) {
-                    Optional<? extends ExtensionHandler> result = extensionHandlerFactory.buildExtensionHandler(extensionType, method);
+                    Optional<ExtensionHandler> result = extensionHandlerFactory.createExtensionHandler(extensionType, method);
                     if (result.isPresent()) {
                         return result;
                     }

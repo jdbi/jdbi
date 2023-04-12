@@ -13,13 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.util.EnumSet;
-import java.util.Set;
 import java.util.stream.Stream;
-
-import org.jdbi.v3.core.extension.HandleSupplier;
-
-import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.VIRTUAL_FACTORY;
 
 /**
  * Creates implementations for SqlObject interfaces.
@@ -51,23 +45,5 @@ public final class SqlObjectFactory extends AbstractSqlObjectFactory {
         return Stream.of(extensionType.getMethods())
                 .flatMap(m -> Stream.of(m.getAnnotations()))
                 .anyMatch(SqlObjectAnnotationHelper::matchSqlAnnotations);
-    }
-
-    @Override
-    public Set<FactoryFlag> getFactoryFlags() {
-        return EnumSet.of(VIRTUAL_FACTORY);
-    }
-
-    /**
-     * Create a sql object of the specified type bound to this handle. Any state changes to the handle, or the sql
-     * object, such as transaction status, closing it, etc, will apply to both the object and the handle.
-     *
-     * @param extensionType  the type of sql object to create
-     * @param handleSupplier the Handle instance to attach ths sql object to
-     * @return the new sql object bound to this handle
-     */
-    @Override
-    public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
-        throw new UnsupportedOperationException();
     }
 }

@@ -32,26 +32,27 @@ import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.UseSqlParser;
 
 public class UseSqlParserImpl implements ExtensionConfigurer {
+
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
+    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
         UseSqlParser anno = (UseSqlParser) annotation;
         SqlParser parser = instantiate(anno.value(), sqlObjectType, method);
-        registry.get(SqlStatements.class).setSqlParser(parser);
+        config.get(SqlStatements.class).setSqlParser(parser);
     }
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        configureForMethod(registry, annotation, sqlObjectType, null);
+    public void configureForType(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        configureForMethod(config, annotation, sqlObjectType, null);
     }
 
     private SqlParser instantiate(Class<? extends SqlParser> parserClass,
-                                  Class<?> sqlObjectType,
-                                  @Nullable Method method) {
+            Class<?> sqlObjectType,
+            @Nullable Method method) {
         return Stream.of(tryConstructor(parserClass), tryConstructor(parserClass, sqlObjectType), tryConstructor(parserClass, sqlObjectType, method))
-            .map(Supplier::get)
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Unable to instantiate, no viable constructor for " + parserClass.getName()));
+                .map(Supplier::get)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Unable to instantiate, no viable constructor for " + parserClass.getName()));
     }
 
     private static <T extends SqlParser> Supplier<T> tryConstructor(Class<T> clazz, Object... args) {

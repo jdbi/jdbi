@@ -30,7 +30,7 @@ import org.jdbi.v3.meta.Alpha;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 @Alpha
-public @interface UseExtensionCustomizer {
+public @interface UseExtensionHandlerCustomizer {
     /**
      * {@link ExtensionHandlerCustomizer} class that decorates {@link ExtensionHandler} instances for methods annotated with the associated annotation.
      * <br>

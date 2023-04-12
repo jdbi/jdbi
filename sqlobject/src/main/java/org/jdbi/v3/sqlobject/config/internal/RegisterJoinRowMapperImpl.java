@@ -14,24 +14,18 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.mapper.JoinRowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterJoinRowMapper;
 
-public class RegisterJoinRowMapperImpl implements ExtensionConfigurer {
+public class RegisterJoinRowMapperImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
-    }
-
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         RegisterJoinRowMapper registerJoinRowMapper = (RegisterJoinRowMapper) annotation;
-        registry.get(RowMappers.class).register(JoinRowMapper.forTypes(registerJoinRowMapper.value()));
+        config.get(RowMappers.class).register(JoinRowMapper.forTypes(registerJoinRowMapper.value()));
     }
 }

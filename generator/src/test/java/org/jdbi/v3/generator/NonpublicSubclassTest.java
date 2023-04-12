@@ -143,15 +143,15 @@ public class NonpublicSubclassTest {
 
     public static class GeneratorConfigurerTypeImpl implements ExtensionConfigurer {
         @Override
-        public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-            registry.get(GeneratorConfig.class).configuredType = true;
+        public void configureForType(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+            config.get(GeneratorConfig.class).configuredType = true;
         }
     }
 
     public static class GeneratorConfigurerMethodImpl implements ExtensionConfigurer {
         @Override
-        public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-            registry.get(GeneratorConfig.class).configuredMethod = true;
+        public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
+            config.get(GeneratorConfig.class).configuredMethod = true;
         }
     }
 

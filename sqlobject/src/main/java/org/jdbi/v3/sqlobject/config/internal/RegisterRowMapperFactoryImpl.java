@@ -14,24 +14,18 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 
-public class RegisterRowMapperFactoryImpl implements ExtensionConfigurer {
+public class RegisterRowMapperFactoryImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
-    }
-
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
-        RowMappers mappers = registry.get(RowMappers.class);
+        RowMappers mappers = config.get(RowMappers.class);
         try {
             mappers.register(registerRowMapperFactory.value().getConstructor().newInstance());
         } catch (ReflectiveOperationException | SecurityException e) {

@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.extension.ExtensionHandler.ExtensionHandlerFactory;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -57,7 +56,7 @@ public class TestUseCustomExtensionHandlerFactory {
             }
 
             @Override
-            public Optional<ExtensionHandler> buildExtensionHandler(Class<?> extensionType, Method method) {
+            public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
                 return getImplementation(extensionType, method).map(m ->
                         (handleSupplier, target, args) -> m.invoke(null, Stream.concat(Stream.of(target), Stream.of(args)).toArray())
                 );

@@ -14,24 +14,19 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterCollectorFactory;
 
-public class RegisterCollectorFactoryImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
-    }
+public class RegisterCollectorFactoryImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         RegisterCollectorFactory registerCollectorFactory = (RegisterCollectorFactory) annotation;
-        JdbiCollectors collectors = registry.get(JdbiCollectors.class);
+        JdbiCollectors collectors = config.get(JdbiCollectors.class);
         Class<? extends CollectorFactory> type = registerCollectorFactory.value();
         try {
             collectors.register(type.getConstructor().newInstance());

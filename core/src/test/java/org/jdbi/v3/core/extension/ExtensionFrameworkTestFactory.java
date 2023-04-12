@@ -14,13 +14,9 @@
 package org.jdbi.v3.core.extension;
 
 import java.lang.annotation.Annotation;
-import java.util.EnumSet;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
-
-import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.VIRTUAL_FACTORY;
 
 public class ExtensionFrameworkTestFactory implements ExtensionFactory {
 
@@ -30,16 +26,6 @@ public class ExtensionFrameworkTestFactory implements ExtensionFactory {
                 .flatMap(m -> Stream.of(m.getAnnotations()))
                 .anyMatch(ExtensionFrameworkTestFactory::matchSqlAnnotations);
 
-    }
-
-    @Override
-    public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<FactoryFlag> getFactoryFlags() {
-        return EnumSet.of(VIRTUAL_FACTORY);
     }
 
     private static boolean matchSqlAnnotations(Annotation a) {

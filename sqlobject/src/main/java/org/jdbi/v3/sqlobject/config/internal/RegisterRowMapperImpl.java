@@ -14,24 +14,19 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 
-public class RegisterRowMapperImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
-    }
+public class RegisterRowMapperImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         RegisterRowMapper registerRowMapper = (RegisterRowMapper) annotation;
         try {
-            registry.get(RowMappers.class).register(registerRowMapper.value().getConstructor().newInstance());
+            config.get(RowMappers.class).register(registerRowMapper.value().getConstructor().newInstance());
         } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate row mapper class " + registerRowMapper.value(), e);
         }

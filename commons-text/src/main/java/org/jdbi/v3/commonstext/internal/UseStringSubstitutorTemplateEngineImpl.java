@@ -14,25 +14,20 @@
 package org.jdbi.v3.commonstext.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.commonstext.StringSubstitutorTemplateEngine;
 import org.jdbi.v3.commonstext.UseStringSubstitutorTemplateEngine;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
 
-public class UseStringSubstitutorTemplateEngineImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        UseStringSubstitutorTemplateEngine anno = (UseStringSubstitutorTemplateEngine) annotation;
-        TemplateEngine engine = StringSubstitutorTemplateEngine.between(anno.prefix(), anno.suffix(), anno.escape());
-        registry.get(SqlStatements.class).setTemplateEngine(engine);
-    }
+public class UseStringSubstitutorTemplateEngineImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        UseStringSubstitutorTemplateEngine anno = (UseStringSubstitutorTemplateEngine) annotation;
+        TemplateEngine engine = StringSubstitutorTemplateEngine.between(anno.prefix(), anno.suffix(), anno.escape());
+        config.get(SqlStatements.class).setTemplateEngine(engine);
     }
 }

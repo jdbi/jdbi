@@ -16,12 +16,11 @@ package org.jdbi.v3.freemarker.internal;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.freemarker.FreemarkerConfig;
@@ -31,10 +30,11 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 import static org.jdbi.v3.freemarker.FreemarkerSqlLocator.findTemplate;
 
-public class UseFreemarkerSqlLocatorImpl implements ExtensionConfigurer {
+public class UseFreemarkerSqlLocatorImpl extends SimpleExtensionConfigurer {
+
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
-        SqlLocator locator = (type, method, config) ->
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        SqlLocator locator = (type, method, c) ->
                 SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
         TemplateEngine templateEngine = (templateName, ctx) -> {
             Template template = findTemplate(
@@ -48,12 +48,7 @@ public class UseFreemarkerSqlLocatorImpl implements ExtensionConfigurer {
                 throw new IllegalStateException("Failed to render template " + templateName, e);
             }
         };
-        registry.get(SqlObjects.class).setSqlLocator(locator);
-        registry.get(SqlStatements.class).setTemplateEngine(templateEngine);
-    }
-
-    @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
+        config.get(SqlObjects.class).setSqlLocator(locator);
+        config.get(SqlStatements.class).setTemplateEngine(templateEngine);
     }
 }

@@ -15,7 +15,6 @@ package org.jdbi.v3.core.extension;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
@@ -116,30 +115,5 @@ public interface ExtensionHandler {
             }
             return Unchecked.<Object[], Object>function(methodHandle.bindTo(target)::invokeWithArguments).apply(args);
         };
-    }
-
-    /**
-     * A factory to create {@link ExtensionHandler} instances.
-     */
-    interface ExtensionHandlerFactory {
-
-        /**
-         * Determines whether the factory can create an {@link ExtensionHandler} for combination of extension type and method.
-         *
-         * @param extensionType The extension type class
-         * @param method A method
-         * @return True if the factory can create an extension handler for extension type and method, false otherwise
-         */
-        boolean accepts(Class<?> extensionType, Method method);
-
-        /**
-         * Returns an {@link ExtensionHandler} for a extension type and method combination.
-         * @param extensionType The extension type class
-         * @param method A method
-         * @return An {@link ExtensionHandler} instance wrapped into an {@link Optional}. The optional can be empty. This is necessary to retrofit old code
-         * that does not have an accept/build code pair but unconditionally tries to build a handler and returns empty if it can not. New code should always
-         * return <code>Optional.of(extensionHandler}</code> and never return <code>Optional.empty()</code>
-         */
-        Optional<ExtensionHandler> buildExtensionHandler(Class<?> extensionType, Method method);
     }
 }

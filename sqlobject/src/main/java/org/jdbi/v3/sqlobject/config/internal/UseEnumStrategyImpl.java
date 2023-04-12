@@ -14,23 +14,18 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.enums.Enums;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.UseEnumStrategy;
 
-public class UseEnumStrategyImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForMethod(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        configureForType(registry, annotation, sqlObjectType);
-    }
+public class UseEnumStrategyImpl extends SimpleExtensionConfigurer {
 
     @Override
-    public void configureForType(ConfigRegistry registry, Annotation annotation, Class<?> sqlObjectType) {
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         UseEnumStrategy anno = (UseEnumStrategy) annotation;
 
-        registry.get(Enums.class).setEnumStrategy(anno.value());
+        config.get(Enums.class).setEnumStrategy(anno.value());
     }
 }
