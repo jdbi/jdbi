@@ -47,10 +47,27 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
         factories.addAll(that.factories);
     }
 
+    /**
+     * Register a new {@link CollectorFactory}.
+     * @param factory A collector factory
+     * @return this
+     */
     public JdbiCollectors register(CollectorFactory factory) {
         factories.add(0, factory);
         factoryCache = new ConcurrentHashMap<>();
         return this;
+    }
+
+    /**
+     * Register a new {@link Collector} for the given type.
+     * @param collectionType The type that this collector will return
+     * @param collector A {@link Collector} implementation
+     * @return this
+     * @since 3.38.0
+     * @see org.jdbi.v3.core.config.Configurable#registerCollector(CollectorFactory)
+     */
+    public JdbiCollectors registerCollector(Type collectionType, Collector<?, ?, ?> collector) {
+        return register(CollectorFactory.collectorFactory(collectionType, collector));
     }
 
     /**

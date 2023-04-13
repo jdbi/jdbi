@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.stream.Collector;
 
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -54,4 +55,30 @@ public interface CollectorFactory {
      * @see JdbiCollectors#findFor(Type)
      */
     Collector<?, ?, ?> build(Type containerType);
+
+    /**
+     * Creates a {@link CollectorFactory} from a parameterized container type and a collector.
+     *
+     * @param containerType The parameterized container type that the factory should use
+     * @param collector The collector to aassemble container types into a collection
+     *
+     * @return A collection factory instance
+     * @since 3.38.0
+     */
+    static CollectorFactory collectorFactory(GenericType<?> containerType, Collector<?, ?, ?> collector) {
+        return new SimpleCollectorFactory(containerType.getType(), collector);
+    }
+
+    /**
+     * Creates a {@link CollectorFactory} from a container type and a collector.
+     *
+     * @param containerType The container type that the factory should use
+     * @param collector The collector to aassemble container types into a collection
+     *
+     * @return A collection factory instance
+     * @since 3.38.0
+     */
+    static CollectorFactory collectorFactory(Type containerType, Collector<?, ?, ?> collector) {
+        return new SimpleCollectorFactory(containerType, collector);
+    }
 }

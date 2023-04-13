@@ -16,6 +16,7 @@ package org.jdbi.v3.core.config;
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collector;
 
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
@@ -228,6 +229,18 @@ public interface Configurable<This> {
      */
     default This registerArrayType(SqlArrayTypeFactory factory) {
         return configure(SqlArrayTypes.class, c -> c.register(factory));
+    }
+
+    /**
+     * Convenience method for {@code getConfig(JdbiCollectors.class).register(CollectorFactory.collectorFactory(collectionType, collector))}
+     *
+     * @param collectionType collector type to register the collector for
+     * @param collector the Collector to use to build the resulting collection
+     * @return this
+     * @since 3.38.0
+     */
+    default This registerCollector(Type collectionType, Collector<?, ?, ?> collector) {
+        return configure(JdbiCollectors.class, c -> c.registerCollector(collectionType, collector));
     }
 
     /**
