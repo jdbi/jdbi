@@ -13,7 +13,9 @@
  */
 package org.jdbi.v3.core.result;
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,9 +32,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.internal.ResultSetResultIterable;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.meta.Alpha;
 
 import static java.util.Spliterators.spliteratorUnknownSize;
 
@@ -299,18 +303,26 @@ public interface ResultIterable<T> extends Iterable<T> {
     }
 
     /**
-     * Returns results in a {@link List}.
+     * Returns results in a {@link List} using the JDK specific default implementation of {@link List} as provided
+     * by {@link Collectors#toList()}. The same limitations apply to the list instance returned from this method.
+     * If more control over the list type is required, use {@link #toCollection(Supplier)} or see the {@link #collectIntoList()} method.
      *
      * @return results in a {@link List}
+     * @see ResultIterable#collectIntoList()
+     * @see ResultIterable#toCollection(Supplier)
      */
     default List<T> list() {
         return collect(Collectors.toList());
     }
 
     /**
-     * Returns results in a {@link Set}.
+     * Returns results in a {@link Set} using the JDK specific default implementation of {@link Set} as provided
+     * by {@link Collectors#toSet()}. The same limitations apply to the set instance returned from this method.
+     * If more control over the set type is required, use {@link #toCollection(Supplier)} or see the {@link #collectIntoSet()} method.
      *
      * @return results in a {@link Set}
+     * @see ResultIterable#collectIntoSet()
+     * @see ResultIterable#toCollection(Supplier)
      * @since 3.38.0
      */
     default Set<T> set() {
@@ -341,6 +353,90 @@ public interface ResultIterable<T> extends Iterable<T> {
      */
     default <K, V> Map<K, V> collectToMap(Function<? super T, ? extends K> keyFunction, Function<? super T, ? extends V> valueFunction) {
         return collect(Collectors.toMap(keyFunction, valueFunction));
+    }
+
+    /**
+     * Collect the results into a collection object similar to {@link Collectors#toCollection(Supplier)}.
+     *
+     * @param supplier a supplier providing a new empty Collection into which the results will be inserted
+     * @return A new collection with all results inserted
+     * @since 3.38.0
+     */
+    @Alpha
+    default <C extends Collection<T>> C toCollection(Supplier<C> supplier) {
+        return collect(Collectors.toCollection(supplier));
+    }
+
+    /**
+     * Collect the results into a container type.
+     *
+     * @param containerType A {@link Type} object that must describe a container type
+     * @return A new collection implementing the container type with all results inserted
+     * @throws UnsupportedOperationException if the implementation does not support this operation
+     * @since 3.38.0
+     */
+    @Alpha
+    default <R extends Collection<? super T>> R collectInto(Type containerType) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Collect the results into a collection type.
+     *
+     * @param containerType A {@link GenericType} object that describes a collection type
+     * @return A new collection implementing the container type with all results inserted
+     * @throws UnsupportedOperationException if the implementation does not support this operation
+     * @since 3.38.0
+     */
+    @Alpha
+    default <R extends Collection<? super T>> R collectInto(GenericType<R> containerType) {
+        return collectInto(containerType.getType());
+    }
+
+    /**
+     * Returns results in a {@link List}. The implementation of the list can be changed by registering a {@link Collector}:
+     * <p>
+     * <pre>{@code
+     *     jdbi.getConfig(JdbiCollectors.class).registerCollector(List.class, Collectors.toCollection(LinkedList::new));
+     * }</pre>
+     * or
+     * <pre>{@code
+     *     handle.registerCollector(List.class, Collectors.toCollection(LinkedList::new));
+     * }</pre>
+     * <br>
+     * If no collector is registered, then this method behaves like {@link #list()}.
+     *
+     * @return results in a {@link List}
+     * @since 3.38.0
+     * @see ResultIterable#list()
+     * @see ResultIterable#toCollection(Supplier)
+     */
+    @Alpha
+    default List<T> collectIntoList() {
+        return list();
+    }
+
+    /**
+     * Returns results in a {@link Set}. The implementation of the set can be changed by registering a {@link Collector}:
+     * <p>
+     * <pre>{@code
+     *     jdbi.getConfig(JdbiCollectors.class).registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
+     * }</pre>
+     * or
+     * <pre>{@code
+     *     handle.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
+     * }</pre>
+     * <br>
+     * If no collector is registered, then this method behaves like {@link #set()}.
+     *
+     * @return results in a {@link Set}
+     * @since 3.38.0
+     * @see ResultIterable#set()
+     * @see ResultIterable#toCollection(Supplier)
+     */
+    @Alpha
+    default Set<T> collectIntoSet() {
+        return set();
     }
 
     /**

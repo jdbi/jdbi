@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.core.collector;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -29,7 +32,6 @@ import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -58,12 +60,45 @@ public class CollectorsTest {
                 .containsExactlyInAnyOrder("a", "b", "c"));
     }
 
+    @Test
+    void collectIntoCollectionSet() {
+        queryString(r -> assertThat(r.toCollection(() -> new LinkedHashSet<>()))
+                .isInstanceOf(Set.class)
+                .containsExactlyInAnyOrder("a", "b", "c"));
+    }
+
+    @Test
+    void collectIntoRawSet() {
+        try (Query query = baseQuery()) {
+            assertThat((Set<String>) query.mapTo(String.class)
+                    .collectInto(Set.class))
+                    .isNotInstanceOf(HashSet.class)
+                    .containsExactlyInAnyOrder("a", "b", "c");
+        }
+    }
 
     @Test
     void collectIntoList() {
         queryString(r -> assertThat(r.list())
                 .isInstanceOf(List.class)
                 .containsExactly("a", "b", "c"));
+    }
+
+    @Test
+    void collectIntoCollectionList() {
+        queryString(r -> assertThat(r.toCollection(() -> new LinkedList<>()))
+                .isInstanceOf(List.class)
+                .containsExactly("a", "b", "c"));
+    }
+
+    @Test
+    void collectIntoRawList() {
+        try (Query query = baseQuery()) {
+            assertThat((List<String>) query.mapTo(String.class)
+                    .collectInto(List.class))
+                    .isInstanceOf(ArrayList.class)
+                    .containsExactly("a", "b", "c");
+        }
     }
 
     @Test
@@ -101,6 +136,7 @@ public class CollectorsTest {
         }
     }
 
+    @Test
     void collectIntoRegisteredListTypeDirectly() {
         queryString(r -> assertThat(r.list()).isNotInstanceOf(LinkedList.class));
 
@@ -118,9 +154,8 @@ public class CollectorsTest {
 
 
     @Test
-    @Disabled("Registry lookup is not implemented yet")
     void listIntoRegisteredListType() {
-        queryString(r -> assertThat(r.list()).isNotInstanceOf(LinkedList.class));
+        queryString(r -> assertThat(r.collectIntoList()).isNotInstanceOf(LinkedList.class));
 
         // register list type
         handle.getConfig(JdbiCollectors.class)
@@ -130,22 +165,21 @@ public class CollectorsTest {
             assertThat(query
                     .mapTo(String.class)
                     // use the registered list type
-                    .list())
+                    .collectIntoList())
                     .isInstanceOf(LinkedList.class)
                     .containsExactly("a", "b", "c");
         }
     }
 
     @Test
-    @Disabled("Registry lookup is not implemented yet")
     void listIntoDefaultRegisteredListType() {
-        queryString(r -> assertThat(r.list()).isNotInstanceOf(LinkedList.class));
+        queryString(r -> assertThat(r.collectIntoList()).isNotInstanceOf(LinkedList.class));
 
         try (Query query = baseQuery()) {
             assertThat(query
                     .mapTo(String.class)
                     // no registered list type, fall back to default type.
-                    .list())
+                    .collectIntoList())
                     .isNotInstanceOf(LinkedList.class)
                     .containsExactly("a", "b", "c");
         }
@@ -168,9 +202,8 @@ public class CollectorsTest {
     }
 
     @Test
-    @Disabled("Registry lookup is not implemented yet")
     void setIntoRegisteredSetType() {
-        queryString(r -> assertThat(r.set()).isNotInstanceOf(LinkedHashSet.class));
+        queryString(r -> assertThat(r.collectIntoSet()).isNotInstanceOf(LinkedHashSet.class));
 
         // register set type
         handle.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
@@ -179,24 +212,65 @@ public class CollectorsTest {
             assertThat(query
                     .mapTo(String.class)
                     // use the registered set type
-                    .set())
+                    .collectIntoSet())
                     .isInstanceOf(LinkedHashSet.class)
                     .containsExactlyInAnyOrder("a", "b", "c");
         }
     }
 
     @Test
-    @Disabled("Registry lookup is not implemented yet")
     void setIntoDefaultRegisteredSetType() {
-        queryString(r -> assertThat(r.set()).isNotInstanceOf(LinkedHashSet.class));
+        queryString(r -> assertThat(r.collectIntoSet()).isNotInstanceOf(LinkedHashSet.class));
 
         try (Query query = baseQuery()) {
             assertThat(query
                     .mapTo(String.class)
                     // no registered set type, fall back to default type.
-                    .set())
+                    .collectIntoSet())
                     .isNotInstanceOf(LinkedHashSet.class)
                     .containsExactlyInAnyOrder("a", "b", "c");
+        }
+    }
+
+    @Test
+    void testMultiTypes() {
+
+        // register list type
+        handle.registerCollector(new GenericType<List<String>>() {}.getType(), Collectors.toCollection(LinkedList::new));
+        handle.registerCollector(new GenericType<List<Object>>() {}.getType(), Collectors.toCollection(Vector::new));
+
+        try (Query query = baseQuery()) {
+            final List<String> result = query
+                    // use the registered list type
+                    .mapTo(String.class)
+                    .collectInto(GenericTypes.parameterizeClass(List.class, String.class));
+
+            assertThat(result)
+                    .isInstanceOf(LinkedList.class)
+                    .containsExactly("a", "b", "c");
+        }
+
+        try (Query query = baseQuery()) {
+            final List<String> result = query
+                    // use the registered list type
+                    .mapTo(String.class)
+                    .collectInto(List.class);
+
+            assertThat(result)
+                    .isInstanceOf(Vector.class)
+                    .containsExactly("a", "b", "c");
+        }
+
+        try (Query query = baseQuery()) {
+            final List<String> result = query
+                    // use the registered list type
+                    .mapTo(String.class)
+                    .collectIntoList();
+
+            assertThat(result)
+                    // same as List<Object>
+                    .isInstanceOf(Vector.class)
+                    .containsExactly("a", "b", "c");
         }
     }
 
