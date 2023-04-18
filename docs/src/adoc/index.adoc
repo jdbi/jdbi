@@ -507,7 +507,7 @@ You may notice the "consumer" vs "callback" naming pattern in a few  places in J
 
 The link:{jdbidocs}/core/Jdbi.html#open()[Jdbi#open()^] method returns an unmanaged handle.
 
-The Java `try-with-resources` construct can be used to manage the lifecycle of the handle:
+The Java _try-with-resources_ construct can be used to manage the lifecycle of the handle:
 [source,java,indent=0]
 ----
 include::{exampledir}/FiveMinuteTourTest.java[tags=openHandle]
@@ -561,7 +561,7 @@ String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
 ----
 
 Call `findOne()` when you expect the result to contain zero or one row. Returns
-`Optional.empty()` if there are no rows, or one row that maps to `null`. Throws
+link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if there are no rows, or one row that maps to `null`. Throws
 an exception if the result has multiple rows.
 
 [source,java,indent=0]
@@ -583,7 +583,7 @@ String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
 ----
 
 Call `findFirst()` when the result may contain any number of rows. Returns
-`Optional.empty()` if there are no rows, or the first row maps to `null`.
+link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if there are no rows, or the first row maps to `null`.
 
 [source,java,indent=0]
 ----
@@ -771,7 +771,7 @@ Invoking the stored procedure returns an
 link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object, which
 contains the value(s) returned from the stored procedure call.
 
-Now we can extract the result(s) from `OutParameters`:
+Now we can extract the result(s) from link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^]:
 
 [source,java,indent=0]
 ----
@@ -786,7 +786,7 @@ or `Call.invoke(Function)` callback style.
 
 [WARNING]
 Due to design constraints within JDBC, the parameter data types available
-through `OutParameters` is limited to those types supported directly by JDBC.
+through link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] is limited to those types supported directly by JDBC.
 This cannot be expanded through e.g. mapper registration.
 
 
@@ -941,7 +941,7 @@ try (Handle handle = jdbi.open()) {
 }
 ----
 
-Closing the handle releases the connection that is managed by the handle. Handle resource management is only necessary when using the various link:{jdbidocs}/core/Jdbi.html#open()[Jdbi#open()^] methods on the Jdbi object. Any handle that is passed in through a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]) is managed through Jdbi:
+Closing the handle releases the connection that is managed by the handle. Handle resource management is only necessary when using the various link:{jdbidocs}/core/Jdbi.html#open()[Jdbi#open()^] methods on the Jdbi object. Any handle that is passed in through a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[Jdbi#withHandle()^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[Jdbi#useHandle()^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[Jdbi#inTransaction()^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[Jdbi#useTransaction()^]) is managed through Jdbi:
 
 Jdbi is still able to manage statement resources even if the handle is managed manually:
 
@@ -967,7 +967,7 @@ public interface UserDao {
 <1> link:{jdbidocs}/core/Jdbi.html#open()[Jdbi.open()^] creates a new Handle that must be managed through a _try-with-resources_ block.
 <2> link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[jdbi.withHandle()^] passes a managed Handle to the callback and does not require management.
 
-
+[#statement-resource-management]
 === Statement resource management
 
 All statement types may use resources that need to be released. There are multiple ways to do; each has its advantages and drawbacks:
@@ -1046,6 +1046,7 @@ As long as no exception is thrown, this example above will release all resources
 This code that works well as long as nothing goes awry! If an unmanaged SQL statement operation fails halfway through (e.g. with a connection timeout or a database problem), then *resources will not be cleanup up by Jdbi*. This may lead to resource leaks that are difficult to find or reproduce. Some JDBC drivers will also clean up resources that they hand out (such as link:{jdkdocs}/java/sql/PreparedStatement.html[JDBC statements ^] or link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] objects) when a connection is closed. In these situations, resources may be released eventually when the handle is closed (which also closes the JDBC connection). This is highly driver dependent and should not be relied upon.
 
 
+[#resources-with-streams-iterators]
 ==== Resources with Streams and Iterators
 
 Most methods on objects that implement link:{jdbidocs}/core/result/ResultIterable.html[ResultIterable^] are terminal. They consume all data returned by the database and will release statement resources at the end. All of these methods may buffer results in memory, something that is not acceptable for very large data sets or when data needs to be streamed.
@@ -1083,7 +1084,7 @@ try (Handle handle = jdbi.open()) {
 
 The same pattern applies to a result iterator.
 
-Streams and iterators are "live" objects. They require an active statement and result set. Any operation that closes and releases these resources will cause future operations on the stream or iterator to fail.
+Streams and iterators are cursor-type "live" objects. They require an active statement and result set. Any operation that closes and releases these resources will cause future operations on the stream or iterator to fail.
 
 The following code *does not work*:
 
@@ -1098,7 +1099,7 @@ Stream<User> userStream = jdbi.withHandle(handle ->
 Optional<User> user = stream.findFirst(); <3>
 ----
 
-<1> Creates a live stream object backed by the open result set of the query
+<1> Creates a stream object backed by the open result set of the query
 <2> leaving the callback closes the handle and releases all resources including the result set
 <3> throws an exception because the result set has already been closed
 
@@ -1280,7 +1281,7 @@ Out of the box, Jdbi supports the following types as SQL statement arguments:
 * java.sql: `Blob`, `Clob`, `Date`, `Time`, and `Timestamp`
 * java.time: `Instant`, `LocalDate`, `LocalDateTime`, `LocalTime`,
   `OffsetDateTime`, `ZonedDateTime`, and `ZoneId`
-* java.util: `Date`, `Optional` (around any other supported type), and `UUID`
+* java.util: `Date`, link:{jdkdocs}/java/util/Optional.html[Optional^] (around any other supported type), and `UUID`
 * `java.util.Collection` and Java arrays (stored as SQL arrays). Some
   additional setup may be required depending on the type of array element.
 
@@ -1315,7 +1316,7 @@ handle.createUpdate("INSERT INTO contacts (id, name) VALUES (:id, :name)")
     .execute();
 ----
 
-You can bind multiple values at once, from either a `List<T>` or a vararg:
+You can bind multiple values at once, from either a link:{jdkdocs}/java/util/List.html[List<T>^] or a vararg:
 
 [source,java,indent=0]
 ----
@@ -1537,9 +1538,9 @@ include::{exampledir}/ResultsTest.java[tags=inlineRowMapper]
 [TIP]
 There are three different types being used in the above example. `Query`,
 returned by `Handle.createQuery()`, implements the `ResultBearing` interface.
-The `ResultBearing.map()` method takes a `RowMapper<T>` and returns a
+The `ResultBearing.map()` method takes a link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<T>^] and returns a
 `ResultIterable<T>`. Finally, `ResultBearing.list()` collects each row in the
-result set into a `List<T>`.
+result set into a link:{jdkdocs}/java/util/List.html[List<T>^].
 
 Row mappers may be defined as classes, which allows for re-use:
 
@@ -1575,7 +1576,7 @@ try (Handle handle = jdbi.open()) {
 }
 ----
 
-A mapper which implements `RowMapper` with an explicit mapped type (such as the
+A mapper which implements link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^] with an explicit mapped type (such as the
 `UserMapper` class in the previous section) may be registered without specifying
 the mapped type:
 
@@ -1626,7 +1627,7 @@ public final class Pair<L, R> {
 ----
 
 Now, let's implement a row mapper factory. The factory should produce a
-`RowMapper<Pair<L, R>>` for any `Pair<L, R>` type, where the `L` type is mapped
+link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<Pair<L, R>>^] for any `Pair<L, R>` type, where the `L` type is mapped
 from the first column, and `R` from the second--assuming there are column
 mappers registered for both `L` and `R`.
 
@@ -1643,7 +1644,7 @@ public class PairMapperFactory implements RowMapperFactory {
 
 The `build` method accepts a mapped type, and a config registry. It may return
 `Optional.of(someMapper)` if it knows how to map that type, or
-`Optional.empty()` otherwise.
+link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] otherwise.
 
 First we check whether the mapped type is a `Pair`:
 
@@ -1696,9 +1697,9 @@ Next we call `ColumnMappers.findFor()` to get the column mappers for the left
 and right types.
 
 [TIP]
-You may have noticed that although this method can return `Optional`, we are
+You may have noticed that although this method can return link:{jdkdocs}/java/util/Optional.html[Optional^], we are
 throwing an exception if we can't find the left- or right-hand mappers. We have
-found this to be a best practice: return `Optional.empty()` if the factory
+found this to be a best practice: return link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if the factory
 knows nothing about the mapped type (`Pair`, in this case). If it knows the
 mapped type but is missing some configuration to make it work (e.g. mappers not
 registered for `L` or `R` parameter) it is more helpful to throw an exception
@@ -1770,7 +1771,7 @@ link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] is a functional
 interface, which maps a column from the current row of a JDBC
 link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] to a mapped type.
 
-Since `ColumnMapper` is a functional interface, they can be provided inline to a
+Since link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] is a functional interface, they can be provided inline to a
 query using a lambda expression:
 
 [source,java,indent=0]
@@ -1803,7 +1804,7 @@ List<Money> amounts = handle
     .list();
 ----
 
-This `ColumnMapper` is equivalent to the lambda mapper above, but more explicit.
+This link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] is equivalent to the lambda mapper above, but more explicit.
 
 
 ==== ColumnMappers registry
@@ -1823,7 +1824,7 @@ List<Money> amounts = jdbi.withHandle(handle ->
         .list());
 ----
 
-A mapper which implements `ColumnMapper` with an explicit mapped type (such as
+A mapper which implements link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] with an explicit mapped type (such as
 the `MoneyMapper` class in the previous section) may be registered without
 specifying the mapped type:
 
@@ -1878,7 +1879,7 @@ Implementing a factory might be preferable to a regular column mapper if:
 * You want to bundle multiple mappers into a single class.
 
 Let's create a mapper factory for `Optional<T>` as an example. The factory
-should produce a `ColumnMapper<Optional<T>>` for any `T`, provided a column
+should produce a link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper<Optional<T>>^] for any `T`, provided a column
 mapper is registered for `T`.
 
 Let's take this one step at a time:
@@ -1894,9 +1895,9 @@ public class OptionalColumnMapperFactory implements ColumnMapperFactory {
 
 The `build` method accepts a mapped type, and a config registry. It may return
 `Optional.of(someMapper)` if it knows how to map that type, or
-`Optional.empty()` otherwise.
+link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] otherwise.
 
-First, we check whether the mapped type is an `Optional`:
+First, we check whether the mapped type is an link:{jdkdocs}/java/util/Optional.html[Optional^]:
 
 [source,java,indent=0]
 ----
@@ -1940,10 +1941,10 @@ Next we call `ColumnMappers.findFor()` to get the column mapper for the embedded
 type.
 
 [TIP]
-You may have noticed that although this method can return `Optional`, we're
+You may have noticed that although this method can return link:{jdkdocs}/java/util/Optional.html[Optional^], we're
 throwing an exception if we can't find a mapper for the embedded type. We've
-found this to be a best practice: return `Optional.empty()` if the factory knows
-nothing about the mapped type (`Optional`, in this case). If it knows the mapped
+found this to be a best practice: return link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if the factory knows
+nothing about the mapped type (link:{jdkdocs}/java/util/Optional.html[Optional^], in this case). If it knows the mapped
 type but is missing some configuration to make it work (e.g. no mapper
 registered for tye `T` parameter) it is more helpful to throw an exception with
 an informative message, so users can diagnose _why_ the mapper is not working as
@@ -2480,7 +2481,7 @@ TODO:
 [#mapentry-mapping]
 === Map.Entry Mapping
 
-Out of the box, Jdbi registers a `RowMapper<Map.Entry<K,V>>`. Since each row in
+Out of the box, Jdbi registers a link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<Map.Entry<K,V>>^]. Since each row in
 the result set is a `Map.Entry<K,V>`, the entire result set can be easily
 collected into a `Map<K,V>` (or Guava's `Multimap<K,V>`).
 
@@ -2517,11 +2518,11 @@ include::{coreexampledir}/MapEntryMapperTest.java[tags=keyValue]
 All the above examples assume a one-to-one key/value relationship. What if
 there is a one-to-many relationship?
 
-Google Guava provides a `Multimap` type, which supports mapping multiple
+<<google-guava, Google Guava>> provides a `Multimap` type, which supports mapping multiple
 values per key.
 
-First, follow the instructions in the <<Google Guava>> section to install
-`GuavaPlugin` into Jdbi.
+First, follow the instructions in the <<google-guava,Google Guava>> section to install the
+link:{jdbidocs}/guava/GuavaPlugin.html[GuavaPlugin^] into Jdbi.
 
 Then, simply ask for a `Multimap` instead of a link:{jdkdocs}/java/util/Map.html[Map^]:
 
@@ -2730,7 +2731,7 @@ TODO:
 multiple rows are encountered, it will throw `IllegalStateException`.
 
 `ResultIterable.findOne()` returns an `Optional<T>` of the only row in the
-result set, or `Optional.empty()` if no rows are returned.
+result set, or link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if no rows are returned.
 
 `ResultIterable.first()` returns the first row in the result set. If zero
 rows are encountered, `IllegalStateException` is thrown.
@@ -2925,7 +2926,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
     the accumulator for the next row.
 <6> At this point, all rows have been read into memory, and we don't need the
     contact ID keys. So we call `Map.values()` to get a `Collection<Contact>`.
-<7> Collect the contacts into a `List<Contact>`.
+<7> Collect the contacts into a link:{jdkdocs}/java/util/List.html[List<Contact>^].
 
 Alternatively, the
 link:{jdbidocs}/core/result/ResultBearing.html#reduceRows-org.jdbi.v3.core.result.RowReducer-[ResultBearing.reduceRows(RowReducer)^]
@@ -3393,8 +3394,7 @@ Jdbi provides two implementations of the `SqlLocator` interface:
 link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^],
 link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^],
 link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^],
-link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^],
-link:{jdbidocs}/sqlobject/statement/SqlScripts.html[@SqlScripts^] and
+link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] and
 link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^]) to locate SQL statements
 ! link:{jdbidocs}/sqlobject/SqlObjectClasspathSqlLocator.html[SqlObjectClasspathSqlLocator^] ! Associates a class or interface with a file located on the classpath (`com.foo.Bar#query()` becomes `com/foo/Bar/query.sql`) and loads the SQL from that file. The file may contain comments which are stripped.
 !===
@@ -3489,7 +3489,7 @@ List<Integer> userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id
     .one();
 ----
 
-Use `@SingleValue` for mapping an array result with the SqlObject API:
+Use link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^] for mapping an array result with the SqlObject API:
 
 [source,java,indent=0]
 ----
@@ -3568,7 +3568,7 @@ registered for the same data type, the last registered wins.
 
 `SqlArrayType` only allows you to bind Java array/collection arguments to their
 SQL counterparts. To map SQL array columns back to Java types, you can register
-a regular `ColumnMapper`:
+a regular link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^]:
 
 [source,java,indent=0]
 ----
@@ -3597,16 +3597,31 @@ Array columns can be mapped to any container type registered with the
 [#sql-objects]
 == SQL Objects
 
-SQL Objects are a declarative-style extension to the fluent-style Core APIs. SQL Objects are implemented as an extension to the core API using the <<extension-framework,Extension framework>>.
+SQL Objects are a declarative-style extension to the fluent-style, programmatic Core APIs. SQL Objects are implemented as an extension to the core API using the
+<<extension-framework,Extension framework>>.
 
-To start using the SQL Object plugin, add a Maven dependency:
+To start using the SQL Object plugin, add a dependency to your project:
 
-[source,xml,indent=0,subs="specialchars"]
+For Apache Maven:
+
+[source,xml,indent=0,subs="attributes,specialchars"]
 ----
-<dependency>
-  <groupId>org.jdbi</groupId>
-  <artifactId>jdbi3-sqlobject</artifactId>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi3-sqlobject</artifactId>
+        <version>{project_version}</version>
+    </dependency>
+</dependencies>
+----
+
+For Gradle:
+
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    implementation("org.jdbi:jdbi3-sqlobject:{project_version}")
+}
 ----
 
 Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
@@ -3617,16 +3632,14 @@ Jdbi jdbi = ...
 jdbi.installPlugin(new SqlObjectPlugin());
 ----
 
-With SQL Object, you declare a public interface as an extension type, add methods for each database
-operation, and specify what SQL statement to execute.
+With SQL Object, you declare a public interface class as a SQL Object extension type, add methods for database operations, and specify what SQL statement to
+execute.
 
 You can specify what each method does in one of two ways:
 
-* Annotate the method with a SQL method annotation. Jdbi provides four of these
-  annotations out of the box (updates, queries, stored procedure calls, and
-  batches).
-* Declare the method as a Java 8 `default` method, and provide your own
-  implementation in the method body.
+* Annotate the method with a SQL method annotation. Jdbi provides a number of these
+  annotations out of the box.
+* Use Java _interface default methods_, and provide your own implementation in the method body.
 
 At runtime, you can request an instance of your interface, and Jdbi synthesizes
 an implementation based on the annotations and methods you declared.
@@ -3634,130 +3647,318 @@ an implementation based on the annotations and methods you declared.
 
 === SQL Method annotations
 
-Interface methods can be annotated with one of Jdbi's SQL method annotations (link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^],
-link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^],
-link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^],
-link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] and
-link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^]) will get a generated implementation based on the annotations on the method and its parameters.
+Interface methods can be annotated with one of Jdbi's SQL method annotations:
 
-The parameters to the method are used as arguments to the statement, and the SQL statement result mapped into the method return type.
+* link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^] - select operations that return data
+* link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] - insert, update, delete etc. operations that modify data
+* link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] - bulk operations
+* link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] - call stored procedures
+* link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] - execute multiple statements as a script
+
+
+As with any extension type, parameters to the method are used as arguments. For the SQL Object extension, the arguments are passed to the statement, and the SQL statement result is mapped to the method return type.
+
+SQL Object provides data mapping onto return types, argument mapping and mapper annotations to allow fully declarative definition of SQL queries.
+
+
+==== @SqlQuery
+
+Use the link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^] annotation for select operations. Each operation may return one or more rows which are mapped onto a return type by the SQL Object extension.
+
+This is an example for a simple query:
 
 [source,java,indent=0]
 ----
-@SqlQuery("SELECT id, name FROM users")
-void forEachUser(Consumer<User> consumer);
+@SqlQuery("SELECT id, name FROM users") // <1>
+List<User> retrieveUsers(); // <2>
 ----
 
+<1> defines the SQL query that gets executed
+<2> The method can return any type. The SQL Object framework will map the response from the SQL query onto this data type.
 
-==== @SqlUpdate Annotation
+The SQL Object plugin uses the same configuration as the Jdbi core framework. Row and column mappers need to be registered to map to the correct types. This can be done through configuration or by using <<sqlobject-mapper-annotations, Mapper annotations>>.
 
-Use the link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] annotation for operations that modify data (i.e. inserts,
-updates, deletes).
+
+==== @SqlUpdate
+
+Use the link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] annotation for operations that modify data (i.e. inserts, updates, deletes).
+
+This is an example that uses link:{jdkdocs}/java/sql/PreparedStatement.html[PreparedStatement^] placeholders (`?`) for arguments:
 
 [source,java,indent=0]
 ----
 public interface UserDao {
-    @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)")
-    void insert(long id, String name);
+    @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)") // <1>
+    void insert(long id, String name); // <2>
 }
 ----
 
-Method arguments are bound to the `?` token in the SQL statement at their
-respective positions. So `id` is bound to the first `?`, and `name` to the
-second.
+<1> Method arguments are bound to the `?` token in the SQL statement at their respective positions.
+
+<2> `id` is bound to the first placeholder (`?`), and `name` to the second placeholder.
 
 [TIP]
 link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] can also be used for DDL (Data Definition Language) operations like creating or altering tables. However, we recommend using a schema migration tool such
 as https://flywaydb.org/[Flyway^] or https://www.liquibase.org/[Liquibase^] to maintain your database schemas.
 
-By default, a link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] method may return a handful of types:
+By default, a link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] method may declare one of these return types:
 
-* `void`: returns nothing (obviously)
-* `int` or `long`: returns the update count. Depending on the database vendor
-  and JDBC driver, this may be either the number of rows changed, or the number
+* `void` - no return value
+* `int` or `long` - returns the update count. Depending on the database vendor and JDBC driver, this may be either the number of rows changed, or the number
   matched by the query (regardless of whether any data was changed).
-* `boolean`: returns true if the update count is greater than zero.
+* `boolean` - returns true if the update count is greater than zero.
 
 
-[#sqlupdate-getgeneratedkeys]
-===== @GetGeneratedKeys
+Some databases also support returning additional values. See the <<sqlupdate-getgeneratedkeys,@GetGeneratedKeys>> annotation for more details.
 
-Some SQL statements will cause data to be generated on your behalf at the
-database, e.g. a table with an auto-generated primary key, or a primary key
-selected from a sequence. We need a way to retrieve these generated values back
-from the database.
 
-[CAUTION]
-Databases vary in support for generated keys. Some support only one generated
-key column per statement, and some (such as Postgres) can return the entire row.
-You should check your database vendor's documentation before relying on this
-behavior.
+==== @SqlBatch
 
-The link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotation tells Jdbi that the return value should be generated key from the SQL statement, instead of the update count.
+Use the link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] annotation for bulk update operations. It works similar to the <<Prepared Batches,PreparedBatch>> operation in the Jdbi core.
 
 [source,java,indent=0]
 ----
-public interface UserDao {
-    @SqlUpdate("INSERT INTO users (id, name) VALUES (nextval('user_seq'), ?)")
-    @GetGeneratedKeys("id")
-    long insert(String name);
+public interface ContactDao {
+    @SqlBatch("INSERT INTO contacts (id, name, email) VALUES (?, ?, ?)")
+    void bulkInsert(List<Integer> ids,  // <1>
+                    Iterator<String> names, // <2>
+                    String... emails); // <3>
 }
 ----
 
-Multiple columns may be generated and returned in this way:
+<1> a collection argument for the batch operation
+<2> an iterable argument for the batch operation
+<3> a varargs argument for the batch operation
+
+When a batch method is called, it iterates through the method's iterable parameters (collections, iterables, varargs etc.), and executes the SQL statement with the corresponding elements from each parameter.
+
+Thus, a statement like:
+
+[source,java,indent=0]
+----
+contactDao.bulkInsert(
+    ImmutableList.of(1, 2, 3),
+    ImmutableList.of("foo", "bar", "baz").iterator(),
+    "a@example.com", "b@example.com", "c@fake.com");
+----
+
+would execute:
+
+[source,sql]
+----
+INSERT INTO contacts (id, name, email) VALUES (1, 'foo', 'a@example.com');
+INSERT INTO contacts (id, name, email) VALUES (2, 'bar', 'b@example.com');
+INSERT INTO contacts (id, name, email) VALUES (3, 'baz', 'c@fake.com');
+----
+
+Constant values may also be used as parameters to a SQL batch. In this case,
+the same value is bound to that parameter for every SQL statement in the batch.
 
 [source,java,indent=0]
 ----
 public interface UserDao {
-    @SqlUpdate("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
-    @GetGeneratedKeys({"id", "created_on"})
-    @RegisterBeanMapper(IdCreateTime.class)
-    IdCreateTime insert(String name);
+    @SqlBatch("INSERT INTO users (tenant_id, id, name) " +
+              "VALUES (:tenantId, :user.id, :user.name)")
+    void bulkInsert(@Bind("tenantId") long tenantId, // <1>
+        @BindBean("user") User... users);
+}
+----
+<1> Insert each user record using the same `tenant_id`. See <<mapping-arguments, SQL Object arguments mapping>> for details about the @Bind annotation.
+
+[WARNING]
+Any method annotated with link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] must have at least one iterable parameter.
+
+By default, methods annotated with link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] may declare one of these
+return types:
+
+* `void` - no return value
+* `int[]` or `long[]` - returns the update count per execution in the batch.  Depending on the database vendor and JDBC driver, this may be either the number of
+  rows changed by a statement, or the number matched by the query (regardless of whether any data was changed).
+* `boolean[]` - returns true if the update count is greater than zero, one value for each execution in the batch.
+
+
+==== @SqlCall
+
+Use the link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] annotation to call stored procedures.
+
+[source,java,indent=0]
+----
+public interface AccountDao {
+    @SqlCall("{call suspend_account(:id)}")
+    void suspendAccount(long id);
 }
 ----
 
-[TIP]
-Postgres supports additional functionality when returning generated keys. See <<postgres-getgeneratedkeys,PostgreSQL>> for more details.
+link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] methods can return `void`, or may return
+link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] if the stored procedure has any output parameters. Each output parameter must be registered
+with the link:{jdbidocs}/sqlobject/customizer/OutParameter.html[@OutParameter^] annotation.
+
+[source,java,indent=0]
+----
+public interface OrderDao {
+    @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
+    @OutParameter(name = "orderId",    sqlType = java.sql.Types.BIGINT)
+    @OutParameter(name = "orderTotal", sqlType = java.sql.Types.DECIMAL)
+    OutParameters prepareOrderFromCart(@Bind("cartId") long cartId);
+}
+----
+
+Individual output parameters can be extracted from the
+link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] returned from
+the method:
+
+[source,java,indent=0]
+----
+OutParameters outParams = orderDao.prepareOrderFromCart(cartId);
+long orderId = outParams.getLong("orderId");
+double orderTotal = outParams.getDouble("orderTotal");
+----
+
+link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] supports <<sql-call-consumer-arguments, special arguments>> for link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] processing.
 
 
-==== Binding Arguments
+==== @SqlScript
 
-Before we go on with the other `@Sql___` annotations, let's discuss how method
-arguments are bound as parameters to the SQL statement.
+Use link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] to execute one or more statements in a batch.
 
-By default, arguments passed to the method are bound as positional parameters
-in the SQL statement.
+While link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] executes the same SQL statement with different values, the link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] annotation executes different SQL statements without explicit data bound to each statement.
+
+[source,java,indent=0]
+----
+include::{sqlobjectexampledir}/statement/TestSqlScripts.java[tags=scripts]
+----
+
+<1> Sql scripts can use substitute placeholders. The default template engine uses angle brackets (`<` and `>`).
+
+<2> The link:{jdbidocs}/sqlobject/customizer/Define.html[@Define^] annotation provides values for the placeholder attributes
+
+<3> The link:{jdbidocs}/sqlobject/locator/UseClasspathSqlLocator.html[@UseClasspathSqlLocator^] annotation loads SQL templates from the classpath
+
+<4> Use the name of the annotated method to locate the script
+
+<5> specify the script name in the annotation
+
+By default, methods annotated with link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] may declare one of these return types:
+
+* `void` - no return value
+* `int[]` or `long[]` - return value of each statement executed.  Depending on the database vendor and JDBC driver, this may be either the number of rowsreturn
+  nothing changed by a statement, or the number matched by the query (regardless of whether any data was changed).
+* `boolean[]` - returns true if the update count is greater than zero, one value for each statement in the script.
+
+
+=== Using SQL Objects
+
+SQL Object types are regular Java interfaces classes that must be public. Once they have been defined, there are multiple ways to use them. They differ in the <<extension-handle-lifecycle, lifecycle>> of the underlying link:{jdbidocs}/core/Handle.html[Handle^] object:
+
+* *attached to an existing handle object*
+
+The link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] method uses an existing handle to create a SQL object instance:
+
+[source,java,indent=0]
+----
+try (Handle handle = jdbi.open()) {
+    ContactPhoneDao dao = handle.attach(ContactPhoneDao.class);
+    dao.insertFullContact(contact);
+}
+----
+
+Attached SQL Objects have the same lifecycle as the handle--when the handle is closed, the SQL Object becomes unusable.
+
+* *using Jdbi extension methods*
+
+SQL Object types can be created using
+link:{jdbidocs}/core/Jdbi.html#withExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionCallback-[Jdbi#withExtension()^]
+for operations that return a result, or
+link:{jdbidocs}/core/Jdbi.html#useExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer-[Jdbi#useExtension()^]
+for operations with no result. These methods take a callback (or a lambda object) and provide it with a managed instance of the SQL object type:
+
+[source,java,indent=0]
+----
+jdbi.useExtension(ContactPhoneDao.class, dao -> dao.insertFullContact(alice));
+long bobId = jdbi.withExtension(ContactPhoneDao.class, dao -> dao.insertFullContact(bob));
+----
+
+
+* *creating an on-demand object*
+
+On-demand instances are constructed with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] method. They have an open-ended lifecycle, as they obtain and release a connection for each method call. They are thread-safe, and may be reused across an application.
+
+
+[source,java,indent=0]
+----
+ContactPhoneDao dao = jdbi.onDemand(ContactPhoneDao.class);
+long aliceId = dao.insertFullContact(alice); // <1>
+long bobId = dao.insertFullContact(bob); // <1>
+----
+
+<1> each of these operations creates and releases a new database connection.
+
+The performance of on-demand objects depends on the database and database connection pooling. For performance critical operations, it may be better to manage the handle manually and use attached objects.
+
+
+==== Interface default methods
+
+_Interface default methods_ on a SQL object type can provide custom code functionality that uses the same handle as the SQL Object methods.
+
+The SQL object framework manages the underlying handle so that calling a method on the same object on the same thread will use the same link:{jdbidocs}/core/Handle.html[Handle^] object. If the handle is managed by the framework, it will only be closed when the outermost method exits.
+
+[source,java,indent=0]
+----
+include::{exampledir}/DefaultMethodTest.java[tag=default-method]
+
+include::{exampledir}/DefaultMethodTest.java[tag=dao]
+----
+
+<1> The `changeName()` method is called by the user code
+<2> The implementation will call both `findUser()` and `updateUser()` with the same handle object.
+
+
+=== SQL Object method arguments
+
+All SQL Object methods support method arguments. Method arguments are mapped onto SQL statement parameters.
+
+==== Mapping arguments to positional parameters
+
+By default, arguments passed to the method are bound as positional parameters in the SQL statement:
 
 [source,java,indent=0]
 ----
 public interface UserDao {
-    @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)") <1>
-    void insert(long id, String name); <2>
+    @SqlUpdate("INSERT INTO users (id, name) VALUES (?, ?)") // <1>
+    void insert(long id, String name); // <2>
 }
 ----
 <1> declares two positional parameters
 <2> provides two method parameters. `id` will be bound as the first, `name` as the second parameter.
 
+This matches the link:{jdkdocs}/java/sql/PreparedStatement.html[PreparedStatement^] way of binding arguments to a statement. Jdbi binds the arguments as the correct types and convert them if necessary.
 
-Arguments can be named with the link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation:
+[#mapping-arguments]
+==== Mapping arguments to named parameters
 
-[source,java,indent=0]
-----
-@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
-void insert(@Bind("id") long id, @Bind("name") String name);
-----
+The Jdbi core supports named parameters in SQL statements. When using the SQL Object extension, those can be bound to specific method arguments using annotations.
 
-<<compiling_with_parameter_names,Compiling code with parameter names>> removes the
-need for the link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation. Jdbi will then bind each un-annotated parameter
-to the parameter's name.
+The link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation binds a single method argument to a named parameter:
 
 [source,java,indent=0]
 ----
-@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
-void insert(long id, String name);
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)") // <1>
+void insert(@Bind("name") String name, @Bind("id") long id); // <2>
 ----
 
-Binding a list of values is done through the link:{jdbidocs}/sqlobject/customizer/BindList.html[@BindList^] annotation. This will expand the list in a 'a,b,c,d,...' form. Note that this annotation requires you to use the `<binding>` notation, unlike link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] (which uses :binding)
+<1> The SQL statement uses two named parameters, `:id` and `:name`
+<2> The method declaration annotates each parameter with the link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation with matching names. The order is not important as each method parameter is explicitly named
+
+Similar to the methods on the link:{jdbidocs}/core/Handle.html[Handle^], arguments can be bound in many different ways:
+
+
+===== Bind any iterable object with @BindList
+
+Any Java object that implements the Iterable interface can be bound using the link:{jdbidocs}/sqlobject/customizer/BindList.html[@BindList^] annotation. This
+will iterate the elements in 'a,b,c,d,...' form.
+
+[NOTE]
+This annotation requires you to use a template placeholder (using the `<field>` notation when using the default template engine), similar to the link:{jdbidocs}/core/statement/SqlStatement.html#bindList(java.lang.String,java.lang.Iterable)[SqlStatement#bindList()^] method.
 
 [source,java,indent=0]
 ----
@@ -3765,83 +3966,195 @@ Binding a list of values is done through the link:{jdbidocs}/sqlobject/customize
 List<String> getFromIds(@BindList("userIds") List<Long> userIds)
 ----
 
-You can bind from the entries of a link:{jdkdocs}/java/util/Map.html[Map^]:
+
+===== Bind map instances with @BindMap
+
+Entries from a link:{jdkdocs}/java/util/Map.html[Map^] can be bound using the link:{jdbidocs}/sqlobject/customizer/BindMap.html[@BindMap^] annotation. Each entry from the map is bound as a named parameter using the map key as the name and the map value as the value. Jdbi will bind the values as the correct types and convert them if necessary:
 
 [source,java,indent=0]
 ----
-@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
-void insert(@BindMap Map<String, ?> map);
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")  // <1>
+void insert(@BindMap Map<String, ?> map); // <2>
 ----
 
-In SQL Object (but not in Core), you can qualify a bound map with a prefix:
+<1> The SQL statement expects two named parameters, `:id` and `:name`
+<2> Jdbi will look for two keys, `id` and a `name` in the map. The values for these keys are bound to the parameters.
 
-[source,java,indent=0]
-----
-@SqlUpdate("INSERT INTO users (id, name) VALUES (:user.id, :user.name)")
-void insert(@BindMap("user") Map<String, ?> map);
-----
 
-You can bind from the properties of a Java Bean:
+===== Bind bean getters with @BindBean
+
+Java Bean getters can be bound with the link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^] annotation:
 
 [source,java,indent=0]
 ----
-@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
-void insert(@BindBean User user);
+include::{exampledir}/BindMethodsTest.java[tags=user-bean]
+    }
+
+include::{exampledir}/BindMethodsTest.java[tags=user-bean-method]
 ----
 
-You can bind from the public fields of an object:
+This annotation uses the Java Bean syntax for getters.
 
-[source,java,indent=0]
-----
-@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
-void insert(@BindFields User user);
-----
 
-Or you can bind from public, parameterless methods of an object:
+===== Bind parameterless public methods with @BindMethods
 
-[source,java,indent=0]
-----
-@SqlUpdate("INSERT INTO users (id, name) VALUES (:functionThatReturnsTheId, :functionThatReturnsTheName)")
-void insert(@BindMethods User user);
-----
-
-Like `@BindMap`, the `@BindBean`, `@BindMethods`, and `@BindFields` annotations
-can have an optional prefix:
+Similar to link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^], the link:{jdbidocs}/sqlobject/customizer/BindMethods.html[@BindMethods^] annotation bean methods as parameters. For each binding, it looks for a method with the same name:
 
 [source,java,indent=0]
 ----
-@SqlUpdate("INSERT INTO users (id, name) VALUES (:user.id, :user.name)")
-void insert(@BindBean("user") User user);
-//void insert(@BindFields("user") User user);
-//void insert(@BindMethods("user") User user);
+include::{exampledir}/BindMethodsTest.java[tags=user]
+    }
+
+include::{exampledir}/BindMethodsTest.java[tags=user-method]
+----
+
+[TIP]
+When using https://docs.oracle.com/en/java/javase/14/language/records.html[Java 14+ record types^], all getters from the record can be bound using the link:{jdbidocs}/sqlobject/customizer/BindMethods.html[@BindMethods^] annotation.
+
+
+===== Bind public fields from a java object with @BindFields
+
+Many objects offer public fields instead of getters. Those can be bound by using the link:{jdbidocs}/sqlobject/customizer/BindFields.html[@BindFields^] annotation:
+
+[source,java,indent=0]
+----
+include::{exampledir}/BindMethodsTest.java[tags=user-field]
+    }
+
+include::{exampledir}/BindMethodsTest.java[tags=user-field-method]
+----
+
+
+===== Using object prefixes
+
+The `link:{jdbidocs}/sqlobject/customizer/BindMap.html[@BindMap^], link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^], link:{jdbidocs}/sqlobject/customizer/BindMethods.html[@BindMethods^], and link:{jdbidocs}/sqlobject/customizer/BindFields.html[@BindFields^] annotations support an optional prefix:
+
+[source,java,indent=0]
+----
+include::{exampledir}/BindMethodsTest.java[tags=user-bean-prefix-method]
+----
+
+<1> The `id` and `name` parameters are prefixed with `user`.
+<2> The `User` object which provides the values uses a prefix. The `user.id` parameter will be mapped to the `getId()` method of this bean and the `user.name` parameter to the `getName()` method.
+
+By providing prefixes, it is possible to use multiple objects with different prefixes or mix map and regular bound parameters.
+
+[source,java,indent=0]
+----
+@SqlUpdate("INSERT INTO users (id, name, password) VALUES (:user.id, :user.name, :password)")
+void insert(@BindMap("user") Map<String, ?> map, @Bind("password") String password);
+----
+
+Even if the provided map would contain a key named `password`, it would not be used, because all values from the map are bound with the `user` prefix.
+
+
+===== Using nested properties
+
+Similar to the Core API, the  link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^], link:{jdbidocs}/sqlobject/customizer/BindFields.html[@BindFields^], and link:{jdbidocs}/sqlobject/customizer/BindMethods.html[@BindMethods^] annotation will also map nested properties.
+
+A Java object that returns a nested object can be bound and then nested properties are addressed using e.g. `:user.address.street`.
+
+This functionality is *not* available for Map objects that have been bound with link:{jdbidocs}/sqlobject/customizer/BindMap.html[@BindMap^]. Map keys must match the bound parameter name.
+
+
+[source,java,indent=0]
+----
+include::{exampledir}/BindMethodsTest.java[tags=nested-user]
+
+include::{exampledir}/BindMethodsTest.java[tags=nested-user-method]
 ----
 
 [NOTE]
-As in the Core API, `@BindBean`, `@BindFields`, and `@BindMethods` may be used
-to bind nested properties, e.g. `:user.address.street`.
+"Mixes style" nested properties are not supported. Any nested object will be inspected in the same way as the root object. All nested objects must use either bean-style, methods or fields.
+
+
+==== Mapping arguments to Java parameter names
+
+When compiling a project with <<compiling_with_parameter_names,parameter names>> enabled, the link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation is not needed. SQLObjects will bind un-annotated parameters to their names.
+
+[source,java,indent=0]
+----
+@SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
+void insert(long id, String name);
+----
+
+
+==== Consumer arguments
+
+In addition to the regular method arguments for a SQL Object method, it is possible to use a single link:{jdkdocs}/java/util/function/Consumer.html[Consumer<T>^] argument in addition to other arguments.
+
+Consumer arguments are actually a special return type for SQL operations. They can be used to consume the results from a SQL operation with a callback instead of returning a value from the method.
+
+Any SQL operation method that wants to use a consumer argument *must* return `void`. It can declare only a single consumer argument, but can have additional regular method arguments. The consumer argument can be in any position in the argument list. .
+
+Unless the type `T` is a link:{jdkdocs}/java/util/stream/Stream.html[Stream^], link:{jdkdocs}/java/util/Iterator.html[Iterator^] or link:{jdkdocs}/java/lang/Iterable.html[Iterable^], the consumer is executed once for each row in the result set. The static type of parameter `T` determines the row type.
+
+[source,java,indent=0]
+----
+include::{exampledir}/BindMethodsTest.java[tags=consume-user-method]
+----
+
+<1> This SQL operation may return no or just one result. The consumer argument will only be invoked if a user exists.
+
+<2> This SQL operation may return multiple results. It will invoke the consumer argument once for every result.
+
+If the consumer implements link:{jdkdocs}/java/util/stream/Stream.html[Stream^], link:{jdkdocs}/java/util/Iterator.html[Iterator^] or link:{jdkdocs}/java/lang/Iterable.html[Iterable^], then the consumer is executed once with the corresponding object holding the results. The static type of parameter `T` determines the mapped row type here as well. If the result set is empty, the SQL Object framework may not call the consumer or may call it with an empty result object.
+
+
+[source,java,indent=0]
+----
+include::{exampledir}/BindMethodsTest.java[tags=consume-iterable-user-method]
+----
+
+<1> This consumer argument is called once if any number of results are present. It may be called with an empty iterable object or not at all if no results are present.
 
 [WARNING]
-`@BindMap` does not bind nested properties--map keys are expected to exactly
-match the bound parameter name.
+When using link:{jdkdocs}/java/util/function/Consumer.html[Consumer<Iterable>^] as a consumer argument, the link:{jdkdocs}/java/lang/Iterable.html[Iterable^] object passed into the consumer is *NOT* a general-purpose Iterable as it supports only a single invocation of the link:{jdkdocs}/java/lang/Iterable.html#iterator--[Iterable#iterator()^] method. Invoking it the iterator method again to obtain a second or subsequent iterator may throw link:{jdkdocs}/java/lang/IllegalStateException.html[IllegalStateException^].
+
+[#sql-call-consumer-arguments]
+===== `@SqlCall` Consumer and Function arguments
+
+The link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] annotation supports either a Consumer argument or a Function argument for the link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] return value.
+
+A method that has been annotated with link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] may have any number of regular method arguments and
+
+- declare `void` or link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] as its return type.
+- declare `void` as its return type and have a single link:{jdkdocs}/java/util/function/Consumer.html[Consumer<OutParameters>^] consumer argument
+- declare an arbitrary type `T` as return type and have a single link:{jdkdocs}/java/util/function/Function.html[Function<OutParameters, T>^] function argument
+
+When using a consumer or function argument, these are called to process the link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] value before the statement is closed.
+
+==== Mapping arguments to defined attributes
+
+The Jdbi core framework supports attributes that can be used anywhere in the SQL statement or that can control <<query_templating,Query template rendering>>. The link:{jdbidocs}/sqlobject/customizer/Define.html[@Define^] annotation provides this functionality for the SQL Object extension:
+
+[source,java,indent=0]
+----
+include::{exampledir}/AttributeDefineTest.java[tags=dao]
+
+include::{exampledir}/AttributeDefineTest.java[tags=define]
+----
+
+<1> declare an attribute placeholder for the table name
+
+<2> bind the placeholder to the method argument
+
+<3> provide the value for the placeholder when calling the SQL object method
 
 
-==== Consumer Arguments
+=== SQL Object method return values
 
-As a special case, it is possible to use a link:{jdkdocs}/java/util/function/Consumer.html[Consumer<T>^] argument in addition to other bound arguments.
+The SQL Object framework will try to convert the result of a database operation to the declared return value of a SQL Object method.
 
-Unless the type `T` is a link:{jdkdocs}/java/util/stream/Stream.html[Stream^] or an link:{jdkdocs}/java/util/Iterator.html[Iterator^], the consumer is executed once for each row in the result set. The static type of parameter `T` determines the row type.
+This is most important for link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^] operations as most other operations have a very limited set of possible return values:
 
-If the consumer implements link:{jdkdocs}/java/util/function/Consumer.html[Consumer<Iterator<T>>^], or link:{jdkdocs}/java/util/function/Consumer.html[Consumer<Stream<T>>^], then the consumer is executed once with the link:{jdkdocs}/java/util/Iterator.html[Iterator^] or link:{jdkdocs}/java/util/stream/Stream.html[Stream^] holding the results. The static type of parameter T determines the mapped row type here as well.
+* link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] - supports `void`, `int`, `long`, `boolean`
+* link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] -  supports `void`, `int[]`, `long[]`, `boolean[]`
+* link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] - supports `void`, `int[]`, `long[]`, `boolean[]`
+* link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] - supports `void`, link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] (and function arguments)
 
-When using a consumer argument with an iterator or a stream, Jdbi will manage and close them after the callback completes.
 
-
-==== @SqlQuery Annotation
-
-Use the `@SqlQuery` annotation for select operations.
-
-Query methods may return a single- or multi-row result, depending on whether the
-method return type looks like a collection.
+Query methods may return a single row or multiple rows, depending on whether the method return type looks like a collection:
 
 [source,java,indent=0]
 ----
@@ -3850,51 +4163,80 @@ public interface UserDao {
     List<String> listNames(); // <1>
 
     @SqlQuery("SELECT name FROM users WHERE id = ?")
-    String getName(long id); // <2> <3>
+    String getName(long id); // <2>
 
     @SqlQuery("SELECT name FROM users WHERE id = ?")
-    Optional<String> findName(long id); // <4>
+    Optional<String> findName(long id); // <3>
+
+    @SqlQuery("SELECT id, name FROM users WHERE id = ?")
+    Optional<User> findUser(long id); // <4>
 }
 ----
-<1> When a multi-row method returns an empty result set, an empty collection is
-    returned.
-<2> If a single-row method returns multiple rows from the query, only the first
-    row in the result set is returned from the method.
-<3> If a single-row method returns an empty result set, `null` is returned.
-<4> Methods may return `Optional` values. If the query returns no rows (or if
-    the value in the row is null), `Optional.empty()` is returned instead of null.
-    SQL Object throws an exception if query returns more than one row.
+<1> Returns a collection of results. This is never null, an empty collection is returned for an empty result set.
+
+<2> Returns a single result. If the query returns a result set with multiple rows, then only the first row is returned. If the row set is empty, `null` is returned.
+
+<3> Methods may return link:{jdkdocs}/java/util/Optional.html[Optional^] values. If the query returns no rows (or if the value in the row is `null`),
+link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] is returned instead of `null`.  SQL Object throws an exception if query returns more than one
+row.
+
+<4> When returning a complex type, Jdbi must have row and column mappers registered, otherwise it will throw an exception. These can be registered through the Jdbi
+core API or with annotations.
+
 
 [TIP]
-Jdbi can be "taught" to recognize new collection types by registering a
-link:{jdbidocs}/core/collector/CollectorFactory.html[CollectorFactory^] with the `JdbiCollectors` config registry.
+Jdbi can use different collection types by registering a link:{jdbidocs}/core/collector/CollectorFactory.html[CollectorFactory^] with the link:{jdbidocs}/core/collector/JdbiCollectors.html[JdbiCollectors^]
+config registry.
 
 See
 link:{jdbidocs}/core/collector/BuiltInCollectorFactory.html[BuiltInCollectorFactory^]
-for the complete list of collection types supported out of the box. Certain
-Jdbi plugins (e.g. `GuavaPlugin`) register additional collection types.
+for the complete list of collection types supported out of the box. Some
+Jdbi plugins (e.g. the link:{jdbidocs}/guava/GuavaPlugin.html[GuavaPlugin^]) register additional collection types.
 
-Query methods may also return a <<ResultIterable>>,
-link:{jdbidocs}/core/result/ResultIterator.html[ResultIterator^], or a
-link:{jdkdocs}/java/util/stream/Stream.html[Stream^].
+
+[#using-steams-and-iterators]
+==== Using Streams and Iterators
+
+SQL Object method may return
+link:{jdbidocs}/core/result/ResultIterable.html[ResultIterable^],
+link:{jdbidocs}/core/result/ResultIterator.html[ResultIterator^] or
+link:{jdkdocs}/java/util/stream/Stream.html[Stream^] types. Each of these return values represents a cursor-type object that requires an active link:{jdbidocs}/core/Handle.html[Handle^] object with a database connection <<resources-with-streams-iterators, to support streaming results>>.
+
+All SQL object type methods are subject to the <<extension-handle-lifecycle,extension framework Handle lifecycle>>. When the link:{jdbidocs}/core/Handle.html[Handle^] object is closed, the database connection and the corresponding stream or iterator is closed as well.
+
+This is an example of a SQL Object type that returns cursor types:
 
 [source,java,indent=0]
 ----
-public interface UserDao {
+interface UserDao {
+    @SqlQuery("SELECT name FROM users")
+    Stream<String> getNamesAsStream();
+
     @SqlQuery("SELECT name FROM users")
     ResultIterable<String> getNamesAsIterable();
 
     @SqlQuery("SELECT name FROM users")
     ResultIterator<String> getNamesAsIterator();
-
-    @SqlQuery("SELECT name FROM users")
-    Stream<String> getNamesAsStream();
 }
 ----
 
-The objects returned from these methods hold database resources that must be
-explicitly closed when you are done with them. We strongly recommend the use of
-_try-with-resource_ blocks when calling these methods, to prevent resource leaks:
+===== Use the method return value directly
+
+Only the link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] method allows cursor type objects as SQL Object method return values. Calling this method attaches the object to the Handle lifecycle which in turn is managed by user code:
+
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=attach]
+----
+
+<1> The handle is managed in user code.
+
+<2> The stream is also managed.
+
+<3> The returned stream is used within the _try-with-resources_ block.
+
+
+The objects returned from these methods hold database resources that should be closed. <<statement-resource-management, Jdbi usually handles resources well>> but using a _try-with-resource_ block is a good practice:
 
 [source,java,indent=0]
 ----
@@ -3911,13 +4253,103 @@ try (Stream<String> names = dao.getNamesAsStream()) {
 }
 ----
 
-[WARNING]
-Methods returning link:{jdbidocs}/core/result/ResultIterable.html[ResultIterable^], link:{jdbidocs}/core/result/ResultIterator.html[ResultIterator^] or link:{jdkdocs}/java/util/stream/Stream.html[Stream^] do not work with on-demand SQL Objects. Unless the methods are called in a nested way (see <<On-Demand>>), the returned object will already be closed as the statement that is used to execute the method has already been closed.
+
+The link:{jdbidocs}/core/Jdbi.html#withExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionCallback-[Jdbi#withExtension()^] or link:{jdbidocs}/core/Jdbi.html#useExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer-[Jdbi#useExtension()^] methods *can not be used*:
+
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=extension]
+----
+
+<1> The handle is closed when leaving the link:{jdbidocs}/core/Jdbi.html#withExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionCallback-[Jdbi#withExtension()^] method.
+
+<2> Calling the link:{jdkdocs}/java/util/stream/Stream.html#collect-java.util.stream.Collector-[Stream#collect()^] method on the returned stream causes a link:{jdbidocs}/core/result/ResultSetException.html[ResultSetException^].
 
 
-===== @RegisterRowMapper
+The link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] method *can not be used either*:
 
-Use `@RegisterRowMapper` to register a concrete row mapper class:
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=on-demand]
+----
+
+<1> The handle is closed when leaving the `getNamesAsStream` method.
+
+<2> Calling the link:{jdkdocs}/java/util/stream/Stream.html#collect-java.util.stream.Collector-[Stream#collect()^] method on the returned stream causes a link:{jdbidocs}/core/result/ResultSetException.html[ResultSetException^].
+
+
+===== Use interface default methods
+
+The SQL Object framework closes the link:{jdbidocs}/core/Handle.html[Handle^] object when returning from the outermost method in a SQL object type. It is possible to write processing logic in an _interface default method_:
+
+
+
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=dao]
+----
+
+<1> The handle is closed when exiting the `getNames` method as this is the outermost method in the UserDao object.
+
+<2> The stream is managed with a _try-with-resources_ block.
+
+<3> The stream can be processed within the `getNames` method.
+
+
+The default method can be used with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^], link:{jdbidocs}/core/Jdbi.html#withExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionCallback-[Jdbi#withExtension()^] and link:{jdbidocs}/core/Jdbi.html#useExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer-[Jdbi#useExtension()^] methods:
+
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=on-demand-default]
+
+include::{exampledir}/LiveObjectsTest.java[tag=extension-default]
+----
+
+===== Use consumer arguments
+
+Using the method return value either directly or through an _interface default method_ has the drawback that the user code to process the cursor-type object must be written within the SQL Object type as it must be executed before closing the link:{jdbidocs}/core/Handle.html[Handle^] object.
+
+An elegant way to sidestep this problem is using a <<Consumer arguments, consumer argument>> to provide a callback:
+
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=callback-dao]
+----
+
+Using a callback argument supports all link:{jdbidocs}/core/Jdbi.html[Jdbi^] and link:{jdbidocs}/core/Handle.html[Handle^] methods to attach SQL objects:
+
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=attach-callback]
+----
+
+<1> The link:{jdbidocs}/core/Handle.html[Handle^] lifecycle must still be managed by user code.
+
+<2> The stream is managed by the SQL object framework and does not need to be closed by user code.
+
+This code also works with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] and link:{jdbidocs}/core/Jdbi.html#useExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer-[Jdbi#useExtension()^] methods:
+
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=on-demand-callback]
+
+include::{exampledir}/LiveObjectsTest.java[tag=extension-callback]
+----
+
+<1> This code uses link:{jdbidocs}/core/Jdbi.html#useExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer-[Jdbi#useExtension()^] instead of link:{jdbidocs}/core/Jdbi.html#withExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionCallback-[Jdbi#withExtension()^] as the SQL Object method returns `void`.
+
+[NOTE]
+While using a consumer argument is a great way to deal with cursor-type objects, there is the drawback that the user code is called while holding the handle (or the database connection) open. If the callback does very expensive or slow processing, this may hold the connection for a very long time.
+
+
+[#sqlobject-mapper-annotations]
+=== SQL Object mapper annotations
+
+The most common use for annotations is to register specific row and column mappers to return values from link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^].
+
+==== @RegisterRowMapper
+
+Use link:{jdbidocs}/sqlobject/config/RegisterRowMapper.html[@RegisterRowMapper^] to register a concrete row mapper class:
 
 [source,java,indent=0]
 ----
@@ -3943,18 +4375,18 @@ public class UserMapper implements RowMapper<User> { // <1> <2>
 }
 ----
 <1> Must be a public class.
-<2> Must implement `RowMapper` with an explicit type argument (e.g.
-    `RowMapper<User>`) instead of a type variable (e.g. `RowMapper<T>`).
+<2> Must implement link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^] with an explicit type argument (e.g.
+    link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<User>^]) instead of a type variable (e.g. link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<T>^]).
 <3> Must have a public, no-argument constructor (or a default constructor).
 
 [TIP]
-The `@RegisterRowMapper` annotation may be repeated multiple times on the same
+The link:{jdbidocs}/sqlobject/config/RegisterRowMapper.html[@RegisterRowMapper^] annotation may be repeated multiple times on the same
 type or method to register multiple mappers.
 
 
-===== @RegisterRowMapperFactory
+==== @RegisterRowMapperFactory
 
-Use `@RegisterRowMapperFactory` to register a `RowMapperFactory`.
+Use link:{jdbidocs}/sqlobject/config/RegisterRowMapperFactory.html[@RegisterRowMapperFactory^] to register a link:{jdbidocs}/core/mapper/RowMapperFactory.html[RowMapperFactory^].
 
 [source,java,indent=0]
 ----
@@ -3983,13 +4415,13 @@ public class UserMapperFactory implements RowMapperFactory { // <1>
 <2> Must have a public, no-argument constructor (or a default constructor).
 
 [TIP]
-The `@RegisterRowMapperFactory` annotation may be repeated multiple times on the
+The link:{jdbidocs}/sqlobject/config/RegisterRowMapperFactory.html[@RegisterRowMapperFactory^] annotation may be repeated multiple times on the
 same type or method to register multiple factories.
 
 
-===== @RegisterColumnMapper
+==== @RegisterColumnMapper
 
-Use `@RegisterColumnMapper` to register a column mapper:
+Use link:{jdbidocs}/sqlobject/config/RegisterColumnMapper.html[@RegisterColumnMapper^] to register a column mapper:
 
 [source,java,indent=0]
 ----
@@ -4015,18 +4447,18 @@ public class MoneyMapper implements ColumnMapper<Money> { // <1> <2>
 }
 ----
 <1> Must be a public class.
-<2> Must implement `ColumnMapper` with an explicit type argument (e.g.
-    `ColumnMapper<User>`) instead of a type variable (e.g. `ColumnMapper<T>`).
+<2> Must implement link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] with an explicit type argument (e.g.
+link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper<User>^]) instead of a type variable (e.g. link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper<T>^]).
 <3> Must have a public, no-argument constructor (or a default constructor).
 
 [TIP]
-The `@RegisterColumnMapper` annotation may be repeated multiple times on the
+The link:{jdbidocs}/sqlobject/config/RegisterColumnMapper.html[@RegisterColumnMapper^] annotation may be repeated multiple times on the
 same type or method to register multiple mappers.
 
 
-===== @RegisterColumnMapperFactory
+==== @RegisterColumnMapperFactory
 
-Use `@RegisterColumnMapperFactory` to register a column mapper factory:
+Use link:{jdbidocs}/sqlobject/config/RegisterColumnMapperFactory.html[@RegisterColumnMapperFactory^] to register a column mapper factory:
 
 [source,java,indent=0]
 ----
@@ -4037,7 +4469,7 @@ public interface AccountDao {
 }
 ----
 
-Row mapper factories used with this annotation must meet a few requirements:
+Column mapper factories used with this annotation must meet a few requirements:
 
 [source,java,indent=0]
 ----
@@ -4055,13 +4487,13 @@ public class UserMapperFactory implements RowMapperFactory { // <1>
 <2> Must have a public, no-argument constructor (or a default constructor).
 
 [TIP]
-The `@RegisterColumnMapperFactory` annotation may be repeated multiple times on
+The link:{jdbidocs}/sqlobject/config/RegisterColumnMapperFactory.html[@RegisterColumnMapperFactory^] annotation may be repeated multiple times on
 the same type or method to register multiple factories.
 
 
-===== @RegisterBeanMapper
+==== @RegisterBeanMapper
 
-Use `@RegisterBeanMapper` to register a <<BeanMapper>> for a bean class:
+Use link:{jdbidocs}/sqlobject/config/RegisterBeanMapper.html[@RegisterBeanMapper^] to register a <<BeanMapper>> for a bean class:
 
 [source,java,indent=0]
 ----
@@ -4091,13 +4523,13 @@ the `User.id` and `User.name` properties. Likewise for `r_id` and `r_name` into
 `Role.id` and `Role.name`, respectively.
 
 [TIP]
-The `@RegisterBeanMapper` annotation may be repeated (as demonstrated above) on
+The link:{jdbidocs}/sqlobject/config/RegisterBeanMapper.html[@RegisterBeanMapper^] annotation may be repeated (as demonstrated above) on
 the same type or method to register multiple bean mappers.
 
 
-===== @RegisterConstructorMapper
+==== @RegisterConstructorMapper
 
-Use `@RegisterConstructorMapper` to register a <<ConstructorMapper>> for classes
+Use link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] to register a <<ConstructorMapper>> for classes
 that are instantiated with all properties through the constructor.
 
 [source,java,indent=0]
@@ -4129,13 +4561,13 @@ and `r_name` into `id` and `name` parameters of the `Role` constructor,
 respectively.
 
 [TIP]
-The `@RegisterConstructorMapper` annotation may be repeated multiple times on
+The link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] annotation may be repeated multiple times on
 the same type or method to register multiple constructor mappers.
 
 
-===== @RegisterFieldMapper
+==== @RegisterFieldMapper
 
-Use `@RegisterFieldMapper` to register a <<FieldMapper>> for a given class.
+Use link:{jdbidocs}/sqlobject/config/RegisterFieldMapper.html[@RegisterFieldMapper^] to register a <<FieldMapper>> for a given class.
 
 [source,java,indent=0]
 ----
@@ -4165,20 +4597,212 @@ the `User.id` and `User.name` fields. Likewise for `r_id` and `r_name` into the
 `Role.id` and `Role.name` fields, respectively.
 
 [TIP]
-The `@RegisterConstructorMapper` annotation may be repeated multiple times on
+The link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] annotation may be repeated multiple times on
 the same type or method to register multiple constructor mappers.
 
 
-[reftext="SqlQuery-SingleValue"]
-===== @SingleValue
 
-Sometimes when using advanced SQL features like Arrays, a container type like
-`int[]` or `List<Integer>` can ambiguously mean either "a single SQL int[]" or
+=== Other SQL Object annotations
+
+
+[#sqlupdate-getgeneratedkeys]
+==== @GetGeneratedKeys
+
+Some SQL statements will cause data to be generated on your behalf at the
+database, e.g. a table with an auto-generated primary key, or a primary key
+selected from a sequence.  The link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotation may be used to return the keys generated from the SQL statement:
+
+The link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotation tells Jdbi that the return value should be generated key from the SQL statement, instead of the update count.
+
+[source,java,indent=0]
+----
+public interface UserDao {
+    @SqlUpdate("INSERT INTO users (id, name) VALUES (nextval('user_seq'), ?)")
+    @GetGeneratedKeys("id")
+    long insert(String name);
+}
+----
+
+Multiple columns may be generated and returned:
+
+[source,java,indent=0]
+----
+public interface UserDao {
+    @SqlUpdate("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
+    @GetGeneratedKeys({"id", "created_on"})
+    @RegisterBeanMapper(IdCreateTime.class)
+    IdCreateTime insert(String name);
+}
+----
+
+[CAUTION]
+Databases vary in support for generated keys. Some support only one generated key column per statement, and some (such as Postgres) can return the entire row.
+You should check your database vendor's documentation before relying on this behavior.
+
+link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] also supports the annotation:
+
+[source,java,indent=0]
+----
+include::{exampledir}/GeneratedKeysTest.java[tags=sqlObject]
+----
+
+When using link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^], the link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotations tells SQL Object  that the return value should be the generated keys from each SQL statement, instead of the update count.
+
+[source,java,indent=0]
+----
+public interface UserDao {
+    @SqlBatch("INSERT INTO users (id, name) VALUES (nextval('user_seq'), ?)")
+    @GetGeneratedKeys("id")
+    long[] bulkInsert(List<String> names); // <1>
+}
+----
+<1> Returns the generated ID for each inserted name.
+
+Multiple columns may be generated and returned in this way:
+[source,java,indent=0]
+----
+public interface UserDao {
+    @SqlBatch("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
+    @GetGeneratedKeys({"id", "created_on"})
+    @RegisterBeanMapper(IdCreateTime.class)
+    List<IdCreateTime> bulkInsert(String... names);
+}
+----
+
+
+[TIP]
+Postgres supports additional functionality when returning generated keys. See <<postgres-getgeneratedkeys,PostgreSQL>> for more details.
+
+
+[#sqllocator]
+==== @SqlLocator
+
+When SQL statements grow in complexity, it may be cumbersome to provide
+the statements as Java strings in the SQL method annotations.
+
+[TIP]
+Jdbi supports the https://docs.oracle.com/en/java/javase/15/text-blocks/index.html[Java Textblock construct] available in Java 15 and later. Using a text block is an elegant way to specify multi-line SQL statements.
+
+Jdbi provides annotations that let you configure external locations to
+load SQL statements.
+
+* link:{jdbidocs}/sqlobject/locator/UseAnnotationSqlLocator.html[@UseAnnotationSqlLocator^] - use  annotation value of the SQL method annotations (this is the default behavior)
+* link:{jdbidocs}/sqlobject/locator/UseClasspathSqlLocator.html[@UseClasspathSqlLocator^] - loads SQL from a file on the classpath, based on the package and name of the SQL Object interface type.
+
+[source,java,indent=0]
+----
+package com.foo;
+
+@UseClasspathSqlLocator
+interface BarDao {
+    // loads classpath resource com/foo/BarDao/query.sql
+    @SqlQuery
+    void query();
+}
+----
+
+link:{jdbidocs}/sqlobject/locator/UseClasspathSqlLocator.html[@UseClasspathSqlLocator^] is implemented using the <<ClasspathSqlLocator>>, as described above.
+
+[WARNING]
+<<ClasspathSqlLocator>> loads a file unchanged by default. Using the link:{jdbidocs}/sqlobject/locator/UseClasspathSqlLocator.html[@UseClasspathSqlLocator^] annotation will strip out comments by default! This may lead to unexpected behavior, e.g. SQL Server uses the `#` character to denote temporary tables. This can be controlled with the `stripComments` annotation attribute.
+
+[source,java,indent=0]
+----
+package com.foo;
+
+@UseClasspathSqlLocator(stripComments=false)
+interface BarDao {
+    // loads classpath resource com/foo/BarDao/query.sql without stripping comment lines
+    @SqlQuery
+    void query();
+}
+----
+
+* The <<stringtemplate4,jdbi-stringtemplate4>> module provides link:{jdbidocs}/stringtemplate4/UseStringTemplateSqlLocator.html[@UseStringTemplateSqlLocator^], a SqlLocator, which can load SQL templates from StringTemplate 4 files on the classpath.
+* The jdbi-freemarker module provides link:{jdbidocs}/freemarker/UseFreemarkerSqlLocator.html[@UseFreemarkerSqlLocator^], which can load SQL templates from Freemarker files on the classpath.
+
+
+==== @CreateSqlObject
+
+Use the link:{jdbidocs}/sqlobject/CreateSqlObject.html[@CreateSqlObject^] annotation to reuse a SQL Object type within another object.
+
+This is an example where a SQL update defined in a different SQL Object type is executed as part of a transaction:
+
+[source,java,indent=0]
+----
+public interface Bar {
+    @SqlUpdate("INSERT INTO bar (name) VALUES (:name)")
+    @GetGeneratedKeys
+    int insert(@Bind("name") String name);
+}
+
+public interface Foo {
+
+    @CreateSqlObject
+    Bar createBar();
+
+    @SqlUpdate("INSERT INTO foo (bar_id, name) VALUES (:bar_id, :name)")
+    void insert(@Bind("bar_id") int barId, @Bind("name") String name);
+
+    @Transaction
+    default void insertBarAndFoo(String barName, String fooName) {
+        int barId = createBar().insert(barName);
+        insert(barId, fooName);
+    }
+}
+----
+
+The link:{jdbidocs}/sqlobject/CreateSqlObject.html[@CreateSqlObject^] annotation can also be used to  process cursor-type objects inside _interface default methods_:
+
+[source,java,indent=0]
+----
+include::{exampledir}/LiveObjectsTest.java[tag=nested-dao]
+
+include::{exampledir}/LiveObjectsTest.java[tag=on-demand-nested]
+----
+
+<1> Returns a nested object that provides a stream of users.
+
+
+==== @Timestamped
+
+You can annotate any statement with link:{jdbidocs}/sqlobject/customizer/Timestamped.html[@Timestamped^] to bind an link:{jdkdocs}/java/time/OffsetDateTime.html[OffsetDateTime^] object representing the current time as `now`:
+
+[source,java,indent=0]
+----
+public interface Bar {
+    @Timestamped // <1>
+    @SqlUpdate("INSERT INTO times(val) VALUES(:now)") // <2>
+    int insert();
+}
+----
+
+<1> Bind a timestamp as `now`
+<2> Use the timestamp as a named binding.
+
+The binding name can be customized:
+
+[source,java,indent=0]
+----
+public interface Bar {
+    @Timestamped("timestamp")
+    @SqlUpdate("INSERT INTO times(val) VALUES(:timestamp)")
+    int insert();
+}
+----
+
+The link:{jdbidocs}/sqlobject/customizer/TimestampedConfig.html[TimestampedConfig^] config object allows setting the timezone for the timestamp.
+
+[reftext="SqlQuery-SingleValue"]
+==== @SingleValue
+
+Sometimes, when using advanced SQL features like Arrays, a container type such as
+`int[]` or link:{jdkdocs}/java/util/List.html[List<Integer>^] can ambiguously mean either "a single SQL int[]" or
 "a ResultSet of int".
 
-Since arrays are not commonly used in normalized schema, SQL Object assumes by
+Since arrays are not commonly used in normalized schemas, SQL Object assumes by
 default that you are collecting a link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] into a container object. You can
-annotate a return type as `@SingleValue` to override this.
+annotate a return type as link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^] to override this.
 
 For example, suppose we want to select a `varchar[]` column from a single row:
 
@@ -4191,17 +4815,31 @@ public interface UserDao {
 }
 ----
 
-Normally, Jdbi would interpret `List<String>` to mean that the mapped type is
-`String`, and to collect all result rows into a list. The `@SingleValue`
-annotation causes Jdbi to treat `List<String>` as the mapped type instead.
+Normally, Jdbi would interpret link:{jdkdocs}/java/util/List.html[List<String>^] to mean that the mapped type is
+`String`, and to collect all result rows into a list. The link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^]
+annotation causes Jdbi to treat link:{jdkdocs}/java/util/List.html[List<String>^] as the mapped type instead.
 
 [NOTE]
-It's tempting to `@SingleValue Optional<String>`, but usually this is not needed.
-`Optional` is implemented as a container of zero-or-one elements.  Adding `@SingleValue`
-implies that the database itself has a column of a type like `optional<varchar>`.
+It's tempting to use the link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^] annotation on an link:{jdkdocs}/java/util/Optional.html[Optional<T>^] type , but usually this is not needed.
+link:{jdkdocs}/java/util/Optional.html[Optional<T>^] is implemented as a container of zero-or-one elements.  Adding link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^] implies that the database itself has a column of a type like `optional<varchar>`.
 
 
-===== Map<K,V> Results
+The link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^] annotation can also be used on an array, collection or iterable method parameter. This causes SQL Object to bind the whole iterable as the parameter value. This is especially useful for link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] operations (often for a SQL Array parameter):
+
+[source,java,indent=0]
+----
+public interface UserDao {
+    @SqlBatch("INSERT INTO users (id, name, roles) VALUES (?, ?, ?)")
+    void bulkInsert(List<Long> ids,
+                    List<String> names,
+                    @SingleValue List<String> roles);
+}
+----
+
+In this example, each new row would get the same `varchar[]` value in the `roles` column.
+
+
+==== Annotations for Map<K,V> Results
 
 SQL Object methods may return `Map<K,V>` types (see <<mapentry-mapping, Map.Entry mapping>> in
 the Core API). In this scenario, each row is mapped to a `Map.Entry<K,V>`,
@@ -4239,11 +4877,11 @@ include::{sqlobjectexampledir}/TestReturningMap.java[tags=keyValue]
 
 All of the above examples assume a one-to-one key/value relationship.
 
-What if there is a one-to-many relationship? Google Guava provides a `Multimap`
+What if there is a one-to-many relationship? <<google_guava,Google Guava>> provides a `Multimap`
 type, which supports mapping multiple values per key.
 
-First, follow the instructions in the <<Google Guava>> section to install
-`GuavaPlugin`.
+First, follow the instructions in the <<google_guava,Google Guava>> section to install the
+link:{jdbidocs}/guava/GuavaPlugin.html[GuavaPlugin^].
 
 Then, simply specify a `Multimap` return type instead of link:{jdkdocs}/java/util/Map.html[Map^]:
 
@@ -4264,7 +4902,7 @@ Jdbi's default setting is to convert column names to lowercase for Map keys. Thi
 changed via the `MapMappers` config class.
 
 By default, SQL Object treats link:{jdkdocs}/java/util/Map.html[Map^] return types as a collection of `Map.Entry`
-values. Use the `@SingleValue` annotation to override this, so that the return
+values. Use the link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^] annotation to override this, so that the return
 type is treated as a single value instead of a collection:
 
 [source,java,indent=0]
@@ -4275,10 +4913,9 @@ type is treated as a single value instead of a collection:
 Map<String, Object> getById(long userId);
 ----
 
-Starting with Jdbi 3.6.0, there's the
-link:{jdbidocs}/core/mapper/GenericMapMapperFactory.html[GenericMapMapperFactory^],
-which provides the same feature but allows value types other than `Object`
-as long as a suitable ColumnMapper is registered and all columns are of this type:
+The link:{jdbidocs}/core/mapper/GenericMapMapperFactory.html[GenericMapMapperFactory^],
+provides the same feature but allows value types other than `Object` as long as a suitable ColumnMapper
+is registered and all columns are of the same type:
 
 [source,java,indent=0]
 ----
@@ -4289,14 +4926,12 @@ Map<String, BigDecimal> getNumericLevels();
 ----
 
 [TIP]
-Do you use PostgreSQL's `hstore` columns? The <<PostgreSQL>> plugin provides an
-`hstore` to `Map<String, String>` column mapper. See
-<<postgres-hstore,hstore>> for more information.
+The <<PostgreSQL>> plugin provides an `hstore` to `Map<String, String>` column mapper. See <<postgres-hstore,hstore>> for more information.
 
 
-===== @UseRowReducer
+==== @UseRowReducer
 
-`@SqlQuery` methods that use join queries may reduce master-detail joins
+link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^] methods that use join queries may reduce master-detail joins
 into one or more master-level objects. See <<ResultBearing.reduceRows()>> for
 an introduction to row reducers.
 
@@ -4356,377 +4991,132 @@ public interface DocumentDao {
     and adding it to the folder.
 
 
-==== @SqlBatch Annotation
+==== Other SQL Object annotations
 
-Use the `@SqlBatch` annotation for bulk update operations. `@SqlBatch` is
-analogous to <<Prepared Batches,PreparedBatch>> in Core.
+Jdbi provides many additional annotations out of the box:
 
-[source,java,indent=0]
-----
-public interface ContactDao {
-    @SqlBatch("INSERT INTO contacts (id, name, email) VALUES (?, ?, ?)")
-    void bulkInsert(List<Integer> ids,
-                    Iterator<String> names,
-                    String... emails);
-}
-----
+* link:{jdbidocs}/sqlobject/config/package-summary.html[org.jdbi.v3.sqlobject.config^]
+  provides annotations for things that can be configured at the link:{jdbidocs}/core/Jdbi.html[Jdbi^] or
+ link:{jdbidocs}/core/Handle.html[Handle^] level. This includes registration of mappers and arguments, and for
+  configuring SQL statement rendering and parsing.
+* link:{jdbidocs}/sqlobject/customizer/package-summary.html[org.jdbi.v3.sqlobject.customizer^]
+  provides annotations for binding parameters, defining attributes, and
+  controlling the fetch behavior of the statement's result set.
+* link:{jdbidocs}/jpa/package-summary.html[org.jdbi.v3.jpa^]
+  provides the link:{jdbidocs}/jpa/BindJpa.html[@BindJpa^] annotation, for binding properties to column according
+  to JPA `@Column` annotations.
+* link:{jdbidocs}/sqlobject/locator/package-summary.html[org.jdbi.v3.sqlobject.locator^]
+  provides annotations that configure Jdbi to load SQL statements from an
+  alternative source, e.g. a file on the classpath.
+* link:{jdbidocs}/sqlobject/statement/package-summary.html[org.jdbi.v3.sqlobject.statement^]
+  provides the link:{jdbidocs}/sqlobject/statement/MapTo.html[@MapTo^] annotation, which is used for dynamically specifying the
+  mapped type at the time the method is invoked.
+* link:{jdbidocs}/stringtemplate4/package-summary.html[org.jdbi.v3.stringtemplate4^]
+  provides annotations that configure Jdbi to load SQL from StringTemplate 4
+  `.stg` files on the classpath, and/or to parse SQL templates using the
+  ST4 template engine.
+* link:{jdbidocs}/sqlobject/transaction/package-summary.html[org.jdbi.v3.sqlobject.transaction^]
+  provides annotations for transaction management in a SQL object. See
+  <<SQL Object Transactions>> for details.
 
-Batch parameters may be collections, iterables, iterators, arrays (including
-varargs). We'll call these "iterables" for brevity.
+The SQL Object framework is built on top of the <<extension-framework, Jdbi Extension framework>> which can be extended with user-defined annotations. See the
+<<extension-framework-annotations, extension framework annotation documentation>> for an overview on how to build your own annotations.
 
-When a batch method is called, SQL Object iterates through the method's iterable
-parameters, and executes the SQL statement with the corresponding elements from
-each parameter.
 
-Thus, a statement like:
+==== Annotations and Inheritance
 
-[source,java,indent=0]
-----
-contactDao.bulkInsert(
-    ImmutableList.of(1, 2, 3),
-    ImmutableList.of("foo", "bar", "baz").iterator(),
-    "a@example.com", "b@example.com", "c@fake.com");
-----
-
-would execute:
-
-[source,sql]
-----
-INSERT INTO contacts (id, name, email) VALUES (1, 'foo', 'a@example.com');
-INSERT INTO contacts (id, name, email) VALUES (2, 'bar', 'b@example.com');
-INSERT INTO contacts (id, name, email) VALUES (3, 'baz', 'c@fake.com');
-----
-
-Constant values may also be used as parameters to a SQL batch. In this case,
-the same value is bound to that parameter for every SQL statement in the batch.
+SQL Objects inherit methods and annotations from the interfaces they extend:
 
 [source,java,indent=0]
 ----
-public interface UserDao {
-    @SqlBatch("INSERT INTO users (tenant_id, id, name) " +
-              "VALUES (:tenantId, :user.id, :user.name)")
-    void bulkInsert(@Bind("tenantId") long tenantId, // <1>
-        @BindBean("user") User... users);
-}
-----
-<1> Insert each user record using the same `tenant_id`.
+package com.app.dao;
 
-[WARNING]
-`@SqlBatch` methods must have at least one iterable parameter.
+@UseClasspathSqlLocator // <1> <2>
+public interface CrudDao<T, ID> {
+    @SqlUpdate // <3>
+    void insert(@BindBean T entity);
 
-By default, a `@SqlBatch` method may return a handful of types:
+    @SqlQuery // <3>
+    Optional<T> findById(ID id);
 
-* `void`: returns nothing (obviously)
-* `int[]` or `long[]`: returns the update count per execution in the batch.
-  Depending on the database vendor and JDBC driver, this may be either the
-  number of rows changed by a statement, or the number matched by the query
-  (regardless of whether any data was changed).
-* `boolean[]`: returns true if the update count is greater than zero, one value
-  for each execution in the batch.
-
-
-[#sqlbatch-getgeneratedkeys]
-===== @GetGeneratedKeys
-
-Similar to link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^], the link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotations tells SQL Object
-that the return value should be the generated keys from each SQL statement,
-instead of the update count. See
-<<sqlupdate-getgeneratedkeys,@GetGeneratedKeys>> for a more thorough discussion.
-
-[source,java,indent=0]
-----
-public interface UserDao {
-    @SqlBatch("INSERT INTO users (id, name) VALUES (nextval('user_seq'), ?)")
-    @GetGeneratedKeys("id")
-    long[] bulkInsert(List<String> names); // <1>
-}
-----
-<1> Returns the generated ID for each inserted name.
-
-Multiple columns may be generated and returned in this way:
-[source,java,indent=0]
-----
-public interface UserDao {
-    @SqlBatch("INSERT INTO users (id, name, created_on) VALUES (nextval('user_seq'), ?, now())")
-    @GetGeneratedKeys({"id", "created_on"})
-    @RegisterBeanMapper(IdCreateTime.class)
-    List<IdCreateTime> bulkInsert(String... names);
-}
-----
-
-
-[reftext="SqlBatch-SingleValue"]
-===== @SingleValue
-
-In some cases you may want an iterable parameter to be treated as a
-constant--use the `@SingleValue` annotation on the method parameter. This causes
-SQL Object to bind the whole iterable as the parameter value for every SQL
-statement in the batch (typically as a SQL Array parameter).
-
-[source,java,indent=0]
-----
-public interface UserDao {
-    @SqlBatch("INSERT INTO users (id, name, roles) VALUES (?, ?, ?)")
-    void bulkInsert(List<Long> ids,
-                    List<String> names,
-                    @SingleValue List<String> roles);
-}
-----
-
-In the above example, each new row would get the same `varchar[]` value in the
-`roles` column.
-
-
-==== @SqlCall Annotation
-
-Use the `@SqlCall` annotation to call stored procedures.
-
-[source,java,indent=0]
-----
-public interface AccountDao {
-    @SqlCall("{call suspend_account(:id)}")
-    void suspendAccount(@Bind("id") long accountId);
-}
-----
-
-`@SqlCall` methods can return `void`, or may return `OutParameters` if the
-stored procedure has any output parameters. Each output parameter must be
-registered with the `@OutParameter` annotation.
-
-[source,java,indent=0]
-----
-public interface OrderDao {
-    @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
-    @OutParameter(name = "orderId",    sqlType = java.sql.Types.BIGINT)
-    @OutParameter(name = "orderTotal", sqlType = java.sql.Types.DECIMAL)
-    OutParameters prepareOrderFromCart(@Bind("cartId") long cartId);
-}
-----
-
-Individual output parameters can be extracted from the
-link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] returned from
-the method:
-
-[source,java,indent=0]
-----
-OutParameters outParams = orderDao.prepareOrderFromCart(cartId);
-long orderId = outParams.getLong("orderId");
-double orderTotal = outParams.getDouble("orderTotal");
-----
-
-By passing a `Consumer<OutParameters>` or a `Function<OutParameters, T>`,
-you may process the result before the statement is closed.  This is useful
-to process cursor-typed results.
-
-
-==== @SqlScript Annotation
-
-Use `@SqlScript` to execute one or more statements in a batch.  You can define attributes
-for the template engine to use.
-
-[source,java,indent=0]
-----
-include::{sqlobjectexampledir}/statement/TestSqlScripts.java[tags=scripts]
-----
-
-
-==== @GetGeneratedKeys Annotation
-
-The link:{jdbidocs}/sqlobject/statement/GetGeneratedKeys.html[@GetGeneratedKeys^] annotation may be used on a link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] or `@SqlBatch`
-method to return the keys generated from the SQL statement:
-
-[source,java,indent=0]
-----
-include::{exampledir}/GeneratedKeysTest.java[tags=sqlObject]
-----
-
-
-==== SqlLocator
-
-When SQL statements grow in complexity, it may be cumbersome to provide
-the statements as Java strings in `@Sql___` method annotations.
-
-Jdbi provides annotations that let you configure external locations to
-load SQL statements.
-
-* @UseAnnotationSqlLocator (the default behavior; use @Sql___(\...) annotation value)
-* @UseClasspathSqlLocator - loads SQL from a file on the classpath, based on
-  the package and name of the SQL Object interface type.
-
-[source,java,indent=0]
-----
-package com.foo;
-@UseClasspathSqlLocator
-interface BarDao {
-    // loads classpath resource com/foo/BarDao/query.sql
     @SqlQuery
-    void query();
+    List<T> list();
+
+    @SqlUpdate
+    void update(@BindBean T entity);
+
+    @SqlUpdate
+    void deleteById(ID id);
 }
 ----
-
-*@UseClasspathSqlLocator* is implemented using the <<ClasspathSqlLocator>>, as described above.
-
-[WARNING]
-<<ClasspathSqlLocator>> loads a file unchanged by default. Using the `@UseClasspathSqlLocator` annotation will strip out comments by default! This may lead to unexpected behavior, e.g. SQL Server uses the `#` character to denote temporary tables. This can be controlled with the `stripComments` annotation attribute.
+<1> See <<#sqllocator, @SqlLocator>>.
+<2> Class annotations are inherited by subtypes.
+<3> Method and parameter annotations are inherited by subtypes, unless the
+    subtype overrides the method.
 
 [source,java,indent=0]
 ----
-package com.foo;
-@UseClasspathSqlLocator(stripComments=false)
-interface BarDao {
-    // loads classpath resource com/foo/BarDao/query.sql without stripping comment lines
-    @SqlQuery
-    void query();
+package com.app.contact;
+
+@RegisterBeanMapper(Contact.class)
+public interface ContactDao extends CrudDao<Contact, Long> {}
+----
+
+[source,java,indent=0]
+----
+package com.app.account;
+
+@RegisterConstructorMapper(Account.class)
+public interface AccountDao extends CrudDao<Account, UUID> {}
+----
+
+In this example we're using the link:{jdbidocs}/sqlobject/locator/UseClasspathSqlLocator.html[@UseClasspathSqlLocator^] annotation, so each
+method will use SQL loaded from the classpath. Thus, `ContactDao` methods will
+use SQL from:
+
+* `/com/app/contact/ContactDao/insert.sql`
+* `/com/app/contact/ContactDao/findById.sql`
+* `/com/app/contact/ContactDao/list.sql`
+* `/com/app/contact/ContactDao/update.sql`
+* `/com/app/contact/ContactDao/deleteById.sql`
+
+Whereas `AccountDao` will use SQL from:
+
+* `/com/app/account/AccountDao/insert.sql`
+* `/com/app/account/AccountDao/findById.sql`
+* `/com/app/account/AccountDao/list.sql`
+* `/com/app/account/AccountDao/update.sql`
+* `/com/app/account/AccountDao/deleteById.sql`
+
+Suppose `Account` used `name()`-style accessors instead of `getName()`. In that
+case, we'd want `AccountDao` to use link:{jdbidocs}/sqlobject/customizer/BindMethods.html[@BindMethods^] instead of link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^].
+
+Let's override those methods with the right annotations:
+
+[source,java,indent=0]
+----
+package com.app.account;
+
+@RegisterConstructorMapper(Account.class)
+public interface AccountDao extends CrudDao<Account, UUID> {
+    @Override
+    @SqlUpdate // <1>
+    void insert(@BindMethods Account entity);
+
+    @Override
+    @SqlUpdate // <1>
+    void update(@BindMethods Account entity);
 }
 ----
+<1> Method annotations are not inherited on override, so we must duplicate
+    those we want to keep.
 
 
-If you like StringTemplate, the <<StringTemplate 4>> module also provides a
-SqlLocator, which can load SQL templates from StringTemplate 4 files on the
-classpath.
+=== Combining SQL Object and the core API
 
+The SQL Object extension uses the same core API as programmatic SQL operations. There is an underlying link:{jdbidocs}/core/Handle.html[Handle^] object that is used to execute the SQL methods.
 
-==== @CreateSqlObject Annotation
-
-Use the @CreateSqlObject annotation to reuse a SqlObject inside another SqlObject. For example,
-you can build a transactional method which performs an SQL update defined in other SqlObject
-as part of the transaction. Jdbi won't open a new handle for a call to the child SqlObject.
-
-[source,java,indent=0]
-----
-public interface Bar {
-    @SqlUpdate("INSERT INTO bar (name) VALUES (:name)")
-    @GetGeneratedKeys
-    int insert(@Bind("name") String name);
-}
-
-public interface Foo {
-
-    @CreateSqlObject
-    Bar createBar();
-
-    @SqlUpdate("INSERT INTO foo (bar_id, name) VALUES (:bar_id, :name)")
-    void insert(@Bind("bar_id") int barId, @Bind("name") String name);
-
-    @Transaction
-    default void insertBarAndFoo(String barName, String fooName) {
-        int barId = createBar().insert(barName);
-        insert(barId, fooName);
-    }
-}
-----
-
-
-==== @Timestamped Annotation
-
-You can annotate any statement with `@Timestamped` to bind an `OffsetDateTime`,
-of which the value is the current time, under the binding `now`:
-
-[source,java,indent=0]
-----
-public interface Bar {
-    @SqlUpdate("INSERT INTO times(val) VALUES(:now)")
-    @Timestamped
-    int insert();
-}
-----
-
-You can customize the binding name:
-
-[source,java,indent=0]
-----
-@Timestamped("timestamp")
-----
-
-link:{jdbidocs}/sqlobject/customizer/TimestampedConfig.html[TimestampedConfig^] gives you control over
-the timezone used for this.
-
-=== Using SQL Objects
-
-Once you've defined your interface, there are a few ways to get an instance of
-it:
-
-
-==== Attached to Handle
-
-You can get a SQL Object that is attached to an open handle.
-
-[source,java,indent=0]
-----
-try (Handle handle = jdbi.open()) {
-    ContactPhoneDao dao = handle.attach(ContactPhoneDao.class);
-    dao.insertFullContact(contact);
-}
-----
-
-Attached SQL Objects have the same lifecycle as the handle--when the handle is
-closed, the SQL Object becomes unusable.
-
-
-==== Temporary SQL Objects
-
-You can also get a temporary SQL Object from the Jdbi object, by passing it a
-callback (typically a lambda). Use
-link:{jdbidocs}/core/Jdbi.html#withExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionCallback-[Jdbi.withExtension^]
-for operations that return a result, or
-link:{jdbidocs}/core/Jdbi.html#useExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer-[useExtension^]
-for operations with no result.
-
-[source,java,indent=0]
-----
-jdbi.useExtension(ContactPhoneDao.class, dao -> dao.insertFullContact(alice));
-long bobId = jdbi.withExtension(ContactPhoneDao.class, dao -> dao.insertFullContact(bob));
-----
-
-Temporary SQL Objects are only valid inside the callback you pass to the
-method. The SQL Object (and the associated temporary handle) are closed when
-the callback returns.
-
-
-==== On-Demand
-
-On-demand instances are constructed with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] method. have an open-ended lifecycle, as they obtain and release a connection for each method call. They are thread-safe, and may be reused across an application.
-
-This is handy when you only need to make single calls at a time.
-
-[source,java,indent=0]
-----
-ContactPhoneDao dao = jdbi.onDemand(ContactPhoneDao.class);
-long aliceId = dao.insertFullContact(alice);
-long bobId = dao.insertFullContact(bob);
-----
-
-There is a performance penalty every time a connection is allocated and  released.  In the example above, the two `insertFullContact` operations take separate link:{jdkdocs}/java/sql/Connection.html[JDBC Connection^] objects from the database connection pool.
-
-This can be avoided by keeping the handle open for the duration of the operation:
-
-[source,java,indent=0]
-----
-dao.useTransaction(txn -> { // <1>
-    User bob = txn.readContact(bobId);
-    Order order = txn.getOpenOrder(bobId);
-    txn.createInvoice(computeInvoice(bob, metadata));
-});
-----
-
-<1> This requires the dao class to extend the link:{jdbidocs}/sqlobject/transaction/Transactional.html[`Transactional`^] interface to provide the link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[useTransaction^] method.
-
-
-Interface `default` methods, and mix-ins such as link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^], allow you to run your code with the on-demand handle held open.
-
-Re-entrant calls on the same thread will receive the same Handle. The handle will be closed when the outermost on-demand invocation completes.
-
-[WARNING]
-Returning cursor-like types such as `Stream<T>` or `Iterable<T>` outside of
-the outermost on-demand call does not work.  Since the`Handle is closed,
-the database cursor is released and reading will fail.
-
-
-=== Mixing SQL objects and the core API
-
-SQL Objects use the same core API as normal SQL statements. There is an underlying link:{jdbidocs}/core/Handle.html[Handle^] object that is used to execute the SQL methods.
-
-It is possible to get access to the Handle directly from a SQL object by extending the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface:
+A SQL Object type can extend the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface to get access to the handle. It also exposes a number of operations that can be used to mix declarative SQL Object methods with programmatic core API code:
 
 [source,java,indent=0]
 ----
@@ -4743,15 +5133,19 @@ void mixedCode() {
 }
 ----
 
-This interface gives access to the handle and offers link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] and link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods that execute callback code using the same handle object as the methods on the SQL object interface itself.
+This interface gives access to the handle and offers link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[SqlObject#withHandle()^] and
+link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[SqlObject#useHandle()^] methods that execute callback code using the same handle object as the methods on the SQL object interface itself.
 
 [NOTE]
-This is most useful for SQL object instances that get passed from other code or have been created from link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^]. Any object that was created using the link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] method will return the handle it was attached to. This is useful for interface default methods.
+This is most useful for SQL object instances that get passed from other code, have been created from
+link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] or use default methods. Any object that was created using the
+link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] method will return the handle it was attached to.
 
 
-==== Default Methods
+==== Using default Methods with the `SqlObject` mixin
 
-Occasionally a use case comes up where SQL Method annotations don't fit. In these situations, it is possible to "drop down" to the Core API using interface `default` methods and the SqlObject mixin interface:
+Occasionally a use case comes up where SQL Method annotations don't fit. In these situations, it is possible to "drop down" to the Core API using interface
+`default` methods and the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface:
 
 [source,java,indent=0]
 ----
@@ -4800,7 +5194,7 @@ transaction isolation level:
 include::{exampledir}/TransactionTest.java[tags=sqlObjectTransactionIsolation]
 ----
 
-Similar to the `inTransaction` and `useTransaction` operations in the core API, transactions are not nested. If a method, that has been annotated with link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Transaction^], calls another method that is annotated as well (e.g. through an interface default method), then the same transaction will be reused, and it will be committed when the outer transaction ends.
+Similar to the link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[Jdbi#inTransaction()^] and link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[Jdbi#useTransaction()^] operations in the core API, transactions are not nested. If a method, that has been annotated with link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Transaction^], calls another method that is annotated as well (e.g. through an _interface default method_), then the same transaction will be reused, and it will be committed when the outer transaction ends.
 
 Nested method calls must either use the same transaction isolation level or inner methods must not specify any transaction level. In that case, the transaction level of the outer transaction maintained.
 
@@ -4839,7 +5233,7 @@ As an alternative, the link:{jdbidocs}/sqlobject/transaction/Transactional.html[
 
 Similar to the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] interface, it gives access to all transaction related methods on the Handle and offers the same callbacks as the Handle itself.
 
-With this mixin interface, the link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[useTransaction^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalCallback)[inTransaction^] methods group statements into a single transaction by using a callback:
+With this mixin interface, the link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[Transactional#useTransaction()^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalCallback)[Transactional#inTransaction()^] methods group statements into a single transaction by using a callback:
 
 [source,java,indent=0]
 ----
@@ -4896,139 +5290,20 @@ public void createUsers(Jdbi jdbi) {
     UserDao dao = jdbi.onDemand(UserDao.class);
 
     dao.useTransaction(transactionDao -> {
-        // both inserts happen in the same transaction
+        // inserts happen in the same transaction
         transactionDao.createUser(1, "Alice");
+        transactionDao.createUser(2, "Bob");
 
+        // this insert as well
         transactionDao.getHandle().useTransaction(transactionHandle ->
             transactionHandle.createUpdate("USERT INTO users VALUES (:id, :name)")
-                .bind("id", 2)
-                .bind("name", "Bob")
+                .bind("id", 3)
+                .bind("name", "Charlie")
                 .execute();
         }
     }
 }
 ----
-
-
-=== Additional Annotations
-
-Jdbi provides dozens of annotations out of the box:
-
-* link:{jdbidocs}/sqlobject/config/package-summary.html[org.jdbi.v3.sqlobject.config^]
-  provides annotations for things that can be configured at the link:{jdbidocs}/core/Jdbi.html[Jdbi^] or
- link:{jdbidocs}/core/Handle.html[Handle^] level. This includes registration of mappers and arguments, and for
-  configuring SQL statement rendering and parsing.
-* link:{jdbidocs}/sqlobject/customizer/package-summary.html[org.jdbi.v3.sqlobject.customizer^]
-  provides annotations for binding parameters, defining attributes, and
-  controlling the fetch behavior of the statement's result set.
-* link:{jdbidocs}/jpa/package-summary.html[org.jdbi.v3.jpa^]
-  provides the `@BindJpa` annotation, for binding properties to column according
-  to JPA `@Column` annotations.
-* link:{jdbidocs}/sqlobject/locator/package-summary.html[org.jdbi.v3.sqlobject.locator^]
-  provides annotations that configure Jdbi to load SQL statements from an
-  alternative source, e.g. a file on the classpath.
-* link:{jdbidocs}/sqlobject/statement/package-summary.html[org.jdbi.v3.sqlobject.statement^]
-  provides the `@MapTo` annotation, which is used for dynamically specifying the
-  mapped type at the time the method is invoked.
-* link:{jdbidocs}/stringtemplate4/package-summary.html[org.jdbi.v3.stringtemplate4^]
-  provides annotations that configure Jdbi to load SQL from StringTemplate 4
-  `.stg` files on the classpath, and/or to parse SQL templates using the
-  ST4 template engine.
-* link:{jdbidocs}/sqlobject/transaction/package-summary.html[org.jdbi.v3.sqlobject.transaction^]
-  provides annotations for transaction management in a SQL object. See
-  <<SQL Object Transactions>> for details.
-
-Jdbi is designed to support user-defined annotations. See
-<<user-defined-annotations,User-Defined Annotations>> for a guide to creating your own.
-
-
-=== Annotations and Inheritance
-
-SQL Objects inherit methods and annotations from the interfaces they extend:
-
-[source,java,indent=0]
-----
-package com.app.dao;
-
-@UseClasspathSqlLocator // <1> <2>
-public interface CrudDao<T, ID> {
-    @SqlUpdate // <3>
-    void insert(@BindBean T entity);
-
-    @SqlQuery // <3>
-    Optional<T> findById(ID id);
-
-    @SqlQuery
-    List<T> list();
-
-    @SqlUpdate
-    void update(@BindBean T entity);
-
-    @SqlUpdate
-    void deleteById(ID id);
-}
-----
-<1> See <<SqlLocator>>.
-<2> Class annotations are inherited by subtypes.
-<3> Method and parameter annotations are inherited by subtypes, unless the
-    subtype overrides the method.
-
-[source,java,indent=0]
-----
-package com.app.contact;
-
-@RegisterBeanMapper(Contact.class)
-public interface ContactDao extends CrudDao<Contact, Long> {}
-----
-
-[source,java,indent=0]
-----
-package com.app.account;
-
-@RegisterConstructorMapper(Account.class)
-public interface AccountDao extends CrudDao<Account, UUID> {}
-----
-
-In this example we're using the `@UseClasspathSqlLocator` annotation, so each
-method will use SQL loaded from the classpath. Thus, `ContactDao` methods will
-use SQL from:
-
-* `/com/app/contact/ContactDao/insert.sql`
-* `/com/app/contact/ContactDao/findById.sql`
-* `/com/app/contact/ContactDao/list.sql`
-* `/com/app/contact/ContactDao/update.sql`
-* `/com/app/contact/ContactDao/deleteById.sql`
-
-Whereas `AccountDao` will use SQL from:
-
-* `/com/app/account/AccountDao/insert.sql`
-* `/com/app/account/AccountDao/findById.sql`
-* `/com/app/account/AccountDao/list.sql`
-* `/com/app/account/AccountDao/update.sql`
-* `/com/app/account/AccountDao/deleteById.sql`
-
-Suppose `Account` used `name()`-style accessors instead of `getName()`. In that
-case, we'd want `AccountDao` to use `@BindMethods` instead of `@BindBean`.
-
-Let's override those methods with the right annotations:
-
-[source,java,indent=0]
-----
-package com.app.account;
-
-@RegisterConstructorMapper(Account.class)
-public interface AccountDao extends CrudDao<Account, UUID> {
-    @Override
-    @SqlUpdate // <1>
-    void insert(@BindMethods Account entity);
-
-    @Override
-    @SqlUpdate // <1>
-    void update(@BindMethods Account entity);
-}
-----
-<1> Method annotations are not inherited on override, so we must duplicate
-    those we want to keep.
 
 
 == Miscellaneous
@@ -5125,18 +5400,18 @@ These features currently make use of qualified types:
 respectively, instead of the usual `varchar`.
 - `jdbi3-postgres` offers <<postgres-hstore,HStore>>.
 - <<jdbi3-json,JSON>>
-- `BeanMapper`, `@BindBean`, `@RegisterBeanMapper`, `mapTobean()`, and `bindBean()` respect qualifiers on getters, setters,
+- `BeanMapper`, link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^], link:{jdbidocs}/sqlobject/config/RegisterBeanMapper.html[@RegisterBeanMapper^], `mapTobean()`, and `bindBean()` respect qualifiers on getters, setters,
 and setter parameters.
-- `ConstructorMapper` and `@RegisterConstructorMapper` respect qualifiers on constructor parameters.
-- `@BindMethods` and `bindMethods()` respect qualifiers on methods.
-- `@BindFields`, `@RegisterFieldMapper`, `FieldMapper` and `bindFields()` respect qualifiers on fields.
+- `ConstructorMapper` and link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] respect qualifiers on constructor parameters.
+- link:{jdbidocs}/sqlobject/customizer/BindMethods.html[@BindMethods^] and `bindMethods()` respect qualifiers on methods.
+- link:{jdbidocs}/sqlobject/customizer/BindFields.html[@BindFields^], link:{jdbidocs}/sqlobject/config/RegisterFieldMapper.html[@RegisterFieldMapper^], `FieldMapper` and `bindFields()` respect qualifiers on fields.
 - `SqlObject` respects qualifiers on methods (applies them to the return type) and parameters.
-* on parameters of type `Consumer<T>`, qualifiers are applied to the `T`.
-- `@MapTo`
-- `@BindJpa` and `JpaMapper` respect qualifiers on getters and setters.
+* on parameters of type link:{jdkdocs}/java/util/function/Consumer.html[Consumer<T>^], qualifiers are applied to the `T`.
+- link:{jdbidocs}/sqlobject/statement/MapTo.html[@MapTo^]
+- link:{jdbidocs}/jpa/BindJpa.html[@BindJpa^] and `JpaMapper` respect qualifiers on getters and setters.
 - `@BindKotlin`, `bindKotlin()`, and `KotlinMapper` respect qualifiers on constructor parameters, getters, setters, and setter parameters.
 
-
+[#query-templating]
 === Query Templating
 
 Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`\... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
@@ -5535,12 +5810,12 @@ class TestWithCustomContainer {
 
 == Third-Party Integration
 
-
+[#google-guava]
 === Google Guava
 
 This plugin adds support for the following types:
 
-* `Optional<T>` - registers an argument and mapper. Supports `Optional` for any
+* `Optional<T>` - registers an argument and mapper. Supports link:{jdkdocs}/java/util/Optional.html[Optional^] for any
   wrapped type `T` for which a mapper / argument factory is registered.
 * Most Guava collection and map types - see
  link:{jdbidocs}/guava/GuavaCollectors.html[GuavaCollectors^] for a complete
@@ -5747,7 +6022,7 @@ Just tell us about your types by installing the plugin and configuring your `Imm
 
 `jdbi.getConfig(JdbiImmutables.class).registerImmutable(MyValueType.class)`
 
-The configuration will both register appropriate `RowMapper`&#8288;s as well as configure the new `bindPojo` (or `@BindPojo`) binders:
+The configuration will both register appropriate link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^]&#8288;s as well as configure the new `bindPojo` (or `@BindPojo`) binders:
 
 [source,java,indent=0]
 ----
@@ -5771,7 +6046,7 @@ configuring your `Freebuilder` type:
 
 `jdbi.getConfig(JdbiFreebuilder.class).registerFreebuilder(MyFreeBuilderType.class)`
 
-The configuration will both register appropriate `RowMapper`s as well as
+The configuration will both register appropriate link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^]s as well as
 configure the new `bindPojo` (or `@BindPojo`) binders:
 
 [source,java,indent=0]
@@ -6538,7 +6813,7 @@ name for a property or parameter explicitly, as well as the `@Nested` annotation
 that allows mapping nested Kotlin objects.
 
 [NOTE]
-Instead of using `@BindBean`, `bindBean()`, and `@RegisterBeanMapper` use `@BindKotlin`, `bindKotlin()`, and `KotlinMapper`
+Instead of using link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^], `bindBean()`, and link:{jdbidocs}/sqlobject/config/RegisterBeanMapper.html[@RegisterBeanMapper^] use `@BindKotlin`, `bindKotlin()`, and `KotlinMapper`
 for qualifiers on constrictor parameters, getter, setters, and setter parameters of Kotlin class.
 
 [NOTE]
@@ -6651,8 +6926,8 @@ public void ValueClass {
 
 Classes annotated with `@Value` are immutable, classes annotated with `@Data` behave like standard, mutable Java Beans.
 
-- Use `BeanMapper` or `@RegisterBeanMapper` to map `@Data` classes.
-- Use `ConstructorMapper` or `@RegisterConstructorMapper` to map `@Value`
+- Use `BeanMapper` or link:{jdbidocs}/sqlobject/config/RegisterBeanMapper.html[@RegisterBeanMapper^] to map `@Data` classes.
+- Use `ConstructorMapper` or link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] to map `@Value`
   classes.
 - Use `bindBean()` or `@BindBean` to bind `@Data` or `@Value` classes.
 
@@ -6760,7 +7035,7 @@ Map<String, String> caps = handle.createUpdate("UPDATE account SET attributes = 
 ----
 
 By default, SQL Object treats link:{jdkdocs}/java/util/Map.html[Map^] return types as a collection of `Map.Entry`
-values. Use the `@SingleValue` annotation to override this, so that the return
+values. Use the link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^] annotation to override this, so that the return
 type is treated as a single value instead of a collection:
 
 [source,java,indent=0]
@@ -7001,6 +7276,7 @@ Jdbi jdbi = Jdbi.create("jdbc:sqlite:database")
 ----
 
 
+[#stringtemplate4]
 === StringTemplate 4
 
 This module allows you to plug in the https://www.stringtemplate.org/[StringTemplate 4^] templating engine, in
@@ -7136,10 +7412,10 @@ The Vavr Plugin offers deep integration of Jdbi with the Vavr functional library
   Given that for the wrapped type `T` a Mapper is registered.
 * Return Vavr collection types from queries. Supported are `Seq<T>`, `Set<T>`,
   `Map<K, T>` and `Multimap<K, T>` as well as all subtypes thereof.
-  It is possible to collect into a `Traversable<T>`, in this case a `List<T>`
+  It is possible to collect into a `Traversable<T>`, in this case a link:{jdkdocs}/java/util/List.html[List<T>^]
   will be returned.
   For all interface types a sensible default implementation will be used
-  (e.q. `List<T>` for `Seq<T>`). Furthermore ``Multimap<K, T>``s are backed by a `Seq<T>`
+  (e.q. link:{jdkdocs}/java/util/List.html[List<T>^] for `Seq<T>`). Furthermore ``Multimap<K, T>``s are backed by a `Seq<T>`
   as default value container.
 * Columns can be mapped into Vavr's `Option<T>` type.
 * Tuple projections for Jdbi! Yey! Vavr offers Tuples up to a maximum arity of 8.
@@ -7407,6 +7683,7 @@ The link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] u
 the on-demand handle object. Java proxies only support Java interface classes as extension types and may not be compatible with
 https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[GraalVM^] when creating native code.
 
+[#extension-handle-lifecycle]
 ==== Handle lifecycle for extensions
 
 The difference between the methods to acquire an extension type implementation is the handle (and database connection) lifecycle:
@@ -7521,10 +7798,10 @@ extension type.
 By default, the following extension objects are globally registered and can not be removed. These are always processed last (after all user registered extension
 objects):
 
-- An extension handler factory for the link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[`@UseExtensionHandler`^] annotation.
-- An extension handler customizer for the link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[`@UseExtensionHandlerCustomizer`^]
+- An extension handler factory for the link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[@UseExtensionHandler^] annotation.
+- An extension handler customizer for the link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[@UseExtensionHandlerCustomizer^]
   annotation.
-- A config customizer factory for the link:{jdbidocs}/core/extension/annotation/UseExtensionConfigurer.html[`@UseExtensionConfigurer`^] annotation.
+- A config customizer factory for the link:{jdbidocs}/core/extension/annotation/UseExtensionConfigurer.html[@UseExtensionConfigurer^] annotation.
 
 
 [IMPORTANT]
@@ -7571,7 +7848,7 @@ In addition to the methods defined by the extension type, the following methods 
   implementations that ensure that each instance is only equal to itself.
 - link:{jdkdocs}/java/lang/Object.html#finalize--[Object#finalize()^] has no effect.
 
-All methods except `finalize()` can be overridden by the extension type (e.g. through a interface default method).
+All methods except `finalize()` can be overridden by the extension type (e.g. through a _interface default method_).
 
 
 ===== Non-virtual factories
@@ -7678,7 +7955,7 @@ factory to accept a method on an extension type and then return an link:{jdkdocs
 in new code.
 
 [NOTE]
-The extension framework provides extension handlers for interface default methods and synthetic methods.
+The extension framework provides extension handlers for _interface default methods_ and synthetic methods.
 
 An extension handler for a specific extension type can be either registered globally by adding a factory using the
 link:{jdbidocs}/core/extension/Extensions.html#registerHandlerFactory(org.jdbi.v3.core.extension.ExtensionHandlerFactory)[Extensions#registerHandlerFactory()^]
@@ -7756,7 +8033,7 @@ include::{exampledir}/ExtensionConfigCustomizerTest.java[tags=config-customizer]
 
 <2> Register the `SomethingMapper` to the every extension handler for every extension type.
 
-
+[#extension-framework-annotations]
 === Annotations
 
 A Jdbi extension like the <<sql-objects, SQL Object extension>> uses annotations on the extension types. It is possible to implement a large part of the
@@ -7772,11 +8049,11 @@ Meta-annotations are used to annotate other annotation classes for processing by
 
 ==== Extension handler annotation
 
-The link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[`@UseExtensionHandler`^] meta-annotation marks any other annotation as defining an
+The link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[@UseExtensionHandler^] meta-annotation marks any other annotation as defining an
 extension handler.
 
 These annotations must be placed on a method in an extension type, therefore annotations that are marked with the meta-annotation should use the
-link:{jdkdocs}/java/lang/annotation/Target.html[`@Target({ElementType.METHOD})`^] annotation to limit their scope.
+link:{jdkdocs}/java/lang/annotation/Target.html[@Target({ElementType.METHOD})^] annotation to limit their scope.
 
 The extension framework processes all annotations that use this meta-annotation. It will instantiate the extension handler by locating
 
@@ -7802,7 +8079,7 @@ include::{exampledir}/ExtensionHandlerAnnotationTest.java[tags=annotation-code]
 method can be written as a lambda.
 
 <2> The factory accepts this extension type if it has at least one method that is annotated with the
-link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[`@UseExtensionHandler`^] meta-annotation.
+link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[@UseExtensionHandler^] meta-annotation.
 
 <3> Ensure that the annotation uses the `test` id value.
 
@@ -7830,10 +8107,10 @@ meta-annotation.
 
 ==== Extension handler customizer annotation
 
-The link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[`@UseExtensionHandlerCustomizer`^] meta-annotation marks any other annotation
+The link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[@UseExtensionHandlerCustomizer^] meta-annotation marks any other annotation
 as defining an extension handler customizer.
 
-An example in the <<sql-objects,SQL object extension>> is the link:{jdbidocs}/sqlobject/transaction/Transaction.html[`@Transaction`^] annotation which allows
+An example in the <<sql-objects,SQL object extension>> is the link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Transaction^] annotation which allows
 wrapping multiple SQL operations into a database transaction.
 
 Extension handler customizers either apply to all methods in an extension type by adding an annotation to the extension type, or to specific methods by adding
@@ -7846,7 +8123,7 @@ include::{exampledir}/ExtensionHandlerCustomizerAnnotationTest.java[tags=annotat
 include::{exampledir}/ExtensionHandlerCustomizerAnnotationTest.java[tags=extension-types]
 ----
 
-<1> An annotation that uses the link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[`@UseExtensionHandlerCustomizer`^] annotation can
+<1> An annotation that uses the link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[@UseExtensionHandlerCustomizer^] annotation can
 be placed on a method or the extension type itself.
 
 <2> The extension handler customizer is only applied to a annotated method.
@@ -7881,7 +8158,7 @@ include::{exampledir}/ExtensionHandlerCustomizerAnnotationTest.java[tags=mixed-a
 
 When multiple extension customizers are used on the same extension type method, the order in which they are applied is undefined. If a specific order is
 required (e.g. because one customization depends on another), the
-link:{jdbidocs}/core/extension/annotation/ExtensionHandlerCustomizationOrder.html[`@ExtensionHandlerCustomizationOrder`^] annotation may be used to enforce a
+link:{jdbidocs}/core/extension/annotation/ExtensionHandlerCustomizationOrder.html[@ExtensionHandlerCustomizationOrder^] annotation may be used to enforce a
 specific order.
 
 Listing the annotation classes orders the extension customizers from outermost to innermost (outermost is called first). Any unlisted annotation will still be
@@ -7902,7 +8179,7 @@ interface OrderedCustomizers {
 
 ==== Extension handler configurer annotation
 
-The link:{jdbidocs}/core/extension/annotation/UseExtensionConfigurer.html[`@UseExtensionConfigurer`^] meta-annotation marks any other annotation as defining an
+The link:{jdbidocs}/core/extension/annotation/UseExtensionConfigurer.html[@UseExtensionConfigurer^] meta-annotation marks any other annotation as defining an
 extension configurer.
 
 Similar to extension handler customizers, configurers either apply to all methods in an extension type by adding an annotation to the extension type, or to
@@ -7952,8 +8229,8 @@ link:{jdbidocs}/core/extension/SimpleExtensionConfigurer.html#configure(org.jdbi
 method.
 
 The <<sql-objects,SQL Object extension>> implements all per-method and per-class registration of specific objects
-(e.g. link:{jdbidocs}/sqlobject/config/RegisterColumnMapper.html[`@RegisterColumnMapper`^] or
-link:{jdbidocs}/sqlobject/config/RegisterRowMapper.html[`@RegisterRowMapper`^]) through extension configurer objects which in turn create config customizer
+(e.g. link:{jdbidocs}/sqlobject/config/RegisterColumnMapper.html[@RegisterColumnMapper^] or
+link:{jdbidocs}/sqlobject/config/RegisterRowMapper.html[@RegisterRowMapper^]) through extension configurer objects which in turn create config customizer
 instances.
 
 
@@ -8057,11 +8334,10 @@ link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances each pointed at a separate `Data
 === Compiling with Parameter Names
 
 By default, the Java compiler does not write parameter names of constructors and
-methods to class files. At runtime, reflectively asking for parameter names
-gives values like "arg0", "arg1", etc.
+methods to class files. At runtime, using reflection to find  parameter names
+will return values like "arg0", "arg1", etc.
 
-Out of the box, Jdbi uses annotations to know what each parameter is called,
-e.g.:
+Out of the box, Jdbi uses annotations to name parameters, e.g.:
 
 * `ConstructorMapper` uses the `@ConstructorProperties` annotation.
 * SQL Object method arguments use the link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotation.
@@ -8069,9 +8345,8 @@ e.g.:
 [source,java,indent=0]
 ----
 @SqlUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")
-void insert(@Bind("id") long id, @Bind("name") String name); // <1>
+void insert(@Bind("id") long id, @Bind("name") String name);
 ----
-<1> Such verbose, very boilerplate. Wow.
 
 If you compile your code with the `-parameters` compiler flag, then the need for
 these annotations is removed -- Jdbi automatically uses the method parameter name:
@@ -8208,7 +8483,7 @@ GenericTypes.findGenericParameter(listOfInteger, Collection.class);
 // => Optional.of(Integer.class)
 ----
 
-Note that this method will return `Optional.empty()` if the type parameter
+Note that this method will return link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if the type parameter
 cannot be resolved, or the types have nothing to do with each other:
 
 [source,java,indent=0]
@@ -8426,7 +8701,7 @@ jdbi.setTemplateEngine(templateEngine);
 
 [TIP]
 Jdbi also provides link:{jdbidocs}/stringtemplate4/StringTemplateEngine.html[StringTemplateEngine^],
-which renders templates using the https://www.stringtemplate.org/[StringTemplate library^]. See <<StringTemplate 4>>.
+which renders templates using the https://www.stringtemplate.org/[StringTemplate library^]. See <<stringtemplate4,StringTemplate 4>>.
 
 Template engines interact with the SQL template caching. A template engine may implement the link:{jdbidocs}/core/statement/TemplateEngine.html#parse(java.lang.String,org.jdbi.v3.core.config.ConfigRegistry)[TemplateEngine#parse()^] methods to create an intermediary representation of a template that can be used to render a template faster. The output of this method will be cached. Depending on the implementation, defined attributes may be resolved at parse time and not at render time.
 
@@ -8502,7 +8777,7 @@ implementation that logs all executed statements for debugging.
 
 === ResultProducer
 
-A *ResultProducer* takes a lazily supplied *PreparedStatement* and
+A *ResultProducer* takes a lazily supplied link:{jdkdocs}/java/sql/PreparedStatement.html[PreparedStatement^] and
 produces a result.  The most common producer path, *execute()*,
 retrieves the link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] over the query results and then uses a
 *ResultSetScanner* or higher level mapper to produce results.
@@ -8598,7 +8873,7 @@ Core API:
 ** Instantiate with `Jdbi.create()` factory methods instead of constructors.
 * `DBIException` -> `JdbiException`
 * `Handle.select(String, ...)` now returns a `Query` for further method
-  chaining, instead of a `List<Map<String, Object>>`. Call
+  chaining, instead of a link:{jdkdocs}/java/util/List.html[List<Map<String, Object>>^]. Call
   `Handle.select(sql, ...).mapToMap().list()` for the same effect as v2.
 * `Handle.insert()` and `Handle.update()` have been coalesced into
   `Handle.execute()`.
@@ -8609,13 +8884,13 @@ Core API:
   `java.lang.reflect.Type` instead of `java.lang.Class`. This allows Jdbi to
   handle arguments and mappers for generic types.
 * Argument and mapper factories now have a single `build()` method that returns
-  an `Optional`, instead of separate `accepts()` and `build()` methods.
-* `ResultSetMapper` -> `RowMapper`. The row index parameter was also removed
+  an link:{jdkdocs}/java/util/Optional.html[Optional^], instead of separate `accepts()` and `build()` methods.
+* `ResultSetMapper` -> link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^]. The row index parameter was also removed
   from `RowMapper`--the current row number can be retrieved directly from the
   `ResultSet`.
-* `ResultColumnMapper` -> `ColumnMapper`
-* `ResultSetMapperFactory` -> `RowMapperFactory`
-* `ResultColumnMapperFactory` -> `ColumnMapperFactory`
+* `ResultColumnMapper` -> link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^]
+* `ResultSetMapperFactory` -> link:{jdbidocs}/core/mapper/RowMapperFactory.html[RowMapperFactory^]
+* `ResultColumnMapperFactory` -> link:{jdbidocs}/core/mapper/ColumnMapperFactory.html[ColumnMapperFactory^]
 * `Query` no longer maps to `Map<String, Object>` by default. Call
   `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
 * `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
@@ -8654,8 +8929,8 @@ jdbi.installPlugin(new SqlObjectPlugin());
   interfaces.
 * `GetHandle` -> `SqlObject`
 * `SqlLocator` replaces `StatementLocator`, and only applies to SQL Objects.
-* `@RegisterMapper` divided into `@RegisterRowMapper` and
-  `@RegisterColumnMapper`.
+* `@RegisterMapper` divided into link:{jdbidocs}/sqlobject/config/RegisterRowMapper.html[@RegisterRowMapper^] and
+  link:{jdbidocs}/sqlobject/config/RegisterColumnMapper.html[@RegisterColumnMapper^].
 * link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] annotations on SQL Object method parameters can be made optional,
   by compiling your code with the `-parameters` compiler flag enabled.
 * `@BindIn` -> link:{jdbidocs}/sqlobject/customizer/BindList.html[@BindList^], and no longer requires StringTemplate
@@ -8668,8 +8943,8 @@ jdbi.installPlugin(new SqlObjectPlugin());
   lifecycle is tied to the lifecycle of the link:{jdbidocs}/core/Handle.html[Handle^] they are attached to.
 * `@BindAnnotation` meta-annotation removed. Use
   `@SqlStatementCustomizingAnnotation` instead.
-* `@SingleValueResult` -> `@SingleValue`. The annotation may be used for method
-  return types, or on `@SqlBatch` parameters.
+ * `@SingleValueResult` -> link:{jdbidocs}/sqlobject/SingleValue.html[@SingleValue^]. The annotation may be used for method
+  return types, or on link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] parameters.
 
 ////
 
@@ -8688,7 +8963,7 @@ Annotations at the class and method level control the binding of arguments and
 mapping to results. For example, `@RegisterRowMapper` mirrors
 `Handle.registerRowMapper`.
 
-You produce results as single instances or container types like `Optional` or
+You produce results as single instances or container types like link:{jdkdocs}/java/util/Optional.html[Optional^] or
 `List`, same as `Query.mapTo`.
 
 [source,java,indent=0]
