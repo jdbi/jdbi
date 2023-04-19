@@ -28,6 +28,21 @@ import org.jdbi.v3.core.statement.TemplateEngine;
  * Rewrites a Freemarker template, using the attributes on the {@link StatementContext} as template parameters.
  */
 public class FreemarkerEngine implements TemplateEngine.Parsing {
+    private static final FreemarkerEngine INSTANCE = new FreemarkerEngine();
+
+    /**
+     * @deprecated use {@link #instance()} for a shared engine instead
+     */
+    @Deprecated
+    public FreemarkerEngine() {
+        // This constructor is present so we can document it.
+        // SonarCloud Code Analysis(TM) insists we document why this method exists, which is only so it can be deprecated and documented as such.
+    }
+
+    public static FreemarkerEngine instance() {
+        return INSTANCE;
+    }
+
     @Override
     public Optional<Function<StatementContext, String>> parse(String sqlTemplate, ConfigRegistry config) {
         try {

@@ -15,6 +15,7 @@
   - update spring framework dependency to 5.3.26 (address CVE-2023-20861)
   - ResultIterable new set() and collectToMap() methods
   - Helpers to make registering CollectorFactory easier
+  - FreemarkerEngine encourages singleton use so caching works better
 
 # 3.37.1
   - fix deadlock in default Jdbi cache (#2274)
