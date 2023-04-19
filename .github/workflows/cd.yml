@@ -25,7 +25,7 @@ jobs:
       env:
         NEXUS_REPO_USER: ${{ secrets.NEXUS_REPO_USER }}
         NEXUS_REPO_PASSWORD: ${{ secrets.NEXUS_REPO_PASSWORD }}
-        JDBI_MAVEN_OPTS: "-B -fae"
+        MAVEN_CONFIG: "-B -fae"
       run: |
           make deploy
 
@@ -51,6 +51,6 @@ jobs:
     - name: publish docs
       env:
         SITE_DEPLOY: ${{ secrets.SITE_DEPLOY_TOKEN  }}
-        JDBI_MAVEN_OPTS: "-B -fae"
+        MAVEN_CONFIG: "-B -fae"
       run: |
           make publish-docs

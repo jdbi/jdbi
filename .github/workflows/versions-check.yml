@@ -28,7 +28,7 @@ jobs:
 
     - name: Build
       env:
-        JDBI_MAVEN_OPTS: "-B -fae -am -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
       run: |
         ./mvnw --version
         echo $PATH
@@ -53,7 +53,7 @@ jobs:
 
     - name: Build
       env:
-        JDBI_MAVEN_OPTS: "-B -fae -am -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
       run: |
         ./mvnw --version
         echo $PATH
@@ -78,7 +78,7 @@ jobs:
 
     - name: Build
       env:
-        JDBI_MAVEN_OPTS: "-B -fae -am -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
       run: |
         ./mvnw --version
         echo $PATH
@@ -103,7 +103,7 @@ jobs:
 
     - name: Build
       env:
-        JDBI_MAVEN_OPTS: "-B -fae -am -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
       run: |
         ./mvnw --version
         echo $PATH
@@ -128,7 +128,7 @@ jobs:
 
     - name: Build
       env:
-        JDBI_MAVEN_OPTS: "-B -fae -am -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
       run: |
         ./mvnw --version
         echo $PATH
