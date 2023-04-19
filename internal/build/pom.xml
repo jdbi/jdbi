@@ -121,7 +121,6 @@
         <!-- remove the '1.' once we move past JDK8 compatibility -->
         <kotlin.compiler.jvmTarget>1.${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.5</kotlin.compiler.languageVersion>
-        <no-docker>false</no-docker>
         <project.build.targetJdk>8</project.build.targetJdk>
     </properties>
 
@@ -799,6 +798,13 @@
                         <systemPropertyVariables combine.children="append">
                             <pg-embedded.postgres-version>${jdbi.test.pg-version}</pg-embedded.postgres-version>
                         </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <configuration>
+                        <arguments>-Dno-docker=${no-docker}</arguments>
                     </configuration>
                 </plugin>
             </plugins>
