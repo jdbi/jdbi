@@ -389,12 +389,11 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
             this.template = template;
         }
 
-        @SuppressWarnings("PMD.UnusedPrivateMethod") // PMD gets that one wrong...
-        private TemplateEngine getTemplateEngine() {
+        TemplateEngine getTemplateEngine() {
             return templateEngine;
         }
 
-        private String getTemplate() {
+        String getTemplate() {
             return template;
         }
 
