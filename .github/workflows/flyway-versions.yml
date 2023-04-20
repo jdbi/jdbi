@@ -26,7 +26,7 @@ jobs:
 
     - name: test flyway versions
       env:
-        JDBI_MAVEN_OPTS: "-B -fae -Ddep.flyway.version=${{ matrix.flyway-version }}"
+        MAVEN_CONFIG: "-B -fae -Ddep.flyway.version=${{ matrix.flyway-version }}"
       run: |
         ./mvnw --version
         echo $PATH

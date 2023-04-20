@@ -112,6 +112,7 @@
             <activation>
                 <property>
                     <name>no-docker</name>
+                    <value>true</value>
                 </property>
             </activation>
             <build>

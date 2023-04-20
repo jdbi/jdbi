@@ -39,7 +39,7 @@ latest 2.x release. 3.x is necessary for newer JDKs but does not run on 8.
 
 ## Building
 
-Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.8.6 or later is recommended.
+Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.9 or later is required.
 
 Jdbi requires a modern JDK (11+) to build and enforces JDK 17+ for releases.
 
@@ -53,11 +53,13 @@ $ make install
 
 Running `make` or `make help` displays all available build targets with a short explanation. Some of the goals will require project membership privileges.
 
-To add command line parameters to the maven executions from the Makefile, set the `JDBI_MAVEN_OPTS` variable:
+To add command line parameters to the maven executions from the Makefile, set the `MAVEN_CONFIG` variable:
 
 ``` bash
-% JDBI_MAVEN_OPTS="-B -fae" make install
+% MAVEN_CONFIG="-B -fae" make install
 ```
+
+Note: The `JDBI_MAVEN_OPTS` variable is still supported, but deprecated. Please use `MAVEN_CONFIG` directly.
 
 ## Testing
 
@@ -65,11 +67,12 @@ Running `make tests` runs all unit and integration tests.
 
 Some tests use Postgres and H2 databases (the tests will spin up temporary database servers as needed). Most modern OS (Windows, MacOS, Linux) and host architecture (x86_64, aarch64) should work.
 
-### Docker requirements for tests
+
+### Docker requirements
 
 For a full release build, docker or a docker compatible environment
-must be available. A small number of tests (those supporting the OTJ
-postgres plugin) use testcontainers which in turn requires docker.
+must be available. A small number of tests use testcontainers which in
+turn requires docker.
 
 `make install-nodocker` skips the tests when building and installing Jdbi locally. `make tests-nodocker` skips the tests when only running tests.
 
@@ -77,12 +80,15 @@ Supported configurations are
 
 * Docker Desktop on MacOS
 * docker-ce on Linux
-* podman 3 or better on Linux.
+* podman 3 or better on Linux and MacOS
 
-For podman, the podman socket must be activated (see
+For podman on Linux, the podman socket must be activated (see
 https://stackoverflow.com/questions/71549856/testcontainers-with-podman-in-java-tests)
 for details. SELinux sometimes interferes with testcontainers if
 SELinux is active; make sure that there is an exception configured.
+
+For podman on MacOS, it is necessary to set the `DOCKER_HOST` environment variable correctly.
+
 
 ## Contributing
 
@@ -90,14 +96,17 @@ Please read
 [CONTRIBUTING.md](https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md)
 for instructions to set up your development environment to build Jdbi.
 
+
 ## Versioning
 
 Jdbi uses [SemVer](http://semver.org/) to version its public API.
+
 
 ## License
 
 This project is licensed under the
 [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html).
+
 
 ## Project Members
 
@@ -107,6 +116,7 @@ This project is licensed under the
 * **Matthew Hall (@qualidafial)**
 * **Artem Prigoda (@arteam)**
 * **Marnick L'Eau (@TheRealMarnes)**
+
 
 ## Special Thanks
 

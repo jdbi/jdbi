@@ -30,6 +30,7 @@ $ git checkout -b jdbi-<version>-release master
 
 Double check that release notes contain all the most important changes for the release.
 
+
 ## Build the release on your workstation
 
 Create the release artifacts in Maven, and deploy them to Sonatype staging repository.
@@ -52,6 +53,20 @@ If the release succeeds, there will be two new commits on the branch:
 
 It also creates a release tag, pointing to the release commit.
 
+
+### Releasing without docker
+
+First, please don't. But if you really have to, it is possible to run
+
+```bash
+$ MAVEN_CONFIG=-Dno-docker=true make release
+```
+
+Which will skip all docker related tests. This is explicitly
+unsupported and a workaround in very specific situations and may break
+at any point.
+
+
 ## Publish the release to Central in oss.sonatype.org
 
 - Open oss.sonatype.org and log in
@@ -67,6 +82,7 @@ It also creates a release tag, pointing to the release commit.
   - Type in something to the description like "Jdbi release v\<version\>"
 - Click Refresh until the repository status changes again, which will make
   it disappear from the search.
+
 
 ## Release code changes to github
 
@@ -109,6 +125,7 @@ Include in the message:
 - The release notes since the last announcement
 
 Send it to the mailing list: jdbi@googlegroups.com
+
 
 ## Additional Modules
 

@@ -31,7 +31,7 @@ jobs:
 
     - name: test postgres versions
       env:
-        JDBI_MAVEN_OPTS: "-B -fae -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
+        MAVEN_CONFIG: "-B -fae -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
       run: |
         ./mvnw --version
         echo $PATH

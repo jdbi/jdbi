@@ -17,8 +17,9 @@ SHELL = /bin/sh
 .SUFFIXES:
 .PHONY: help clean install install-nodocker install-fast docs tests tests-container tests-nodocker publish-docs deploy release
 
-# replace JDBI_MAVEN_OPTS with implicit MAVEN_OPTS, once 3.9.x or later has been released
 MAVEN = ./mvnw ${JDBI_MAVEN_OPTS}
+
+export MAVEN_OPTS MAVEN_CONFIG
 
 default: help
 
@@ -28,31 +29,31 @@ clean:
 install:
 	${MAVEN} clean install
 
-install-nodocker: JDBI_MAVEN_OPTS += -Dno-docker
+install-nodocker: MAVEN_CONFIG += -Dno-docker=true
 install-nodocker: install
 
-install-fast: JDBI_MAVEN_OPTS += -Pfast
+install-fast: MAVEN_CONFIG += -Pfast
 install-fast: install
 
-docs: JDBI_MAVEN_OPTS += -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false
+docs: MAVEN_CONFIG += -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false
 docs: install
 
-tests: JDBI_MAVEN_OPTS += -Dbasepom.it.skip=false
+tests: MAVEN_CONFIG += -Dbasepom.it.skip=false
 tests:
 	${MAVEN} surefire:test invoker:install invoker:integration-test invoker:verify
 
-tests-container: JDBI_MAVEN_OPTS += -Dbasepom.test.skip=false
+tests-container: MAVEN_CONFIG += -Dbasepom.test.skip=false
 tests-container:
 	${MAVEN} surefire:test -pl :jdbi3-testcontainers
 
-tests-nodocker: JDBI_MAVEN_OPTS += -Dno-docker
+tests-nodocker: MAVEN_CONFIG += -Dno-docker=true
 tests-nodocker: tests
 
-publish-docs: JDBI_MAVEN_OPTS += -Pfast -Dbasepom.javadoc.skip=false
+publish-docs: MAVEN_CONFIG += -Pfast -Dbasepom.javadoc.skip=false
 publish-docs: install
 	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
 
-deploy: JDBI_MAVEN_OPTS += -Dbasepom.it.skip=false
+deploy: MAVEN_CONFIG += -Dbasepom.it.skip=false
 deploy:
 	${MAVEN} clean deploy
 
