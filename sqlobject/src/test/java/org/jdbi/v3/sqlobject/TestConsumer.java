@@ -81,6 +81,13 @@ public class TestConsumer {
     }
 
     @Test
+    public void consumeMultiStream() {
+        assertThatThrownBy(() -> h2Extension.getSharedHandle().attach(MultiConsumerDao.class))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+
+    @Test
     public void testIteratorPartialConsumeOk() {
         final List<Something> results = new ArrayList<>();
         dao.consumeIterator(iter -> results.add(iter.next()));
@@ -135,17 +142,27 @@ public class TestConsumer {
     public interface SomethingStream extends Stream<Something> {}
 
     public interface SomethingStreamDao {
+
         @SqlQuery("select id, name from something order by id desc")
         @RegisterRowMapper(SomethingMapper.class)
         void consumeStream(Consumer<SomethingStream> consumer);
 
     }
+
     public interface SpecialStream<T> extends Stream<T> {}
 
     public interface SpecialStreamDao {
+
         @SqlQuery("select id, name from something order by id desc")
         @RegisterRowMapper(SomethingMapper.class)
         void consumeStream(Consumer<SpecialStream<Something>> consumer);
 
+    }
+
+    public interface MultiConsumerDao {
+
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        void consumeMultiStream(Consumer<Stream<Something>> stream, Consumer<Iterator<Something>> iterator);
     }
 }
