@@ -345,13 +345,17 @@ abstract class ResultReturner {
                             .orElseThrow(() -> new IllegalStateException("Couldn't find Iterator type on " + elementType))));
                 }
                 throw new IllegalArgumentException(format("Consumer argument for %s can not use a subtype of Iterator (found %s)!", method, type));
-                // special case: Stream<Iterator<T>>
+                // special case: Consumer<Stream<T>>
             } else if (GenericTypes.isSuperType(Stream.class, type)) {
                 if (GenericTypes.getErasedType(type) == Stream.class) {
                     return new ConsumeStreamResultReturner(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Stream.class)
                             .orElseThrow(() -> new IllegalStateException("Couldn't find Stream type on " + elementType))));
                 }
                 throw new IllegalArgumentException(format("Consumer argument for %s can not use a subtype of Stream (found %s)!", method, type));
+                // special case: Consumer<Iterable<T>>
+            } else if (GenericTypes.isSuperType(Iterable.class, type)) {
+                return new ConsumeIterableResultReturner(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterable.class)
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Iterable type on " + elementType))));
             } else {
                 // everything else is per-row Consumer<T>
                 return new ConsumeEachResultReturner(consumerIndex, elementType);
@@ -360,13 +364,19 @@ abstract class ResultReturner {
 
         @Override
         protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
-            accept(iterable.stream(), findConsumer(ctx));
+            try (Stream<?> stream = iterable.stream()) {
+                accept(stream, findConsumer(ctx));
+            }
             return null;
         }
 
         @Override
         protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
-            accept(stream, findConsumer(ctx));
+            try {
+                accept(stream, findConsumer(ctx));
+            } finally {
+                stream.close();
+            }
             return null;
         }
 
@@ -406,11 +416,7 @@ abstract class ResultReturner {
         @SuppressWarnings("unchecked")
         @Override
         protected void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer) {
-            try {
-                consumer.accept(stream.iterator());
-            } finally {
-                stream.close();
-            }
+            consumer.accept(stream.iterator());
         }
     }
 
@@ -423,11 +429,20 @@ abstract class ResultReturner {
         @SuppressWarnings("unchecked")
         @Override
         protected void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer) {
-            try {
-                consumer.accept(stream);
-            } finally {
-                stream.close();
-            }
+            consumer.accept(stream);
+        }
+    }
+
+    static class ConsumeIterableResultReturner extends ConsumerResultReturner {
+
+        ConsumeIterableResultReturner(int consumerIndex, QualifiedType<?> elementType) {
+            super(consumerIndex, elementType);
+        }
+
+        @SuppressWarnings("unchecked, rawtypes")
+        @Override
+        protected void accept(Stream<?> stream, Consumer consumer) {
+            consumer.accept((Iterable) stream::iterator);
         }
     }
 }
