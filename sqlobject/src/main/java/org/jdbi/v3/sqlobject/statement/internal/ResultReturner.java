@@ -95,13 +95,19 @@ abstract class ResultReturner {
      * @return a ResultReturner that invokes the consumer and does not return a value
      */
     static Optional<ResultReturner> findConsumer(Method method) {
+        Optional<ResultReturner> result = Optional.empty();
+
         final Class<?>[] paramTypes = method.getParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
             if (paramTypes[i] == Consumer.class) {
-                return Optional.of(ConsumerResultReturner.of(method, i));
+                if (result.isPresent()) {
+                    throw new IllegalArgumentException(format("Method %s has multiple consumer arguments!", method));
+                }
+                result = Optional.of(ConsumerResultReturner.of(method, i));
             }
         }
-        return Optional.empty();
+
+        return result;
     }
 
     protected abstract Object mappedResult(ResultIterable<?> iterable, StatementContext ctx);
