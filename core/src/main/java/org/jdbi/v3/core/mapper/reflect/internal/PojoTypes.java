@@ -16,20 +16,22 @@ package org.jdbi.v3.core.mapper.reflect.internal;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
 
 public class PojoTypes implements JdbiConfig<PojoTypes> {
-    private final Map<Class<?>, PojoPropertiesFactory> factories = new ConcurrentHashMap<>();
+    private final Map<Class<?>, PojoPropertiesFactory> factories;
     private ConfigRegistry registry;
 
-    public PojoTypes() {}
+    public PojoTypes() {
+        factories = new CopyOnWriteHashMap<>();
+    }
 
     private PojoTypes(PojoTypes other) {
-        factories.putAll(other.factories);
+        factories = new CopyOnWriteHashMap<>(other.factories);
     }
 
     @Override

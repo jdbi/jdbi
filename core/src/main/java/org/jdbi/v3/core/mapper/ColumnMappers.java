@@ -15,8 +15,8 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.array.SqlArrayMapperFactory;
@@ -25,6 +25,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.enums.internal.EnumMapperFactory;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
+import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Alpha;
@@ -37,7 +38,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     private final JdbiInterceptionChainHolder<ColumnMapper<?>, QualifiedColumnMapperFactory> inferenceInterceptors;
 
     private final List<QualifiedColumnMapperFactory> factories;
-    private final ConcurrentHashMap<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> cache = new ConcurrentHashMap<>();
+    private final Map<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> cache;
 
     private boolean coalesceNullPrimitivesToDefaults = true;
     private ConfigRegistry registry;
@@ -45,6 +46,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     public ColumnMappers() {
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredColumnMapperFactory::new);
         factories = new CopyOnWriteArrayList<>();
+        cache = new CopyOnWriteHashMap<>();
         register(new SqlArrayMapperFactory());
         register(new JavaTimeMapperFactory());
         register(new SqlTimeMapperFactory());
@@ -59,7 +61,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
 
     private ColumnMappers(ColumnMappers that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
-        cache.putAll(that.cache);
+        cache = new CopyOnWriteHashMap<>(that.cache);
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
         coalesceNullPrimitivesToDefaults = that.coalesceNullPrimitivesToDefaults;
     }
@@ -200,7 +202,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param type the qualified target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked", "rawtypes", "PMD.UnnecessaryCast" })
     public <T> Optional<ColumnMapper<T>> findFor(QualifiedType<T> type) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
