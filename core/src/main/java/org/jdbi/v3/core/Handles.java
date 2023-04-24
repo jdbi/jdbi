@@ -26,13 +26,15 @@ public class Handles implements JdbiConfig<Handles> {
 
     private boolean forceEndTransactions = true;
 
-    private final Set<HandleListener> handleListeners = new CopyOnWriteArraySet<>();
+    private final Set<HandleListener> handleListeners;
 
-    public Handles() {}
+    public Handles() {
+        handleListeners = new CopyOnWriteArraySet<>();
+    }
 
     private Handles(Handles that) {
         this.forceEndTransactions = that.forceEndTransactions;
-        this.handleListeners.addAll(that.handleListeners);
+        this.handleListeners = new CopyOnWriteArraySet<>(that.handleListeners);
     }
 
     /**
@@ -94,6 +96,10 @@ public class Handles implements JdbiConfig<Handles> {
      */
     public Set<HandleListener> getListeners() {
         return Collections.unmodifiableSet(handleListeners);
+    }
+
+    CopyOnWriteArraySet<HandleListener> copyListeners() {
+        return new CopyOnWriteArraySet<>(handleListeners);
     }
 
     @Override

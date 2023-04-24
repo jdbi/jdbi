@@ -55,9 +55,9 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private boolean allowUnusedBindings;
     private boolean attachAllStatementsForCleanup;
     private boolean attachCallbackStatementsForCleanup = true;
-    private final Collection<StatementCustomizer> customizers = new CopyOnWriteArrayList<>();
+    private final Collection<StatementCustomizer> customizers;
 
-    private final Collection<StatementContextListener> contextListeners = new CopyOnWriteArraySet<>();
+    private final Collection<StatementContextListener> contextListeners;
 
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());
@@ -65,6 +65,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         sqlParser = new ColonPrefixSqlParser();
         sqlLogger = SqlLogger.NOP_SQL_LOGGER;
         queryTimeout = null;
+        customizers = new CopyOnWriteArrayList<>();
+        contextListeners = new CopyOnWriteArraySet<>();
         templateCache = DefaultJdbiCacheBuilder.builder().maxSize(SQL_TEMPLATE_CACHE_SIZE).build();
     }
 
@@ -77,8 +79,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.allowUnusedBindings = that.allowUnusedBindings;
         this.attachAllStatementsForCleanup = that.attachAllStatementsForCleanup;
         this.attachCallbackStatementsForCleanup = that.attachCallbackStatementsForCleanup;
-        this.customizers.addAll(that.customizers);
-        this.contextListeners.addAll(that.contextListeners);
+        this.customizers = new CopyOnWriteArrayList<>(that.customizers);
+        this.contextListeners = new CopyOnWriteArraySet<>(that.contextListeners);
         this.templateCache = that.templateCache;
     }
 

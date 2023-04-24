@@ -34,16 +34,17 @@ import org.jdbi.v3.meta.Alpha;
  */
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
 
-    private final JdbiInterceptionChainHolder<ColumnMapper<?>, QualifiedColumnMapperFactory> inferenceInterceptors =
-        new JdbiInterceptionChainHolder<>(InferredColumnMapperFactory::new);
+    private final JdbiInterceptionChainHolder<ColumnMapper<?>, QualifiedColumnMapperFactory> inferenceInterceptors;
 
-    private final List<QualifiedColumnMapperFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<QualifiedColumnMapperFactory> factories;
     private final ConcurrentHashMap<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> cache = new ConcurrentHashMap<>();
 
     private boolean coalesceNullPrimitivesToDefaults = true;
     private ConfigRegistry registry;
 
     public ColumnMappers() {
+        inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredColumnMapperFactory::new);
+        factories = new CopyOnWriteArrayList<>();
         register(new SqlArrayMapperFactory());
         register(new JavaTimeMapperFactory());
         register(new SqlTimeMapperFactory());
@@ -54,6 +55,13 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         register(new OptionalMapperFactory());
         register(new EnumMapperFactory());
         register(new NVarcharMapper());
+    }
+
+    private ColumnMappers(ColumnMappers that) {
+        factories = new CopyOnWriteArrayList<>(that.factories);
+        cache.putAll(that.cache);
+        inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
+        coalesceNullPrimitivesToDefaults = that.coalesceNullPrimitivesToDefaults;
     }
 
     @Override
@@ -68,13 +76,6 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     @Alpha
     public JdbiInterceptionChainHolder<ColumnMapper<?>, QualifiedColumnMapperFactory> getInferenceInterceptors() {
         return inferenceInterceptors;
-    }
-
-    private ColumnMappers(ColumnMappers that) {
-        factories.addAll(that.factories);
-        cache.putAll(that.cache);
-        inferenceInterceptors.copy(that.inferenceInterceptors);
-        coalesceNullPrimitivesToDefaults = that.coalesceNullPrimitivesToDefaults;
     }
 
     /**

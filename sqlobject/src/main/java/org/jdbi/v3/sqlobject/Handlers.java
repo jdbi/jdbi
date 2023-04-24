@@ -35,12 +35,14 @@ import org.jdbi.v3.core.internal.JdbiOptionals;
  */
 @Deprecated
 public class Handlers implements JdbiConfig<Handlers> {
-    private final List<HandlerFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<HandlerFactory> factories;
 
-    public Handlers() {}
+    public Handlers() {
+        factories = new CopyOnWriteArrayList<>();
+    }
 
     private Handlers(Handlers that) {
-        factories.addAll(that.factories);
+        factories = new CopyOnWriteArrayList<>(that.factories);
     }
 
     List<HandlerFactory> getFactories() {

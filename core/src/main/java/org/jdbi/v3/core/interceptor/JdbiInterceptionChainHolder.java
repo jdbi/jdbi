@@ -43,8 +43,8 @@ public final class JdbiInterceptionChainHolder<S, T> {
         }
     };
 
-    private final List<JdbiInterceptor<S, T>> interceptors = new CopyOnWriteArrayList<>();
-    private Function<S, T> defaultTransformer;
+    private final List<JdbiInterceptor<S, T>> interceptors;
+    private final Function<S, T> defaultTransformer;
 
     /**
      * Creates a new chain holder with a default interceptor.
@@ -52,6 +52,7 @@ public final class JdbiInterceptionChainHolder<S, T> {
      * @param defaultTransformer A default interceptor that is used when no other registered interceptor processes a source object. Must not be null.
      */
     public JdbiInterceptionChainHolder(Function<S, T> defaultTransformer) {
+        interceptors = new CopyOnWriteArrayList<>();
         this.defaultTransformer = requireNonNull(defaultTransformer, "defaultTransformer is null");
     }
 
@@ -59,7 +60,13 @@ public final class JdbiInterceptionChainHolder<S, T> {
      * Creates a new chain holder. Throws {@link UnsupportedOperationException} if no registered interceptor processes a source object.
      */
     public JdbiInterceptionChainHolder() {
+        interceptors = new CopyOnWriteArrayList<>();
         this.defaultTransformer = (Function<S, T>) DEFAULT_TRANSFORMER;
+    }
+
+    public JdbiInterceptionChainHolder(JdbiInterceptionChainHolder<S, T> that) {
+        this.interceptors = new CopyOnWriteArrayList<>(that.interceptors);
+        this.defaultTransformer = that.defaultTransformer;
     }
 
     /**
@@ -98,13 +105,6 @@ public final class JdbiInterceptionChainHolder<S, T> {
         requireNonNull(interceptor, "interceptor is null");
 
         interceptors.add(interceptor);
-    }
-
-    public void copy(JdbiInterceptionChainHolder<S, T> chainHolder) {
-        requireNonNull(chainHolder, "chainHolder is null");
-        interceptors.clear();
-        interceptors.addAll(chainHolder.interceptors);
-        defaultTransformer = chainHolder.defaultTransformer;
     }
 
     final class ChainInstance implements JdbiInterceptionChain<T> {

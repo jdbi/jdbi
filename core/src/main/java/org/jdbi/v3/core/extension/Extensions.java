@@ -35,11 +35,11 @@ import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUA
  */
 public class Extensions implements JdbiConfig<Extensions> {
 
-    private final List<ExtensionFactoryDelegate> extensionFactories = new CopyOnWriteArrayList<>();
-    private final ConcurrentMap<Class<?>, ExtensionMetadata> extensionMetadataCache = new ConcurrentHashMap<>();
-    private final List<ExtensionHandlerCustomizer> extensionHandlerCustomizers = new CopyOnWriteArrayList<>();
-    private final List<ExtensionHandlerFactory> extensionHandlerFactories = new CopyOnWriteArrayList<>();
-    private final List<ConfigCustomizerFactory> configCustomizerFactories = new CopyOnWriteArrayList<>();
+    private final List<ExtensionFactoryDelegate> extensionFactories;
+    private final ConcurrentMap<Class<?>, ExtensionMetadata> extensionMetadataCache;
+    private final List<ExtensionHandlerCustomizer> extensionHandlerCustomizers;
+    private final List<ExtensionHandlerFactory> extensionHandlerFactories;
+    private final List<ConfigCustomizerFactory> configCustomizerFactories;
 
     private boolean allowProxy = true;
 
@@ -54,6 +54,11 @@ public class Extensions implements JdbiConfig<Extensions> {
      * </ul>
      */
     public Extensions() {
+        extensionFactories = new CopyOnWriteArrayList<>();
+        extensionMetadataCache = new ConcurrentHashMap<>();
+        extensionHandlerCustomizers = new CopyOnWriteArrayList<>();
+        extensionHandlerFactories = new CopyOnWriteArrayList<>();
+        configCustomizerFactories = new CopyOnWriteArrayList<>();
         // default handler factories for bridge and default methods
         internalRegisterHandlerFactory(DefaultMethodExtensionHandlerFactory.INSTANCE);
         internalRegisterHandlerFactory(BridgeMethodExtensionHandlerFactory.INSTANCE);
@@ -67,12 +72,6 @@ public class Extensions implements JdbiConfig<Extensions> {
         registerConfigCustomizerFactory(UseAnnotationConfigCustomizerFactory.INSTANCE);
     }
 
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
-    }
-
-
     /**
      * Create an extension configuration by cloning another.
      *
@@ -80,11 +79,16 @@ public class Extensions implements JdbiConfig<Extensions> {
      */
     private Extensions(Extensions that) {
         allowProxy = that.allowProxy;
-        extensionFactories.addAll(that.extensionFactories);
-        extensionMetadataCache.putAll(that.extensionMetadataCache);
-        extensionHandlerCustomizers.addAll(that.extensionHandlerCustomizers);
-        extensionHandlerFactories.addAll(that.extensionHandlerFactories);
-        configCustomizerFactories.addAll(that.configCustomizerFactories);
+        extensionFactories = new CopyOnWriteArrayList<>(that.extensionFactories);
+        extensionMetadataCache = new ConcurrentHashMap<>(that.extensionMetadataCache);
+        extensionHandlerCustomizers = new CopyOnWriteArrayList<>(that.extensionHandlerCustomizers);
+        extensionHandlerFactories = new CopyOnWriteArrayList<>(that.extensionHandlerFactories);
+        configCustomizerFactories = new CopyOnWriteArrayList<>(that.configCustomizerFactories);
+    }
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     /**

@@ -32,15 +32,16 @@ import org.jdbi.v3.meta.Alpha;
  */
 public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
 
-    private final JdbiInterceptionChainHolder<SqlArrayType<?>, SqlArrayTypeFactory> inferenceInterceptors =
-        new JdbiInterceptionChainHolder<>(InferredSqlArrayTypeFactory::new);
+    private final JdbiInterceptionChainHolder<SqlArrayType<?>, SqlArrayTypeFactory> inferenceInterceptors;
 
-    private final List<SqlArrayTypeFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<SqlArrayTypeFactory> factories;
     private SqlArrayArgumentStrategy argumentStrategy;
 
     private ConfigRegistry registry;
 
     public SqlArrayTypes() {
+        inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredSqlArrayTypeFactory::new);
+        factories = new CopyOnWriteArrayList<>();
         argumentStrategy = SqlArrayArgumentStrategy.SQL_ARRAY;
 
         register(boolean.class, "boolean");
@@ -61,9 +62,9 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     }
 
     private SqlArrayTypes(SqlArrayTypes that) {
-        factories.addAll(that.factories);
+        factories = new CopyOnWriteArrayList<>(that.factories);
         argumentStrategy = that.argumentStrategy;
-        inferenceInterceptors.copy(that.inferenceInterceptors);
+        inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
     }
 
     /**

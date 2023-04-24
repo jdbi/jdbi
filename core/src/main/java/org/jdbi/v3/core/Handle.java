@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -82,7 +81,7 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
-    private final Set<HandleListener> handleListeners = new CopyOnWriteArraySet<>();
+    private final Set<HandleListener> handleListeners;
 
     private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -111,7 +110,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.currentExtensionContext = defaultExtensionContext;
 
         this.statementBuilder = statementBuilder;
-        this.handleListeners.addAll(getConfig().get(Handles.class).getListeners());
+        this.handleListeners = getConfig().get(Handles.class).copyListeners();
 
         // both of these methods are bad because they leak a reference to this handle before the c'tor finished.
         this.transactionHandler = transactionHandler.specialize(this);

@@ -33,23 +33,24 @@ import org.jdbi.v3.meta.Alpha;
  */
 public class RowMappers implements JdbiConfig<RowMappers> {
 
-    private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors =
-        new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
+    private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors;
 
-    private final List<RowMapperFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<RowMapperFactory> factories;
     private final ConcurrentHashMap<Type, Optional<RowMapper<?>>> cache = new ConcurrentHashMap<>();
 
     private ConfigRegistry registry;
 
     public RowMappers() {
+        inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
+        factories = new CopyOnWriteArrayList<>();
         register(MapEntryMapper.factory());
         register(new PojoMapperFactory());
     }
 
     private RowMappers(RowMappers that) {
-        factories.addAll(that.factories);
+        factories = new CopyOnWriteArrayList<>(that.factories);
         cache.putAll(that.cache);
-        inferenceInterceptors.copy(that.inferenceInterceptors);
+        inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
     }
 
     @Override

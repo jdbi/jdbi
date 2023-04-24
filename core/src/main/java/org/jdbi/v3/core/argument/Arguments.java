@@ -38,7 +38,7 @@ import org.jdbi.v3.meta.Beta;
  * The factories are consulted in reverse order of registration (i.e. last-registered wins).
  */
 public class Arguments implements JdbiConfig<Arguments> {
-    private final List<QualifiedArgumentFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<QualifiedArgumentFactory> factories;
     private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories = new ConcurrentHashMap<>();
     private final Set<QualifiedType<?>> didPrepare = ConcurrentHashMap.newKeySet();
 
@@ -48,6 +48,7 @@ public class Arguments implements JdbiConfig<Arguments> {
     private boolean preparedArgumentsEnabled = true;
 
     public Arguments(final ConfigRegistry registry) {
+        factories = new CopyOnWriteArrayList<>();
         this.registry = registry;
 
         // register built-in factories, priority of factories is by reverse registration order
@@ -77,7 +78,7 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     private Arguments(final Arguments that) {
-        factories.addAll(that.factories);
+        factories = new CopyOnWriteArrayList<>(that.factories);
         untypedNullArgument = that.untypedNullArgument;
         bindingNullToPrimitivesPermitted = that.bindingNullToPrimitivesPermitted;
         preparedArgumentsEnabled = that.preparedArgumentsEnabled;

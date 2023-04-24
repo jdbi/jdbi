@@ -8594,7 +8594,8 @@ method that is invoked when a configuration registry is cloned.
 
 Configuration should be set on a context before that context is used,
 and not changed later. Some configuration classes may be thread-safe but most are
-not.
+not. Configuration objects should be implemented so that they are cheap to copy,
+for example the base ones use copy-on-write collections.
 
 Many of Jdbi's core features, for example argument or mapper
 registries, are simply implementations of

@@ -28,10 +28,11 @@ import org.jdbi.v3.core.config.JdbiConfig;
  * Contains a set of collector factories, registered by the application.
  */
 public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
-    private final List<CollectorFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<CollectorFactory> factories;
     private ConcurrentMap<Type, Optional<CollectorFactory>> factoryCache;
 
     public JdbiCollectors() {
+        factories = new CopyOnWriteArrayList<>();
         factoryCache = new ConcurrentHashMap<>();
         register(new MapCollectorFactory());
         register(new OptionalCollectorFactory());
@@ -44,7 +45,7 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
 
     private JdbiCollectors(JdbiCollectors that) {
         factoryCache = that.factoryCache;
-        factories.addAll(that.factories);
+        factories = new CopyOnWriteArrayList<>(that.factories);
     }
 
     /**
