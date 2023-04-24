@@ -15,14 +15,15 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
+import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
@@ -36,20 +37,21 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors;
 
     private final List<RowMapperFactory> factories;
-    private final ConcurrentHashMap<Type, Optional<RowMapper<?>>> cache = new ConcurrentHashMap<>();
+    private final Map<Type, Optional<RowMapper<?>>> cache;
 
     private ConfigRegistry registry;
 
     public RowMappers() {
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
         factories = new CopyOnWriteArrayList<>();
+        cache = new CopyOnWriteHashMap<>();
         register(MapEntryMapper.factory());
         register(new PojoMapperFactory());
     }
 
     private RowMappers(RowMappers that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
-        cache.putAll(that.cache);
+        cache = new CopyOnWriteHashMap<>(that.cache);
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
     }
 

@@ -14,9 +14,8 @@
 package org.jdbi.v3.core.extension;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
@@ -24,6 +23,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
+import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
 import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.meta.Beta;
 
@@ -36,7 +36,7 @@ import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUA
 public class Extensions implements JdbiConfig<Extensions> {
 
     private final List<ExtensionFactoryDelegate> extensionFactories;
-    private final ConcurrentMap<Class<?>, ExtensionMetadata> extensionMetadataCache;
+    private final Map<Class<?>, ExtensionMetadata> extensionMetadataCache;
     private final List<ExtensionHandlerCustomizer> extensionHandlerCustomizers;
     private final List<ExtensionHandlerFactory> extensionHandlerFactories;
     private final List<ConfigCustomizerFactory> configCustomizerFactories;
@@ -55,7 +55,7 @@ public class Extensions implements JdbiConfig<Extensions> {
      */
     public Extensions() {
         extensionFactories = new CopyOnWriteArrayList<>();
-        extensionMetadataCache = new ConcurrentHashMap<>();
+        extensionMetadataCache = new CopyOnWriteHashMap<>();
         extensionHandlerCustomizers = new CopyOnWriteArrayList<>();
         extensionHandlerFactories = new CopyOnWriteArrayList<>();
         configCustomizerFactories = new CopyOnWriteArrayList<>();
@@ -80,7 +80,7 @@ public class Extensions implements JdbiConfig<Extensions> {
     private Extensions(Extensions that) {
         allowProxy = that.allowProxy;
         extensionFactories = new CopyOnWriteArrayList<>(that.extensionFactories);
-        extensionMetadataCache = new ConcurrentHashMap<>(that.extensionMetadataCache);
+        extensionMetadataCache = new CopyOnWriteHashMap<>(that.extensionMetadataCache);
         extensionHandlerCustomizers = new CopyOnWriteArrayList<>(that.extensionHandlerCustomizers);
         extensionHandlerFactories = new CopyOnWriteArrayList<>(that.extensionHandlerFactories);
         configCustomizerFactories = new CopyOnWriteArrayList<>(that.configCustomizerFactories);

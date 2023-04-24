@@ -72,16 +72,16 @@ public class Arguments implements JdbiConfig<Arguments> {
         register(new DirectArgumentFactory());
     }
 
-    @Override
-    public void setRegistry(final ConfigRegistry registry) {
-        this.registry = registry;
-    }
-
     private Arguments(final Arguments that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
         untypedNullArgument = that.untypedNullArgument;
         bindingNullToPrimitivesPermitted = that.bindingNullToPrimitivesPermitted;
         preparedArgumentsEnabled = that.preparedArgumentsEnabled;
+    }
+
+    @Override
+    public void setRegistry(final ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     /**

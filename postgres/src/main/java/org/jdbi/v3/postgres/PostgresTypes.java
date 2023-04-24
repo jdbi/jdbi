@@ -14,11 +14,11 @@
 package org.jdbi.v3.postgres;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.array.SqlArrayTypes;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
@@ -27,15 +27,17 @@ import org.postgresql.util.PGobject;
  * Handler for PostgreSQL custom types.
  */
 public class PostgresTypes implements JdbiConfig<PostgresTypes> {
-    private final Map<Class<? extends PGobject>, String> types = new ConcurrentHashMap<>();
+    private final Map<Class<? extends PGobject>, String> types;
     private ConfigRegistry registry;
     private PgLobApi lob;
 
     @SuppressWarnings("unused")
-    public PostgresTypes() {}
+    public PostgresTypes() {
+        types = new CopyOnWriteHashMap<>();
+    }
 
     private PostgresTypes(PostgresTypes that) {
-        this.types.putAll(that.types);
+        this.types = new CopyOnWriteHashMap<>(that.types);
         this.lob = that.lob;
     }
 
