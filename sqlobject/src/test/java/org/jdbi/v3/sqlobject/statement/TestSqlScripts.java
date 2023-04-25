@@ -37,16 +37,16 @@ public class TestSqlScripts {
 
     private interface Scriptacular {
         // tag::scripts[]
-        @SqlScript("CREATE TABLE <name> (pk int primary key)")
-        void createTable(@Define String name);
+        @SqlScript("CREATE TABLE <name> (pk int primary key)")  // <1>
+        void createTable(@Define String name); // <2>
 
         @SqlScript("INSERT INTO cool_table VALUES (5), (6), (7)")
         @SqlScript("DELETE FROM cool_table WHERE pk > 5")
         int[] doSomeUpdates(); // returns [ 3, 2 ]
 
-        @UseClasspathSqlLocator // load external SQL!
-        @SqlScript // use the method name
-        @SqlScript("secondScript") // or specify it yourself
+        @UseClasspathSqlLocator // <3>
+        @SqlScript // <4>
+        @SqlScript("secondScript") // <5>
         int[] externalScript();
         // end::scripts[]
     }
