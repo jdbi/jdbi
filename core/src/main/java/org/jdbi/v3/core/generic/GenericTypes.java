@@ -105,12 +105,11 @@ public class GenericTypes {
     @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype, int n) {
         if (type instanceof Class) {
-            // this is the same code as TypeToken#extractType
-            AnnotatedType t = ((Class) type).getAnnotatedSuperclass();
-            if (t instanceof AnnotatedParameterizedType) {
-                AnnotatedParameterizedType pt = (AnnotatedParameterizedType) t;
-                if (((ParameterizedType) pt.getType()).getRawType() == parameterizedSupertype) {
-                    return Optional.ofNullable(pt.getAnnotatedActualTypeArguments()[n]).map(AnnotatedType::getType);
+            Type genericSuper = ((Class<?>) type).getGenericSuperclass();
+            if (genericSuper instanceof ParameterizedType) {
+                ParameterizedType pt = (ParameterizedType) genericSuper;
+                if (pt.getRawType() == parameterizedSupertype) {
+                    return Optional.ofNullable(pt.getActualTypeArguments()[n]);
                 }
             }
         }

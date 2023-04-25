@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
+import io.leangen.geantyref.TypeFactory;
 import org.junit.jupiter.api.Test;
 
 import static java.util.Optional.empty;
@@ -80,13 +81,13 @@ public class GenericTypesTest {
 
     @Test
     void testGenericTypeWorksInParameterizedClasses() {
-        class Foo<T> {
+        class NestedType<T> {
             Type getType() {
                 return new GenericType<List<String>>() {}.getType();
             }
         }
 
-        assertThat(new Foo<>().getType()).isNotNull();
+        assertThat(new NestedType<>().getType()).isEqualTo(TypeFactory.parameterizedClass(List.class, String.class));
     }
 
     @Test
