@@ -86,6 +86,39 @@ public class TestConsumer {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    public void consumeIterable() {
+        final List<Something> results = new ArrayList<>();
+        final List<Something> results2 = new ArrayList<>();
+        dao.consumeIterable(it -> {
+            // can read it once
+            it.forEach(results::add);
+
+            // throws exception on second attempt
+            assertThatThrownBy(() -> it.forEach(results2::add))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("stream has already been operated upon or closed");
+        });
+        assertThat(results).containsExactlyElementsOf(expected);
+        assertThat(results2).isEmpty();
+    }
+
+    @Test
+    public void consumeIterableIterator() {
+        final List<Something> results = new ArrayList<>();
+        final List<Something> results2 = new ArrayList<>();
+        dao.consumeIterable(it -> {
+            // can read it once
+            it.iterator().forEachRemaining(results::add);
+
+            // throws exception on second attempt
+            assertThatThrownBy(() -> it.iterator().forEachRemaining(results2::add))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("stream has already been operated upon or closed");
+        });
+        assertThat(results).containsExactlyElementsOf(expected);
+        assertThat(results2).isEmpty();
+    }
 
     @Test
     public void testIteratorPartialConsumeOk() {
@@ -128,6 +161,10 @@ public class TestConsumer {
         @SqlQuery("select id, name from something order by id desc")
         @RegisterRowMapper(SomethingMapper.class)
         void consumeStream(Consumer<Stream<Something>> consumer);
+
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        void consumeIterable(Consumer<Iterable<Something>> consumer);
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something something);

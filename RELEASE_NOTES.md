@@ -16,6 +16,7 @@
   - ResultIterable new set() and collectToMap() methods
   - Helpers to make registering CollectorFactory easier
   - FreemarkerEngine encourages singleton use so caching works better
+  - Support Consumer<Iterable<T>> as a consumer argument for operations that return multiple results.
 
 # 3.37.1
   - fix deadlock in default Jdbi cache (#2274)
