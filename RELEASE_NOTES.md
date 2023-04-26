@@ -13,7 +13,7 @@
   - StringTemplate engine: handle st4 errors rather than logging to stderr. Allow configuring missing attribute as a fatal error
   - StringTemplate 4.3.4
   - update spring framework dependency to 5.3.27 (address CVE-2023-20861, CVE-2023-20863)
-  - ResultIterable new set() and collectToMap() methods
+  - ResultIterable methods: `set()`, `collectToMap()`, `toCollection()`, `collectInto()`, `collectIntoList()`, `collectIntoSet()`
   - Helpers to make registering CollectorFactory easier
   - FreemarkerEngine encourages singleton use so caching works better
   - Support Consumer<Iterable<T>> as a consumer argument for operations that return multiple results.
