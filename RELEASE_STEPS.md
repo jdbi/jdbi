@@ -98,11 +98,11 @@ $ git push master
 
 ## Publish the docs
 
-Check out the release tag from Git, and run the `publish-docs.sh` script to send doc updates to jdbi.org:
+Check out the release tag from Git, and run publish target to update the docs on jdbi.org:
 
 ```bash
 $ git checkout v<version>
-$ make publish-docs
+$ MAVEN_CONFIG=-Pjdbi-release make publish-docs
 ```
 
 ## Add a release announcement to github
