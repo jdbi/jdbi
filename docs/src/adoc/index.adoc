@@ -546,12 +546,11 @@ that returns a result set from the database.
 include::{exampledir}/StatementsTest.java[tags=query]
 ----
 
-To get a single row from a query, there are a few possible methods to use,
-depending on the number of rows that might be in the result set.
+There are many different methods to collect results from a query.
 
-Call `one()` when you expect the result to contain exactly one row. Returns
-`null` only if the returned row maps to `null`. Throws an exception if the
-result has zero or multiple rows.
+
+Use the link:{jdbidocs}/core/result/ResultIterable.html#one()[ResultIterable#one()^] method returns when you expect the result to contain exactly one row. This method returns
+`null` only if the returned row maps to `null` and throws an exception if the result has zero or multiple rows.
 
 [source,java,indent=0]
 ----
@@ -560,9 +559,8 @@ String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
     .one();
 ----
 
-Call `findOne()` when you expect the result to contain zero or one row. Returns
-link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if there are no rows, or one row that maps to `null`. Throws
-an exception if the result has multiple rows.
+Use the link:{jdbidocs}/core/result/ResultIterable.html#findOne()[ResultIterable#findOne()^] method when you expect the result to contain zero or one row. Returns
+link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if there are no rows, or one row that maps to `null` and throws  an exception if the result has multiple rows.
 
 [source,java,indent=0]
 ----
@@ -571,9 +569,8 @@ Optional<String> name = handle.select(...)
     .findOne();
 ----
 
-Call `first()` when you expect the result to contain at least one row. Returns
-`null` if the first row maps to `null`. Throws an exception if the result has
-zero rows.
+Use the link:{jdbidocs}/core/result/ResultIterable.html#first()[ResultIterable#first()^] method when you expect the result to contain at least one row. Returns
+`null` if the first row maps to `null`. and throws an exception if the result has  zero rows.
 
 [source,java,indent=0]
 ----
@@ -582,7 +579,7 @@ String name = handle.select("SELECT name FROM users WHERE id = ?", 3)
     .first();
 ----
 
-Call `findFirst()` when the result may contain any number of rows. Returns
+Use the link:{jdbidocs}/core/result/ResultIterable.html#findFirst()[ResultIterable#findFirst()^] method when the result may contain any number of rows. Returns
 link:{jdkdocs}/java/util/Optional.html#empty--[Optional.empty()^] if there are no rows, or the first row maps to `null`.
 
 [source,java,indent=0]
@@ -592,51 +589,86 @@ Optional<String> name = handle.select(...)
     .findFirst();
 ----
 
-Multiple result rows can be returned in a list:
+Multiple result rows can be returned in a list or a set:
 
 [source,java,indent=0]
 ----
-List<String> name = handle
-    .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
-    .bind("genre", "Action")
-    .mapTo(String.class)
-    .list();
+include::{exampledir}/TestCollections.java[tag=list]
+
+include::{exampledir}/TestCollections.java[tag=set]
 ----
 
-For other collections, use `collect()` with a
-link:{jdkdocs}/java/util/stream/Collector.html[collector^]:
+Use the link:{jdbidocs}/core/result/ResultIterable.html#list()[ResultIterable#list()^] and Use the link:{jdbidocs}/core/result/ResultIterable.html#set()[ResultIterable#set()^] methods use the default implementations from the collections framework.
+
+For more control over the set and list types, use the link:{jdbidocs}/core/result/ResultIterable.html#collectIntoList()[ResultIterable#collectIntoList()^] and link:{jdbidocs}/core/result/ResultIterable.html#collectIntoSet()[ResultIterable#collectIntoSet()^] methods which use the link:{jdbidocs}/core/collector/JdbiCollectors.html[JdbiCollectors^] configuration object to retrieve the collection types for link:{jdkdocs}/java/util/List.html[List^] and link:{jdkdocs}/java/util/Set.html[Set^]:
 
 [source,java,indent=0]
 ----
-Set<String> name = handle
-    .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
-    .bind("genre", "Action")
-    .mapTo(String.class)
-    .collect(Collectors.toSet());
+include::{exampledir}/TestCollections.java[tag=into-list]
+
+include::{exampledir}/TestCollections.java[tag=into-set]
+----
+
+
+The  link:{jdbidocs}/core/result/ResultIterable.html#collectInto(java.lang.reflect.Type)[ResultIterable#collectInto()^] methods allows specifying a container type directly:
+
+[source,java,indent=0]
+----
+include::{exampledir}/TestCollections.java[tag=collect-into]
+
+include::{exampledir}/TestCollections.java[tag=collect-into-generic]
+----
+
+<1> collect into a raw collection type
+
+<2> collect into a parameterized generic type
+
+
+For other collections, use link:{jdbidocs}/core/result/ResultIterable.html#collect(java.util.stream.Collector)[ResultIterable#collect()^] with a
+link:{jdkdocs}/java/util/stream/Collector.html[collector^] or link:{jdbidocs}/core/result/ResultIterable.html#toCollection(java.util.function.Supplier)[ResultIterable#toCollection()^] with a collection supplier:
+
+[source,java,indent=0]
+----
+include::{exampledir}/TestCollections.java[tag=collect]
+
+include::{exampledir}/TestCollections.java[tag=to-collection]
+----
+
+The link:{jdbidocs}/core/result/ResultIterable.html#collectToMap(java.util.function.Function,java.util.function.Function)[ResultIterable#collectToMap()^] method allows collecting results directly into a link:{jdkdocs}/java/util/Map.html[Map^]:
+
+[source,java,indent=0]
+----
+include::{exampledir}/TestCollections.java[tag=to-map]
 ----
 
 You can also stream results:
 
 [source,java,indent=0]
 ----
-handle.createQuery(
-    "SELECT title FROM films WHERE genre = :genre ORDER BY title")
-    .mapTo(String.class)
-    .useStream(stream -> {
-        // do stuff with stream
-    });
+include::{exampledir}/TestCollections.java[tag=use-stream]
+
+include::{exampledir}/TestCollections.java[tag=stream]
 ----
 
+<1> link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.v3.core.result.StreamConsumer)[ResultIterable#useStream()^] and link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[ResultIterable#withStream()^] provide a callback with a managed stream object.
+
+<2> link:{jdbidocs}/core/result/ResultIterable.html#stream()[ResultIterable#stream()^] provides a stream that must be managed by user code
+
+Equivalent methods for iterators exist as well.
+
 Thus far, all examples have shown a `String` result type. Of course, you can
-map to many other data types:
+map to many other data types such as an integer:
 
 [source,java,indent=0]
 ----
-LocalDate releaseDate = handle
-    .createQuery("SELECT release_date FROM films WHERE name = :name")
-    .bind("name", "Star Wars: A New Hope")
-    .mapTo(LocalDate.class)
-    .one();
+include::{exampledir}/TestCollections.java[tag=int-result]
+----
+
+Or a complex, custom type:
+
+[source,java,indent=0]
+----
+include::{exampledir}/TestCollections.java[tag=movie-result]
 ----
 
 
@@ -2534,7 +2566,7 @@ include::{guavaexampledir}/MultimapEntryMapperTest.java[tags=joinRow]
 The `collectInto()` method is worth explaining. When you call it, several things
 happen behind the scenes:
 
-* Consult the `JdbiCollectors` registry to obtain a
+* Consult the link:{jdbidocs}/core/collector/JdbiCollectors.html[JdbiCollectors^] registry to obtain a
  link:{jdbidocs}/core/collector/CollectorFactory.html[CollectorFactory^] which
   supports the given container type.
 * Next, ask that `CollectorFactory` to extract the element type from the
@@ -3591,7 +3623,7 @@ List<UserId> userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id 
 
 [NOTE]
 Array columns can be mapped to any container type registered with the
-`JdbiCollectors` registry. E.g. a `VARCHAR[]` may be mapped to an
+link:{jdbidocs}/core/collector/JdbiCollectors.html[JdbiCollectors^] registry. E.g. a `VARCHAR[]` may be mapped to an
 `ImmutableList<String>` if the Guava plugin is installed.
 
 [#sql-objects]
