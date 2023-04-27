@@ -23,56 +23,82 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
-    private final AtomicReference<Map<K, V>> m;
+    @SuppressWarnings("rawtypes")
+    private static final AtomicReferenceFieldUpdater<CopyOnWriteHashMap, Map> U
+            = AtomicReferenceFieldUpdater.newUpdater(CopyOnWriteHashMap.class, Map.class, "m");
+    @SuppressWarnings("unused")
+    private volatile Map<K, V> m;
 
     public CopyOnWriteHashMap() {
-        m = new AtomicReference<>(new HashMap<>());
+        clear();
     }
 
     public CopyOnWriteHashMap(Map<K, V> that) {
         if (that.getClass() == CopyOnWriteHashMap.class) {
-            m = new AtomicReference<>(((CopyOnWriteHashMap<K, V>) that).m.get());
+            set(((CopyOnWriteHashMap<K, V>) that).get());
         } else {
-            m = new AtomicReference<>(new HashMap<>(that));
+            set(new HashMap<>(that));
         }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private AtomicReferenceFieldUpdater<CopyOnWriteHashMap<K, V>, Map<K, V>> u() {
+        return (AtomicReferenceFieldUpdater) U;
+    }
+
+    private Map<K, V> get() {
+        return u().get(this);
+    }
+
+    private void set(Map<K, V> m) {
+        u().set(this, m);
+    }
+
+    private Map<K, V> getAndUpdate(UnaryOperator<Map<K, V>> updater) {
+        return u().getAndUpdate(this, updater);
+    }
+
+    private Map<K, V> updateAndGet(UnaryOperator<Map<K, V>> updater) {
+        return u().updateAndGet(this, updater);
     }
 
     @Override
     public int size() {
-        return m.get().size();
+        return get().size();
     }
 
     @Override
     public boolean isEmpty() {
-        return m.get().isEmpty();
+        return get().isEmpty();
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return m.get().containsKey(key);
+        return get().containsKey(key);
     }
 
     @Override
     public boolean containsValue(Object value) {
-        return m.get().containsValue(value);
+        return get().containsValue(value);
     }
 
     @Override
     public V get(Object key) {
-        return m.get().get(key);
+        return get().get(key);
     }
 
     @Override
     public V put(K key, V value) {
-        return m.getAndUpdate(old -> {
+        return getAndUpdate(old -> {
             Map<K, V> updated = new HashMap<>(old);
             updated.put(key, value);
             return updated;
@@ -81,7 +107,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public V putIfAbsent(K key, V value) {
-        return m.getAndUpdate(old -> {
+        return getAndUpdate(old -> {
             if (old.get(key) != null) {
                 return old;
             }
@@ -93,7 +119,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public void putAll(Map<? extends K, ? extends V> that) {
-        m.updateAndGet(old -> {
+        updateAndGet(old -> {
             Map<K, V> updated = new HashMap<>(old);
             updated.putAll(that);
             return updated;
@@ -102,7 +128,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public V remove(Object key) {
-        return m.getAndUpdate(old -> {
+        return getAndUpdate(old -> {
             if (!old.containsKey(key)) {
                 return old;
             }
@@ -114,7 +140,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public boolean remove(Object key, Object value) {
-        return Objects.equals(m.getAndUpdate(old -> {
+        return Objects.equals(getAndUpdate(old -> {
             if (!Objects.equals(old.get(key), value)) {
                 return old;
             }
@@ -126,7 +152,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public V replace(K key, V value) {
-        return m.getAndUpdate(old -> {
+        return getAndUpdate(old -> {
             if (!old.containsKey(key)) {
                 return old;
             }
@@ -138,7 +164,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public boolean replace(K key, V oldValue, V newValue) {
-        return Objects.equals(m.getAndUpdate(old -> {
+        return Objects.equals(getAndUpdate(old -> {
             if (!Objects.equals(old.get(key), oldValue)) {
                 return old;
             }
@@ -150,7 +176,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
-        return m.updateAndGet(old -> {
+        return updateAndGet(old -> {
             Map<K, V> updated = new HashMap<>(old);
             updated.compute(key, remappingFunction);
             return updated;
@@ -159,7 +185,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
-        return m.updateAndGet(old -> {
+        return updateAndGet(old -> {
             if (old.containsKey(key)) {
                 return old;
             }
@@ -171,7 +197,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
-        return m.updateAndGet(old -> {
+        return updateAndGet(old -> {
             if (!old.containsKey(key)) {
                 return old;
             }
@@ -183,7 +209,7 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
-        return m.updateAndGet(old -> {
+        return updateAndGet(old -> {
             Map<K, V> updated = new HashMap<>(old);
             updated.merge(key, value, remappingFunction);
             return updated;
@@ -192,32 +218,32 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public void clear() {
-        m.set(new HashMap<>());
+        set(new HashMap<>());
     }
 
     @Override
     public boolean equals(Object obj) {
-        return m.get().equals(obj);
+        return get().equals(obj);
     }
 
     @Override
     public int hashCode() {
-        return m.get().hashCode();
+        return get().hashCode();
     }
 
     @Override
     public V getOrDefault(Object key, V defaultValue) {
-        return m.get().getOrDefault(key, defaultValue);
+        return get().getOrDefault(key, defaultValue);
     }
 
     @Override
     public void forEach(BiConsumer<? super K, ? super V> action) {
-        m.get().forEach(action);
+        get().forEach(action);
     }
 
     @Override
     public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
-        m.updateAndGet(old -> {
+        updateAndGet(old -> {
             Map<K, V> updated = new HashMap<>(old);
             updated.replaceAll(function);
             return updated;
@@ -226,17 +252,17 @@ public final class CopyOnWriteHashMap<K, V> implements ConcurrentMap<K, V> {
 
     @Override
     public Set<K> keySet() {
-        return Collections.unmodifiableSet(m.get().keySet());
+        return Collections.unmodifiableSet(get().keySet());
     }
 
     @Override
     public Collection<V> values() {
-        return Collections.unmodifiableCollection(m.get().values());
+        return Collections.unmodifiableCollection(get().values());
     }
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        return new SetEntryEntrySet<>(m.get().entrySet());
+        return new SetEntryEntrySet<>(get().entrySet());
     }
 
     static class SetEntryEntrySet<K, V> extends AbstractSet<Entry<K, V>> {
