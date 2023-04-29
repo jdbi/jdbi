@@ -1374,6 +1374,7 @@ Using `bindList` requires writing your SQL with an attribute, not a binding,
 despite the fact that your values are bound. The attribute is a placeholder that will be
 safely rendered to a comma-separated list of binding placeholders.
 
+
 You can bind multiple arguments from properties of a Java Bean:
 
 [source,java,indent=0]
@@ -3991,7 +3992,7 @@ Any Java object that implements the Iterable interface can be bound using the li
 will iterate the elements in 'a,b,c,d,...' form.
 
 [NOTE]
-This annotation requires you to use a template placeholder (using the `<field>` notation when using the default template engine), similar to the link:{jdbidocs}/core/statement/SqlStatement.html#bindList(java.lang.String,java.lang.Iterable)[SqlStatement#bindList()^] method.
+This annotation requires you to use a template placeholder (using the `<field>` notation when using the default template engine), similar to the link:{jdbidocs}/core/statement/SqlStatement.html#bindList(java.lang.String,java.lang.Iterable)[SqlStatement#bindList()^] method. Templates placeholders are incompatible with batch operations such as`PreparedBatch` as they are evaluated only once and the evaluated statement is cached. If subsequent batch executions use an iterable object with a different size, the number of placeholders and arguments will not match. If the database supports array types, it is strongly recommended to use `bindArray()` with a SQL array instead of the `bindList()` method.
 
 [source,java,indent=0]
 ----

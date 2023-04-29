@@ -1431,6 +1431,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @param values vararg values that will be comma-spliced into the defined attribute value.
      * @return this
      * @throws IllegalArgumentException if the vararg array is empty.
+     * @see #bindList(BiConsumer, String, List)
      */
     public final This bindList(String key, Object... values) {
         return bindList(EmptyHandling.THROW, key, values);
@@ -1445,6 +1446,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the vararg array is empty.
      * @see EmptyHandling
+     * @see #bindList(BiConsumer, String, List)
      */
     public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Object... values) {
         return bindList(onEmpty, key, values == null ? null : Arrays.asList(values));
@@ -1457,6 +1459,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @param values iterable values that will be comma-spliced into the defined attribute value.
      * @return this
      * @throws IllegalArgumentException if the iterable is empty.
+     * @see #bindList(BiConsumer, String, List)
      */
     public final This bindList(String key, Iterable<?> values) {
         return bindList(EmptyHandling.THROW, key, values);
@@ -1471,6 +1474,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the iterable is empty.
      * @see EmptyHandling
+     * @see #bindList(BiConsumer, String, List)
      */
     public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Iterable<?> values) {
         return bindList(onEmpty, key, values == null ? null : IterableLike.toList(values));
@@ -1483,6 +1487,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @param values iterator of values that will be comma-spliced into the defined attribute value.
      * @return this
      * @throws IllegalArgumentException if the iterator is empty.
+     * @see #bindList(BiConsumer, String, List)
      */
     public final This bindList(String key, Iterator<?> values) {
         return bindList(EmptyHandling.THROW, key, values);
@@ -1497,6 +1502,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the iterator is empty.
      * @see EmptyHandling
+     * @see #bindList(BiConsumer, String, List)
      */
     public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Iterator<?> values) {
         return bindList(onEmpty, key, values == null ? null : IterableLike.toList(values));
@@ -1521,6 +1527,12 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *     .mapTo(Contact.class)
      *     .list();
      * </pre>
+     *
+     * Note that using this method modifies the SQL statement by using a defined attribute. This is
+     * problematic when using {@link Handle#prepareBatch(String)} or the {@link PreparedBatch} SQL
+     * operation as those evaluate the SQL statement only once. When binding lists of different size,
+     * the number of placeholders will not match the number of elements in the list which will lead
+     * to errors.
      *
      * @param onEmpty handler for null/empty list
      * @param key     attribute name
@@ -1575,6 +1587,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the list of values or properties is empty.
      * @throws UnableToCreateStatementException If a property can't be found on an value or we can't find a Argument for it.
+     * @see #bindList(BiConsumer, String, List)
      */
     public final This bindBeanList(String key, List<?> values, List<String> propertyNames) {
         if (values.isEmpty()) {
@@ -1625,6 +1638,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the list of values or properties is empty.
      * @throws UnableToCreateStatementException if the method cannot be found
+     * @see #bindList(BiConsumer, String, List)
      */
     public final This bindMethodsList(String key, Iterable<?> values, List<String> methodNames) {
         final Iterator<?> valueIter = values.iterator();
