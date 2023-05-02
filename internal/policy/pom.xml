@@ -25,7 +25,7 @@
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-policy</artifactId>
-    <version>3.38.1</version>
+    <version>3.38.2-SNAPSHOT</version>
 
     <name>jdbi3 - internal - policy</name>
     <description>
