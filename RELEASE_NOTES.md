@@ -1,4 +1,5 @@
 # Unreleased
+  - spring5 JdbiUtil: fix thread safety #2341
 
 # 3.38.1
   - Dramatic performance improvement around copying configuration objects when creating statements

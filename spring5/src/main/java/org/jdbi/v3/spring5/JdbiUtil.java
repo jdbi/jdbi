@@ -13,20 +13,21 @@
  */
 package org.jdbi.v3.spring5;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.internal.UtilityClassException;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Utility for working with Jdbi and Spring transaction bound resources
  */
 public class JdbiUtil {
-    private static final Set<Handle> TRANSACTIONAL_HANDLES = new HashSet<>();
+    private static final Set<Handle> TRANSACTIONAL_HANDLES = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private JdbiUtil() {
         throw new UtilityClassException();
@@ -62,7 +63,7 @@ public class JdbiUtil {
         }
     }
 
-    private static class Adapter extends TransactionSynchronizationAdapter {
+    private static class Adapter implements TransactionSynchronization {
         private final Jdbi db;
         private final Handle handle;
 
