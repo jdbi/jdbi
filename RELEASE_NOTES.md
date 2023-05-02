@@ -1,5 +1,9 @@
 # Unreleased
 
+# 3.38.1
+  - Dramatic performance improvement around copying configuration objects when creating statements
+    Should reduce allocation rate and time spent in ConcurrentHashMap init
+
 # 3.38.0
 
   - `CaseStrategy` is now an official API (dropped @Beta) (#2309)
