@@ -1,4 +1,6 @@
 # Unreleased
+
+# 3.38.2
   - spring5 JdbiUtil: fix thread safety #2341
 
 # 3.38.1
