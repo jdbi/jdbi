@@ -761,12 +761,8 @@ public class Handle implements Closeable, Configurable<Handle> {
             return callback.withHandle(this);
         }
 
-        TransactionIsolationLevel currentLevel = getTransactionIsolationLevel();
-        try {
-            setTransactionIsolationLevel(level);
+        try (SetTransactionIsolation isolation = new SetTransactionIsolation(level)) {
             return transactionHandler.inTransaction(this, level, callback);
-        } finally {
-            setTransactionIsolationLevel(currentLevel);
         }
     }
 
@@ -965,5 +961,19 @@ public class Handle implements Closeable, Configurable<Handle> {
     @Override
     public int hashCode() {
         return Objects.hash(jdbi, connection);
+    }
+
+    class SetTransactionIsolation implements AutoCloseable {
+        private final TransactionIsolationLevel prevLevel;
+
+        SetTransactionIsolation(TransactionIsolationLevel setLevel) {
+            prevLevel = getTransactionIsolationLevel();
+            setTransactionIsolationLevel(setLevel);
+        }
+
+        @Override
+        public void close() {
+            setTransactionIsolationLevel(prevLevel);
+        }
     }
 }
