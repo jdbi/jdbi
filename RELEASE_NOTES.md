@@ -1,4 +1,5 @@
 # Unreleased
+  - Handle.inTransaction: improve exception thrown when restoring transaction isolation #2343
 
 # 3.38.2
   - spring5 JdbiUtil: fix thread safety #2341
