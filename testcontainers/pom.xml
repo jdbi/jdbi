@@ -33,11 +33,11 @@
         <basepom.test.skip>true</basepom.test.skip>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
-        <dep.clickhouse.version>0.3.2</dep.clickhouse.version>
-        <dep.mysql.version>8.0.31</dep.mysql.version>
-        <dep.oracle-xe.version>19.14.0.0</dep.oracle-xe.version>
-        <dep.trino.version>403</dep.trino.version>
-        <dep.yugabyte.version>42.3.4</dep.yugabyte.version>
+        <dep.clickhouse.version>0.4.5</dep.clickhouse.version>
+        <dep.mysql.version>8.0.33</dep.mysql.version>
+        <dep.oracle-xe.version>23.2.0.0</dep.oracle-xe.version>
+        <dep.trino.version>416</dep.trino.version>
+        <dep.yugabyte.version>42.3.5-yb-2</dep.yugabyte.version>
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
     </properties>
 

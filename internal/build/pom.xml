@@ -67,20 +67,24 @@
         <basepom.release.tag-name-format>v@{project.version}</basepom.release.tag-name-format>
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.timeout>240</basepom.test.timeout>
-
-        <dep.antlr.version>4.10.1</dep.antlr.version>
-        <dep.asciidoctorj-diagram.version>2.2.3</dep.asciidoctorj-diagram.version>
-        <dep.asciidoctorj.version>2.5.6</dep.asciidoctorj.version>
-        <dep.assertj-core.version>3.23.1</dep.assertj-core.version>
-        <dep.assertj-guava.version>3.4.0</dep.assertj-guava.version>
-        <dep.caffeine.version>3.0.3</dep.caffeine.version>
+        <dep.antlr.version>4.12.0</dep.antlr.version>
+        <dep.asciidoctorj-diagram.version>2.2.7</dep.asciidoctorj-diagram.version>
+        <dep.asciidoctorj.version>2.5.8</dep.asciidoctorj.version>
+        <dep.assertj-core.version>3.24.2</dep.assertj-core.version>
+        <dep.assertj-guava.version>3.24.2</dep.assertj-guava.version>
+        <dep.caffeine.version>3.1.6</dep.caffeine.version>
+        <dep.checkerframework.version>3.34.0</dep.checkerframework.version>
+        <dep.commons-compress.version>1.23.0</dep.commons-compress.version>
         <dep.commons-text.version>1.10.0</dep.commons-text.version>
-        <dep.derby.version>10.15.2.0</dep.derby.version>
-        <dep.detekt.version>1.21.0-RC2</dep.detekt.version>
-        <dep.dokka.version>1.7.10</dep.dokka.version>
+        <dep.derby.version>10.16.1.1</dep.derby.version>
+        <dep.detekt.version>1.22.0</dep.detekt.version>
+        <dep.dokka.version>1.8.10</dep.dokka.version>
+        <dep.errorprone.version>2.18.0</dep.errorprone.version>
         <dep.flyway.version>7.15.0</dep.flyway.version>
-        <dep.freebuilder.version>2.7.0</dep.freebuilder.version>
-        <dep.guava.version>30.1.1-jre</dep.guava.version>
+        <dep.freebuilder.version>2.8.0</dep.freebuilder.version>
+        <dep.freemarker.version>2.3.32</dep.freemarker.version>
+        <dep.guava.version>31.1-jre</dep.guava.version>
+        <dep.guice.version>5.0.1</dep.guice.version>
         <dep.h2.version>2.1.214</dep.h2.version>
         <!-- leave hikari-cp on 4.x for jdk8 compatibility! -->
         <dep.hikari-cp.version>4.0.3</dep.hikari-cp.version>
@@ -91,24 +95,26 @@
         <dep.jetbrainsAnnotations.version>21.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.9.9</dep.joda-time.version>
         <dep.jts.version>1.19.0</dep.jts.version>
-        <dep.junit5.version>5.9.1</dep.junit5.version>
+        <dep.junit5.version>5.9.3</dep.junit5.version>
         <dep.kotlin.version>1.5.32</dep.kotlin.version>
-        <dep.lombok.version>1.18.24</dep.lombok.version>
-        <dep.mockito.version>4.2.0</dep.mockito.version>
+        <dep.lombok.version>1.18.26</dep.lombok.version>
+        <!-- leave mockito on 4.x for jdk8 compatibility -->
+        <dep.mockito.version>4.11.0</dep.mockito.version>
         <dep.pg-embedded.version>4.2</dep.pg-embedded.version>
-        <dep.plugin.asciidoctor.version>2.2.2</dep.plugin.asciidoctor.version>
-        <dep.plugin.detekt.version>1.21.0.1</dep.plugin.detekt.version>
+        <dep.plugin.asciidoctor.version>2.2.3</dep.plugin.asciidoctor.version>
+        <dep.plugin.detekt.version>1.22.0</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.4.1</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
         <dep.plugin.jacoco.version>0.8.10</dep.plugin.jacoco.version>
-        <dep.plugin.kotlin.version>1.7.10</dep.plugin.kotlin.version>
-        <dep.plugin.ktlint.version>1.15.1</dep.plugin.ktlint.version>
-        <dep.plugin.sortpom.version>3.2.0</dep.plugin.sortpom.version>
-        <dep.postgresql.version>42.5.1</dep.postgresql.version>
+        <dep.plugin.kotlin.version>1.8.21</dep.plugin.kotlin.version>
+        <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
+        <dep.plugin.sortpom.version>3.2.1</dep.plugin.sortpom.version>
+        <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
         <dep.spring.version>5.3.27</dep.spring.version>
+        <dep.sqlite.version>3.41.2.1</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
-        <dep.testcontainers.version>1.17.6</dep.testcontainers.version>
+        <dep.testcontainers.version>1.18.0</dep.testcontainers.version>
         <dep.vavr.version>0.9.3</dep.vavr.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
         <jdbi.check.fail-kotlin>${basepom.check.fail-extended}</jdbi.check.fail-kotlin>
@@ -158,6 +164,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${dep.errorprone.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${dep.guava.version}</version>
@@ -172,7 +184,7 @@
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
-                <version>5.0.1</version>
+                <version>${dep.guice.version}</version>
             </dependency>
 
             <dependency>
@@ -438,19 +450,19 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.21</version>
+                <version>${dep.commons-compress.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.15.0</version>
+                <version>${dep.checkerframework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.xerial</groupId>
                 <artifactId>sqlite-jdbc</artifactId>
-                <version>3.36.0.1</version>
+                <version>${dep.sqlite.version}</version>
             </dependency>
 
             <dependency>
@@ -480,7 +492,7 @@
             <dependency>
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
-                <version>2.3.31</version>
+                <version>${dep.freemarker.version}</version>
             </dependency>
 
             <dependency>
