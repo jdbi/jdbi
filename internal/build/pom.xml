@@ -70,8 +70,7 @@
         <dep.antlr.version>4.12.0</dep.antlr.version>
         <dep.asciidoctorj-diagram.version>2.2.7</dep.asciidoctorj-diagram.version>
         <dep.asciidoctorj.version>2.5.8</dep.asciidoctorj.version>
-        <dep.assertj-core.version>3.24.2</dep.assertj-core.version>
-        <dep.assertj-guava.version>3.24.2</dep.assertj-guava.version>
+        <dep.assertj.version>3.24.2</dep.assertj.version>
         <dep.caffeine.version>3.1.6</dep.caffeine.version>
         <dep.checkerframework.version>3.34.0</dep.checkerframework.version>
         <dep.commons-compress.version>1.23.0</dep.commons-compress.version>
@@ -362,13 +361,20 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>${dep.assertj-core.version}</version>
+                <version>${dep.assertj.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-guava</artifactId>
-                <version>${dep.assertj-guava.version}</version>
+                <version>${dep.assertj.version}</version>
+                <exclusions>
+                    <!-- exclusion is needed, otherwise the version checks on CI fail -->
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
