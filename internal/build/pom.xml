@@ -75,7 +75,8 @@
         <dep.checkerframework.version>3.34.0</dep.checkerframework.version>
         <dep.commons-compress.version>1.23.0</dep.commons-compress.version>
         <dep.commons-text.version>1.10.0</dep.commons-text.version>
-        <dep.derby.version>10.16.1.1</dep.derby.version>
+        <!-- derby 10.16 is JDK 17 only, keep it on 10.15 for now -->
+        <dep.derby.version>10.15.2.0</dep.derby.version>
         <dep.detekt.version>1.22.0</dep.detekt.version>
         <dep.dokka.version>1.8.10</dep.dokka.version>
         <dep.errorprone.version>2.18.0</dep.errorprone.version>
