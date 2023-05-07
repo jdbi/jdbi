@@ -33,7 +33,8 @@
         <basepom.test.skip>true</basepom.test.skip>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
-        <dep.clickhouse.version>0.3.2-patch11</dep.clickhouse.version>
+        <!-- Sigh. Java is really hard. Leave this at 0.3.2, all other versions are worse -->
+        <dep.clickhouse.version>0.3.2</dep.clickhouse.version>
         <dep.mysql.version>8.0.33</dep.mysql.version>
         <dep.oracle-xe.version>23.2.0.0</dep.oracle-xe.version>
         <dep.trino.version>416</dep.trino.version>
