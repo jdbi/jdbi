@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.guava;
 
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.TypeVariable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -143,6 +145,13 @@ public class TestGuavaCollectors {
         assertThat(map)
                 .isInstanceOf(erasedType)
                 .containsExactly(entry(1L, "foo"), entry(2L, "bar"));
+    }
+
+    @Test
+    public void testGuavaCrash() {
+        TypeVariable<Class<Multimap>>[] multimapParams = Multimap.class.getTypeParameters();
+        AnnotatedType[] annotatedBounds = multimapParams[0].getAnnotatedBounds();
+        assertThat(annotatedBounds).isNotNull();
     }
 
     @Test
