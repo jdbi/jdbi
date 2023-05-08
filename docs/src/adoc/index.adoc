@@ -7474,8 +7474,8 @@ To use the plugin, add a Maven dependency:
 </dependency>
 ----
 
-Currently Vavr >= 0.9.0 is supported and tested. The plugin pulls a supported version of
-Vavr and is ready to be used. As with other plugins: install through a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance or use auto install.
+[WARNING]
+Vavr introduced binary incompatibilities between 0.10.x and 1.0.0-alpha. The Jdbi plugin only supports 0.9.x and 0.10.x and requires recompilation for vavr 1.0.0.
 
 [source,java,indent=0]
 ----

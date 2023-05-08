@@ -25,6 +25,4 @@ jobs:
       env:
         MAVEN_CONFIG: "-Dbasepom.test.skip=true -Dbasepom.it.skip=true -B -fae"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install

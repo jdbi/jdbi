@@ -28,6 +28,4 @@ jobs:
       env:
         MAVEN_CONFIG: "-B -fae -Ddep.flyway.version=${{ matrix.flyway-version }}"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install

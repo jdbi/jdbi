@@ -25,6 +25,4 @@ jobs:
       env:
         MAVEN_CONFIG: "-Dbasepom.check.fail-javadoc=true -B -fae"
       run: |
-        ./mvnw --version
-        echo $PATH
         make docs
