@@ -35,8 +35,8 @@ abstract class AbstractJdbiTestcontainersExtensionTest {
     JdbiExtension extension = JdbiTestcontainersExtension.instance(getDbContainer())
         .withInitializer((ds, handle) -> {
             handle.execute(getTableCreateStatement());
-            handle.execute("INSERT INTO users VALUES (1, 'Alice')");
-            handle.execute("INSERT INTO users VALUES (2, 'Bob')");
+            handle.execute("INSERT INTO users VALUES (?, ?)", 1, "Alice");
+            handle.execute("INSERT INTO users VALUES (?, ?)", 2, "Bob");
         });
 
     @Test
