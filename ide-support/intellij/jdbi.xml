@@ -13,11 +13,15 @@
         <emptyLine />
         <package name="javax" withSubpackages="true" static="false" />
         <emptyLine />
+        <package name="jakarta" withSubpackages="true" static="false" />
+        <emptyLine />
         <package name="" withSubpackages="true" static="false" />
         <emptyLine />
         <package name="java" withSubpackages="true" static="true" />
         <emptyLine />
         <package name="javax" withSubpackages="true" static="true" />
+        <emptyLine />
+        <package name="jakarta" withSubpackages="true" static="true" />
         <emptyLine />
         <package name="" withSubpackages="true" static="true" />
       </value>

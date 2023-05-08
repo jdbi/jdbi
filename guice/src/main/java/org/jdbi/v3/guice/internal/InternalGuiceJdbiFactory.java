@@ -15,11 +15,11 @@ package org.jdbi.v3.guice.internal;
 
 import java.util.Set;
 
-import javax.inject.Provider;
-import javax.inject.Singleton;
 import javax.sql.DataSource;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.guice.GuiceJdbiCustomizer;
 

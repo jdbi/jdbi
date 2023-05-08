@@ -17,10 +17,9 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Singleton;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.codec.CodecFactory;

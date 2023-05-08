@@ -16,11 +16,11 @@ package org.jdbi.v3.guice.internal;
 import java.lang.annotation.Annotation;
 
 import javax.annotation.CheckForNull;
-import javax.inject.Inject;
-import javax.inject.Provider;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Provider;
 import com.google.inject.Scope;
 import com.google.inject.TypeLiteral;
 import com.google.inject.binder.LinkedBindingBuilder;

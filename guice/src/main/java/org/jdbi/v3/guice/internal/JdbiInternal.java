@@ -16,8 +16,6 @@ package org.jdbi.v3.guice.internal;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.inject.Qualifier;
-
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
@@ -25,5 +23,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target({FIELD, PARAMETER, METHOD})
-@Qualifier
+@javax.inject.Qualifier
+@jakarta.inject.Qualifier
 public @interface JdbiInternal {}

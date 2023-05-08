@@ -18,12 +18,11 @@ import java.lang.annotation.Target;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Qualifier;
 import javax.sql.DataSource;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.name.Named;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -95,7 +94,8 @@ public class TestCustomConfigurationModule {
 
     @Retention(RUNTIME)
     @Target({FIELD, PARAMETER, METHOD})
-    @Qualifier
+    @javax.inject.Qualifier
+    @jakarta.inject.Qualifier
     public @interface CustomTest {}
 
     static class CustomModule extends AbstractJdbiConfigurationModule {

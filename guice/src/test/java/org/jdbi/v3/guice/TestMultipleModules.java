@@ -15,9 +15,9 @@ package org.jdbi.v3.guice;
 
 import java.lang.annotation.Annotation;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Named;
