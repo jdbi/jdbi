@@ -11,3 +11,7 @@ trim_trailing_whitespace = false
 
 [*.yml]
 indent_size = 2
+
+[*.kt]
+ij_kotlin_allow_trailing_comma_on_call_site=false
+ij_kotlin_allow_trailing_comma=false

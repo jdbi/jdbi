@@ -133,3 +133,28 @@ jobs:
         ./mvnw --version
         echo $PATH
         make install
+
+  guice:
+    name: Test guice versions
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test-version: [ 5.0.1, 5.1.0, 6.0.0-rc2 ]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+        cache: maven
+
+    - name: Build
+      env:
+        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
+      run: |
+        ./mvnw --version
+        echo $PATH
+        make install
