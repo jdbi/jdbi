@@ -6116,15 +6116,22 @@ jdbi.installPlugin(new JodaTimePlugin());
 [CAUTION]
 Guice support is experimental.
 
-The Guice module adds support for configuring and injecting link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances in applications and services that use the https://github.com/google/guice/wiki[Google Guice ^] dependency injection framework.
+The Guice module adds support for configuring and injecting link:{jdbidocs}/core/Jdbi.html[Jdbi^] instances in applications and services that use the https://github.com/google/guice/wiki[Google Guice^] dependency injection framework.
 
 Guice support for Jdbi is split into two module types:
 
-* *Jdbi definition modules* extend the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] class. Each of these modules creates a new link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance which is exposed into the Guice binding process using an annotation.
-* *Jdbi element configuration modules* extend the link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^]. These modules contribute elements that are referenced in Jdbi definition modules.
+* *A Jdbi definition module* extends the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html[AbstractJdbiDefinitionModule^] class. Each of these modules creates a new link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance which is exposed into the Guice binding process using an annotation.
+* *A Jdbi element configuration module* extends the link:{jdbidocs}/guice/AbstractJdbiConfigurationModule.html[AbstractJdbiConfigurationModule^]. These modules contribute elements that are referenced in Jdbi definition modules.
 
 [NOTE]
 Jdbi definition modules are by far more common. Element configuration modules are completely optional. They are most useful in larger projects.
+
+
+==== JSR 330 vs. JEE 9+ annotations
+
+For a long time, Java used the https://javax-inject.github.io/javax-inject/[JSR-330^] annotations in the `javax.inject` namespace to define dependency injections. The https://jakarta.ee/release/9/[Java Enterprise Edition 9^] specification updated the dependency injection specification to https://jakarta.ee/specifications/dependency-injection/2.0/[version 2.0^], which changed the namespace to `jakarta.inject`.
+
+The `jdbi3-guice` module supports all Google Guice releases since 5.x including 6.x (which uses `javax.inject` annotations) and 7.x (which uses `jakarta.inject`).
 
 
 ==== Definition modules

@@ -15,11 +15,11 @@ package org.jdbi.v3.guice;
 
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.sql.DataSource;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;

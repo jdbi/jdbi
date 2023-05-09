@@ -16,13 +16,12 @@ package org.jdbi.v3.guice.util;
 import java.io.IOException;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.generic.GenericType;
@@ -44,8 +43,7 @@ public class JsonCodec implements Codec<ImmutableMap<String, Object>> {
     public ColumnMapper<ImmutableMap<String, Object>> getColumnMapper() {
         return (rs, c, ctx) -> {
             try {
-                ImmutableMap<String, Object> result = mapper.readValue(rs.getString(c), new TypeReference<ImmutableMap<String, Object>>() {});
-                return result;
+                return mapper.readValue(rs.getString(c), new TypeReference<ImmutableMap<String, Object>>() {});
             } catch (IOException e) {
                 throw Sneaky.throwAnyway(e);
             }

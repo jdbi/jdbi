@@ -30,8 +30,6 @@ jobs:
       env:
         MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install
 
   immutables:
@@ -55,8 +53,6 @@ jobs:
       env:
         MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install
 
   jackson2:
@@ -80,8 +76,6 @@ jobs:
       env:
         MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install
 
   jodatime2:
@@ -105,8 +99,6 @@ jobs:
       env:
         MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install
 
   vavr:
@@ -130,8 +122,6 @@ jobs:
       env:
         MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install
 
   guice:
@@ -140,7 +130,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 5.0.1, 5.1.0, 6.0.0-rc2 ]
+        test-version: [ 5.0.1, 5.1.0, 6.0.0-rc2, 7.0.0-rc1 ]
 
     steps:
     - uses: actions/checkout@v3
@@ -153,8 +143,12 @@ jobs:
 
     - name: Build
       env:
-        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-guice"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install
+
+    - name: Test
+      env:
+        MAVEN_CONFIG: "-B -fae -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
+      run: |
+        make tests

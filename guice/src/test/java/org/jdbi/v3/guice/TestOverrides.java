@@ -14,13 +14,12 @@
 package org.jdbi.v3.guice;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
-import javax.inject.Named;
 import javax.sql.DataSource;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.name.Named;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -103,7 +102,7 @@ public class TestOverrides {
     }
 
     @Test
-    public void testDifferentMappers() throws Exception {
+    public void testDifferentMappers() {
         final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
         ColumnMapper<String> unqualifiedMapper = columnMappers.findFor(String.class)
             .orElseThrow(IllegalStateException::new);
@@ -132,7 +131,7 @@ public class TestOverrides {
     }
 
     @Test
-    public void testUnqualifiedQualified() throws Exception {
+    public void testUnqualifiedQualified() {
         final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
 
         // lookup by type
@@ -183,7 +182,7 @@ public class TestOverrides {
         }
 
         @Override
-        public String map(ResultSet rs, StatementContext ctx) throws SQLException {
+        public String map(ResultSet rs, StatementContext ctx) {
             return mode;
         }
     }
@@ -197,7 +196,7 @@ public class TestOverrides {
         }
 
         @Override
-        public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+        public String map(ResultSet r, int columnNumber, StatementContext ctx) {
             return mode;
         }
     }

@@ -20,14 +20,13 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-import javax.inject.Singleton;
 import javax.sql.DataSource;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import org.h2.jdbcx.JdbcDataSource;
@@ -95,7 +94,8 @@ public class TestMultipleConfigurationModules {
 
     @Retention(RUNTIME)
     @Target({FIELD, PARAMETER, METHOD})
-    @Qualifier
+    @javax.inject.Qualifier
+    @jakarta.inject.Qualifier
     public @interface Foo {}
 
     @Test
