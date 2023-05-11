@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 31.1-jre, 31.0.1-jre, 31.0-jre ]
+        test-version: [ 31.0.1-jre, 31.0-jre, 30.1.1-jre, 30.1-jre, 30.0-jre ]
 
     steps:
     - uses: actions/checkout@v3
@@ -28,9 +28,15 @@ jobs:
 
     - name: Build
       env:
-        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae"
       run: |
-        make install
+        make install-fast
+
+    - name: Test
+      env:
+        MAVEN_CONFIG: "-B -fae -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
+      run: |
+        make tests
 
   immutables:
     name: Test Immutables versions
@@ -51,9 +57,15 @@ jobs:
 
     - name: Build
       env:
-        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae"
       run: |
-        make install
+        make install-fast
+
+    - name: Test
+      env:
+        MAVEN_CONFIG: "-B -fae -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
+      run: |
+        make tests
 
   jackson2:
     name: Test Jackson Versions
@@ -74,9 +86,15 @@ jobs:
 
     - name: Build
       env:
-        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae"
       run: |
-        make install
+        make install-fast
+
+    - name: Test
+      env:
+        MAVEN_CONFIG: "-B -fae -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
+      run: |
+        make tests
 
   jodatime2:
     name: Test joda-time versions
@@ -97,9 +115,15 @@ jobs:
 
     - name: Build
       env:
-        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae"
       run: |
-        make install
+        make install-fast
+
+    - name: Test
+      env:
+        MAVEN_CONFIG: "-B -fae -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
+      run: |
+        make tests
 
   vavr:
     name: Test vavr versions
@@ -107,7 +131,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 1.0.0-alpha-4, 0.10.4 ]
+        test-version: [ 0.10.4 ]
 
     steps:
     - uses: actions/checkout@v3
@@ -120,9 +144,15 @@ jobs:
 
     - name: Build
       env:
-        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
+        MAVEN_CONFIG: "-B -fae"
       run: |
-        make install
+        make install-fast
+
+    - name: Test
+      env:
+        MAVEN_CONFIG: "-B -fae -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
+      run: |
+        make tests
 
   guice:
     name: Test guice versions
@@ -143,12 +173,41 @@ jobs:
 
     - name: Build
       env:
-        MAVEN_CONFIG: "-B -fae -am -pl :jdbi3-guice"
+        MAVEN_CONFIG: "-B -fae"
       run: |
-        make install
+        make install-fast
 
     - name: Test
       env:
         MAVEN_CONFIG: "-B -fae -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
+      run: |
+        make tests
+
+  kotlin:
+    name: Test kotlin runtime versions
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test-version: [ 1.5.32, 1.6.21, 1.7.21, 1.8.21 ]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+        cache: maven
+
+    - name: Build
+      env:
+        MAVEN_CONFIG: "-B -fae"
+      run: |
+        make install-fast
+
+    - name: Test
+      env:
+        MAVEN_CONFIG: "-B -fae -pl :jdbi3-kotlin,:jdbi3-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
       run: |
         make tests

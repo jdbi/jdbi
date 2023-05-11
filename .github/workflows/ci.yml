@@ -47,8 +47,6 @@ jobs:
         JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
         MAVEN_CONFIG: "-Pfast -Dbasepom.check.skip-enforcer=false -B -fae"
       run: |
-        ./mvnw --version
-        echo $PATH
         make install
 
     - name: set test_jdk
@@ -62,6 +60,4 @@ jobs:
         JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
         MAVEN_CONFIG: "-B -fae"
       run: |
-        ./mvnw --version
-        echo $PATH
         make tests
