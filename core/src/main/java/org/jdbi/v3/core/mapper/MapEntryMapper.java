@@ -25,6 +25,8 @@ import java.util.Optional;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import static java.lang.String.format;
+
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
 
@@ -69,12 +71,12 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
         if (column == null) {
             return config.get(RowMappers.class)
                     .findFor(keyType)
-                    .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for map key " + keyType));
+                    .orElseThrow(() -> new NoSuchMapperException(format("Map key column is not declared (missing @KeyColumn annotation?) and no row mapper for key type '%s' is registered!", keyType)));
         } else {
             return config.get(ColumnMappers.class)
                     .findFor(keyType)
                     .map(mapper -> new SingleColumnMapper<>(mapper, column))
-                    .orElseThrow(() -> new NoSuchMapperException("No column mapper registered for map key " + keyType + " in column " + column));
+                    .orElseThrow(() -> new NoSuchMapperException(format("Type '%s' for map key column '%s' has no column mapper registered!", keyType, column)));
         }
     }
 
@@ -83,12 +85,12 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
         if (column == null) {
             return config.get(RowMappers.class)
                     .findFor(valueType)
-                    .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for map value " + valueType));
+                    .orElseThrow(() -> new NoSuchMapperException(format("Map value column is not declared (missing @ValueColumn annotation?) and no row mapper for value type '%s' is registered!", valueType)));
         } else {
             return config.get(ColumnMappers.class)
                     .findFor(valueType)
                     .map(mapper -> new SingleColumnMapper<>(mapper, column))
-                    .orElseThrow(() -> new NoSuchMapperException("No column mapper registered for map value " + valueType + " in column " + column));
+                    .orElseThrow(() -> new NoSuchMapperException(format("Type '%s' for map value column '%s' has no column mapper registered!", valueType, column)));
         }
     }
 

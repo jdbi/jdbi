@@ -1,4 +1,7 @@
 # Unreleased
+
+  - allow unknown result mappers during `ResultReturner` warmup. This restores the pre-3.38.0 behavior
+    where SQLObject classes with invalid methods could be used unless a method is explicitly called (#2342)
   - document vavr incompatibility between 0.10.x and 1.0.0-alpha (#2350)
   - Handle.inTransaction: improve exception thrown when restoring transaction isolation #2343
   - add support for Guice 6.x (using javax.inject annotations) and guice 7.x (using jakarta.inject annotations)
