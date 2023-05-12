@@ -12,20 +12,18 @@
 ~   See the License for the specific language governing permissions and
 ~   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.basepom</groupId>
-        <artifactId>basepom-oss</artifactId>
-        <version>52</version>
-        <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
-        <relativePath />
+        <groupId>org.jdbi.internal</groupId>
+        <artifactId>jdbi3-root</artifactId>
+        <version>3.38.3-SNAPSHOT</version>
+        <relativePath>../root</relativePath>
     </parent>
 
-    <groupId>org.jdbi.internal</groupId>
+    <groupId>org.jdbi</groupId>
     <artifactId>jdbi3-build-parent</artifactId>
-    <version>3.38.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jdbi3 - internal - build parent</name>
