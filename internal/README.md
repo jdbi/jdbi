@@ -10,17 +10,17 @@ The pom inheritance model is:
                       basepom-oss (org.basepom:basepom-oss)
                                         |
                                         v
-      +------------ jdbi3-root (org.jdbi.internal:jdbi3-root) -----------+
-      |                                                                  |
-      |                                                                  |
-      |                                                                  v
-      |                                         jdbi3-policy (org.jdbi.internal:jdbi3-policy)
-      |                                                                  .
-      |                                            .......................
-      |                                            .
-      v                                            v
-  jdbi3-build-parent (org.jdbi:jdbi3-build-parent) -----------------------------------+
-                           |                                                          |
+      +------- jdbi3-root (org.jdbi.internal:jdbi3-root) ------+
+      |                                                        |
+      |                                                        |
+      |                                                        v
+      |                            jdbi3-policy (org.jdbi.internal:jdbi3-policy)
+      |                                                        .
+      |                                  .......................
+      |                                  .
+      v                                  v
+    jdbi3-build-parent (org.jdbi:jdbi3-build-parent) ---------------------------------+-- ... --> external
+                           |                                                          |           modules
                            v                                                          |
    +--+--+--+----  jdbi3-parent (org.jdbi.internal:jdbi3-parent) .................    |
    |  |  |  |                                  |                                 .    |
@@ -78,9 +78,9 @@ This ensures that the jdbi3-foo module can be build and released off the Jdbi ma
 External projects should use this in their root pom files:
 
 ``` xml
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="https://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
