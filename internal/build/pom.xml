@@ -59,6 +59,7 @@
         <basepom.at-end.deploy>true</basepom.at-end.deploy>
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <basepom.it.timeout>600</basepom.it.timeout>
+        <basepom.javadoc.exclude-package-names>*.internal.*:*.internal</basepom.javadoc.exclude-package-names>
         <basepom.maven.version>3.9.0</basepom.maven.version>
         <basepom.nexus-staging.staging-url>https://oss.sonatype.org/</basepom.nexus-staging.staging-url>
         <basepom.release.profiles>basepom.deploy-release,jdbi-release</basepom.release.profiles>
@@ -104,7 +105,6 @@
         <dep.plugin.detekt.version>1.22.0</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.4.1</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
-        <dep.plugin.jacoco.version>0.8.10</dep.plugin.jacoco.version>
         <dep.plugin.kotlin.version>1.8.21</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>3.2.1</dep.plugin.sortpom.version>
@@ -592,7 +592,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
-                        <excludePackageNames>*.internal.*:*.internal</excludePackageNames>
                         <links>
                             <link>https://google.github.io/guice/api-docs/4.0/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
@@ -727,7 +726,6 @@
                     <artifactId>maven-pmd-plugin</artifactId>
                     <configuration>
                         <analysisCache>true</analysisCache>
-                        <verbose>true</verbose>
                         <rulesets>
                             <ruleset>policy/pmd.xml</ruleset>
                         </rulesets>
