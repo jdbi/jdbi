@@ -16,12 +16,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jdbi</groupId>
+        <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
         <version>3.38.3-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-internal-parent</artifactId>
     <packaging>pom</packaging>
 
@@ -29,6 +28,7 @@
     <description>This is a Jdbi internal module and not part of the public API.</description>
 
     <modules>
+        <module>root</module>
         <module>policy</module>
         <module>build</module>
     </modules>

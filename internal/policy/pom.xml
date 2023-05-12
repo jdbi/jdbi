@@ -16,35 +16,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>basepom-oss</artifactId>
-        <groupId>org.basepom</groupId>
-        <version>52</version>
-        <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
-        <relativePath />
+        <groupId>org.jdbi.internal</groupId>
+        <artifactId>jdbi3-root</artifactId>
+        <version>3.38.3-SNAPSHOT</version>
+        <relativePath>../root</relativePath>
     </parent>
 
-    <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-policy</artifactId>
-    <version>3.38.3-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <name>jdbi3 - internal - policy</name>
     <description>
         Jdbi3 policy files. This is a Jdbi internal module and not part of the public API.
     </description>
-
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <id>jdbi</id>
-            <name>The Jdbi Team</name>
-            <url>https://github.com/jdbi/jdbi/blob/master/CONTRIBUTORS.md</url>
-        </developer>
-    </developers>
 </project>
