@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-oss</artifactId>
-        <version>52</version>
+        <version>53</version>
         <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
         <relativePath />
     </parent>
