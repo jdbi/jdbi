@@ -6,7 +6,29 @@ You have followed the steps on https://central.sonatype.org/pages/ossrh-guide.ht
 to set up your Sonatype account, and have uploaded your GNUPG key to the key server
 at http://pool.sks-keyservers.net/
 
-## Create a release branch off of the latest master
+## Before you begin
+
+These are the release steps that need to be done:
+
+Mandatory:
+
+* Create a release branch off the latest master
+* Update release notes and documentation page
+* Build the release locally
+* Publish the release to Maven Central
+* Release the code changes to github
+* Publish the documentation
+* Add a release announcement to github
+
+Optional:
+
+* Publish release announcement to the mailing list
+* Release additional Modules
+
+All build steps are described in detail below. If unsure, please follow the instructions below.
+
+
+## Create a release branch off the latest master
 
 Name it `jdbi-<version>-release`.
 
@@ -26,9 +48,21 @@ $ git pull
 $ git checkout -b jdbi-<version>-release master
 ```
 
-## Update release notes
+## Update release notes and documentation page
 
-Double check that release notes contain all the most important changes for the release.
+Double check that release notes file (`RELEASE_NOTES.md` in the root
+folder) contains all the most important changes for the release.
+
+Open the main documentation file (`docs/src/adoc/index.adoc`), find the `== Release documentation` line and
+add a new link to the permanent release documentation for the new release:
+
+```
+* https://jdbi.org/releases/<version>[Release <version> - <date>^]
+```
+
+where `<version>` is the release version and `<date>` the current date in ISO8601 format.
+
+_*PLEASE DO NOT RELEASE BEFORE UPDATING THE `RELEASE_NOTES.md` and the `index.adoc` file!*_
 
 
 ## Build the release on your workstation
@@ -67,7 +101,10 @@ unsupported and a workaround in very specific situations and may break
 at any point.
 
 
-## Publish the release to Central in oss.sonatype.org
+## Publish the release to Maven Central
+
+*THIS IS NOT THE LAST RELEASE STEP!* After pushing the code out, please wrap up
+by pushing the code changes below and also publish the documentation web site!
 
 - Open oss.sonatype.org and log in
 - Click Staging Repositories
@@ -84,7 +121,7 @@ at any point.
   it disappear from the search.
 
 
-## Release code changes to github
+## Release the code changes to github
 
 Push release release branch and tag to Github, then merge the release branch back to the master:
 
@@ -96,7 +133,7 @@ $ git merge --ff-only jdbi-<version>-release
 $ git push master
 ```
 
-## Publish the docs
+## Publish the documentation
 
 Check out the release tag from Git, and run publish target to update the docs on jdbi.org:
 
@@ -109,8 +146,9 @@ $ MAVEN_CONFIG=-Pjdbi-release make publish-docs
 
 - open https://github.com/jdbi/jdbi, click on "Releases"
 - "Draft a new Release"
-- Select the just pushed Tag, use Release title "JDBI &lt;version&gt;"
+- Select the just pushed Tag, use Release title *JDBI <version>*
 - paste the line items from the Release notes into the "Describe this release" text box
+- Please make sure that the `Set as the latest release` and `Create a discussion for the release` checkboxes are selected
 - Click "Publish release"
 
 
@@ -127,8 +165,9 @@ Include in the message:
 Send it to the mailing list: jdbi@googlegroups.com
 
 
-## Additional Modules
+## Release additional Modules
 
 A small number of JDBI3 modules is maintained outside the main build. Consider releasing those as well:
 
 * [JDBI3 Oracle support](https://github.com/jdbi/jdbi3-oracle12)
+* [JDBI3 Guava cache module](https://github.com/jdbi/jdbi3-guava-cache)
