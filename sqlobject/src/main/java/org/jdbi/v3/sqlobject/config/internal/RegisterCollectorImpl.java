@@ -7,16 +7,26 @@ import org.jdbi.v3.sqlobject.config.RegisterCollector;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 public class RegisterCollectorImpl extends SimpleExtensionConfigurer {
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> extensionType) {
         RegisterCollector registerCollector = (RegisterCollector) annotation;
-        JdbiCollectors mappers = config.get(JdbiCollectors.class);
+        JdbiCollectors collectors = config.get(JdbiCollectors.class);
+
         try {
-            Class<?> type = (Class<?>) ((ParameterizedType) getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[2]; //gets resultant type of collector
-            mappers.registerCollector(type.getGenericSuperclass(), registerCollector.value().getConstructor().newInstance());
+            Type type = null; //resultant type
+            for(Type t : registerCollector.value().getGenericInterfaces()) {
+                if(t instanceof ParameterizedType pt) {
+                    if(pt.getRawType().toString().equals("interface Collector")) {
+                        type = pt.getActualTypeArguments()[2];
+                        break;
+                    }
+                }
+            }
+            if(type == null) throw new IllegalArgumentException("Tried to pass non-collector object to @RegisterCollector");
+            collectors.registerCollector(type, registerCollector.value().getConstructor().newInstance());
         } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate collector class " + registerCollector.value(), e);
         }
