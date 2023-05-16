@@ -133,14 +133,15 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <excludes combine.children="append">
-                                <exclude>**/TestReadOnly.*</exclude>
-                                <exclude>**/TestSqlLocator.*</exclude>
-                                <exclude>**/TestPostgresBugs.*</exclude>
-                                <exclude>**/TestPostgresRefcursorProc.*</exclude>
-                                <exclude>**/TestOutParameterAnnotation.*</exclude>
+                                <exclude>**/MapResultTest.*</exclude>
                                 <exclude>**/TestGetGeneratedKeysPostgres$*.*</exclude>
                                 <exclude>**/TestGetGeneratedKeysPostgres.*</exclude>
+                                <exclude>**/TestOutParameterAnnotation.*</exclude>
+                                <exclude>**/TestPostgresBugs.*</exclude>
+                                <exclude>**/TestPostgresRefcursorProc.*</exclude>
+                                <exclude>**/TestReadOnly.*</exclude>
                                 <exclude>**/TestRegisterJoinRowMapper.*</exclude>
+                                <exclude>**/TestSqlLocator.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

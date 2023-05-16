@@ -25,6 +25,7 @@ import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.Mappers;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultIterable;
@@ -117,8 +118,13 @@ abstract class ResultReturner {
     protected abstract QualifiedType<?> elementType(ConfigRegistry config);
 
     protected void warm(ConfigRegistry config) {
-        Optional.ofNullable(elementType(config))
-                .ifPresent(config.get(Mappers.class)::findFor);
+        try {
+            Optional.ofNullable(elementType(config))
+                    .ifPresent(config.get(Mappers.class)::findFor);
+        } catch (NoSuchMapperException ignore) {
+            // if the result mapper is not available during warming up,
+            // simply ignore it.
+        }
     }
 
     private static Object checkResult(Object result, QualifiedType<?> type) {
