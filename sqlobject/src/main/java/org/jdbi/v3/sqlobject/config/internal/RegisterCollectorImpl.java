@@ -18,7 +18,8 @@ public class RegisterCollectorImpl extends SimpleExtensionConfigurer {
         try {
             Type type = null; //resultant type
             for(Type t : registerCollector.value().getGenericInterfaces()) {
-                if(t instanceof ParameterizedType pt) {
+                if(t instanceof ParameterizedType) {
+                    ParameterizedType pt = (ParameterizedType) t;
                     if(pt.getRawType().toString().equals("interface Collector")) {
                         type = pt.getActualTypeArguments()[2];
                         break;
