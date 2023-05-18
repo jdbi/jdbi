@@ -100,7 +100,7 @@
         <dep.lombok.version>1.18.26</dep.lombok.version>
         <!-- leave mockito on 4.x for jdk8 compatibility -->
         <dep.mockito.version>4.11.0</dep.mockito.version>
-        <dep.pg-embedded.version>4.2</dep.pg-embedded.version>
+        <dep.pg-embedded.version>5.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.3</dep.plugin.asciidoctor.version>
         <dep.plugin.detekt.version>1.22.0</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.4.1</dep.plugin.flatten.version>
