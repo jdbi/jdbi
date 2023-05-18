@@ -160,7 +160,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 5.0.1, 5.1.0, 6.0.0-rc2, 7.0.0-rc1 ]
+        test-version: [ 5.0.1, 5.1.0, 6.0.0, 7.0.0 ]
 
     steps:
     - uses: actions/checkout@v3
