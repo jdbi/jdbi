@@ -103,8 +103,8 @@
         <dep.pg-embedded.version>5.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.3</dep.plugin.asciidoctor.version>
         <dep.plugin.detekt.version>1.22.0</dep.plugin.detekt.version>
-        <dep.plugin.flatten.version>1.4.1</dep.plugin.flatten.version>
-        <dep.plugin.inline.version>1.0.1</dep.plugin.inline.version>
+        <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
+        <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
         <dep.plugin.kotlin.version>1.8.21</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>3.2.1</dep.plugin.sortpom.version>
