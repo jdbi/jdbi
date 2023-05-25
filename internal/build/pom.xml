@@ -111,7 +111,7 @@
         <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
         <dep.spring.version>5.3.27</dep.spring.version>
-        <dep.sqlite.version>3.41.2.1</dep.sqlite.version>
+        <dep.sqlite.version>3.41.2.2</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
         <dep.testcontainers.version>1.18.0</dep.testcontainers.version>
         <dep.vavr.version>0.9.3</dep.vavr.version>
