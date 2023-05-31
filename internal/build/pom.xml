@@ -66,8 +66,8 @@
         <basepom.release.tag-name-format>v@{project.version}</basepom.release.tag-name-format>
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.timeout>240</basepom.test.timeout>
-        <dep.antlr.version>4.12.0</dep.antlr.version>
-        <dep.asciidoctorj-diagram.version>2.2.7</dep.asciidoctorj-diagram.version>
+        <dep.antlr.version>4.13.0</dep.antlr.version>
+        <dep.asciidoctorj-diagram.version>2.2.8</dep.asciidoctorj-diagram.version>
         <dep.asciidoctorj.version>2.5.8</dep.asciidoctorj.version>
         <dep.assertj.version>3.24.2</dep.assertj.version>
         <dep.caffeine.version>3.1.6</dep.caffeine.version>
@@ -101,7 +101,7 @@
         <!-- leave mockito on 4.x for jdk8 compatibility -->
         <dep.mockito.version>4.11.0</dep.mockito.version>
         <dep.pg-embedded.version>5.0</dep.pg-embedded.version>
-        <dep.plugin.asciidoctor.version>2.2.3</dep.plugin.asciidoctor.version>
+        <dep.plugin.asciidoctor.version>2.2.4</dep.plugin.asciidoctor.version>
         <dep.plugin.detekt.version>1.22.0</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
