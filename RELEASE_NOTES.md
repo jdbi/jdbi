@@ -1,5 +1,6 @@
 # Unreleased
 
+# 3.38.3
   - allow unknown result mappers during `ResultReturner` warmup. This restores the pre-3.38.0 behavior
     where SQLObject classes with invalid methods could be used unless a method is explicitly called (#2342)
   - document vavr incompatibility between 0.10.x and 1.0.0-alpha (#2350)
