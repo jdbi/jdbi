@@ -2,9 +2,41 @@
 
 ## Prerequisites
 
-You have followed the steps on https://central.sonatype.org/pages/ossrh-guide.html
-to set up your Sonatype account, and have uploaded your GNUPG key to the key server
-at http://pool.sks-keyservers.net/
+* You have followed the steps on https://central.sonatype.org/pages/ossrh-guide.html
+to set up your Sonatype account. This account is required to push the release onto oss.sonatype.org and from there to Maven Central.
+* You have created and uploaded a GNUPG key to the key server  at http://pool.sks-keyservers.net/. Maven Central requires all releases to be signed with a GnuPG key.
+* You have created a Personal Access Token (PAT) on github that has `repo` permissions. This token is required to deploy the documentation site. With fine-grained Personal Access Tokens, this token can be scoped to allow access only to specific repositories, in this case use `jdbi/jdbi.github.io` as the repository.
+
+### Setting up Maven `settings.xml`
+
+Create the following entries in the `~/.m2/settings.xml` file (or the specific location for the Maven settings file on your system):
+
+```xml
+ <servers>
+  <server>
+    <id>sonatype-nexus-staging</id>
+    <username>... Your Sonatype OSS user name ...</username>
+    <password>... Your Sonatype OSS password ...</password>
+  </server>
+  <server>
+    <id>github</id>
+    <username>git</username>
+    <password>... Your github PAT ...</password>
+  </server>
+</servers>
+```
+
+These two entries are required to create releases for the Jdbi project. If you want to be able to also push snapshots to Sonatype, please add
+
+```xml
+ <servers>
+  <server>
+    <id>sonatype-nexus-snapshots</id>
+    <username>... Your Sonatype OSS user name ...</username>
+    <password>... Your Sonatype OSS password ...</password>
+  </server>
+</servers>
+```
 
 ## Before you begin
 
