@@ -29,6 +29,8 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
+import static java.lang.String.format;
+
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
     private final Function<Update, Object> resultTransformer;
@@ -69,7 +71,9 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
             this.resultTransformer = update -> update.execute() > 0;
             this.resultReturner = null;
         } else {
-            throw new UnableToCreateSqlObjectException(invalidReturnTypeMessage(method, returnType));
+            throw new UnableToCreateSqlObjectException(format(
+                    "%s.%s method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: %s",
+                    method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
         }
     }
 
@@ -100,11 +104,5 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
     private boolean isBoolean(Class<?> type) {
         return type.equals(boolean.class) || type.equals(Boolean.class);
-    }
-
-    private String invalidReturnTypeMessage(Method method, QualifiedType<?> returnType) {
-        return method.getDeclaringClass().getSimpleName() + "." + method.getName()
-                + " method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: "
-                + returnType;
     }
 }
