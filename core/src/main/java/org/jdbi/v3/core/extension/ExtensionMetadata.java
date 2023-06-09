@@ -304,7 +304,15 @@ public final class ExtensionMetadata {
             this.extensionContext = ExtensionContext.forExtensionMethod(methodConfig, extensionType, method);
 
             this.extensionHandler = extensionHandler;
-            this.extensionHandler.warm(methodConfig);
+
+            try {
+                this.extensionHandler.warm(methodConfig);
+            } catch (Exception e) {
+                // if fail fast is requested, fail right at warmup time.
+                if (config.get(Extensions.class).isFailFast()) {
+                    throw new UnableToCreateExtensionException(e, "While inspecting %s: %s", method, e.getMessage());
+                }
+            }
         }
 
         /**

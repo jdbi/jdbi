@@ -19,6 +19,9 @@ import java.util.UUID;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.extension.Extensions;
+import org.jdbi.v3.core.extension.UnableToCreateExtensionException;
+import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.config.KeyColumn;
@@ -31,6 +34,9 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Verifies that an incomplete method on a sql dao only affects the other methods in the dao when the config flag is set.
+ */
 public class MapResultTest {
 
     @RegisterExtension
@@ -56,7 +62,16 @@ public class MapResultTest {
     }
 
     @Test
-    public void testMapResult() {
+    public void testBadMethodFails() {
+        // verify that the getValuesMissingAnnotation method does not work.
+        assertThatThrownBy(() -> jdbi.withExtension(MapDao.class, dao -> dao.getValuesMissingAnnotation(1)))
+                .isInstanceOf(NoSuchMapperException.class)
+                .hasMessageContaining(
+                        "Map key column is not declared (missing @KeyColumn annotation?) and no row mapper for key type 'class java.lang.String' is registered!");
+    }
+
+    @Test
+    public void testGoodMethodWorksByDefault() {
         Map<String, JsonBean> result = jdbi.withExtension(MapDao.class, dao -> dao.getValues(1));
 
         assertThat(result).isNotNull().hasSize(1);
@@ -68,12 +83,14 @@ public class MapResultTest {
     }
 
     @Test
-    public void testNoKeyColumn() {
-        assertThatThrownBy(() -> jdbi.withExtension(MapDao.class, dao -> dao.getValuesMissingAnnotation(1)))
+    public void testGoodMethodFailsWhenRequested() {
+        jdbi.configure(Extensions.class, Extensions::failFast);
+        assertThatThrownBy(() -> jdbi.withExtension(MapDao.class, dao -> dao.getValues(1)))
+                .isInstanceOf(UnableToCreateExtensionException.class)
+                .hasMessageContaining("getValuesMissingAnnotation")
                 .hasMessageContaining(
                         "Map key column is not declared (missing @KeyColumn annotation?) and no row mapper for key type 'class java.lang.String' is registered!");
     }
-
 
     public static final class JsonBean {
 

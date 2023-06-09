@@ -41,7 +41,8 @@ public class Extensions implements JdbiConfig<Extensions> {
     private final List<ExtensionHandlerFactory> extensionHandlerFactories;
     private final List<ConfigCustomizerFactory> configCustomizerFactories;
 
-    private boolean allowProxy = true;
+    private boolean allowProxy;
+    private boolean failFast;
 
     private ConfigRegistry registry;
 
@@ -59,6 +60,10 @@ public class Extensions implements JdbiConfig<Extensions> {
         extensionHandlerCustomizers = new CopyOnWriteArrayList<>();
         extensionHandlerFactories = new CopyOnWriteArrayList<>();
         configCustomizerFactories = new CopyOnWriteArrayList<>();
+
+        allowProxy = true;
+        failFast = false;
+
         // default handler factories for bridge and default methods
         internalRegisterHandlerFactory(DefaultMethodExtensionHandlerFactory.INSTANCE);
         internalRegisterHandlerFactory(BridgeMethodExtensionHandlerFactory.INSTANCE);
@@ -78,12 +83,14 @@ public class Extensions implements JdbiConfig<Extensions> {
      * @param that the configuration to clone
      */
     private Extensions(Extensions that) {
-        allowProxy = that.allowProxy;
         extensionFactories = new CopyOnWriteArrayList<>(that.extensionFactories);
         extensionMetadataCache = new CopyOnWriteHashMap<>(that.extensionMetadataCache);
         extensionHandlerCustomizers = new CopyOnWriteArrayList<>(that.extensionHandlerCustomizers);
         extensionHandlerFactories = new CopyOnWriteArrayList<>(that.extensionHandlerFactories);
         configCustomizerFactories = new CopyOnWriteArrayList<>(that.configCustomizerFactories);
+
+        allowProxy = that.allowProxy;
+        failFast = that.failFast;
     }
 
     @Override
@@ -155,7 +162,7 @@ public class Extensions implements JdbiConfig<Extensions> {
 
     /**
      * Create an extension instance if a factory accepts the extension type.
-     *
+     * <br>
      * <b>This method requires access to a {@link HandleSupplier}, which is only useful either from
      * within an extension implementation of inside the Jdbi code. It should rarely be called by
      * user code.</b>
@@ -266,6 +273,32 @@ public class Extensions implements JdbiConfig<Extensions> {
     public boolean isAllowProxy() {
         return allowProxy;
     }
+
+    /**
+     * Fail fast if any method in an Extension object is misconfigured and can not be warmed. Default is to
+     * fail when a method is used for the first time.
+     *
+     * @return this
+     * @since 3.39.0
+     */
+    @Alpha
+    public Extensions failFast() {
+        this.failFast = true;
+
+        return this;
+    }
+
+    /**
+     * Returns true if misconfigured extension objects fail fast.
+     *
+     * @return True if misconfigured extension objects fail fast.
+     * @since 3.39.0
+     */
+    @Alpha
+    public boolean isFailFast() {
+        return failFast;
+    }
+
 
     @Override
     public Extensions createCopy() {

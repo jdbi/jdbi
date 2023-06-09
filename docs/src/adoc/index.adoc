@@ -3262,9 +3262,13 @@ See <<JdbiConfig>> for more advanced implementation details.
 ! link:{jdbidocs}/core/enums/EnumStrategy.html#BY_ORDINAL[BY_ORDINAL^] ! map the ordinal number of the enum value from and to the database column
 !===
 
-| link:{jdbidocs}/core/extension/Extensions.html[Extensions^] | allowProxy
+.2+| link:{jdbidocs}/core/extension/Extensions.html[Extensions^] | allowProxy
     | boolean  | `true`
     | Whether Jdbi is allowed to create link:{jdkdocs}/java/lang/reflect/Proxy.html[proxy ^] instances for classes (as extension and on-demand reference). This is useful for debugging when using the generator to create java classes for sql objects.
+
+| failFast
+^| boolean  ^| `false`
+<| If set to `true`, extension objects with misconfigured methods will fail at first use of any method. Default is to fail when a misconfigured method is used.
 
 | link:{jdbidocs}/core/Handles.html[Handles^] | forceEndTransactions
     | boolean  | `true`

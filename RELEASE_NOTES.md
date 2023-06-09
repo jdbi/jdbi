@@ -1,5 +1,7 @@
 # Unreleased
 
+  - add `Extensions#failFast()` to enable extension objects with misconfigured methods to fail at first access. Default is to fail when a misconfigured method is accessed for the first time.
+
 # 3.38.3
   - allow unknown result mappers during `ResultReturner` warmup. This restores the pre-3.38.0 behavior
     where SQLObject classes with invalid methods could be used unless a method is explicitly called (#2342)
