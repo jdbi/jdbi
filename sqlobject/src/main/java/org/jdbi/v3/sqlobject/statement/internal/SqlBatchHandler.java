@@ -50,7 +50,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
     private final SqlBatch sqlBatch;
     private final SqlBatchHandler.ChunkSizeFunction batchChunkSize;
     private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
-    private final ResultReturner magic;
+    private final ResultReturner resultReturner;
 
     public SqlBatchHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -71,10 +71,10 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
             batchIntermediate = method.getReturnType().equals(boolean[].class)
                     ? mapToBoolean(modCounts)
                     : modCounts;
-            magic = ResultReturner.forOptionalReturn(sqlObjectType, method);
+            resultReturner = ResultReturner.forOptionalReturn(sqlObjectType, method);
         } else {
             String[] columnNames = getGeneratedKeys.value();
-            magic = ResultReturner.forMethod(sqlObjectType, method);
+            resultReturner = ResultReturner.forMethod(sqlObjectType, method);
 
             if (method.isAnnotationPresent(UseRowMapper.class)) {
                 RowMapper<?> mapper = rowMapperFor(method.getAnnotation(UseRowMapper.class));
@@ -83,7 +83,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                         .iterator();
             } else {
                 batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
-                        .mapTo(magic.elementType(batch.getConfig()))
+                        .mapTo(resultReturner.elementType(batch.getConfig()))
                         .iterator();
             }
         }
@@ -92,7 +92,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
     @Override
     public void warm(ConfigRegistry config) {
         super.warm(config);
-        magic.warm(config);
+        resultReturner.warm(config);
     }
 
     private Function<PreparedBatch, ResultIterator<?>> mapToBoolean(Function<PreparedBatch, ResultIterator<?>> modCounts) {
@@ -294,7 +294,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
         ResultIterable<Object> iterable = ResultIterable.of(result);
 
-        return magic.mappedResult(iterable, result.getContext());
+        return resultReturner.mappedResult(iterable, result.getContext());
     }
 
     private Iterator<Object[]> zipArgs(Method method, Object[] args) {
