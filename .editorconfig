@@ -1,3 +1,6 @@
+# editor config for Jdbi
+root = true
+
 [*]
 end_of_line = lf
 charset = utf-8
@@ -6,10 +9,13 @@ insert_final_newline = true
 indent_size = 4
 indent_style = space
 
+[Makefile]
+indent_style = tab
+
 [*.md]
 trim_trailing_whitespace = false
 
-[*.yml]
+[*.{yml,yaml}]
 indent_size = 2
 
 [*.kt]
