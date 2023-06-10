@@ -107,6 +107,7 @@
         <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
         <dep.plugin.kotlin.version>1.8.21</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
+        <dep.plugin.sonar.version>3.9.1.2184</dep.plugin.sonar.version>
         <dep.plugin.sortpom.version>3.2.1</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
@@ -1146,6 +1147,51 @@
                 <!-- the pg binaries for pg 13 do not support native mac arm64. Choose a version that does -->
                 <jdbi.test.pg-version>15</jdbi.test.pg-version>
             </properties>
+        </profile>
+
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+                <sonar.java.checkstyle.reportPaths>target/checkstyle-result.xml</sonar.java.checkstyle.reportPaths>
+                <sonar.java.pmd.reportPaths>target/pmd.xml</sonar.java.pmd.reportPaths>
+                <sonar.java.spotbugs.reportPaths>target/spotbugsXml.xml</sonar.java.spotbugs.reportPaths>
+                <!-- the module key is basically undocumented... https://stackoverflow.com/questions/43627759/sonar-maven-plugin-same-project-key-for-all-modules-does-not-work -->
+                <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+                <sonar.organization>jdbi</sonar.organization>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sonar</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                        <version>${dep.plugin.sonar.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sonar</id>
+                                <goals>
+                                    <goal>sonar</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
