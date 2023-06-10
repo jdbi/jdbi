@@ -81,10 +81,8 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
             }
         }
 
-        if (ctx.getConfig(ReflectionMappers::class).isStrictMatching && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
-            throw IllegalArgumentException(
-                "Mapping Kotlin type ${kClass.simpleName()} could not match parameters for columns: $unmatchedColumns"
-            )
+        require(!(ctx.getConfig(ReflectionMappers::class).isStrictMatching && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers))) {
+            "Mapping Kotlin type ${kClass.simpleName()} could not match parameters for columns: $unmatchedColumns"
         }
 
         return mapper
@@ -146,7 +144,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
                     columnNameMatchers = columnNameMatchers,
                     unmatchedColumns = unmatchedColumns
                 ),
-                if (property.javaField != null) FieldMapper.checkPropagateNullAnnotation(property.javaField) else false
+                property.javaField != null && FieldMapper.checkPropagateNullAnnotation(property.javaField)
             )
         }
 
@@ -159,10 +157,10 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
 
         val propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers)
 
-        if (propagateNullColumnIndex.isPresent) {
-            return Optional.of(NullDelegatingMapper(propagateNullColumnIndex.asInt + 1, boundMapper))
+        return if (propagateNullColumnIndex.isPresent) {
+            Optional.of(NullDelegatingMapper(propagateNullColumnIndex.asInt + 1, boundMapper))
         } else {
-            return Optional.of(boundMapper)
+            Optional.of(boundMapper)
         }
     }
 
@@ -255,7 +253,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
 
         if (nested == null) {
             val propertyName = addPropertyNamePrefix(prefix, property.propName())
-            val possibleColumnIndex: OptionalInt = findColumnIndex(propertyName, columnNames, columnNameMatchers, { property.name })
+            val possibleColumnIndex: OptionalInt = findColumnIndex(propertyName, columnNames, columnNameMatchers) { property.name }
             val columnIndex: Int = when {
                 possibleColumnIndex.isPresent -> possibleColumnIndex.asInt
                 !property.isLateinit -> return null
