@@ -52,7 +52,7 @@ jobs:
       - name: run sonar analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           MAVEN_CONFIG: "-Psonar -B -fae -Dsonar.projectKey=jdbi_jdbi"
         run: |
           make install
