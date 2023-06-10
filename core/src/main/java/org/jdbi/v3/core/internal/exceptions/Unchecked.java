@@ -30,7 +30,7 @@ public class Unchecked {
     }
 
     public static <T> Consumer<T> consumer(CheckedConsumer<T> checkedConsumer) {
-        return (x) -> {
+        return x -> {
             try {
                 checkedConsumer.accept(x);
             } catch (Throwable t) {
