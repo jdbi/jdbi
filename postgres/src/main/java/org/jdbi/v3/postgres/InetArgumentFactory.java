@@ -39,7 +39,11 @@ public class InetArgumentFactory extends AbstractArgumentFactory<InetAddress> {
         return ObjectArgument.of(value.getHostAddress(), Types.OTHER);
     }
 
+    /**
+     * @deprecated no longer used
+     */
     @Override
+    @Deprecated
     public Collection<Type> prePreparedTypes() {
         return Arrays.asList(InetAddress.class, Inet4Address.class, Inet6Address.class);
     }

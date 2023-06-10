@@ -44,7 +44,11 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory.Preparable {
         return Optional.ofNullable(builders.get(expectedClass)).map(r -> r.apply(value));
     }
 
+    /**
+     * @deprecated no longer used
+     */
     @Override
+    @Deprecated
     public Collection<? extends Type> prePreparedTypes() {
         return builders.keySet();
     }
