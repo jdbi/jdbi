@@ -85,7 +85,7 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
                 LOG.error("SQL Exception caught:", e);
                 break;
 
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 LOG.error("Could not create database:", t);
             }
         }

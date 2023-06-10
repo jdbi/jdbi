@@ -84,7 +84,11 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
                 : Optional.empty();
     }
 
+    /**
+     * @deprecated no longer used
+     */
     @Override
+    @Deprecated
     public Collection<Type> prePreparedTypes() {
         return Collections.singletonList(argumentType);
     }

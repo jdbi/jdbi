@@ -59,6 +59,7 @@ public class StringTemplateEngine implements TemplateEngine {
                     if (!ctx.getConfig(StringTemplates.class).isFailOnMissingAttribute()) {
                         break;
                     }
+                // fallthrough
                 default:
                     throw new UnableToExecuteStatementException("Executing StringTemplate failed: " + msg, msg.cause, ctx);
             }

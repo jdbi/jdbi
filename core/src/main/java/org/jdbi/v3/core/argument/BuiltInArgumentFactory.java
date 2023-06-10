@@ -67,7 +67,11 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
             .findFirst();
     }
 
+    /**
+     * @deprecated no longer used
+     */
     @Override
+    @Deprecated
     public Collection<? extends Type> prePreparedTypes() {
         return FACTORIES.stream()
                 .map(ArgumentFactory.Preparable::prePreparedTypes)

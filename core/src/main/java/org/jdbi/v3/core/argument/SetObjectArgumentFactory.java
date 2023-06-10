@@ -53,7 +53,11 @@ public class SetObjectArgumentFactory implements ArgumentFactory.Preparable {
                 .map(sqlType -> value -> ObjectArgument.of(value, sqlType));
     }
 
+    /**
+     * @deprecated no longer used
+     */
     @Override
+    @Deprecated
     public Collection<? extends Type> prePreparedTypes() {
         return supportedTypes.keySet();
     }

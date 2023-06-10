@@ -23,14 +23,14 @@ public abstract class JdbiException extends RuntimeException {
      * @param message the exception message
      * @param cause the optional cause
      */
-    public JdbiException(String message, Throwable cause) {
+    protected JdbiException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
      * @param cause the cause of this exception
      */
-    public JdbiException(Throwable cause) {
+    protected JdbiException(Throwable cause) {
         super(cause);
     }
 
@@ -42,7 +42,7 @@ public abstract class JdbiException extends RuntimeException {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public JdbiException(String message) {
+    protected JdbiException(String message) {
         super(message);
     }
 }
