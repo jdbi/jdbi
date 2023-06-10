@@ -1159,6 +1159,7 @@
                 <!-- the module key is basically undocumented... https://stackoverflow.com/questions/43627759/sonar-maven-plugin-same-project-key-for-all-modules-does-not-work -->
                 <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
                 <sonar.organization>jdbi</sonar.organization>
+                <sonar.projectName>jdbi</sonar.projectName>
             </properties>
 
             <build>
