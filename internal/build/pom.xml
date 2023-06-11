@@ -1160,6 +1160,7 @@
                 <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
                 <sonar.organization>jdbi</sonar.organization>
                 <sonar.projectName>jdbi</sonar.projectName>
+                <sonar.links.homepage>https://jdbi.org/</sonar.links.homepage>
             </properties>
 
             <build>
