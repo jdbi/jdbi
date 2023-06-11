@@ -62,6 +62,7 @@ jobs:
             -Psonar -B -fae
             -Dsonar.organization=jdbi
             -Dsonar.projectKey=jdbi_jdbi
+            -Dsonar.projectName=jdbi
             -Dsonar.log.level=DEBUG
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
             -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
