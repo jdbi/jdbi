@@ -24,10 +24,7 @@ import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
  * Locates SQL in {@code .sql.ftl} Freemarker files on the classpath.
  */
 public class FreemarkerSqlLocator {
-    /**
-     * @deprecated don't use static scope
-     */
-    @Deprecated
+
     private static final Configuration CONFIGURATION;
 
     private final FreemarkerConfig config;
