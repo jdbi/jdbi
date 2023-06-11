@@ -34,10 +34,7 @@ public class FreemarkerEngine implements TemplateEngine.Parsing {
      * @deprecated use {@link #instance()} for a shared engine instead
      */
     @Deprecated
-    public FreemarkerEngine() {
-        // This constructor is present so we can document it.
-        // SonarCloud Code Analysis(TM) insists we document why this method exists, which is only so it can be deprecated and documented as such.
-    }
+    public FreemarkerEngine() {}
 
     public static FreemarkerEngine instance() {
         return INSTANCE;

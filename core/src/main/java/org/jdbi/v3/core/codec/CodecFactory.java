@@ -81,6 +81,10 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
         return Optional.of(type).map(this::resolveType).map(key -> (Function<Object, Argument>) key.getArgumentFunction(config));
     }
 
+    /**
+     * @deprecated no longer used
+     */
+    @Deprecated
     @Override
     public final Collection<QualifiedType<?>> prePreparedTypes() {
         return codecMap.keySet();

@@ -1157,6 +1157,7 @@
                 <sonar.java.pmd.reportPaths>target/pmd.xml</sonar.java.pmd.reportPaths>
                 <sonar.java.spotbugs.reportPaths>target/spotbugsXml.xml</sonar.java.spotbugs.reportPaths>
                 <sonar.links.homepage>https://jdbi.org/</sonar.links.homepage>
+                <sonar.projectName>jdbi</sonar.projectName>
             </properties>
 
             <build>

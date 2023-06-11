@@ -129,6 +129,10 @@ public interface QualifiedArgumentFactory {
                             : Optional.empty();
                 }
 
+                /**
+                 * @deprecated no longer used
+                 */
+                @Deprecated
                 @Override
                 public Collection<QualifiedType<?>> prePreparedTypes() {
                     return prePreparedTypes;

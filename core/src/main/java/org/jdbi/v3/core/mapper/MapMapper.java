@@ -35,10 +35,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * @see GenericMapMapperFactory
  */
 public class MapMapper implements RowMapper<Map<String, Object>> {
-    /**
-     * @deprecated remove
-     */
-    @Deprecated
+
     private final Function<StatementContext, UnaryOperator<String>> caseStrategy;
 
     /**
