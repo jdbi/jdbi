@@ -1156,10 +1156,7 @@
                 <sonar.java.checkstyle.reportPaths>target/checkstyle-result.xml</sonar.java.checkstyle.reportPaths>
                 <sonar.java.pmd.reportPaths>target/pmd.xml</sonar.java.pmd.reportPaths>
                 <sonar.java.spotbugs.reportPaths>target/spotbugsXml.xml</sonar.java.spotbugs.reportPaths>
-                <!-- the module key is basically undocumented... https://stackoverflow.com/questions/43627759/sonar-maven-plugin-same-project-key-for-all-modules-does-not-work -->
-                <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
-                <sonar.organization>jdbi</sonar.organization>
-                <sonar.projectName>jdbi</sonar.projectName>
+                <sonar.links.homepage>https://jdbi.org/</sonar.links.homepage>
             </properties>
 
             <build>
