@@ -40,7 +40,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * see https://github.com/jdbi/jdbi/issues/1516
+ * see <a href="https://github.com/jdbi/jdbi/issues/1516">Issue #1516</a>
  */
 public class TestSqlBatchWithCustomizer {
 
