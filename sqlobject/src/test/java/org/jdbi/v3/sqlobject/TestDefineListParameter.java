@@ -102,6 +102,8 @@ public class TestDefineListParameter {
     public void testArray() {
         TestDao testDao = handle.attach(TestDao.class);
         testDao.insert("test", columnsArray, ImmutableList.of(1, "Some Pig"));
+
+        assertThat(testDao.findById(testColumns, "test", 1)).isEqualTo(new Something(1, "Some Pig"));
     }
 
     @Test

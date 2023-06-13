@@ -26,6 +26,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestBindListParameter {
@@ -58,12 +59,14 @@ public class TestBindListParameter {
 
     @Test
     public void testWorks() {
-        dao.works(Lists.newArrayList(1L, 2L));
+        int result = dao.works(Lists.newArrayList(1L, 2L));
+        assertThat(result).isZero();
     }
 
     @Test
     public void testIds() {
-        dao.ids(Lists.newArrayList(1, 2));
+        int result = dao.ids(Lists.newArrayList(1, 2));
+        assertThat(result).isZero();
     }
 
     private interface MyDAO {

@@ -159,20 +159,30 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
     @Override
     Type getParameterType(Parameter parameter) {
-        Type type = super.getParameterType(parameter);
+        final Type type = super.getParameterType(parameter);
 
-        if (!parameter.isAnnotationPresent(SingleValue.class)) {
-            Class<?> erasedType = GenericTypes.getErasedType(type);
-            if (Iterable.class.isAssignableFrom(erasedType)) {
-                return GenericTypes.findGenericParameter(type, Iterable.class).get();
-            } else if (Iterator.class.isAssignableFrom(erasedType)) {
-                return GenericTypes.findGenericParameter(type, Iterator.class).get();
-            } else if (GenericTypes.isArray(type)) {
-                return ((Class<?>) type).getComponentType();
-            }
+        if (parameter.isAnnotationPresent(SingleValue.class)) {
+            return type;
         }
 
-        return type;
+        final Class<?> erasedType = GenericTypes.getErasedType(type);
+
+        final Type resultType;
+        if (Iterable.class.isAssignableFrom(erasedType)) {
+            resultType = GenericTypes.findGenericParameter(type, Iterable.class).orElse(null);
+        } else if (Iterator.class.isAssignableFrom(erasedType)) {
+            resultType = GenericTypes.findGenericParameter(type, Iterator.class).orElse(null);
+        } else if (GenericTypes.isArray(type)) {
+            resultType = ((Class<?>) type).getComponentType();
+        } else {
+            resultType = type;
+        }
+
+        if (resultType == null) {
+            throw new IllegalStateException(type.getClass().getSimpleName() + " must have a generic parameter");
+        }
+
+        return resultType;
     }
 
     @Override

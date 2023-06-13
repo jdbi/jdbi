@@ -59,6 +59,8 @@ public class LeakTest {
         handle.createScript("INSERT INTO users (id, name) VALUES(3, 'Charlie');"
                 + "UPDATE users SET name='Bobby Tables' WHERE id=2;")
             .executeAsSeparateStatements();
+        assertThat(handle.createQuery("SELECT name FROM users WHERE id =2").mapTo(String.class).one()).isEqualTo("Bobby Tables");
+        assertThat(handle.createQuery("SELECT name FROM users WHERE id =3").mapTo(String.class).one()).isEqualTo("Charlie");
     }
 
     @Test
