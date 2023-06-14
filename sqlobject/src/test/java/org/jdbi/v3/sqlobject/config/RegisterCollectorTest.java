@@ -13,9 +13,11 @@
  */
 package org.jdbi.v3.sqlobject.config;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -25,6 +27,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,14 +52,49 @@ public class RegisterCollectorTest {
 
     @Test
     void registerCollector() {
-        assertThat(h.attach(RegisterCollectorDao.class).select())
+        assertThat(h.attach(RegisterCollectorDao.class).selectWithCollector())
                 .isEqualTo("1 2");
+    }
+
+    @Test
+    void registerCollectorFactory() {
+        assertThat(h.attach(RegisterCollectorDao.class).selectWithCollectorFactory())
+            .isEqualTo("1 2");
     }
 
     public interface RegisterCollectorDao {
         @RegisterCollector(StringConcatCollector.class)
         @SqlQuery("select i from i order by i asc")
-        String select();
+        String selectWithCollector();
+
+        @RegisterCollectorFactory(StringConcatCollectorFactory.class)
+        @SqlQuery("select i from i order by i asc")
+        String selectWithCollectorFactory();
+    }
+
+    public static class StringConcatCollectorFactory implements CollectorFactory {
+
+        @Override
+        public boolean accepts(Type containerType) {
+            return containerType == String.class;
+        }
+
+        @Override
+        public Optional<Type> elementType(Type containerType) {
+            return Optional.of(Integer.class);
+        }
+
+        @Override
+        public Collector<Integer, List<Integer>, String> build(Type containerType) {
+            return Collector.of(
+                ArrayList::new,
+                List::add,
+                (x, y) -> {
+                    x.addAll(y);
+                    return x;
+                },
+                i -> i.stream().map(Object::toString).collect(Collectors.joining(" ")));
+        }
     }
 
     public static class StringConcatCollector implements Collector<Integer, List<Integer>, String> {
@@ -67,7 +105,7 @@ public class RegisterCollectorTest {
 
         @Override
         public BiConsumer<List<Integer>, Integer> accumulator() {
-            return (l, i) -> l.add(i);
+            return List::add;
         }
 
         @Override
