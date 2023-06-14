@@ -4641,17 +4641,7 @@ the `User.id` and `User.name` fields. Likewise for `r_id` and `r_name` into the
 The link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] annotation may be repeated multiple times on
 the same type or method to register multiple constructor mappers.
 
-==== @RegisterCollectorFactory
-
-Convenience annotation to register a `CollectorFactory` for this SqlObject method. See <<Collectors>> for more details.
-
-==== @RegisterCollectorFactory
-
-Convenience annotation to register a `Collector` for this SqlObject method. The element and result types are inferred from
-the concrete `Collector<Element, ?, Result>` implementation's type parameters. See <<Collectors>> for more details.
-
 === Other SQL Object annotations
-
 
 [#sqlupdate-getgeneratedkeys]
 ==== @GetGeneratedKeys
@@ -5037,6 +5027,83 @@ public interface DocumentDao {
 <5> Get the `Folder` for this row from the map by ID, or create it if not in the map.
 <6> Confirm this row has a document (this _is_ a left join) before mapping a document
     and adding it to the folder.
+
+==== @RegisterCollector and @RegisterCollectorFactory
+
+Convenience annotations to register a link:{jdkdocs}/java/util/stream/Collector.html[Collector^] for a SqlObject method.
+
+link:{jdbidocs}/sqlobject/config/RegisterCollectorFactory.html[@RegisterCollectorFactory^] allows registration of a factory that returns a collector instance and link:{jdbidocs}/sqlobject/config/RegisterCollector.html[@RegisterCollector^] registers a collector implementation:
+
+[source,java,indent=0]
+----
+public interface RegisterCollectorDao {
+    @RegisterCollector(StringConcatCollector.class)
+    @SqlQuery("select i from i order by i asc")
+    String selectWithCollector();
+
+    @RegisterCollectorFactory(StringConcatCollectorFactory.class)
+    @SqlQuery("select i from i order by i asc")
+    String selectWithCollectorFactory();
+}
+
+class StringConcatCollectorFactory implements CollectorFactory {
+
+    @Override
+    public boolean accepts(Type containerType) {
+        return containerType == String.class;
+    }
+
+    @Override
+    public Optional<Type> elementType(Type containerType) {
+        return Optional.of(Integer.class);
+    }
+
+    @Override
+    public Collector<Integer, List<Integer>, String> build(Type containerType) {
+        return Collector.of(
+            ArrayList::new,
+            List::add,
+            (x, y) -> {
+                x.addAll(y);
+                return x;
+            },
+            i -> i.stream().map(Object::toString).collect(Collectors.joining(" ")));
+    }
+}
+
+class StringConcatCollector implements Collector<Integer, List<Integer>, String> {
+    @Override
+    public Supplier<List<Integer>> supplier() {
+        return ArrayList::new;
+    }
+
+    @Override
+    public BiConsumer<List<Integer>, Integer> accumulator() {
+        return List::add;
+    }
+
+    @Override
+    public BinaryOperator<List<Integer>> combiner() {
+        return (a, b) -> {
+            a.addAll(b);
+            return a;
+        };
+    }
+
+    @Override
+    public Function<List<Integer>, String> finisher() {
+        return i -> i.stream().map(Object::toString).collect(Collectors.joining(" "));
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Collections.emptySet();
+    }
+}
+----
+
+The element and result types are inferred from the concrete link:{jdkdocs}/java/util/stream/Collector.html[Collector<Element, ?, Result>^] implementation's type parameters. See <<Collectors>> for more details.
+
 
 
 ==== Other SQL Object annotations
@@ -5426,7 +5493,7 @@ query.bindByType("jsonValue", "{\"foo\":1}", json);
 
 [TIP]
 Jdbi chooses factories to handle values by *exactly matching* their _qualifiers_. It's up to the
-factory implementations to discriminate on the _type_ of the value afterwards.
+factory implementations to discriminate on the _type_ of the value afterward.
 
 [NOTE]
 Qualifiers are implemented as `Annotations`. This allows factories to independently inspect values for qualifiers at the source,
@@ -7903,7 +7970,7 @@ In addition to the methods defined by the extension type, the following methods 
   implementations that ensure that each instance is only equal to itself.
 - link:{jdkdocs}/java/lang/Object.html#finalize--[Object#finalize()^] has no effect.
 
-All methods except `finalize()` can be overridden by the extension type (e.g. through a _interface default method_).
+All methods except `finalize()` can be overridden by the extension type (e.g. through an _interface default method_).
 
 
 ===== Non-virtual factories
@@ -8039,7 +8106,7 @@ and will augment any extension handler, or they can be provided by an extension 
 link:{jdbidocs}/core/extension/ExtensionFactory.html#getConfigCustomizerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getConfigCustomizerFactories()^]
 method.
 
-Here is an example for a extension handler customizer that logs every method handler invocation. It gets registered as a global extension handler customizer
+Here is an example for an extension handler customizer that logs every method handler invocation. It gets registered as a global extension handler customizer
 with the link:{jdbidocs}/core/extension/Extensions.html[Extensions configuration object^] and will then log every method invocation on an extension type.
 
 [source,java,indent=0]
@@ -8181,7 +8248,7 @@ include::{exampledir}/ExtensionHandlerCustomizerAnnotationTest.java[tags=extensi
 <1> An annotation that uses the link:{jdbidocs}/core/extension/annotation/UseExtensionHandlerCustomizer.html[@UseExtensionHandlerCustomizer^] annotation can
 be placed on a method or the extension type itself.
 
-<2> The extension handler customizer is only applied to a annotated method.
+<2> The extension handler customizer is only applied to an annotated method.
 
 <3> The extension handler customizer is applied to all methods on the extension type.
 
@@ -8229,7 +8296,7 @@ interface OrderedCustomizers {
 }
 ----
 
-<1> The annotation ensures that the `Foo` extension customizer is called first, then the `Bar` extension customizer. Otherwise the order is undefined.
+<1> The annotation ensures that the `Foo` extension customizer is called first, then the `Bar` extension customizer. Otherwise, the order is undefined.
 
 
 ==== Extension handler configurer annotation
