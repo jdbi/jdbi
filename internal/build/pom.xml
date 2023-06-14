@@ -97,7 +97,7 @@
         <dep.jts.version>1.19.0</dep.jts.version>
         <dep.junit5.version>5.9.3</dep.junit5.version>
         <dep.kotlin.version>1.5.32</dep.kotlin.version>
-        <dep.lombok.version>1.18.26</dep.lombok.version>
+        <dep.lombok.version>1.18.28</dep.lombok.version>
         <!-- leave mockito on 4.x for jdk8 compatibility -->
         <dep.mockito.version>4.11.0</dep.mockito.version>
         <dep.pg-embedded.version>5.0</dep.pg-embedded.version>

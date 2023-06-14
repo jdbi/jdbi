@@ -71,7 +71,6 @@
         <module>benchmark</module>
         <module>docs</module>
         <module>examples</module>
-        <module>lombok</module>
         <module>noparameters</module>
     </modules>
 
@@ -102,6 +101,17 @@
             </activation>
             <modules>
                 <module>java17</module>
+            </modules>
+        </profile>
+
+        <!-- lombok currently does not even compile on java 21 ... -->
+        <profile>
+            <id>not-java21</id>
+            <activation>
+                <jdk>[,21)</jdk>
+            </activation>
+            <modules>
+                <module>lombok</module>
             </modules>
         </profile>
     </profiles>
