@@ -20,21 +20,25 @@ import java.util.stream.Collector;
 import org.jdbi.v3.core.generic.GenericTypes;
 
 class SimpleCollectorFactory implements CollectorFactory {
-    private final Type containerType;
+    private final Type resultType;
     private final Collector<?, ?, ?> collector;
 
-    SimpleCollectorFactory(Type containerType, Collector<?, ?, ?> collector) {
-        this.containerType = containerType;
+    SimpleCollectorFactory(Type resultType, Collector<?, ?, ?> collector) {
+        this.resultType = resultType;
         this.collector = collector;
     }
 
     @Override
     public boolean accepts(Type containerType) {
-        return GenericTypes.isSuperType(containerType, this.containerType);
+        return GenericTypes.isSuperType(containerType, resultType);
     }
 
     @Override
     public Optional<Type> elementType(Type containerType) {
+        Optional<Type> collectedType = GenericTypes.findGenericParameter(collector.getClass(), Collector.class);
+        if (collectedType.isPresent()) {
+            return collectedType;
+        }
         if (GenericTypes.isSuperType(Iterable.class, containerType)) {
             return GenericTypes.findGenericParameter(containerType, Iterable.class);
         }
@@ -48,6 +52,6 @@ class SimpleCollectorFactory implements CollectorFactory {
 
     @Override
     public String toString() {
-        return "CollectorFactory handling " + containerType + " with " + collector;
+        return "CollectorFactory handling " + resultType + " with " + collector;
     }
 }

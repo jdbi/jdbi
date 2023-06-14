@@ -4641,7 +4641,14 @@ the `User.id` and `User.name` fields. Likewise for `r_id` and `r_name` into the
 The link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] annotation may be repeated multiple times on
 the same type or method to register multiple constructor mappers.
 
+==== @RegisterCollectorFactory
 
+Convenience annotation to register a `CollectorFactory` for this SqlObject method. See <<Collectors>> for more details.
+
+==== @RegisterCollectorFactory
+
+Convenience annotation to register a `Collector` for this SqlObject method. The element and result types are inferred from
+the concrete `Collector<Element, ?, Result>` implementation's type parameters. See <<Collectors>> for more details.
 
 === Other SQL Object annotations
 
