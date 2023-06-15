@@ -188,6 +188,7 @@
                                 <exclude>**/TestScript.*</exclude>
                                 <exclude>**/ConstructorMapperPgTest.*</exclude>
                                 <exclude>**/TestArgumentBinder.*</exclude>
+                                <exclude>**/TestQueriesPG.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
