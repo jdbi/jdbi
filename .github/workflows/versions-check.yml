@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 31.0.1-jre, 31.0-jre, 30.1.1-jre, 30.1-jre, 30.0-jre ]
+        test-version: [ 31.1-jre, 30.1.1-jre ]
 
     steps:
     - uses: actions/checkout@v3
