@@ -15,34 +15,61 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
 
+import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
+import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
 import org.assertj.core.data.Offset;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+@RequirePostgresVersion(atLeast = "14")
 public class TestCallable {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+
+    @RegisterExtension
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
 
     private Handle h;
 
     @BeforeEach
     public void setUp() {
-        h = h2Extension.getSharedHandle();
-        h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
-        h.execute("CREATE ALIAS TEST_PROCEDURE FOR \"org.jdbi.v3.core.statement.TestCallable.testProcedure\"");
+        h = pgExtension.getSharedHandle();
+        h.execute("CREATE OR REPLACE PROCEDURE TO_DEGREES(OUT result float, value float) AS $$\n"
+            + "BEGIN\n"
+            + "result := DEGREES(value);\n"
+            + "END;\n"
+            + "$$ LANGUAGE plpgsql;");
+
+        h.execute("CREATE OR REPLACE PROCEDURE DO_LENGTH(value varchar, OUT result integer) AS $$\n"
+            + "BEGIN\n"
+            + "IF value IS NULL THEN\n"
+            + "result := NULL;\n"
+            + "ELSE\n"
+            + "result := CHAR_LENGTH(value);\n"
+            + "END IF;\n"
+            + "END;\n"
+            + "$$ LANGUAGE plpgsql;");
+
+        h.execute("CREATE OR REPLACE PROCEDURE WITH_SIDE_EFFECT(v1 integer, v2 varchar) AS $$\n"
+            + "BEGIN\n"
+            + "INSERT INTO something (id, name) VALUES (v1, v2 || ' Doe');"
+            + "END;\n"
+            + "$$ LANGUAGE plpgsql;");
+
+        h.execute("CREATE TABLE something (id integer not null primary key, name varchar(255))");
     }
 
     @Test
     public void testStatement() {
-        OutParameters ret = h.createCall("? = CALL TO_DEGREES(?)")
+        OutParameters ret = h.createCall("CALL TO_DEGREES(?, ?)")
             .registerOutParameter(0, Types.DOUBLE)
             .bind(1, 100.0d)
             .invoke();
@@ -54,13 +81,13 @@ public class TestCallable {
         assertThat(ret.getInt(0).intValue()).isEqualTo(expected.intValue());
         assertThat(ret.getFloat(0).floatValue()).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
 
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate(1));
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate(2));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ret.getDate(0));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ret.getDate(1));
     }
 
     @Test
     public void testStatementWithNamedParam() {
-        OutParameters ret = h.createCall(":x = CALL TO_DEGREES(:y)")
+        OutParameters ret = h.createCall("CALL TO_DEGREES(:x, :y)")
             .registerOutParameter("x", Types.DOUBLE)
             .bind("y", 100.0d)
             .invoke();
@@ -77,32 +104,39 @@ public class TestCallable {
     }
 
     @Test
-    @Disabled // TODO(scs): how do we test out parameters with h2?
     public void testWithNullReturn() {
-        OutParameters ret = h.createCall("CALL TEST_PROCEDURE(?, ?)")
+        OutParameters ret = h.createCall("CALL DO_LENGTH(?, ?)")
             .bind(0, (String) null)
-            .registerOutParameter(1, Types.VARCHAR)
+            .registerOutParameter(1, Types.INTEGER)
             .invoke();
 
-        String out = ret.getString(1);
+        Integer out = ret.getInt(1);
         assertThat(out).isNull();
     }
 
     @Test
-    @Disabled // TODO(scs): how do we test out parameters with h2?
     public void testWithNullReturnWithNamedParam() {
-        OutParameters ret = h.createCall("CALL TEST_PROCEDURE(:x, :y)")
-            .bind("x", (String) null)
-            .registerOutParameter("y", Types.VARCHAR)
+        OutParameters ret = h.createCall("CALL DO_LENGTH(:in, :out)")
+            .bindNull("in", Types.VARCHAR)
+            .registerOutParameter("out", Types.INTEGER)
             .invoke();
 
-        String out = ret.getString("y");
+        Integer out = ret.getInt(1);
         assertThat(out).isNull();
     }
 
-    // used by the db in this test
-    @SuppressWarnings("unused")
-    public static void testProcedure(String in, String[] out) {
-        // TODO do something
+    @Test
+    public void testProcedureWithoutOutParameter() {
+        h.createCall("CALL WITH_SIDE_EFFECT(:id, :name)")
+            .bind("id", 10)
+            .bind("name", "John")
+            .invoke();
+
+        String name = h.createQuery("SELECT name FROM something WHERE id = :id")
+            .bind("id", 10)
+            .mapTo(String.class)
+            .one();
+
+        assertThat(name).isEqualTo("John Doe");
     }
 }

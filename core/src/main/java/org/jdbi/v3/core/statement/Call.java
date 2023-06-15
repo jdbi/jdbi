@@ -123,11 +123,16 @@ public class Call extends SqlStatement<Call> {
             internalExecute();
             OutParameters out = new OutParameters(getContext());
             for (OutParamArgument param : params) {
-                Object obj = param.map((CallableStatement) stmt);
+                final Object obj = param.map((CallableStatement) stmt);
 
                 // convert from JDBC 1-based position to Jdbi's 0-based
-                int index = param.position - 1;
-                out.getMap().put(index, obj);
+                final int index = param.position - 1;
+
+                if (param.isNull((CallableStatement) stmt)) {
+                    out.getMap().put(index, null);
+                } else {
+                    out.getMap().put(index, obj);
+                }
 
                 if (param.name != null) {
                     out.getMap().put(param.name, obj);
@@ -194,6 +199,14 @@ public class Call extends SqlStatement<Call> {
                     default:
                         return stmt.getObject(position);
                 }
+            } catch (SQLException e) {
+                throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
+            }
+        }
+
+        private boolean isNull(CallableStatement stmt) {
+            try {
+                return stmt.wasNull();
             } catch (SQLException e) {
                 throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
             }
