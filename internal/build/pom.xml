@@ -82,7 +82,7 @@
         <dep.flyway.version>7.15.0</dep.flyway.version>
         <dep.freebuilder.version>2.8.0</dep.freebuilder.version>
         <dep.freemarker.version>2.3.32</dep.freemarker.version>
-        <dep.guava.version>31.1-jre</dep.guava.version>
+        <dep.guava.version>32.0.1-jre</dep.guava.version>
         <dep.guice.version>5.0.1</dep.guice.version>
         <dep.h2.version>2.1.214</dep.h2.version>
         <!-- leave hikari-cp on 4.x for jdk8 compatibility! -->
