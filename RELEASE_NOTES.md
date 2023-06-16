@@ -1,6 +1,8 @@
 # Unreleased
 
   - add `Extensions#failFast()` to enable extension objects with misconfigured methods to fail at first access. Default is to fail when a misconfigured method is accessed for the first time.
+  - add new `@RegisterCollector` customizing annotation (#2377)
+  - correctly return null for OutParameters when the called procedure returns NULL.
 
 # 3.38.3
   - allow unknown result mappers during `ResultReturner` warmup. This restores the pre-3.38.0 behavior
@@ -8,7 +10,6 @@
   - document vavr incompatibility between 0.10.x and 1.0.0-alpha (#2350)
   - Handle.inTransaction: improve exception thrown when restoring transaction isolation #2343
   - add support for Guice 6.x (using javax.inject annotations) and guice 7.x (using jakarta.inject annotations)
-  - add new @RegisterCollector customizing annotation (#2377)
 
 # 3.38.2
   - spring5 JdbiUtil: fix thread safety #2341
