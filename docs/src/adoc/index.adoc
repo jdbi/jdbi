@@ -5467,7 +5467,7 @@ link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType^] allows you to 
 QualifiedType.of(String.class).with(Json.class);
 ----
 
-This `QualifiedType` still represents the `String` _type_, but _qualified_ with the `@Json` annotation.
+This `QualifiedType` still represents the `String` _type_, but _qualified_ with the link:{jdbidocs}/json/Json.html[@Json^] annotation.
 It can be used in a way similar to <<GenericType>>, to make components
 handling values (mainly `ArgumentFactories` and `ColumnMapperFactories`) perform their work differently,
 and to have the values handled by different implementations altogether:
@@ -5483,7 +5483,7 @@ public class JsonArgumentFactory extends AbstractArgumentFactory<String> {
 }
 ----
 
-Once registered, this `@Json` qualified factory will receive *only* `@Json String` values.
+Once registered, this link:{jdbidocs}/json/Json.html[@Json^] qualified factory will receive *only* `@Json String` values.
 Other factories _not_ qualified as such will *not* receive this value:
 
 [source,java,indent=0]
@@ -5981,7 +5981,7 @@ jdbi.installPlugin(new H2DatabasePlugin());
 [[jdbi3-json]]
 === JSON
 
-The `jdbi3-json` module adds a `@Json` type qualifier that allows to store arbitrary Java objects as JSON data in your database.
+The `jdbi3-json` module adds a link:{jdbidocs}/json/Json.html[@Json^] type qualifier that allows to store arbitrary Java objects as JSON data in your database.
 
 The actual JSON (de)serialization code is not included. For that, you must install a backing plugin (see below).
 
@@ -7071,6 +7071,13 @@ Any additional annotation (such as the `@HStore` annotation for PostgreSQL suppo
 [source,java,indent=0]
 ----
 lombok.copyableAnnotations += org.jdbi.v3.postgres.HStore
+----
+
+When using any of the Json mappers (<<Jackson 2>>, <<Gson 2>> or <<Moshi>> ) with lombok, the link:{jdbidocs}/json/Json.html[@Json^] annotation must also be added to the lombok config file, otherwise Jdbi can not map json columns to lombok bean properties:
+
+[source,java,indent=0]
+----
+lombok.copyableAnnotations += org.jdbi.v3.json.Json
 ----
 
 

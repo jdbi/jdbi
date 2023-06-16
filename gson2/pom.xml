@@ -111,6 +111,7 @@
                         <configuration>
                             <excludes combine.children="append">
                                 <exclude>**/TestGson2Plugin.*</exclude>
+                                <exclude>**/GsonIssue2395Test.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

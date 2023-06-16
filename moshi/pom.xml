@@ -98,6 +98,7 @@
                         <configuration>
                             <excludes combine.children="append">
                                 <exclude>**/TestMoshiPlugin.*</exclude>
+                                <exclude>**/MoshiIssue2395Test.*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
