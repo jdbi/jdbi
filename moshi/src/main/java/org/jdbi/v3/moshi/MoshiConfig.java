@@ -15,13 +15,12 @@ package org.jdbi.v3.moshi;
 
 import com.squareup.moshi.Moshi;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Configuration class for Moshi integration.
  */
-@Beta
 public class MoshiConfig implements JdbiConfig<MoshiConfig> {
+
     private Moshi moshi;
 
     public MoshiConfig() {
@@ -34,6 +33,7 @@ public class MoshiConfig implements JdbiConfig<MoshiConfig> {
 
     /**
      * Set the {@link Moshi} to use for json conversion.
+     *
      * @param moshi the mapper to use
      * @return this
      */

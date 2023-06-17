@@ -17,7 +17,6 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Used with {@link SqlStatementCustomizerFactory} to
@@ -25,8 +24,10 @@ import org.jdbi.v3.meta.Beta;
  */
 @FunctionalInterface
 public interface SqlStatementCustomizer {
+
     /**
      * Invoked to customize the sql statement
+     *
      * @param q the statement being customized
      * @throws SQLException will abort statement creation
      */
@@ -35,8 +36,8 @@ public interface SqlStatementCustomizer {
     /**
      * Called after the customizer is instantiated but before any statement is available,
      * to pre-initialize any configuration data structures.
+     *
      * @param config the configuration registry to warm
      */
-    @Beta
     default void warm(ConfigRegistry config) {}
 }

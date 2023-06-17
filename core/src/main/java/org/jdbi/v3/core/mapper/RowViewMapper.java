@@ -19,16 +19,16 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.core.result.internal.RowViewImpl;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Higher level cousin of {@link RowMapper} that operates over {@link RowView}s rather than
  * the bare {@link ResultSet}.
+ *
  * @param <T> the mapped type.
  */
 @FunctionalInterface
-@Beta
 public interface RowViewMapper<T> extends RowMapper<T> {
+
     @Override
     default T map(ResultSet rs, StatementContext ctx) throws SQLException {
         return map(new RowViewImpl(rs, ctx));
@@ -42,6 +42,7 @@ public interface RowViewMapper<T> extends RowMapper<T> {
 
     /**
      * Produce a single result item from the current row of a {@link RowView}.
+     *
      * @param rowView the view into the current row of the ResultSet
      * @return the produced result
      * @throws SQLException something went wrong

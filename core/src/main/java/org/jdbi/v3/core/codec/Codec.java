@@ -18,16 +18,16 @@ import java.util.function.Function;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * A Codec provides a convenient way for a bidirectional mapping of an attribute to a database column.
  * <p>
  * Groups a {@link ColumnMapper} and an {@link org.jdbi.v3.core.argument.Argument} mapping function for a given type.
- *
- * <p><i>Alpha: this interface is still evolving!  It might eventually replace the existing Mappers and Arguments.</i>
+ * <p>
+ * Codec instances can replace existing Mapper and Argument pairs.
  */
-@Alpha
+@Beta
 public interface Codec<T> {
 
     /**

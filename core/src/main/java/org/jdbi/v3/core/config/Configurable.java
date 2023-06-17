@@ -46,7 +46,7 @@ import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.core.statement.TimingCollector;
-import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * A type with access to access and modify arbitrary Jdbi configuration.
@@ -54,6 +54,7 @@ import org.jdbi.v3.meta.Alpha;
  * @param <This> The subtype that implements this interface.
  */
 public interface Configurable<This> {
+
     /**
      * Returns the configuration registry associated with this object.
      *
@@ -109,9 +110,9 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(SqlStatements.class).setTimingCollector(collector)}
      *
-     * @deprecated use {@link #setSqlLogger} instead
      * @param collector timing collector
      * @return this
+     * @deprecated use {@link #setSqlLogger} instead
      */
     @Deprecated
     default This setTimingCollector(TimingCollector collector) {
@@ -203,8 +204,8 @@ public interface Configurable<This> {
      *
      * @param elementType element raw type
      * @param sqlTypeName SQL type name
-     * @param conversion the function to convert to database representation
-     * @param <T> element type
+     * @param conversion  the function to convert to database representation
+     * @param <T>         element type
      * @return this
      */
     default <T> This registerArrayType(Class<T> elementType, String sqlTypeName, Function<T, ?> conversion) {
@@ -235,7 +236,7 @@ public interface Configurable<This> {
      * Convenience method for {@code getConfig(JdbiCollectors.class).register(CollectorFactory.collectorFactory(collectionType, collector))}
      *
      * @param collectionType collector type to register the collector for
-     * @param collector the Collector to use to build the resulting collection
+     * @param collector      the Collector to use to build the resulting collection
      * @return this
      * @since 3.38.0
      */
@@ -266,8 +267,8 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
      *
-     * @param <T> the type
-     * @param type the generic type to register
+     * @param <T>    the type
+     * @param type   the generic type to register
      * @param mapper the mapper to use on that type
      * @return this
      */
@@ -278,7 +279,7 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
      *
-     * @param type the type to register
+     * @param type   the type to register
      * @param mapper the mapper to use on that type
      * @return this
      */
@@ -289,7 +290,7 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
      *
-     * @param type the type to register
+     * @param type   the type to register
      * @param mapper the mapper to use on that type
      * @return this
      */
@@ -340,8 +341,8 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
      *
-     * @param <T> the type
-     * @param type to match
+     * @param <T>    the type
+     * @param type   to match
      * @param mapper row mapper
      * @return this
      */
@@ -352,7 +353,7 @@ public interface Configurable<This> {
     /**
      * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
      *
-     * @param type to match
+     * @param type   to match
      * @param mapper row mapper
      * @return this
      */
@@ -376,7 +377,7 @@ public interface Configurable<This> {
      * @param codecFactory codec factory
      * @return this
      */
-    @Alpha
+    @Beta
     default This registerCodecFactory(CodecFactory codecFactory) {
         registerColumnMapper(codecFactory);
         return registerArgument(codecFactory);

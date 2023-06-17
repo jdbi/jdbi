@@ -18,22 +18,21 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.meta.Beta;
-
 /**
  * Configure reflective bean and pojo property attributes.
  * Most reflective mappers, including field, method, and property mappers, try to respect this.
  */
-@Beta
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JdbiProperty {
+
     /**
      * Returns true if the property is mapped in a result. The property will be read from the database into a result.
      *
      * @return true if the property is unmappable
      */
     boolean map() default true;
+
     /**
      * Returns true if the property is bound as an argument. Property will be bound as an argument.
      *

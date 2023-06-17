@@ -1,8 +1,23 @@
-# Unreleased
+# 3.39.0
 
   - add `Extensions#failFast()` to enable extension objects with misconfigured methods to fail at first access. Default is to fail when a misconfigured method is accessed for the first time.
   - add new `@RegisterCollector` customizing annotation (#2377)
   - correctly return null for OutParameters when the called procedure returns NULL.
+
+  - promoted from `@Beta` to stable (no functional changes, some minor doc reformatting and additions)
+    - `JdbiProperty`, `DatabaseValue`, `PropagateNull`, `GenerateSqlObject`  annotations
+    - `NamedArgumentFinder`, `SetObjectArgumentFactory`, `GetObjectColumnMapperFactory`, `GenericMapMapperFactory`, `RowViewMapper`
+    - `MapMappers` configuration object
+    - `ConfigCache` functionality
+    - `SqlStatementCustomizer#warm()` and `SqlStatementParameterCustomizer#warm()`
+    - template engines
+    - moshi json support
+
+  - promoted from `@Alpha` to `@Beta` (no functional changes, doc cleanups)
+    - Codec functionality
+    - `BaseStatement#attachToHandleForCleanup()`
+    - PostGIS support
+
 
 # 3.38.3
   - allow unknown result mappers during `ResultReturner` warmup. This restores the pre-3.38.0 behavior
