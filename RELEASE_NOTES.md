@@ -1,4 +1,13 @@
+# unreleased
+
 # 3.39.0
+
+  *3.39.x is the last release of Jdbi to support Java 8. Java 8 is
+  obsolete for a long time and the burden of supporting it in Jdbi has
+  grown as parts of our tool chain and libraries no longer support
+  it. We intend to do occasional bug patches for significant bugs or
+  security issues but there will be no further active development
+  work.*
 
   - add `Extensions#failFast()` to enable extension objects with misconfigured methods to fail at first access. Default is to fail when a misconfigured method is accessed for the first time.
   - add new `@RegisterCollector` customizing annotation (#2377)
