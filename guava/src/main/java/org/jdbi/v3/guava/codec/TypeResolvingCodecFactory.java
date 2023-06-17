@@ -24,7 +24,7 @@ import com.google.common.reflect.TypeToken.TypeSet;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.codec.CodecFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * An extended {@link CodecFactory} which can resolve Codecs for subtypes. This allows registering e.g. a codec for <code>Set&lt;String&gt;</code> and using any
@@ -32,7 +32,7 @@ import org.jdbi.v3.meta.Alpha;
  * <p>
  * This is an experimental feature which relies on {@link TypeToken} from the Guava library.
  */
-@Alpha
+@Beta
 @ThreadSafe
 public class TypeResolvingCodecFactory extends CodecFactory {
 

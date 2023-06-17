@@ -17,16 +17,17 @@ import java.sql.SQLException;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.SqlStatement;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Customize a {@link SqlStatement} according to the value of an annotated parameter.
  */
 public interface SqlStatementParameterCustomizer {
+
     /**
      * Applies the customization to the SQL statement using the argument passed to the method.
+     *
      * @param stmt the statement being customized
-     * @param arg the argument passed to the method
+     * @param arg  the argument passed to the method
      * @throws SQLException will abort statement creation
      */
     void apply(SqlStatement<?> stmt, Object arg) throws SQLException;
@@ -34,8 +35,8 @@ public interface SqlStatementParameterCustomizer {
     /**
      * Called after the customizer is instantiated but before any statement is available,
      * to pre-initialize any configuration data structures.
+     *
      * @param config the configuration registry to warm
      */
-    @Beta
     default void warm(ConfigRegistry config) {}
 }

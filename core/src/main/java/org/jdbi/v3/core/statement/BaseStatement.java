@@ -21,9 +21,10 @@ import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
-import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 
 abstract class BaseStatement<This> implements Closeable, Configurable<This> {
+
     @SuppressWarnings("unchecked")
     final This typedThis = (This) this;
 
@@ -67,7 +68,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
      *
      * @since 3.35.0
      */
-    @Alpha
+    @Beta
     public final This attachToHandleForCleanup() {
         attachToHandleForCleanup(this.handle, this.ctx);
 
@@ -127,6 +128,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
 
     @FunctionalInterface
     interface StatementCustomizerInvocation {
+
         void call(StatementCustomizer t) throws SQLException;
     }
 }

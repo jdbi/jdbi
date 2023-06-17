@@ -24,13 +24,12 @@ import java.util.Set;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Factory that uses {@link java.sql.ResultSet#getObject(int, Class)} to fetch values.
  */
-@Beta
 public class GetObjectColumnMapperFactory implements ColumnMapperFactory {
+
     private final Set<Class<?>> supportedTypes;
 
     protected GetObjectColumnMapperFactory(Class<?>... types) {
@@ -38,13 +37,25 @@ public class GetObjectColumnMapperFactory implements ColumnMapperFactory {
     }
 
     protected GetObjectColumnMapperFactory(Collection<Class<?>> types) {
-        supportedTypes = new HashSet<>(types);
+        this.supportedTypes = new HashSet<>(types);
     }
 
+    /**
+     * Creates a {@link ColumnMapperFactory} that accepts multiple types and maps them by calling {@link ResultSet#getObject(int, Class)}.
+     *
+     * @param types One or more types that should be mapped by this factory
+     * @return A {@link ColumnMapperFactory}
+     */
     public static ColumnMapperFactory forClasses(Class<?>... types) {
         return new GetObjectColumnMapperFactory(Arrays.asList(types));
     }
 
+    /**
+     * Creates a {@link ColumnMapperFactory} that accepts multiple types and maps them by calling {@link ResultSet#getObject(int, Class)}.
+     *
+     * @param types One or more types that should be mapped by this factory
+     * @return A {@link ColumnMapperFactory}
+     */
     public static ColumnMapperFactory forClasses(Set<Class<?>> types) {
         return new GetObjectColumnMapperFactory(types);
     }
@@ -59,6 +70,7 @@ public class GetObjectColumnMapperFactory implements ColumnMapperFactory {
     }
 
     private static class GetObjectColumnMapper<T> implements ColumnMapper<T> {
+
         private final Class<T> clazz;
 
         private GetObjectColumnMapper(Class<T> clazz) {

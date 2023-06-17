@@ -20,7 +20,6 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Hold metadata caches which maps various JVM constants into pre-parsed forms.
@@ -31,8 +30,8 @@ import org.jdbi.v3.meta.Beta;
  * references to JVM constant pool entries.
  * <b>This makes it unsuitable as a general-purpose shared cache.</b>
  */
-@Beta
 public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
+
     private final Map<ConfigCache<?, ?>, Map<Object, Object>> caches = new ConcurrentHashMap<>();
 
     /**
@@ -61,8 +60,8 @@ public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
             @Override
             public V get(K key, ConfigRegistry config) {
                 return (V) config.get(ConfigCaches.class).caches
-                        .computeIfAbsent(this, x -> new ConcurrentHashMap<>())
-                        .computeIfAbsent(keyNormalizer.apply(key), x -> computer.apply(config, key));
+                    .computeIfAbsent(this, x -> new ConcurrentHashMap<>())
+                    .computeIfAbsent(keyNormalizer.apply(key), x -> computer.apply(config, key));
             }
         };
     }

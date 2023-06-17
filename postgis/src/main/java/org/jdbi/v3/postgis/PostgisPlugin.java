@@ -18,7 +18,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.codec.CodecFactory;
 import org.jdbi.v3.core.spi.JdbiPlugin;
-import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.LineString;
@@ -44,7 +44,7 @@ import org.locationtech.jts.geom.Polygon;
  * <li>{@link org.locationtech.jts.geom.Geometry}</li>
  * </ul>
  */
-@Alpha
+@Beta
 public class PostgisPlugin extends JdbiPlugin.Singleton {
 
     @Override

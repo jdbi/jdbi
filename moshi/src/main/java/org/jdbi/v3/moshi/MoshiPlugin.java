@@ -17,17 +17,16 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.json.JsonConfig;
 import org.jdbi.v3.json.JsonPlugin;
-import org.jdbi.v3.meta.Beta;
 
 /**
  * Moshi integration plugin.
- *
+ * <p>
  * Adds support for {@code @Json} qualifying annotation via {@link com.squareup.moshi.Moshi}.
  *
  * @see org.jdbi.v3.json.Json
  */
-@Beta
 public class MoshiPlugin extends JdbiPlugin.Singleton {
+
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.installPlugin(new JsonPlugin());

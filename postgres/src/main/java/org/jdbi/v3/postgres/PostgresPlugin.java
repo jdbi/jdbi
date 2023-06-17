@@ -51,14 +51,8 @@ import org.postgresql.util.PGmoney;
  * <li>{@link java.util.Map Map&lt;String, String&gt;} (for {@code HSTORE} columns)</li>
  * <li>{@link java.util.UUID}</li>
  * <li>{@link java.io.InputStream} and {@link java.io.Reader} from {@code oid} large object columns</li>
- * </ul>
- *
- * <p>
- * The following qualified types have {@link org.jdbi.v3.meta.Beta} support for binding and mapping:
- *
- * <ul>
- * <li>{@link MacAddr @MacAddr java.lang.String} (for MACADDR columns)</li>
- * <li>{@link HStore @HStore Map&lt;String, String&gt;} (for HSTORE columns)</li>
+ * <li>@MacAddr {@link java.lang.String} (for {@code MACADDR} columns)</li>
+ * <li>@HStore {@link Map} (for {@code HSTORE} columns)</li>
  * </ul>
  *
  * <p>
