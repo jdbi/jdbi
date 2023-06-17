@@ -1,6 +1,6 @@
 # unreleased
 
-# 3.39.0
+# 3.39.1
 
   *3.39.x is the last release of Jdbi to support Java 8. Java 8 is
   obsolete for a long time and the burden of supporting it in Jdbi has
@@ -27,6 +27,8 @@
     - `BaseStatement#attachToHandleForCleanup()`
     - PostGIS support
 
+# 3.39.0
+  - don't use. Functional equivalent to 3.39.1 but missing some tests and the Alpha/Beta promotions. Prefer 3.39.1
 
 # 3.38.3
   - allow unknown result mappers during `ResultReturner` warmup. This restores the pre-3.38.0 behavior
