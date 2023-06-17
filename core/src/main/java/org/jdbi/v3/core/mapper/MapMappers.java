@@ -16,9 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.meta.Beta;
 
-@Beta
 public class MapMappers implements JdbiConfig<MapMappers> {
 
     private UnaryOperator<String> caseChange;

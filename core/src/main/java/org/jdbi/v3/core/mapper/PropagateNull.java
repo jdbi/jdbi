@@ -16,8 +16,6 @@ package org.jdbi.v3.core.mapper;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.meta.Beta;
-
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
@@ -32,11 +30,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({PARAMETER, FIELD, METHOD, TYPE})
-@Beta
 public @interface PropagateNull {
+
     /**
      * When annotating a type, the {@code value} is the column name to check for null.
      * When annotating a property, the {@code value} is unused: instead, the property value is tested against null.
+     *
      * @return the column name whose null-ness shall be propagated
      */
     String value() default "";

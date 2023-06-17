@@ -18,7 +18,7 @@ import java.util.function.Function;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
@@ -27,7 +27,7 @@ import org.locationtech.jts.io.WKBWriter;
 
 import static org.locationtech.jts.io.WKBConstants.wkbNDR;
 
-@Alpha
+@Beta
 final class PostgisCodec implements Codec<Geometry> {
 
     @Override

@@ -20,13 +20,13 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.function.Function;
 
-import org.jdbi.v3.meta.Beta;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.Timestamped;
 import org.jdbi.v3.sqlobject.customizer.TimestampedConfig;
 
 public class TimestampedFactory implements SqlStatementCustomizerFactory {
+
     private static Function<ZoneId, Clock> timeSource = Clock::system;
 
     @Override
@@ -42,7 +42,6 @@ public class TimestampedFactory implements SqlStatementCustomizerFactory {
     /**
      * for testing purposes only
      */
-    @Beta
     static void setTimeSource(Function<ZoneId, Clock> timeSource) {
         TimestampedFactory.timeSource = timeSource;
     }
