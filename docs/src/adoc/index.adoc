@@ -62,7 +62,8 @@ This is the documentation for the current development state of Jdbi. All informa
 
 === Release documentation
 
-* https://jdbi.org/releases/3.39.0[Release 3.39.0 - 2023-07-17^] - *This is the last release of Jdbi to support Java 8!*
+* https://jdbi.org/releases/3.39.1[Release 3.39.1 - 2023-07-17^] - *This is the last release of Jdbi to support Java 8!*
+* https://jdbi.org/releases/3.39.0[Release 3.39.0 - 2023-07-17^]
 * https://jdbi.org/releases/3.38.3[Release 3.38.3 - 2023-06-05^]
 * https://jdbi.org/releases/3.38.2[Release 3.38.2 - 2023-05-04^]
 * https://jdbi.org/releases/3.38.1[Release 3.38.1 - 2023-05-02^]
