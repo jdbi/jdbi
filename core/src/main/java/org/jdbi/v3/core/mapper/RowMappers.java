@@ -24,7 +24,6 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.meta.Alpha;
@@ -167,15 +166,18 @@ public class RowMappers implements JdbiConfig<RowMappers> {
             return cached;
         }
 
-        Optional<RowMapper<?>> mapper = factories.stream()
-                .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
-                .findFirst();
+        for (RowMapperFactory factory : factories) {
+            Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
+            RowMapper<?> mapper = maybeMapper.orElse(null);
+            if (mapper != null) {
+                mapper.init(registry);
+                cache.put(type, maybeMapper);
+                return maybeMapper;
+            }
+        }
 
-        mapper.ifPresent(m -> m.init(registry));
-
-        cache.put(type, mapper);
-
-        return mapper;
+        cache.put(type, Optional.empty());
+        return Optional.empty();
     }
 
     @Override

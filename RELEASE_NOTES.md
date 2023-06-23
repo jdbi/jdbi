@@ -1,6 +1,7 @@
 # unreleased
 
-- fix `PreparedBatch` c'tor problem where the binding context was not set correctly.
+  - fix `PreparedBatch` c'tor problem where the binding context was not set correctly.
+  - Slight memory optimization on RowMappers and ColumnMappers findFor
 
 # 3.39.1
 

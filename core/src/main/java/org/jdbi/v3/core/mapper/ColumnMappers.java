@@ -26,7 +26,6 @@ import org.jdbi.v3.core.enums.internal.EnumMapperFactory;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Alpha;
 
@@ -213,15 +212,18 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
             return cached;
         }
 
-        Optional<ColumnMapper<T>> mapper = (Optional) factories.stream()
-                .flatMap(factory -> JdbiOptionals.stream(factory.build(type, registry)))
-                .findFirst();
+        for (QualifiedColumnMapperFactory factory : factories) {
+            Optional<ColumnMapper<T>> maybeMapper = (Optional) factory.build(type, registry);
+            ColumnMapper<T> mapper = maybeMapper.orElse(null);
+            if (mapper != null) {
+                mapper.init(registry);
+                cache.put(type, maybeMapper);
+                return maybeMapper;
+            }
+        }
 
-        mapper.ifPresent(m -> m.init(registry));
-
-        cache.put(type, mapper);
-
-        return mapper;
+        cache.put(type, Optional.empty());
+        return Optional.empty();
     }
 
     /**
