@@ -124,11 +124,10 @@
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
         <jdbi.test.pg-version>15</jdbi.test.pg-version>
         <kotlin.compiler.apiVersion>1.5</kotlin.compiler.apiVersion>
-        <!-- remove the '1.' once we move past JDK8 compatibility -->
-        <kotlin.compiler.jvmTarget>1.${project.build.targetJdk}</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.5</kotlin.compiler.languageVersion>
         <no-docker>false</no-docker>
-        <project.build.targetJdk>8</project.build.targetJdk>
+        <project.build.targetJdk>11</project.build.targetJdk>
     </properties>
 
     <dependencyManagement>
