@@ -15,6 +15,7 @@ package org.jdbi.v3.testing.junit5;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("HideUtilityClassConstructor")
+@RequirePostgresVersion(atLeast = "10")
 public class JdbiExtensionTest {
 
     @RegisterExtension
