@@ -599,15 +599,20 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
+                        <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+                        <!-- Build Java 8 style javadocs for now, see #2401 -->
+                        <release>8</release>
+                        <!-- manual 11 link, otherwise this would be JDK 8 -->
+                        <detectJavaApiLink>false</detectJavaApiLink>
                         <links>
-                            <link>https://google.github.io/guice/api-docs/4.0/javadoc/</link>
+                            <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
+                            <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
                             <link>https://junit.org/junit5/docs/${dep.junit5.version}/api/</link>
                             <link>https://javadoc.io/doc/org.testcontainers/jdbc/${dep.testcontainers.version}/</link>
                         </links>
                         <nodeprecated>false</nodeprecated>
                         <author>false</author>
-                        <detectJavaApiLink>true</detectJavaApiLink>
                         <nohelp>true</nohelp>
                     </configuration>
                 </plugin>
