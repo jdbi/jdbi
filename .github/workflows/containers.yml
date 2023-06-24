@@ -1,35 +1,35 @@
+---
 name: Run all container database tests
 
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
-  ci:
+  containers:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: actions/setup-java@v3
-      id: build_jdk
-      with:
-        java-version: 17
-        distribution: temurin
-        cache: maven
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
 
-    - name: build distribution
-      env:
-        MAVEN_CONFIG: "-B -fae"
-      run: |
-        make install-fast
+      - name: build distribution
+        env:
+          MAVEN_CONFIG: "-B -fae"
+        run: |
+          make install-fast
 
-    - name: run container tests
-      env:
-        MAVEN_CONFIG: "-B -fae"
-      run: |
-        make tests-container
+      - name: run container tests
+        env:
+          MAVEN_CONFIG: "-B -fae"
+        run: |
+          make tests-container

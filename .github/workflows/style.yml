@@ -5,9 +5,8 @@ on:
   push:
     branches:
       - master
-  pull_request_target:
+  pull_request:
     types:
-      - edited
       - opened
       - reopened
       - synchronize

@@ -1,56 +1,57 @@
+---
 name: CD from master pushes
 
 on:
   push:
     branches:
-    - master
+      - master
 
 jobs:
   cd:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: temurin
-        cache: maven
-        server-id: sonatype-nexus-snapshots
-        server-username: NEXUS_REPO_USER
-        server-password: NEXUS_REPO_PASSWORD
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          server-id: sonatype-nexus-snapshots
+          server-username: NEXUS_REPO_USER
+          server-password: NEXUS_REPO_PASSWORD
 
-    - name: deploy code
-      env:
-        NEXUS_REPO_USER: ${{ secrets.NEXUS_REPO_USER }}
-        NEXUS_REPO_PASSWORD: ${{ secrets.NEXUS_REPO_PASSWORD }}
-        MAVEN_CONFIG: "-B -fae"
-      run: |
+      - name: deploy code
+        env:
+          NEXUS_REPO_USER: ${{ secrets.NEXUS_REPO_USER }}
+          NEXUS_REPO_PASSWORD: ${{ secrets.NEXUS_REPO_PASSWORD }}
+          MAVEN_CONFIG: "-B -fae"
+        run: |
           make deploy
 
   site:
     runs-on: ubuntu-latest
 
     steps:
-    - name: configure git user
-      run: |
+      - name: configure git user
+        run: |
           git config --global user.name github-cd-action
-          git config --global user.email github-cd-action@basepom.org
+          git config --global user.email github-cd-action@jdbi.org
 
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: temurin
-        cache: maven
-        server-id: github
-        server-password: SITE_DEPLOY
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          server-id: github
+          server-password: SITE_DEPLOY
 
-    - name: publish docs
-      env:
-        SITE_DEPLOY: ${{ secrets.SITE_DEPLOY_TOKEN  }}
-        MAVEN_CONFIG: "-B -fae"
-      run: |
+      - name: publish docs
+        env:
+          SITE_DEPLOY: ${{ secrets.SITE_DEPLOY_TOKEN  }}
+          MAVEN_CONFIG: "-B -fae"
+        run: |
           make publish-docs

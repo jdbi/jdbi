@@ -1,12 +1,13 @@
+---
 name: Test Postgres versions
 
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
   ci:
@@ -16,21 +17,21 @@ jobs:
         postgres-version: [ 9.6, 10, 11, 12, 13, 14, 15 ]
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Install locales on runner
-      run: |
+      - name: Install locales on runner
+        run: |
           sudo apt-get update
           sudo apt-get install -y locales-all
 
-    - uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: temurin
-        cache: maven
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
 
-    - name: test postgres versions
-      env:
-        MAVEN_CONFIG: "-B -fae -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
-      run: |
-        make install
+      - name: test postgres versions
+        env:
+          MAVEN_CONFIG: "-B -fae -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
+        run: |
+          make install

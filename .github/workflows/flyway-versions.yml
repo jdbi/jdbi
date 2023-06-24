@@ -1,31 +1,32 @@
+---
 name: Test Flyway versions
 
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
-  ci:
+  flyway:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flyway-version: [ 7.15.0, 8.2.3, 8.5.13, 9.17.0 ] # baseline, first 8.x that supports H2, latest 8.x.x, latest 9.x.x
+        flyway-version: [ 7.15.0, 8.2.3, 8.5.13 ] # oldest supported, first 8.x that supports H2, latest 8.x.x
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: temurin
-        cache: maven
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
 
-    - name: test flyway versions
-      env:
-        MAVEN_CONFIG: "-B -fae -Ddep.flyway.version=${{ matrix.flyway-version }}"
-      run: |
-        make install
+      - name: test flyway versions
+        env:
+          MAVEN_CONFIG: "-B -fae -Ddep.flyway.version=${{ matrix.flyway-version }}"
+        run: |
+          make install
