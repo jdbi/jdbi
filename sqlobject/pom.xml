@@ -120,33 +120,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes combine.children="append">
-                                <exclude>**/MapResultTest.*</exclude>
-                                <exclude>**/TestGetGeneratedKeysPostgres$*.*</exclude>
-                                <exclude>**/TestGetGeneratedKeysPostgres.*</exclude>
-                                <exclude>**/TestOutParameterAnnotation.*</exclude>
-                                <exclude>**/TestPostgresBugs.*</exclude>
-                                <exclude>**/TestPostgresRefcursorProc.*</exclude>
-                                <exclude>**/TestReadOnly.*</exclude>
-                                <exclude>**/TestRegisterJoinRowMapper.*</exclude>
-                                <exclude>**/TestSqlLocator.*</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

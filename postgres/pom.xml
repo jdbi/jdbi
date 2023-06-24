@@ -116,44 +116,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <profiles>
-        <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes combine.children="append">
-                                <exclude>**/TestBatchGeneratedKeys.*</exclude>
-                                <exclude>**/TestJsonOperator.*</exclude>
-                                <exclude>**/TestDuration.*</exclude>
-                                <exclude>**/TestEnumSets.*</exclude>
-                                <exclude>**/TestHStore.*</exclude>
-                                <exclude>**/TestImmutablesHStore.*</exclude>
-                                <exclude>**/TestInetAddressPg.*</exclude>
-                                <exclude>**/TestJavaTime.*</exclude>
-                                <exclude>**/TestJsonOperator.*</exclude>
-                                <exclude>**/TestLobStream.*</exclude>
-                                <exclude>**/TestMacAddr.*</exclude>
-                                <exclude>**/TestPeriod.*</exclude>
-                                <exclude>**/TestPostgresTypes.*</exclude>
-                                <exclude>**/TestQualifiedHStore.*</exclude>
-                                <exclude>**/TestSqlArrays.*</exclude>
-                                <exclude>**/TestStatementsTimeout.*</exclude>
-                                <exclude>**/TestTypedEnum.*</exclude>
-                                <exclude>**/TestUuid.*</exclude>
-                                <exclude>**/TestByteaArrays.*</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
 </project>

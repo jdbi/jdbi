@@ -924,17 +924,6 @@
             </build>
         </profile>
         <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <properties>
-                <!-- last JDK 8 compatible versions -->
-                <dep.caffeine.version>2.9.2</dep.caffeine.version>
-                <dep.hsqldb.version>2.5.2</dep.hsqldb.version>
-            </properties>
-        </profile>
-        <profile>
             <id>kotlin</id>
             <activation>
                 <file>

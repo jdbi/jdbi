@@ -169,32 +169,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes combine.children="append">
-                                <exclude>**/TestCollectionArguments.*</exclude>
-                                <exclude>**/TestBatchExceptionRewrite.*</exclude>
-                                <exclude>**/TestPreparedBatchGenerateKeysPostgres.*</exclude>
-                                <exclude>**/TestPreparedBatchPG.*</exclude>
-                                <exclude>**/TestScript.*</exclude>
-                                <exclude>**/ConstructorMapperPgTest.*</exclude>
-                                <exclude>**/TestArgumentBinder.*</exclude>
-                                <exclude>**/TestQueriesPG.*</exclude>
-                                <exclude>**/TestCallable.*</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

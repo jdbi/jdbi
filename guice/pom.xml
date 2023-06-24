@@ -114,29 +114,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes combine.children="append">
-                                <exclude>**/TestRobotLegsModule.*</exclude>
-                                <exclude>**/TestRobotLegsModule$*.*</exclude>
-                                <exclude>**/TestJdbiModule.*</exclude>
-                                <exclude>**/TestJdbiModule$*.*</exclude>
-                                <exclude>**/TestJdbiBinder.*</exclude>
-                                <exclude>**/TestJdbiBinder$*.*</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
