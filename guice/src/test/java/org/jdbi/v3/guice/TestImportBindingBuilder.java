@@ -15,8 +15,9 @@ package org.jdbi.v3.guice;
 
 import java.lang.annotation.Annotation;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
+
+import jakarta.annotation.Nullable;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;

@@ -4,6 +4,7 @@
   - Slight memory optimization on RowMappers and ColumnMappers findFor
   - JsonMapper implementations now bind the Type earlier, which saves work in Jackson and Gson (#2420)
   - performance improvements for all ExtensionConfigurer implementations (#2416, #2424)
+  - Remove JSR 305 annotations from the Jdbi codebase, one small step closer to JPMS.
 
 # 3.39.1
 

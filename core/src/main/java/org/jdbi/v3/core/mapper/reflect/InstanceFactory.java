@@ -19,7 +19,7 @@ import java.lang.reflect.Parameter;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 

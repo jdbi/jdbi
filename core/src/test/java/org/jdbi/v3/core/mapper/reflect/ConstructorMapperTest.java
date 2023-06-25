@@ -15,7 +15,7 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.ConstructorProperties;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;

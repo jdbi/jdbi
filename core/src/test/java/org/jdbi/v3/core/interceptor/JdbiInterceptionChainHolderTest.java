@@ -16,9 +16,6 @@ package org.jdbi.v3.core.interceptor;
 import java.util.UUID;
 import java.util.function.Function;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -263,9 +260,8 @@ public class JdbiInterceptionChainHolderTest {
             return target;
         }
 
-        @CheckForNull
         @Override
-        public String intercept(@Nullable S s, JdbiInterceptionChain<String> chain) {
+        public String intercept(S s, JdbiInterceptionChain<String> chain) {
             this.source = s;
             if (doIt) {
                 return this.target;

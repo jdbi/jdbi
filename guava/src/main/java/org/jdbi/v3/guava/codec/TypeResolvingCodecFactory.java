@@ -17,10 +17,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.google.common.reflect.TypeToken;
 import com.google.common.reflect.TypeToken.TypeSet;
+import com.google.errorprone.annotations.ThreadSafe;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.codec.CodecFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;

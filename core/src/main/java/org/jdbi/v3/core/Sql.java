@@ -18,8 +18,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.Nonnull;
-
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -104,7 +103,7 @@ public final class Sql implements CharSequence {
         return str.charAt(index);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public CharSequence subSequence(int start, int end) {
         return str.subSequence(start, end);

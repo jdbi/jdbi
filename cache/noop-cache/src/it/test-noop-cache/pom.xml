@@ -60,6 +60,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- all the test dependencies as the -tests jar does not provide deps -->
         <dependency>
             <groupId>org.mockito</groupId>

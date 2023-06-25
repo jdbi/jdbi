@@ -25,7 +25,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Specify the mapping name for a property or parameter explicitly. This annotation is respected by:
  *
  * <ul>
- *     <li>BeanMapper, FieldMapper, and ConstructorMapper in core</li>
+ *     <li>{@link BeanMapper}, {@link FieldMapper}, and {@link ConstructorMapper} in core</li>
  *     <li>The Kotlin data class mapper in KotlinPlugin</li>
  *     <li>Immutables property definitions</li>
  * </ul>

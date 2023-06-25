@@ -23,9 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
-import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.concurrent.ThreadSafe;
-
+import com.google.errorprone.annotations.ThreadSafe;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.QualifiedArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -113,7 +111,6 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
     /**
      * Fluent Builder for {@link CodecFactory}.
      */
-    @NotThreadSafe
     @Beta
     public static final class Builder {
 

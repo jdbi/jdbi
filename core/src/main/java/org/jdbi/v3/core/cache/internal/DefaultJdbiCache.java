@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.annotation.concurrent.GuardedBy;
-
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.jdbi.v3.core.cache.JdbiCache;
 import org.jdbi.v3.core.cache.JdbiCacheLoader;
 
