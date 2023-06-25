@@ -1,5 +1,7 @@
 # unreleased
 
+- fix `PreparedBatch` c'tor problem where the binding context was not set correctly.
+
 # 3.39.1
 
   *3.39.x is the last release of Jdbi to support Java 8. Java 8 is
