@@ -74,7 +74,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * @see PreparedBatch#PreparedBatch(Handle, CharSequence)
      */
     public PreparedBatch(Handle handle, String sql) {
-        super(handle, sql);
+        this(handle, (CharSequence) sql);
     }
 
     @Override
