@@ -127,6 +127,7 @@
         <!-- remove the '1.' once we move past JDK8 compatibility -->
         <kotlin.compiler.jvmTarget>1.${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.5</kotlin.compiler.languageVersion>
+        <no-docker>false</no-docker>
         <project.build.targetJdk>8</project.build.targetJdk>
     </properties>
 
