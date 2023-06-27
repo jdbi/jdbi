@@ -171,7 +171,7 @@ Check out the release tag from Git, and run publish target to update the docs on
 
 ```bash
 $ git checkout v<version>
-$ MAVEN_CONFIG=-Pjdbi-release make publish-docs
+$ make release-docs
 ```
 
 ## Add a release announcement to github

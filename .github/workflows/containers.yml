@@ -32,4 +32,4 @@ jobs:
         env:
           MAVEN_CONFIG: "-B -fae"
         run: |
-          make tests-container
+          make run-tests-container

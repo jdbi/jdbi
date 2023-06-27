@@ -37,7 +37,7 @@ jobs:
         env:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
         run: |
-          make tests
+          make run-tests
 
   immutables:
     name: Test Immutables versions
@@ -66,7 +66,7 @@ jobs:
         env:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
         run: |
-          make tests
+          make run-tests
 
   jackson2:
     name: Test Jackson Versions
@@ -95,7 +95,7 @@ jobs:
         env:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
         run: |
-          make tests
+          make run-tests
 
   jodatime2:
     name: Test joda-time versions
@@ -124,7 +124,7 @@ jobs:
         env:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
         run: |
-          make tests
+          make run-tests
 
   vavr:
     name: Test vavr versions
@@ -153,7 +153,7 @@ jobs:
         env:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
         run: |
-          make tests
+          make run-tests
 
   guice:
     name: Test guice versions
@@ -182,7 +182,7 @@ jobs:
         env:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
         run: |
-          make tests
+          make run-tests
 
   kotlin:
     name: Test kotlin runtime versions
@@ -211,4 +211,4 @@ jobs:
         env:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-kotlin,:jdbi3-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
         run: |
-          make tests
+          make run-tests

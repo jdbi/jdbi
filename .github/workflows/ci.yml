@@ -57,4 +57,4 @@ jobs:
           JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
           MAVEN_CONFIG: "-B -fae"
         run: |
-          make tests
+          make run-tests
