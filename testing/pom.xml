@@ -117,27 +117,6 @@
 
     <profiles>
         <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes combine.children="append">
-                                <exclude>**/JdbiExtensionTest.*</exclude>
-                                <exclude>**/JdbiPostgresExtensionTest.*</exclude>
-                                <exclude>**/JdbiPostgresExtendWithTest.*</exclude>
-                                <exclude>**/JdbiGenericExtensionTest.*</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>no-docker</id>
             <activation>
                 <property>

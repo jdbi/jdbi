@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.extension;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -85,7 +86,7 @@ public interface ExtensionHandler {
      */
     static ExtensionHandler createForMethod(Method method) throws IllegalAccessException {
         Class<?> declaringClass = method.getDeclaringClass();
-        final MethodHandle methodHandle = PrivateLookupInKludge.lookupFor(declaringClass).unreflect(method);
+        final MethodHandle methodHandle = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup()).unreflect(method);
         return createForMethodHandle(methodHandle);
     }
 
@@ -98,7 +99,7 @@ public interface ExtensionHandler {
      */
     static ExtensionHandler createForSpecialMethod(Method method) throws IllegalAccessException {
         Class<?> declaringClass = method.getDeclaringClass();
-        final MethodHandle methodHandle = PrivateLookupInKludge.lookupFor(declaringClass).unreflectSpecial(method, declaringClass);
+        final MethodHandle methodHandle = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup()).unreflectSpecial(method, declaringClass);
         return createForMethodHandle(methodHandle);
     }
 
@@ -106,7 +107,6 @@ public interface ExtensionHandler {
      * Create an extension handler and bind it to a {@link MethodHandle} instance.
      * @param methodHandle The {@link MethodHandle} to bind to
      * @return An {@link ExtensionHandler}
-     * @throws IllegalAccessException If the method could not be unreflected
      */
     static ExtensionHandler createForMethodHandle(MethodHandle methodHandle) {
         return (handleSupplier, target, args) -> {

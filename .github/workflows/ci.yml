@@ -3,61 +3,58 @@ name: CI Build with tests
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 8, 11, 17, 19 ]
+        java-version: [ 11, 17, 19, 20 ]
         distribution: [ temurin ]
-        include:
-          - java-version: 20
-            distribution: oracle
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: actions/setup-java@v3
-      id: build_jdk
-      with:
-        java-version: 17
-        distribution: ${{ matrix.distribution }}
-        cache: maven
+      - uses: actions/setup-java@v3
+        id: build_jdk
+        with:
+          java-version: 17
+          distribution: ${{ matrix.distribution }}
+          cache: maven
 
-    - uses: actions/setup-java@v3
-      id: test_jdk
-      with:
-        java-version: ${{ matrix.java-version }}
-        distribution: ${{ matrix.distribution }}
-        cache: maven
+      - uses: actions/setup-java@v3
+        id: test_jdk
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: ${{ matrix.distribution }}
+          cache: maven
 
-    - name: set build_jdk
-      env:
-        JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
-      run: |
-        echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
+      - name: set build_jdk
+        env:
+          JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
+        run: |
+          echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
 
-    - name: build distribution
-      env:
-        JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
-        MAVEN_CONFIG: "-Pfast -Dbasepom.check.skip-enforcer=false -B -fae"
-      run: |
-        make install
+      - name: build distribution
+        env:
+          JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
+          MAVEN_CONFIG: "-Pfast -Dbasepom.check.skip-enforcer=false -B -fae"
+        run: |
+          make install
 
-    - name: set test_jdk
-      env:
-        JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
-      run: |
-        echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
+      - name: set test_jdk
+        env:
+          JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
+        run: |
+          echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
 
-    - name: run tests
-      env:
-        JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
-        MAVEN_CONFIG: "-B -fae"
-      run: |
-        make tests
+      - name: run tests
+        env:
+          JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
+          MAVEN_CONFIG: "-B -fae"
+        run: |
+          make tests

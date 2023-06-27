@@ -372,11 +372,10 @@ abstract class ResultReturner {
 
         @Override
         protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
-            try {
-                accept(stream, findConsumer(ctx));
-            } finally {
-                stream.close();
+            try (Stream<?> reducedStream = stream) {
+                accept(reducedStream, findConsumer(ctx));
             }
+
             return null;
         }
 

@@ -342,11 +342,14 @@
                                 </goals>
                                 <phase>package</phase>
                                 <configuration>
-                                    <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
                                     <includeDependencySources>true</includeDependencySources>
                                     <dependencySourceIncludes>
                                         <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
                                     </dependencySourceIncludes>
+                                    <dependencySourceExcludes>
+                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin</dependencySourceExclude>
+                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin-sqlobject</dependencySourceExclude>
+                                    </dependencySourceExcludes>
                                     <doctitle>Jdbi3 ${project.version} API</doctitle>
                                     <windowtitle>Jdbi3 ${project.version} API</windowtitle>
                                 </configuration>
@@ -356,6 +359,21 @@
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <executions>
+                            <execution>
+                                <id>copy-javadocs</id>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${project.build.directory}/apidocs</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
                             <execution>
                                 <id>copy-kotlin-apidocs</id>
                                 <goals>
@@ -426,26 +444,6 @@
                                 <phase>deploy</phase>
                             </execution>
                         </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>jdk8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes combine.children="append">
-                                <exclude>**/CallTest.*</exclude>
-                                <exclude>**/TransactionTest.*</exclude>
-                                <exclude>**/GeneratedKeysTest.*</exclude>
-                            </excludes>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

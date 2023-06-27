@@ -87,7 +87,7 @@ endif::[]
 
 == Introduction to Jdbi 3
 
-*Jdbi provides convenient, idiomatic, access to relational data in Java.* Jdbi 3 is the third major release, which introduces enhanced support for Java 8, countless refinements to the design and implementation, and enhanced support for modular development through plugins and extensions.
+*Jdbi provides convenient, idiomatic, access to relational data in Java.* Jdbi 3 is the third major release, which introduces enhanced support for modern Java, countless refinements to the design and implementation, and enhanced support for modular development through plugins and extensions.
 
 *Jdbi is built on top of JDBC.* If your data source has a JDBC driver, you can use it with Jdbi. It improves JDBC's low-level interface, providing a more natural API that is easy to bind to your domain data types.
 
@@ -149,13 +149,10 @@ All Jdbi modules are available through https://search.maven.org[Maven Central^].
 
 === JVM version compatibility
 
-Jdbi runs on all Java versions 8 or later. 11 or later is required to build. All releases are built with the latest LTS version of Java using Java 8 bytecode compatibility.
+Jdbi runs on all Java versions 11 or later. All releases are built with the latest LTS version of Java using Java 11 bytecode compatibility.
 
-[CAUTION]
-Java 8 has been deprecated for a while now. While there is no cutoff date yet to drop JDK 8 support,
-it will go away. We are already require JDK 11+ to build and run all the tests.
-
-In order to run on JDK 8, some dependencies, such as https://github.com/ben-manes/caffeine[the caffeine caching library^] need to be explicitly version managed to a version that is supported on JDK 8.
+[IMPORTANT]
+Jdbi ended support for Java 8 with version 3.39. There are occasional backports of security relevant things or major bugs but as of version 3.40.0, JDK 11+ is required.
 
 
 === Getting started
@@ -800,8 +797,7 @@ and end up with logs that say nothing other than
 java.sql.BatchUpdateException: Batch entry 1 INSERT INTO something (id, name) VALUES (0, '') was aborted. Call getNextException to see the cause.
 ----
 
-Jdbi will attempt to rewrite such nextExceptions into "suppressed exceptions"
-(new in Java 8) so that your logs are more helpful:
+Jdbi will rewrite such exceptions into "suppressed exceptions" so that your logs are more helpful:
 
 ----
 java.sql.BatchUpdateException: Batch entry 1 INSERT INTO something (id, name) VALUES (0, 'Keith') was aborted. Call getNextException to see the cause.
@@ -1545,8 +1541,7 @@ include::{exampledir}/ArgumentsTest.java[tags=uuidArgumentFactory]
 <1> The JDBC link:{jdkdocs}/java/sql/Types.html[SQL type constant^] to use when
     binding UUIDs. Jdbi needs this in order to bind UUID values of `null`. See
    link:{jdkdocs}/java/sql/PreparedStatement.html#setNull-int-int-[PreparedStatement.setNull(int,int)^]
-<2> Since `Argument` is a functional interface, it can be implemented as a
-    simple lambda expression.
+<2> Since `Argument` is a functional interface, it can be implemented as a lambda expression.
 
 
 ==== Using Prepared Arguments for batches
@@ -1844,8 +1839,7 @@ link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] is a functional
 interface, which maps a column from the current row of a JDBC
 link:{jdkdocs}/java/sql/ResultSet.html[ResultSet^] to a mapped type.
 
-Since link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] is a functional interface, they can be provided inline to a
-query using a lambda expression:
+Since link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] is a functional interface, they can be provided inline to a query using a lambda expression:
 
 [source,java,indent=0]
 ----
@@ -6947,10 +6941,10 @@ To use this plugin, add a Maven dependency:
 </dependency>
 ----
 
-Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version^] is set to at least 1.8:
+Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version^] is set to at least 11:
 [source,xml,indent=0,subs="specialchars"]
 ----
-<kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+<kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
 ----
 
 Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
@@ -7153,7 +7147,7 @@ Jdbi jdbi = Jdbi.create("jdbc:postgresql://host:port/database")
                 .installPlugin(new PostgresPlugin());
 ----
 
-The plugin configures mappings for the Java 8 link:{jdkdocs}/java/time/package-summary.html[java.time^] types like
+The plugin configures mappings for link:{jdkdocs}/java/time/package-summary.html[java.time^] types like
 link:{jdkdocs}/java/time/Instant.html[Instant^] or link:{jdkdocs}/java/time/Duration.html[Duration^], link:{jdkdocs}/java/net/InetAddress.html[InetAddress^], link:{jdkdocs}/java/util/UUID.html[UUID^], typed enums, and <<postgres-hstore,hstore>>.
 
 It also configures SQL array type support for `int`, `long`, `float`, `double`,
@@ -8234,8 +8228,7 @@ include::{exampledir}/ExtensionHandlerAnnotationTest.java[tags=register-factory]
 include::{exampledir}/ExtensionHandlerAnnotationTest.java[tags=annotation-code]
 ----
 
-<1> An extension factory that implements only the link:{jdbidocs}/core/extension/ExtensionFactory.html#accepts(java.lang.Class)[ExtensionFactory#accepts()^]
-method can be written as a lambda.
+<1> An extension factory that implements only the link:{jdbidocs}/core/extension/ExtensionFactory.html#accepts(java.lang.Class)[ExtensionFactory#accepts()^] method can be written as a lambda.
 
 <2> The factory accepts this extension type if it has at least one method that is annotated with the
 link:{jdbidocs}/core/extension/annotation/UseExtensionHandler.html[@UseExtensionHandler^] meta-annotation.

@@ -3,26 +3,26 @@ name: Documentation build
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
   doc:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: temurin
-        cache: maven
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
 
-    - name: docs
-      env:
-        MAVEN_CONFIG: "-Dbasepom.check.fail-javadoc=true -B -fae"
-      run: |
-        make docs
+      - name: docs
+        env:
+          MAVEN_CONFIG: "-Dbasepom.check.fail-javadoc=true -B -fae"
+        run: |
+          make docs
