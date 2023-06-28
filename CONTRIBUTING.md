@@ -80,20 +80,35 @@ We do not review or merge PRs that do not pass our pre-merge checks. Run the bui
 There is a Makefile at the root of the project to drive the various builds. Run `make` or `make help` to display all available goals. Some goals are privileged (you need to be a member of the Jdbi development team). Generally available goals are:
 
 ```
- * clean            - clean local build tree
- * install          - builds and installs the current version in the local repository
- * install-nodocker - same as 'install', but skip all tests that require a local docker installation
- * install-fast     - same as 'install', but skip test execution and code analysis (Checkstyle/PMD/Spotbugs)
- * docs             - build up-to-date documentation in docs/target/generated-docs/
- * tests            - run all unit and integration tests
- * tests-nodocker   - same as 'tests', but skip all tests that require a local docker installation
+* clean               - clean local build tree
+* install             - build, run static analysis and unit tests, then install in the local repository
+* install-notests     - same as 'install', but skip unit tests
+* install-nodocker    - same as 'install', but skip unit tests that require a local docker installation
+* install-fast        - same as 'install', but skip unit tests and static analysis
+* tests               - build code and run unit and integration tests except really slow tests
+* docs                - build up-to-date documentation in docs/target/generated-docs/
+* run-tests           - run all unit and integration tests except really slow tests
+* run-tests-nodocker  - same as 'run-tests', but skip all tests that require a local docker installation
+* run-tests-container - run the full multi-database container test suite
 ```
 
-- If you make changes to the Jdbi code, please run `make install` before opening a PR.
+- If you make changes to the Jdbi code, please run `make tests` before opening a PR.
 - If you make changes to the documentation, please run `make docs` before opening a PR.
 
 If you do not have a local docker installation (required for some tests), use the equivalent `-nodocker` goals.
 
+| Make command          | function                                      | equivalent Apache Maven command                                                                                                             |
+|-----------------------|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `clean`               | clean local build tree                        | `mvn clean`                                                                                                                                 |
+| `install`             | standard build command                        | `mvn clean install`                                                                                                                         |
+| `install-notests`     | build without unit tests                      | `mvn -Dbasepom.test.skip=true clean install`                                                                                                |
+| `install-nodocker`    | build without docker                          | `mvn -Dno-docker=true clean install`                                                                                                        |
+| `install-fast`        | build without tests and checkers              | `mvn -Pfast clean install`                                                                                                                  |
+| `tests`               | install and run tests                         | combination of `mvn -Dbasepom.test.skip=true clean install` and `mvn surefire:test invoker:install invoker:integration-test invoker:verify` |
+| `docs`                | build jdbi docs                               | `mvn -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false clean install`                                                                      |
+| `run-tests`           | run unit and integration tests                | `mvn surefire:test invoker:install invoker:integration-test invoker:verify`                                                                 |
+| `run-tests-nodocker`  | run unit and integration tests without docker | `mvn -Dno-docker=true surefire:test invoker:install invoker:integration-test invoker:verify`                                                |
+| `run-tests-container` | run testcontainer based tests                 | `mvn -Dbasepom.test.skip=false surefire:test -pl :jdbi3-testcontainers`                                                                     |
 
 #### IntelliJ IDEA
 

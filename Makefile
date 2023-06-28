@@ -15,7 +15,7 @@
 #
 SHELL = /bin/sh
 .SUFFIXES:
-.PHONY: help clean install install-nodocker install-fast docs tests tests-container tests-nodocker publish-docs deploy release
+.PHONY: help clean install install-nodocker install-fast docs tests run-tests run-tests-container run-tests-nodocker publish-docs deploy release release-docs
 
 MAVEN = ./mvnw ${JDBI_MAVEN_OPTS}
 
@@ -29,6 +29,11 @@ clean:
 install:
 	${MAVEN} clean install
 
+tests: install-notests run-tests
+
+install-notests: MAVEN_CONFIG += -Dbasepom.test.skip=true
+install-notests: install
+
 install-nodocker: MAVEN_CONFIG += -Dno-docker=true
 install-nodocker: install
 
@@ -38,16 +43,16 @@ install-fast: install
 docs: MAVEN_CONFIG += -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false
 docs: install
 
-tests: MAVEN_CONFIG += -Dbasepom.it.skip=false
-tests:
+run-tests: MAVEN_CONFIG += -Dbasepom.it.skip=false
+run-tests:
 	${MAVEN} surefire:test invoker:install invoker:integration-test invoker:verify
 
-tests-container: MAVEN_CONFIG += -Dbasepom.test.skip=false
-tests-container:
+run-tests-container: MAVEN_CONFIG += -Dbasepom.test.skip=false
+run-tests-container:
 	${MAVEN} surefire:test -pl :jdbi3-testcontainers
 
-tests-nodocker: MAVEN_CONFIG += -Dno-docker=true
-tests-nodocker: tests
+run-tests-nodocker: MAVEN_CONFIG += -Dno-docker=true
+run-tests-nodocker: tests
 
 publish-docs: MAVEN_CONFIG += -Pfast -Dbasepom.javadoc.skip=false
 publish-docs: install
@@ -60,15 +65,20 @@ deploy:
 release:
 	${MAVEN} clean release:clean release:prepare release:perform
 
+release-docs: MAVEN_CONFIG += -Pjdbi-release
+release-docs: publish-docs
+
 help:
-	@echo " * clean            - clean local build tree"
-	@echo " * install          - builds and installs the current version in the local repository"
-	@echo " * install-nodocker - same as 'install', but skip all tests that require a local docker installation"
-	@echo " * install-fast     - same as 'install', but skip test execution and code analysis (Checkstyle/PMD/Spotbugs)"
-	@echo " * docs             - build up-to-date documentation in docs/target/generated-docs/"
-	@echo " * tests            - run all unit and integration tests except really slow tests"
-	@echo " * tests-nodocker   - same as 'tests', but skip all tests that require a local docker installation"
-	@echo " * tests-container  - run the full multi-database container test suite"
+	@echo " * clean               - clean local build tree"
+	@echo " * install             - build, run static analysis and unit tests, then install in the local repository"
+	@echo " * install-notests     - same as 'install', but skip unit tests"
+	@echo " * install-nodocker    - same as 'install', but skip unit tests that require a local docker installation"
+	@echo " * install-fast        - same as 'install', but skip unit tests and static analysis"
+	@echo " * tests               - build code and run unit and integration tests except really slow tests"
+	@echo " * docs                - build up-to-date documentation in docs/target/generated-docs/"
+	@echo " * run-tests           - run all unit and integration tests except really slow tests"
+	@echo " * run-tests-nodocker  - same as 'run-tests', but skip all tests that require a local docker installation"
+	@echo " * run-tests-container - run the full multi-database container test suite"
 	@echo " *"
 	@echo " ***********************************************************************"
 	@echo " *"
@@ -79,3 +89,4 @@ help:
 	@echo " * publish-docs     - build up-to-date documentation and deploy to jdbi.org"
 	@echo " * deploy           - builds and deploys the current version to the Sonatype OSS repository"
 	@echo " * release          - create and deploy a Jdbi release"
+	@echo " * release-docs     - deploy release documentation"
