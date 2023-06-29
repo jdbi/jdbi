@@ -16,22 +16,30 @@ package org.jdbi.v3.moshi;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import com.squareup.moshi.JsonAdapter;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.JsonMapper;
 
 class MoshiJsonMapper implements JsonMapper {
     @Override
-    public String toJson(Type type, Object value, ConfigRegistry config) {
-        return config.get(MoshiConfig.class).getMoshi().adapter(type).toJson(value);
-    }
+    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+        return new TypedJsonMapper() {
+            private final JsonAdapter<Object> adapter = config.get(MoshiConfig.class).getMoshi().adapter(type);
 
-    @Override
-    public Object fromJson(Type type, String json, ConfigRegistry config) {
-        try {
-            return config.get(MoshiConfig.class).getMoshi().adapter(type).fromJson(json);
-        } catch (IOException e) {
-            throw new UnableToProduceResultException(e);
-        }
+            @Override
+            public String toJson(Object value, ConfigRegistry config) {
+                return adapter.toJson(value);
+            }
+
+            @Override
+            public Object fromJson(String json, ConfigRegistry config) {
+                try {
+                    return adapter.fromJson(json);
+                } catch (IOException e) {
+                    throw new UnableToProduceResultException(e);
+                }
+            }
+        };
     }
 }

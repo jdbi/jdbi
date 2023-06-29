@@ -13,44 +13,52 @@
  */
 package org.jdbi.v3.json;
 
+import java.lang.reflect.Type;
+
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 public class JsonPluginTest {
-
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new JsonPlugin());
 
-    @Mock
-    public JsonMapper jsonMapper;
-
     @BeforeEach
     public void before() {
-        h2Extension.getJdbi().getConfig(JsonConfig.class).setJsonMapper(jsonMapper);
         h2Extension.getJdbi().useHandle(h -> h.createUpdate("create table foo(bar varchar)").execute());
     }
 
     @Test
     public void factoryChainWorks() {
+        Jdbi jdbi = h2Extension.getJdbi();
         Object instance = new Foo();
         String json = "foo";
 
-        when(jsonMapper.toJson(eq(Foo.class), eq(instance), any(ConfigRegistry.class))).thenReturn(json);
-        when(jsonMapper.fromJson(eq(Foo.class), eq(json), any(ConfigRegistry.class))).thenReturn(instance);
+        jdbi.getConfig(JsonConfig.class).setJsonMapper(new JsonMapper() {
+            @Override
+            public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+                assertThat(type).isEqualTo(Foo.class);
+                return new TypedJsonMapper() {
+                    @Override
+                    public String toJson(Object value, ConfigRegistry config) {
+                        assertThat(value).isEqualTo(instance);
+                        return json;
+                    }
+
+                    @Override
+                    public Object fromJson(String readJson, ConfigRegistry config) {
+                        assertThat(readJson).isEqualTo(json);
+                        return instance;
+                    }
+                };
+            }
+        });
 
         Object result = h2Extension.getJdbi().withHandle(h -> {
             h.createUpdate("insert into foo(bar) values(:foo)")
@@ -66,8 +74,6 @@ public class JsonPluginTest {
         });
 
         assertThat(result).isSameAs(instance);
-        verify(jsonMapper).fromJson(eq(Foo.class), eq(json), any(ConfigRegistry.class));
-        verify(jsonMapper).toJson(eq(Foo.class), eq(instance), any(ConfigRegistry.class));
     }
 
     public static class Foo {

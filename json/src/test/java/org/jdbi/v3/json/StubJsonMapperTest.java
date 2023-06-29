@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.json;
 
-import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -42,7 +41,7 @@ public class StubJsonMapperTest {
                 .hasMessageContaining("a JsonMapper");
 
             assertThatThrownBy(dao::get)
-                .isInstanceOf(UnableToProduceResultException.class)
+                .isInstanceOf(UnableToCreateStatementException.class)
                 .hasMessageContaining("need to install")
                 .hasMessageContaining("a JsonMapper");
         });

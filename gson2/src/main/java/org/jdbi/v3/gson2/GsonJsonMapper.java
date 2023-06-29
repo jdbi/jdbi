@@ -13,19 +13,37 @@
  */
 package org.jdbi.v3.gson2;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.JsonMapper;
 
 class GsonJsonMapper implements JsonMapper {
     @Override
-    public String toJson(Type type, Object value, ConfigRegistry config) {
-        return config.get(Gson2Config.class).getGson().toJson(value, type);
-    }
+    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+        return new TypedJsonMapper() {
+            @SuppressWarnings("rawtypes")
+            private final TypeAdapter adapter = config.get(Gson2Config.class)
+                    .getGson().getAdapter(TypeToken.get(type));
 
-    @Override
-    public Object fromJson(Type type, String json, ConfigRegistry config) {
-        return config.get(Gson2Config.class).getGson().fromJson(json, type);
+            @SuppressWarnings("unchecked")
+            @Override
+            public String toJson(Object value, ConfigRegistry config) {
+                return adapter.toJson(value);
+            }
+
+            @Override
+            public Object fromJson(String json, ConfigRegistry config) {
+                try {
+                    return adapter.fromJson(json);
+                } catch (IOException e) {
+                    throw new UnableToProduceResultException(e);
+                }
+            }
+        };
     }
 }

@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -25,32 +27,40 @@ import org.jdbi.v3.json.JsonMapper;
 
 class JacksonJsonMapper implements JsonMapper {
     @Override
-    public String toJson(Type type, Object value, ConfigRegistry config) {
-        try {
-            Jackson2Config cfg = config.get(Jackson2Config.class);
-            ObjectWriter writer = cfg.getMapper().writerFor(cfg.getMapper().constructType(type));
-            Class<?> view = cfg.getSerializationView();
-            if (view != null) {
-                writer = writer.withView(view);
-            }
-            return writer.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            throw new UnableToProduceResultException(e);
-        }
-    }
+    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+        return new TypedJsonMapper() {
+            private final ObjectMapper mapper = config.get(Jackson2Config.class).getMapper();
+            private final JavaType mappedType = mapper.constructType(type);
+            private final ObjectReader reader = mapper.readerFor(mappedType);
+            private final ObjectWriter writer = mapper.writerFor(mappedType);
 
-    @Override
-    public Object fromJson(Type type, String json, ConfigRegistry config) {
-        try {
-            Jackson2Config cfg = config.get(Jackson2Config.class);
-            ObjectReader reader = cfg.getMapper().readerFor(cfg.getMapper().constructType(type));
-            Class<?> view = cfg.getDeserializationView();
-            if (view != null) {
-                reader = reader.withView(view);
+            @Override
+            public String toJson(Object value, ConfigRegistry config) {
+                final Class<?> view = config.get(Jackson2Config.class).getSerializationView();
+                final ObjectWriter viewWriter =
+                          view == null
+                        ? writer
+                        : writer.withView(view);
+                try {
+                    return viewWriter.writeValueAsString(value);
+                } catch (JsonProcessingException e) {
+                    throw new UnableToProduceResultException(e);
+                }
             }
-            return reader.readValue(json);
-        } catch (IOException e) {
-            throw new UnableToProduceResultException(e);
-        }
+
+            @Override
+            public Object fromJson(String json, ConfigRegistry config) {
+                final Class<?> view = config.get(Jackson2Config.class).getDeserializationView();
+                final ObjectReader viewReader =
+                          view == null
+                        ? reader
+                        : reader.withView(view);
+                try {
+                    return viewReader.readValue(json);
+                } catch (IOException e) {
+                    throw new UnableToProduceResultException(e);
+                }
+            }
+        };
     }
 }

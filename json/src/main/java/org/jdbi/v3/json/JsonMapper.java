@@ -26,6 +26,19 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  * jdbi3-jackson2 and jdbi3-gson2 are readily available for this.
  */
 public interface JsonMapper {
-    String toJson(Type type, Object value, ConfigRegistry config);
-    Object fromJson(Type type, String json, ConfigRegistry config);
+    @Deprecated // forRemoval=true
+    default String toJson(Type type, Object value, ConfigRegistry config) {
+        return forType(type, config).toJson(value, config);
+    }
+    @Deprecated // forRemoval=true
+    default Object fromJson(Type type, String json, ConfigRegistry config) {
+        return forType(type, config).fromJson(json, config);
+    }
+
+    TypedJsonMapper forType(Type type, ConfigRegistry config);
+
+    interface TypedJsonMapper {
+        String toJson(Object value, ConfigRegistry config);
+        Object fromJson(String json, ConfigRegistry config);
+    }
 }

@@ -26,7 +26,7 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.EncodedJson;
 import org.jdbi.v3.json.Json;
 import org.jdbi.v3.json.JsonConfig;
-import org.jdbi.v3.json.JsonMapper;
+import org.jdbi.v3.json.JsonMapper.TypedJsonMapper;
 
 /**
  * converts a {@code (@Json) String} fetched by another mapper into a value object
@@ -47,10 +47,9 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
                 () -> cm.findFor(String.class))
                 .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE));
 
-        final JsonMapper mapper = config.get(JsonConfig.class).getJsonMapper();
+        final TypedJsonMapper mapper = config.get(JsonConfig.class).getJsonMapper().forType(type, config);
         return Optional.of((rs, i, ctx) ->
             mapper.fromJson(
-                    type,
                     Optional.ofNullable(jsonStringMapper.map(rs, i, ctx))
                             .orElse("null"), // sql null -> json null
                     config));
