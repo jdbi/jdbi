@@ -517,7 +517,7 @@ A link:{jdbidocs}/core/Handle.html[Handle^] inherits configuration from the link
 
 Handles and all attached query objects such as link:{jdbidocs}/core/statement/Batch.html[Batch^], link:{jdbidocs}/core/statement/Call.html[Call^], link:{jdbidocs}/core/statement/Query.html[Query^], link:{jdbidocs}/core/statement/Script.html[Script^] and link:{jdbidocs}/core/statement/Update.html[Update^] should be used by a single thread and are *not thread-safe*.
 
-They may be used by multiple threads as long as there is coordination that only one thread at a time is accessing them. Managing Handles and query objects across threads is error-prone and should not be avoided.
+They may be used by multiple threads as long as there is coordination that only one thread at a time is accessing them. Managing Handles and query objects across threads is error-prone and should be avoided.
 
 
 ==== Obtaining a managed handle
