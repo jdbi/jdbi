@@ -120,7 +120,8 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      */
     public RowMappers register(RowMapperFactory factory) {
         factories.add(0, factory);
-        cache.clear();
+        factory.getType().ifPresentOrElse(cache::remove, cache::clear);
+
         return this;
     }
 

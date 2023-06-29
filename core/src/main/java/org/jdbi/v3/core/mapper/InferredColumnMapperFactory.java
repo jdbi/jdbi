@@ -47,4 +47,9 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
                 ? Optional.of(mapper)
                 : Optional.empty();
     }
+
+    @Override
+    public Optional<QualifiedType<?>> getType() {
+        return Optional.of(maps);
+    }
 }

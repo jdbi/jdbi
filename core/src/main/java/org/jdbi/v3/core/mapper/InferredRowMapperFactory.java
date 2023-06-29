@@ -49,4 +49,9 @@ class InferredRowMapperFactory implements RowMapperFactory {
                 ? Optional.of(mapper)
                 : Optional.empty();
     }
+
+    @Override
+    public Optional<Type> getType() {
+        return Optional.of(maps);
+    }
 }

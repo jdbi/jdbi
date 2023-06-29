@@ -36,6 +36,10 @@ public interface QualifiedColumnMapperFactory {
      */
     Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config);
 
+    default Optional<QualifiedType<?>> getType() {
+        return Optional.empty();
+    }
+
     /**
      * Adapts a {@link ColumnMapperFactory} into a QualifiedColumnMapperFactory. The returned
      * factory only matches qualified types with zero qualifiers.
@@ -59,6 +63,18 @@ public interface QualifiedColumnMapperFactory {
      * @return A {@link QualifiedColumnMapperFactory}
      */
     static <T> QualifiedColumnMapperFactory of(QualifiedType<T> type, ColumnMapper<T> mapper) {
-        return (t, config) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
+        return new QualifiedColumnMapperFactory() {
+            @Override
+            public Optional<ColumnMapper<?>> build(QualifiedType<?> t, ConfigRegistry config) {
+                return t.equals(type)
+                    ? Optional.of(mapper)
+                    : Optional.empty();
+            }
+
+            @Override
+            public Optional<QualifiedType<?>> getType() {
+                return Optional.of(type);
+            }
+        };
     }
 }

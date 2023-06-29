@@ -13,8 +13,10 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -71,4 +73,8 @@ public interface RowMapper<T> {
      * @param registry A reference to the {@link ConfigRegistry} that this instance belongs to.
      */
     default void init(ConfigRegistry registry) {}
+
+    default Optional<Type> getType() {
+        return Optional.empty();
+    }
 }

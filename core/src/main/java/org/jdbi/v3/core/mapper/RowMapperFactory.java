@@ -33,6 +33,10 @@ public interface RowMapperFactory {
      */
     Optional<RowMapper<?>> build(Type type, ConfigRegistry config);
 
+    default Optional<Type> getType() {
+        return Optional.empty();
+    }
+
     /**
      * Create a RowMapperFactory from a given {@link RowMapper} that matches
      * a {@link Type} exactly.
@@ -43,8 +47,18 @@ public interface RowMapperFactory {
      * @return the factory
      */
     static RowMapperFactory of(Type type, RowMapper<?> mapper) {
-        return (t, ctx) -> t.equals(type)
-                ? Optional.of(mapper)
-                : Optional.empty();
+        return new RowMapperFactory() {
+            @Override
+            public Optional<RowMapper<?>> build(Type t, ConfigRegistry ctx) {
+                return t.equals(type)
+                    ? Optional.of(mapper)
+                    : Optional.empty();
+            }
+
+            @Override
+            public Optional<Type> getType() {
+                return Optional.of(type);
+            }
+        };
     }
 }

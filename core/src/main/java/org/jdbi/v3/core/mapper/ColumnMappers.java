@@ -155,7 +155,8 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      */
     public ColumnMappers register(QualifiedColumnMapperFactory factory) {
         factories.add(0, factory);
-        cache.clear();
+        factory.getType().ifPresentOrElse(cache::remove, cache::clear);
+
         return this;
     }
 
