@@ -30,6 +30,15 @@ import static java.lang.String.format;
  * Helper class for various internal reflection operations.
  */
 public final class JdbiClassUtils {
+    public static final Method EQUALS_METHOD;
+    public static final Method HASHCODE_METHOD;
+    public static final Method TOSTRING_METHOD;
+
+    static {
+        EQUALS_METHOD = JdbiClassUtils.methodLookup(Object.class, "equals", Object.class);
+        HASHCODE_METHOD = JdbiClassUtils.methodLookup(Object.class, "hashCode");
+        TOSTRING_METHOD = JdbiClassUtils.methodLookup(Object.class, "toString");
+    }
 
     private JdbiClassUtils() {
         throw new UtilityClassException();

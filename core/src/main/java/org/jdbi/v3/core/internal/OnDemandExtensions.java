@@ -29,17 +29,8 @@ import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
 public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
-    private static final Method EQUALS_METHOD;
-    private static final Method HASHCODE_METHOD;
-    private static final Method TOSTRING_METHOD;
 
     private Factory onDemandExtensionFactory;
-
-    static {
-        EQUALS_METHOD = JdbiClassUtils.methodLookup(Object.class, "equals", Object.class);
-        HASHCODE_METHOD = JdbiClassUtils.methodLookup(Object.class, "hashCode");
-        TOSTRING_METHOD = JdbiClassUtils.methodLookup(Object.class, "toString");
-    }
 
     public OnDemandExtensions() {
         onDemandExtensionFactory = (jdbi, extensionType, extraTypes) -> Optional.empty();
@@ -64,15 +55,15 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
         jdbi.getConfig(Extensions.class).onCreateProxy();
 
         InvocationHandler handler = (proxy, method, args) -> {
-            if (EQUALS_METHOD.equals(method)) {
+            if (JdbiClassUtils.EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];
             }
 
-            if (HASHCODE_METHOD.equals(method)) {
+            if (JdbiClassUtils.HASHCODE_METHOD.equals(method)) {
                 return System.identityHashCode(proxy);
             }
 
-            if (TOSTRING_METHOD.equals(method)) {
+            if (JdbiClassUtils.TOSTRING_METHOD.equals(method)) {
                 return "Jdbi on demand proxy for " + extensionType.getName() + "@" + Integer.toHexString(System.identityHashCode(proxy));
             }
 

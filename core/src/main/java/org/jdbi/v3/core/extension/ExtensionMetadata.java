@@ -48,6 +48,11 @@ public final class ExtensionMetadata {
     private final Map<Method, ? extends ConfigCustomizer> methodConfigCustomizers;
     private final Map<Method, ExtensionHandler> methodHandlers;
 
+    final boolean addEquals;
+    final boolean addHashCode;
+    final boolean addToString;
+    final Optional<Method> finalizer;
+
     /**
      * Returns a new {@link ExtensionMetadata.Builder} instance.
      * @param extensionType The extension type for which metadata is collected
@@ -66,6 +71,11 @@ public final class ExtensionMetadata {
         this.instanceConfigCustomizer = instanceConfigCustomizer;
         this.methodConfigCustomizers = Collections.unmodifiableMap(methodConfigCustomizers);
         this.methodHandlers = Collections.unmodifiableMap(methodHandlers);
+
+        addToString = checkMethodMissing(extensionType, "toString");
+        addEquals = checkMethodMissing(extensionType, "equals", Object.class);
+        addHashCode = checkMethodMissing(extensionType, "hashCode");
+        finalizer = JdbiClassUtils.safeMethodLookup(extensionType, "finalize");
     }
 
     public Class<?> extensionType() {
@@ -121,6 +131,10 @@ public final class ExtensionMetadata {
     public <E> ExtensionHandlerInvoker createExtensionHandlerInvoker(E target, Method method,
             HandleSupplier handleSupplier, ConfigRegistry config) {
         return new ExtensionHandlerInvoker(target, method, methodHandlers.get(method), handleSupplier, config);
+    }
+
+    private boolean checkMethodMissing(Class<?> extensionType, String methodName, Class<?>... parameterTypes) {
+        return JdbiClassUtils.safeMethodLookup(extensionType, methodName, parameterTypes).isEmpty();
     }
 
     /**
