@@ -14,19 +14,38 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactories;
+import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 
 public class RegisterArgumentFactoriesImpl extends SimpleExtensionConfigurer {
 
+    private final List<ArgumentFactory> argumentFactories;
+
+    public RegisterArgumentFactoriesImpl(Annotation annotation) {
+        final RegisterArgumentFactories registerArgumentFactories = (RegisterArgumentFactories) annotation;
+        this.argumentFactories = new ArrayList<>(registerArgumentFactories.value().length);
+
+        for (RegisterArgumentFactory registerArgumentFactory : registerArgumentFactories.value()) {
+            final Class<? extends ArgumentFactory> klass = registerArgumentFactory.value();
+
+            try {
+                argumentFactories.add(klass.getConstructor().newInstance());
+            } catch (ReflectiveOperationException | SecurityException e) {
+                throw new IllegalStateException("Unable to instantiate column mapper class " + klass, e);
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterArgumentFactoryImpl();
-        RegisterArgumentFactories factories = (RegisterArgumentFactories) annotation;
-        Stream.of(factories.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        Arguments arguments = config.get(Arguments.class);
+        argumentFactories.forEach(arguments::register);
     }
 }

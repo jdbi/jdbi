@@ -17,19 +17,27 @@ import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 
 public class RegisterColumnMapperImpl extends SimpleExtensionConfigurer {
 
+    private final ColumnMapper<?> columnMapper;
+
+    public RegisterColumnMapperImpl(Annotation annotation) {
+        RegisterColumnMapper registerColumnMapper = (RegisterColumnMapper) annotation;
+        final Class<? extends ColumnMapper<?>> klass = registerColumnMapper.value();
+
+        try {
+            this.columnMapper = klass.getConstructor().newInstance();
+        } catch (ReflectiveOperationException | SecurityException e) {
+            throw new IllegalStateException("Unable to instantiate column mapper class " + klass, e);
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterColumnMapper registerColumnMapper = (RegisterColumnMapper) annotation;
-        ColumnMappers mappers = config.get(ColumnMappers.class);
-        try {
-            mappers.register(registerColumnMapper.value().getConstructor().newInstance());
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate column mapper class " + registerColumnMapper.value(), e);
-        }
+        config.get(ColumnMappers.class).register(columnMapper);
     }
 }

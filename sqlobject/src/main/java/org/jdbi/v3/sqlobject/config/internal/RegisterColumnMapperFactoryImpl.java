@@ -23,14 +23,22 @@ import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
 
 public class RegisterColumnMapperFactoryImpl extends SimpleExtensionConfigurer {
 
+    private final ColumnMapperFactory columnMapperFactory;
+
+    public RegisterColumnMapperFactoryImpl(Annotation annotation) {
+        final RegisterColumnMapperFactory registerColumnMapperFactory = (RegisterColumnMapperFactory) annotation;
+        final Class<? extends ColumnMapperFactory> klass = registerColumnMapperFactory.value();
+
+        try {
+            this.columnMapperFactory = klass.getConstructor().newInstance();
+        } catch (ReflectiveOperationException | SecurityException e) {
+            throw new IllegalStateException("Unable to instantiate column mapper factory class " + klass, e);
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterColumnMapperFactory registerColumnMapperFactory = (RegisterColumnMapperFactory) annotation;
-        try {
-            ColumnMapperFactory factory = registerColumnMapperFactory.value().getConstructor().newInstance();
-            config.get(ColumnMappers.class).register(factory);
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate column mapper factory class " + registerColumnMapperFactory.value(), e);
-        }
+        ColumnMappers columnMappers = config.get(ColumnMappers.class);
+        columnMappers.register(columnMapperFactory);
     }
 }

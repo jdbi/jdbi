@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 
+import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
@@ -22,15 +23,21 @@ import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 
 public class RegisterArgumentFactoryImpl extends SimpleExtensionConfigurer {
 
-    @Override
-    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+    private final ArgumentFactory argumentFactory;
+
+    public RegisterArgumentFactoryImpl(Annotation annotation) {
         RegisterArgumentFactory registerArgumentFactory = (RegisterArgumentFactory) annotation;
-        Arguments arguments = config.get(Arguments.class);
+        final Class<? extends ArgumentFactory> klass = registerArgumentFactory.value();
 
         try {
-            arguments.register(registerArgumentFactory.value().getConstructor().newInstance());
+            this.argumentFactory = klass.getConstructor().newInstance();
         } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate argument factory class " + registerArgumentFactory.value(), e);
+            throw new IllegalStateException("Unable to instantiate column mapper class " + klass, e);
         }
+    }
+
+    @Override
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        config.get(Arguments.class).register(argumentFactory);
     }
 }

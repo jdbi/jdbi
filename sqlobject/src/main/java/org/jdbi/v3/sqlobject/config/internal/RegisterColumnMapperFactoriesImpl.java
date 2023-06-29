@@ -14,20 +14,38 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.ColumnMapperFactory;
+import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactories;
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
 
 public class RegisterColumnMapperFactoriesImpl extends SimpleExtensionConfigurer {
 
+    private final List<ColumnMapperFactory> columnMapperFactories;
+
+    public RegisterColumnMapperFactoriesImpl(Annotation annotation) {
+        final RegisterColumnMapperFactories registerColumnMapperFactories = (RegisterColumnMapperFactories) annotation;
+        this.columnMapperFactories = new ArrayList<>(registerColumnMapperFactories.value().length);
+
+        for (RegisterColumnMapperFactory registerColumnMapperFactory : registerColumnMapperFactories.value()) {
+            final Class<? extends ColumnMapperFactory> klass = registerColumnMapperFactory.value();
+
+            try {
+                columnMapperFactories.add(klass.getConstructor().newInstance());
+            } catch (ReflectiveOperationException | SecurityException e) {
+                throw new IllegalStateException("Unable to instantiate row mapper factory class " + klass, e);
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterColumnMapperFactoryImpl();
-
-        RegisterColumnMapperFactories registerColumnMapperFactories = (RegisterColumnMapperFactories) annotation;
-        Stream.of(registerColumnMapperFactories.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        ColumnMappers columnMappers = config.get(ColumnMappers.class);
+        columnMapperFactories.forEach(columnMappers::register);
     }
 }

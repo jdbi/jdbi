@@ -14,20 +14,38 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactories;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 
 public class RegisterRowMapperFactoriesImpl extends SimpleExtensionConfigurer {
 
+    private final List<RowMapperFactory> rowMapperFactories;
+
+    public RegisterRowMapperFactoriesImpl(Annotation annotation) {
+        final RegisterRowMapperFactories registerRowMapperFactories = (RegisterRowMapperFactories) annotation;
+        this.rowMapperFactories = new ArrayList<>(registerRowMapperFactories.value().length);
+
+        for (RegisterRowMapperFactory registerRowMapperFactory : registerRowMapperFactories.value()) {
+            final Class<? extends RowMapperFactory> klass = registerRowMapperFactory.value();
+
+            try {
+                rowMapperFactories.add(klass.getConstructor().newInstance());
+            } catch (ReflectiveOperationException | SecurityException e) {
+                throw new IllegalStateException("Unable to instantiate row mapper factory class " + klass, e);
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterRowMapperFactoryImpl();
-
-        RegisterRowMapperFactories registerRowMapperFactories = (RegisterRowMapperFactories) annotation;
-        Stream.of(registerRowMapperFactories.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        RowMappers rowMappers = config.get(RowMappers.class);
+        rowMapperFactories.forEach(rowMappers::register);
     }
 }

@@ -14,20 +14,38 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMappers;
 
 public class RegisterColumnMappersImpl extends SimpleExtensionConfigurer {
 
+    private final List<ColumnMapper<?>> columnMappers;
+
+    public RegisterColumnMappersImpl(Annotation annotation) {
+        final RegisterColumnMappers registerColumnMappers = (RegisterColumnMappers) annotation;
+        this.columnMappers = new ArrayList<>(registerColumnMappers.value().length);
+
+        for (RegisterColumnMapper registerColumnMapper : registerColumnMappers.value()) {
+            final Class<? extends ColumnMapper<?>> klass = registerColumnMapper.value();
+
+            try {
+                columnMappers.add(klass.getConstructor().newInstance());
+            } catch (ReflectiveOperationException | SecurityException e) {
+                throw new IllegalStateException("Unable to instantiate column mapper class " + klass, e);
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterColumnMapperImpl();
-
-        RegisterColumnMappers registerColumnMappers = (RegisterColumnMappers) annotation;
-        Stream.of(registerColumnMappers.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        ColumnMappers columnMappersConfig = config.get(ColumnMappers.class);
+        columnMappers.forEach(columnMappersConfig::register);
     }
 }
