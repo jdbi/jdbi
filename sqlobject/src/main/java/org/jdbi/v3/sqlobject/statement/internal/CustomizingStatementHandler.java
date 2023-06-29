@@ -101,11 +101,10 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                 .flatMap(i -> eachParameterCustomizers(parameters[i], i));
     }
 
-    private Stream<BoundCustomizer> eachParameterCustomizers(Parameter parameter,
-            Integer i) {
-
+    private Stream<BoundCustomizer> eachParameterCustomizers(Parameter parameter, Integer i) {
+        final Type parameterType = getParameterType(parameter);
         List<BoundCustomizer> customizers = annotationsFor(parameter)
-                .map(a -> instantiateFactory(a).createForParameter(a, sqlObjectType, method, parameter, i, getParameterType(parameter)))
+                .map(a -> instantiateFactory(a).createForParameter(a, sqlObjectType, method, parameter, i, parameterType))
                 .<BoundCustomizer>map(c -> new BoundCustomizer() {
                     @Override
                     public void warm(ConfigRegistry config) {
@@ -140,8 +139,8 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     /**
      * Default parameter customizer for parameters with no annotations.
      */
-    private BoundCustomizer defaultParameterCustomizer(Parameter parameter,
-            Integer i) {
+    private BoundCustomizer defaultParameterCustomizer(Parameter parameter, Integer i) {
+        final Type parameterType = getParameterType(parameter);
         return new BoundCustomizer() {
             @Override
             public void warm(ConfigRegistry config) {
@@ -155,7 +154,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
             private SqlStatementParameterCustomizer create(ConfigRegistry config) {
                 return getDefaultParameterCustomizerFactory(config)
-                        .createForParameter(sqlObjectType, method, parameter, i, getParameterType(parameter));
+                        .createForParameter(sqlObjectType, method, parameter, i, parameterType);
             }
         };
     }
