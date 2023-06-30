@@ -32,6 +32,6 @@ jobs:
 
       - name: test postgres versions
         env:
-          MAVEN_CONFIG: "-B -fae -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
+          MAVEN_CONFIG: "-e -B -fae -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
         run: |
           make install
