@@ -28,18 +28,12 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
+import static org.jdbi.v3.core.internal.JdbiClassUtils.EQUALS_METHOD;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.HASHCODE_METHOD;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.TOSTRING_METHOD;
+
 public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
-    private static final Method EQUALS_METHOD;
-    private static final Method HASHCODE_METHOD;
-    private static final Method TOSTRING_METHOD;
-
     private Factory onDemandExtensionFactory;
-
-    static {
-        EQUALS_METHOD = JdbiClassUtils.methodLookup(Object.class, "equals", Object.class);
-        HASHCODE_METHOD = JdbiClassUtils.methodLookup(Object.class, "hashCode");
-        TOSTRING_METHOD = JdbiClassUtils.methodLookup(Object.class, "toString");
-    }
 
     public OnDemandExtensions() {
         onDemandExtensionFactory = (jdbi, extensionType, extraTypes) -> Optional.empty();

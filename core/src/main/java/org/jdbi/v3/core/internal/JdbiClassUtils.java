@@ -31,6 +31,16 @@ import static java.lang.String.format;
  */
 public final class JdbiClassUtils {
 
+    /** Constant for {@link Object#equals(Object)}. */
+    public static final Method EQUALS_METHOD = methodLookup(Object.class, "equals", Object.class);
+
+    /** Constant for {@link Object#hashCode()}. */
+    public static final Method HASHCODE_METHOD = methodLookup(Object.class, "hashCode");
+
+    /** Constant for {@link Object#toString()}. */
+    public static final Method TOSTRING_METHOD = methodLookup(Object.class, "toString");
+
+
     private JdbiClassUtils() {
         throw new UtilityClassException();
     }

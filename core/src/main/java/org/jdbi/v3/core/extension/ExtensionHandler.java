@@ -35,7 +35,7 @@ import static java.lang.String.format;
 @Alpha
 public interface ExtensionHandler {
 
-    /** Implementation for the {@link Object#equals(Object)} method. Each object using this handler is only equal to ifself. */
+    /** Implementation for the {@link Object#equals(Object)} method. Each object using this handler is only equal to itself. */
     ExtensionHandler EQUALS_HANDLER = (handleSupplier, target, args) -> target == args[0];
 
     /** Implementation for the {@link Object#hashCode()} method. */

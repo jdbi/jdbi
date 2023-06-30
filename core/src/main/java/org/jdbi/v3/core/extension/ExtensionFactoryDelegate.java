@@ -19,14 +19,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMetadata.Builder;
 import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
-import org.jdbi.v3.core.internal.JdbiClassUtils;
 
 import static java.lang.String.format;
 
@@ -35,6 +33,9 @@ import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUA
 import static org.jdbi.v3.core.extension.ExtensionHandler.EQUALS_HANDLER;
 import static org.jdbi.v3.core.extension.ExtensionHandler.HASHCODE_HANDLER;
 import static org.jdbi.v3.core.extension.ExtensionHandler.NULL_HANDLER;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.EQUALS_METHOD;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.HASHCODE_METHOD;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.TOSTRING_METHOD;
 
 final class ExtensionFactoryDelegate implements ExtensionFactory {
 
@@ -125,39 +126,22 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
         // those will only be added if they don't already exist in the method handler map.
 
         // If these methods are added, they are special because they operate on the proxy object itself, not the underlying object
-        checkMethodPresent(extensionType, Object.class, "toString").ifPresent(method -> {
-            ExtensionHandler toStringHandler = (h, target, args) ->
-                    "Jdbi extension proxy for " + extensionType.getName() + "@" + Integer.toHexString(proxy.hashCode());
-            handlers.put(method, extensionMetaData.new ExtensionHandlerInvoker(proxy, method, toStringHandler, handleSupplier, instanceConfig));
-        });
+        ExtensionHandler toStringHandler = (h, target, args) ->
+                "Jdbi extension proxy for " + extensionType.getName() + "@" + Integer.toHexString(proxy.hashCode());
+        handlers.put(TOSTRING_METHOD, extensionMetaData.new ExtensionHandlerInvoker(proxy, TOSTRING_METHOD, toStringHandler, handleSupplier, instanceConfig));
 
-        checkMethodPresent(extensionType, Object.class, "equals", Object.class).ifPresent(method -> handlers.put(method,
-                extensionMetaData.new ExtensionHandlerInvoker(proxy, method, EQUALS_HANDLER, handleSupplier, instanceConfig)));
-        checkMethodPresent(extensionType, Object.class, "hashCode").ifPresent(method -> handlers.put(method,
-                extensionMetaData.new ExtensionHandlerInvoker(proxy, method, HASHCODE_HANDLER, handleSupplier, instanceConfig)));
+        handlers.put(EQUALS_METHOD, extensionMetaData.new ExtensionHandlerInvoker(proxy, EQUALS_METHOD, EQUALS_HANDLER, handleSupplier, instanceConfig));
+        handlers.put(HASHCODE_METHOD, extensionMetaData.new ExtensionHandlerInvoker(proxy, HASHCODE_METHOD, HASHCODE_HANDLER, handleSupplier, instanceConfig));
 
         // add all methods that are delegated to the underlying object / existing handlers
         extensionMetaData.getExtensionMethods().forEach(method ->
                 handlers.put(method, extensionMetaData.createExtensionHandlerInvoker(delegatedInstance, method, handleSupplier, instanceConfig)));
 
         // finalize is double special. Add this unconditionally, even if subclasses try to override it.
-        JdbiClassUtils.safeMethodLookup(extensionType, "finalize").ifPresent(method -> handlers.put(method,
+        extensionMetaData.getFinalizer().ifPresent(method -> handlers.put(method,
                 extensionMetaData.new ExtensionHandlerInvoker(proxy, method, NULL_HANDLER, handleSupplier, instanceConfig)));
 
-
         return extensionType.cast(proxy);
-    }
-
-    /** returns Optional.empty() if the method exists in the extension type, otherwise a fallback method. */
-    private Optional<Method> checkMethodPresent(Class<?> extensionType, Class<?> klass, String methodName, Class<?>... parameterTypes) {
-        Optional<Method> method = JdbiClassUtils.safeMethodLookup(extensionType, methodName, parameterTypes);
-        if (method.isPresent()) {
-            // does the method actually exist in the type itself (e.g. overridden by the implementation class?)
-            // if yes, return absent, so the default hander is not added.
-            return Optional.empty();
-        } else {
-            return JdbiClassUtils.safeMethodLookup(klass, methodName, parameterTypes);
-        }
     }
 
     @Override
