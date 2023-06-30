@@ -14,20 +14,38 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMappers;
 
 public class RegisterRowMappersImpl extends SimpleExtensionConfigurer {
 
+    private final List<RowMapper<?>> rowMappers;
+
+    public RegisterRowMappersImpl(Annotation annotation) {
+        final RegisterRowMappers registerRowMappers = (RegisterRowMappers) annotation;
+        this.rowMappers = new ArrayList<>(registerRowMappers.value().length);
+
+        for (RegisterRowMapper registerRowMapper : registerRowMappers.value()) {
+            final Class<? extends RowMapper<?>> klass = registerRowMapper.value();
+
+            try {
+                rowMappers.add(klass.getConstructor().newInstance());
+            } catch (ReflectiveOperationException | SecurityException e) {
+                throw new IllegalStateException("Unable to instantiate row mapper class " + klass, e);
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterRowMapperImpl();
-
-        RegisterRowMappers registerRowMappers = (RegisterRowMappers) annotation;
-        Stream.of(registerRowMappers.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        RowMappers rowMappersConfig = config.get(RowMappers.class);
+        rowMappers.forEach(rowMappersConfig::register);
     }
 }

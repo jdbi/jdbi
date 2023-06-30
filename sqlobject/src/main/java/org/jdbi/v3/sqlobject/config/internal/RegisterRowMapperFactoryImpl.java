@@ -17,19 +17,27 @@ import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 
 public class RegisterRowMapperFactoryImpl extends SimpleExtensionConfigurer {
+    private final RowMapperFactory rowMapperFactory;
+
+    public RegisterRowMapperFactoryImpl(Annotation annotation) {
+        final RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
+        final Class<? extends RowMapperFactory> klass = registerRowMapperFactory.value();
+
+        try {
+            this.rowMapperFactory = klass.getConstructor().newInstance();
+        } catch (ReflectiveOperationException | SecurityException e) {
+            throw new IllegalStateException("Unable to instantiate row mapper factory class " + klass, e);
+        }
+    }
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
-        RowMappers mappers = config.get(RowMappers.class);
-        try {
-            mappers.register(registerRowMapperFactory.value().getConstructor().newInstance());
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate row mapper factory class " + registerRowMapperFactory.value(), e);
-        }
+        RowMappers rowMappers = config.get(RowMappers.class);
+        rowMappers.register(rowMapperFactory);
     }
 }
