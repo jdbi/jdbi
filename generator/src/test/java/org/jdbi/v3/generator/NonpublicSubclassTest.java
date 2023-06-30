@@ -90,6 +90,47 @@ public class NonpublicSubclassTest {
             .defaultMethod()).isEqualTo(2288);
     }
 
+    @Test
+    public void abstractClassToString() {
+        assertThat(dao.toString())
+                .isEqualTo("org.jdbi.v3.generator.AbstractClassDaoImpl@" + Integer.toHexString(System.identityHashCode(dao)));
+    }
+
+    @Test
+    public void abstractClassEquals() {
+        assertThat(dao.equals(dao)).isTrue();
+        h2Extension.getJdbi().useExtension(AbstractClassDao.class, anotherDao ->
+                assertThat(dao.equals(anotherDao)).isFalse());
+    }
+
+    @Test
+    public void abstractClassHashCode() {
+        assertThat(dao.hashCode())
+                .isEqualTo(System.identityHashCode(dao));
+    }
+
+    @Test
+    public void interfaceToString() {
+        InterfaceDao myDao = handle.getJdbi().onDemand(InterfaceDao.class);
+        assertThat(myDao.toString())
+                .isEqualTo("org.jdbi.v3.generator.InterfaceDaoImpl$OnDemand@" + Integer.toHexString(System.identityHashCode(myDao)));
+    }
+
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    public void interfaceClassEquals() {
+        InterfaceDao ifDao = handle.getJdbi().onDemand(InterfaceDao.class);
+        assertThat(ifDao.equals(ifDao)).isTrue();
+        assertThat(ifDao.equals(dao)).isFalse();
+    }
+
+    @Test
+    public void interfaceHashCode() {
+        InterfaceDao myDao = handle.getJdbi().onDemand(InterfaceDao.class);
+        assertThat(myDao.hashCode())
+                .isEqualTo(System.identityHashCode(myDao));
+    }
+
     @GenerateSqlObject
     @GeneratorConfigurerType
     abstract static class AbstractClassDao implements SqlObject {
