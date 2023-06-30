@@ -28,8 +28,11 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
-public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
+import static org.jdbi.v3.core.internal.JdbiClassUtils.EQUALS_METHOD;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.HASHCODE_METHOD;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.TOSTRING_METHOD;
 
+public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
     private Factory onDemandExtensionFactory;
 
     public OnDemandExtensions() {
@@ -55,15 +58,15 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
         jdbi.getConfig(Extensions.class).onCreateProxy();
 
         InvocationHandler handler = (proxy, method, args) -> {
-            if (JdbiClassUtils.EQUALS_METHOD.equals(method)) {
+            if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];
             }
 
-            if (JdbiClassUtils.HASHCODE_METHOD.equals(method)) {
+            if (HASHCODE_METHOD.equals(method)) {
                 return System.identityHashCode(proxy);
             }
 
-            if (JdbiClassUtils.TOSTRING_METHOD.equals(method)) {
+            if (TOSTRING_METHOD.equals(method)) {
                 return "Jdbi on demand proxy for " + extensionType.getName() + "@" + Integer.toHexString(System.identityHashCode(proxy));
             }
 

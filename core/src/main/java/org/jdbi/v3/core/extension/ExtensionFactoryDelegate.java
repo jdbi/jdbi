@@ -126,29 +126,19 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
         // those will only be added if they don't already exist in the method handler map.
 
         // If these methods are added, they are special because they operate on the proxy object itself, not the underlying object
-        if (extensionMetaData.addToString) {
-            ExtensionHandler toStringHandler = (h, target, args) ->
-                    "Jdbi extension proxy for " + extensionType.getName() + "@" + Integer.toHexString(proxy.hashCode());
-            handlers.put(TOSTRING_METHOD,
-                    extensionMetaData.new ExtensionHandlerInvoker(proxy, TOSTRING_METHOD, toStringHandler, handleSupplier, instanceConfig));
-        }
+        ExtensionHandler toStringHandler = (h, target, args) ->
+                "Jdbi extension proxy for " + extensionType.getName() + "@" + Integer.toHexString(proxy.hashCode());
+        handlers.put(TOSTRING_METHOD, extensionMetaData.new ExtensionHandlerInvoker(proxy, TOSTRING_METHOD, toStringHandler, handleSupplier, instanceConfig));
 
-        if (extensionMetaData.addEquals) {
-            handlers.put(EQUALS_METHOD,
-                    extensionMetaData.new ExtensionHandlerInvoker(proxy, EQUALS_METHOD, EQUALS_HANDLER, handleSupplier, instanceConfig));
-        }
-
-        if (extensionMetaData.addHashCode) {
-            handlers.put(HASHCODE_METHOD,
-                    extensionMetaData.new ExtensionHandlerInvoker(proxy, HASHCODE_METHOD, HASHCODE_HANDLER, handleSupplier, instanceConfig));
-        }
+        handlers.put(EQUALS_METHOD, extensionMetaData.new ExtensionHandlerInvoker(proxy, EQUALS_METHOD, EQUALS_HANDLER, handleSupplier, instanceConfig));
+        handlers.put(HASHCODE_METHOD, extensionMetaData.new ExtensionHandlerInvoker(proxy, HASHCODE_METHOD, HASHCODE_HANDLER, handleSupplier, instanceConfig));
 
         // add all methods that are delegated to the underlying object / existing handlers
         extensionMetaData.getExtensionMethods().forEach(method ->
                 handlers.put(method, extensionMetaData.createExtensionHandlerInvoker(delegatedInstance, method, handleSupplier, instanceConfig)));
 
         // finalize is double special. Add this unconditionally, even if subclasses try to override it.
-        extensionMetaData.finalizer.ifPresent(method -> handlers.put(method,
+        extensionMetaData.getFinalizer().ifPresent(method -> handlers.put(method,
                 extensionMetaData.new ExtensionHandlerInvoker(proxy, method, NULL_HANDLER, handleSupplier, instanceConfig)));
 
         return extensionType.cast(proxy);

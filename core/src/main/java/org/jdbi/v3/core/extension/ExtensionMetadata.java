@@ -47,11 +47,7 @@ public final class ExtensionMetadata {
     private final ConfigCustomizer instanceConfigCustomizer;
     private final Map<Method, ? extends ConfigCustomizer> methodConfigCustomizers;
     private final Map<Method, ExtensionHandler> methodHandlers;
-
-    final boolean addEquals;
-    final boolean addHashCode;
-    final boolean addToString;
-    final Optional<Method> finalizer;
+    private final Optional<Method> finalizer;
 
     /**
      * Returns a new {@link ExtensionMetadata.Builder} instance.
@@ -66,16 +62,13 @@ public final class ExtensionMetadata {
             Class<?> extensionType,
             ConfigCustomizer instanceConfigCustomizer,
             Map<Method, ? extends ConfigCustomizer> methodConfigCustomizers,
-            Map<Method, ExtensionHandler> methodHandlers) {
+            Map<Method, ExtensionHandler> methodHandlers,
+            Optional<Method> finalizer) {
         this.extensionType = extensionType;
         this.instanceConfigCustomizer = instanceConfigCustomizer;
         this.methodConfigCustomizers = Collections.unmodifiableMap(methodConfigCustomizers);
         this.methodHandlers = Collections.unmodifiableMap(methodHandlers);
-
-        addToString = checkMethodMissing(extensionType, "toString");
-        addEquals = checkMethodMissing(extensionType, "equals", Object.class);
-        addHashCode = checkMethodMissing(extensionType, "hashCode");
-        finalizer = JdbiClassUtils.safeMethodLookup(extensionType, "finalize");
+        this.finalizer = finalizer;
     }
 
     public Class<?> extensionType() {
@@ -120,6 +113,14 @@ public final class ExtensionMetadata {
     }
 
     /**
+     * Returns a reference to a method that overrides {@link Object#finalize()} if it exists.
+     * @return An {@link Optional} containing a {@link Method} if a finalizer exists.
+     */
+    Optional<Method> getFinalizer() {
+        return finalizer;
+    }
+
+    /**
      * Creates an {@link ExtensionHandlerInvoker} instance for a specific method.
      * @param target The target object on which the invoker should work
      * @param method The method which will trigger the invocation
@@ -131,10 +132,6 @@ public final class ExtensionMetadata {
     public <E> ExtensionHandlerInvoker createExtensionHandlerInvoker(E target, Method method,
             HandleSupplier handleSupplier, ConfigRegistry config) {
         return new ExtensionHandlerInvoker(target, method, methodHandlers.get(method), handleSupplier, config);
-    }
-
-    private boolean checkMethodMissing(Class<?> extensionType, String methodName, Class<?>... parameterTypes) {
-        return JdbiClassUtils.safeMethodLookup(extensionType, methodName, parameterTypes).isEmpty();
     }
 
     /**
@@ -154,6 +151,8 @@ public final class ExtensionMetadata {
 
         private final Collection<Method> extensionTypeMethods = new HashSet<>();
 
+        private final Optional<Method> finalizer;
+
         Builder(Class<?> extensionType) {
             this.extensionType = extensionType;
 
@@ -171,6 +170,8 @@ public final class ExtensionMetadata {
                         throw new UnableToCreateExtensionException("%s has ambiguous methods (%s) found, please resolve with an explicit override",
                                 extensionType, methods);
                     });
+
+            this.finalizer = JdbiClassUtils.safeMethodLookup(extensionType, "finalize");
         }
 
         /**
@@ -284,7 +285,7 @@ public final class ExtensionMetadata {
                                 .forEach(configCustomizer -> this.addMethodConfigCustomizer(method, configCustomizer)));
             }
 
-            return new ExtensionMetadata(extensionType, instanceConfigCustomizer, methodConfigCustomizers, methodHandlers);
+            return new ExtensionMetadata(extensionType, instanceConfigCustomizer, methodConfigCustomizers, methodHandlers, finalizer);
         }
 
         private Optional<ExtensionHandler> findExtensionHandlerFor(Class<?> extensionType, Method method) {
