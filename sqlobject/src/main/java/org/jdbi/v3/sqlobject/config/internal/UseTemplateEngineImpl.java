@@ -25,23 +25,24 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.sqlobject.config.UseTemplateEngine;
 
-public class UseTemplateEngineImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, @Nullable Method method) {
-        UseTemplateEngine anno = (UseTemplateEngine) annotation;
-        TemplateEngine templateEngine = instantiate(anno.value(), sqlObjectType, method);
-        config.get(SqlStatements.class).setTemplateEngine(templateEngine);
+public class UseTemplateEngineImpl extends SimpleExtensionConfigurer {
+
+    private final TemplateEngine templateEngine;
+
+    public UseTemplateEngineImpl(Annotation annotation, Class<?> sqlObjectType, @Nullable Method method) {
+        UseTemplateEngine useTemplateEngine = (UseTemplateEngine) annotation;
+        this.templateEngine = instantiate(useTemplateEngine.value(), sqlObjectType, method);
     }
 
     @Override
-    public void configureForType(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        configureForMethod(config, annotation, sqlObjectType, null);
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        config.get(SqlStatements.class).setTemplateEngine(templateEngine);
     }
 
     private static TemplateEngine instantiate(Class<? extends TemplateEngine> engineClass, Class<?> sqlObjectType, @Nullable Method method) {

@@ -22,10 +22,17 @@ import org.jdbi.v3.core.mapper.MapEntryMappers;
 import org.jdbi.v3.sqlobject.config.ValueColumn;
 
 public class ValueColumnImpl implements ExtensionConfigurer {
-    @Override
-    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
+
+    private final String name;
+
+    public ValueColumnImpl(Annotation annotation) {
         ValueColumn valueColumn = (ValueColumn) annotation;
         String name = valueColumn.value();
-        config.get(MapEntryMappers.class).setValueColumn(name.isEmpty() ? null : name);
+        this.name = name.isEmpty() ? null : name;
+    }
+
+    @Override
+    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
+        config.get(MapEntryMappers.class).setValueColumn(name);
     }
 }

@@ -19,16 +19,24 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.SqlObjects;
+import org.jdbi.v3.sqlobject.locator.SqlLocator;
 import org.jdbi.v3.sqlobject.locator.SqlObjectClasspathSqlLocator;
 import org.jdbi.v3.sqlobject.locator.UseClasspathSqlLocator;
 
 public class UseClasspathSqlLocatorImpl extends SimpleExtensionConfigurer {
 
+    private final SqlLocator sqlLocator;
+
+    public UseClasspathSqlLocatorImpl(Annotation annotation) {
+        UseClasspathSqlLocator useClasspathSqlLocator = (UseClasspathSqlLocator) annotation;
+
+        this.sqlLocator = new SqlObjectClasspathSqlLocator(useClasspathSqlLocator.stripComments()
+            ? ClasspathSqlLocator.removingComments()
+            : ClasspathSqlLocator.create());
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlObjects.class).setSqlLocator(new SqlObjectClasspathSqlLocator(
-                ((UseClasspathSqlLocator) annotation).stripComments()
-                        ? ClasspathSqlLocator.removingComments()
-                        : ClasspathSqlLocator.create()));
+        config.get(SqlObjects.class).setSqlLocator(sqlLocator);
     }
 }

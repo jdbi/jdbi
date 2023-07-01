@@ -25,27 +25,35 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import static java.lang.String.format;
+
 import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTemplateGroup;
 
 public class UseStringTemplateSqlLocatorImpl extends SimpleExtensionConfigurer {
 
-    @Override
-    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        SqlLocator locator = (type, method, c) -> {
-            String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-            STGroup group = findStringTemplateGroup(type);
-            if (!group.isDefined(templateName)) {
-                throw new IllegalStateException("No StringTemplate group " + templateName + " for class " + sqlObjectType);
-            }
+    private final SqlLocator locator;
+    private final TemplateEngine templateEngine;
 
+    public UseStringTemplateSqlLocatorImpl(Annotation annotation, Class<?> sqlObjectType) {
+        final STGroup group = findStringTemplateGroup(sqlObjectType);
+
+        this.locator = (type, method, config) -> {
+            String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
+            if (!group.isDefined(templateName)) {
+                throw new IllegalStateException(format("No StringTemplate group %s for class %s", templateName, sqlObjectType));
+            }
             return templateName;
         };
-        TemplateEngine templateEngine = (templateName, ctx) -> {
-            STGroup group = findStringTemplateGroup(sqlObjectType);
-            ST template = group.getInstanceOf(templateName);
+
+        this.templateEngine = (templateName, ctx) -> {
+            final ST template = group.getInstanceOf(templateName);
             ctx.getAttributes().forEach(template::add);
             return template.render();
         };
+    }
+
+    @Override
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         config.get(SqlObjects.class).setSqlLocator(locator);
         config.get(SqlStatements.class).setTemplateEngine(templateEngine);
     }

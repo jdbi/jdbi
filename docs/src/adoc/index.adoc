@@ -8350,8 +8350,16 @@ These methods are the equivalent of
 link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html#forExtensionType(java.lang.Class)[ConfigCustomizerFactory#forExtensionType()^] and
 link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html#forExtensionMethod(java.lang.Class,java.lang.reflect.Method)[ConfigCustomizerFactory#forExtensionMethod()^].
 
-The extension framework processes all annotations that use this meta-annotation. It will instantiate the extension configurer by locating a no-arguments
-constructor. If this can not be found, an exception will be thrown.
+The extension framework processes all annotations that use this meta-annotation.
+
+It will instantiate the extension configurer by locating
+
+- a constructor that takes the annotation, the extension type, and a method object
+- a constructor that takes the annotation and the extension type
+- a constructor that takes the annotation only
+- a no-argument constructor
+
+If none can be found, an exception will be thrown.
 
 This is an example of an extension configurer annotation that adds a specific <<Row Mappers, row mapper>>:
 

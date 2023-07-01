@@ -17,23 +17,31 @@ import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 
 public class RegisterBeanMapperImpl extends SimpleExtensionConfigurer {
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+    private final RowMapperFactory beanMapper;
+
+    public RegisterBeanMapperImpl(Annotation annotation) {
         RegisterBeanMapper registerBeanMapper = (RegisterBeanMapper) annotation;
+
         Class<?> beanClass = registerBeanMapper.value();
         String prefix = registerBeanMapper.prefix();
-        RowMappers mappers = config.get(RowMappers.class);
+
         if (prefix.isEmpty()) {
-            mappers.register(BeanMapper.factory(beanClass));
+            beanMapper = BeanMapper.factory(beanClass);
         } else {
-            mappers.register(BeanMapper.factory(beanClass, prefix));
+            beanMapper = BeanMapper.factory(beanClass, prefix);
         }
+    }
+
+    @Override
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        RowMappers mappers = config.get(RowMappers.class);
+        mappers.register(beanMapper);
     }
 }

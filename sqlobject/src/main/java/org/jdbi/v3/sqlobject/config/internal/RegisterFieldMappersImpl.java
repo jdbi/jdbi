@@ -14,20 +14,40 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.mapper.reflect.FieldMapper;
+import org.jdbi.v3.sqlobject.config.RegisterFieldMapper;
 import org.jdbi.v3.sqlobject.config.RegisterFieldMappers;
 
 public class RegisterFieldMappersImpl extends SimpleExtensionConfigurer {
 
+    private final List<RowMapperFactory> fieldMappers;
+
+    public RegisterFieldMappersImpl(Annotation annotation) {
+        RegisterFieldMappers registerFieldMappers = (RegisterFieldMappers) annotation;
+        this.fieldMappers = new ArrayList<>(registerFieldMappers.value().length);
+
+        for (RegisterFieldMapper registerFieldMapper : registerFieldMappers.value()) {
+            Class<?> fieldClass = registerFieldMapper.value();
+            String prefix = registerFieldMapper.prefix();
+
+            if (prefix.isEmpty()) {
+                this.fieldMappers.add(FieldMapper.factory(fieldClass));
+            } else {
+                this.fieldMappers.add(FieldMapper.factory(fieldClass, prefix));
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterFieldMapperImpl();
-
-        RegisterFieldMappers registerFieldMappers = (RegisterFieldMappers) annotation;
-        Stream.of(registerFieldMappers.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        RowMappers rowMappers = config.get(RowMappers.class);
+        fieldMappers.forEach(rowMappers::register);
     }
 }

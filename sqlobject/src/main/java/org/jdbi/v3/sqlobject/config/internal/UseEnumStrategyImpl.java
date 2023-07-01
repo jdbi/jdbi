@@ -16,16 +16,22 @@ package org.jdbi.v3.sqlobject.config.internal;
 import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.enums.EnumStrategy;
 import org.jdbi.v3.core.enums.Enums;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.UseEnumStrategy;
 
 public class UseEnumStrategyImpl extends SimpleExtensionConfigurer {
 
+    private final EnumStrategy enumStrategy;
+
+    public UseEnumStrategyImpl(Annotation annotation) {
+        UseEnumStrategy useEnumStrategy = (UseEnumStrategy) annotation;
+        this.enumStrategy = useEnumStrategy.value();
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        UseEnumStrategy anno = (UseEnumStrategy) annotation;
-
-        config.get(Enums.class).setEnumStrategy(anno.value());
+        config.get(Enums.class).setEnumStrategy(enumStrategy);
     }
 }

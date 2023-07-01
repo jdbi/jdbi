@@ -17,22 +17,31 @@ import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 
 public class RegisterConstructorMapperImpl extends SimpleExtensionConfigurer {
 
+    private final RowMapperFactory constructorMapper;
+
+    public RegisterConstructorMapperImpl(Annotation annotation) {
+        RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
+
+        Class<?> constructorClass = registerConstructorMapper.value();
+        String prefix = registerConstructorMapper.prefix();
+
+        if (prefix.isEmpty()) {
+            constructorMapper = ConstructorMapper.factory(constructorClass);
+        } else {
+            constructorMapper = ConstructorMapper.factory(constructorClass, prefix);
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
         RowMappers mappers = config.get(RowMappers.class);
-        Class<?> type = registerConstructorMapper.value();
-        String prefix = registerConstructorMapper.prefix();
-        if (prefix.isEmpty()) {
-            mappers.register(ConstructorMapper.factory(type));
-        } else {
-            mappers.register(ConstructorMapper.factory(type, prefix));
-        }
+        mappers.register(constructorMapper);
     }
 }

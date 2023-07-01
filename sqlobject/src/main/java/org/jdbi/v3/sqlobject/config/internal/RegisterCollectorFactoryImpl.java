@@ -23,15 +23,21 @@ import org.jdbi.v3.sqlobject.config.RegisterCollectorFactory;
 
 public class RegisterCollectorFactoryImpl extends SimpleExtensionConfigurer {
 
-    @Override
-    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+    private final CollectorFactory collectorFactory;
+
+    public RegisterCollectorFactoryImpl(Annotation annotation) {
         RegisterCollectorFactory registerCollectorFactory = (RegisterCollectorFactory) annotation;
-        JdbiCollectors collectors = config.get(JdbiCollectors.class);
         Class<? extends CollectorFactory> type = registerCollectorFactory.value();
         try {
-            collectors.register(type.getConstructor().newInstance());
+            collectorFactory = type.getConstructor().newInstance();
         } catch (ReflectiveOperationException | SecurityException e) {
             throw new IllegalStateException("Unable to instantiate collector factory class " + registerCollectorFactory.value(), e);
         }
+    }
+
+    @Override
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        JdbiCollectors collectors = config.get(JdbiCollectors.class);
+        collectors.register(collectorFactory);
     }
 }

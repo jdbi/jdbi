@@ -19,11 +19,14 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.SqlObjects;
 import org.jdbi.v3.sqlobject.locator.AnnotationSqlLocator;
+import org.jdbi.v3.sqlobject.locator.SqlLocator;
 
 public class UseAnnotationSqlLocatorImpl extends SimpleExtensionConfigurer {
 
+    private final SqlLocator sqlLocator = new AnnotationSqlLocator();
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlObjects.class).setSqlLocator(new AnnotationSqlLocator());
+        config.get(SqlObjects.class).setSqlLocator(sqlLocator);
     }
 }

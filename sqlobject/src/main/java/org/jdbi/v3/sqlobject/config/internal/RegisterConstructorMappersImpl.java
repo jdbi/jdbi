@@ -14,20 +14,40 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMappers;
 
 public class RegisterConstructorMappersImpl extends SimpleExtensionConfigurer {
 
+    private final List<RowMapperFactory> constructorMappers;
+
+    public RegisterConstructorMappersImpl(Annotation annotation) {
+        RegisterConstructorMappers registerConstructorMappers = (RegisterConstructorMappers) annotation;
+        this.constructorMappers = new ArrayList<>(registerConstructorMappers.value().length);
+
+        for (RegisterConstructorMapper registerConstructorMapper : registerConstructorMappers.value()) {
+            Class<?> constructorClass = registerConstructorMapper.value();
+            String prefix = registerConstructorMapper.prefix();
+
+            if (prefix.isEmpty()) {
+                this.constructorMappers.add(ConstructorMapper.factory(constructorClass));
+            } else {
+                this.constructorMappers.add(ConstructorMapper.factory(constructorClass, prefix));
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterConstructorMapperImpl();
-
-        RegisterConstructorMappers registerConstructorMappers = (RegisterConstructorMappers) annotation;
-        Stream.of(registerConstructorMappers.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        RowMappers rowMappers = config.get(RowMappers.class);
+        constructorMappers.forEach(rowMappers::register);
     }
 }

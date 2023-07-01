@@ -18,12 +18,15 @@ import java.lang.annotation.Annotation;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.TemplateEngine;
 import org.jdbi.v3.stringtemplate4.StringTemplateEngine;
 
 public class UseStringTemplateEngineImpl extends SimpleExtensionConfigurer {
 
+    private final TemplateEngine templateEngine = new StringTemplateEngine();
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlStatements.class).setTemplateEngine(new StringTemplateEngine());
+        config.get(SqlStatements.class).setTemplateEngine(templateEngine);
     }
 }

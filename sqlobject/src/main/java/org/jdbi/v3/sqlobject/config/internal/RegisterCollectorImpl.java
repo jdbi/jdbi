@@ -21,21 +21,29 @@ import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.config.RegisterCollector;
 
 public class RegisterCollectorImpl extends SimpleExtensionConfigurer {
-    @Override
-    public void configure(final ConfigRegistry config, final Annotation annotation, final Class<?> extensionType) {
+
+    private final Type resultType;
+    private final Collector<?, ?, ?> collector;
+
+    public RegisterCollectorImpl(Annotation annotation) {
         final RegisterCollector registerCollector = (RegisterCollector) annotation;
-        final JdbiCollectors collectors = config.get(JdbiCollectors.class);
+        final Class<? extends Collector<?, ?, ?>> collectorClass = registerCollector.value();
 
         try {
-            final Type resultType = GenericTypes.findGenericParameter(registerCollector.value(), Collector.class, 2)
-                    .orElseThrow(() -> new IllegalArgumentException("Tried to pass non-collector object to @RegisterCollector"));
-            collectors.registerCollector(resultType, registerCollector.value().getConstructor().newInstance());
+            this.resultType = GenericTypes.findGenericParameter(collectorClass, Collector.class, 2)
+                .orElseThrow(() -> new IllegalArgumentException("Tried to pass non-collector object to @RegisterCollector"));
+            this.collector = collectorClass.getConstructor().newInstance();
         } catch (ReflectiveOperationException | SecurityException e) {
-            throw new UnableToCreateStatementException("Unable to instantiate collector class " + registerCollector.value(), e);
+            throw new IllegalStateException("Unable to instantiate collector class " + collectorClass, e);
         }
+    }
+
+    @Override
+    public void configure(final ConfigRegistry config, final Annotation annotation, final Class<?> extensionType) {
+        final JdbiCollectors collectors = config.get(JdbiCollectors.class);
+        collectors.registerCollector(resultType, collector);
     }
 }

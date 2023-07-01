@@ -17,22 +17,32 @@ import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 import org.jdbi.v3.sqlobject.config.RegisterFieldMapper;
 
 public class RegisterFieldMapperImpl extends SimpleExtensionConfigurer {
 
-    @Override
-    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+    private final RowMapperFactory fieldMapper;
+
+    public RegisterFieldMapperImpl(Annotation annotation) {
         RegisterFieldMapper registerFieldMapper = (RegisterFieldMapper) annotation;
-        Class<?> type = registerFieldMapper.value();
+
+        Class<?> fieldClass = registerFieldMapper.value();
         String prefix = registerFieldMapper.prefix();
-        RowMappers mappers = config.get(RowMappers.class);
+
         if (prefix.isEmpty()) {
-            mappers.register(FieldMapper.factory(type));
+            fieldMapper = FieldMapper.factory(fieldClass);
         } else {
-            mappers.register(FieldMapper.factory(type, prefix));
+            fieldMapper = FieldMapper.factory(fieldClass, prefix);
         }
     }
+
+    @Override
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        RowMappers mappers = config.get(RowMappers.class);
+        mappers.register(fieldMapper);
+    }
 }
+

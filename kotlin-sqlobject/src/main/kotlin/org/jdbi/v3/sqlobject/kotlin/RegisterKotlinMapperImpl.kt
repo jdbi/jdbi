@@ -18,13 +18,14 @@ import org.jdbi.v3.core.extension.SimpleExtensionConfigurer
 import org.jdbi.v3.core.kotlin.KotlinMapper
 import org.jdbi.v3.core.mapper.RowMappers
 
-class RegisterKotlinMapperImpl : SimpleExtensionConfigurer() {
+class RegisterKotlinMapperImpl(annotation: Annotation) : SimpleExtensionConfigurer() {
+    private val registerKotlinMapper = annotation as RegisterKotlinMapper
+    private val kotlinClass = registerKotlinMapper.value
+    private val prefix = registerKotlinMapper.prefix
+    private val kotlinMapper = KotlinMapper(kotlinClass.java, prefix)
 
     override fun configure(config: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
-        val registerKotlinMapper = annotation as RegisterKotlinMapper
-        val kotlinClass = registerKotlinMapper.value
-        val prefix = registerKotlinMapper.prefix
         val mappers = config.get(RowMappers::class.java)
-        mappers.register(kotlinClass.java, KotlinMapper(kotlinClass.java, prefix))
+        mappers.register(kotlinClass.java, kotlinMapper)
     }
 }

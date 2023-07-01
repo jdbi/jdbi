@@ -23,9 +23,15 @@ import org.jdbi.v3.sqlobject.config.RegisterJoinRowMapper;
 
 public class RegisterJoinRowMapperImpl extends SimpleExtensionConfigurer {
 
+    private final JoinRowMapper mapper;
+
+    public RegisterJoinRowMapperImpl(Annotation annotation) {
+        RegisterJoinRowMapper registerJoinRowMapper = (RegisterJoinRowMapper) annotation;
+        this.mapper = JoinRowMapper.forTypes(registerJoinRowMapper.value());
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterJoinRowMapper registerJoinRowMapper = (RegisterJoinRowMapper) annotation;
-        config.get(RowMappers.class).register(JoinRowMapper.forTypes(registerJoinRowMapper.value()));
+        config.get(RowMappers.class).register(mapper);
     }
 }
