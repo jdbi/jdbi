@@ -23,10 +23,16 @@ import org.jdbi.v3.sqlobject.config.KeyColumn;
 
 public class KeyColumnImpl implements ExtensionConfigurer {
 
-    @Override
-    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
+    private final String name;
+
+    public KeyColumnImpl(Annotation annotation) {
         KeyColumn keyColumn = (KeyColumn) annotation;
         String name = keyColumn.value();
-        config.get(MapEntryMappers.class).setKeyColumn(name.isEmpty() ? null : name);
+        this.name = name.isEmpty() ? null : name;
+    }
+
+    @Override
+    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
+        config.get(MapEntryMappers.class).setKeyColumn(name);
     }
 }

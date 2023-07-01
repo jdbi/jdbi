@@ -14,20 +14,40 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.mapper.RowMapperFactory;
+import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMappers;
 
 public class RegisterBeanMappersImpl extends SimpleExtensionConfigurer {
 
+    private final List<RowMapperFactory> beanMappers;
+
+    public RegisterBeanMappersImpl(Annotation annotation) {
+        RegisterBeanMappers registerBeanMappers = (RegisterBeanMappers) annotation;
+        this.beanMappers = new ArrayList<>(registerBeanMappers.value().length);
+
+        for (RegisterBeanMapper registerBeanMapper : registerBeanMappers.value()) {
+            Class<?> beanClass = registerBeanMapper.value();
+            String prefix = registerBeanMapper.prefix();
+
+            if (prefix.isEmpty()) {
+                this.beanMappers.add(BeanMapper.factory(beanClass));
+            } else {
+                this.beanMappers.add(BeanMapper.factory(beanClass, prefix));
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterBeanMapperImpl();
-
-        RegisterBeanMappers registerBeanMappers = (RegisterBeanMappers) annotation;
-        Stream.of(registerBeanMappers.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        RowMappers rowMappers = config.get(RowMappers.class);
+        beanMappers.forEach(rowMappers::register);
     }
 }

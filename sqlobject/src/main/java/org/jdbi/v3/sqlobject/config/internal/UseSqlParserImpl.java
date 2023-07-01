@@ -25,24 +25,24 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
+import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.UseSqlParser;
 
-public class UseSqlParserImpl implements ExtensionConfigurer {
+public class UseSqlParserImpl extends SimpleExtensionConfigurer {
 
-    @Override
-    public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        UseSqlParser anno = (UseSqlParser) annotation;
-        SqlParser parser = instantiate(anno.value(), sqlObjectType, method);
-        config.get(SqlStatements.class).setSqlParser(parser);
+    private final SqlParser parser;
+
+    public UseSqlParserImpl(Annotation annotation, Class<?> sqlObjectType, Method method) {
+        UseSqlParser useSqlParser = (UseSqlParser) annotation;
+        this.parser = instantiate(useSqlParser.value(), sqlObjectType, method);
     }
 
     @Override
-    public void configureForType(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        configureForMethod(config, annotation, sqlObjectType, null);
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        config.get(SqlStatements.class).setSqlParser(parser);
     }
 
     private SqlParser instantiate(Class<? extends SqlParser> parserClass,

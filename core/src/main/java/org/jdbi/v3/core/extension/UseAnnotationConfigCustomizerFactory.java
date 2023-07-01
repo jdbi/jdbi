@@ -43,36 +43,37 @@ final class UseAnnotationConfigCustomizerFactory implements ConfigCustomizerFact
         final ConfigurerMethod forType = (configurer, config, annotation) -> configurer.configureForType(config, annotation, extensionType);
 
         // build a configurer for the type and all supertypes. This processes all annotations on classes and interfaces
-        return buildConfigCustomizer(extensionType, Stream.concat(JdbiClassUtils.superTypes(extensionType), Stream.of(extensionType)), forType);
+        return buildConfigCustomizer(extensionType, null, Stream.concat(JdbiClassUtils.superTypes(extensionType), Stream.of(extensionType)), forType);
     }
 
     @Override
     public Collection<ConfigCustomizer> forExtensionMethod(Class<?> extensionType, Method method) {
         final ConfigurerMethod forMethod = (configurer, config, annotation) -> configurer.configureForMethod(config, annotation, extensionType, method);
         // build a configurer that processes all annotations on the method itself.
-        return buildConfigCustomizer(extensionType, Stream.of(method), forMethod);
+        return buildConfigCustomizer(extensionType, method, Stream.of(method), forMethod);
     }
 
-    private static Collection<ConfigCustomizer> buildConfigCustomizer(Class<?> extensionType, Stream<AnnotatedElement> elements, ConfigurerMethod consumer) {
+    private static Collection<ConfigCustomizer> buildConfigCustomizer(Class<?> extensionType, Method method, Stream<AnnotatedElement> elements, ConfigurerMethod consumer) {
         return elements.flatMap(ae -> Arrays.stream(ae.getAnnotations()))
                 .filter(a -> a.annotationType().isAnnotationPresent(UseExtensionConfigurer.class))
                 .map(a -> {
                     UseExtensionConfigurer meta = a.annotationType().getAnnotation(UseExtensionConfigurer.class);
                     Class<? extends ExtensionConfigurer> klass = meta.value();
 
-                    ExtensionConfigurer configurer = createConfigurer(klass, extensionType, a);
+                    ExtensionConfigurer configurer = createConfigurer(klass, method, extensionType, a);
                     return (ConfigCustomizer) config -> consumer.configure(configurer, config, a);
 
                 })
                 .collect(Collectors.toList());
     }
 
-    private static ExtensionConfigurer createConfigurer(Class<? extends ExtensionConfigurer> configurerType, Class<?> extensionType, Annotation annotation) {
+    private static ExtensionConfigurer createConfigurer(Class<? extends ExtensionConfigurer> configurerType, Method method, Class<?> extensionType, Annotation annotation) {
 
         CheckedCallable[] callables = {
-            () -> configurerType.getConstructor().newInstance(),
+            () -> configurerType.getConstructor(Annotation.class, Class.class, Method.class).newInstance(annotation, extensionType, method),
+            () -> configurerType.getConstructor(Annotation.class, Class.class).newInstance(annotation, extensionType),
             () -> configurerType.getConstructor(Annotation.class).newInstance(annotation),
-            () -> configurerType.getConstructor(Annotation.class, Class.class).newInstance(annotation, extensionType)
+            () -> configurerType.getConstructor().newInstance()
         };
 
         for (CheckedCallable<ExtensionConfigurer> callable : callables) {

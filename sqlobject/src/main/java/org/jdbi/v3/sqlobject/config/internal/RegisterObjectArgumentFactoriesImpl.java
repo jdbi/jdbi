@@ -14,20 +14,44 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.ObjectArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionConfigurer;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.sqlobject.config.RegisterObjectArgumentFactories;
+import org.jdbi.v3.sqlobject.config.RegisterObjectArgumentFactory;
 
 public class RegisterObjectArgumentFactoriesImpl extends SimpleExtensionConfigurer {
 
+    private final List<ArgumentFactory> argumentFactories;
+
+    public RegisterObjectArgumentFactoriesImpl(Annotation annotation) {
+        final RegisterObjectArgumentFactories registerObjectArgumentFactories = (RegisterObjectArgumentFactories) annotation;
+        this.argumentFactories = new ArrayList<>(registerObjectArgumentFactories.value().length);
+
+        for (RegisterObjectArgumentFactory registerObjectArgumentFactory : registerObjectArgumentFactories.value()) {
+            final Class<?> klass = registerObjectArgumentFactory.value();
+            int sqlType = registerObjectArgumentFactory.sqlType();
+
+            try {
+                if (sqlType == Integer.MIN_VALUE) {
+                    this.argumentFactories.add(ObjectArgumentFactory.create(klass));
+                } else {
+                    this.argumentFactories.add(ObjectArgumentFactory.create(klass, sqlType));
+                }
+            } catch (SecurityException e) {
+                throw new IllegalStateException("Unable to instantiate column mapper class " + klass, e);
+            }
+        }
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ExtensionConfigurer delegate = new RegisterObjectArgumentFactoryImpl();
-
-        RegisterObjectArgumentFactories registerObjectArgumentFactories = (RegisterObjectArgumentFactories) annotation;
-        Stream.of(registerObjectArgumentFactories.value()).forEach(anno -> delegate.configureForType(config, anno, sqlObjectType));
+        Arguments arguments = config.get(Arguments.class);
+        argumentFactories.forEach(arguments::register);
     }
 }

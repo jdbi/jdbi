@@ -55,10 +55,20 @@ public class TestUseSqlParser {
     }
 
     @Test
-    public void testFoo() {
+    public void testOnClass() {
         // test will raise exceptions if SQL is bogus -- if it uses the colon prefix form
 
-        Hashed h = handle.attach(Hashed.class);
+        HashedOnClass h = handle.attach(HashedOnClass.class);
+        h.insert(new Something(1, "Joy"));
+        Something s = h.findById(1);
+        assertThat(s.getName()).isEqualTo("Joy");
+    }
+
+    @Test
+    public void testOnMethod() {
+        // test will raise exceptions if SQL is bogus -- if it uses the colon prefix form
+
+        HashedOnMethod h = handle.attach(HashedOnMethod.class);
         h.insert(new Something(1, "Joy"));
         Something s = h.findById(1);
         assertThat(s.getName()).isEqualTo("Joy");
@@ -66,13 +76,25 @@ public class TestUseSqlParser {
 
     @UseSqlParser(HashPrefixSqlParser.class)
     @RegisterRowMapper(SomethingMapper.class)
-    public interface Hashed {
+    public interface HashedOnClass {
+
         @SqlUpdate("insert into something (id, name) values (#id, #name)")
         void insert(@BindBean Something s);
 
         @SqlQuery("select id, name from something where id = #id")
         Something findById(@Bind("id") int id);
-
     }
 
+    public interface HashedOnMethod {
+
+        @UseSqlParser(HashPrefixSqlParser.class)
+        @RegisterRowMapper(SomethingMapper.class)
+        @SqlUpdate("insert into something (id, name) values (#id, #name)")
+        void insert(@BindBean Something s);
+
+        @UseSqlParser(HashPrefixSqlParser.class)
+        @RegisterRowMapper(SomethingMapper.class)
+        @SqlQuery("select id, name from something where id = #id")
+        Something findById(@Bind("id") int id);
+    }
 }

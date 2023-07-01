@@ -15,13 +15,15 @@ package org.jdbi.v3.sqlobject.kotlin
 
 import org.jdbi.v3.core.config.ConfigRegistry
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer
+import org.jdbi.v3.core.kotlin.KotlinMapper
+import org.jdbi.v3.core.mapper.RowMappers
 
-class RegisterKotlinMappersImpl : SimpleExtensionConfigurer() {
+class RegisterKotlinMappersImpl(annotation: Annotation) : SimpleExtensionConfigurer() {
+    private val registerKotlinMappers = annotation as RegisterKotlinMappers
+    private val kotlinMappers = registerKotlinMappers.value.map { KotlinMapper(it.value.java, it.prefix) }
 
     override fun configure(config: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
-        val delegate = RegisterKotlinMapperImpl()
-
-        val registerKotlinMappers = annotation as RegisterKotlinMappers
-        registerKotlinMappers.value.forEach { anno -> delegate.configureForType(config, anno, sqlObjectType) }
+        val rowMappers = config.get(RowMappers::class.java)
+        kotlinMappers.forEach { rowMappers.register(it) }
     }
 }

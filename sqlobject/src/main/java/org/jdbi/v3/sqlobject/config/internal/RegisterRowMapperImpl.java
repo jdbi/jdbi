@@ -22,6 +22,7 @@ import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 
 public class RegisterRowMapperImpl extends SimpleExtensionConfigurer {
+
     private final RowMapper<?> rowMapper;
 
     public RegisterRowMapperImpl(Annotation annotation) {

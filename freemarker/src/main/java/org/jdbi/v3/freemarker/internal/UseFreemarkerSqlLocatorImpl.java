@@ -32,22 +32,27 @@ import static org.jdbi.v3.freemarker.FreemarkerSqlLocator.findTemplate;
 
 public class UseFreemarkerSqlLocatorImpl extends SimpleExtensionConfigurer {
 
-    @Override
-    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        SqlLocator locator = (type, method, c) ->
-                SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
-        TemplateEngine templateEngine = (templateName, ctx) -> {
-            Template template = findTemplate(
-                    ctx.getConfig(FreemarkerConfig.class).getFreemarkerConfiguration(),
-                    sqlObjectType, templateName);
-            StringWriter writer = new StringWriter();
-            try {
+    private final SqlLocator locator;
+    private final TemplateEngine templateEngine;
+
+    public UseFreemarkerSqlLocatorImpl(Annotation annotation, Class<?> sqlObjectType) {
+        this.locator = (type, method, config) ->
+            SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
+
+        this.templateEngine = (templateName, ctx) -> {
+            Template template = findTemplate(ctx.getConfig(FreemarkerConfig.class).getFreemarkerConfiguration(), sqlObjectType, templateName);
+
+            try (StringWriter writer = new StringWriter()) {
                 template.process(ctx.getAttributes(), writer);
                 return writer.toString();
             } catch (TemplateException | IOException e) {
                 throw new IllegalStateException("Failed to render template " + templateName, e);
             }
         };
+    }
+
+    @Override
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
         config.get(SqlObjects.class).setSqlLocator(locator);
         config.get(SqlStatements.class).setTemplateEngine(templateEngine);
     }

@@ -15,6 +15,7 @@ package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
 
+import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.ObjectArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -23,18 +24,26 @@ import org.jdbi.v3.sqlobject.config.RegisterObjectArgumentFactory;
 
 public class RegisterObjectArgumentFactoryImpl extends SimpleExtensionConfigurer {
 
-    @Override
-    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        RegisterObjectArgumentFactory registerObjectArgumentFactory = (RegisterObjectArgumentFactory) annotation;
-        Arguments arguments = config.get(Arguments.class);
+    private final ArgumentFactory argumentFactory;
 
-        Class<?> clazz = registerObjectArgumentFactory.value();
+    public RegisterObjectArgumentFactoryImpl(Annotation annotation) {
+        RegisterObjectArgumentFactory registerObjectArgumentFactory = (RegisterObjectArgumentFactory) annotation;
+        final Class<?> klass = registerObjectArgumentFactory.value();
         int sqlType = registerObjectArgumentFactory.sqlType();
 
-        if (sqlType == Integer.MIN_VALUE) {
-            arguments.register(ObjectArgumentFactory.create(clazz));
-        } else {
-            arguments.register(ObjectArgumentFactory.create(clazz, sqlType));
+        try {
+            if (sqlType == Integer.MIN_VALUE) {
+                this.argumentFactory = ObjectArgumentFactory.create(klass);
+            } else {
+                this.argumentFactory = ObjectArgumentFactory.create(klass, sqlType);
+            }
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Unable to instantiate column mapper class " + klass, e);
         }
+    }
+
+    @Override
+    public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
+        config.get(Arguments.class).register(argumentFactory);
     }
 }

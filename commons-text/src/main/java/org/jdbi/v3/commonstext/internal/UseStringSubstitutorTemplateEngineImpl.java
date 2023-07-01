@@ -24,10 +24,15 @@ import org.jdbi.v3.core.statement.TemplateEngine;
 
 public class UseStringSubstitutorTemplateEngineImpl extends SimpleExtensionConfigurer {
 
+    private final TemplateEngine engine;
+
+    public UseStringSubstitutorTemplateEngineImpl(Annotation annotation) {
+        UseStringSubstitutorTemplateEngine anno = (UseStringSubstitutorTemplateEngine) annotation;
+        this.engine = StringSubstitutorTemplateEngine.between(anno.prefix(), anno.suffix(), anno.escape());
+    }
+
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        UseStringSubstitutorTemplateEngine anno = (UseStringSubstitutorTemplateEngine) annotation;
-        TemplateEngine engine = StringSubstitutorTemplateEngine.between(anno.prefix(), anno.suffix(), anno.escape());
         config.get(SqlStatements.class).setTemplateEngine(engine);
     }
 }

@@ -2,7 +2,8 @@
 
   - fix `PreparedBatch` c'tor problem where the binding context was not set correctly.
   - Slight memory optimization on RowMappers and ColumnMappers findFor
-  - JsonMapper implementations now bind the Type earlier, which saves work in Jackson and Gson
+  - JsonMapper implementations now bind the Type earlier, which saves work in Jackson and Gson (#2420)
+  - performance improvements for all ExtensionConfigurer implementations (#2416, #2424)
 
 # 3.39.1
 
