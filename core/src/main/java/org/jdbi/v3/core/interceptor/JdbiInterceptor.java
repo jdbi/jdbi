@@ -13,9 +13,8 @@
  */
 package org.jdbi.v3.core.interceptor;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jdbi.v3.meta.Alpha;
 
 /**

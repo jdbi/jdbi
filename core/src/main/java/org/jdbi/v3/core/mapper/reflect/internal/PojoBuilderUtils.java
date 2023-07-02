@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.jdbi.v3.core.generic.GenericTypes;
@@ -42,11 +43,10 @@ public class PojoBuilderUtils {
     }
 
     public static String propertyName(Method m) {
-        ColumnName colName = m.getAnnotation(ColumnName.class);
-        if (colName != null) {
-            return colName.value();
-        }
-        return defaultSetterName(m.getName());
+
+        return Optional.ofNullable(m.getAnnotation(ColumnName.class))
+            .map(ColumnName::value)
+            .orElseGet(() -> defaultSetterName(m.getName()));
     }
 
     public static String defaultSetterName(String name) {
@@ -83,10 +83,16 @@ public class PojoBuilderUtils {
         if (name.length() > 1) {
             names.addAll(setterNames(name));
         }
-        ColumnName columnName = decl.getAnnotation(ColumnName.class);
-        if (columnName != null && columnName.value().equals(name)) {
-            names.addAll(setterNames(PojoBuilderUtils.defaultSetterName(decl.getName())));
-        }
+
+        Optional<String> columnName = Optional.ofNullable(decl.getAnnotation(ColumnName.class))
+            .map(ColumnName::value);
+
+        columnName.ifPresent(n -> {
+            if (n.equals(name)) {
+                names.addAll(setterNames(PojoBuilderUtils.defaultSetterName(decl.getName())));
+            }
+        });
+
         for (String tryName : names) {
             try {
                 return MethodHandles.lookup().unreflect(builderClass.getMethod(tryName, GenericTypes.getErasedType(type)));

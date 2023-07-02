@@ -19,9 +19,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
@@ -259,10 +256,10 @@ public class BindListTest {
         // `in (null)` doesn't work on h2
         @SqlQuery("select name from something <if(name)> where name is <name> <endif>")
         @UseStringTemplateEngine
-        List<String> getForNull(@Nullable @BindList(value = "name", onEmpty = NULL_VALUE) List<String> name);
+        List<String> getForNull(@BindList(value = "name", onEmpty = NULL_VALUE) List<String> name);
 
         @SqlQuery("select name from something <if(name)> where name in (<name>) <endif>")
         @UseStringTemplateEngine
-        List<String> getForValue(@Nonnull @BindList(value = "name", onEmpty = NULL_VALUE) List<String> name);
+        List<String> getForValue(@BindList(value = "name", onEmpty = NULL_VALUE) List<String> name);
     }
 }

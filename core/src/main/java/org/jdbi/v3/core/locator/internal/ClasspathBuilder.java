@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 public class ClasspathBuilder {
     private static final String DOT = ".";
@@ -42,17 +42,17 @@ public class ClasspathBuilder {
     }
 
     // org.foo.Bar$Inner -> org/foo/Bar$Inner
-    public ClasspathBuilder appendFullyQualifiedClassName(@Nonnull Class<?> clazz) {
+    public ClasspathBuilder appendFullyQualifiedClassName(@NonNull Class<?> clazz) {
         return appendDotPath(clazz.getName());
     }
 
     // com.google.guava -> com/google/guava
-    public ClasspathBuilder appendDotPath(@Nonnull String path) {
+    public ClasspathBuilder appendDotPath(@NonNull String path) {
         return appendVerbatim(path.replace(DOT, SLASH));
     }
 
     // because sometimes you just don't have fancy data structures or patterns to work on
-    public ClasspathBuilder appendVerbatim(@Nonnull String s) {
+    public ClasspathBuilder appendVerbatim(@NonNull String s) {
         return addCarefully(s);
     }
 

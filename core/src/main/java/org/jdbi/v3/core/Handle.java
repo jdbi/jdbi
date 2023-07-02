@@ -24,8 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.concurrent.GuardedBy;
-
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.Configurable;
 import org.jdbi.v3.core.extension.ExtensionContext;

@@ -16,6 +16,7 @@
 
 :jdbidocs: ./apidocs/org/jdbi/v3
 :jdkdocs: https://docs.oracle.com/javase/8/docs/api
+:jakartadocs: https://jakarta.ee/specifications/platform/10/apidocs
 
 :projecthome: https://github.com/jdbi/jdbi
 :exampledir: ../test/java/jdbi/doc
@@ -1350,12 +1351,11 @@ Out of the box, Jdbi supports the following types as SQL statement arguments:
 * java.time: `Instant`, `LocalDate`, `LocalDateTime`, `LocalTime`,
   `OffsetDateTime`, `ZonedDateTime`, and `ZoneId`
 * java.util: `Date`, link:{jdkdocs}/java/util/Optional.html[Optional^] (around any other supported type), and `UUID`
-* `java.util.Collection` and Java arrays (stored as SQL arrays). Some
-  additional setup may be required depending on the type of array element.
+* `java.util.Collection` and Java arrays (stored as SQL arrays).
+Some additional setup may be required depending on the type of array element.
 
-You can also configure Jdbi to support additional argument types. More on that
-later.
-
+You can also configure Jdbi to support additional argument types.
+More on that later.
 
 === Binding Arguments
 
@@ -2107,24 +2107,44 @@ columns to camelCase field/argument/property names.
 
 ==== Supported property annotations
 
-Reflection mappers support the following annotations. Unless otherwise noted, all annotations are supported on bean getters and setters for the `BeanMapper`, constructor parameters for the `ConstructorMapper` and bean fields for the `FieldMapper`.
+Reflection mappers support the following annotations.
+Unless otherwise noted, all annotations are supported on bean getters and setters for the `BeanMapper`, constructor parameters for the `ConstructorMapper` and bean fields for the `FieldMapper`.
 
-* `@ColumnName` allows explicit naming of the column that is mapped to
-  the specific attribute.
-* `@Nested` for nested beans. Without this annotation, any attribute is treated as mappable from a single column. This annotation creates
-  a mapper for the nested bean. There is a limitation that only one type of mapper can be nested at a time; `BeanMapper` will create
-  another `BeanMapper`, `ConstructorMapper` will create another `ConstructorMapper` etc. `@Nested` supports an optional prefix for
-  all attributes in the nested bean (`@Nested("prefix")`).
-* `@PropagateNull` on a given attribute propagates a null value for a specific attribute up. So if the attribute or column is null, the whole bean will be discarded and a null value will be used instead of the bean itself. This annotation can also be used on the bean
-  class with a column name that must be present in the result set. When used on an attribute, no value must be set.
-* `@Nullable` for `ConstructorMapper` arguments. If no column is mapped onto a specific constructor argument, don't fail but use `null` as value. Any annotation called `Nullable` is accepted.
-* `@JdbiProperty(map=false)` allows configuring whether a discovered property is mapped in results. Turn the `map` value off, and the property discovery mechanism will ignore it. This used to be called `@Unmappable`.
+* link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] allows explicit naming of the column that is mapped to the specific attribute.
+* link:{jdbidocs}/core/mapper/Nested.html[@Nested^] for nested beans.
+Without this annotation, any attribute is treated as mappable from a single column.
+This annotation creates a mapper for the nested bean.
+There is a limitation that only one type of mapper can be nested at a time; `BeanMapper` will create another `BeanMapper`, `ConstructorMapper` will create another `ConstructorMapper` etc. link:{jdbidocs}/core/mapper/Nested.html[@Nested^] supports an optional prefix for all attributes in the nested bean (`@Nested("prefix")`).
+* `@PropagateNull` on a given attribute propagates a null value for a specific attribute up.
+So if the attribute or column is null, the whole bean will be discarded and a null value will be used instead of the bean itself.
+This annotation can also be used on the bean class with a column name that must be present in the result set.
+When used on an attribute, no value must be set.
+* `@Nullable` for `ConstructorMapper` arguments.
+If no column is mapped onto a specific constructor argument, don't fail but use `null` as value.
+* `@JdbiProperty(map=false)` allows configuring whether a discovered property is mapped in results.
+Turn the `map` value off, and the property discovery mechanism will ignore it.
+This used to be called `@Unmappable`.
 
 [NOTE]
-The `@ColumnName` annotation only applies while mapping SQL data into Java
-objects. When binding object properties (e.g. with `bindBean()`), bind the
-property name (`:id`) rather than the column name (`:user_id`).
+The link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation only applies while mapping SQL data into Java objects.
+When binding object properties (e.g. with `bindBean()`), bind the property name (`:id`) rather than the column name (`:user_id`).
 
+===== Using `@Nullable` annotations
+
+Jdbi accepts any annotation that is named `Nullable` to mark a field or method as nullable.
+
+These are popular choices:
+
+- `jakarta.annotation.Nullable` -- https://search.maven.org/artifact/jakarta.annotation/jakarta.annotation-api[jakarta annotation-api^]
+- `javax.annotation.Nullable` -- https://search.maven.org/artifact/com.google.code.findbugs/jsr305[findbugs jsr305^]
+- `edu.umd.cs.findbugs.annotations.Nullable` -- https://search.maven.org/artifact/com.github.spotbugs/spotbugs-annotations[Spotbugs annotations^]
+- `org.jetbrains.annotations.Nullable` -- https://search.maven.org/artifact/org.jetbrains/annotations[Jetbrains annotations^]
+- `org.checkerframework.checker.nullness.qual.Nullable` -- https://search.maven.org/artifact/org.checkerframework/checker-qual[checker framework^]
+- `org.springframework.lang.Nullable` -- https://search.maven.org/artifact/org.springframework/spring-core[Spring Framework^]
+
+[WARNING]
+To allow Jdbi to discover the `@Nullable` annotation at runtime, it must use link:{jdkdocs}/java/lang/annotation/RetentionPolicy.html#RUNTIME[RetentionPolicy.RUNTIME^].
+When in doubt, prefer the link:{jakartadocs}/jakarta/annotation/nullable[Jakarta variant^]!.
 
 ==== ConstructorMapper
 
@@ -2139,7 +2159,7 @@ these names to select columns.
 include::{exampledir}/ResultsTest.java[tags=userConstructor]
 ----
 
-Otherwise, the names can be explictly set with the `@ColumnName`
+Otherwise, the names can be explictly set with the link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^]
 annotation on each constructor parameter:
 
 [source,java,indent=0]
@@ -2203,7 +2223,7 @@ constructors, Jdbi will pick one based on these rules:
   use.
 
 For legacy column names that don't match up to property names, use the
-`@ColumnName` annotation to provide an exact column name.
+link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation to provide an exact column name.
 
 [source,java,indent=0]
 ----
@@ -2213,7 +2233,7 @@ public User(@ColumnName("user_id") int id, String name) {
 }
 ----
 
-Nested constructor-injected types can be mapped using the `@Nested` annotation:
+Nested constructor-injected types can be mapped using the link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation:
 
 [source,java,indent=0]
 ----
@@ -2245,8 +2265,7 @@ List<User> users = handle
     .list();
 ----
 
-The `@Nested` annotation has an optional `value()` attribute, which can be used
-to apply a column name prefix to each nested constructor parameter:
+The link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation has an optional `value()` attribute, which can be used to apply a column name prefix to each nested constructor parameter:
 
 [source,java,indent=0]
 ----
@@ -2267,11 +2286,9 @@ List<User> users = handle
     .list();
 ----
 
-By default, ConstructorMapper expects the result set to contain columns to map
-every constructor parameter, and will throw an exception if any parameters
-cannot be mapped.
+By default, ConstructorMapper expects the result set to contain columns to map every constructor parameter, and will throw an exception if any parameters cannot be mapped.
 
-Parameters annotated `@Nullable` may be omitted from the result set, in which
+Parameters annotated `@Nullable` (see <<Using `@Nullable` annotations>>) may be omitted from the result set, in which
 `ConstructorMapper` will pass `null` to the constructor for that parameter.
 
 [source,java,indent=0]
@@ -2286,14 +2303,8 @@ public class User {
 }
 ----
 
-In this example, the `id` and `name` columns must be present in the result set,
-but `passwordHash` and `address` are optional. If they are present, they will
-be mapped. Otherwise,
-
-[TIP]
-Any `@Nullable` annotation from any package may be used.
-`javax.annotation.Nullable` is a good choice.
-
+In this example, the `id` and `name` columns must be present in the result set, but `passwordHash` and `address` are optional.
+If they are present, they will be mapped.
 
 ==== BeanMapper
 
@@ -2340,7 +2351,7 @@ include::{exampledir}/ResultsTest.java[tags=beanMapperPrefix]
 ----
 
 For legacy column names that don't match up to property names, use the
-`@ColumnName` annotation to provide an exact column name.
+link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation to provide an exact column name.
 
 [source,java,indent=0]
 ----
@@ -2354,10 +2365,10 @@ public class User {
 }
 ----
 
-The `@ColumnName` annotation can be placed on either the getter or setter
-method. If conflicting annotations exist, then Annotations on the setter are preferred.
+The link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation can be placed on either the getter or setter method.
+If conflicting annotations exist, then Annotations on the setter are preferred.
 
-Nested Java Bean types can be mapped using the `@Nested` annotation:
+Nested Java Bean types can be mapped using the link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation:
 
 [source,java,indent=0]
 ----
@@ -2383,8 +2394,9 @@ public class Address {
     // ... (getters and setters)
 }
 ----
-<1> The `@Nested` annotation can be placed on either the getter or setter
-    method. The setter is preferred.
+
+<1> The link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation can be placed on either the getter or setter method.
+The setter is preferred.
 
 [source,java,indent=0]
 ----
@@ -2396,8 +2408,7 @@ List<User> users = handle
     .list();
 ----
 
-The `@Nested` annotation has an optional `value()` attribute, which can be used
-to apply a column name prefix to each nested bean property:
+The link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation has an optional `value()` attribute, which can be used to apply a column name prefix to each nested bean property:
 
 [source,java,indent=0]
 ----
@@ -2416,9 +2427,7 @@ List<User> users = handle
 ----
 
 [NOTE]
-`@Nested` properties are left unmodified (i.e. null) if the result set has no
-columns matching any properties of the nested object.
-
+link:{jdbidocs}/core/mapper/Nested.html[@Nested^] properties are left unmodified (i.e. null) if the result set has no columns matching any properties of the nested object.
 
 ==== FieldMapper
 
@@ -2465,7 +2474,7 @@ List<JoinRow> contactPhones = handle.select(
 ----
 
 For legacy column names that don't match up to field names, use the
-`@ColumnName` annotation to provide an exact column name:
+link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation to provide an exact column name:
 
 [source,java,indent=0]
 ----
@@ -2477,7 +2486,7 @@ public class User {
 }
 ----
 
-Nested field-mapped types can be mapped using the `@Nested` annotation:
+Nested field-mapped types can be mapped using the link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation:
 
 [source,java,indent=0]
 ----
@@ -2507,8 +2516,7 @@ List<User> users = handle
     .list();
 ----
 
-The `@Nested` annotation has an optional `value()` attribute, which can be used
-to apply a column name prefix to each nested field:
+The link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation has an optional `value()` attribute, which can be used to apply a column name prefix to each nested field:
 
 [source,java,indent=0]
 ----
@@ -2532,8 +2540,7 @@ List<User> users = handle
 ----
 
 [NOTE]
-`@Nested` fields are left unmodified (i.e. null) if the result set has no
-columns matching any fields of the nested object.
+link:{jdbidocs}/core/mapper/Nested.html[@Nested^] fields are left unmodified (i.e. null) if the result set has no columns matching any fields of the nested object.
 
 ////
 ==== ReflectionMappers config class
@@ -6942,6 +6949,7 @@ To use this plugin, add a Maven dependency:
 ----
 
 Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version^] is set to at least 11:
+
 [source,xml,indent=0,subs="specialchars"]
 ----
 <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
@@ -6954,18 +6962,15 @@ Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 jdbi.installPlugin(KotlinPlugin());
 ----
 
-The Kotlin mapper also supports `@ColumnName` annotation that allows to specify
-name for a property or parameter explicitly, as well as the `@Nested` annotation
-that allows mapping nested Kotlin objects.
+The Kotlin mapper also supports link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation that allows to specify name for a property or parameter explicitly, as well as the link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation that allows mapping nested Kotlin objects.
 
 [NOTE]
 Instead of using link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^], `bindBean()`, and link:{jdbidocs}/sqlobject/config/RegisterBeanMapper.html[@RegisterBeanMapper^] use `@BindKotlin`, `bindKotlin()`, and `KotlinMapper`
 for qualifiers on constrictor parameters, getter, setters, and setter parameters of Kotlin class.
 
 [NOTE]
-The `@ColumnName` annotation only applies while mapping SQL data into Java
-objects. When binding object properties (e.g. with `bindBean()`), bind the
-property name (`:id`) rather than the column name (`:user_id`).
+The link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation only applies while mapping SQL data into Java objects.
+When binding object properties (e.g. with `bindBean()`), bind the property name (`:id`) rather than the column name (`:user_id`).
 
 If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be
 discovered and registered automatically. Otherwise, you can attach it using

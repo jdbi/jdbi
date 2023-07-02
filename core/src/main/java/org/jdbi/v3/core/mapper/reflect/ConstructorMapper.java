@@ -303,15 +303,17 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
     private static String paramName(Parameter[] parameters,
                                     int position,
                                     ConstructorProperties parameterNames) {
+
         final Parameter parameter = parameters[position];
-        ColumnName dbName = parameter.getAnnotation(ColumnName.class);
-        if (dbName != null) {
-            return dbName.value();
-        }
-        if (parameterNames != null) {
-            return parameterNames.value()[position];
-        }
-        return parameter.getName();
+        return Optional.ofNullable(parameter.getAnnotation(ColumnName.class))
+            .map(ColumnName::value)
+            .orElseGet(() -> {
+                if (parameterNames != null) {
+                    return parameterNames.value()[position];
+                } else {
+                    return parameter.getName();
+                }
+            });
     }
 
     private String debugName(Parameter parameter) {

@@ -15,7 +15,6 @@ package org.jdbi.v3.guice;
 
 import java.lang.annotation.Annotation;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 import com.google.inject.Key;
@@ -24,6 +23,7 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.guice.internal.InternalGuiceJdbiCustomizer;
 import org.jdbi.v3.guice.internal.InternalGuiceJdbiFactory;

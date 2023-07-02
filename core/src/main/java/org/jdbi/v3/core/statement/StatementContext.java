@@ -32,8 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 
-import javax.annotation.Nullable;
-
+import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;

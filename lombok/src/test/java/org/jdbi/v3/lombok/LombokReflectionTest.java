@@ -16,7 +16,7 @@ package org.jdbi.v3.lombok;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import lombok.Data;
 import lombok.Value;
