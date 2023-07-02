@@ -1,10 +1,11 @@
 # unreleased
 
-  - fix `PreparedBatch` c'tor problem where the binding context was not set correctly.
-  - Slight memory optimization on RowMappers and ColumnMappers findFor
+  - fix `PreparedBatch` c'tor problem where the binding context was not set correctly. (#2404)
+  - Slight memory optimization on RowMappers and ColumnMappers findFor (#2418)
   - JsonMapper implementations now bind the Type earlier, which saves work in Jackson and Gson (#2420)
   - performance improvements for all ExtensionConfigurer implementations (#2416, #2424)
-  - Remove JSR 305 annotations from the Jdbi codebase, one small step closer to JPMS.
+  - Remove JSR 305 annotations from the Jdbi codebase, one small step closer to JPMS. (#2408)
+  - remove unnecessary tests before adding standard methods to extension objects (#2414)
 
 # 3.39.1
 
