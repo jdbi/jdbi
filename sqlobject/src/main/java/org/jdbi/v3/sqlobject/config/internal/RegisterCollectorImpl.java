@@ -21,6 +21,7 @@ import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.config.RegisterCollector;
 
 public class RegisterCollectorImpl extends SimpleExtensionConfigurer {
@@ -30,15 +31,11 @@ public class RegisterCollectorImpl extends SimpleExtensionConfigurer {
 
     public RegisterCollectorImpl(Annotation annotation) {
         final RegisterCollector registerCollector = (RegisterCollector) annotation;
-        final Class<? extends Collector<?, ?, ?>> collectorClass = registerCollector.value();
+        final Class<? extends Collector<?, ?, ?>> klass = registerCollector.value();
 
-        try {
-            this.resultType = GenericTypes.findGenericParameter(collectorClass, Collector.class, 2)
+        this.resultType = GenericTypes.findGenericParameter(klass, Collector.class, 2)
                 .orElseThrow(() -> new IllegalArgumentException("Tried to pass non-collector object to @RegisterCollector"));
-            this.collector = collectorClass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate collector class " + collectorClass, e);
-        }
+        this.collector = JdbiClassUtils.checkedCreateInstance(klass);
     }
 
     @Override

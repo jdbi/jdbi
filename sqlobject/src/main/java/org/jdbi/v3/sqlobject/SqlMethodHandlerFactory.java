@@ -20,11 +20,12 @@ import java.util.Optional;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
-import org.jdbi.v3.core.internal.exceptions.CheckedCallable;
 
 import static java.lang.String.format;
 
 class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
+
+    private static final Class<?>[] SQL_METHOD_HANDLER_TYPES = {Class.class, Method.class};
 
     @Override
     public boolean accepts(Class<?> extensionType, Method method) {
@@ -60,31 +61,12 @@ class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
 
         return Optional.of(SqlObjectAnnotationHelper.findOldAnnotations(method)
                 .map(type -> type.getAnnotation(SqlOperation.class))
-                .map(a -> createHandler(a.value(), sqlObjectType, method))
+                .map(SqlOperation::value)
+                .map(klass -> (ExtensionHandler) JdbiClassUtils.findConstructorAndCreateInstance(klass, SQL_METHOD_HANDLER_TYPES, sqlObjectType, method))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(format(
                         "Method %s.%s must be default or be annotated with a SQL method annotation.",
                         sqlObjectType.getSimpleName(),
                         method.getName()))));
-    }
-
-
-    private Handler createHandler(Class<? extends Handler> handlerType, Class<?> sqlObjectType, Method method) {
-
-        CheckedCallable[] callables = {
-                () -> handlerType.getConstructor(Class.class, Method.class).newInstance(sqlObjectType, method),
-                () -> handlerType.getConstructor(Method.class).newInstance(method),
-                () -> handlerType.getConstructor().newInstance()
-        };
-
-        for (CheckedCallable<Handler> callable : callables) {
-            Optional<Handler> handler = JdbiClassUtils.createInstanceIfPossible(callable);
-            if (handler.isPresent()) {
-                return handler.get();
-            }
-        }
-
-        throw new IllegalStateException(format("Handler class %s cannot be instantiated. "
-                + "Expected a constructor with parameters (Class, Method), (Method), or ().", handlerType));
     }
 }

@@ -13,9 +13,6 @@
  */
 package org.jdbi.v3.core.config;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +21,7 @@ import java.util.function.Function;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
-import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMappers;
@@ -36,6 +33,9 @@ import org.jdbi.v3.core.statement.SqlStatements;
  * @see Configurable
  */
 public final class ConfigRegistry {
+
+    private static final Class<?>[] JDBI_CONFIG_TYPES = {ConfigRegistry.class};
+
     private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>(32);
     private final Map<Class<? extends JdbiConfig<?>>, Function<ConfigRegistry, JdbiConfig<?>>> configFactories;
 
@@ -81,34 +81,12 @@ public final class ConfigRegistry {
     }
 
     private Function<ConfigRegistry, JdbiConfig<?>> configFactory(Class<? extends JdbiConfig<?>> configClass) {
-        return configFactories.computeIfAbsent(configClass, klass -> {
-            final Exception notFound;
-            try {
-                MethodHandle mh = MethodHandles.lookup().findConstructor(klass,
-                        MethodType.methodType(void.class, ConfigRegistry.class))
-                    .asType(MethodType.methodType(JdbiConfig.class, ConfigRegistry.class));
-                return Unchecked.function(registry -> (JdbiConfig<?>) mh.invokeExact(registry));
-            } catch (NoSuchMethodException e) {
-                notFound = e;
-            } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("Unable to use constructor taking ConfigRegistry to create " + configClass, e);
-            }
-            try {
-                MethodHandle mh = MethodHandles.lookup().findConstructor(klass,
-                        MethodType.methodType(void.class))
-                    .asType(MethodType.methodType(JdbiConfig.class));
-                return Unchecked.function(registry -> {
-                    JdbiConfig<?> result = (JdbiConfig<?>) mh.invokeExact();
-                    result.setRegistry(registry);
-                    return result;
+        return configFactories.computeIfAbsent(configClass, klass ->
+                registry -> {
+                    var config = JdbiClassUtils.findConstructorAndCreateInstance(klass, JDBI_CONFIG_TYPES, registry);
+                    config.setRegistry(registry);
+                    return config;
                 });
-            } catch (ReflectiveOperationException e) {
-                IllegalStateException failure = new IllegalStateException("Unable to instantiate config class " + configClass
-                        + ". Is there a public no-arg constructor?", e);
-                failure.addSuppressed(notFound);
-                throw failure;
-            }
-        });
     }
 
     /**

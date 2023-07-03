@@ -8216,7 +8216,7 @@ link:{jdkdocs}/java/lang/annotation/Target.html[@Target({ElementType.METHOD})^] 
 The extension framework processes all annotations that use this meta-annotation. It will instantiate the extension handler by locating
 
 - a constructor that takes both the extension type and a method object
-- a constructor that takes only a method object
+- a constructor that takes only the extension type
 - a no-argument constructor
 
 If none of those can be found, an exception will be thrown.
@@ -8290,7 +8290,7 @@ be placed on a method or the extension type itself.
 The extension framework processes all annotations that use this meta-annotation. It will instantiate the extension handler customizer by locating
 
 - a constructor that takes both the extension type and a method object
-- a constructor that takes only a method object
+- a constructor that takes only the extension type
 - a no-argument constructor
 
 If none of those can be found, an exception will be thrown.

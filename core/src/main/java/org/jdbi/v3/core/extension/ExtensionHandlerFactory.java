@@ -16,9 +16,12 @@ package org.jdbi.v3.core.extension;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
+import org.jdbi.v3.meta.Alpha;
+
 /**
  * A factory to create {@link ExtensionHandler} instances.
  */
+@Alpha
 public interface ExtensionHandlerFactory {
 
     /**

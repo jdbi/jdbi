@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapperFactory;
@@ -27,13 +28,8 @@ public class RegisterColumnMapperFactoryImpl extends SimpleExtensionConfigurer {
 
     public RegisterColumnMapperFactoryImpl(Annotation annotation) {
         final RegisterColumnMapperFactory registerColumnMapperFactory = (RegisterColumnMapperFactory) annotation;
-        final Class<? extends ColumnMapperFactory> klass = registerColumnMapperFactory.value();
 
-        try {
-            this.columnMapperFactory = klass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate column mapper factory class " + klass, e);
-        }
+        this.columnMapperFactory = JdbiClassUtils.checkedCreateInstance(registerColumnMapperFactory.value());
     }
 
     @Override

@@ -21,15 +21,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.extension.annotation.ExtensionHandlerCustomizationOrder;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
-import org.jdbi.v3.core.internal.exceptions.CheckedCallable;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
@@ -39,6 +36,8 @@ import static java.util.stream.Collectors.toList;
  * using the {@link ExtensionHandlerCustomizationOrder} annotation.
  */
 final class UseAnnotationExtensionHandlerCustomizer implements ExtensionHandlerCustomizer {
+
+    private static final Class<?>[] EXTENSION_HANDLER_CUSTOMIZER_TYPES = {Class.class, Method.class};
 
     static final ExtensionHandlerCustomizer INSTANCE = new UseAnnotationExtensionHandlerCustomizer();
 
@@ -61,7 +60,8 @@ final class UseAnnotationExtensionHandlerCustomizer implements ExtensionHandlerC
 
         List<ExtensionHandlerCustomizer> customizers = annotationTypes.stream()
                 .map(type -> type.getAnnotation(UseExtensionHandlerCustomizer.class))
-                .map(a -> createCustomizer(a.value(), extensionType, method))
+                .map(UseExtensionHandlerCustomizer::value)
+                .map(klass -> JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_HANDLER_CUSTOMIZER_TYPES, extensionType, method))
                 .collect(toList());
 
         for (ExtensionHandlerCustomizer customizer : customizers) {
@@ -78,25 +78,5 @@ final class UseAnnotationExtensionHandlerCustomizer implements ExtensionHandlerC
             int index = ordering.indexOf(type);
             return index == -1 ? ordering.size() : index;
         });
-    }
-
-    private static ExtensionHandlerCustomizer createCustomizer(Class<? extends ExtensionHandlerCustomizer> customizerType,
-            Class<?> extensionObjectType, Method method) {
-
-        CheckedCallable[] callables = {
-                () -> customizerType.getConstructor().newInstance(),
-                () -> customizerType.getConstructor(Method.class).newInstance(method),
-                () -> customizerType.getConstructor(Class.class, Method.class).newInstance(extensionObjectType, method)
-        };
-
-        for (CheckedCallable<ExtensionHandlerCustomizer> callable : callables) {
-            Optional<ExtensionHandlerCustomizer> handler = JdbiClassUtils.createInstanceIfPossible(callable);
-            if (handler.isPresent()) {
-                return handler.get();
-            }
-        }
-
-        throw new IllegalStateException(format("ExtensionHandlerCustomizer class %s cannot be instantiated. "
-                + "Expected a constructor with parameters (Class, Method), (Method), or ().", customizerType));
     }
 }

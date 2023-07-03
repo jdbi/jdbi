@@ -27,7 +27,7 @@ import org.jdbi.v3.sqlobject.SqlObjectFactory;
 public class CreateSqlObjectHandler implements ExtensionHandler {
     private final Method method;
 
-    public CreateSqlObjectHandler(Method method) {
+    public CreateSqlObjectHandler(Class<?> sqlObjectType, Method method) {
         this.method = method;
     }
 

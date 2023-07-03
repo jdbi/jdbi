@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
@@ -33,13 +34,7 @@ public class RegisterRowMappersImpl extends SimpleExtensionConfigurer {
         this.rowMappers = new ArrayList<>(registerRowMappers.value().length);
 
         for (RegisterRowMapper registerRowMapper : registerRowMappers.value()) {
-            final Class<? extends RowMapper<?>> klass = registerRowMapper.value();
-
-            try {
-                rowMappers.add(klass.getConstructor().newInstance());
-            } catch (ReflectiveOperationException | SecurityException e) {
-                throw new IllegalStateException("Unable to instantiate row mapper class " + klass, e);
-            }
+            rowMappers.add(JdbiClassUtils.checkedCreateInstance(registerRowMapper.value()));
         }
     }
 
