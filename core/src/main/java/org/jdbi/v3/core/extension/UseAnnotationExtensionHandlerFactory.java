@@ -22,7 +22,6 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
-import org.jdbi.v3.core.internal.exceptions.CheckedCallable;
 
 import static java.lang.String.format;
 
@@ -30,6 +29,8 @@ import static java.lang.String.format;
  * Processes {@link UseExtensionHandler} annotations on methods.
  */
 final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFactory {
+
+    private static final Class<?>[] EXTENSION_HANDLER_TYPES = {Class.class, Method.class};
 
     static final ExtensionHandlerFactory INSTANCE = new UseAnnotationExtensionHandlerFactory();
 
@@ -77,29 +78,10 @@ final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFact
                     extensionAnnotations.get(0).getSimpleName()));
         }
 
-
         return extensionAnnotations.stream()
                 .map(type -> type.getAnnotation(UseExtensionHandler.class))
-                .map(a -> createExtensionHandler(a.value(), extensionType, method))
+                .map(UseExtensionHandler::value)
+                .map(klass -> (ExtensionHandler) JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_HANDLER_TYPES, extensionType, method))
                 .findFirst();
-    }
-
-    private ExtensionHandler createExtensionHandler(Class<? extends ExtensionHandler> handlerType, Class<?> extensionObjectType, Method method) {
-
-        CheckedCallable[] callables = {
-                () -> handlerType.getConstructor(Class.class, Method.class).newInstance(extensionObjectType, method),
-                () -> handlerType.getConstructor(Method.class).newInstance(method),
-                () -> handlerType.getConstructor().newInstance()
-        };
-
-        for (CheckedCallable<ExtensionHandler> callable : callables) {
-            Optional<ExtensionHandler> handler = JdbiClassUtils.createInstanceIfPossible(callable);
-            if (handler.isPresent()) {
-                return handler.get();
-            }
-        }
-
-        throw new IllegalStateException(format("ExtensionHandler class %s cannot be instantiated. "
-                + "Expected a constructor with parameters (Class, Method), (Method), or ().", handlerType));
     }
 }

@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
@@ -27,13 +28,8 @@ public class RegisterRowMapperFactoryImpl extends SimpleExtensionConfigurer {
 
     public RegisterRowMapperFactoryImpl(Annotation annotation) {
         final RegisterRowMapperFactory registerRowMapperFactory = (RegisterRowMapperFactory) annotation;
-        final Class<? extends RowMapperFactory> klass = registerRowMapperFactory.value();
 
-        try {
-            this.rowMapperFactory = klass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate row mapper factory class " + klass, e);
-        }
+        this.rowMapperFactory = JdbiClassUtils.checkedCreateInstance(registerRowMapperFactory.value());
     }
 
     @Override

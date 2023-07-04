@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
@@ -27,13 +28,7 @@ public class RegisterRowMapperImpl extends SimpleExtensionConfigurer {
 
     public RegisterRowMapperImpl(Annotation annotation) {
         RegisterRowMapper registerRowMapper = (RegisterRowMapper) annotation;
-        final Class<? extends RowMapper<?>> klass = registerRowMapper.value();
-
-        try {
-            this.rowMapper = klass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate row mapper class " + klass, e);
-        }
+        this.rowMapper = JdbiClassUtils.checkedCreateInstance(registerRowMapper.value());
     }
 
     @Override

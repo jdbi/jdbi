@@ -21,6 +21,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.internal.JdbiClassUtils;
+
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -48,7 +50,7 @@ class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
 
         List<HandlerDecorator> decorators = annotationTypes.stream()
                 .map(type -> type.getAnnotation(SqlMethodDecoratingAnnotation.class))
-                .map(a -> buildDecorator(a.value()))
+                .map(a -> JdbiClassUtils.checkedCreateInstance(a.value()))
                 .collect(toList());
 
         for (HandlerDecorator decorator : decorators) {
@@ -66,13 +68,4 @@ class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
             return index == -1 ? ordering.size() : index;
         });
     }
-
-    private static HandlerDecorator buildDecorator(Class<? extends HandlerDecorator> decoratorClass) {
-        try {
-            return decoratorClass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Decorator class " + decoratorClass + "cannot be instantiated", e);
-        }
-    }
-
 }

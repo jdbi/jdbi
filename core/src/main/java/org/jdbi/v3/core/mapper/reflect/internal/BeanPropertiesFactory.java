@@ -17,7 +17,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
@@ -31,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,7 +38,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.internal.ConfigCache;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.internal.exceptions.Sneaky;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory.BeanPojoProperties.PropertiesHolder;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -48,6 +46,7 @@ import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 public class BeanPropertiesFactory {
+
     private static final ConfigCache<Type, PropertiesHolder<?>> PROPERTY_CACHE =
             ConfigCaches.declare(PropertiesHolder::new);
 
@@ -68,6 +67,7 @@ public class BeanPropertiesFactory {
     }
 
     static class BeanPojoProperties<T> extends PojoProperties<T> {
+
         private final ConfigRegistry config;
 
         BeanPojoProperties(Type type, ConfigRegistry config) {
@@ -75,7 +75,7 @@ public class BeanPropertiesFactory {
             this.config = config;
         }
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public Map<String, BeanPojoProperty<T>> getProperties() {
             return (Map) PROPERTY_CACHE.get(getType(), config).properties;
@@ -83,14 +83,14 @@ public class BeanPropertiesFactory {
 
         @Override
         public PojoBuilder<T> create() {
-            final PropertiesHolder<?> holder = PROPERTY_CACHE.get(getType(), config);
-            final T instance = (T) holder.constructor.get();
-            return new PojoBuilder<T>() {
+            final PropertiesHolder<T> holder = (PropertiesHolder<T>) PROPERTY_CACHE.get(getType(), config);
+            final T instance = holder.getInstance();
+            return new PojoBuilder<>() {
                 @Override
                 public void set(String property, Object value) {
                     holder.properties.get(property)
-                        .setter()
-                        .accept(instance, value);
+                            .setter()
+                            .accept(instance, value);
                 }
 
                 @Override
@@ -101,6 +101,7 @@ public class BeanPropertiesFactory {
         }
 
         static class BeanPojoProperty<T> implements PojoProperty<T> {
+
             final PropertyDescriptor descriptor;
             final QualifiedType<?> qualifiedType;
             final ConcurrentMap<Class<?>, Optional<Annotation>> annoCache = new ConcurrentHashMap<>();
@@ -154,31 +155,31 @@ public class BeanPropertiesFactory {
 
             private QualifiedType<?> determineQualifiedType() {
                 Parameter setterParam = Optional.ofNullable(descriptor.getWriteMethod())
-                    .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
-                    .orElse(null);
+                        .map(m -> m.getParameterCount() > 0 ? m.getParameters()[0] : null)
+                        .orElse(null);
 
                 return QualifiedType.of(
-                        GenericTypeReflector.reduceBounded(GenericTypeReflector.annotate(
-                            GenericTypeReflector.resolveExactType(
-                                Optional.ofNullable(descriptor.getReadMethod())
-                                    .map(m -> GenericTypeReflector.getExactReturnType(m, actualBeanType))
-                                    .orElseGet(() -> GenericTypeReflector.getExactParameterTypes(descriptor.getWriteMethod(), actualBeanType)[0]),
-                            actualBeanType)))
-                        .getType())
-                    .withAnnotations(
-                        new Qualifiers().findFor(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
+                                GenericTypeReflector.reduceBounded(GenericTypeReflector.annotate(
+                                                GenericTypeReflector.resolveExactType(
+                                                        Optional.ofNullable(descriptor.getReadMethod())
+                                                                .map(m -> GenericTypeReflector.getExactReturnType(m, actualBeanType))
+                                                                .orElseGet(() -> GenericTypeReflector.getExactParameterTypes(descriptor.getWriteMethod(), actualBeanType)[0]),
+                                                        actualBeanType)))
+                                        .getType())
+                        .withAnnotations(
+                                new Qualifiers().findFor(descriptor.getReadMethod(), descriptor.getWriteMethod(), setterParam));
             }
 
             @Override
             public <A extends Annotation> Optional<A> getAnnotation(Class<A> anno) {
                 return annoCache.computeIfAbsent(anno, x ->
-                    Stream.of(descriptor.getWriteMethod(), descriptor.getReadMethod())
-                        .filter(Objects::nonNull)
-                        .map(m -> m.getAnnotation(anno))
-                        .filter(Objects::nonNull)
-                        .findFirst()
-                        .map(Annotation.class::cast))
-                    .map(anno::cast);
+                                Stream.of(descriptor.getWriteMethod(), descriptor.getReadMethod())
+                                        .filter(Objects::nonNull)
+                                        .map(m -> m.getAnnotation(anno))
+                                        .filter(Objects::nonNull)
+                                        .findFirst()
+                                        .map(Annotation.class::cast))
+                        .map(anno::cast);
             }
 
             @Override
@@ -188,10 +189,12 @@ public class BeanPropertiesFactory {
         }
 
         static class PropertiesHolder<T> {
-            final Supplier<T> constructor;
+
+            final Class<?> clazz;
             final Map<String, BeanPojoProperty<?>> properties;
+
             PropertiesHolder(Type type) {
-                final Class<?> clazz = GenericTypes.getErasedType(type);
+                this.clazz = GenericTypes.getErasedType(type);
                 try {
                     properties = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                             .filter(BeanPropertiesFactory::shouldSeeProperty)
@@ -200,18 +203,10 @@ public class BeanPropertiesFactory {
                 } catch (IntrospectionException e) {
                     throw new IllegalArgumentException("Failed to inspect bean " + clazz, e);
                 }
-                Supplier<T> myConstructor;
-                try {
-                    MethodHandle ctorMh = MethodHandles.lookup()
-                            .findConstructor(clazz, MethodType.methodType(void.class))
-                            .asType(MethodType.methodType(Object.class));
-                    myConstructor = Unchecked.supplier(() -> (T) ctorMh.invokeExact());
-                } catch (ReflectiveOperationException e) {
-                    myConstructor = () -> {
-                        throw Sneaky.throwAnyway(e);
-                    };
-                }
-                constructor = myConstructor;
+            }
+
+            public T getInstance() {
+                return (T) JdbiClassUtils.checkedCreateInstance(clazz);
             }
 
             private Type addMissingWildcards(Type type) {

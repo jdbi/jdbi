@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class TestConfigRegistry {
+public class TestConfigRegistry {
 
     private ConfigRegistry parent;
     private ConfigRegistry child1;
@@ -205,7 +205,7 @@ class TestConfigRegistry {
         private final Set<String> set;
         private final Map<String, String> map;
 
-        TestConfig() {
+        public TestConfig() {
             this.list = new CopyOnWriteArrayList<>();
             this.set = new CopyOnWriteArraySet<>();
             this.map = new ConcurrentHashMap<>();

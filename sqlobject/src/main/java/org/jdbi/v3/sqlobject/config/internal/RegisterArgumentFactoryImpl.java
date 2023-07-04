@@ -19,6 +19,7 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 
 public class RegisterArgumentFactoryImpl extends SimpleExtensionConfigurer {
@@ -27,13 +28,8 @@ public class RegisterArgumentFactoryImpl extends SimpleExtensionConfigurer {
 
     public RegisterArgumentFactoryImpl(Annotation annotation) {
         RegisterArgumentFactory registerArgumentFactory = (RegisterArgumentFactory) annotation;
-        final Class<? extends ArgumentFactory> klass = registerArgumentFactory.value();
 
-        try {
-            this.argumentFactory = klass.getConstructor().newInstance();
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate column mapper class " + klass, e);
-        }
+        this.argumentFactory = JdbiClassUtils.checkedCreateInstance(registerArgumentFactory.value());
     }
 
     @Override

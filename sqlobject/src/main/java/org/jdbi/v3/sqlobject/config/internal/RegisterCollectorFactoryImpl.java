@@ -19,6 +19,7 @@ import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.config.RegisterCollectorFactory;
 
 public class RegisterCollectorFactoryImpl extends SimpleExtensionConfigurer {
@@ -27,12 +28,8 @@ public class RegisterCollectorFactoryImpl extends SimpleExtensionConfigurer {
 
     public RegisterCollectorFactoryImpl(Annotation annotation) {
         RegisterCollectorFactory registerCollectorFactory = (RegisterCollectorFactory) annotation;
-        Class<? extends CollectorFactory> type = registerCollectorFactory.value();
-        try {
-            collectorFactory = type.getConstructor().newInstance();
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new IllegalStateException("Unable to instantiate collector factory class " + registerCollectorFactory.value(), e);
-        }
+
+        this.collectorFactory = JdbiClassUtils.checkedCreateInstance(registerCollectorFactory.value());
     }
 
     @Override

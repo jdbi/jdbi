@@ -14,58 +14,29 @@
 package org.jdbi.v3.sqlobject.config.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
-import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.config.UseSqlParser;
 
 public class UseSqlParserImpl extends SimpleExtensionConfigurer {
 
-    private final SqlParser parser;
+    private static final Class<?>[] SQL_PARSER_PARAMETERS = {Class.class, Method.class};
+
+    private final SqlParser sqlParser;
 
     public UseSqlParserImpl(Annotation annotation, Class<?> sqlObjectType, Method method) {
         UseSqlParser useSqlParser = (UseSqlParser) annotation;
-        this.parser = instantiate(useSqlParser.value(), sqlObjectType, method);
+        Class<? extends SqlParser> sqlParserClass = useSqlParser.value();
+        this.sqlParser = JdbiClassUtils.findConstructorAndCreateInstance(sqlParserClass, SQL_PARSER_PARAMETERS, sqlObjectType, method);
     }
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlStatements.class).setSqlParser(parser);
-    }
-
-    private SqlParser instantiate(Class<? extends SqlParser> parserClass,
-            Class<?> sqlObjectType,
-            @Nullable Method method) {
-        return Stream.of(tryConstructor(parserClass), tryConstructor(parserClass, sqlObjectType), tryConstructor(parserClass, sqlObjectType, method))
-                .map(Supplier::get)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Unable to instantiate, no viable constructor for " + parserClass.getName()));
-    }
-
-    private static <T extends SqlParser> Supplier<T> tryConstructor(Class<T> clazz, Object... args) {
-        return Unchecked.supplier(() -> {
-            try {
-                Object[] nonNullArgs = Arrays.stream(args).filter(Objects::nonNull).toArray(Object[]::new);
-                Class<?>[] argClasses = Arrays.stream(nonNullArgs).map(Object::getClass).toArray(Class[]::new);
-                MethodType type = MethodType.methodType(void.class, argClasses);
-                return clazz.cast(MethodHandles.lookup()
-                        .findConstructor(clazz, type)
-                        .invokeWithArguments(nonNullArgs));
-            } catch (NoSuchMethodException ignored) {
-                return null;
-            }
-        });
+        config.get(SqlStatements.class).setSqlParser(sqlParser);
     }
 }

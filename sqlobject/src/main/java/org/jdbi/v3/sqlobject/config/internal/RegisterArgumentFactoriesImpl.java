@@ -21,6 +21,7 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactories;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 
@@ -33,13 +34,7 @@ public class RegisterArgumentFactoriesImpl extends SimpleExtensionConfigurer {
         this.argumentFactories = new ArrayList<>(registerArgumentFactories.value().length);
 
         for (RegisterArgumentFactory registerArgumentFactory : registerArgumentFactories.value()) {
-            final Class<? extends ArgumentFactory> klass = registerArgumentFactory.value();
-
-            try {
-                argumentFactories.add(klass.getConstructor().newInstance());
-            } catch (ReflectiveOperationException | SecurityException e) {
-                throw new IllegalStateException("Unable to instantiate column mapper class " + klass, e);
-            }
+            argumentFactories.add(JdbiClassUtils.checkedCreateInstance(registerArgumentFactory.value()));
         }
     }
 

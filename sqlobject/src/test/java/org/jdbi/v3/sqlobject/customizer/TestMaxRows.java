@@ -109,7 +109,7 @@ public class TestMaxRows {
     public void testMethodNonsense() {
         assertThatThrownBy(() -> handle.attach(FooMethodNonsenseValue.class))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("is 0, which is negative or 0");
+                .hasMessageContaining("is 0, which is negative or 0");
     }
 
     @Test

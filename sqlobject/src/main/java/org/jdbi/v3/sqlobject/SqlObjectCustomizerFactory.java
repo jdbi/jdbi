@@ -28,8 +28,6 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.config.Configurer;
 import org.jdbi.v3.sqlobject.config.ConfiguringAnnotation;
 
-import static java.lang.String.format;
-
 class SqlObjectCustomizerFactory implements ConfigCustomizerFactory {
 
     static final ConfigCustomizerFactory FACTORY = new SqlObjectCustomizerFactory();
@@ -55,15 +53,8 @@ class SqlObjectCustomizerFactory implements ConfigCustomizerFactory {
                 .filter(a -> a.annotationType().isAnnotationPresent(ConfiguringAnnotation.class))
                 .map(a -> {
                     ConfiguringAnnotation meta = a.annotationType().getAnnotation(ConfiguringAnnotation.class);
-                    Class<? extends Configurer> klass = meta.value();
-
-                    try {
-                        Configurer configurer = klass.getConstructor().newInstance();
-                        return (ConfigCustomizer) config -> consumer.configure(configurer, config, a);
-                    } catch (ReflectiveOperationException | SecurityException e) {
-                        throw new IllegalStateException(format("Unable to instantiate class %s", klass), e);
-                    }
-
+                    Configurer configurer = JdbiClassUtils.checkedCreateInstance(meta.value());
+                    return (ConfigCustomizer) config -> consumer.configure(configurer, config, a);
                 })
                 .collect(Collectors.toList());
     }
