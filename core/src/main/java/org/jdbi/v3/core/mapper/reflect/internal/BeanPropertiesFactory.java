@@ -17,6 +17,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
@@ -30,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,7 +40,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.internal.ConfigCache;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory.BeanPojoProperties.PropertiesHolder;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -83,9 +85,10 @@ public class BeanPropertiesFactory {
 
         @Override
         public PojoBuilder<T> create() {
-            final PropertiesHolder<T> holder = (PropertiesHolder<T>) PROPERTY_CACHE.get(getType(), config);
-            final T instance = holder.getInstance();
-            return new PojoBuilder<>() {
+            final PropertiesHolder<?> holder = PROPERTY_CACHE.get(getType(), config);
+            @SuppressWarnings("unchecked")
+            final T instance = (T) holder.getInstance();
+            return new PojoBuilder<T>() {
                 @Override
                 public void set(String property, Object value) {
                     holder.properties.get(property)
@@ -189,12 +192,11 @@ public class BeanPropertiesFactory {
         }
 
         static class PropertiesHolder<T> {
-
-            final Class<?> clazz;
-            final Map<String, BeanPojoProperty<?>> properties;
+            private final Supplier<T> constructor;
+            private final Map<String, BeanPojoProperty<?>> properties;
 
             PropertiesHolder(Type type) {
-                this.clazz = GenericTypes.getErasedType(type);
+                final Class<?> clazz = GenericTypes.getErasedType(type);
                 try {
                     properties = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                             .filter(BeanPropertiesFactory::shouldSeeProperty)
@@ -203,10 +205,22 @@ public class BeanPropertiesFactory {
                 } catch (IntrospectionException e) {
                     throw new IllegalArgumentException("Failed to inspect bean " + clazz, e);
                 }
+                Supplier<T> myConstructor;
+                try {
+                    MethodHandle ctorMh = MethodHandles.lookup()
+                            .findConstructor(clazz, MethodType.methodType(void.class))
+                            .asType(MethodType.methodType(Object.class));
+                    myConstructor = Unchecked.supplier(() -> (T) ctorMh.invokeExact());
+                } catch (ReflectiveOperationException e) {
+                    myConstructor = () -> {
+                        throw Sneaky.throwAnyway(e);
+                    };
+                }
+                constructor = myConstructor;
             }
 
-            public T getInstance() {
-                return (T) JdbiClassUtils.checkedCreateInstance(clazz);
+            T getInstance() {
+                return constructor.get();
             }
 
             private Type addMissingWildcards(Type type) {
