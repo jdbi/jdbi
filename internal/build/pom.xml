@@ -85,7 +85,7 @@
         <dep.gson.version>2.10.1</dep.gson.version>
         <dep.guava.version>32.0.1-jre</dep.guava.version>
         <dep.guice.version>5.1.0</dep.guice.version>
-        <dep.h2.version>2.1.214</dep.h2.version>
+        <dep.h2.version>2.2.220</dep.h2.version>
         <dep.hikari-cp.version>5.0.1</dep.hikari-cp.version>
         <dep.hsqldb.version>2.7.2</dep.hsqldb.version>
         <dep.immutables.version>2.9.3</dep.immutables.version>
