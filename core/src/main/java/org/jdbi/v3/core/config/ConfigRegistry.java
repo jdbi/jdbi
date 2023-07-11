@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.config;
 
+import java.lang.invoke.MethodHandle;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +23,7 @@ import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMappers;
@@ -81,12 +83,19 @@ public final class ConfigRegistry {
     }
 
     private Function<ConfigRegistry, JdbiConfig<?>> configFactory(Class<? extends JdbiConfig<?>> configClass) {
-        return configFactories.computeIfAbsent(configClass, klass ->
-                registry -> {
-                    var config = JdbiClassUtils.findConstructorAndCreateInstance(klass, JDBI_CONFIG_TYPES, registry);
-                    config.setRegistry(registry);
-                    return config;
-                });
+        return configFactories.computeIfAbsent(configClass, klass -> {
+            var ctor = findConstructor(klass);
+            return Unchecked.function(registry -> {
+                var config = (JdbiConfig<?>) ctor.invokeExact(registry);
+                config.setRegistry(registry);
+                return config;
+            });
+        });
+    }
+
+    private static MethodHandle findConstructor(Class<? extends JdbiConfig<?>> klass) {
+        var ctor = JdbiClassUtils.findConstructor(klass, JDBI_CONFIG_TYPES);
+        return ctor.asType(ctor.type().changeReturnType(JdbiConfig.class));
     }
 
     /**
