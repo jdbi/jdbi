@@ -16,12 +16,15 @@ package org.jdbi.v3.core.internal;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.internal.exceptions.CheckedFunction;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.meta.Alpha;
 
@@ -192,6 +195,8 @@ public final class JdbiClassUtils {
         return findConstructorAndCreateInstance(type, types, DEFAULT_EXCEPTION_HANDLER, parameters);
     }
 
+    private static final Map<Class<?>, CheckedFunction<Object[], Object>> CTOR_CACHE = new ConcurrentHashMap<>();
+
     @Alpha
     @SuppressWarnings("PMD.PreserveStackTrace")
     private static <T> T findConstructorAndCreateInstance(Class<T> type,
@@ -202,35 +207,41 @@ public final class JdbiClassUtils {
             throw new IllegalArgumentException(format("%d types but %d parameters. Can not create instance!", types.length, parameters.length));
         }
 
-        var constructors = type.getConstructors();
+        CheckedFunction<Object[], Object> supplier = CTOR_CACHE.computeIfAbsent(type, t -> {
+            var constructors = t.getConstructors();
 
-        for (int argCount = types.length; argCount >= 0; argCount--) {
-            for (var constructor : constructors) {
-                if (constructor.getParameterCount() != argCount) {
-                    continue; // for
-                }
+            for (int argCount = types.length; argCount >= 0; argCount--) {
+                for (var constructor : constructors) {
+                    if (constructor.getParameterCount() != argCount) {
+                        continue; // for
+                    }
 
-                boolean match = true;
-                for (int i = 0; i < argCount; i++) {
-                    if (!constructor.getParameterTypes()[i].isAssignableFrom(types[i])) {
-                        match = false;
-                        break; // for(int i = 0; ...
+                    boolean match = true;
+                    for (int i = 0; i < argCount; i++) {
+                        if (!constructor.getParameterTypes()[i].isAssignableFrom(types[i])) {
+                            match = false;
+                            break; // for(int i = 0; ...
+                        }
+                    }
+                    if (match) {
+                        final int finalCount = argCount;
+                        return p -> constructor.newInstance(Arrays.copyOf(p, finalCount));
                     }
                 }
-                if (!match) {
-                    continue; // for(Constructor...
-                }
-
-                try {
-                    return type.cast(constructor.newInstance(Arrays.copyOf(parameters, argCount)));
-                } catch (InvocationTargetException e) {
-                    throw f.apply(type, e.getCause());
-                } catch (ReflectiveOperationException | SecurityException e) {
-                    throw f.apply(type, e);
-                }
             }
+            return null;
+        });
+
+        if (supplier == null) {
+            throw f.apply(type, null);
         }
 
-        throw f.apply(type, null);
+        try {
+            return type.cast(supplier.apply(parameters));
+        } catch (InvocationTargetException e) {
+            throw f.apply(type, e.getCause());
+        } catch (Throwable t) {
+            throw f.apply(type, t);
+        }
     }
 }
