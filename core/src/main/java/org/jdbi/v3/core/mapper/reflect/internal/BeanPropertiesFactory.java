@@ -17,6 +17,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
@@ -39,6 +40,7 @@ import org.jdbi.v3.core.config.internal.ConfigCache;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory.BeanPojoProperties.PropertiesHolder;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -83,8 +85,9 @@ public class BeanPropertiesFactory {
 
         @Override
         public PojoBuilder<T> create() {
+            @SuppressWarnings("unchecked")
             final PropertiesHolder<T> holder = (PropertiesHolder<T>) PROPERTY_CACHE.get(getType(), config);
-            final T instance = holder.getInstance();
+            final T instance = holder.newInstance();
             return new PojoBuilder<>() {
                 @Override
                 public void set(String property, Object value) {
@@ -192,6 +195,7 @@ public class BeanPropertiesFactory {
 
             final Class<?> clazz;
             final Map<String, BeanPojoProperty<?>> properties;
+            final MethodHandle ctor;
 
             PropertiesHolder(Type type) {
                 this.clazz = GenericTypes.getErasedType(type);
@@ -203,10 +207,24 @@ public class BeanPropertiesFactory {
                 } catch (IntrospectionException e) {
                     throw new IllegalArgumentException("Failed to inspect bean " + clazz, e);
                 }
+                MethodHandle findCtor;
+                try {
+                    findCtor = JdbiClassUtils.findConstructor(clazz)
+                            .asType(MethodType.methodType(Object.class));
+                } catch (Exception e) {
+                    findCtor = MethodHandles.insertArguments(
+                            MethodHandles.throwException(Object.class, Exception.class),
+                            0, e);
+                }
+                ctor = findCtor;
             }
 
-            public T getInstance() {
-                return (T) JdbiClassUtils.checkedCreateInstance(clazz);
+            public T newInstance() {
+                try {
+                    return (T) ctor.invokeExact();
+                } catch (Throwable e) {
+                    throw Sneaky.throwAnyway(e);
+                }
             }
 
             private Type addMissingWildcards(Type type) {

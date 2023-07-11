@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.internal;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -22,6 +24,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import static java.lang.String.format;
@@ -170,62 +173,72 @@ public final class JdbiClassUtils {
         }
     }
 
-    private static final BiFunction<Class<?>, Throwable, RuntimeException> DEFAULT_EXCEPTION_HANDLER = (t, e) ->
-             e instanceof RuntimeException
-                     ? (RuntimeException) e
-                     : new IllegalStateException(format("Unable to instantiate '%s':", t.getName()), e);
-
     /**
      * Inspect a type, find a matching constructor and return an instance. The method tries to match as many parameters as possible
      * to the available constructors, cutting off parameters from the end one-by-one until a matching constructor is found.
+     * <p><b>
+     * NOTE: This method is much slower than {@code #findConstructor(Class, Class...)}, so avoid this in performance-critical code.
+     * </b></p>
      *
      * @param type       The type that should be instantiated.
      * @param types      Array of parameter types.
      * @param parameters Parameters for the constructor.
      * @return An {@link Optional} wrapping the instantiated type or {@link Optional#empty()} if no matching constructor was found.
      */
+    @SuppressWarnings("unchecked")
     public static <T> T findConstructorAndCreateInstance(Class<T> type, Class<?>[] types, Object... parameters) {
-        return findConstructorAndCreateInstance(type, types, DEFAULT_EXCEPTION_HANDLER, parameters);
+        try {
+            return (T) findConstructor(type, types).invokeWithArguments(parameters);
+        } catch (Throwable e) {
+            throw Sneaky.throwAnyway(e);
+        }
     }
 
-    @SuppressWarnings("PMD.PreserveStackTrace")
-    private static <T> T findConstructorAndCreateInstance(Class<T> type,
-            Class<?>[] types,
-            BiFunction<Class<?>, Throwable, RuntimeException> f,
-            Object... parameters) {
-        if (types.length != parameters.length) {
-            throw new IllegalArgumentException(format("%d types but %d parameters. Can not create instance!", types.length, parameters.length));
-        }
-
+    /**
+     * Inspect a type and find a matching constructor. The method tries to match as many parameters as possible
+     * to the available constructors, cutting off parameters from the end one-by-one until a matching constructor is found.
+     *
+     * @param type       The type that should be instantiated.
+     * @param types      Array of parameter types.
+     * @return a handle to the found constructor, with the argument list adjusted to drop excess parameters
+     */
+    public static MethodHandle findConstructor(Class<?> type, Class<?>... types) {
+        Throwable failure = null;
         var constructors = type.getConstructors();
 
         for (int argCount = types.length; argCount >= 0; argCount--) {
-            for (var constructor : constructors) {
+            tryNextConstructor: for (var constructor : constructors) {
                 if (constructor.getParameterCount() != argCount) {
-                    continue; // for
+                    continue tryNextConstructor;
                 }
 
-                boolean match = true;
                 for (int i = 0; i < argCount; i++) {
                     if (!constructor.getParameterTypes()[i].isAssignableFrom(types[i])) {
-                        match = false;
-                        break; // for(int i = 0; ...
+                        continue tryNextConstructor;
                     }
-                }
-                if (!match) {
-                    continue; // for(Constructor...
                 }
 
                 try {
-                    return type.cast(constructor.newInstance(Arrays.copyOf(parameters, argCount)));
-                } catch (InvocationTargetException e) {
-                    throw f.apply(type, e.getCause());
-                } catch (ReflectiveOperationException | SecurityException e) {
-                    throw f.apply(type, e);
+                    var mh = MethodHandles.lookup().unreflectConstructor(constructor);
+                    if (argCount < types.length) {
+                        mh = MethodHandles.dropArguments(mh, argCount,
+                                Arrays.asList(types).subList(argCount, types.length));
+                    }
+                    return mh;
+                } catch (IllegalAccessException e) {
+                    if (failure == null) {
+                        failure = e;
+                    } else {
+                        failure.addSuppressed(e);
+                    }
                 }
             }
         }
 
-        throw f.apply(type, null);
+        if (failure == null) {
+            failure = new NoSuchMethodException("No constructor loosely matching " + type + Arrays.toString(types));
+        }
+
+        throw Sneaky.throwAnyway(failure);
     }
 }
