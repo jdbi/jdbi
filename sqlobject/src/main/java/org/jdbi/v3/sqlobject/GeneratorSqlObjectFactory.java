@@ -13,9 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -23,6 +28,7 @@ import org.jdbi.v3.core.extension.ExtensionMetadata;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 
 import static java.lang.String.format;
 
@@ -32,6 +38,9 @@ import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_P
  * Support for generator instances (concrete classes that have been created by the Jdbi generator).
  */
 final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implements OnDemandExtensions.Factory {
+
+    private final ConcurrentMap<Class<?>, MethodHandle> newAttached = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<?>, MethodHandle> newOnDemand = new ConcurrentHashMap<>();
 
     GeneratorSqlObjectFactory() {}
 
@@ -64,10 +73,20 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
         final ConfigRegistry instanceConfig = extensionMetaData.createInstanceConfiguration(config);
 
         try {
-            Class<?> klazz = Class.forName(getGeneratedClassName(extensionType));
-            return extensionType.cast(klazz.getConstructor(ExtensionMetadata.class, HandleSupplier.class, ConfigRegistry.class)
-                    .newInstance(extensionMetaData, handleSupplier, instanceConfig));
-        } catch (ReflectiveOperationException | SecurityException e) {
+            return (E) newAttached.computeIfAbsent(extensionType, GeneratorSqlObjectFactory::createAttacher)
+                                  .invokeExact(extensionMetaData, handleSupplier, instanceConfig);
+        } catch (Throwable e) {
+            throw Sneaky.throwAnyway(e);
+        }
+    }
+
+    private static MethodHandle createAttacher(Class<?> extensionType) {
+        try {
+            var ctor = MethodHandles.lookup().findConstructor(
+                    Class.forName(getGeneratedClassName(extensionType)),
+                    MethodType.methodType(void.class, ExtensionMetadata.class, HandleSupplier.class, ConfigRegistry.class));
+            return ctor.asType(ctor.type().changeReturnType(Object.class));
+        } catch (ReflectiveOperationException e) {
             throw new UnableToCreateSqlObjectException(e);
         }
     }
@@ -79,19 +98,30 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
         }
 
         try {
-            return Optional.of(Class.forName(getOnDemandClassName(extensionType))
-                    .getConstructor(Jdbi.class)
-                    .newInstance(jdbi));
-        } catch (ReflectiveOperationException | SecurityException | ExceptionInInitializerError e) {
+            return Optional.of(
+                    newOnDemand.computeIfAbsent(extensionType, GeneratorSqlObjectFactory::createOnDemand)
+                               .invokeExact(jdbi));
+        } catch (Throwable e) {
+            throw Sneaky.throwAnyway(e);
+        }
+    }
+
+    private static MethodHandle createOnDemand(Class<?> extensionType) {
+        try {
+            var ctor = MethodHandles.lookup().findConstructor(
+                    Class.forName(getOnDemandClassName(extensionType)),
+                    MethodType.methodType(void.class, Jdbi.class));
+            return ctor.asType(ctor.type().changeReturnType(Object.class));
+        } catch (ReflectiveOperationException e) {
             throw new UnableToCreateSqlObjectException(e);
         }
     }
 
-    private String getGeneratedClassName(Class<?> extensionType) {
+    private static String getGeneratedClassName(Class<?> extensionType) {
         return extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl";
     }
 
-    private String getOnDemandClassName(Class<?> extensionType) {
+    private static String getOnDemandClassName(Class<?> extensionType) {
         return getGeneratedClassName(extensionType) + "$OnDemand";
     }
 }
