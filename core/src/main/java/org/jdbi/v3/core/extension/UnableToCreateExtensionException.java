@@ -46,4 +46,8 @@ public final class UnableToCreateExtensionException extends JdbiException {
     public UnableToCreateExtensionException(Throwable throwable, String format, Object... args) {
         super(format(format, args), throwable);
     }
+
+    public UnableToCreateExtensionException(Throwable cause) {
+        super(cause);
+    }
 }
