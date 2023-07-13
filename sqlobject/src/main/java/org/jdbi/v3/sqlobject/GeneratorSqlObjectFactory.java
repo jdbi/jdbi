@@ -31,7 +31,7 @@ import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_P
 /**
  * Support for generator instances (concrete classes that have been created by the Jdbi generator).
  */
-public final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implements OnDemandExtensions.Factory {
+final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implements OnDemandExtensions.Factory {
 
     GeneratorSqlObjectFactory() {}
 
