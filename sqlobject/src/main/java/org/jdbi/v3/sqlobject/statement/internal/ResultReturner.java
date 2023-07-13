@@ -37,6 +37,7 @@ import static java.lang.String.format;
 /**
  * Helper class used by the {@link CustomizingStatementHandler}s to assemble
  * the result Collection, Iterable, etc.
+ * The instance may be reused and should be stateless.
  */
 abstract class ResultReturner {
 
