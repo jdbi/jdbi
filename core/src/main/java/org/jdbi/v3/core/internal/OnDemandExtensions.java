@@ -18,9 +18,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -72,14 +71,11 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
             return jdbi.withExtension(extensionType, extension -> invoke(extension, method, args));
         };
 
-        Class<?>[] types = Stream.of(
-                Stream.of(extensionType),
-                Arrays.stream(extensionType.getInterfaces()),
-                Arrays.stream(extraTypes))
-            .flatMap(Function.identity())
-            .distinct()
-            .toArray(Class[]::new);
-        return Proxy.newProxyInstance(extensionType.getClassLoader(), types, handler);
+        var types = new LinkedHashSet<Class<?>>();
+        types.add(extensionType);
+        types.addAll(Arrays.asList(extensionType.getInterfaces()));
+        types.addAll(Arrays.asList(extraTypes));
+        return Proxy.newProxyInstance(extensionType.getClassLoader(), types.toArray(new Class<?>[0]), handler);
     }
 
     private static Object invoke(Object target, Method method, Object[] args) {
