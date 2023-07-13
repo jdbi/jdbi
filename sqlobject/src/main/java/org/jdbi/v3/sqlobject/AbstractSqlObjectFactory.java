@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,9 +31,12 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
 
 abstract class AbstractSqlObjectFactory implements ExtensionFactory {
 
+    @SuppressWarnings("unchecked")
     private static final ExtensionHandler WITH_HANDLE_HANDLER = (handleSupplier, target, args) ->
             ((HandleCallback<?, RuntimeException>) args[0]).withHandle(handleSupplier.getHandle());
     private static final ExtensionHandler GET_HANDLE_HANDLER = (handleSupplier, target, args) -> handleSupplier.getHandle();
+    private static final Method GET_HANDLE_METHOD = JdbiClassUtils.methodLookup(SqlObject.class, "getHandle");
+    private static final Method WITH_HANDLE_METHOD = JdbiClassUtils.methodLookup(SqlObject.class, "withHandle", HandleCallback.class);
 
     @Override
     public void buildExtensionMetadata(ExtensionMetadata.Builder builder) {
@@ -40,11 +44,9 @@ abstract class AbstractSqlObjectFactory implements ExtensionFactory {
 
         ExtensionHandler toStringHandler = (handlerSupplier, target, args) ->
                 "Jdbi sqlobject proxy for " + extensionType.getName() + "@" + Integer.toHexString(target.hashCode());
-        JdbiClassUtils.safeMethodLookup(Object.class, "toString").ifPresent(m -> builder.addMethodHandler(m, toStringHandler));
-
-        JdbiClassUtils.safeMethodLookup(SqlObject.class, "getHandle").ifPresent(m -> builder.addMethodHandler(m, GET_HANDLE_HANDLER));
-        JdbiClassUtils.safeMethodLookup(SqlObject.class, "withHandle", HandleCallback.class)
-                .ifPresent(m -> builder.addMethodHandler(m, WITH_HANDLE_HANDLER));
+        builder.addMethodHandler(JdbiClassUtils.TOSTRING_METHOD, toStringHandler);
+        builder.addMethodHandler(GET_HANDLE_METHOD, GET_HANDLE_HANDLER);
+        builder.addMethodHandler(WITH_HANDLE_METHOD, WITH_HANDLE_HANDLER);
     }
 
     @Override
