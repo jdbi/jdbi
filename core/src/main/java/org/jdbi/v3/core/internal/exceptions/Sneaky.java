@@ -24,6 +24,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 public class Sneaky {
+
     private Sneaky() {
         throw new UtilityClassException();
     }
@@ -34,23 +35,16 @@ public class Sneaky {
     @CheckReturnValue
     @NonNull
     public static DummyException throwAnyway(Throwable t) {
+
         if (t instanceof Error) {
             throw (Error) t;
-        }
-
-        if (t instanceof RuntimeException) {
+        } else if (t instanceof RuntimeException) {
             throw (RuntimeException) t;
-        }
-
-        if (t instanceof IOException) {
+        } else if (t instanceof IOException) {
             throw new UncheckedIOException((IOException) t);
-        }
-
-        if (t instanceof InterruptedException) {
+        } else if (t instanceof InterruptedException) {
             Thread.currentThread().interrupt();
-        }
-
-        if (t instanceof InvocationTargetException) {
+        } else if (t instanceof InvocationTargetException) {
             throw throwAnyway(t.getCause());
         }
 

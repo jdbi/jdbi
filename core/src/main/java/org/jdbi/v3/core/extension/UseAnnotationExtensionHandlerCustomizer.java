@@ -61,7 +61,8 @@ final class UseAnnotationExtensionHandlerCustomizer implements ExtensionHandlerC
         List<ExtensionHandlerCustomizer> customizers = annotationTypes.stream()
                 .map(type -> type.getAnnotation(UseExtensionHandlerCustomizer.class))
                 .map(UseExtensionHandlerCustomizer::value)
-                .map(klass -> JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_HANDLER_CUSTOMIZER_TYPES, extensionType, method))
+                .map(klass -> JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_HANDLER_CUSTOMIZER_TYPES,
+                        handle -> handle.invokeExact(extensionType, method)))
                 .collect(toList());
 
         for (ExtensionHandlerCustomizer customizer : customizers) {

@@ -102,7 +102,8 @@ public class ConstructorBenchmark {
 
     @Benchmark
     public Instantiated jcuFindInstantiate() {
-        return JdbiClassUtils.findConstructorAndCreateInstance(Instantiated.class, new Class<?>[0]);
+        return JdbiClassUtils.findConstructorAndCreateInstance(Instantiated.class, new Class<?>[0],
+                handle -> handle.invokeExact());
     }
 
     public static class Instantiated {

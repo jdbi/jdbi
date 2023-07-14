@@ -32,7 +32,8 @@ public class UseSqlParserImpl extends SimpleExtensionConfigurer {
     public UseSqlParserImpl(Annotation annotation, Class<?> sqlObjectType, Method method) {
         UseSqlParser useSqlParser = (UseSqlParser) annotation;
         Class<? extends SqlParser> sqlParserClass = useSqlParser.value();
-        this.sqlParser = JdbiClassUtils.findConstructorAndCreateInstance(sqlParserClass, SQL_PARSER_PARAMETERS, sqlObjectType, method);
+        this.sqlParser = JdbiClassUtils.findConstructorAndCreateInstance(sqlParserClass, SQL_PARSER_PARAMETERS,
+                handle -> handle.invokeExact(sqlObjectType, method));
     }
 
     @Override
