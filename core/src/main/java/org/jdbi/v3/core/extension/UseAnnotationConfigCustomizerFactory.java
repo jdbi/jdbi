@@ -60,8 +60,8 @@ final class UseAnnotationConfigCustomizerFactory implements ConfigCustomizerFact
                 .map(a -> {
                     UseExtensionConfigurer meta = a.annotationType().getAnnotation(UseExtensionConfigurer.class);
                     Class<? extends ExtensionConfigurer> klass = meta.value();
-                    ExtensionConfigurer configurer =
-                            JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_CONFIGURER_TYPES, a, extensionType, method);
+                    ExtensionConfigurer configurer = JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_CONFIGURER_TYPES,
+                            handle -> handle.invokeExact(a, extensionType, method));
 
                     return (ConfigCustomizer) config -> consumer.configure(configurer, config, a);
 

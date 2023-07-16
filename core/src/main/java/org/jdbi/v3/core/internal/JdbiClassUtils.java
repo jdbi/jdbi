@@ -13,18 +13,24 @@
  */
 package org.jdbi.v3.core.internal;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
 import static java.lang.String.format;
+
+import static org.jdbi.v3.core.internal.exceptions.Sneaky.throwAnyway;
 
 /**
  * Helper class for various internal reflection operations.
@@ -134,9 +140,6 @@ public final class JdbiClassUtils {
         return (args == null) ? NO_ARGS : args;
     }
 
-    private static final BiFunction<Class<?>, Throwable, RuntimeException> UNABLE_TO_CREATE_STATEMENT_HANDLER = (t, e) ->
-            new UnableToCreateStatementException(format("Unable to instantiate '%s':", t.getName()), e);
-
     private static final Class<?>[] NO_PARAMS = new Class[0];
 
     /**
@@ -147,7 +150,7 @@ public final class JdbiClassUtils {
      * @throws UnableToCreateStatementException If the type could not be instantiated.
      */
     public static <T> T checkedCreateInstance(Class<T> type) {
-        return checkedCreateInstance(type, NO_PARAMS, UNABLE_TO_CREATE_STATEMENT_HANDLER);
+        return checkedCreateInstance(type, NO_PARAMS);
     }
 
     /**
@@ -155,77 +158,119 @@ public final class JdbiClassUtils {
      *
      * @param type       The type to create.
      * @param parameters The type parameters for the constructor.
-     * @param f          An error function. If creating the instance throws a Throwable, process it and return a runtime exception for reporting.
      * @param values     Type values for the constructor. The number of values must match the number of type parameters.
-     * @return AN instance of the type.
+     * @return An instance of the type.
      */
-    @SuppressWarnings("PMD.PreserveStackTrace")
-    private static <T> T checkedCreateInstance(Class<T> type, Class<?>[] parameters, BiFunction<Class<?>, Throwable, RuntimeException> f, Object... values) {
+    @SuppressWarnings({"unchecked", "PMD.PreserveStackTrace"})
+    public static <T> T checkedCreateInstance(Class<T> type,
+            Class<?>[] parameters,
+            Object... values) {
+
         try {
-            return type.getConstructor(parameters).newInstance(values);
-        } catch (InvocationTargetException e) {
-            throw f.apply(type, e.getCause());
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw f.apply(type, e);
+            var methodHandle = MethodHandles.lookup().findConstructor(type, MethodType.methodType(void.class, parameters));
+            methodHandle = methodHandle.asType(MethodType.methodType(type, parameters));
+            return (T) methodHandle.invokeWithArguments(values);
+        } catch (Throwable t) {
+            throw throwAnyway(t);
         }
     }
 
-    private static final BiFunction<Class<?>, Throwable, RuntimeException> DEFAULT_EXCEPTION_HANDLER = (t, e) ->
-             e instanceof RuntimeException
-                     ? (RuntimeException) e
-                     : new IllegalStateException(format("Unable to instantiate '%s':", t.getName()), e);
+    private static final ConcurrentMap<Class<?>, MethodHandle> METHOD_HANDLE_CACHE = new ConcurrentHashMap<>();
 
     /**
      * Inspect a type, find a matching constructor and return an instance. The method tries to match as many parameters as possible
      * to the available constructors, cutting off parameters from the end one-by-one until a matching constructor is found.
      *
-     * @param type       The type that should be instantiated.
-     * @param types      Array of parameter types.
-     * @param parameters Parameters for the constructor.
-     * @return An {@link Optional} wrapping the instantiated type or {@link Optional#empty()} if no matching constructor was found.
+     * @param type    The type that should be instantiated
+     * @param types   Array of parameter types
+     * @param invoker An implementation of a method invoker to create an instance of the type
+     * @return An instance of the type created by the first constructor found when looking up
      */
-    public static <T> T findConstructorAndCreateInstance(Class<T> type, Class<?>[] types, Object... parameters) {
-        return findConstructorAndCreateInstance(type, types, DEFAULT_EXCEPTION_HANDLER, parameters);
+    @SuppressWarnings("unchecked")
+    public static <T> T findConstructorAndCreateInstance(Class<T> type,
+            Class<?>[] types,
+            MethodHandleInvoker invoker) {
+        try {
+            var ctorHandle = METHOD_HANDLE_CACHE.computeIfAbsent(type, t -> findCtorMethodHandleForParameters(t, types));
+            return (T) invoker.createInstance(ctorHandle);
+        } catch (Throwable t) {
+            throw throwAnyway(t);
+        }
     }
 
-    @SuppressWarnings("PMD.PreserveStackTrace")
-    private static <T> T findConstructorAndCreateInstance(Class<T> type,
-            Class<?>[] types,
-            BiFunction<Class<?>, Throwable, RuntimeException> f,
-            Object... parameters) {
-        if (types.length != parameters.length) {
-            throw new IllegalArgumentException(format("%d types but %d parameters. Can not create instance!", types.length, parameters.length));
-        }
+    /**
+     * Inspect a type and find a matching constructor. The method tries to match as many parameters as possible
+     * to the available constructors, cutting off parameters from the end one-by-one until a matching constructor is found.
+     *
+     * @param type  The type that should be instantiated.
+     * @param types Array of parameter types.
+     * @return a handle to the found constructor, with the argument list adjusted to drop excess parameters
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> MethodHandleHolder<T> findConstructor(Class<T> type, Class<?>... types) {
+
+        var ctorHandle = findCtorMethodHandleForParameters(type, types);
+        return invoker -> {
+            try {
+                return (T) invoker.createInstance(ctorHandle);
+            } catch (Throwable t) {
+                throw throwAnyway(t);
+            }
+        };
+    }
+
+    private static MethodHandle findCtorMethodHandleForParameters(Class<?> type, Class<?>... types) {
+        var suppressedThrowables = new LinkedList<Throwable>();
 
         var constructors = type.getConstructors();
 
         for (int argCount = types.length; argCount >= 0; argCount--) {
+            tryNextConstructor:
             for (var constructor : constructors) {
                 if (constructor.getParameterCount() != argCount) {
-                    continue; // for
+                    continue; // tryNextConstructor;
                 }
 
-                boolean match = true;
                 for (int i = 0; i < argCount; i++) {
                     if (!constructor.getParameterTypes()[i].isAssignableFrom(types[i])) {
-                        match = false;
-                        break; // for(int i = 0; ...
+                        continue tryNextConstructor;
                     }
-                }
-                if (!match) {
-                    continue; // for(Constructor...
                 }
 
                 try {
-                    return type.cast(constructor.newInstance(Arrays.copyOf(parameters, argCount)));
-                } catch (InvocationTargetException e) {
-                    throw f.apply(type, e.getCause());
-                } catch (ReflectiveOperationException | SecurityException e) {
-                    throw f.apply(type, e);
+                    var methodHandle = MethodHandles.lookup().unreflectConstructor(constructor);
+                    if (argCount < types.length) {
+                        // the method handle will always be called with all possible arguments.
+                        // Using dropArguments will remove any argument that the method handle not
+                        // need (because the actual c'tor takes less arguments). This allows calling invokeExact because
+                        // the exposed method handle will always take all arguments.
+                        methodHandle = MethodHandles.dropArguments(methodHandle, argCount,
+                                Arrays.copyOfRange(types, argCount, types.length));
+                    }
+                    return methodHandle.asType(methodHandle.type().changeReturnType(Object.class));
+                } catch (IllegalAccessException e) {
+                    suppressedThrowables.add(e);
                 }
             }
         }
 
-        throw f.apply(type, null);
+        var failure = new NoSuchMethodException(format("No constructor for class '%s', loosely matching arguments %s", type.getName(), Arrays.toString(types)));
+        suppressedThrowables.forEach(failure::addSuppressed);
+
+        // return a method handle that will throw the no such method exception on invocation, thus deferring
+        // the actual exception until invocation time.
+        return MethodHandles.dropArguments(
+                MethodHandles.insertArguments(MethodHandles.throwException(Object.class, Exception.class), 0, failure),
+                0, types);
+    }
+
+    @FunctionalInterface
+    public interface MethodHandleHolder<T> {
+        T invoke(MethodHandleInvoker invoker);
+    }
+
+    @FunctionalInterface
+    public interface MethodHandleInvoker {
+        Object createInstance(MethodHandle handle) throws Throwable;
     }
 }

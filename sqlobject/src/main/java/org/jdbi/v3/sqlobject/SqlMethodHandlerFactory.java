@@ -62,7 +62,8 @@ class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
         return Optional.of(SqlObjectAnnotationHelper.findOldAnnotations(method)
                 .map(type -> type.getAnnotation(SqlOperation.class))
                 .map(SqlOperation::value)
-                .map(klass -> (ExtensionHandler) JdbiClassUtils.findConstructorAndCreateInstance(klass, SQL_METHOD_HANDLER_TYPES, sqlObjectType, method))
+                .map(klass -> (ExtensionHandler) JdbiClassUtils.findConstructorAndCreateInstance(klass, SQL_METHOD_HANDLER_TYPES,
+                        handle -> handle.invokeExact(sqlObjectType, method)))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(format(
                         "Method %s.%s must be default or be annotated with a SQL method annotation.",

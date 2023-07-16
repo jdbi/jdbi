@@ -13,12 +13,18 @@
  */
 package org.jdbi.v3.core.internal;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
+import org.jdbi.v3.core.internal.JdbiClassUtils.MethodHandleHolder;
 import org.junit.jupiter.api.Test;
 
+import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TestJdbiClassUtils {
 
@@ -94,5 +100,176 @@ class TestJdbiClassUtils {
         Object[] varargs(Object... args);
 
         Object[] safeVarargs(Object... args);
+    }
+
+    @Test
+    void testCreateCheckedInstance() {
+        CCTestClass test1 = JdbiClassUtils.checkedCreateInstance(CCTestClass.class);
+        assertThat(test1).isNotNull();
+        assertThat(test1).extracting("strParam").isNull();
+        assertThat(test1).extracting("intParam").isEqualTo(-1);
+
+        CCTestClass test2 = JdbiClassUtils.checkedCreateInstance(CCTestClass.class, new Class[] {String.class}, "foo");
+        assertThat(test2).isNotNull();
+        assertThat(test2).extracting("strParam").isEqualTo("foo");
+        assertThat(test2).extracting("intParam").isEqualTo(-1);
+
+        CCTestClass test3 = JdbiClassUtils.checkedCreateInstance(CCTestClass.class, new Class[] {int.class, String.class}, 200, "foo");
+        assertThat(test3).isNotNull();
+        assertThat(test3).extracting("strParam").isEqualTo("foo");
+        assertThat(test3).extracting("intParam").isEqualTo(200);
+    }
+
+    static class CCTestClass {
+
+        private final String strParam;
+        private final int intParam;
+
+        public CCTestClass() {
+            this.intParam = -1;
+            this.strParam = null;
+        }
+
+        CCTestClass(String strParam) {
+            this.strParam = strParam;
+            this.intParam = -1;
+        }
+
+        CCTestClass(int intParam, String strParam) {
+            this.strParam = strParam;
+            this.intParam = intParam;
+        }
+
+        String strParam() {
+            return strParam;
+        }
+
+        int intParam() {
+            return intParam;
+        }
+    }
+
+    @Test
+    void testFindConstructor() {
+        TestFCZero testFcZero = create(TestFCZero.class);
+        assertThat(testFcZero).isNotNull();
+
+        TestFCOne testFcOne = create(TestFCOne.class);
+        assertThat(testFcOne).isNotNull();
+        assertThat(testFcOne.str()).isEqualTo("one");
+
+        TestFCTwo testFcTwo = create(TestFCTwo.class);
+        assertThat(testFcTwo).isNotNull();
+        assertThat(testFcTwo.str()).isEqualTo("one");
+        assertThat(testFcTwo.i()).isEqualTo(2);
+
+        TestFCThree testFcThree = create(TestFCThree.class);
+        assertThat(testFcThree).isNotNull();
+        assertThat(testFcThree.str()).isEqualTo("one");
+        assertThat(testFcThree.i()).isEqualTo(2);
+        assertThat(testFcThree.bool()).isEqualTo(true);
+    }
+
+    static final Class<?>[] CLASS_PARAMETERS = {String.class, int.class, boolean.class};
+
+    @Test
+    void testFailConstructor() {
+        MethodHandleHolder<TestFCFail> failingHandle = JdbiClassUtils.findConstructor(TestFCFail.class, CLASS_PARAMETERS);
+        assertThat(failingHandle).isNotNull();
+
+        assertThatThrownBy(() -> failingHandle.invoke(handle -> handle.invokeExact("one", 2, true)))
+                .isInstanceOf(NoSuchMethodException.class)
+                .hasMessageContaining(format("No constructor for class '%s', loosely matching arguments %s", TestFCFail.class.getName(), Arrays.toString(CLASS_PARAMETERS)));
+    }
+
+    private static <T> T create(Class<T> clazz) {
+        return JdbiClassUtils.findConstructorAndCreateInstance(clazz, CLASS_PARAMETERS,
+                handle -> handle.invokeExact("one", 2, true));
+    }
+
+    static class TestFCZero {
+
+        public TestFCZero() {}
+    }
+
+    static class TestFCOne {
+
+        private final String str;
+
+        public TestFCOne(String str) {
+            this.str = str;
+        }
+
+        public String str() {
+            return str;
+        }
+    }
+
+    static class TestFCTwo {
+
+        private final String str;
+        private final int i;
+
+        public TestFCTwo(String str, int i) {
+            this.str = str;
+            this.i = i;
+        }
+
+        public String str() {
+            return str;
+        }
+
+        public int i() {
+            return i;
+        }
+    }
+
+    static class TestFCThree {
+
+        private final String str;
+        private final int i;
+        private final boolean bool;
+
+        public TestFCThree(String str, int i, boolean bool) {
+            this.str = str;
+            this.i = i;
+            this.bool = bool;
+        }
+
+        public String str() {
+            return str;
+        }
+
+        public int i() {
+            return i;
+        }
+
+        public boolean bool() {
+            return bool;
+        }
+    }
+    static class TestFCFail {
+
+        private final String str;
+        private final int i;
+        private final boolean bool;
+
+        public TestFCFail(boolean bool, String str, int i) {
+            this.bool = bool;
+            this.str = str;
+            this.i = i;
+        }
+
+        public String str() {
+            return str;
+        }
+
+        public int i() {
+            return i;
+        }
+
+        public boolean bool() {
+            return bool;
+        }
     }
 }

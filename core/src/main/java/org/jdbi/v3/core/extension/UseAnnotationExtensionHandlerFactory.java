@@ -81,7 +81,8 @@ final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFact
         return extensionAnnotations.stream()
                 .map(type -> type.getAnnotation(UseExtensionHandler.class))
                 .map(UseExtensionHandler::value)
-                .map(klass -> (ExtensionHandler) JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_HANDLER_TYPES, extensionType, method))
+                .map(klass -> (ExtensionHandler) JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_HANDLER_TYPES,
+                        handle -> handle.invokeExact(extensionType, method)))
                 .findFirst();
     }
 }

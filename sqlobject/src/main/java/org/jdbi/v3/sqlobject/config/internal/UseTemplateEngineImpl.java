@@ -33,7 +33,8 @@ public class UseTemplateEngineImpl extends SimpleExtensionConfigurer {
     public UseTemplateEngineImpl(Annotation annotation, Class<?> sqlObjectType, @Nullable Method method) {
         UseTemplateEngine useTemplateEngine = (UseTemplateEngine) annotation;
         Class<? extends TemplateEngine> engineClass = useTemplateEngine.value();
-        this.templateEngine = JdbiClassUtils.findConstructorAndCreateInstance(engineClass, TEMPLATE_ENGINE_PARAMETERS, sqlObjectType, method);
+        this.templateEngine = JdbiClassUtils.findConstructorAndCreateInstance(engineClass, TEMPLATE_ENGINE_PARAMETERS,
+                handle -> handle.invokeExact(sqlObjectType, method));
     }
 
     @Override

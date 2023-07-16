@@ -81,12 +81,14 @@ public final class ConfigRegistry {
     }
 
     private Function<ConfigRegistry, JdbiConfig<?>> configFactory(Class<? extends JdbiConfig<?>> configClass) {
-        return configFactories.computeIfAbsent(configClass, klass ->
-                registry -> {
-                    var config = JdbiClassUtils.findConstructorAndCreateInstance(klass, JDBI_CONFIG_TYPES, registry);
-                    config.setRegistry(registry);
-                    return config;
-                });
+        return configFactories.computeIfAbsent(configClass, klass -> {
+            var handleHolder = JdbiClassUtils.findConstructor(klass, JDBI_CONFIG_TYPES);
+            return registry -> {
+                var config = (JdbiConfig<?>) handleHolder.invoke(handle -> handle.invokeExact(registry));
+                config.setRegistry(registry);
+                return config;
+            };
+        });
     }
 
     /**
