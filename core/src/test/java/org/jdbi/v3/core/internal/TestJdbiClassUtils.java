@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.internal;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
@@ -26,7 +25,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class TestJdbiClassUtils {
+public class TestJdbiClassUtils {
 
     @Test
     void testVarargs() {
@@ -125,7 +124,7 @@ class TestJdbiClassUtils {
         private final String strParam;
         private final int intParam;
 
-        public CCTestClass() {
+        CCTestClass() {
             this.intParam = -1;
             this.strParam = null;
         }
@@ -187,12 +186,12 @@ class TestJdbiClassUtils {
                 handle -> handle.invokeExact("one", 2, true));
     }
 
-    static class TestFCZero {
+    public static class TestFCZero {
 
         public TestFCZero() {}
     }
 
-    static class TestFCOne {
+    public static class TestFCOne {
 
         private final String str;
 
@@ -205,7 +204,7 @@ class TestJdbiClassUtils {
         }
     }
 
-    static class TestFCTwo {
+    public static class TestFCTwo {
 
         private final String str;
         private final int i;
@@ -224,7 +223,7 @@ class TestJdbiClassUtils {
         }
     }
 
-    static class TestFCThree {
+    public static class TestFCThree {
 
         private final String str;
         private final int i;
@@ -254,7 +253,7 @@ class TestJdbiClassUtils {
         private final int i;
         private final boolean bool;
 
-        public TestFCFail(boolean bool, String str, int i) {
+        TestFCFail(boolean bool, String str, int i) {
             this.bool = bool;
             this.str = str;
             this.i = i;
