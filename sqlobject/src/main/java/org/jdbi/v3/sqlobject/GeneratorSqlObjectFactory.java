@@ -16,12 +16,16 @@ package org.jdbi.v3.sqlobject;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMetadata;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.JdbiClassUtils.MethodHandleHolder;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 
 import static java.lang.String.format;
@@ -32,6 +36,12 @@ import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_P
  * Support for generator instances (concrete classes that have been created by the Jdbi generator).
  */
 final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implements OnDemandExtensions.Factory {
+
+    private static final Class<?>[] EXTENSION_TYPES = {ExtensionMetadata.class, HandleSupplier.class, ConfigRegistry.class};
+    private static final Class<?>[] ON_DEMAND_TYPES = {Jdbi.class};
+
+    private final ConcurrentMap<Class<?>, MethodHandleHolder<?>> attachedTypeCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<?>, MethodHandleHolder<?>> onDemandTypeCache = new ConcurrentHashMap<>();
 
     GeneratorSqlObjectFactory() {}
 
@@ -52,6 +62,7 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
      * @param handleSupplier the Handle instance to attach this sql object to.
      * @return the new sql object bound to this handle.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
         if (!isConcrete(extensionType)) {
@@ -63,13 +74,8 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
         final ExtensionMetadata extensionMetaData = config.get(Extensions.class).findMetadata(extensionType, this);
         final ConfigRegistry instanceConfig = extensionMetaData.createInstanceConfiguration(config);
 
-        try {
-            Class<?> klazz = Class.forName(getGeneratedClassName(extensionType));
-            return extensionType.cast(klazz.getConstructor(ExtensionMetadata.class, HandleSupplier.class, ConfigRegistry.class)
-                    .newInstance(extensionMetaData, handleSupplier, instanceConfig));
-        } catch (ReflectiveOperationException | SecurityException e) {
-            throw new UnableToCreateSqlObjectException(e);
-        }
+        return (E) attachedTypeCache.computeIfAbsent(extensionType, GeneratorSqlObjectFactory::getGeneratedClass)
+                .invoke(handle -> handle.invokeExact(extensionMetaData, handleSupplier, instanceConfig));
     }
 
     @Override
@@ -78,20 +84,31 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
             return Optional.empty();
         }
 
+        return Optional.of(onDemandTypeCache.computeIfAbsent(extensionType, GeneratorSqlObjectFactory::getOnDemandClass)
+                .invoke(handle -> handle.invokeExact(jdbi)));
+    }
+
+    private static MethodHandleHolder<?> getGeneratedClass(Class<?> extensionType) {
         try {
-            return Optional.of(Class.forName(getOnDemandClassName(extensionType))
-                    .getConstructor(Jdbi.class)
-                    .newInstance(jdbi));
-        } catch (ReflectiveOperationException | SecurityException | ExceptionInInitializerError e) {
-            throw new UnableToCreateSqlObjectException(e);
+            return JdbiClassUtils.findConstructor(Class.forName(getGeneratedClassName(extensionType)), EXTENSION_TYPES);
+        } catch (Throwable t) {
+            throw new UnableToCreateSqlObjectException(t);
         }
     }
 
-    private String getGeneratedClassName(Class<?> extensionType) {
+    private static MethodHandleHolder<?> getOnDemandClass(Class<?> extensionType) {
+        try {
+            return JdbiClassUtils.findConstructor(Class.forName(getOnDemandClassName(extensionType)), ON_DEMAND_TYPES);
+        } catch (Throwable t) {
+            throw new UnableToCreateSqlObjectException(t);
+        }
+    }
+
+    private static String getGeneratedClassName(Class<?> extensionType) {
         return extensionType.getPackage().getName() + "." + extensionType.getSimpleName() + "Impl";
     }
 
-    private String getOnDemandClassName(Class<?> extensionType) {
+    private static String getOnDemandClassName(Class<?> extensionType) {
         return getGeneratedClassName(extensionType) + "$OnDemand";
     }
 }
