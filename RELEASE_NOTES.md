@@ -1,4 +1,4 @@
-# unreleased
+# 3.40.0
 
   - fix `PreparedBatch` c'tor problem where the binding context was not set correctly. (#2404)
   - Slight memory optimization on RowMappers and ColumnMappers findFor (#2418)
@@ -8,6 +8,7 @@
   - remove unnecessary tests before adding standard methods to extension objects (#2414)
   - Update h2 to 2.2.220 (#2428)
   - various small performance improvements (#2436, #2437, #2440)
+  - improve generator performance (#2439)
 
 # 3.39.1
 
