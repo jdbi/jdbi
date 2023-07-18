@@ -89,7 +89,7 @@
         <dep.hikari-cp.version>5.0.1</dep.hikari-cp.version>
         <dep.hsqldb.version>2.7.2</dep.hsqldb.version>
         <dep.immutables.version>2.9.3</dep.immutables.version>
-        <dep.jackson2.version>2.12.7</dep.jackson2.version>
+        <dep.jackson2.version>2.12.7.20221012</dep.jackson2.version>
         <dep.jakarta-annotation-api.version>2.1.1</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
