@@ -14,6 +14,7 @@
 package org.jdbi.v3.core;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -213,6 +214,55 @@ public class TestHandle {
                         assertThat(handle1).isSameAs(handle4);
                         return null;
                     }))));
+    }
+
+    @Test
+    public void testCustomHandler() {
+        AtomicReference<HandleCallback<?, ?>> overrideCallback = new AtomicReference<>();
+        AtomicBoolean gotCalled = new AtomicBoolean();
+        Handler testHandler = new Handler() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public <R, X extends Exception> HandleCallback<R, X> decorate(HandleCallback<R, X> callback) {
+                gotCalled.set(true);
+                HandleCallback<?, ?> testCallback = overrideCallback.get();
+                if (testCallback != null) {
+                    return (HandleCallback<R, X>) testCallback;
+                }
+                return callback;
+            }
+        };
+
+        Jdbi jdbi = h2Extension.getJdbi();
+        Handler saveHandler = jdbi.getHandler();
+        jdbi.setHandler(testHandler);
+        try {
+            String result = jdbi.withHandle(handle -> "hey");
+            assertThat(result).isEqualTo("hey");
+            assertThat(gotCalled).isTrue();
+            gotCalled.set(false);
+
+            jdbi.useHandle(handle -> {});
+            assertThat(gotCalled).isTrue();
+            gotCalled.set(false);
+
+            result = jdbi.inTransaction(handle -> "there");
+            assertThat(result).isEqualTo("there");
+            assertThat(gotCalled).isTrue();
+
+            jdbi.useTransaction(handle -> {});
+            assertThat(gotCalled).isTrue();
+            gotCalled.set(false);
+
+            overrideCallback.set(handle -> "this is different");
+            result = jdbi.inTransaction(handle -> "you");
+            assertThat(result).isEqualTo("this is different");
+            assertThat(gotCalled).isTrue();
+            gotCalled.set(false);
+            overrideCallback.set(null);
+        } finally {
+            jdbi.setHandler(saveHandler);
+        }
     }
 
     static class BoomHandler extends LocalTransactionHandler {
