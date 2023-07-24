@@ -61,6 +61,7 @@ public class Jdbi implements Configurable<Jdbi> {
     private final ConnectionFactory connectionFactory;
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(LocalTransactionHandler.binding());
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(DefaultStatementBuilder.FACTORY);
+    private final AtomicReference<Handler> handler = new AtomicReference<>(Handler.STANDARD_HANDLER);
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
@@ -304,6 +305,30 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * Specify the {@link Handler} instance to use. This allows overriding
+     * callbacks for {@link #useHandle}, {@link #withHandle}, {@link #useTransaction} and
+     * {@link #inTransaction}. The default version is a pass-through that returns the callback unchanged.
+     *
+     * @param handler The {@link Handler} to use for all {@link #useHandle}, {@link #withHandle},
+     *                {@link #useTransaction} and {@link #inTransaction} from this Jdbi
+     * @return this
+     */
+    public Jdbi setHandler(Handler handler) {
+        Objects.requireNonNull(handler, "null handler");
+        this.handler.set(handler);
+        return this;
+    }
+
+    /**
+     * Returns the {@link Handler}.
+     *
+     * @return the {@link Handler}
+     */
+    public Handler getHandler() {
+        return this.handler.get();
+    }
+
+    /**
      * Obtain a Handle to the data source wrapped by this Jdbi instance.
      * You own this expensive resource and are required to close it or
      * risk leaks.  Using a {@code try-with-resources} block is recommended.
@@ -358,8 +383,10 @@ public class Jdbi implements Configurable<Jdbi> {
 
         HandleSupplier handleSupplier = threadHandleSupplier.get();
 
+        HandleCallback<R, X> decoratedCallback = handler.get().decorate(callback);
+
         if (handleSupplier != null) {
-            return callback.withHandle(handleSupplier.getHandle());
+            return decoratedCallback.withHandle(handleSupplier.getHandle());
         }
 
         try (Handle h = this.open()) {
@@ -368,7 +395,7 @@ public class Jdbi implements Configurable<Jdbi> {
 
             handleSupplier = ConstantHandleSupplier.of(h);
             threadHandleSupplier.set(handleSupplier);
-            return callback.withHandle(h);
+            return decoratedCallback.withHandle(h);
         } finally {
             threadHandleSupplier.remove();
         }
