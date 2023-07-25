@@ -86,6 +86,10 @@ public class LocalTransactionHandler implements TransactionHandler {
         return new BindingLocalTransactionHandler();
     }
 
+    public void reset(Handle handle) {
+        bound.remove(handle);
+    }
+
     static class BindingLocalTransactionHandler extends LocalTransactionHandler {
         @Override
         public TransactionHandler specialize(Handle handle) throws SQLException {
