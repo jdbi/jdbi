@@ -1,5 +1,6 @@
 # 3.40.0
 
+  - add extension point to decorate withHandle and friends (#2448)
   - fix `PreparedBatch` c'tor problem where the binding context was not set correctly. (#2404)
   - Slight memory optimization on RowMappers and ColumnMappers findFor (#2418)
   - JsonMapper implementations now bind the Type earlier, which saves work in Jackson and Gson (#2420)
