@@ -45,6 +45,7 @@ public interface ConnectionFactory {
 
     /**
      * Returns a {@link Cleanable} that will close the connection and release all necessary resources.
+     * Like {@link Connection#close()}, the Cleanable should no-op if called more than once.
      *
      * @param conn A {@link Connection} object.
      * @return A {@link Cleanable} instance. Calling the {@link Cleanable#close()} method will close the connection and release all resources.

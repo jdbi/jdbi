@@ -33,6 +33,7 @@ import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
@@ -337,11 +338,13 @@ public class Jdbi implements Configurable<Jdbi> {
      * @see #useHandle(HandleConsumer)
      * @see #withHandle(HandleCallback)
      */
+    @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstanceofChecksInCatchClause" })
     public Handle open() {
+        Connection conn = null;
+        Handle h = null;
         try {
             final long start = System.nanoTime();
-            @SuppressWarnings("PMD.CloseResource")
-            Connection conn = Objects.requireNonNull(connectionFactory.openConnection(),
+            conn = Objects.requireNonNull(connectionFactory.openConnection(),
                     () -> "Connection factory " + connectionFactory + " returned a null connection");
             final long stop = System.nanoTime();
 
@@ -351,7 +354,7 @@ public class Jdbi implements Configurable<Jdbi> {
 
             StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
 
-            Handle h = Handle.createHandle(this,
+            h = Handle.createHandle(this,
                 connectionFactory.getCleanableFor(conn), // don't use conn::close, the cleanup must be done by the connection factory!
                 transactionhandler.get(),
                 cache,
@@ -362,8 +365,21 @@ public class Jdbi implements Configurable<Jdbi> {
             }
             LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, MILLISECONDS.convert(stop - start, NANOSECONDS));
             return h;
-        } catch (SQLException e) {
-            throw new ConnectionException(e);
+        } catch (Exception e) {
+            try {
+                if (h != null) {
+                    h.close();
+                } else if (conn != null) {
+                    connectionFactory.closeConnection(conn);
+                }
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
+            if (e instanceof SQLException) {
+                throw new ConnectionException(e);
+            } else {
+                throw Sneaky.throwAnyway(e);
+            }
         }
     }
 
