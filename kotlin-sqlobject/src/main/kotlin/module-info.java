@@ -18,5 +18,6 @@ module org.jdbi.v3.sqlobject.kotlin {
 
     requires transitive org.jdbi.v3.sqlobject;
     requires transitive org.jdbi.v3.core;
+    requires transitive org.jdbi.v3.kotlin;
     requires transitive kotlin.reflect;
 }

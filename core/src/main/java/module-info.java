@@ -55,12 +55,13 @@ module org.jdbi.v3.core {
 	exports org.jdbi.v3.meta;
 
 	requires transitive java.sql;
-	requires transitive com.google.errorprone.annotations;
 	requires transitive org.slf4j;
-    requires transitive com.github.spotbugs.annotations;
     requires transitive io.leangen.geantyref;
-    requires transitive org.antlr.antlr4.runtime;
     requires transitive java.desktop;
+
+    requires static org.antlr.antlr4.runtime;
+	requires static com.google.errorprone.annotations;
+    requires static com.github.spotbugs.annotations;
 
     uses JdbiPlugin;
 }
