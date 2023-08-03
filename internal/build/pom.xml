@@ -760,6 +760,7 @@
                         <configLocation>policy/checkstyle.xml</configLocation>
                         <suppressionsLocation>policy/checkstyle-suppress.xml</suppressionsLocation>
                         <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
+                        <excludes>**/module-info.java</excludes>
                     </configuration>
                     <dependencies>
                         <dependency>
