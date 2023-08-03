@@ -115,12 +115,8 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.transactionHandler = transactionHandler.specialize(this);
         this.forceEndTransactions = !transactionHandler.isInTransaction(this);
 
-        addCleanable(() -> {
-            // shut down statement builder
-            if (checkConnectionIsLive()) {
-                statementBuilder.close(connection);
-            }
-        });
+        addCleanable(() ->
+            statementBuilder.close(connection));
     }
 
     /**
@@ -897,51 +893,38 @@ public class Handle implements Closeable, Configurable<Handle> {
     private void cleanConnection(boolean doForceEndTransactions) {
 
         final ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
-        final boolean connectionIsLive = checkConnectionIsLive();
 
         boolean wasInTransaction = false;
 
-        if (connectionIsLive && doForceEndTransactions) {
-            wasInTransaction = throwableSuppressor.suppressAppend(this::isInTransaction, false);
+        if (doForceEndTransactions) {
+            wasInTransaction = throwableSuppressor.suppressAppend(
+                    // if the connection was not closed, check whether it is in a transaction
+                    // if any of this throws an exception, assume that the connection was closed,
+                    // skip the transaction check and record the exception
+                    () -> !connection.isClosed() && isInTransaction(),
+                    false);
         }
 
         if (wasInTransaction) {
             throwableSuppressor.suppressAppend(this::rollback);
         }
 
-        if (connectionIsLive) {
-            try {
-                connectionCleaner.close();
-            } catch (SQLException e) {
-                CloseException ce = new CloseException("Unable to close Connection", e);
-                throwableSuppressor.attachToThrowable(ce);
-                throw ce;
-            }
-
-            throwableSuppressor.throwIfNecessary(t -> new CloseException("Failed to clear transaction status on close", t));
-
-            if (wasInTransaction) {
-                TransactionException te = new TransactionException("Improper transaction handling detected: A Handle with an open "
-                        + "transaction was closed. Transactions must be explicitly committed or rolled back "
-                        + "before closing the Handle. "
-                        + "Jdbi has rolled back this transaction automatically. "
-                        + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
-
-                throwableSuppressor.attachToThrowable(te); // any exception present is not the cause but just collateral.
-                throw te;
-            }
-        } else {
-            throwableSuppressor.throwIfNecessary(t -> new CloseException("Failed to clear transaction status on close", t));
-        }
-    }
-
-    private boolean checkConnectionIsLive() {
         try {
-            return !connection.isClosed();
+            connectionCleaner.close();
         } catch (SQLException e) {
-            // if the connection state can not be determined, assume that the
-            // connection is closed and ignore the exception
-            return false;
+            CloseException ce = new CloseException("Unable to close Connection", e);
+            throwableSuppressor.attachToThrowable(ce);
+            throw ce;
+        }
+
+        throwableSuppressor.throwIfNecessary(t -> new CloseException("Failed to clear transaction status on close", t));
+
+        if (wasInTransaction) {
+            throw new TransactionException("Improper transaction handling detected: A Handle with an open "
+                    + "transaction was closed. Transactions must be explicitly committed or rolled back "
+                    + "before closing the Handle. "
+                    + "Jdbi has rolled back this transaction automatically."
+                    + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
         }
     }
 
