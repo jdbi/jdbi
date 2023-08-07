@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 
-import edu.umd.cs.findbugs.annotations.CheckReturnValue;
-import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.annotation.Nonnull;
+
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jdbi.v3.core.internal.UtilityClassException;
 
 public class Sneaky {
@@ -33,7 +34,7 @@ public class Sneaky {
      * Will <b>always</b> throw an exception, so the caller should also always throw the dummy return value to make sure the control flow remains clear.
      */
     @CheckReturnValue
-    @NonNull
+    @Nonnull
     public static DummyException throwAnyway(Throwable t) {
 
         if (t instanceof Error) {

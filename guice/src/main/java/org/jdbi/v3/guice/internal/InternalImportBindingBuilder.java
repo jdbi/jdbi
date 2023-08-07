@@ -23,7 +23,6 @@ import com.google.inject.Scope;
 import com.google.inject.TypeLiteral;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -108,7 +107,6 @@ public final class InternalImportBindingBuilder<T> implements ScopedBindingBuild
         }
 
         @Override
-        @CheckForNull
         public T get() {
             checkState(this.injector != null, "calling get() before setInjector()!");
             return injector.getInstance(key);

@@ -27,7 +27,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import jakarta.annotation.Nullable;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.cache.JdbiCache;

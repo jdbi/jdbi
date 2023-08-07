@@ -13,8 +13,9 @@
  */
 package org.jdbi.v3.core.interceptor;
 
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import jakarta.annotation.Nullable;
+
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jdbi.v3.meta.Alpha;
 
 /**
@@ -50,6 +51,7 @@ public interface JdbiInterceptor<S, T> {
      * @param source A source object.
      * @return The destination type.
      */
-    @CheckForNull
+    @Nullable
+    @CheckReturnValue
     T intercept(@Nullable S source, JdbiInterceptionChain<T> chain);
 }

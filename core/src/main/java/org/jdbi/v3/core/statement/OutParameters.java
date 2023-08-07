@@ -19,8 +19,9 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 import org.jdbi.v3.core.result.ResultBearing;
 
 import static java.lang.String.format;
@@ -46,7 +47,7 @@ public class OutParameters {
      * @param <T> the output parameter type
      * @return the output of name as type T
      */
-    @CheckForNull
+    @Nullable
     public <T> T getObject(String name, Class<T> type) {
         return type.cast(getObject(name));
     }
@@ -58,7 +59,7 @@ public class OutParameters {
      * @param name The out parameter name
      * @return the output of name as type T
      */
-    @CheckForNull
+    @Nullable
     public Object getObject(String name) {
         return map.get(name);
     }
@@ -70,7 +71,7 @@ public class OutParameters {
      * @param position The out parameter name
      * @return the output of name as type T
      */
-    @CheckForNull
+    @Nullable
     public Object getObject(int position) {
         return map.get(position);
     }
@@ -84,12 +85,12 @@ public class OutParameters {
      * @param <T> the output parameter type
      * @return the output of name as type T
      */
-    @CheckForNull
+    @Nullable
     public <T> T getObject(int pos, Class<T> type) {
         return type.cast(getObject(pos));
     }
 
-    @CheckForNull
+    @Nullable
     public String getString(String name) {
         Object obj = map.get(name);
         if (obj == null) {
@@ -103,7 +104,7 @@ public class OutParameters {
         return obj.toString();
     }
 
-    @CheckForNull
+    @Nullable
     public String getString(int pos) {
         Object obj = map.get(pos);
 
@@ -118,7 +119,7 @@ public class OutParameters {
         return obj.toString();
     }
 
-    @CheckForNull
+    @Nullable
     public byte[] getBytes(String name) {
         Object obj = map.get(name);
         if (obj == null) {
@@ -135,7 +136,7 @@ public class OutParameters {
         }
     }
 
-    @CheckForNull
+    @Nullable
     public byte[] getBytes(int pos) {
         Object obj = map.get(pos);
         if (obj == null) {
@@ -153,43 +154,43 @@ public class OutParameters {
         }
     }
 
-    @CheckForNull
+    @Nullable
     public Integer getInt(String name) {
         final Number n = getNumber(name);
         return n == null ? null : n.intValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Integer getInt(int pos) {
         final Number n = getNumber(pos);
         return n == null ? null : n.intValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Long getLong(String name) {
         final Number n = getNumber(name);
         return n == null ? null : n.longValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Long getLong(int pos) {
         final Number n = getNumber(pos);
         return n == null ? null : n.longValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Short getShort(String name) {
         final Number n = getNumber(name);
         return n == null ? null : n.shortValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Short getShort(int pos) {
         final Number n = getNumber(pos);
         return n == null ? null : n.shortValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Date getDate(String name) {
         Long epoch = getEpoch(name);
 
@@ -200,7 +201,7 @@ public class OutParameters {
         return new Date(epoch);
     }
 
-    @CheckForNull
+    @Nullable
     public Date getDate(int pos) {
         Long epoch = getEpoch(pos);
 
@@ -211,7 +212,7 @@ public class OutParameters {
         return new Date(epoch);
     }
 
-    @CheckForNull
+    @Nullable
     public Timestamp getTimestamp(String name) {
         Long epoch = getEpoch(name);
 
@@ -222,7 +223,7 @@ public class OutParameters {
         return new Timestamp(epoch);
     }
 
-    @CheckForNull
+    @Nullable
     public Timestamp getTimestamp(int pos) {
         Long epoch = getEpoch(pos);
 
@@ -233,31 +234,31 @@ public class OutParameters {
         return new Timestamp(epoch);
     }
 
-    @CheckForNull
+    @Nullable
     public Double getDouble(String name) {
         final Number n = getNumber(name);
         return n == null ? null : n.doubleValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Double getDouble(int pos) {
         final Number n = getNumber(pos);
         return n == null ? null : n.doubleValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Float getFloat(String name) {
         final Number n = getNumber(name);
         return n == null ? null : n.floatValue();
     }
 
-    @CheckForNull
+    @Nullable
     public Float getFloat(int pos) {
         final Number n = getNumber(pos);
         return n == null ? null : n.floatValue();
     }
 
-    @NonNull
+    @Nonnull
     public ResultBearing getRowSet(String name) {
         return ResultBearing.of(() -> {
             ResultSet resultSet = getObject(name, ResultSet.class);
@@ -266,7 +267,7 @@ public class OutParameters {
         }, ctx);
     }
 
-    @NonNull
+    @Nonnull
     public ResultBearing getRowSet(int pos) {
         return ResultBearing.of(() -> {
             ResultSet resultSet = getObject(pos, ResultSet.class);
@@ -275,7 +276,7 @@ public class OutParameters {
         }, ctx);
     }
 
-    @CheckForNull
+    @Nullable
     private Number getNumber(String name) {
         Object obj = map.get(name);
         if (obj == null) {
@@ -292,7 +293,7 @@ public class OutParameters {
         }
     }
 
-    @CheckForNull
+    @Nullable
     private Number getNumber(int pos) {
         Object obj = map.get(pos);
         if (obj == null) {
@@ -309,7 +310,7 @@ public class OutParameters {
         }
     }
 
-    @CheckForNull
+    @Nullable
     @SuppressWarnings("JavaUtilDate")
     private Long getEpoch(String name) {
         Object obj = map.get(name);
@@ -329,7 +330,7 @@ public class OutParameters {
         }
     }
 
-    @CheckForNull
+    @Nullable
     @SuppressWarnings("JavaUtilDate")
     private Long getEpoch(int pos) {
         Object obj = map.get(pos);
@@ -348,7 +349,7 @@ public class OutParameters {
         }
     }
 
-    @NonNull
+    @Nonnull
     Map<Object, Object> getMap() {
         return map;
     }

@@ -23,9 +23,10 @@ import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Handles;
 import org.jdbi.v3.core.Jdbi;
@@ -121,9 +122,9 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
      * @see JdbiExternalPostgresExtension
      */
     @SuppressWarnings("PMD.UseObjectForClearerAPI")
-    public static JdbiExtension externalPostgres(@NonNull String hostname,
+    public static JdbiExtension externalPostgres(@Nonnull String hostname,
         @Nullable Integer port,
-        @NonNull String database,
+        @Nonnull String database,
         @Nullable String username,
         @Nullable String password) {
         return JdbiExternalPostgresExtension.instance(hostname, port, database, username, password);

@@ -16,7 +16,8 @@ package org.jdbi.v3.sqlobject.config.internal;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import jakarta.annotation.Nullable;
+
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.internal.JdbiClassUtils;

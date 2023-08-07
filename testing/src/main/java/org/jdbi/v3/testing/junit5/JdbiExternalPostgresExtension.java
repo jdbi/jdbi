@@ -15,8 +15,9 @@ package org.jdbi.v3.testing.junit5;
 
 import javax.sql.DataSource;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 import org.postgresql.ds.PGSimpleDataSource;
 
 import static java.util.Objects.requireNonNull;
@@ -46,9 +47,9 @@ public class JdbiExternalPostgresExtension extends JdbiExtension {
      *     };
      * }</pre>
      */
-    protected JdbiExternalPostgresExtension(@NonNull String hostname,
+    protected JdbiExternalPostgresExtension(@Nonnull String hostname,
         @Nullable Integer port,
-        @NonNull String database,
+        @Nonnull String database,
         @Nullable String username,
         @Nullable String password) {
 
@@ -73,9 +74,9 @@ public class JdbiExternalPostgresExtension extends JdbiExtension {
         this.jdbcUri = sb.toString();
     }
 
-    static JdbiExtension instance(@NonNull String hostname,
+    static JdbiExtension instance(@Nonnull String hostname,
         @Nullable Integer port,
-        @NonNull String database,
+        @Nonnull String database,
         @Nullable String username,
         @Nullable String password) {
         return new JdbiExternalPostgresExtension(hostname, port, database, username, password);

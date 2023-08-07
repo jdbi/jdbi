@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import org.jdbi.v3.meta.Alpha;
 
 import static java.util.Objects.requireNonNull;
@@ -75,7 +75,7 @@ public final class JdbiInterceptionChainHolder<S, T> {
      * @param source A source object.
      * @return A target object processed by one of the registered {@link JdbiInterceptor} instances.
      */
-    @NonNull
+    @Nonnull
     public T process(@Nullable S source) {
         ChainInstance instance = new ChainInstance(source);
         T result = instance.next();
