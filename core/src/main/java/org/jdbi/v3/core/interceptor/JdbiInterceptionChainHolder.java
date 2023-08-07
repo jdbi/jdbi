@@ -34,15 +34,6 @@ import static java.util.Objects.requireNonNull;
 @Alpha
 public final class JdbiInterceptionChainHolder<S, T> {
 
-    @SuppressWarnings("UnnecessaryLambda") // constant for readablity
-    private static final Function<?, ?> DEFAULT_TRANSFORMER = source -> {
-        if (source == null) {
-            throw new UnsupportedOperationException("null value is not supported");
-        } else {
-            throw new UnsupportedOperationException("object type '" + source.getClass().getSimpleName() + "' is not supported");
-        }
-    };
-
     private final List<JdbiInterceptor<S, T>> interceptors;
     private final Function<S, T> defaultTransformer;
 
@@ -61,7 +52,7 @@ public final class JdbiInterceptionChainHolder<S, T> {
      */
     public JdbiInterceptionChainHolder() {
         interceptors = new CopyOnWriteArrayList<>();
-        this.defaultTransformer = (Function<S, T>) DEFAULT_TRANSFORMER;
+        this.defaultTransformer = JdbiInterceptionChainHolder::defaultTransformer;
     }
 
     public JdbiInterceptionChainHolder(JdbiInterceptionChainHolder<S, T> that) {
@@ -105,6 +96,14 @@ public final class JdbiInterceptionChainHolder<S, T> {
         requireNonNull(interceptor, "interceptor is null");
 
         interceptors.add(interceptor);
+    }
+
+    private static <S, T> T defaultTransformer(S source) {
+        if (source == null) {
+            throw new UnsupportedOperationException("null value is not supported");
+        } else {
+            throw new UnsupportedOperationException("object type '" + source.getClass().getSimpleName() + "' is not supported");
+        }
     }
 
     final class ChainInstance implements JdbiInterceptionChain<T> {
