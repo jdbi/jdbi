@@ -28,9 +28,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
@@ -138,7 +139,7 @@ class ArgumentBinder {
         }
     }
 
-    @NonNull
+    @Nonnull
     QualifiedType<?> typeOf(@Nullable Object value) {
         return value instanceof TypedValue
                 ? ((TypedValue) value).getType()
@@ -197,7 +198,7 @@ class ArgumentBinder {
         return new UnableToCreateStatementException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType, ctx);
     }
 
-    @CheckForNull
+    @CheckReturnValue
     static Object unwrap(@Nullable Object maybeTypedValue) {
         return maybeTypedValue instanceof TypedValue ? ((TypedValue) maybeTypedValue).getValue() : maybeTypedValue;
     }
