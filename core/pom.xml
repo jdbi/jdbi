@@ -174,6 +174,24 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-invoker-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.immutables</groupId>
+                            <artifactId>value</artifactId>
+                            <version>2.9.3</version>
+                        </path>
+                        <path>
+                            <groupId>org.inferred</groupId>
+                            <artifactId>freebuilder</artifactId>
+                            <version>2.8.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

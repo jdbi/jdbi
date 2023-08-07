@@ -72,6 +72,7 @@
         <module>docs</module>
         <module>examples</module>
         <module>noparameters</module>
+        <module>core-test</module>
     </modules>
 
     <scm>
