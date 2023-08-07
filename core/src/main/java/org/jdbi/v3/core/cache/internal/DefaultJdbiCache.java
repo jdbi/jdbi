@@ -22,7 +22,7 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.jdbi.v3.core.cache.JdbiCache;
 import org.jdbi.v3.core.cache.JdbiCacheLoader;
 
-final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
+public final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
 
     private final ConcurrentMap<K, DoubleLinkedList.Node<K, V>> cache;
 

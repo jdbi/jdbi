@@ -52,8 +52,7 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
-            <classifier>tests</classifier>
+            <artifactId>jdbi3-core-test</artifactId>
             <scope>test</scope>
         </dependency>
 
