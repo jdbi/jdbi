@@ -122,7 +122,7 @@ class DontUseProxyExtensionFactoryTest {
 
         @Override
         public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
-            return (E) new DaoImpl(handleSupplier); // <2>
+            return extensionType.cast(new DaoImpl(handleSupplier)); // <2>
         }
     }
     // end::abstract-class-factory[]

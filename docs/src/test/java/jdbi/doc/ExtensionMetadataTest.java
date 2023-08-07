@@ -90,7 +90,7 @@ class ExtensionMetadataTest {
             ExtensionMetadata extensionMetadata = handleSupplier.getConfig() // <2>
                     .get(Extensions.class).findMetadata(extensionType, this);
 
-            return (E) new ExtensionTypeImpl(extensionMetadata, handleSupplier); // <3>
+            return extensionType.cast(new ExtensionTypeImpl(extensionMetadata, handleSupplier)); // <3>
         }
 
         @Override
