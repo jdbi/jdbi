@@ -35,6 +35,7 @@ import org.jdbi.v3.core.extension.NoSuchExtensionException;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.statement.Cleanable;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
@@ -345,23 +346,30 @@ public class Jdbi implements Configurable<Jdbi> {
                     () -> "Connection factory " + connectionFactory + " returned a null connection");
             final long stop = System.nanoTime();
 
-            for (JdbiPlugin p : plugins) {
-                conn = p.customizeConnection(conn);
+            // this looks like a t-w-r but it is not. The connection is only closed in the error case.
+            final Cleanable connectionCleaner = connectionFactory.getCleanableFor(conn);
+            try {
+                for (JdbiPlugin p : plugins) {
+                    conn = p.customizeConnection(conn);
+                }
+
+                StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
+
+                Handle h = Handle.createHandle(this,
+                        connectionCleaner, // don't use conn::close, the cleanup must be done by the connection factory!
+                        transactionhandler.get(),
+                        cache,
+                        conn);
+
+                for (JdbiPlugin p : plugins) {
+                    h = p.customizeHandle(h);
+                }
+                LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, MILLISECONDS.convert(stop - start, NANOSECONDS));
+                return h;
+            } catch (Throwable t) {
+                connectionCleaner.closeAndSuppress(t);
+                throw t;
             }
-
-            StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
-
-            Handle h = Handle.createHandle(this,
-                connectionFactory.getCleanableFor(conn), // don't use conn::close, the cleanup must be done by the connection factory!
-                transactionhandler.get(),
-                cache,
-                conn);
-
-            for (JdbiPlugin p : plugins) {
-                h = p.customizeHandle(h);
-            }
-            LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, MILLISECONDS.convert(stop - start, NANOSECONDS));
-            return h;
         } catch (SQLException e) {
             throw new ConnectionException(e);
         }

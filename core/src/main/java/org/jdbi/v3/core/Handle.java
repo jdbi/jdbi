@@ -111,6 +111,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.statementBuilder = statementBuilder;
         this.handleListeners = getConfig().get(Handles.class).copyListeners();
 
+
         // both of these methods are bad because they leak a reference to this handle before the c'tor finished.
         this.transactionHandler = transactionHandler.specialize(this);
         this.forceEndTransactions = !transactionHandler.isInTransaction(this);
