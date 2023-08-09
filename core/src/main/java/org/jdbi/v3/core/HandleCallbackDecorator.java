@@ -13,8 +13,15 @@
  */
 package org.jdbi.v3.core;
 
-public interface Handler {
-    Handler STANDARD_HANDLER = new Handler() {
+import org.jdbi.v3.meta.Alpha;
+
+/**
+ * Decorates the {@link HandleCallback} instance for {@link Jdbi#useHandle(HandleConsumer)}, {@link Jdbi#withHandle(HandleCallback)},
+ * {@link Jdbi#inTransaction(HandleCallback)} and {@link Jdbi#useTransaction(HandleConsumer)}.
+ */
+@Alpha
+public interface HandleCallbackDecorator {
+    HandleCallbackDecorator STANDARD_HANDLE_CALLBACK_DECORATOR = new HandleCallbackDecorator() {
         @Override
         public <R, X extends Exception> HandleCallback<R, X> decorate(HandleCallback<R, X> callback) {
             return callback;
@@ -22,12 +29,10 @@ public interface Handler {
     };
 
     /**
-     * Decorate the given Handle callback
+     * Decorate the given {@link HandleCallback} instance.
      *
      * @param callback a callback which will receive the open handle
-     *
      * @return the callback decorated as needed
-     *
      * @see Jdbi#withHandle(HandleCallback)
      */
     <R, X extends Exception> HandleCallback<R, X> decorate(HandleCallback<R, X> callback);
