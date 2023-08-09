@@ -1,3 +1,6 @@
+# Unreleased
+  - Handle: fix potential Connection leak if connection is closed early
+
 # 3.40.0
 
   - add extension point to decorate withHandle and friends (#2448)

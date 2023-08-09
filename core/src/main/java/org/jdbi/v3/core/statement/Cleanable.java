@@ -27,4 +27,17 @@ import java.sql.SQLException;
 public interface Cleanable extends AutoCloseable {
     @Override
     void close() throws SQLException;
+
+    /**
+     * Cleans the underlying resource and appends possible exceptions to the given {@link Throwable}.
+     *
+     * @param t A {@link Throwable}. Must not be null.
+     */
+    default void closeAndSuppress(Throwable t) {
+        try {
+            close();
+        } catch (SQLException e) {
+            t.addSuppressed(e);
+        }
+    }
 }

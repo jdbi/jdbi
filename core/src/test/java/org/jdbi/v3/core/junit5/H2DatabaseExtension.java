@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.junit5;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -48,6 +50,8 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
 
     private final boolean installPlugins;
     private Optional<DatabaseInitializer> initializerMaybe = Optional.empty();
+
+    private volatile Connection lastConnection = null;
 
     private Jdbi jdbi = null;
     private Handle sharedHandle = null;
@@ -91,6 +95,14 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
         return sharedHandle;
     }
 
+    public Connection getLastConnection() {
+        return lastConnection;
+    }
+
+    public void clearLastConnection() {
+        this.lastConnection = null;
+    }
+
     @Override
     public H2DatabaseExtension withPlugin(JdbiPlugin plugin) {
         plugins.add(plugin);
@@ -119,7 +131,10 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
         if (jdbi != null) {
             throw new IllegalStateException("jdbi is not null!");
         }
-        jdbi = Jdbi.create(uri);
+        jdbi = Jdbi.create(() -> {
+            this.lastConnection = DriverManager.getConnection(uri);
+            return lastConnection;
+        });
 
         installTestPlugins(jdbi);
 
