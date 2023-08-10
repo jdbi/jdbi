@@ -1,5 +1,8 @@
 # Unreleased
-  - Handle: fix potential Connection leak if connection is closed early
+  - Fix connection leak if Handle throws an exception in the C'tor (#2446). Thanks @kristoffSC
+  - documentation example code updates
+  - remove all spotbugs annotations, replace with jakarta (#2456)
+  - rename "Handler" to "HandleCallbackDecorator", mark as `@Alpha` (#2460)
 
 # 3.40.0
 
