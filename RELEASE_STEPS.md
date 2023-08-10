@@ -44,41 +44,19 @@ These are the release steps that need to be done:
 
 Mandatory:
 
-* Create a release branch off the latest master
 * Update release notes and documentation page
 * Build the release locally
 * Publish the release to Maven Central
-* Release the code changes to github
+* Push the code changes and tag to github
 * Publish the documentation
 * Add a release announcement to github
 
 Optional:
 
-* Publish release announcement to the mailing list
+* Create a release branch
 * Release additional Modules
 
 All build steps are described in detail below. If unsure, please follow the instructions below.
-
-
-## Create a release branch off the latest master
-
-Name it `jdbi-<version>-release`.
-
-Example:
-
-```bash
-$ git clone git@github.com:jdbi/jdbi
-$ cd jdbi
-$ git checkout -b jdbi-<version>-release master
-```
-
-or
-
-```bash
-$ cd jdbi
-$ git pull
-$ git checkout -b jdbi-<version>-release master
-```
 
 ## Update release notes and documentation page
 
@@ -155,13 +133,10 @@ by pushing the code changes below and also publish the documentation web site!
 
 ## Release the code changes to github
 
-Push release release branch and tag to Github, then merge the release branch back to the master:
+Push release commits and tag to Github:
 
 ```bash
-$ git push -u origin jdbi-<version>-release
 $ git push --tags
-$ git checkout master
-$ git merge --ff-only jdbi-<version>-release
 $ git push master
 ```
 
@@ -182,20 +157,6 @@ $ make release-docs
 - paste the line items from the Release notes into the "Describe this release" text box
 - Please make sure that the `Set as the latest release` and `Create a discussion for the release` checkboxes are selected
 - Click "Publish release"
-
-
-## Publish release announcement to the mailing list
-
-Write up a release announcement (similar to past announcements on the mailing list) and hit Send
-
-Include in the message:
-
-- The new version
-- A link to the new artifacts on Maven Central
-- The release notes since the last announcement
-
-Send it to the mailing list: jdbi@googlegroups.com
-
 
 ## Release additional Modules
 
