@@ -8982,6 +8982,64 @@ link:{jdkdocs}/java/lang/reflect/Proxy.html[Java proxy^] instances.
 This may be useful for `graal-native` compilation.
 
 
+=== HandleCallbackDecorator
+
+Jdbi allows specifying a decorator that can be applied to all callbacks passed to
+link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^],
+link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^],
+link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^],
+or link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^].
+This is for use-cases where you need to perform an action on all callbacks used in
+Jdbi. For instance, you might want to have global retries whether a transaction is used
+or not. Jdbi already provides retry handlers for transactions but you might want to retry auto-commit
+(non-transaction) queries as well. E.g.
+
+[source,java,indent=0]
+----
+public class ExampleJdbiPlugin
+        implements JdbiPlugin, HandleCallbackDecorator
+{
+    @Override
+    public void customizeJdbi(Jdbi jdbi)
+    {
+        jdbi.setHandleCallbackDecorator(this);
+    }
+
+    @Override
+    public <R, X extends Exception> HandleCallback<R, X> decorate(HandleCallback<R, X> callback)
+    {
+        return handle -> {
+            try {
+                if (handle.getConnection().getAutoCommit()) {
+                    // do retries for auto-commit
+                    return withRetry(handle, callback);
+                }
+            }
+            catch (SQLException e) {
+                throw new ConnectionException(e);
+            }
+
+            // all others get standard behavior
+            return callback.withHandle(handle);
+        };
+    }
+
+    private <R, X extends Exception> R withRetry(Handle handle, HandleCallback<R, X> callback)
+            throws X
+    {
+        while (true) {
+            try {
+                return callback.withHandle(handle);
+            }
+            catch (Exception last) {
+                // custom auto-commit retry behavior goes here
+            }
+        }
+    }
+}
+----
+
+
 == Appendix
 
 
