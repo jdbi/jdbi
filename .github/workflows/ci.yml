@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 11, 17, 19, 20 ]
+        java-version: [ 11, 17, 20, 21-ea ]
         distribution: [ temurin ]
 
     steps:
