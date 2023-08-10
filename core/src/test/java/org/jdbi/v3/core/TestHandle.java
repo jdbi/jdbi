@@ -217,10 +217,11 @@ public class TestHandle {
     }
 
     @Test
-    public void testCustomHandler() {
+    public void testHandleCallbackDecorator() {
         AtomicReference<HandleCallback<?, ?>> overrideCallback = new AtomicReference<>();
         AtomicBoolean gotCalled = new AtomicBoolean();
-        Handler testHandler = new Handler() {
+
+        var handleCallbackDecorator = new HandleCallbackDecorator() {
             @SuppressWarnings("unchecked")
             @Override
             public <R, X extends Exception> HandleCallback<R, X> decorate(HandleCallback<R, X> callback) {
@@ -234,8 +235,10 @@ public class TestHandle {
         };
 
         Jdbi jdbi = h2Extension.getJdbi();
-        Handler saveHandler = jdbi.getHandler();
-        jdbi.setHandler(testHandler);
+
+        HandleCallbackDecorator saveHandleDecorator = jdbi.getHandleCallbackDecorator();
+        jdbi.setHandleCallbackDecorator(handleCallbackDecorator);
+
         try {
             String result = jdbi.withHandle(handle -> "hey");
             assertThat(result).isEqualTo("hey");
@@ -261,7 +264,7 @@ public class TestHandle {
             gotCalled.set(false);
             overrideCallback.set(null);
         } finally {
-            jdbi.setHandler(saveHandler);
+            jdbi.setHandleCallbackDecorator(saveHandleDecorator);
         }
     }
 

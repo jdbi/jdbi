@@ -43,6 +43,7 @@ import org.jdbi.v3.core.statement.StatementBuilderFactory;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.jdbi.v3.meta.Alpha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ public class Jdbi implements Configurable<Jdbi> {
     private final ConnectionFactory connectionFactory;
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(LocalTransactionHandler.binding());
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(DefaultStatementBuilder.FACTORY);
-    private final AtomicReference<Handler> handler = new AtomicReference<>(Handler.STANDARD_HANDLER);
+    private final AtomicReference<HandleCallbackDecorator> handleCallbackDecorator = new AtomicReference<>(HandleCallbackDecorator.STANDARD_HANDLE_CALLBACK_DECORATOR);
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
@@ -306,27 +307,29 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
-     * Specify the {@link Handler} instance to use. This allows overriding
-     * callbacks for {@link #useHandle}, {@link #withHandle}, {@link #useTransaction} and
-     * {@link #inTransaction}. The default version is a pass-through that returns the callback unchanged.
+     * Specify the {@link HandleCallbackDecorator} instance to use. This allows overriding
+     * callbacks for {@link #useHandle}, {@link #withHandle}, {@link #useTransaction(HandleConsumer)} and
+     * {@link #inTransaction(HandleCallback)}. The default version is a pass-through that returns the callback unchanged.
      *
-     * @param handler The {@link Handler} to use for all {@link #useHandle}, {@link #withHandle},
-     *                {@link #useTransaction} and {@link #inTransaction} from this Jdbi
+     * @param handleCallbackDecorator The {@link HandleCallbackDecorator} to use for all {@link #useHandle}, {@link #withHandle},
+     *                {@link #useTransaction(HandleConsumer)} and {@link #inTransaction(HandleCallback)} from this Jdbi. Must not be null
      * @return this
      */
-    public Jdbi setHandler(Handler handler) {
-        Objects.requireNonNull(handler, "null handler");
-        this.handler.set(handler);
+    @Alpha
+    public Jdbi setHandleCallbackDecorator(HandleCallbackDecorator handleCallbackDecorator) {
+        Objects.requireNonNull(handleCallbackDecorator, "null handler");
+        this.handleCallbackDecorator.set(handleCallbackDecorator);
         return this;
     }
 
     /**
-     * Returns the {@link Handler}.
+     * Returns the {@link HandleCallbackDecorator}.
      *
-     * @return the {@link Handler}
+     * @return the {@link HandleCallbackDecorator}
      */
-    public Handler getHandler() {
-        return this.handler.get();
+    @Alpha
+    public HandleCallbackDecorator getHandleCallbackDecorator() {
+        return this.handleCallbackDecorator.get();
     }
 
     /**
@@ -391,7 +394,7 @@ public class Jdbi implements Configurable<Jdbi> {
 
         HandleSupplier handleSupplier = threadHandleSupplier.get();
 
-        HandleCallback<R, X> decoratedCallback = handler.get().decorate(callback);
+        HandleCallback<R, X> decoratedCallback = handleCallbackDecorator.get().decorate(callback);
 
         if (handleSupplier != null) {
             return decoratedCallback.withHandle(handleSupplier.getHandle());
