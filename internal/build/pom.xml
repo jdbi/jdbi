@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-root</artifactId>
-        <version>3.41.0</version>
+        <version>3.41.1-SNAPSHOT</version>
         <relativePath>../root</relativePath>
     </parent>
 
@@ -51,7 +51,7 @@
     <scm>
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
-        <tag>v3.41.0</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/jdbi/jdbi/</url>
     </scm>
 
@@ -94,7 +94,7 @@
         <dep.jakarta-annotation-api.version>2.1.1</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
-        <dep.jdbi-policy.version>3.41.0</dep.jdbi-policy.version>
+        <dep.jdbi-policy.version>3.41.1-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>24.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.12.5</dep.joda-time.version>
         <dep.jts.version>1.19.0</dep.jts.version>
