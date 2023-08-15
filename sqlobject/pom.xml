@@ -122,4 +122,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <configuration>
+                    <module>
+                        <moduleInfo>
+                            <requires>static jakarta.annotation;</requires>
+                        </moduleInfo>
+                    </module>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

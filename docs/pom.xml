@@ -296,6 +296,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <configuration>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.testcontainers</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>database-common</artifactId> -->
+                        <!-- </exclusion> -->
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>jdbc</artifactId> -->
+                        <!-- </exclusion> -->
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>postgresql</artifactId> -->
+                        <!-- </exclusion> -->
+                    </exclusions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

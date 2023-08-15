@@ -112,6 +112,7 @@
         <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
         <dep.plugin.kotlin.version>1.9.0</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
+        <dep.plugin.moditect.version>1.0.0.Final</dep.plugin.moditect.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
@@ -802,6 +803,30 @@
                         <hideClasses>true</hideClasses>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.moditect</groupId>
+                    <artifactId>moditect-maven-plugin</artifactId>
+                    <version>${dep.plugin.moditect.version}</version>
+                    <configuration>
+                        <jvmVersion>11</jvmVersion>
+                        <failOnWarning>false</failOnWarning>
+                        <module>
+                            <moduleInfo>
+                                <name>${moduleName}</name>
+                                <exports>!org.jdbi.v3.*.internal;
+                                    !org.jdbi.v3.*.internal.*;
+                                    !org.jdbi.v3.*.*.internal;
+                                    !org.jdbi.v3.*.inlined.*;
+                                    *;</exports>
+                                <addServiceUses>true</addServiceUses>
+                            </moduleInfo>
+                        </module>
+                        <jdepsExtraArgs>
+                            <arg>--multi-release=11</arg>
+                        </jdepsExtraArgs>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -864,15 +889,12 @@
 
     <profiles>
         <profile>
-            <id>jdbi.jpms-auto-module</id>
+            <id>jdbi.jpms-enforce-module</id>
             <activation>
                 <property>
                     <name>packaging</name>
                     <value>jar</value>
                 </property>
-                <file>
-                    <missing>src/main/java/module-info.java</missing>
-                </file>
             </activation>
             <build>
                 <plugins>
@@ -896,19 +918,28 @@
                             </execution>
                         </executions>
                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jdbi.jpms-generated-module</id>
+            <activation>
+                <file>
+                    <missing>src/main/java/module-info.java</missing>
+                </file>
+            </activation>
+            <build>
+                <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jar-plugin</artifactId>
+                        <groupId>org.moditect</groupId>
+                        <artifactId>moditect-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>default-jar</id>
-                                <configuration>
-                                    <archive>
-                                        <manifestEntries combine.children="append">
-                                            <Automatic-Module-Name>${moduleName}</Automatic-Module-Name>
-                                        </manifestEntries>
-                                    </archive>
-                                </configuration>
+                                <id>default-add-module-info</id>
+                                <goals>
+                                    <goal>add-module-info</goal>
+                                </goals>
+                                <phase>package</phase>
                             </execution>
                         </executions>
                     </plugin>
