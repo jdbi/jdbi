@@ -1,4 +1,7 @@
 # Unreleased
+
+# 3.41.0
+
   - Fix connection leak if Handle throws an exception in the C'tor (#2446). Thanks @kristoffSC
   - documentation example code updates
   - remove all spotbugs annotations, replace with jakarta (#2456)
