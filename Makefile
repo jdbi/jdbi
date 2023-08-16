@@ -15,7 +15,7 @@
 #
 SHELL = /bin/sh
 .SUFFIXES:
-.PHONY: help clean install install-nodocker install-fast docs tests run-tests run-tests-container run-tests-nodocker publish-docs deploy release release-docs
+.PHONY: help clean install install-notests install-nodocker install-fast docs tests run-tests run-tests-container run-tests-nodocker publish-docs deploy release release-docs
 
 MAVEN = ./mvnw ${JDBI_MAVEN_OPTS}
 
