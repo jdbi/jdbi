@@ -43,9 +43,9 @@ jobs:
       - name: build distribution
         env:
           JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
-          MAVEN_CONFIG: "-Pfast -Dbasepom.check.skip-enforcer=false -B -fae"
+          MAVEN_CONFIG: "-Dbasepom.check.skip-enforcer=false -B -fae"
         run: |
-          make install
+          make install-fast
 
       - name: set test_jdk
         env:
