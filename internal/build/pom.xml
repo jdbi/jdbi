@@ -915,6 +915,7 @@
                 </plugins>
             </build>
         </profile>
+
         <profile>
             <id>jdbi.jpms-generated-module</id>
             <activation>
