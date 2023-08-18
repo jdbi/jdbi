@@ -58,6 +58,7 @@
     <properties>
         <basepom.at-end.deploy>true</basepom.at-end.deploy>
         <basepom.check.fail-all>true</basepom.check.fail-all>
+        <basepom.it.skip>true</basepom.it.skip>
         <basepom.it.timeout>600</basepom.it.timeout>
         <basepom.javadoc.exclude-package-names>*.internal.*:*.internal</basepom.javadoc.exclude-package-names>
         <basepom.maven.version>3.9.0</basepom.maven.version>

@@ -36,7 +36,6 @@
     <properties>
         <basepom.check.phase-license>validate</basepom.check.phase-license>
         <!-- run with -Dbasepom.it.skip=false to check tests against the inlined jar -->
-        <basepom.it.skip>true</basepom.it.skip>
         <moduleName>org.jdbi.v3.core</moduleName>
     </properties>
 

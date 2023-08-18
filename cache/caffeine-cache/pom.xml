@@ -28,8 +28,6 @@
     <description>Cache implementation with the caffeine cache library</description>
 
     <properties>
-        <!-- run with -Dbasepom.it.skip=false to run tests using the caffeine cache plugin -->
-        <basepom.it.skip>true</basepom.it.skip>
         <moduleName>org.jdbi.v3.caffeine</moduleName>
     </properties>
 
