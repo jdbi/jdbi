@@ -56,6 +56,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.leangen.geantyref</groupId>
             <artifactId>geantyref</artifactId>
         </dependency>
