@@ -502,7 +502,6 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <version>${dep.checkerframework.version}</version>
-                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
 
@@ -510,7 +509,6 @@
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>${dep.jetbrainsAnnotations.version}</version>
-                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
 
@@ -518,7 +516,6 @@
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
                 <version>${dep.errorprone.version}</version>
-                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
 
@@ -526,7 +523,6 @@
                 <groupId>jakarta.annotation</groupId>
                 <artifactId>jakarta.annotation-api</artifactId>
                 <version>${dep.jakarta-annotation-api.version}</version>
-                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
 
