@@ -112,9 +112,9 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <systemProperties combine.children="append">
+                    <systemPropertyVariables combine.children="append">
                         <dep.flyway.version>${dep.flyway.version}</dep.flyway.version>
-                    </systemProperties>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
