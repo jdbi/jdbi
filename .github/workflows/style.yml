@@ -28,6 +28,6 @@ jobs:
 
       - name: run code checkers
         env:
-          MAVEN_CONFIG: "-Dbasepom.test.skip=true -Dbasepom.it.skip=true -B -fae"
+          MAVEN_CONFIG: "-B -fae"
         run: |
-          make install
+          make install-notests
