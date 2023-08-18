@@ -602,12 +602,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
                         <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
-                        <!-- Build Java 8 style javadocs for now, see #2401 -->
-                        <release>8</release>
-                        <!-- manual 11 link, otherwise this would be JDK 8 -->
-                        <detectJavaApiLink>false</detectJavaApiLink>
+                        <release>11</release>
                         <links>
-                            <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
                             <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
                             <link>https://junit.org/junit5/docs/${dep.junit5.version}/api/</link>
@@ -807,7 +803,7 @@
                     <artifactId>moditect-maven-plugin</artifactId>
                     <version>${dep.plugin.moditect.version}</version>
                     <configuration>
-                        <jvmVersion>11</jvmVersion>
+                        <jvmVersion>base</jvmVersion>
                         <failOnWarning>false</failOnWarning>
                         <module>
                             <moduleInfo>
