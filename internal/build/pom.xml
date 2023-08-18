@@ -107,9 +107,11 @@
         <dep.moshi.version>1.15.0</dep.moshi.version>
         <dep.pg-embedded.version>5.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.4</dep.plugin.asciidoctor.version>
+        <dep.plugin.compiler.version>3.11.1-SNAPSHOT</dep.plugin.compiler.version>
         <dep.plugin.detekt.version>1.23.1</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
+        <dep.plugin.javadoc.version>3.5.1-SNAPSHOT</dep.plugin.javadoc.version>
         <dep.plugin.kotlin.version>1.9.0</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
         <dep.plugin.moditect.version>1.0.0.Final</dep.plugin.moditect.version>
