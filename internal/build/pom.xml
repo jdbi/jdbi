@@ -635,17 +635,6 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <configuration>
-                        <archive>
-                            <manifestEntries combine.children="append">
-                                <Automatic-Module-Name>${moduleName}</Automatic-Module-Name>
-                            </manifestEntries>
-                        </archive>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${dep.antlr.version}</version>
@@ -857,10 +846,8 @@
                             <rules>
                                 <!-- Ensure consistency -->
                                 <dependencyConvergence />
-                                <requireProperty>
-                                    <property>moduleName</property>
-                                    <message>This module must set a moduleName.</message>
-                                </requireProperty>
+
+                                <!-- ban non-module stuff -->
                                 <bannedDependencies>
                                     <excludes>
                                         <exclude>com.google.code.findbugs:jsr305</exclude>
@@ -876,18 +863,59 @@
     </build>
 
     <profiles>
-        <!-- Set a module name for the parent that is explicitly not inherited -->
         <profile>
-            <id>in-parent</id>
+            <id>jdbi.jpms-auto-module</id>
             <activation>
+                <property>
+                    <name>packaging</name>
+                    <value>jar</value>
+                </property>
                 <file>
-                    <exists>.jdbi-parent</exists>
+                    <missing>src/main/java/module-info.java</missing>
                 </file>
             </activation>
-            <properties>
-                <moduleName>org.jdbi.v3</moduleName>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>jdbi.enforce-module-name</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>moduleName</property>
+                                            <message>This module must set a moduleName.</message>
+                                        </requireProperty>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-jar</id>
+                                <configuration>
+                                    <archive>
+                                        <manifestEntries combine.children="append">
+                                            <Automatic-Module-Name>${moduleName}</Automatic-Module-Name>
+                                        </manifestEntries>
+                                    </archive>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
+
         <profile>
             <id>maven-eclipse</id>
             <activation>
