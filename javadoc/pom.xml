@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+~   Licensed under the Apache License, Version 2.0 (the "License");
+~   you may not use this file except in compliance with the License.
+~   You may obtain a copy of the License at
+~
+~   http://www.apache.org/licenses/LICENSE-2.0
+~
+~   Unless required by applicable law or agreed to in writing, software
+~   distributed under the License is distributed on an "AS IS" BASIS,
+~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~   See the License for the specific language governing permissions and
+~   limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jdbi.internal</groupId>
+        <artifactId>jdbi3-parent</artifactId>
+        <version>3.41.1-SNAPSHOT</version>
+        <!-- <artifactId>jdbi3-root</artifactId> -->
+        <!-- <relativePath>../internal/root</relativePath> -->
+    </parent>
+
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-javadoc</artifactId>
+    <packaging>pom</packaging>
+
+    <name>jdbi3 - internal - javadoc</name>
+
+    <!-- <dependencyManagement> -->
+    <!--     <dependencies> -->
+    <!--         <dependency> -->
+    <!--             <groupId>org.jdbi</groupId> -->
+    <!--             <artifactId>jdbi3-bom</artifactId> -->
+    <!--             <version>${project.version}</version> -->
+    <!--             <type>pom</type> -->
+    <!--             <scope>import</scope> -->
+    <!--         </dependency> -->
+    <!--     </dependencies> -->
+    <!-- </dependencyManagement> -->
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-caffeine-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-noop-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-testing</artifactId>
+        </dependency>
+   </dependencies>
+
+    <profiles>
+        <profile>
+            <id>publish-docs</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>javadoc-jar</id>
+                                <goals>
+                                    <goal>aggregate-jar</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <includeDependencySources>true</includeDependencySources>
+                                    <detectOfflineLinks>false</detectOfflineLinks>
+                                    <dependencySourceIncludes>
+                                        <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
+                                    </dependencySourceIncludes>
+                                    <dependencySourceExcludes>
+                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin</dependencySourceExclude>
+                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin-sqlobject</dependencySourceExclude>
+                                    </dependencySourceExcludes>
+                                    <skippedModules>jdbi3-kotlin,jdbi3-kotlin-sqlobject,jdbi3-docs</skippedModules>
+                                    <doctitle>Jdbi3 ${project.version} API</doctitle>
+                                    <windowtitle>Jdbi3 ${project.version} API</windowtitle>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>basepom.default</id>
+                                <configuration>
+                                    <skip>true</skip>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

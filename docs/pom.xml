@@ -352,30 +352,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>javadoc-jar</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <includeDependencySources>true</includeDependencySources>
-                                    <dependencySourceIncludes>
-                                        <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
-                                    </dependencySourceIncludes>
-                                    <dependencySourceExcludes>
-                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin</dependencySourceExclude>
-                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin-sqlobject</dependencySourceExclude>
-                                    </dependencySourceExcludes>
-                                    <doctitle>Jdbi3 ${project.version} API</doctitle>
-                                    <windowtitle>Jdbi3 ${project.version} API</windowtitle>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <executions>
                             <execution>
