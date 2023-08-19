@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module jdbi3.core {
+module org.jdbi.v3.core {
     requires io.leangen.geantyref;
     requires java.desktop;
 
@@ -50,8 +50,8 @@ module jdbi3.core {
     exports org.jdbi.v3.core.transaction;
     exports org.jdbi.v3.meta;
 
-    exports org.jdbi.v3.core.internal to jdbi3.testing;
-    exports org.jdbi.v3.core.cache.internal to jdbi3.caffeine.cache;
+    exports org.jdbi.v3.core.internal to org.jdbi.v3.testing;
+    exports org.jdbi.v3.core.cache.internal to org.jdbi.v3.caffeine.cache;
 
     uses org.jdbi.v3.core.spi.JdbiPlugin;
 }

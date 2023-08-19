@@ -11,9 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module jdbi3.cache.caffeine {
+module org.jdbi.v3.caffeine {
     requires com.github.benmanes.caffeine;
-    requires jdbi3.core;
+    requires org.jdbi.v3.core;
+
     exports org.jdbi.v3.cache.caffeine;
+
     provides org.jdbi.v3.core.spi.JdbiPlugin with org.jdbi.v3.cache.caffeine.CaffeineCachePlugin;
 }

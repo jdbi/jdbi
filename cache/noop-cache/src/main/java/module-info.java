@@ -11,8 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module jdbi3.cache.noop {
-    requires jdbi3.core;
+module org.jdbi.v3.cache.noop {
+    requires org.jdbi.v3.core;
     exports org.jdbi.v3.cache.noop;
     provides org.jdbi.v3.core.spi.JdbiPlugin with org.jdbi.v3.cache.noop.NoopCachePlugin;
 }
