@@ -107,7 +107,6 @@
         <dep.moshi.version>1.15.0</dep.moshi.version>
         <dep.pg-embedded.version>5.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.4</dep.plugin.asciidoctor.version>
-        <dep.plugin.compiler.version>3.11.1-SNAPSHOT</dep.plugin.compiler.version>
         <dep.plugin.detekt.version>1.23.1</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
@@ -504,6 +503,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <version>${dep.checkerframework.version}</version>
+                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
 
@@ -511,6 +511,7 @@
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>${dep.jetbrainsAnnotations.version}</version>
+                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
 
@@ -518,6 +519,7 @@
                 <groupId>com.google.errorprone</groupId>
                 <artifactId>error_prone_annotations</artifactId>
                 <version>${dep.errorprone.version}</version>
+                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
 
@@ -525,6 +527,7 @@
                 <groupId>jakarta.annotation</groupId>
                 <artifactId>jakarta.annotation-api</artifactId>
                 <version>${dep.jakarta-annotation-api.version}</version>
+                <scope>provided</scope>
                 <optional>true</optional>
             </dependency>
 
