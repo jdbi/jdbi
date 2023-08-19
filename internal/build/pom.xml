@@ -903,10 +903,22 @@
                         <executions>
                             <execution>
                                 <id>default-jar</id>
+                                <!-- add module name to main artifact -->
                                 <configuration>
                                     <archive>
                                         <manifestEntries combine.children="append">
                                             <Automatic-Module-Name>${moduleName}</Automatic-Module-Name>
+                                        </manifestEntries>
+                                    </archive>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>basepom.default</id>
+                                <!-- add module name with "test" appended to tests artifact -->
+                                <configuration>
+                                    <archive>
+                                        <manifestEntries combine.children="append">
+                                            <Automatic-Module-Name>${moduleName}.tests</Automatic-Module-Name>
                                         </manifestEntries>
                                     </archive>
                                 </configuration>
