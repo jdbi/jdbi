@@ -115,6 +115,7 @@
         <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
         <dep.plugin.moditect.version>1.0.0.Final</dep.plugin.moditect.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
+        <dep.plugin.surefire.version>3.2.0-SNAPSHOT</dep.plugin.surefire.version>
         <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
         <dep.spring.version>5.3.27</dep.spring.version>
