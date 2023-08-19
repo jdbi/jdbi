@@ -216,4 +216,36 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <configuration>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.testcontainers</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>database-common</artifactId> -->
+                        <!-- </exclusion> -->
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>jdbc</artifactId> -->
+                        <!-- </exclusion> -->
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>postgresql</artifactId> -->
+                        <!-- </exclusion> -->
+                    </exclusions>
+                    <jdepsExtraArgs combine.children="append">
+                        <arg>--ignore-missing-deps</arg>
+                    </jdepsExtraArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

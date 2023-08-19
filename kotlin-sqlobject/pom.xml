@@ -79,4 +79,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <configuration>
+                    <jdepsExtraArgs combine.children="append">
+                        <arg>--ignore-missing-deps</arg>
+                    </jdepsExtraArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -39,6 +39,7 @@
         <module>internal</module>
         <module>bom</module>
 
+        <module>javadoc</module>
         <module>cache</module>
 
         <!-- alphabetical list of the documented (public) modules that we ship -->

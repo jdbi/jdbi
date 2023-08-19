@@ -296,6 +296,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <configuration>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.testcontainers</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>database-common</artifactId> -->
+                        <!-- </exclusion> -->
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>jdbc</artifactId> -->
+                        <!-- </exclusion> -->
+                        <!-- <exclusion> -->
+                        <!--     <groupId>org.testcontainers</groupId> -->
+                        <!--     <artifactId>postgresql</artifactId> -->
+                        <!-- </exclusion> -->
+                    </exclusions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -327,30 +351,6 @@
             </properties>
             <build>
                 <plugins>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>javadoc-jar</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <includeDependencySources>true</includeDependencySources>
-                                    <dependencySourceIncludes>
-                                        <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
-                                    </dependencySourceIncludes>
-                                    <dependencySourceExcludes>
-                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin</dependencySourceExclude>
-                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin-sqlobject</dependencySourceExclude>
-                                    </dependencySourceExcludes>
-                                    <doctitle>Jdbi3 ${project.version} API</doctitle>
-                                    <windowtitle>Jdbi3 ${project.version} API</windowtitle>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <executions>

@@ -58,6 +58,7 @@
     <properties>
         <basepom.at-end.deploy>true</basepom.at-end.deploy>
         <basepom.check.fail-all>true</basepom.check.fail-all>
+        <basepom.it.skip>true</basepom.it.skip>
         <basepom.it.timeout>600</basepom.it.timeout>
         <basepom.javadoc.exclude-package-names>*.internal.*:*.internal</basepom.javadoc.exclude-package-names>
         <basepom.maven.version>3.9.0</basepom.maven.version>
@@ -83,6 +84,7 @@
         <dep.flyway.version>9.21.1</dep.flyway.version>
         <dep.freebuilder.version>2.8.0</dep.freebuilder.version>
         <dep.freemarker.version>2.3.32</dep.freemarker.version>
+        <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
         <dep.gson.version>2.10.1</dep.gson.version>
         <dep.guava.version>32.1.2-jre</dep.guava.version>
         <dep.guice.version>5.1.0</dep.guice.version>
@@ -108,9 +110,12 @@
         <dep.plugin.detekt.version>1.23.1</dep.plugin.detekt.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
+        <dep.plugin.javadoc.version>3.5.1-SNAPSHOT</dep.plugin.javadoc.version>
         <dep.plugin.kotlin.version>1.9.0</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
+        <dep.plugin.moditect.version>1.0.0.Final</dep.plugin.moditect.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
+        <dep.plugin.surefire.version>3.2.0-SNAPSHOT</dep.plugin.surefire.version>
         <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
         <dep.spring.version>5.3.27</dep.spring.version>
@@ -259,6 +264,12 @@
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${dep.gson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.dongliu</groupId>
+                <artifactId>gson-java8-datatype</artifactId>
+                <version>${dep.gson-java8-datatype.version}</version>
             </dependency>
 
             <dependency>
@@ -595,12 +606,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
                         <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
-                        <!-- Build Java 8 style javadocs for now, see #2401 -->
-                        <release>8</release>
-                        <!-- manual 11 link, otherwise this would be JDK 8 -->
-                        <detectJavaApiLink>false</detectJavaApiLink>
+                        <release>11</release>
                         <links>
-                            <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
                             <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
                             <link>https://junit.org/junit5/docs/${dep.junit5.version}/api/</link>
@@ -624,17 +631,6 @@
                                 <suppress>true</suppress>
                             </packageOptions>
                         </perPackageOptions>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <configuration>
-                        <archive>
-                            <manifestEntries combine.children="append">
-                                <Automatic-Module-Name>${moduleName}</Automatic-Module-Name>
-                            </manifestEntries>
-                        </archive>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -753,6 +749,7 @@
                         <configLocation>policy/checkstyle.xml</configLocation>
                         <suppressionsLocation>policy/checkstyle-suppress.xml</suppressionsLocation>
                         <sourceDirectories>${project.build.sourceDirectory},${project.build.testSourceDirectory}</sourceDirectories>
+                        <excludes>**\/module-info.java</excludes>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -805,6 +802,30 @@
                         <hideClasses>true</hideClasses>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.moditect</groupId>
+                    <artifactId>moditect-maven-plugin</artifactId>
+                    <version>${dep.plugin.moditect.version}</version>
+                    <configuration>
+                        <jvmVersion>base</jvmVersion>
+                        <failOnWarning>false</failOnWarning>
+                        <module>
+                            <moduleInfo>
+                                <name>${moduleName}</name>
+                                <exports>!org.jdbi.v3.*.internal;
+                                    !org.jdbi.v3.*.internal.*;
+                                    !org.jdbi.v3.*.*.internal;
+                                    !org.jdbi.v3.*.inlined.*;
+                                    *;</exports>
+                                <addServiceUses>true</addServiceUses>
+                            </moduleInfo>
+                        </module>
+                        <jdepsExtraArgs>
+                            <arg>--multi-release=11</arg>
+                        </jdepsExtraArgs>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -849,10 +870,8 @@
                             <rules>
                                 <!-- Ensure consistency -->
                                 <dependencyConvergence />
-                                <requireProperty>
-                                    <property>moduleName</property>
-                                    <message>This module must set a moduleName.</message>
-                                </requireProperty>
+
+                                <!-- ban non-module stuff -->
                                 <bannedDependencies>
                                     <excludes>
                                         <exclude>com.google.code.findbugs:jsr305</exclude>
@@ -868,18 +887,82 @@
     </build>
 
     <profiles>
-        <!-- Set a module name for the parent that is explicitly not inherited -->
         <profile>
-            <id>in-parent</id>
+            <id>jdbi.jpms-enforce-module</id>
+            <activation>
+                <property>
+                    <name>packaging</name>
+                    <value>jar</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>jdbi.enforce-module-name</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>moduleName</property>
+                                            <message>This module must set a moduleName.</message>
+                                        </requireProperty>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>basepom.default</id>
+                                <configuration>
+                                    <archive>
+                                        <manifestEntries combine.children="append">
+                                            <Automatic-Module-Name>${moduleName}.tests</Automatic-Module-Name>
+                                        </manifestEntries>
+                                    </archive>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>jdbi.jpms-generated-module</id>
             <activation>
                 <file>
-                    <exists>.jdbi-parent</exists>
+                    <missing>src/main/java/module-info.java</missing>
                 </file>
             </activation>
-            <properties>
-                <moduleName>org.jdbi.v3</moduleName>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.moditect</groupId>
+                        <artifactId>moditect-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-add-module-info</id>
+                                <goals>
+                                    <goal>add-module-info</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
+
         <profile>
             <id>maven-eclipse</id>
             <activation>
