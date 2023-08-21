@@ -29,8 +29,6 @@
     <description>no op cache implementation</description>
 
     <properties>
-        <!-- run with -Dbasepom.it.skip=false to run tests using the noop cache plugin -->
-        <basepom.it.skip>true</basepom.it.skip>
         <moduleName>org.jdbi.v3.cache.noop</moduleName>
     </properties>
 
