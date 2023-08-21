@@ -34,6 +34,8 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.meta.Alpha;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Metadata that was detected when analyzing an extension class before attaching.
  * Represents a resolved extension type with all config customizers and method handlers.
@@ -131,7 +133,11 @@ public final class ExtensionMetadata {
      */
     public <E> ExtensionHandlerInvoker createExtensionHandlerInvoker(E target, Method method,
             HandleSupplier handleSupplier, ConfigRegistry config) {
-        return new ExtensionHandlerInvoker(target, method, methodHandlers.get(method), handleSupplier, config);
+        ExtensionHandler methodHandler = methodHandlers.get(method);
+        if (methodHandler == null) {
+            throw new IllegalStateException(String.format("Could not find method '%s' in extension methods '%s'", method, methodHandlers.keySet()));
+        }
+        return new ExtensionHandlerInvoker(target, method, methodHandler, handleSupplier, config);
     }
 
     /**
@@ -313,12 +319,12 @@ public final class ExtensionMetadata {
         private final ExtensionHandler extensionHandler;
 
         ExtensionHandlerInvoker(Object target, Method method, ExtensionHandler extensionHandler, HandleSupplier handleSupplier, ConfigRegistry config) {
-            this.target = target;
-            this.handleSupplier = handleSupplier;
-            ConfigRegistry methodConfig = createMethodConfiguration(method, config);
+            this.target = requireNonNull(target, "null target");
+            this.handleSupplier = requireNonNull(handleSupplier, "null handleSupplier");
+            ConfigRegistry methodConfig = createMethodConfiguration(requireNonNull(method, "null method"), requireNonNull(config, "null config"));
             this.extensionContext = ExtensionContext.forExtensionMethod(methodConfig, extensionType, method);
 
-            this.extensionHandler = extensionHandler;
+            this.extensionHandler = requireNonNull(extensionHandler, "null extensionHandler");
 
             try {
                 this.extensionHandler.warm(methodConfig);
