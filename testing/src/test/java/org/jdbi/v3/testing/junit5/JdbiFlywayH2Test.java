@@ -21,6 +21,7 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -31,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * each test. Ensures that each test gets a new, clean database - addresses #2208
  */
 @EnabledIf("org.jdbi.v3.testing.junit5.internal.FlywayVersionCheck#supportsH2Version2x")
+@DisabledInNativeImage // XXX https://github.com/flyway/flyway/issues/2927#issuecomment-2065790934
 public class JdbiFlywayH2Test {
 
     private static final JdbiExtensionInitializer FLYWAY_INITIALIZER = JdbiFlywayMigration.flywayMigration()

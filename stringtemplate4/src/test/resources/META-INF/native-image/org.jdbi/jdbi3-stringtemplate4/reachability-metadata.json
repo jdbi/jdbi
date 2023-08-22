@@ -1,0 +1,25 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindBeanListTest$SomethingByArray"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindBeanListTest$SomethingByIterable"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindBeanListTest$SomethingByVarargs"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindBeanListTest$SomethingWithExplicitAttributeName"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListNullPostgresTest$SomethingByIterableHandleNull"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListNullTest$SomethingByIterableHandleNull"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListNullTest$SomethingByIterableHandleVoid"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$ConditionalDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingByArrayHandleThrow"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingByArrayHandleVoid"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingByIterableHandleDefault"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingByIterableHandleThrow"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingByIteratorHandleDefault"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingByVarargsHandleDefault"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingWithExplicitAttributeName"]}},
+    {"type":{"proxy":["org.jdbi.v3.stringtemplate4.TestConditionalStringTemplateLocator$Dao"]}},
+    {"type":{"proxy":["org.jdbi.v3.stringtemplate4.TestStringTemplateGroupReference$Dao"]}},
+    {"type":{"proxy":["org.jdbi.v3.stringtemplate4.TestStringTemplateSqlLocator$Wombat"]}}
+  ],
+  "resources": [
+    {"glob":"**/*.sql.stg"}
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "reflection": [
+    {"type":{"proxy":["jdbi.doc.AsyncTest$SomethingDao"]}},
+    {"type":{"proxy":["jdbi.doc.AttributeDefineTest$TestDao"]}},
+    {"type":{"proxy":["jdbi.doc.AttributeDefineTest$UserDao"]}},
+    {"type":{"proxy":["jdbi.doc.BatchTest$BasketOfFruit"]}},
+    {"type":{"proxy":["jdbi.doc.BindMethodsTest$UserDao"]}},
+    {"type":{"proxy":["jdbi.doc.CodecSqlObjectTest$CounterDao"]}},
+    {"type":{"proxy":["jdbi.doc.DefaultMethodTest$UserDao"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionConfigCustomizerTest$SomethingDao"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionConfigurerAnnotationTest$SomethingDao"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionFrameworkTest$SomethingDao"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionHandlerAnnotationTest$ExtensionType"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionHandlerCustomizerAnnotationTest$InstanceExtensionType"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionHandlerCustomizerAnnotationTest$MethodExtensionType"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionHandlerCustomizerAnnotationTest$SomethingDao"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionHandlerCustomizerTest$SomethingDao"]}},
+    {"type":{"proxy":["jdbi.doc.ExtensionHandlerTest$ExtensionType"]}},
+    {"type":{"proxy":["jdbi.doc.GeneratedKeysTest$UserDao"]}},
+    {"type":{"proxy":["jdbi.doc.IntroductionTest$UserDao"]}},
+    {"type":{"proxy":["jdbi.doc.KotlinPluginTest$ThingDao"]}},
+    {"type":{"proxy":["jdbi.doc.LiveObjectsTest$CallbackDao"]}},
+    {"type":{"proxy":["jdbi.doc.LiveObjectsTest$NestedDao"]}},
+    {"type":{"proxy":["jdbi.doc.LiveObjectsTest$TestDao"]}},
+    {"type":{"proxy":["jdbi.doc.LiveObjectsTest$UserDao"]}},
+    {"type":{"proxy":["jdbi.doc.LiveObjectsTest$UserDao","org.jdbi.v3.sqlobject.SqlObject"]}},
+    {"type":{"proxy":["jdbi.doc.NonVirtualExtensionFactoryTest$NonVirtualDao"]}},
+    {"type":{"proxy":["jdbi.doc.OnDemandExtensionTest$SomethingDao"]}},
+    {"type":{"proxy":["jdbi.doc.SqlObjectTest$SomethingDao"]}},
+    {"type":{"proxy":["jdbi.doc.TestInheritedValueH2$DataDao"]}},
+    {"type":{"proxy":["jdbi.doc.TestInheritedValueH2$SetDao"]}},
+    {"type":{"proxy":["jdbi.doc.TransactionTest$NestedTransactionDao"]}},
+    {"type":{"proxy":["jdbi.doc.TransactionTest$UserDao"]}},
+    {"type":{"proxy":["jdbi.doc.TransactionTest$UserDao2"]}},
+    {"type":"jdbi.doc.ContactBean","allPublicConstructors": true,"allPublicMethods": true},
+    {"type":"jdbi.doc.UserBean","allPublicConstructors": true,"allPublicMethods": true},
+    {"type":"jdbi.doc.PhoneBean","allPublicConstructors": true,"allPublicMethods": true}
+  ],
+  "resources": [
+    {"glob":"**/*.sql"}
+  ]
+}

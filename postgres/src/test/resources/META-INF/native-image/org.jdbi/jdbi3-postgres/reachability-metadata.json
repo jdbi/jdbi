@@ -1,0 +1,23 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestByteaArrays$ByteaDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestEnumSets$VideoDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestHStore$CampaignDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestImmutablesHStore$MappyDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestLobStream$Lobject"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestMacAddr$MacAddrDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestPostgresTypes$PostgresCustomTypeDAO"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestQualifiedHStore$CampaignDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestSqlArrays$ArrayObject"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestSqlArrays$WhereInDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.postgres.TestUuid$UuidObject"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestBatchGeneratedKeys$UsesBatching"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestJsonOperator$KeyValueStore"]}},
+    {"type":"org.jdbi.v3.postgres.FooBarPGType","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.postgres.ImmutableMappy"},
+    {"type":"org.postgresql.util.PGmoney","methods":[{"name":"<init>"}]}
+  ],
+  "resources": [
+    {"glob":"**/*.sql.stg"}
+  ]
+}
