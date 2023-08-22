@@ -1,0 +1,11 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.v3.freemarker.BindBeanListTest$SomethingByArray"]}},
+    {"type":"org.jdbi.v3.generator.AbstractClassDaoImpl","methods":[{"name":"<init>","parameterTypes":["org.jdbi.v3.core.extension.ExtensionMetadata","org.jdbi.v3.core.extension.HandleSupplier","org.jdbi.v3.core.config.ConfigRegistry"]}]},
+    {"type":"org.jdbi.v3.generator.BazDaoImpl","methods":[{"name":"<init>","parameterTypes":["org.jdbi.v3.core.extension.ExtensionMetadata","org.jdbi.v3.core.extension.HandleSupplier","org.jdbi.v3.core.config.ConfigRegistry"]}]},
+    {"type":"org.jdbi.v3.generator.InterfaceDao","methods":[{"name":"<init>","parameterTypes":["org.jdbi.v3.core.extension.ExtensionMetadata","org.jdbi.v3.core.extension.HandleSupplier","org.jdbi.v3.core.config.ConfigRegistry"]}]},
+    {"type":"org.jdbi.v3.generator.InterfaceDaoImpl","methods":[{"name":"<init>","parameterTypes":["org.jdbi.v3.core.extension.ExtensionMetadata","org.jdbi.v3.core.extension.HandleSupplier","org.jdbi.v3.core.config.ConfigRegistry"]}]},
+    {"type":"org.jdbi.v3.generator.InterfaceDaoImpl$OnDemand","methods":[{"name":"<init>","parameterTypes":["org.jdbi.v3.core.Jdbi"]}]},
+    {"type":"org.jdbi.v3.generator.NonpublicSubclassTest$GeneratorConfig","methods":[{"name":"<init>"}],"fields":[{"name":"configuredType"},{"name":"configuredMethod"}]}
+  ]
+}

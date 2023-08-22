@@ -1,0 +1,8 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.v3.noparameters.TestSqlObjectNoParameterNames$BindDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.noparameters.TestSqlObjectNoParameterNames$BindListWithNameDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.noparameters.TestSqlObjectNoParameterNames$DefineListWithNameDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.noparameters.TestSqlObjectNoParameterNames$DefineWithNameDao"]}}
+  ]
+}
