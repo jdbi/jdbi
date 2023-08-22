@@ -15,6 +15,8 @@ package org.jdbi.v3.meta;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
@@ -35,4 +37,5 @@ import static java.lang.annotation.ElementType.TYPE;
 @Documented
 @Inherited
 @Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, ANNOTATION_TYPE})
+@Retention(RetentionPolicy.SOURCE)
 public @interface Alpha {}
