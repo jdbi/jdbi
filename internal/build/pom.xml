@@ -128,6 +128,7 @@
         <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
+        <dep.plugin.native.version>0.10.6</dep.plugin.native.version>
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.7.5</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
@@ -1349,7 +1350,55 @@
                 </plugins>
             </build>
         </profile>
-
+        <profile>
+            <id>native</id>
+            <activation>
+                <property>
+                    <name>jdbi.native</name>
+                </property>
+                <file>
+                    <missing>.skip-native</missing>
+                </file>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.graalvm.buildtools</groupId>
+                            <artifactId>native-maven-plugin</artifactId>
+                            <version>${dep.plugin.native.version}</version>
+                            <extensions>true</extensions>
+                            <configuration>
+                                <!-- ... -->
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>build-native</id>
+                                    <goals>
+                                        <goal>compile-no-fork</goal>
+                                    </goals>
+                                    <phase>package</phase>
+                                </execution>
+                                <execution>
+                                    <id>test-native</id>
+                                    <goals>
+                                        <goal>test</goal>
+                                    </goals>
+                                    <phase>test</phase>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <!-- Profile to skip time-consuming steps. -->
             <id>fast</id>
