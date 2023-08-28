@@ -101,6 +101,7 @@ public class LocalTransactionHandler implements TransactionHandler {
         private final Map<String, Savepoint> savepoints = new HashMap<>();
         private boolean initialAutocommit;
         private boolean didBegin;
+        private boolean didTxnCommit;
         private boolean didTxnRollback;
 
         BoundLocalTransactionHandler(Handle handle) throws SQLException {
@@ -127,6 +128,7 @@ public class LocalTransactionHandler implements TransactionHandler {
         public void commit(Handle handle) {
             try {
                 handle.getConnection().commit();
+                didTxnCommit = true;
             } catch (SQLException e) {
                 throw new TransactionException("Failed to commit transaction", e);
             } finally {
@@ -215,13 +217,16 @@ public class LocalTransactionHandler implements TransactionHandler {
                 }
             } catch (Throwable e) {
                 try {
-                    handle.rollback();
+                    if (!didTxnCommit) {
+                        handle.rollback();
+                    }
                 } catch (Exception rollback) {
                     e.addSuppressed(rollback);
                 }
                 throw e;
             } finally {
                 didTxnRollback = false;
+                didTxnCommit = false;
             }
 
             return returnValue;
@@ -246,6 +251,8 @@ public class LocalTransactionHandler implements TransactionHandler {
                     handle.getConnection().setAutoCommit(initialAutocommit);
                     savepoints.clear();
                     didBegin = false;
+                    didTxnCommit = false;
+                    didTxnRollback = false;
                 }
             } catch (SQLException e) {
                 throw new UnableToRestoreAutoCommitStateException(e);
