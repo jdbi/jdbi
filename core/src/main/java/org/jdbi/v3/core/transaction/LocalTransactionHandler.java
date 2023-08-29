@@ -98,11 +98,17 @@ public class LocalTransactionHandler implements TransactionHandler {
     }
 
     static class BoundLocalTransactionHandler implements TransactionHandler {
+        enum State {
+            /** The handler is either before "begin" or after "commit/rollback". Autocommit may be enabled. */
+            OUTSIDE_TRANSACTION,
+            /** "begin" has been called but the transaction is not yet started. Autocommit is turned off. */
+            AFTER_BEGIN,
+            /** transaction has been started. next operation must be either commit or rollback. */
+            IN_TRANSACTION;
+        }
         private final Map<String, Savepoint> savepoints = new HashMap<>();
         private boolean initialAutocommit;
-        private boolean didBegin;
-        private boolean didTxnCommit;
-        private boolean didTxnRollback;
+        private State handlerState = State.OUTSIDE_TRANSACTION;
 
         BoundLocalTransactionHandler(Handle handle) throws SQLException {
             this.initialAutocommit = handle.getConnection().getAutoCommit();
@@ -111,13 +117,12 @@ public class LocalTransactionHandler implements TransactionHandler {
         @Override
         public void begin(Handle handle) {
             try {
-                if (!didBegin) {
+                if (handlerState == State.OUTSIDE_TRANSACTION) {
                     Connection conn = handle.getConnection(); // NOPMD
                     initialAutocommit = conn.getAutoCommit();
-                    didTxnRollback = false;
                     savepoints.clear();
                     conn.setAutoCommit(false);
-                    didBegin = true;
+                    handlerState = State.AFTER_BEGIN;
                 }
             } catch (SQLException e) {
                 throw new TransactionException("Failed to start transaction", e);
@@ -127,23 +132,27 @@ public class LocalTransactionHandler implements TransactionHandler {
         @Override
         public void commit(Handle handle) {
             try {
-                handle.getConnection().commit();
-                didTxnCommit = true;
+                if (handlerState != State.OUTSIDE_TRANSACTION) {
+                    handle.getConnection().commit();
+                }
             } catch (SQLException e) {
                 throw new TransactionException("Failed to commit transaction", e);
             } finally {
+                handlerState = State.OUTSIDE_TRANSACTION;
                 restoreAutoCommitState(handle);
             }
         }
 
         @Override
         public void rollback(Handle handle) {
-            didTxnRollback = true;
             try {
-                handle.getConnection().rollback();
+                if (handlerState != State.OUTSIDE_TRANSACTION) {
+                    handle.getConnection().rollback();
+                }
             } catch (SQLException e) {
                 throw new TransactionException("Failed to rollback transaction", e);
             } finally {
+                handlerState = State.OUTSIDE_TRANSACTION;
                 restoreAutoCommitState(handle);
             }
         }
@@ -195,7 +204,7 @@ public class LocalTransactionHandler implements TransactionHandler {
         @Override
         public boolean isInTransaction(Handle handle) {
             try {
-                return !handle.getConnection().getAutoCommit();
+                return handlerState == State.IN_TRANSACTION || !handle.getConnection().getAutoCommit();
             } catch (SQLException e) {
                 throw new TransactionException("Failed to test for transaction status", e);
             }
@@ -207,26 +216,23 @@ public class LocalTransactionHandler implements TransactionHandler {
             if (isInTransaction(handle)) {
                 throw new IllegalStateException("Already in transaction");
             }
-            didTxnRollback = false;
             final R returnValue;
             try {
                 handle.begin();
+                handlerState = State.IN_TRANSACTION;
                 returnValue = callback.withHandle(handle);
-                if (!didTxnRollback) {
+                if (handlerState == State.IN_TRANSACTION) {
                     handle.commit();
                 }
             } catch (Throwable e) {
-                try {
-                    if (!didTxnCommit) {
+                if (handlerState == State.IN_TRANSACTION) {
+                    try {
                         handle.rollback();
+                    } catch (Exception rollback) {
+                        e.addSuppressed(rollback);
                     }
-                } catch (Exception rollback) {
-                    e.addSuppressed(rollback);
                 }
                 throw e;
-            } finally {
-                didTxnRollback = false;
-                didTxnCommit = false;
             }
 
             return returnValue;
@@ -250,9 +256,6 @@ public class LocalTransactionHandler implements TransactionHandler {
                 if (initialAutocommit) {
                     handle.getConnection().setAutoCommit(initialAutocommit);
                     savepoints.clear();
-                    didBegin = false;
-                    didTxnCommit = false;
-                    didTxnRollback = false;
                 }
             } catch (SQLException e) {
                 throw new UnableToRestoreAutoCommitStateException(e);
