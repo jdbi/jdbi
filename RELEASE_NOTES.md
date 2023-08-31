@@ -1,5 +1,7 @@
 # Unreleased
 
+  - Fix incorrect attempt to rollback txn when exception is thrown after commit (#2478)
+
 # 3.41.0
 
   - Fix connection leak if Handle throws an exception in the C'tor (#2446). Thanks @kristoffSC
