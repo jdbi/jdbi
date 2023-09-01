@@ -22,7 +22,7 @@ fragment COLON: {_input.LA(2) != ':'}? ':';
 fragment DOUBLE_COLON: {_input.LA(2) == ':'}? '::';
 fragment QUESTION: {_input.LA(2) != '?'}? '?';
 fragment DOUBLE_QUESTION: {_input.LA(2) == '?'}? '??';
-fragment NAME: JAVA_LETTER | [0-9] | '.' | '?.';
+fragment NAME: JAVA_LETTER | [0-9] | '.' | '?.' | '-';
 
 /* Lovingly lifted from https://github.com/antlr/grammars-v4/blob/master/java/JavaLexer.g4 */
 fragment JAVA_LETTER : [a-zA-Z$_] | ~[\u0000-\u007F\uD800-\uDBFF] | [\uD800-\uDBFF] [\uDC00-\uDFFF];

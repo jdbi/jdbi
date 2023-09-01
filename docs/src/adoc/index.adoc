@@ -1108,7 +1108,7 @@ try (Handle handle = jdbi.open()) {
 }
 ----
 <1> creates a link:{jdbidocs}/core/statement/Query.html[Query^] object
-<2> returns a object implementing link:{jdbidocs}/core/result/ResultIterable.html[ResultIterable^]
+<2> returns an object implementing link:{jdbidocs}/core/result/ResultIterable.html[ResultIterable^]
 <3> is a terminal operation that consumes all the data from the database
 
 As long as no exception is thrown, this example above will release all resources allocated by the link:{jdbidocs}/core/statement/Query.html[Query^] object, even though it is not managed.
@@ -1332,8 +1332,11 @@ parameters by name:
 include::{exampledir}/FiveMinuteTourTest.java[tags=namedParameters]
 ----
 
+Names can contain alphanumeric characters, dot and dash (`.` and `-`).
+
 [NOTE]
-This `:foo` syntax is default behavior that can be changed; see the `ColonPrefixSqlParser` class. Jdbi alternatively provides support for `#foo` syntax out-of-the-box, and you can create your own as well.
+By default, Jbdi uses the see the link:{jdbidocs}/core/statement/ColonPrefixSqlParser.html[ColonPrefixSqlParser^] that understands
+the  `:foo` syntax. This can be changed if the colon is problematic in the SQL dialect used. Jdbi includes support for an alternate `#foo` syntax out-of-the-box using the link:{jdbidocs}/core/statement/HashPrefixSqlParser.html[HashPrefixSqlParser^]. It is also possible to create custom parsers for named arguments.
 
 [TIP]
 Mixing named and positional arguments is not allowed, as it would become confusing very quickly.
@@ -1606,7 +1609,7 @@ include::{exampledir}/ResultsTest.java[tags=inlineRowMapper]
 ----
 
 [TIP]
-There are three different types being used in the above example. `Query`,
+There are three different types being used in the above example. link:{jdbidocs}/core/statement/Query.html[Query^],
 returned by `Handle.createQuery()`, implements the `ResultBearing` interface.
 The `ResultBearing.map()` method takes a link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<T>^] and returns a
 `ResultIterable<T>`. Finally, `ResultBearing.list()` collects each row in the
@@ -5493,7 +5496,7 @@ include::{exampledir}/GeneratedKeysTest.java[tags=fluent]
 === Qualified Types
 
 Sometimes the same Java object can correspond to multiple data types in a database. For example,
-a `String` could be `varchar` plaintext, `nvarchar` text, `json` data, etc, all with different handling requirements.
+a `String` could be `varchar` plaintext, `nvarchar` text, `json` data, etc., all with different handling requirements.
 
 link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType^] allows you to add such context to a Java type:
 
@@ -5567,7 +5570,7 @@ and setter parameters.
 
 Binding query parameters, as described above, is excellent for sending a static set of parameters to the database engine.  Binding ensures that the parameterized query string (`\... where foo = ?`) is transmitted to the database without allowing hostile parameter values to inject SQL.
 
-Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a `TemplateEngine`) allows you to alter a query's content with general String manipulations.
+Bound parameters are not always enough. Sometimes a query needs complicated or structural changes before being executed, and parameters just don't cut it. Templating (using a link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^]) allows you to alter a query's content with general String manipulations.
 
 Typical uses for templating are optional or repeating segments (conditions and loops), complex variables such as comma-separated lists for IN clauses, and variable substitution for non-bindable SQL elements (like table names). Unlike _argument binding_, the _rendering_ of _attributes_ performed by TemplateEngines is *not* SQL-aware. Since they perform generic String manipulations, TemplateEngines can easily produce horribly mangled or subtly defective queries if you don't use them carefully.
 
@@ -7125,7 +7128,7 @@ To use this feature, add a Maven dependency:
 </dependency>
 ----
 
-Then, use the `OracleReturning` class with an `Update` or `PreparedBatch`
+Then, use the `OracleReturning` class with an link:{jdbidocs}/core/statement/Update.html[Update^] or `PreparedBatch`
 to get the returned DML.
 
 // TODO: usage example
@@ -8833,8 +8836,7 @@ implementation to render templates into SQL. Template engines take a SQL
 template string and the `StatementContext` as input, and produce a parseable
 SQL string as output.
 
-Out of the box, Jdbi is configured to use link:{jdbidocs}/core/statement/DefinedAttributeTemplateEngine.html[DefinedAttributeTemplateEngine^],
-which replaces angle-bracked tokens like `<name>` in your SQL statements with
+Out of the box, Jdbi is configured to use link:{jdbidocs}/core/statement/DefinedAttributeTemplateEngine.html[DefinedAttributeTemplateEngine^], which replaces angle-bracked tokens like `<name>` in SQL statements with
 the string value of the named attribute:
 
 [source,java,indent=0]
@@ -8854,9 +8856,8 @@ The `defineList` method defines a list of elements as the comma-separated
 splice of String values of the individual elements. In the above example,
 the `columns` attribute is defined as `"id, name"`.
 
-Any custom template engine can be used. Simply implement the `TemplateEngine`
-interface, then call `setTemplateEngine()` on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or on a SQL
-statement like `Update` or `Query`:
+Jdbi supports custom template engines through the link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^]
+interface. By calling link:{jdbidocs}/core/config/Configurable.html#setTemplateEngine(org.jdbi.v3.core.statement.TemplateEngine)[Configurable#setTemplateEngine()^] method on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the template engine used to render SQL can be changed:
 
 [source,java,indent=0]
 ----
@@ -8878,13 +8879,10 @@ The most commonly used template engines (link:{jdbidocs}/core/statement/DefinedA
 
 === SqlParser
 
-After the SQL template has been rendered, Jdbi uses a
-link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^] to parse out any named
-parameters from the SQL statement. This Produces a `ParsedSql` object, which
-contains all the information Jdbi needs to bind parameters and execute your SQL
-statement.
+After the SQL template has been rendered, Jdbi uses a link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^] to parse out any named parameters from the SQL statement. This Produces a link:{jdbidocs}/core/statement/ParsedSql.html[ParsedSql^] object, which
+contains all the information Jdbi needs to bind parameters and execute the SQL statement.
 
-Out of the box, Jdbi is configured to use `ColonPrefixSqlParser`, which
+Out of the box, Jdbi is configured to use link:{jdbidocs}/core/statement/ColonPrefixSqlParser.html[ColonPrefixSqlParser^], which
 recognizes colon-prefixed named parameters, e.g. `:name`.
 
 [source,java,indent=0]
@@ -8895,9 +8893,11 @@ handle.createUpdate("INSERT INTO characters (id, name) VALUES (:id, :name)")
       .execute();
 ----
 
-Jdbi also provides `HashPrefixSqlParser`, which recognizes hash-prefixed
-parameters, e.g. `#hashtag`. Use this parser by calling `setSqlParser()` on the
-link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement such as `Query` or `Update`.
+Jdbi also provides link:{jdbidocs}/core/statement/HashPrefixSqlParser.html[HashPrefixSqlParser^], which recognizes hash-prefixed
+parameters, e.g. `#hashtag`. Other custom parsers implement the link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^]
+interface.
+
+By calling link:{jdbidocs}/core/config/Configurable.html#setSqlParser(org.jdbi.v3.core.statement.SqlParser)[Configurable#setSqlParser()^] method on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the parser used to define named arguments can be changed:
 
 [source,java,indent=0]
 ----
@@ -8908,27 +8908,11 @@ handle.setSqlParser(new HashPrefixSqlParser())
       .execute();
 ----
 
-[NOTE]
-The default parsers recognize any Java identifier as a parameter or attribute name.
-Even some strange cases like emoji are allowed, although the Jdbi authors encourage appropriate discretion 🧐.
+The default parsers recognize any Java identifier and additionally the dot and dash (`.` and `-`) as a valid characters in a parameter or attribute name. Even some strange cases like emoji are allowed, although the Jdbi authors encourage appropriate discretion 🧐.
 
 [NOTE]
 The default parsers try to ignore parameter-like constructions inside of string literals,
 since JDBC drivers wouldn't let you bind parameters there anyway.
-
-For you fearless adventurers who have read the
-https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811[Dragon book^],
-any custom SQL parser can be used. Simply implement the `SqlParser` interface,
-then set it on the Jdbi, Handle, or SQL statement:
-
-[source,java,indent=0]
-----
-SqlParser parser = (sql, ctx) -> {
-    // ...
-};
-
-jdbi.setParser(parser);
-----
 
 
 === SqlLogger
@@ -8992,7 +8976,7 @@ link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[u
 or link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^].
 This is for use-cases where you need to perform an action on all callbacks used in
 Jdbi. For instance, you might want to have global retries whether a transaction is used
-or not. Jdbi already provides retry handlers for transactions but you might want to retry auto-commit
+or not. Jdbi already provides retry handlers for transactions, but you might want to retry auto-commit
 (non-transaction) queries as well. E.g.
 
 [source,java,indent=0]
@@ -9098,7 +9082,7 @@ Core API:
 * `DBI`, `IDBI` -> link:{jdbidocs}/core/Jdbi.html[Jdbi^]
 ** Instantiate with `Jdbi.create()` factory methods instead of constructors.
 * `DBIException` -> `JdbiException`
-* `Handle.select(String, ...)` now returns a `Query` for further method
+* `Handle.select(String, ...)` now returns a link:{jdbidocs}/core/statement/Query.html[Query^] for further method
   chaining, instead of a link:{jdkdocs}/java/util/List.html[List<Map<String, Object>>^]. Call
   `Handle.select(sql, ...).mapToMap().list()` for the same effect as v2.
 * `Handle.insert()` and `Handle.update()` have been coalesced into
@@ -9117,7 +9101,7 @@ Core API:
 * `ResultColumnMapper` -> link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^]
 * `ResultSetMapperFactory` -> link:{jdbidocs}/core/mapper/RowMapperFactory.html[RowMapperFactory^]
 * `ResultColumnMapperFactory` -> link:{jdbidocs}/core/mapper/ColumnMapperFactory.html[ColumnMapperFactory^]
-* `Query` no longer maps to `Map<String, Object>` by default. Call
+* link:{jdbidocs}/core/statement/Query.html[Query^] no longer maps to `Map<String, Object>` by default. Call
   `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
 * `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
   and `ResultIterable<T>`. Call `.mapTo(type)` to get a `ResultIterable<T>`.
@@ -9133,7 +9117,7 @@ Core API:
 * `StatementLocator` interface removed from core. All core statements expect to
   receive the actual SQL string now. A similar concept, `SqlLocator` was added
   but is specific to SQL Object.
-* `StatementRewriter` refactored into `TemplateEngine`, and `SqlParser`.
+* `StatementRewriter` refactored into link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^], and link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^].
 * StringTemplate no longer required to process `<name>`-style tokens in SQL.
 * Custom SqlParser implementations must now provide a way to transform raw
   parameter names to names that will be properly parsed out as named params.
