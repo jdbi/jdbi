@@ -47,9 +47,9 @@ public class TestBindList {
     @Test
     public void testNullVararg() {
         String out = handle.createQuery("select (<empty>)")
-            .bindList(NULL_KEYWORD, "empty", (Object[]) null)
-            .mapTo(String.class)
-            .one();
+                .bindList(NULL_KEYWORD, "empty", (Object[]) null)
+                .mapTo(String.class)
+                .one();
 
         assertThat(out).isNull();
     }
@@ -57,9 +57,9 @@ public class TestBindList {
     @Test
     public void testEmptyList() {
         String out = handle.createQuery("select (<empty>)")
-            .bindList(NULL_KEYWORD, "empty", emptyList())
-            .mapTo(String.class)
-            .one();
+                .bindList(NULL_KEYWORD, "empty", emptyList())
+                .mapTo(String.class)
+                .one();
 
         assertThat(out).isNull();
     }
@@ -85,27 +85,50 @@ public class TestBindList {
     @Test
     public void testBindListWithHashPrefixParser() {
         handle
-            .registerRowMapper(FieldMapper.factory(Thing.class))
-            .setSqlParser(new HashPrefixSqlParser());
+                .registerRowMapper(FieldMapper.factory(Thing.class))
+                .setSqlParser(new HashPrefixSqlParser());
 
         handle.createUpdate("insert into thing (<columns>) values (<values>)")
-            .defineList("columns", "id", "foo")
-            .bindList("values", 3, "abc")
-            .execute();
+                .defineList("columns", "id", "foo")
+                .bindList("values", 3, "abc")
+                .execute();
 
         List<Thing> list = handle.createQuery("select id, foo from thing where id in (<ids>)")
-            .bindList("ids", 1, 3)
-            .mapTo(Thing.class)
-            .list();
+                .bindList("ids", 1, 3)
+                .mapTo(Thing.class)
+                .list();
 
         assertThat(list)
-            .extracting(Thing::getId, Thing::getFoo, Thing::getBar, Thing::getBaz)
-            .containsExactly(
-                tuple(1, "foo1", null, null),
-                tuple(3, "abc", null, null));
+                .extracting(Thing::getId, Thing::getFoo, Thing::getBar, Thing::getBaz)
+                .containsExactly(
+                        tuple(1, "foo1", null, null),
+                        tuple(3, "abc", null, null));
+    }
+
+    @Test
+    void testIssue2471() {
+        handle.createUpdate("insert into thing (<columns>) values (<values>)")
+                .defineList("columns", "id", "foo")
+                .bindList("values", 3, "abc")
+                .execute();
+
+        for (var specialCharPlaceholderName : new String[] {"xxx.ids", "xxx_ids", "xxx-ids"}) {
+
+            List<Thing> list = handle.createQuery("select id, foo from thing where id in (<" + specialCharPlaceholderName + ">)")
+                    .bindList(specialCharPlaceholderName, 1, 3)
+                    .mapTo(Thing.class)
+                    .list();
+
+            assertThat(list)
+                    .extracting(Thing::getId, Thing::getFoo, Thing::getBar, Thing::getBaz)
+                    .containsExactly(
+                            tuple(1, "foo1", null, null),
+                            tuple(3, "abc", null, null));
+        }
     }
 
     public static class Thing {
+
         public int id;
         public String foo;
         public String bar;

@@ -19,7 +19,7 @@ fragment ESCAPE_QUOTE: ESCAPE QUOTE ;
 fragment DOUBLE_QUOTE: '"' ;
 fragment LT: '<' ;
 fragment GT: '>' ;
-fragment NAME: JAVA_LETTER | [0-9];
+fragment NAME: JAVA_LETTER | [0-9] | '.' | '-' ;
 
 /* Lovingly lifted from https://github.com/antlr/grammars-v4/blob/master/java/java/JavaLexer.g4 */
 fragment JAVA_LETTER : [a-zA-Z$_] | ~[\u0000-\u007F\uD800-\uDBFF] | [\uD800-\uDBFF] [\uDC00-\uDFFF];

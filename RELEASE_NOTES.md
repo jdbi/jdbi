@@ -1,5 +1,6 @@
 # Unreleased
 
+  - Support `.` and `-` as part of named parameter names. (#2471)
   - Fix incorrect attempt to rollback txn when exception is thrown after commit (#2478)
 
 # 3.41.0
