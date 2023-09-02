@@ -1051,52 +1051,7 @@
                     <plugin>
                         <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlin-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>compile</id>
-                                <goals>
-                                    <goal>compile</goal>
-                                </goals>
-                            </execution>
-
-                            <execution>
-                                <id>test-compile</id>
-                                <goals>
-                                    <goal>test-compile</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <!-- replace default compilations, to ensure kotlin runs before java -->
-                            <execution>
-                                <id>default-compile</id>
-                                <phase>none</phase>
-                            </execution>
-                            <execution>
-                                <id>default-testCompile</id>
-                                <phase>none</phase>
-                            </execution>
-                            <!-- add new compilation executions for java -->
-                            <execution>
-                                <id>java-compile</id>
-                                <goals>
-                                    <goal>compile</goal>
-                                </goals>
-                                <phase>compile</phase>
-                            </execution>
-                            <execution>
-                                <id>java-test-compile</id>
-                                <goals>
-                                    <goal>testCompile</goal>
-                                </goals>
-                                <phase>test-compile</phase>
-                            </execution>
-                        </executions>
+                        <extensions>true</extensions>
                     </plugin>
 
                     <plugin>
