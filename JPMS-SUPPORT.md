@@ -30,34 +30,23 @@ forever. Those are annoying but not critical.
 
 ## Javadocs
 
-The most pressing issue right now is the generation of Javadocs. The
-current build uses a hardcoded version of "8" to build non-modularized
-javadocs. With the introduction of Java 9+ code, warnings like `as of
-release 10, 'var' is a restricted type name and cannot be used for
-type declarations or as the element type of an array` have started
-popping up.
+With the release of maven-javadoc-plugin 3.6.0, we can build non-JPMS
+javadocs again that use Java 11 (our release version) and no longer
+report warnings.
 
-While it is possible to build per-maven module javadocs that are
-structured like java 9+ javadocs, building an aggregation (all
-javadocs in one place) has consistently failed.
+Going forward, while it is possible to build per-maven module javadocs
+that are structured like java 9+ javadocs, building an aggregation
+(all javadocs in one place) has consistently failed.
 
 For aggregated jars, the way the maven-javadoc plugin calls the
 javadoc tool does not work ("too many patched modules") or limitations
 of the maven-javadoc-plugin
-(https://issues.apache.org/jira/browse/MJAVADOC-767, fix merged;
-https://issues.apache.org/jira/browse/MJAVADOC-768, unresolved;
-https://issues.apache.org/jira/browse/MJAVADOC-769, fix proposed).
+( see https://issues.apache.org/jira/browse/MJAVADOC-768, unresolved)
 
 In addition, the javadoc tool itself does not work well with automatic
 modules (the --module-source-path option only works with module
 descriptors, so patching the module with the source code is the only
 viable option).
-
-A change to the javadoc plugin has been proposed
-(https://issues.apache.org/jira/browse/MJAVADOC-770) which would allow
-building the javadocs as is but using a newer release version. This
-might be our best bet for now.
-
 
 ## Full modularization
 
