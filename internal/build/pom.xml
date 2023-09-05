@@ -79,7 +79,6 @@
         <!-- derby 10.16 is JDK 17 only, keep it on 10.15 for now -->
         <dep.derby.version>10.15.2.0</dep.derby.version>
         <dep.detekt.version>1.23.1</dep.detekt.version>
-        <dep.dokka.version>1.8.20</dep.dokka.version>
         <dep.errorprone.version>2.21.1</dep.errorprone.version>
         <dep.flyway.version>9.21.1</dep.flyway.version>
         <dep.freebuilder.version>2.8.0</dep.freebuilder.version>
@@ -108,10 +107,11 @@
         <dep.pg-embedded.version>5.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.4</dep.plugin.asciidoctor.version>
         <dep.plugin.detekt.version>1.23.1</dep.plugin.detekt.version>
+        <dep.plugin.dokka.version>1.9.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.1.0</dep.plugin.inline.version>
-        <dep.plugin.kotlin.version>1.9.0</dep.plugin.kotlin.version>
-        <dep.plugin.ktlint.version>1.16.0</dep.plugin.ktlint.version>
+        <dep.plugin.kotlin.version>1.9.10</dep.plugin.kotlin.version>
+        <dep.plugin.ktlint.version>2.0.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
@@ -622,7 +622,7 @@
                 <plugin>
                     <groupId>org.jetbrains.dokka</groupId>
                     <artifactId>dokka-maven-plugin</artifactId>
-                    <version>${dep.dokka.version}</version>
+                    <version>${dep.plugin.dokka.version}</version>
                     <configuration>
                         <jdkVersion>${project.build.targetJdk}</jdkVersion>
                         <skip>${basepom.javadoc.skip}</skip>
@@ -1051,52 +1051,7 @@
                     <plugin>
                         <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlin-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>compile</id>
-                                <goals>
-                                    <goal>compile</goal>
-                                </goals>
-                            </execution>
-
-                            <execution>
-                                <id>test-compile</id>
-                                <goals>
-                                    <goal>test-compile</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <!-- replace default compilations, to ensure kotlin runs before java -->
-                            <execution>
-                                <id>default-compile</id>
-                                <phase>none</phase>
-                            </execution>
-                            <execution>
-                                <id>default-testCompile</id>
-                                <phase>none</phase>
-                            </execution>
-                            <!-- add new compilation executions for java -->
-                            <execution>
-                                <id>java-compile</id>
-                                <goals>
-                                    <goal>compile</goal>
-                                </goals>
-                                <phase>compile</phase>
-                            </execution>
-                            <execution>
-                                <id>java-test-compile</id>
-                                <goals>
-                                    <goal>testCompile</goal>
-                                </goals>
-                                <phase>test-compile</phase>
-                            </execution>
-                        </executions>
+                        <extensions>true</extensions>
                     </plugin>
 
                     <plugin>
