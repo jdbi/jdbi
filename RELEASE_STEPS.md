@@ -142,10 +142,10 @@ $ git push master
 
 ## Publish the documentation
 
-Check out the release tag from Git, and run publish target to update the docs on jdbi.org:
+Go to the release directory and generate the documentation for the jdbi.org site:
 
 ```bash
-$ git checkout v<version>
+$ cd target/checkout
 $ make release-docs
 ```
 

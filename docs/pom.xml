@@ -428,6 +428,8 @@
                                 <ignorePathToDelete>releases</ignorePathToDelete>
                                 <ignorePathToDelete>.github</ignorePathToDelete>
                                 <ignorePathToDelete>README.md</ignorePathToDelete>
+                                <!-- do not clobber the module (jdbi3-oracle12 and friends) sites -->
+                                <ignorePathToDelete>modules</ignorePathToDelete>
                             </ignorePathsToDelete>
                         </configuration>
                         <executions>
