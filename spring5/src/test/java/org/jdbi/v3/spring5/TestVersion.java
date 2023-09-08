@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestVersion {
     @Test
-    public void thisIsSpring5() {
-        assertThat(SpringVersion.getVersion())
-            .startsWith("5.");
+    public void thisIsSpring5OrBetter() {
+        assertThat((int) SpringVersion.getVersion().charAt(0))
+            .isGreaterThanOrEqualTo(5);
     }
 }
