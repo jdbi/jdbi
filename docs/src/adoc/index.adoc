@@ -294,23 +294,27 @@ jdbi3-kotlin-sqlobject::
 
 The following modules are maintained outside the main Jdbi tree:
 
-[%header, cols="<1, <1, <1, <3", stripe=none]
+[%header, cols="<1, ^1, ^1, ^1, <3", stripe=none]
 |===
-| Module | Source | Javadocs | Description
+| Module | Source | Javadoc | Site | Description
 | jdbi3-oracle12 | https://github.com/jdbi/jdbi3-oracle12/[Github^]
 ifndef::release[]
 | https://jdbi.org/modules/jdbi3-oracle12/apidocs/[Javadoc^]
+| https://jdbi.org/modules/jdbi3-oracle12/[Site^]
 endif::[]
 ifdef::release[]
 | https://jdbi.org/modules/jdbi3-oracle12/releases/{revnumber}/apidocs/[Javadoc^]
+| https://jdbi.org/modules/jdbi3-oracle12/releases/{revnumber}/[Site^]
 endif::[]
 | Support for Oracle 12 and beyond.
 | jdbi3-guava-cache | https://github.com/jdbi/jdbi3-guava-cache/[Github^]
 ifndef::release[]
 | https://jdbi.org/modules/jdbi3-guava-cache/apidocs/[Javadoc^]
+| https://jdbi.org/modules/jdbi3-guava-cache/[Site^]
 endif::[]
 ifdef::release[]
 | https://jdbi.org/modules/jdbi3-guava-cache/releases/{revnumber}/apidocs/[Javadoc^]
+| https://jdbi.org/modules/jdbi3-guava-cache/releases/{revnumber}/[Site^]
 endif::[]
 | Experimental support for the Guava cache library.
 |===
