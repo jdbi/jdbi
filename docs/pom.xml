@@ -330,13 +330,23 @@
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <executions>
+                            <!-- always skip the module specific javadoc generation -->
                             <execution>
-                                <id>javadoc-jar</id>
+                                <id>basepom.default</id>
+                                <configuration>
+                                    <skip>true</skip>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <!-- run aggregate goal which creates the javadocs for the site using
+                                     all the modules listed below -->
+                                <id>aggregate</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>aggregate</goal>
                                 </goals>
                                 <phase>package</phase>
                                 <configuration>
+                                    <reportOutputDirectory>${project.build.directory}/generated-docs/apidocs</reportOutputDirectory>
                                     <includeDependencySources>true</includeDependencySources>
                                     <dependencySourceIncludes>
                                         <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
@@ -354,21 +364,6 @@
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <executions>
-                            <execution>
-                                <id>copy-javadocs</id>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <phase>verify</phase>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/generated-docs/apidocs</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${project.build.directory}/apidocs</directory>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
                             <execution>
                                 <id>copy-kotlin-apidocs</id>
                                 <goals>
