@@ -92,7 +92,7 @@ Explicit requirements for this transition:
 This has yielded a number of problems:
 
 - https://github.com/codehaus-plexus/plexus-languages/pull/164. There is a workaround in place for this (https://github.com/jdbi/jdbi/commit/a2d0e651662fbb7e58d7c51da21b410422d62206).
-- https://issues.apache.org/jira/browse/SUREFIRE-2190 (with proposed fix)
+- https://issues.apache.org/jira/browse/SUREFIRE-2190 (fix merged, but surefire has not been released since it was merged)
 - https://issues.apache.org/jira/browse/SUREFIRE-2191 is a blocker for the testing module
 
 
