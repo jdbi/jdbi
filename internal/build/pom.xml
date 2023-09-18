@@ -104,6 +104,7 @@
         <dep.lombok.version>1.18.28</dep.lombok.version>
         <dep.mockito.version>5.5.0</dep.mockito.version>
         <dep.moshi.version>1.15.0</dep.moshi.version>
+        <dep.mysql.version>8.1.0</dep.mysql.version>
         <dep.pg-embedded.version>5.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.4</dep.plugin.asciidoctor.version>
         <dep.plugin.detekt.version>1.23.1</dep.plugin.detekt.version>
@@ -304,6 +305,12 @@
                 <groupId>org.apache.derby</groupId>
                 <artifactId>derby</artifactId>
                 <version>${dep.derby.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${dep.mysql.version}</version>
             </dependency>
 
             <dependency>
