@@ -135,8 +135,10 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <excludes combine.children="append">
+                                <!-- junit 4 -->
                                 <exclude>**/JdbiRulePostgresTest.*</exclude>
                                 <exclude>**/JdbiRuleTest.*</exclude>
+                                <!-- junit 5 -->
                                 <exclude>**/JdbiOtjPostgresExtendWithTest.*</exclude>
                                 <exclude>**/JdbiOtjPostgresExtensionTest.*</exclude>
                             </excludes>
