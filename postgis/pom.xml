@@ -110,9 +110,9 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration combine.children="append">
-                            <excludes>
-                                <exclude>**/PostgisPluginTest.*</exclude>
+                        <configuration>
+                            <excludes combine.children="append">
+                                <exclude>**/*</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
