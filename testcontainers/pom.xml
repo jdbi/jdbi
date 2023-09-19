@@ -36,7 +36,6 @@
         <basepom.test.timeout>600</basepom.test.timeout>
         <!-- Sigh. Java is really hard. Leave this at 0.3.2, all other versions are worse -->
         <dep.clickhouse.version>0.3.2</dep.clickhouse.version>
-        <dep.mysql.version>8.1.0</dep.mysql.version>
         <dep.oracle-xe.version>23.2.0.0</dep.oracle-xe.version>
         <dep.trino.version>426</dep.trino.version>
         <dep.yugabyte.version>42.3.5-yb-3</dep.yugabyte.version>
@@ -46,12 +45,6 @@
     <!-- we need tons of additional JDBC drivers in this one module. So we keep them all here. -->
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.mysql</groupId>
-                <artifactId>mysql-connector-j</artifactId>
-                <version>${dep.mysql.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
