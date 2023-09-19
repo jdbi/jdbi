@@ -54,7 +54,14 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres;
  *     }
  * }
  * }</pre>
+ *
+ * @deprecated The <a href="https://github.com/opentable/otj-pg-embedded/">OtjPostgres project</a> ships its artifact as an automatic module with filename
+ * based module name. It is strongly discouraged to ship any JPMS enabled project that depends on automatic modules with filename based module names. We
+ * have reached out to the OtjPostgres project and <a href="https://github.com/opentable/otj-pg-embedded/pull/184">proposed a change that would fix this</a>.
+ * If they ship a version that fixes this before we are ready to move to full JPMS support, we will un-deprecate this class, otherwise it will be removed
+ * with our switch to JPMS.
  */
+@Deprecated(since = "3.42.0", forRemoval = true) // intellij users need to change the "Usage of API marked for removal" inspection from error to warning
 public class JdbiOtjPostgresExtension extends JdbiExtension {
 
     private volatile EmbeddedPostgres epg;
