@@ -108,10 +108,11 @@ public class LocalTransactionHandler implements TransactionHandler {
         }
         private final Map<String, Savepoint> savepoints = new HashMap<>();
         private boolean initialAutocommit;
-        private State handlerState = State.OUTSIDE_TRANSACTION;
+        private State handlerState;
 
         BoundLocalTransactionHandler(Handle handle) throws SQLException {
             this.initialAutocommit = handle.getConnection().getAutoCommit();
+            this.handlerState = initialAutocommit ? State.OUTSIDE_TRANSACTION : State.AFTER_BEGIN;
         }
 
         @Override
@@ -253,8 +254,9 @@ public class LocalTransactionHandler implements TransactionHandler {
 
         private void restoreAutoCommitState(Handle handle) {
             try {
+                handle.getConnection().setAutoCommit(initialAutocommit);
+
                 if (initialAutocommit) {
-                    handle.getConnection().setAutoCommit(initialAutocommit);
                     savepoints.clear();
                 }
             } catch (SQLException e) {

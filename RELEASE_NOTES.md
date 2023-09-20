@@ -1,6 +1,7 @@
 # Unreleased
 
   - Deprecate the `otjPostgres` support in jdbi-testing. This will be undeprecated if they ship a version that provides an automatic module name for JPMS, otherwise it will be removed when Jdbi ships with full JPMS support.
+  - Restore pre-3.41.0 behavior for handles using auto-commit == false where transactions don't need `Handle#begin()` before `Handle#commit()` (#2491, thanks @grigorem)
 
 
 # 3.41.1
