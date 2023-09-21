@@ -114,7 +114,7 @@ public class Handle implements Closeable, Configurable<Handle> {
 
         // both of these methods are bad because they leak a reference to this handle before the c'tor finished.
         this.transactionHandler = transactionHandler.specialize(this);
-        this.forceEndTransactions = !transactionHandler.isInTransaction(this);
+        this.forceEndTransactions = !this.transactionHandler.isInTransaction(this);
 
         addCleanable(() ->
             statementBuilder.close(connection));

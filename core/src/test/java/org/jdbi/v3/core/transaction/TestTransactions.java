@@ -14,9 +14,12 @@
 package org.jdbi.v3.core.transaction;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -94,6 +97,30 @@ public class TestTransactions {
         assertThat(h.getConnection().getAutoCommit()).isFalse();
         h.commit();
         assertThat(h.getConnection().getAutoCommit()).isTrue();
+    }
+
+    @Test
+    public void testNoBeginTransaction() throws Exception {
+
+        Jdbi jdbi = Jdbi.create(() -> {
+            // create connection with auto-commit == false
+            Connection connection = DriverManager.getConnection(h2Extension.getUri());
+            connection.setAutoCommit(false);
+            return connection;
+        });
+
+        jdbi.useTransaction(h -> {
+            assertThat(h.getConnection().getAutoCommit()).isFalse();
+            h.execute("INSERT INTO something (id, name ) VALUES (1, 'foo')");
+            h.commit();
+        });
+
+        List<Integer> result = h.createQuery("SELECT count(1) from something")
+            .mapTo(Integer.class)
+            .list();
+        assertThat(result)
+            .hasSize(1)
+            .containsExactly(1);
     }
 
     @Test

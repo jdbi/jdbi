@@ -26,10 +26,11 @@ import org.mockito.InOrder;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.calls;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 public class TestTransactionsAutoCommit {
@@ -41,18 +42,17 @@ public class TestTransactionsAutoCommit {
 
         final Connection connection = mock(Connection.class);
         final PreparedStatement statement = mock(PreparedStatement.class);
-        InOrder inOrder = inOrder(connection, statement);
+
+        when(connection.getAutoCommit()).thenReturn(true);
+        when(connection.prepareStatement(anyString(), anyInt(), anyInt())).thenReturn(statement);
+        when(statement.execute()).thenReturn(true);
+        when(statement.getUpdateCount()).thenReturn(1);
+        // throw e.g some underlying database error
+        doThrow(new SQLException("infrastructure error")).when(connection).commit();
 
         try (Handle h = Jdbi.create(() -> connection).open()) {
-
-            when(connection.getAutoCommit()).thenReturn(true);
-            when(connection.prepareStatement(anyString(), anyInt(), anyInt())).thenReturn(statement);
-            when(statement.execute()).thenReturn(true);
-            when(statement.getUpdateCount()).thenReturn(1);
-            // throw e.g some underlying database error
-            doThrow(new SQLException("infrastructure error")).when(connection).commit();
-
             h.begin();
+
             assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
                 h.execute(SAMPLE_SQL, 1L, "Tom");
 
@@ -61,9 +61,11 @@ public class TestTransactionsAutoCommit {
             });
         }
 
+        InOrder inOrder = inOrder(connection, statement);
+
         // expected behaviour chain:
         // 1. store initial auto-commit state
-        inOrder.verify(connection, atLeastOnce()).getAutoCommit();
+        inOrder.verify(connection, calls(1)).getAutoCommit();
 
         // 2. turn off auto-commit
         inOrder.verify(connection).setAutoCommit(false);
@@ -78,6 +80,10 @@ public class TestTransactionsAutoCommit {
 
         // 5. set auto-commit back to initial state
         inOrder.verify(connection).setAutoCommit(true);
+
+        inOrder.verify(connection, times(1)).close();
+
+        inOrder.verifyNoMoreInteractions();
     }
 
 }
