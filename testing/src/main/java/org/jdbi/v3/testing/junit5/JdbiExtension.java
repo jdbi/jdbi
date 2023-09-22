@@ -150,7 +150,7 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
      * If they ship a version that fixes this before we are ready to move to full JPMS support, we will un-deprecate this class, otherwise it will be removed
      * with our switch to JPMS.
      */
-    @Deprecated(since = "3.42.0", forRemoval = true) // intellij users need to change the "Usage of API marked for removal" inspection from error to warning
+    @Deprecated(since = "3.41.2", forRemoval = true) // intellij users need to change the "Usage of API marked for removal" inspection from error to warning
     public static JdbiOtjPostgresExtension otjEmbeddedPostgres() {
         return JdbiOtjPostgresExtension.instance();
     }

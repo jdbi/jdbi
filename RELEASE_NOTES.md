@@ -1,7 +1,11 @@
 # Unreleased
 
+# 3.41.2
+
   - Deprecate the `otjPostgres` support in jdbi-testing. This will be undeprecated if they ship a version that provides an automatic module name for JPMS, otherwise it will be removed when Jdbi ships with full JPMS support.
   - Restore pre-3.41.0 behavior for handles using auto-commit == false where transactions don't need `Handle#begin()` before `Handle#commit()` (#2491, thanks @grigorem)
+  - Start a MySQL specific module. Right now, this is tests only.
+  - Fix javadoc generation to build Java 11 javadocs (not Java 8 + fixes)
 
 
 # 3.41.1
