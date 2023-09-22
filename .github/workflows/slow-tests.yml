@@ -10,8 +10,8 @@ on:
       - master
 
 jobs:
-  containers:
-    name: Run testcontainer based tests
+  slow-tests:
+    name: Run slow tests
     runs-on: ubuntu-latest
 
     strategy:
@@ -27,14 +27,14 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: build distribution
+      - name: run tests
         env:
           MAVEN_CONFIG: "-B -fae"
         run: |
           make install-fast
 
-      - name: run container tests
+      - name: run slow tests
         env:
           MAVEN_CONFIG: "-B -fae -Ddep.testcontainers.version=${{ matrix.test-version }}"
         run: |
-          make run-tests-container
+          make run-slow-tests

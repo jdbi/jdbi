@@ -13,11 +13,13 @@
  */
 package org.jdbi.v3.testing.junit5.tc;
 
+import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.ClickHouseContainer;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Tag("slow")
 @Testcontainers
 class ClickhouseJdbiTestContainerExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 

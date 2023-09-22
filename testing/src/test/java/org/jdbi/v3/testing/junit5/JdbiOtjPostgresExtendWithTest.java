@@ -15,11 +15,13 @@ package org.jdbi.v3.testing.junit5;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Tag("slow")
 @ExtendWith(JdbiOtjPostgresExtension.class)
 public class JdbiOtjPostgresExtendWithTest {
 
