@@ -25,7 +25,7 @@
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-root</artifactId>
-    <version>3.41.2-SNAPSHOT</version>
+    <version>3.41.2</version>
     <packaging>pom</packaging>
 
     <name>jdbi3 - internal - root</name>
@@ -53,7 +53,7 @@
     <scm>
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.41.2</tag>
         <url>https://github.com/jdbi/jdbi/</url>
     </scm>
 </project>
