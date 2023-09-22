@@ -24,6 +24,7 @@ import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.tc.JdbiTestcontainersExtension;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.containers.JdbcDatabaseContainer;
@@ -35,6 +36,7 @@ import static java.lang.String.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Tag("slow")
 @Testcontainers
 public class TestMySQL {
 

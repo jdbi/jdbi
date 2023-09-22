@@ -30,8 +30,6 @@
     <properties>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.install.skip>true</basepom.install.skip>
-        <!-- tests are slow, so run tests only if explictly asked for -->
-        <basepom.test.skip>true</basepom.test.skip>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
         <moduleName>org.jdbi.v3.mysql</moduleName>

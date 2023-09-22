@@ -15,11 +15,13 @@ package org.jdbi.v3.testing.junit5.tc;
 
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.TrinoContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Tag("slow")
 @Testcontainers
 class TrinoJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 

@@ -30,8 +30,6 @@
     <properties>
         <!-- all tests run docker containers. Run them one by one... -->
         <basepom.test.fork-count>1</basepom.test.fork-count>
-        <!-- tests are slow, so run tests only if explictly asked for -->
-        <basepom.test.skip>true</basepom.test.skip>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
         <!-- Sigh. Java is really hard. Leave this at 0.3.2, all other versions are worse -->

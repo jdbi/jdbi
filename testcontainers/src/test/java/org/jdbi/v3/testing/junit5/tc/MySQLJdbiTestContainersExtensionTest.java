@@ -14,11 +14,13 @@
 package org.jdbi.v3.testing.junit5.tc;
 
 
+import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Tag("slow")
 @Testcontainers
 class MySQLJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 

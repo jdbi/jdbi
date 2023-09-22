@@ -15,7 +15,7 @@
 #
 SHELL = /bin/sh
 .SUFFIXES:
-.PHONY: help clean install install-notests install-nodocker install-fast docs tests run-tests run-tests-container run-tests-nodocker publish-docs deploy release release-docs
+.PHONY: help clean install install-notests install-nodocker install-fast docs tests run-tests run-slow-tests run-tests-nodocker publish-docs deploy release release-docs
 
 MAVEN = ./mvnw ${JDBI_MAVEN_OPTS}
 
@@ -29,7 +29,7 @@ clean:
 install:
 	${MAVEN} clean install
 
-tests: install-notests run-tests
+tests: install-fast run-tests
 
 install-notests: MAVEN_CONFIG += -Dbasepom.test.skip=true
 install-notests: install
@@ -47,12 +47,11 @@ run-tests: MAVEN_CONFIG += -Dbasepom.it.skip=false
 run-tests:
 	${MAVEN} surefire:test invoker:install invoker:integration-test invoker:verify
 
-run-tests-container: MAVEN_CONFIG += -Dbasepom.test.skip=false
-run-tests-container:
-	${MAVEN} surefire:test -pl :jdbi3-testcontainers
+run-slow-tests: MAVEN_CONFIG += -Pslow-tests
+run-slow-tests: run-tests
 
 run-tests-nodocker: MAVEN_CONFIG += -Dno-docker=true
-run-tests-nodocker: tests
+run-tests-nodocker: run-tests
 
 publish-docs: MAVEN_CONFIG += -Pfast -Dbasepom.javadoc.skip=false
 publish-docs: install

@@ -13,11 +13,13 @@
  */
 package org.jdbi.v3.testing.junit5;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Tag("slow")
 public class JdbiOtjPostgresExtensionTest {
 
     @RegisterExtension
