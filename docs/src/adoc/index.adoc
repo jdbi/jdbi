@@ -1365,6 +1365,13 @@ Out of the box, Jdbi supports the following types as SQL statement arguments:
 * `java.util.Collection` and Java arrays (stored as SQL arrays).
 Some additional setup may be required depending on the type of array element.
 
+[NOTE]
+The binding and mapping method for enum values
+can be controlled via the link:{jdbidocs}/core/enums/Enums.html[Enums^] config,
+as well as the annotations link:{jdbidocs}/core/enums/EnumByName.html[@EnumByName^],
+link:{jdbidocs}/core/enums/EnumByOrdinal.html[@EnumByOrdinal^], and
+link:{jdbidocs}/core/enums/DatabaseValue.html[@DatabaseValue^].
+
 You can also configure Jdbi to support additional argument types.
 More on that later.
 
@@ -1940,8 +1947,9 @@ Out of the box, column mappers are registered for the following types:
 [NOTE]
 The binding and mapping method for enum values
 can be controlled via the link:{jdbidocs}/core/enums/Enums.html[Enums^] config,
-as well as the link:{jdbidocs}/core/enums/EnumByName.html[EnumByName^] and
-link:{jdbidocs}/core/enums/EnumByOrdinal.html[EnumByOrdinal^] annotations.
+as well as the annotations link:{jdbidocs}/core/enums/EnumByName.html[@EnumByName^],
+link:{jdbidocs}/core/enums/EnumByOrdinal.html[@EnumByOrdinal^], and
+link:{jdbidocs}/core/enums/DatabaseValue.html[@DatabaseValue^].
 
 
 ==== ColumnMapperFactory
