@@ -143,14 +143,7 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
      * should only be used to migrate existing code that uses the JUnit 4 {@link org.jdbi.v3.testing.JdbiRule} quickly to JUnit 5.
      *
      * @return A {@link JdbiExtension} connected to a managed postgres data source.
-     * @see JdbiOtjPostgresExtension
-     * @deprecated The <a href="https://github.com/opentable/otj-pg-embedded/">OtjPostgres project</a> ships its artifact as an automatic module with filename
-     * based module name. It is strongly discouraged to ship any JPMS enabled project that depends on automatic modules with filename based module names. We
-     * have reached out to the OtjPostgres project and <a href="https://github.com/opentable/otj-pg-embedded/pull/184">proposed a change that would fix this</a>.
-     * If they ship a version that fixes this before we are ready to move to full JPMS support, we will un-deprecate this class, otherwise it will be removed
-     * with our switch to JPMS.
      */
-    @Deprecated(since = "3.41.2", forRemoval = true) // intellij users need to change the "Usage of API marked for removal" inspection from error to warning
     public static JdbiOtjPostgresExtension otjEmbeddedPostgres() {
         return JdbiOtjPostgresExtension.instance();
     }
