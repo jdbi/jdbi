@@ -1,0 +1,114 @@
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// anything supported since postgres 10
+//
+// ?? is postgres specific escape for PreparedStatement placeholder
+// \< and \> are string template escapes
+
+extractNthArrayElementObject() ::= <<SELECT '[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'::json -> 2>>
+extractNthArrayElementObjectResult() ::= <<{"c":"baz"}>>
+
+extractNthArrayElementObjectNegativeIndex() ::= <<SELECT '[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'::json -> -3>>
+extractNthArrayElementObjectNegativeIndexResult() ::= <<{"a":"foo"}>>
+
+extractObjectFieldObject() ::= <<SELECT '{"a": {"b":"foo"}}'::json -> 'a'>>
+extractObjectFieldObjectResult() ::= <<{"b":"foo"}>>
+
+extractNthArrayElementText() ::= <<SELECT '[1,2,3]'::json ->\> 2>>
+extractNthArrayElementTextResult() ::= <<3>>
+
+extractObjectFieldText() ::= <<SELECT '{"a":1,"b":2}'::json ->\> 'b'>>
+extractObjectFieldTextResult() ::= <<2>>
+
+extractSubObject() ::= <<SELECT '{"a": {"b": ["foo","bar"]}}'::json #> '{a,b,1}'>>
+extractSubObjectResult() ::= <<"bar">>
+
+extractSubObjectText() ::= <<SELECT '{"a": {"b": ["foo","bar"]}}'::json #>\> '{a,b,1}'>>
+extractSubObjectTextResult() ::= <<bar>>
+
+firstContainsSecond() ::= <<SELECT '{"a":1, "b":2}'::jsonb @> '{"b":2}'::jsonb>>
+firstContainsSecondResult() ::= <<t>>
+
+secondContainsFirst() ::= <<SELECT '{"b":2}'::jsonb \<@ '{"a":1, "b":2}'::jsonb>>
+secondContainsFirstResult() ::= <<t>>
+
+valueContainsKey() ::= <<SELECT '{"a":1, "b":2}'::jsonb ?? 'b'>>
+valueContainsKeyResult() ::= <<t>>
+
+arrayContainsKey() ::= <<SELECT '["a", "b", "c"]'::jsonb ?? 'b'>>
+arrayContainsKeyResult() ::= <<t>>
+
+valueContainsAnyKey() ::= <<SELECT '{"a":1, "b":2, "c":3}'::jsonb ??| array['b', 'd']>>
+valueContainsAnyKeyResult() ::= <<t>>
+
+valueContainsAllKeys() ::= <<SELECT '["a", "b", "c"]'::jsonb ??& array['a', 'b']>>
+valueContainsAllKeysResult() ::= <<t>>
+
+concatValuesToArray() ::= <<SELECT '["a", "b"]'::jsonb || '["a", "d"]'::jsonb>>
+concatValuesToArrayResult() ::= <<["a", "b", "a", "d"]>>
+
+concatValuesToObject() ::= <<SELECT '{"a": "b"}'::jsonb || '{"c": "d"}'::jsonb>>
+concatValuesToObjectResult() ::= <<{"a": "b", "c": "d"}>>
+
+concatArrayAndValueToArray() ::= <<SELECT '[1, 2]'::jsonb || '3'::jsonb>>
+concatArrayAndValueToArrayResult() ::= <<[1, 2, 3]>>
+
+concatObjectAndValueToArray() ::= <<SELECT '{"a": "b"}'::jsonb || '42'::jsonb>>
+concatObjectAndValueToArrayResult() ::= <<[{"a": "b"}, 42]>>
+
+concatArrayAsArray() ::= <<SELECT '[1, 2]'::jsonb || jsonb_build_array('[3, 4]'::jsonb)>>
+concatArrayAsArrayResult() ::= <<[1, 2, [3, 4]]>>
+
+deleteKeyFromObject() ::= <<SELECT '{"a": "b", "c": "d"}'::jsonb - 'a'>>
+deleteKeyFromObjectResult() ::= <<{"c": "d"}>>
+
+deleteKeyFromArray() ::= <<SELECT '["a", "b", "c", "b"]'::jsonb - 'b'>>
+deleteKeyFromArrayResult() ::= <<["a", "c"]>>
+
+deleteMatchingKeys() ::= <<SELECT '{"a": "b", "c": "d"}'::jsonb - '{a,c}'::text[]>>
+deleteMatchingKeysResult() ::= <<{}>>
+
+deleteArrayElementByIndex() ::= <<SELECT '["a", "b"]'::jsonb - 1>>
+deleteArrayElementByIndexResult() ::= <<["a"]>>
+
+deleteElementByPath() ::= <<SELECT '["a", {"b":1}]'::jsonb #- '{1,b}'>>
+deleteElementByPathResult() ::= <<["a", {}]>>
+
+convertToJson() ::= <<SELECT to_json('Fred said "Hi."'::text)>>
+convertToJsonResult() ::= <<"Fred said \"Hi.\"">>
+
+convertToJsonb() ::= <<SELECT to_jsonb(row(42, 'Fred said "Hi."'::text))>>
+convertToJsonbResult() ::= <<{"f1": 42, "f2": "Fred said \"Hi.\""}>>
+
+convertArrayToJson() ::= <<SELECT array_to_json('{{1,5},{99,100}}'::int[])>>
+convertArrayToJsonResult() ::= <<[[1,5],[99,100]]>>
+
+convertCompositeToJson() ::= <<SELECT row_to_json(row(1,'foo'))>>
+convertCompositeToJsonResult() ::= <<{"f1":1,"f2":"foo"}>>
+
+buildArrayFromArgumentList() ::= <<SELECT json_build_array(1, 2, 'foo', 4, 5)>>
+buildArrayFromArgumentListResult() ::= <<[1, 2, "foo", 4, 5]>>
+
+buildObjectFromArgumentList() ::= <<SELECT json_build_object('foo', 1, 2, row(3,'bar'))>>
+buildObjectFromArgumentListResult() ::= <<{"foo" : 1, "2" : {"f1":3,"f2":"bar"}}>>
+
+createObjectFromTextArray() ::= <<SELECT json_object('{a, 1, b, "def", c, 3.5}')>>
+createObjectFromTextArrayResult() ::= <<{"a" : "1", "b" : "def", "c" : "3.5"}>>
+
+createObjectFromNestedTextArray() ::= <<SELECT json_object('{{a, 1}, {b, "def"}, {c, 3.5}}')>>
+createObjectFromNestedTextArrayResult() ::= <<{"a" : "1", "b" : "def", "c" : "3.5"}>>
+
+createObjectFromSeparateArrays() ::= <<SELECT json_object('{a,b}', '{1,2}')>>
+createObjectFromSeparateArraysResult() ::= <<{"a" : "1", "b" : "2"}>>

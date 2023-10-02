@@ -13,13 +13,26 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import com.google.common.collect.Maps;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.TemplateEngine;
+import org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,121 +43,104 @@ public class TestJsonOperator {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin());
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+            .withPlugins(new PostgresPlugin(), new StringTemplateLocatorPlugin(TestJsonOperator.class));
+
 
     /**
      * Examples from <a href="https://www.postgresql.org/docs/current/static/functions-json.html">Postgres JSON Functions</a>. Escaping rules from <a
      * href="https://jdbc.postgresql.org/documentation/head/statement.html">Postgres Prepared Statements</a>.
      */
-    @Test
-    public void testJsonQuery() {
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'::json->2")
-            .mapTo(String.class)
-            .one())
-            .isEqualTo("{\"c\":\"baz\"}");
 
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\": {\"b\":\"foo\"}}'::json->'a'")
-            .mapTo(String.class)
-            .one())
-            .isEqualTo("{\"b\":\"foo\"}");
+    @TestFactory
+    @RequirePostgresVersion(atLeast = "10")
+    public Stream<DynamicTest> testPostgres10JsonFunctions() {
+        return findDynamicTests("10");
+    }
 
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '[1,2,3]'::json->>2")
-            .mapTo(Integer.class)
-            .one())
-            .isEqualTo(3);
+    @TestFactory
+    @RequirePostgresVersion(atLeast = "12")
+    public Stream<DynamicTest> testPostgres12JsonFunctions() {
+        return findDynamicTests("12");
+    }
 
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\":1,\"b\":2}'::json->>'b'")
-            .mapTo(Integer.class)
-            .one())
-            .isEqualTo(2);
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\": {\"b\":{\"c\": \"foo\"}}}'::json#>'{a,b}'")
-            .mapTo(String.class)
-            .one())
-            .isEqualTo("{\"c\": \"foo\"}");
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\":[1,2,3],\"b\":[4,5,6]}'::json#>>'{a,2}'")
-            .mapTo(Integer.class)
-            .one())
-            .isEqualTo(3);
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb @> '{\"b\":2}'::jsonb")
-            .mapTo(boolean.class)
-            .one())
-            .isTrue();
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"b\":2}'::jsonb <@ '{\"a\":1, \"b\":2}'::jsonb")
-            .mapTo(boolean.class)
-            .one())
-            .isTrue();
-
-        // ? escaped to ??
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? 'b'")
-            .mapTo(boolean.class)
-            .one())
-            .isTrue();
-
-        // ?| escaped to ??|
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\":1, \"b\":2, \"c\":3}'::jsonb ??| array['b', 'c']")
-            .mapTo(boolean.class)
-            .one())
-            .isTrue();
-
-        // ?& escaped to ??&
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '[\"a\", \"b\"]'::jsonb ??& array['a', 'b']")
-            .mapTo(boolean.class)
-            .one())
-            .isTrue();
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '[\"a\", \"b\"]'::jsonb || '[\"c\", \"d\"]'::jsonb")
-            .mapTo(String.class)
-            .one())
-            .isEqualTo("[\"a\", \"b\", \"c\", \"d\"]");
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\": \"b\"}'::jsonb - 'a'")
-            .mapTo(String.class)
-            .one())
-            .isEqualTo("{}");
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\": \"b\", \"c\": \"d\"}'::jsonb - '{a,c}'::text[]")
-            .mapTo(String.class)
-            .one())
-            .isEqualTo("{}");
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '[\"a\", \"b\"]'::jsonb - 1")
-            .mapTo(String.class)
-            .one())
-            .isEqualTo("[\"a\"]");
-
-        assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '[\"a\", {\"b\":1}]'::jsonb #- '{1,b}'")
-            .mapTo(String.class)
-            .one())
-            .isEqualTo("[\"a\", {}]");
+    @TestFactory
+    @RequirePostgresVersion(atLeast = "13")
+    public Stream<DynamicTest> testPostgres13JsonFunctions() {
+        return findDynamicTests("13");
     }
 
     @Test
-    public void testJsonQueryWithBindedInput() {
+    public void testJsonQueryWithBoundInput() {
         assertThat(pgExtension.getSharedHandle()
-            .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key")
-            .bind("key", "a")
-            .mapTo(boolean.class)
-            .one())
-            .isTrue();
+                .createQuery("SELECT '{\"a\":1, \"b\":2}'::jsonb ?? :key")
+                .bind("key", "a")
+                .mapTo(boolean.class)
+                .one())
+                .isTrue();
+    }
+
+    private Stream<DynamicTest> findDynamicTests(String version) {
+
+        // tests and their results are stored in TestJsonOperator.sql.stg in the resources
+        final STGroup parent = StringTemplateSqlLocator.findStringTemplateGroup(TestJsonOperator.class);
+        final Map<String, STGroup> children = Maps.uniqueIndex(parent.getImportedGroups(), STGroup::getName);
+
+        final STGroup testGroup = children.get("postgres_" + version + ".sql");
+        assertThat(testGroup).withFailMessage("Could not load test group for postgres %s", version).isNotNull();
+        testGroup.load();
+
+        // sanity check that all tests also have results. This also catches parse errors in the query templates
+        Set<String> templateNames = testGroup.getTemplateNames();
+        for (String name : templateNames) {
+            if (name.endsWith("Result")) {
+                assertThat(templateNames).contains(name.substring(0, name.length() - 6));
+            } else {
+                assertThat(templateNames).contains(name + "Result");
+            }
+        }
+
+        // JUnit5 is awesome
+        return templateNames.stream()
+                .map(s -> s.substring(1))
+                .filter(s -> !s.endsWith("Result"))
+                .map(s -> DynamicTest.dynamicTest(s, () -> assertThat(
+                        pgExtension.getSharedHandle()
+                                .createQuery(s)
+                                .mapTo(String.class)
+                                .one())
+                        .isEqualTo(getResult(testGroup, s))));
+    }
+
+
+    private String getResult(STGroup testGroup, String queryName) {
+        final ST template = testGroup.getInstanceOf(queryName + "Result");
+        assertThat(template).withFailMessage("Result template for query %s was not found!", queryName).isNotNull();
+        return template.render();
+    }
+
+    public static class StringTemplateLocatorPlugin implements JdbiPlugin {
+
+        private final STGroup stGroup;
+        private final TemplateEngine templateEngine;
+
+        public StringTemplateLocatorPlugin(Class<?> clazz) {
+            this.stGroup = StringTemplateSqlLocator.findStringTemplateGroup(clazz);
+
+            this.templateEngine = (templateName, ctx) -> {
+                final ST template = stGroup.getInstanceOf(templateName);
+                if (template == null) {
+                    return templateName;
+                }
+
+                ctx.getAttributes().forEach(template::add);
+                return template.render();
+            };
+        }
+
+        @Override
+        public void customizeJdbi(Jdbi jdbi) {
+            jdbi.getConfig(SqlStatements.class).setTemplateEngine(templateEngine);
+        }
     }
 }

@@ -1,0 +1,126 @@
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// anything supported since postgres 12
+//
+// ?? is postgres specific escape for PreparedStatement placeholder
+// \< and \> are string template escapes
+
+matchJsonPathForValue() ::= <<SELECT '{"a":[1,2,3,4,5]}'::jsonb @?? '$.a[*] ? (@ > 2)'>>
+matchJsonPathForValueResult() ::= <<t>>
+
+checkPathPredicateForValue() ::= <<SELECT '{"a":[1,2,3,4,5]}'::jsonb @@ '$.a[*] > 2'>>
+checkPathPredicateForValueResult() ::= <<t>>
+
+jsonAdd() ::= <<SELECT jsonb_path_query('[2]', '$[0] + 3')>>
+jsonAddResult() ::= <<5>>
+
+jsonUnaryPlus() ::= <<SELECT jsonb_path_query_array('{"x": [2,3,4]}', '+ $.x')>>
+jsonUnaryPlusResult() ::= <<[2, 3, 4]>>
+
+jsonSubtract() ::= <<SELECT jsonb_path_query('[2]', '7 - $[0]')>>
+jsonSubtractResult() ::= <<5>>
+
+jsonNegation() ::= <<SELECT jsonb_path_query_array('{"x": [2,3,4]}', '- $.x')>>
+jsonNegationResult() ::= <<[-2, -3, -4]>>
+
+jsonMultiply() ::= <<SELECT jsonb_path_query('[4]', '2 * $[0]')>>
+jsonMultiplyResult() ::= <<8>>
+
+jsonDivision() ::= <<SELECT jsonb_path_query('[8.5]', '$[0] / 2')>>
+jsonDivisionResult() ::= <<4.2500000000000000>>
+
+jsonModulo() ::= <<SELECT jsonb_path_query('[32]', '$[0] % 10')>>
+jsonModuloResult() ::= <<2>>
+
+jsonTypeOf() ::= <<SELECT jsonb_path_query_array('[1, "2", {}]', '$[*].type()')>>
+jsonTypeOfResult() ::= <<["number", "string", "object"]>>
+
+jsonSize() ::= <<SELECT jsonb_path_query('{"m": [11, 15]}', '$.m.size()')>>
+jsonSizeResult() ::= <<2>>
+
+jsonFloatApproximate() ::= <<SELECT jsonb_path_query('{"len": "1.9"}', '$.len.double() * 2')>>
+jsonFloatApproximateResult() ::= <<3.8>>
+
+jsonCeiling() ::= <<SELECT jsonb_path_query('{"h": 1.3}', '$.h.ceiling()')>>
+jsonCeilingResult() ::= <<2>>
+
+jsonFloor() ::= <<SELECT jsonb_path_query('{"h": 1.7}', '$.h.floor()')>>
+jsonFloorResult() ::= <<1>>
+
+jsonAbs() ::= <<SELECT jsonb_path_query('{"z": -0.3}', '$.z.abs()')>>
+jsonAbsResult() ::= <<0.3>>
+
+jsonKeyValueToArray() ::= <<SELECT jsonb_path_query_array('{"x": "20", "y": 32}', '$.keyvalue()')>>
+jsonKeyValueToArrayResult() ::= <<[{"id": 0, "key": "x", "value": "20"}, {"id": 0, "key": "y", "value": 32}]>>
+
+jsonEqualityIndex() ::= <<SELECT jsonb_path_query_array('[1, "a", 1, 3]', '$[*] ? (@ == 1)')>>
+jsonEqualityIndexResult() ::= <<[1, 1]>>
+
+jsonEqualityKey() ::= <<SELECT jsonb_path_query_array('[1, "a", 1, 3]', '$[*] ? (@ == "a")')>>
+jsonEqualityKeyResult() ::= <<["a"]>>
+
+jsonNonEqualityIndex() ::= <<SELECT jsonb_path_query_array('[1, 2, 1, 3]', '$[*] ? (@ != 1)')>>
+jsonNonEqualityIndexResult() ::= <<[2, 3]>>
+
+jsonNonEqualityKey() ::= <<SELECT jsonb_path_query_array('["a", "b", "c"]', '$[*] ? (@ \<> "b")')>>
+jsonNonEqualityKeyResult() ::= <<["a", "c"]>>
+
+jsonLessThan() ::= <<SELECT jsonb_path_query_array('[1, 2, 3]', '$[*] ? (@ \< 2)')>>
+jsonLessThanResult() ::= <<[1]>>
+
+jsonLessOrEqualThan() ::= <<SELECT jsonb_path_query_array('["a", "b", "c"]', '$[*] ? (@ \<= "b")')>>
+jsonLessOrEqualThanResult() ::= <<["a", "b"]>>
+
+jsonGreaterThan() ::= <<SELECT jsonb_path_query_array('[1, 2, 3]', '$[*] ? (@ > 2)')>>
+jsonGreaterThanResult() ::= <<[3]>>
+
+jsonGreaterOrEqualThan() ::= <<SELECT jsonb_path_query_array('[1, 2, 3]', '$[*] ? (@ >= 2)')>>
+jsonGreaterOrEqualThanResult() ::= <<[2, 3]>>
+
+jsonTrue() ::= <<SELECT jsonb_path_query('[{"name": "John", "parent": false}, {"name": "Chris", "parent": true}]', '$[*] ? (@.parent == true)')>>
+jsonTrueResult() ::= <<{"name": "Chris", "parent": true}>>
+
+jsonFalse() ::= <<SELECT jsonb_path_query('[{"name": "John", "parent": false}, {"name": "Chris", "parent": true}]', '$[*] ? (@.parent == false)')>>
+jsonFalseResult() ::= <<{"name": "John", "parent": false}>>
+
+jsonNull() ::= <<SELECT jsonb_path_query('[{"name": "Mary", "job": null}, {"name": "Michael", "job": "driver"}]', '$[*] ? (@.job == null) .name')>>
+jsonNullResult() ::= <<"Mary">>
+
+jsonBooleanAnd() ::= <<SELECT jsonb_path_query('[1, 3, 7]', '$[*] ? (@ > 1 && @ \< 5)')>>
+jsonBooleanAndResult() ::= <<3>>
+
+jsonBooleanOr() ::= <<SELECT jsonb_path_query('[1, 3, 7]', '$[*] ? (@ \< 1 || @ > 5)')>>
+jsonBooleanOrResult() ::= <<7>>
+
+jsonBooleanNot() ::= <<SELECT jsonb_path_query('[1, 3, 7]', '$[*] ? (!(@ \< 5))')>>
+jsonBooleanNotResult() ::= <<7>>
+
+jsonBooleanUnknown() ::= <<SELECT jsonb_path_query('[-1, 2, 7, "foo"]', '$[*] ? ((@ > 0) is unknown)')>>
+jsonBooleanUnknownResult() ::= <<"foo">>
+
+jsonRegexMatch() ::= <<SELECT jsonb_path_query_array('["abc", "abd", "aBdC", "abdacb", "babc"]', '$[*] ? (@ like_regex "^ab.*c")')>>
+jsonRegexMatchResult() ::= <<["abc", "abdacb"]>>
+
+jsonRegexMatchCaseInsensitive() ::= <<SELECT jsonb_path_query_array('["abc", "abd", "aBdC", "abdacb", "babc"]', '$[*] ? (@ like_regex "^ab.*c" flag "i")')>>
+jsonRegexMatchCaseInsensitiveResult() ::= <<["abc", "aBdC", "abdacb"]>>
+
+jsonStartsWith() ::= <<SELECT jsonb_path_query('["John Smith", "Mary Stone", "Bob Johnson"]', '$[*] ? (@ starts with "John")')>>
+jsonStartsWithResult() ::= <<"John Smith">>
+
+jsonPathExistsObject() ::= <<SELECT jsonb_path_query('{"x": [1, 2], "y": [2, 4]}', 'strict $.* ? (exists (@ ? (@[*] > 2)))')>>
+jsonPathExistsObjectResult() ::= <<[2, 4]>>
+
+jsonPathExistsArray() ::= <<SELECT jsonb_path_query_array('{"value": 41}', 'strict $ ? (exists (@.name)) .name')>>
+jsonPathExistsArrayResult() ::= <<[]>>
