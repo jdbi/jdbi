@@ -1,5 +1,7 @@
 # Unreleased
 
+  - Fix regression introduced by #2481 where `-` at the end of named parameters get swallowed. (#2499, thanks @gokristian for reporting).
+
 # 3.41.2
 
   - Deprecate the `otjPostgres` support in jdbi-testing. This will be undeprecated if they ship a version that provides an automatic module name for JPMS, otherwise it will be removed when Jdbi ships with full JPMS support.

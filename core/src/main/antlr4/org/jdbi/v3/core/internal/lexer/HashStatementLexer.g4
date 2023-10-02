@@ -21,7 +21,8 @@ fragment DOUBLE_QUOTE: '"';
 fragment HASH: '#';
 fragment QUESTION: {_input.LA(2) != '?'}? '?';
 fragment DOUBLE_QUESTION: {_input.LA(2) == '?'}? '??';
-fragment NAME: JAVA_LETTER | [0-9] | '.' | '?.';
+fragment NAME_END: JAVA_LETTER | [0-9] | '.' | '?.';
+fragment NAME: NAME_END | '-';
 
 /* Lovingly lifted from https://github.com/antlr/grammars-v4/blob/master/java/JavaLexer.g4 */
 fragment JAVA_LETTER : [a-zA-Z$_] | ~[\u0000-\u007F\uD800-\uDBFF] | [\uD800-\uDBFF] [\uDC00-\uDFFF];
@@ -31,7 +32,7 @@ QUOTED_TEXT: QUOTE (ESCAPE_QUOTE | ~'\'')* QUOTE;
 DOUBLE_QUOTED_TEXT: DOUBLE_QUOTE (~'"')+ DOUBLE_QUOTE;
 ESCAPED_TEXT : ESCAPE . ;
 
-NAMED_PARAM: HASH (NAME)+;
+NAMED_PARAM: HASH (NAME* NAME_END);
 POSITIONAL_PARAM: QUESTION;
 
 LITERAL: DOUBLE_QUESTION | .;
