@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-root</artifactId>
-        <version>3.41.3-SNAPSHOT</version>
+        <version>3.42.0-SNAPSHOT</version>
         <relativePath>../root</relativePath>
     </parent>
 
@@ -68,26 +68,26 @@
         <basepom.test.fork-count>4</basepom.test.fork-count>
         <basepom.test.timeout>240</basepom.test.timeout>
         <dep.antlr.version>4.13.1</dep.antlr.version>
-        <dep.asciidoctorj-diagram.version>2.2.11</dep.asciidoctorj-diagram.version>
+        <dep.asciidoctorj-diagram.version>2.2.13</dep.asciidoctorj-diagram.version>
         <dep.asciidoctorj.version>2.5.10</dep.asciidoctorj.version>
         <dep.assertj.version>3.24.2</dep.assertj.version>
         <dep.caffeine.version>3.1.8</dep.caffeine.version>
         <dep.checkerframework.version>3.38.0</dep.checkerframework.version>
-        <dep.commons-compress.version>1.23.0</dep.commons-compress.version>
+        <dep.commons-compress.version>1.24.0</dep.commons-compress.version>
         <dep.commons-lang.version>3.13.0</dep.commons-lang.version>
         <dep.commons-text.version>1.10.0</dep.commons-text.version>
         <!-- derby 10.16 is JDK 17 only, keep it on 10.15 for now -->
         <dep.derby.version>10.15.2.0</dep.derby.version>
         <dep.detekt.version>1.23.1</dep.detekt.version>
-        <dep.errorprone.version>2.21.1</dep.errorprone.version>
-        <dep.flyway.version>9.22.0</dep.flyway.version>
+        <dep.errorprone.version>2.22.0</dep.errorprone.version>
+        <dep.flyway.version>9.22.2</dep.flyway.version>
         <dep.freebuilder.version>2.8.0</dep.freebuilder.version>
         <dep.freemarker.version>2.3.32</dep.freemarker.version>
         <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
         <dep.gson.version>2.10.1</dep.gson.version>
         <dep.guava.version>32.1.2-jre</dep.guava.version>
         <dep.guice.version>5.1.0</dep.guice.version>
-        <dep.h2.version>2.2.222</dep.h2.version>
+        <dep.h2.version>2.2.224</dep.h2.version>
         <dep.hikari-cp.version>5.0.1</dep.hikari-cp.version>
         <dep.hsqldb.version>2.7.2</dep.hsqldb.version>
         <dep.immutables.version>2.9.3</dep.immutables.version>
@@ -95,7 +95,7 @@
         <dep.jakarta-annotation-api.version>2.1.1</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
-        <dep.jdbi-policy.version>3.41.3-SNAPSHOT</dep.jdbi-policy.version>
+        <dep.jdbi-policy.version>3.42.0-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>24.0.1</dep.jetbrainsAnnotations.version>
         <dep.joda-time.version>2.12.5</dep.joda-time.version>
         <dep.jts.version>1.19.0</dep.jts.version>
@@ -105,6 +105,7 @@
         <dep.mockito.version>5.5.0</dep.mockito.version>
         <dep.moshi.version>1.15.0</dep.moshi.version>
         <dep.mysql.version>8.1.0</dep.mysql.version>
+        <dep.otj-pg-embedded.version>1.0.2</dep.otj-pg-embedded.version>
         <dep.pg-embedded.version>5.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.4</dep.plugin.asciidoctor.version>
         <dep.plugin.detekt.version>1.23.1</dep.plugin.detekt.version>
@@ -117,7 +118,7 @@
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.6.0</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
-        <dep.spring.version>5.3.29</dep.spring.version>
+        <dep.spring.version>5.3.30</dep.spring.version>
         <dep.sqlite.version>3.43.0.0</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
         <dep.testcontainers.version>1.19.0</dep.testcontainers.version>
@@ -322,7 +323,7 @@
             <dependency>
                 <groupId>com.opentable.components</groupId>
                 <artifactId>otj-pg-embedded</artifactId>
-                <version>1.0.1</version>
+                <version>${dep.otj-pg-embedded.version}</version>
             </dependency>
 
             <dependency>

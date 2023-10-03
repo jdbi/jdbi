@@ -202,4 +202,60 @@ public class TestColonPrefixSqlParser {
                 .append(")")
                 .build());
     }
+
+    @Test
+    public void test2481DashRegression() {
+        assertThat(parser.parse("select :data->>'field'", ctx))
+                .isEqualTo(ParsedSql.builder()
+                        .append("select ")
+                        .appendNamedParameter("data")
+                        .append("->>'field'")
+                        .build());
+    }
+
+    // grammar always allowed name ending with .
+    @Test
+    public void test2481DotRegression() {
+        assertThat(parser.parse("select :data.", ctx))
+                .isEqualTo(ParsedSql.builder()
+                        .append("select ")
+                        .appendNamedParameter("data.")
+                        .build());
+    }
+
+    @Test
+    public void test2481DashStarting() {
+        assertThat(parser.parse("select :-data", ctx))
+                .isEqualTo(ParsedSql.builder()
+                        .append("select ")
+                        .appendNamedParameter("-data")
+                        .build());
+    }
+
+    @Test
+    public void test2481DotStarting() {
+        assertThat(parser.parse("select :.data", ctx))
+                .isEqualTo(ParsedSql.builder()
+                        .append("select ")
+                        .appendNamedParameter(".data")
+                        .build());
+    }
+
+    @Test
+    public void test2481DashName() {
+        assertThat(parser.parse("select :data-foo-bar", ctx))
+                .isEqualTo(ParsedSql.builder()
+                        .append("select ")
+                        .appendNamedParameter("data-foo-bar")
+                        .build());
+    }
+
+    @Test
+    public void test2481DotName() {
+        assertThat(parser.parse("select :data.foo.bar", ctx))
+                .isEqualTo(ParsedSql.builder()
+                        .append("select ")
+                        .appendNamedParameter("data.foo.bar")
+                        .build());
+    }
 }

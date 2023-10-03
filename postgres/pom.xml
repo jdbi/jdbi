@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.41.3-SNAPSHOT</version>
+        <version>3.42.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -70,6 +70,11 @@
             <artifactId>jdbi3-testing</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-stringtemplate4</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>de.softwareforge.testing</groupId>
@@ -80,6 +85,12 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>ST4</artifactId>
             <scope>test</scope>
         </dependency>
 
