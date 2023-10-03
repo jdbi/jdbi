@@ -227,9 +227,9 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     }
 
     /**
-     * Returns true if database {@code null} values should be transformed to the default value for primitives.
+     * Returns true if database {@code NULL} values should be transformed to the default value for primitives.
      *
-     * @return {@code true} if database {@code null}s should translate to the Java defaults for primitives, or throw an exception otherwise.
+     * @return {@code true} if database {@code NULL}s should translate to the JDBC defaults for primitives, or throw an exception otherwise.
      *
      * Default value is true: nulls will be coalesced to defaults.
      */
@@ -237,6 +237,12 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         return coalesceNullPrimitivesToDefaults;
     }
 
+    /**
+     * Use the JDBC default value for primitive types if a SQL NULL value was returned by the database.
+     * If this property is set to {@code false}, Jdbi will throw an exception when trying to map a SQL {@code NULL} value to a primitive type.
+     *
+     * @param coalesceNullPrimitivesToDefaults If true, then use the JDBC default value, otherwise throw an exception.
+     */
     public void setCoalesceNullPrimitivesToDefaults(boolean coalesceNullPrimitivesToDefaults) {
         this.coalesceNullPrimitivesToDefaults = coalesceNullPrimitivesToDefaults;
     }
