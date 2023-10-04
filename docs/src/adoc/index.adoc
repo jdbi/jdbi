@@ -2095,7 +2095,7 @@ All Java primitive types have default mappings to their corresponding JDBC types
 Generally, Jdbi will automatically perform boxing and unboxing as appropriate when
 it encounters wrapper types.
 
-By default, SQL `null` mapped to a primitive type will adopt the Java default value.
+By default, SQL `null` mapped to a primitive type will adopt the JDBC default value.
 This may be disabled by configuring
 `jdbi.getConfig(ColumnMappers.class).setCoalesceNullPrimitivesToDefaults(false)`.
 
@@ -3304,7 +3304,7 @@ See <<JdbiConfig>> for more advanced implementation details.
 
 | link:{jdbidocs}/core/mapper/ColumnMappers.html[ColumnMappers^] | coalesceNullPrimitivesToDefaults
     | boolean  | `true`
-    | Uses the driver default value for primitive types if a SQL NULL value was returned by the database. The exact value used is specific to the database driver.
+    | Uses the JDBC default value for primitive types if a SQL NULL value was returned by the database.
 
 | link:{jdbidocs}/core/enums/Enums.html[Enums^] | enumStrategy
     | link:{jdbidocs}/core/enums/EnumStrategy.html[EnumStrategy^] | `BY_NAME`
