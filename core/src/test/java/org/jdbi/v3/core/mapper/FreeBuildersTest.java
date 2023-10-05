@@ -163,6 +163,7 @@ public class FreeBuildersTest {
 
     @FreeBuilder
     public interface ByteArray {
+        @SuppressWarnings("mutable")
         byte[] value();
 
         class Builder extends FreeBuildersTest_ByteArray_Builder {}

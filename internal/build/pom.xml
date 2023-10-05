@@ -875,6 +875,31 @@
 
     <profiles>
         <profile>
+            <id>java21</id>
+            <activation>
+                <jdk>[21,)</jdk>
+            </activation>
+            <properties>
+                <!-- see https://github.com/mockito/mockito/issues/3037 -->
+                <basepom.it.arguments>-XX:+EnableDynamicAgentLoading</basepom.it.arguments>
+                <basepom.test.arguments>-XX:+EnableDynamicAgentLoading</basepom.test.arguments>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <configuration>
+                                <!-- see https://inside.java/2023/07/29/quality-heads-up/ -->
+                                <proc>full</proc>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
             <id>jdbi.jpms-auto-module</id>
             <activation>
                 <property>
