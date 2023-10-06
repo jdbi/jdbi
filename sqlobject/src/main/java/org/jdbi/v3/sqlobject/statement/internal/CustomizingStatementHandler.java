@@ -131,7 +131,13 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
             }
             return Stream.empty();
         }
-        if (parameter.getType() == Function.class && this instanceof SqlCallHandler) {
+        if (parameter.getType() == Function.class
+            // SqlCallHandler supports Function argument for OutParameters
+            && (this instanceof SqlCallHandler
+                // SqlBatchHandler, SqlQueryHandler and SqlUpdateHandler support Function arguments
+                || this instanceof SqlBatchHandler
+                || this instanceof SqlQueryHandler
+                || this instanceof SqlUpdateHandler)) {
             return Stream.empty();
         }
 

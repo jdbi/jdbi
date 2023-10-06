@@ -6,7 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -225,6 +228,12 @@ public class BindMethodsTest {
         @RegisterConstructorMapper(User.class)
         void consumeMultiUserIterable(Consumer<Iterable<User>> consumer); // <1>
         // end::consume-iterable-user-method[]
+
+        // tag::function-user-method[]
+        @SqlQuery("SELECT * FROM users")
+        @RegisterConstructorMapper(User.class)
+        Set<User> mapUsers(Function<Stream<User>, Set<User>> function); // <1>
+        // end::function-user-method[]
     }
 
 
