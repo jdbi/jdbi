@@ -15,11 +15,14 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.collect.Lists;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.qualifier.Reversed;
@@ -29,10 +32,10 @@ import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.v3.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +45,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TestConsumer {
+public class TestFunctionArgument {
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
@@ -65,77 +68,76 @@ public class TestConsumer {
     }
 
     @Test
-    public void consumeEach() {
-        final List<Something> results = new ArrayList<>();
-        dao.forEach(results::add);
+    public void mapIterator() {
+        List<Something> results = dao.mapIterator(Lists::newArrayList);
         assertThat(results).containsExactlyElementsOf(expected);
     }
 
     @Test
-    public void consumeIterator() {
-        final List<Something> results = new ArrayList<>();
-        dao.consumeIterator(iter -> iter.forEachRemaining(results::add));
+    public void mapIterable() {
+        List<Something> results = dao.mapIterable(Lists::newArrayList);
         assertThat(results).containsExactlyElementsOf(expected);
     }
 
     @Test
-    public void consumeStream() {
-        final List<Something> results = new ArrayList<>();
-        dao.consumeStream(stream -> stream.forEach(results::add));
+    public void mapStream() {
+        List<Something> results = dao.mapStream(stream -> stream.collect(Collectors.toList()));
         assertThat(results).containsExactlyElementsOf(expected);
     }
 
     @Test
-    public void consumeMultiStream() {
-        assertThatThrownBy(() -> h2Extension.getSharedHandle().attach(MultiConsumerDao.class))
-                .isInstanceOf(IllegalArgumentException.class);
+    public void mapElement() {
+        List<Something> results = dao.mapElement(4, stream -> stream.collect(Collectors.toList()));
+        assertThat(results).containsOnly(new Something(4, "bar"));
     }
 
     @Test
-    public void consumeIterable() {
-        final List<Something> results = new ArrayList<>();
+    public void mapIterableTwice() {
         final List<Something> results2 = new ArrayList<>();
-        dao.consumeIterable(it -> {
+        final List<Something> results = dao.mapIterable(it -> {
             // can read it once
-            it.forEach(results::add);
+            List<Something> r = Lists.newArrayList(it);
 
             // throws exception on second attempt
             assertThatThrownBy(() -> it.forEach(results2::add))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("stream has already been operated upon or closed");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("stream has already been operated upon or closed");
+
+            return r;
         });
+
         assertThat(results).containsExactlyElementsOf(expected);
         assertThat(results2).isEmpty();
     }
 
     @Test
-    public void consumeIterableIterator() {
-        final List<Something> results = new ArrayList<>();
+    public void mapIterableIteratorTwice() {
         final List<Something> results2 = new ArrayList<>();
-        dao.consumeIterable(it -> {
+        final List<Something> results = dao.mapIterable(it -> {
             // can read it once
-            it.iterator().forEachRemaining(results::add);
+            List<Something> r = Lists.newArrayList(it.iterator());
 
             // throws exception on second attempt
             assertThatThrownBy(() -> it.iterator().forEachRemaining(results2::add))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("stream has already been operated upon or closed");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("stream has already been operated upon or closed");
+
+            return r;
         });
+
         assertThat(results).containsExactlyElementsOf(expected);
         assertThat(results2).isEmpty();
     }
 
     @Test
     public void testIteratorPartialConsumeOk() {
-        final List<Something> results = new ArrayList<>();
-        dao.consumeIterator(iter -> results.add(iter.next()));
+        final List<Something> results = dao.mapIterator(iter -> Collections.singletonList(iter.next()));
         assertThat(results).containsExactly(expected.get(0));
     }
 
     @Test
     public void testStreamPartialConsumeOk() {
-        final List<Something> results = new ArrayList<>();
-        dao.consumeStream(stream -> results.add(stream.findFirst().orElse(null)));
+        final List<Something> results = dao.mapStream(stream -> Collections.singletonList(stream.findFirst().orElse(null)));
         assertThat(results).containsExactly(expected.get(0));
     }
 
@@ -156,68 +158,56 @@ public class TestConsumer {
 
     @Test
     public void testAnnotation() {
-        List<String> result = new ArrayList<>();
-
-        dao.streamReverse(s -> s.forEach(result::add));
+        List<String> result = dao.streamReverse(s -> s.collect(Collectors.toList()));
         assertThat(result).containsExactly("zab", "rab", "oof");
     }
 
     @RegisterArgumentFactory(ReversedStringArgumentFactory.class)
     @RegisterColumnMapper(ReversedStringMapper.class)
     public interface Spiffy {
-        @SqlQuery("select id, name from something order by id desc")
-        @UseRowMapper(SomethingMapper.class)
-        void forEach(Consumer<Something> consumer);
-
-        @SqlQuery("select name from something order by id desc")
-        void streamReverse(@Reversed Consumer<Stream<String>> consumer);
-
-        @SqlQuery("select id, name from something order by id desc")
-        @RegisterRowMapper(SomethingMapper.class)
-        void consumeIterator(Consumer<Iterator<Something>> consumer);
-
-        @SqlQuery("select id, name from something order by id desc")
-        @RegisterRowMapper(SomethingMapper.class)
-        void consumeStream(Consumer<Stream<Something>> consumer);
-
-        @SqlQuery("select id, name from something order by id desc")
-        @RegisterRowMapper(SomethingMapper.class)
-        void consumeIterable(Consumer<Iterable<Something>> consumer);
-
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@BindBean Something something);
+
+        @SqlQuery("select name from something order by id desc")
+        List<String> streamReverse(@Reversed Function<Stream<String>, List<String>> function);
+
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        List<Something> mapStream(Function<Stream<Something>, List<Something>> function);
+
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        List<Something> mapIterator(Function<Iterator<Something>, List<Something>> function);
+
+        @SqlQuery("select id, name from something order by id desc")
+        @RegisterRowMapper(SomethingMapper.class)
+        List<Something> mapIterable(Function<Iterable<Something>, List<Something>> function);
+
+        @SqlQuery("select * from something where id = :id")
+        @RegisterRowMapper(SomethingMapper.class)
+        List<Something> mapElement(@Bind("id") int id, Function<Stream<Something>, List<Something>> function);
     }
 
     public interface ResultIteratorDao {
         @SqlQuery("select id, name from something order by id desc")
         @RegisterRowMapper(SomethingMapper.class)
-        void consumeIterator(Consumer<ResultIterator<Something>> consumer);
+        List<Something> mapIterator(Function<ResultIterator<Something>, List<Something>> consumer);
     }
 
     public interface SomethingStream extends Stream<Something> {}
 
     public interface SomethingStreamDao {
-
         @SqlQuery("select id, name from something order by id desc")
         @RegisterRowMapper(SomethingMapper.class)
-        void consumeStream(Consumer<SomethingStream> consumer);
+        List<Something> mapStream(Function<SomethingStream, List<Something>> consumer);
 
     }
 
     public interface SpecialStream<T> extends Stream<T> {}
 
     public interface SpecialStreamDao {
-
         @SqlQuery("select id, name from something order by id desc")
         @RegisterRowMapper(SomethingMapper.class)
-        void consumeStream(Consumer<SpecialStream<Something>> consumer);
-
-    }
-
-    public interface MultiConsumerDao {
-
-        @SqlQuery("select id, name from something order by id desc")
-        @RegisterRowMapper(SomethingMapper.class)
-        void consumeMultiStream(Consumer<Stream<Something>> stream, Consumer<Iterator<Something>> iterator);
+        List<Something> mapStream(Function<SpecialStream<Something>, List<Something>> consumer);
     }
 }

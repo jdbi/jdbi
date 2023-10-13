@@ -21,7 +21,7 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
 @Reversed
-class ReversedStringMapperFactory implements ColumnMapperFactory {
+public final class ReversedStringMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         if (String.class.equals(type)) {

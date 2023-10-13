@@ -15,7 +15,9 @@ package jdbi.doc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,6 +60,10 @@ class LiveObjectsTest {
     interface CallbackDao {
         @SqlQuery("SELECT name FROM users")
          void getNamesAsStream(Consumer<Stream<String>> consumer);
+
+        @SqlQuery("SELECT name FROM users")
+        Set<String> getNamesAsSet(Function<Stream<String>, Set<String>> function);
+
     }
     // end::callback-dao[]
 
@@ -141,7 +147,7 @@ class LiveObjectsTest {
 
     // tag::attach-callback[]
     @Test
-    void testHandleAttachCallback() {
+    void testHandleAttachConsumer() {
         try (Handle handle = jdbi.open()) { // <1>
             CallbackDao dao = handle.attach(CallbackDao.class);
             List<String> result = new ArrayList<>();
@@ -149,24 +155,48 @@ class LiveObjectsTest {
             assertThat(result).containsAll(names);
         }
     }
+
+    @Test
+    void testHandleAttachFunction() {
+        try (Handle handle = jdbi.open()) { // <1>
+            CallbackDao dao = handle.attach(CallbackDao.class);
+            Set<String> result = dao.getNamesAsSet(stream -> stream.collect(Collectors.toSet())); // <2>
+            assertThat(result).containsAll(names);
+        }
+    }
     // end::attach-callback[]
 
     // tag::on-demand-callback[]
     @Test
-    void testOnDemandCallback() {
+    void testOnDemandConsumer() {
         CallbackDao dao = jdbi.onDemand(CallbackDao.class);
         List<String> result = new ArrayList<>();
         dao.getNamesAsStream(stream -> stream.forEach(result::add));
+        assertThat(result).containsAll(names);
+    }
+
+    @Test
+    void testOnDemandFunction() {
+        CallbackDao dao = jdbi.onDemand(CallbackDao.class);
+        Set<String> result = dao.getNamesAsSet(stream -> stream.collect(Collectors.toSet()));
         assertThat(result).containsAll(names);
     }
     // end::on-demand-callback[]
 
     // tag::extension-callback[]
     @Test
-    void testWithExtensionCallback() {
+    void testWithExtensionConsumer() {
         List<String> result = new ArrayList<>();
-        jdbi.useExtension(CallbackDao.class, dao ->  // <1>
-                dao.getNamesAsStream(stream -> stream.forEach(result::add)));
+        jdbi.useExtension(CallbackDao.class,
+            dao -> dao.getNamesAsStream(stream -> stream.forEach(result::add))); // <1>
+        assertThat(result).containsAll(names);
+    }
+
+    @Test
+    void testWithExtensionFunction() {
+        Set<String> result = jdbi.withExtension(CallbackDao.class,
+            dao -> dao.getNamesAsSet(stream -> stream.collect(Collectors.toSet())));
+
         assertThat(result).containsAll(names);
     }
     // end::extension-callback[]

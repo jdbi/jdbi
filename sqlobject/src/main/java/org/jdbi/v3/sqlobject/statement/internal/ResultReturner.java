@@ -17,7 +17,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -69,11 +72,12 @@ abstract class ResultReturner {
         QualifiedType<?> qualifiedReturnType = QualifiedType.of(returnType).withAnnotations(new Qualifiers().findFor(method));
         Class<?> returnClass = GenericTypes.getErasedType(returnType);
         if (Void.TYPE.equals(returnClass)) {
-            return findConsumer(method)
-                    .orElseThrow(() -> new IllegalStateException(format(
-                            "Method %s#%s is annotated as if it should return a value, but the method is void.",
-                            method.getDeclaringClass().getName(),
-                            method.getName())));
+            // void types may contain a Consumer argument
+            return findConsumerArgument(method)
+                .orElseThrow(() -> new IllegalStateException(format(
+                    "Method %s#%s is annotated as if it should return a value, but the method is void.",
+                    method.getDeclaringClass().getName(),
+                    method.getName())));
         } else if (ResultIterable.class.equals(returnClass)) {
             return new ResultIterableReturner(qualifiedReturnType);
         } else if (Stream.class.equals(returnClass)) {
@@ -85,7 +89,9 @@ abstract class ResultReturner {
         } else if (method.isAnnotationPresent(SingleValue.class)) {
             return new SingleValueReturner<>(qualifiedReturnType);
         } else {
-            return new CollectedResultReturner<>(qualifiedReturnType);
+            // do a quick check whether a function argument is present
+            return findFunctionArgument(returnType, method)
+                .orElseGet(() -> new CollectedResultReturner<>(qualifiedReturnType));
         }
     }
 
@@ -95,16 +101,32 @@ abstract class ResultReturner {
      * @param method the method called
      * @return a ResultReturner that invokes the consumer and does not return a value
      */
-    static Optional<ResultReturner> findConsumer(Method method) {
+    static Optional<ResultReturner> findConsumerArgument(Method method) {
         Optional<ResultReturner> result = Optional.empty();
 
         final Class<?>[] paramTypes = method.getParameterTypes();
-        for (int i = 0; i < paramTypes.length; i++) {
-            if (paramTypes[i] == Consumer.class) {
+        for (int consumerIndex = 0; consumerIndex < paramTypes.length; consumerIndex++) {
+            if (paramTypes[consumerIndex] == Consumer.class) {
                 if (result.isPresent()) {
                     throw new IllegalArgumentException(format("Method %s has multiple consumer arguments!", method));
                 }
-                result = Optional.of(ConsumerResultReturner.of(method, i));
+                result = Optional.of(ConsumerResultReturner.of(method, consumerIndex));
+            }
+        }
+
+        return result;
+    }
+
+    static Optional<ResultReturner> findFunctionArgument(Type returnType, Method method) {
+        Optional<ResultReturner> result = Optional.empty();
+
+        final Class<?>[] paramTypes = method.getParameterTypes();
+        for (int functionIndex = 0; functionIndex < paramTypes.length; functionIndex++) {
+            if (paramTypes[functionIndex] == Function.class) {
+                if (result.isPresent()) {
+                    throw new IllegalArgumentException(format("Method %s has multiple function arguments!", method));
+                }
+                result = FunctionResultReturner.of(returnType, method, functionIndex);
             }
         }
 
@@ -119,7 +141,7 @@ abstract class ResultReturner {
 
     protected void warm(ConfigRegistry config) {
         Optional.ofNullable(elementType(config))
-                .ifPresent(config.get(Mappers.class)::findFor);
+            .ifPresent(config.get(Mappers.class)::findFor);
     }
 
     private static Object checkResult(Object result, QualifiedType<?> type) {
@@ -155,8 +177,8 @@ abstract class ResultReturner {
         ResultIterableReturner(QualifiedType<?> returnType) {
             // extract T from Query<T>
             elementType = returnType.flatMapType(type -> GenericTypes.findGenericParameter(type, ResultIterable.class))
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect ResultIterable<T> element type T in method return type " + returnType));
+                .orElseThrow(() -> new IllegalStateException(
+                    "Cannot reflect ResultIterable<T> element type T in method return type " + returnType));
         }
 
         @Override
@@ -181,8 +203,8 @@ abstract class ResultReturner {
 
         StreamReturner(QualifiedType<?> returnType) {
             elementType = returnType.flatMapType(type -> GenericTypes.findGenericParameter(type, Stream.class))
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect Stream<T> element type T in method return type " + returnType));
+                .orElseThrow(() -> new IllegalStateException(
+                    "Cannot reflect Stream<T> element type T in method return type " + returnType));
         }
 
         @Override
@@ -207,8 +229,8 @@ abstract class ResultReturner {
 
         ResultIteratorReturner(QualifiedType<?> returnType) {
             this.elementType = returnType.flatMapType(type -> GenericTypes.findGenericParameter(type, Iterator.class))
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect ResultIterator<T> element type T in method return type " + returnType));
+                .orElseThrow(() -> new IllegalStateException(
+                    "Cannot reflect ResultIterator<T> element type T in method return type " + returnType));
         }
 
         @Override
@@ -233,8 +255,8 @@ abstract class ResultReturner {
 
         IteratorReturner(QualifiedType<?> returnType) {
             this.elementType = returnType.flatMapType(type -> GenericTypes.findGenericParameter(type, Iterator.class))
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Cannot reflect Iterator<T> element type T in method return type " + returnType));
+                .orElseThrow(() -> new IllegalStateException(
+                    "Cannot reflect Iterator<T> element type T in method return type " + returnType));
         }
 
         @Override
@@ -296,6 +318,7 @@ abstract class ResultReturner {
         }
 
         @Override
+        @SuppressWarnings({"unchecked", "rawtypes"})
         protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
             Collector collector = ctx.findCollectorFor(returnType.getType()).orElse(null);
             if (collector != null) {
@@ -314,135 +337,208 @@ abstract class ResultReturner {
         protected QualifiedType<?> elementType(ConfigRegistry config) {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
             return returnType.flatMapType(type -> config.get(JdbiCollectors.class).findElementTypeFor(type))
-                    .orElse(returnType);
+                .orElse(returnType);
         }
     }
 
-    abstract static class ConsumerResultReturner extends ResultReturner {
-
+    static final class ConsumerResultReturner<T> extends ResultReturner {
         private final int consumerIndex;
         private final QualifiedType<?> elementType;
+        private final BiConsumer<Stream<T>, Consumer<Object>> consumer;
 
-        ConsumerResultReturner(int consumerIndex, QualifiedType<?> elementType) {
+        ConsumerResultReturner(int consumerIndex, QualifiedType<?> elementType, BiConsumer<Stream<T>, Consumer<Object>> consumer) {
             this.consumerIndex = consumerIndex;
             this.elementType = elementType;
-        }
-
-        static ConsumerResultReturner of(Method method, int consumerIndex) {
-            Type parameterType = method.getGenericParameterTypes()[consumerIndex];
-            QualifiedType<?> elementType = QualifiedType.of(
-                            GenericTypes.findGenericParameter(parameterType, Consumer.class)
-                                    .orElseThrow(() -> new IllegalStateException(
-                                            "Cannot reflect Consumer<T> element type T in method consumer parameter "
-                                                    + parameterType)))
-                    .withAnnotations(new Qualifiers().findFor(method.getParameters()[consumerIndex]));
-
-            Type type = elementType.getType();
-
-            // special case: Consumer<Iterator<T>>
-            if (GenericTypes.isSuperType(Iterator.class, type)) {
-                if (GenericTypes.getErasedType(type) == Iterator.class) {
-                    return new ConsumeIteratorResultReturner(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterator.class)
-                            .orElseThrow(() -> new IllegalStateException("Couldn't find Iterator type on " + elementType))));
-                }
-                throw new IllegalArgumentException(format("Consumer argument for %s can not use a subtype of Iterator (found %s)!", method, type));
-                // special case: Consumer<Stream<T>>
-            } else if (GenericTypes.isSuperType(Stream.class, type)) {
-                if (GenericTypes.getErasedType(type) == Stream.class) {
-                    return new ConsumeStreamResultReturner(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Stream.class)
-                            .orElseThrow(() -> new IllegalStateException("Couldn't find Stream type on " + elementType))));
-                }
-                throw new IllegalArgumentException(format("Consumer argument for %s can not use a subtype of Stream (found %s)!", method, type));
-                // special case: Consumer<Iterable<T>>
-            } else if (GenericTypes.isSuperType(Iterable.class, type)) {
-                return new ConsumeIterableResultReturner(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterable.class)
-                        .orElseThrow(() -> new IllegalStateException("Couldn't find Iterable type on " + elementType))));
-            } else {
-                // everything else is per-row Consumer<T>
-                return new ConsumeEachResultReturner(consumerIndex, elementType);
-            }
+            this.consumer = consumer;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         protected Void mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
             try (Stream<?> stream = iterable.stream()) {
-                accept(stream, findConsumer(ctx));
+                consumer.accept((Stream<T>) stream, findConsumer(ctx));
             }
             return null;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         protected Void reducedResult(Stream<?> stream, StatementContext ctx) {
             try (Stream<?> reducedStream = stream) {
-                accept(reducedStream, findConsumer(ctx));
+                consumer.accept((Stream<T>) reducedStream, findConsumer(ctx));
             }
 
             return null;
         }
-
-        @SuppressWarnings("unchecked")
-        private Consumer<Object> findConsumer(StatementContext ctx) {
-            return (Consumer<Object>) ctx.getConfig(SqlObjectStatementConfiguration.class)
-                    .getArgs()[consumerIndex];
-        }
-
-        protected abstract void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer);
 
         @Override
         protected QualifiedType<?> elementType(ConfigRegistry config) {
             return elementType;
         }
+
+        @SuppressWarnings("unchecked")
+        private Consumer<Object> findConsumer(StatementContext ctx) {
+            return (Consumer<Object>) ctx.getConfig(SqlObjectStatementConfiguration.class)
+                .getArgs()[consumerIndex];
+        }
+
+        static ResultReturner of(Method method, int consumerIndex) {
+            Type parameterType = method.getGenericParameterTypes()[consumerIndex];
+            QualifiedType<?> elementType = QualifiedType.of(
+                GenericTypes.findGenericParameter(parameterType, Consumer.class)
+                    .orElseThrow(() -> new IllegalStateException(
+                        format("Cannot reflect Consumer<T> element type T in method consumer parameter '%s'", parameterType))))
+                .withAnnotations(new Qualifiers().findFor(method.getParameters()[consumerIndex]));
+
+            Type type = elementType.getType();
+
+            if (GenericTypes.isSuperType(Iterator.class, type)) {
+                // special case: Consumer<Iterator<T>>
+                if (GenericTypes.getErasedType(type) == Iterator.class) {
+                    return getIteratorConsumer(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterator.class)
+                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Iterator type on '%s'", elementType)))));
+                }
+                throw new IllegalArgumentException(format("Consumer argument for %s can not use subtype '%s' of Iterator!", method, type));
+
+            } else if (GenericTypes.isSuperType(Stream.class, type)) {
+                // special case: Consumer<Stream<T>>
+                if (GenericTypes.getErasedType(type) == Stream.class) {
+                    return getStreamConsumer(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Stream.class)
+                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Stream type on '%s'", elementType)))));
+                }
+                throw new IllegalArgumentException(format("Consumer argument for %s can not use subtype '%s' of Stream!", method, type));
+
+            } else if (GenericTypes.isSuperType(Iterable.class, type)) {
+                // special case: Consumer<Iterable<T>>
+                if (GenericTypes.getErasedType(type) == Iterable.class) {
+                    return getIterableConsumer(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterable.class)
+                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Iterable type on '%s'", elementType)))));
+                }
+                throw new IllegalArgumentException(format("Consumer argument for %s can not use subtype '%s' of Iterable!", method, type));
+
+            } else {
+                // everything else is per-row Consumer<T>
+                return getEachConsumer(consumerIndex, elementType);
+            }
+        }
+
+        private static ResultReturner getIteratorConsumer(int consumerIndex, QualifiedType<?> iteratorType) {
+            return new ConsumerResultReturner<>(consumerIndex, iteratorType, (s, f) -> f.accept(s.iterator()));
+        }
+
+        private static ResultReturner getStreamConsumer(int consumerIndex, QualifiedType<?> streamType) {
+            return new ConsumerResultReturner<>(consumerIndex, streamType, (s, f) -> f.accept(s));
+        }
+
+        private static ResultReturner getIterableConsumer(int consumerIndex, QualifiedType<?> iterableType) {
+            return new ConsumerResultReturner<>(consumerIndex, iterableType, (s, f) -> f.accept((Iterable<?>) s::iterator));
+        }
+
+        private static ResultReturner getEachConsumer(int consumerIndex, QualifiedType<?> iterableType) {
+            return new ConsumerResultReturner<>(consumerIndex, iterableType, Stream::forEach);
+        }
     }
 
-    static class ConsumeEachResultReturner extends ConsumerResultReturner {
+    static final class FunctionResultReturner<T, R> extends ResultReturner {
 
-        ConsumeEachResultReturner(int consumerIndex, QualifiedType<?> elementType) {
-            super(consumerIndex, elementType);
+        private final int functionIndex;
+        private final QualifiedType<?> elementType;
+        private final BiFunction<Stream<T>, Function<Object, R>, R> function;
+
+        FunctionResultReturner(int functionIndex, QualifiedType<?> elementType, BiFunction<Stream<T>, Function<Object, R>, R> function) {
+            this.functionIndex = functionIndex;
+            this.elementType = elementType;
+            this.function = function;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        protected Object mappedResult(ResultIterable<?> iterable, StatementContext ctx) {
+            try (Stream<?> stream = iterable.stream()) {
+                return function.apply((Stream<T>) stream, findFunction(ctx));
+            }
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        protected Object reducedResult(Stream<?> stream, StatementContext ctx) {
+            try (Stream<?> reducedStream = stream) {
+                return function.apply((Stream<T>) reducedStream, findFunction(ctx));
+            }
+        }
+
+        @Override
+        protected QualifiedType<?> elementType(ConfigRegistry config) {
+            return elementType;
         }
 
         @SuppressWarnings("unchecked")
-        @Override
-        protected void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer) {
-            stream.forEach(consumer);
-        }
-    }
-
-    static class ConsumeIteratorResultReturner extends ConsumerResultReturner {
-
-        ConsumeIteratorResultReturner(int consumerIndex, QualifiedType<?> elementType) {
-            super(consumerIndex, elementType);
+        private Function<Object, R> findFunction(StatementContext ctx) {
+            return (Function<Object, R>) ctx.getConfig(SqlObjectStatementConfiguration.class)
+                .getArgs()[functionIndex];
         }
 
-        @SuppressWarnings("unchecked")
-        @Override
-        protected void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer) {
-            consumer.accept(stream.iterator());
+
+        static Optional<ResultReturner> of(Type returnType, Method method, int functionIndex) {
+            Type parameterType = method.getGenericParameterTypes()[functionIndex];
+
+            QualifiedType<?> targetType = QualifiedType.of(
+                GenericTypes.findGenericParameter(parameterType, Function.class, 1)
+                    .orElseThrow(() -> new IllegalStateException(
+                        format("Cannot reflect Function<T, R> element type R in method function parameter '%s'", parameterType))));
+
+            if (!QualifiedType.of(returnType).equals(targetType)) {
+                throw new IllegalArgumentException(format("Function<T, R> argument R ('%s') for %s must match the function return type ('%s')",
+                    targetType, method, returnType));
+            }
+
+            QualifiedType<?> elementType = QualifiedType.of(
+                GenericTypes.findGenericParameter(parameterType, Function.class, 0)
+                    .orElseThrow(() -> new IllegalStateException(
+                        format("Cannot reflect Function<T, R> element type T in method function parameter '%s'", parameterType))))
+                .withAnnotations(new Qualifiers().findFor(method.getParameters()[functionIndex]));
+
+            Type type = elementType.getType();
+
+            if (GenericTypes.isSuperType(Iterator.class, type)) {
+                // special case: Function<Iterator<T>, R>
+                if (GenericTypes.getErasedType(type) == Iterator.class) {
+                    return getIteratorFunction(functionIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterator.class)
+                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Iterator type on '%s'", elementType)))));
+                }
+                throw new IllegalArgumentException(format("Function argument for %s can not use subtype '%s' of Iterator!", method, type));
+
+            } else if (GenericTypes.isSuperType(Stream.class, type)) {
+                // special case: Function<Stream<T>, R>
+                if (GenericTypes.getErasedType(type) == Stream.class) {
+                    return getStreamFunction(functionIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Stream.class)
+                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Stream type on '%s'", elementType)))));
+                }
+                throw new IllegalArgumentException(format("Function argument for %s can not use subtype '%s' of Stream!", method, type));
+
+            } else if (GenericTypes.isSuperType(Iterable.class, type)) {
+                // special case: Function<Iterable<T>, R>
+                if (GenericTypes.getErasedType(type) == Iterable.class) {
+                    return getIterableFunction(functionIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterable.class)
+                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Iterable type on '%s'", elementType)))));
+                }
+                throw new IllegalArgumentException(format("Function argument for %s can not use subtype '%s' of Iterable!", method, type));
+
+            } else {
+                return Optional.empty();
+            }
         }
-    }
 
-    static class ConsumeStreamResultReturner extends ConsumerResultReturner {
-
-        ConsumeStreamResultReturner(int consumerIndex, QualifiedType<?> elementType) {
-            super(consumerIndex, elementType);
+        private static Optional<ResultReturner> getIteratorFunction(int functionIndex, QualifiedType<?> iteratorType) {
+            return Optional.of(new FunctionResultReturner<>(functionIndex, iteratorType, (s, f) -> f.apply(s.iterator())));
         }
 
-        @SuppressWarnings("unchecked")
-        @Override
-        protected void accept(Stream<?> stream, @SuppressWarnings("rawtypes") Consumer consumer) {
-            consumer.accept(stream);
-        }
-    }
-
-    static class ConsumeIterableResultReturner extends ConsumerResultReturner {
-
-        ConsumeIterableResultReturner(int consumerIndex, QualifiedType<?> elementType) {
-            super(consumerIndex, elementType);
+        private static Optional<ResultReturner> getStreamFunction(int functionIndex, QualifiedType<?> streamType) {
+            return Optional.of(new FunctionResultReturner<>(functionIndex, streamType, (s, f) -> f.apply(s)));
         }
 
-        @SuppressWarnings("unchecked, rawtypes")
-        @Override
-        protected void accept(Stream<?> stream, Consumer consumer) {
-            consumer.accept((Iterable) stream::iterator);
+        private static Optional<ResultReturner> getIterableFunction(int functionIndex, QualifiedType<?> iterableType) {
+            return Optional.of(new FunctionResultReturner<>(functionIndex, iterableType, (s, f) -> f.apply((Iterable<?>) s::iterator)));
         }
     }
 }

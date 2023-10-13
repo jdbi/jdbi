@@ -4174,11 +4174,13 @@ void insert(long id, String name);
 ----
 
 
-==== Consumer arguments
+==== Consumer and Function arguments
 
-In addition to the regular method arguments for a SQL Object method, it is possible to use a single link:{jdkdocs}/java/util/function/Consumer.html[Consumer<T>^] argument in addition to other arguments.
+===== Consumer arguments
 
-Consumer arguments are actually a special return type for SQL operations. They can be used to consume the results from a SQL operation with a callback instead of returning a value from the method.
+In addition to the regular method arguments for a SQL Object method, it is possible to use a single link:{jdkdocs}/java/util/function/Consumer.html[Consumer<T>^] or link:{jdkdocs}/java/util/function/Function.html[Function<T>^] argument in addition to other arguments.
+
+A consumer argument is a special return type for SQL operations. They can be used to consume the results from a SQL operation with a callback instead of returning a value from the method.
 
 Any SQL operation method that wants to use a consumer argument *must* return `void`. It can declare only a single consumer argument, but can have additional regular method arguments. The consumer argument can be in any position in the argument list. .
 
@@ -4205,6 +4207,18 @@ include::{exampledir}/BindMethodsTest.java[tags=consume-iterable-user-method]
 
 [WARNING]
 When using link:{jdkdocs}/java/util/function/Consumer.html[Consumer<Iterable>^] as a consumer argument, the link:{jdkdocs}/java/lang/Iterable.html[Iterable^] object passed into the consumer is *NOT* a general-purpose Iterable as it supports only a single invocation of the link:{jdkdocs}/java/lang/Iterable.html#iterator--[Iterable#iterator()^] method. Invoking it the iterator method again to obtain a second or subsequent iterator may throw link:{jdkdocs}/java/lang/IllegalStateException.html[IllegalStateException^].
+
+
+===== Function arguments
+
+A function argument can be used to collect or transform the result from a SQL operation. Similar to a consumer argument, it will receive the results of the query. A function argument only supports link:{jdkdocs}/java/util/stream/Stream.html[Stream^], link:{jdkdocs}/java/util/Iterator.html[Iterator^] or link:{jdkdocs}/java/lang/Iterable.html[Iterable^] as the function input type. The result type of the function must match the return type of the method itself.
+
+[source,java,indent=0]
+----
+include::{exampledir}/BindMethodsTest.java[tags=function-user-method]
+----
+
+<1> The results of the SQL operation are passed as a stream into the Function. It returns a set which is then returned by the method.
 
 [#sql-call-consumer-arguments]
 ===== `@SqlCall` Consumer and Function arguments
@@ -4400,11 +4414,11 @@ include::{exampledir}/LiveObjectsTest.java[tag=on-demand-default]
 include::{exampledir}/LiveObjectsTest.java[tag=extension-default]
 ----
 
-===== Use consumer arguments
+===== Use consumer or function arguments
 
 Using the method return value either directly or through an _interface default method_ has the drawback that the user code to process the cursor-type object must be written within the SQL Object type as it must be executed before closing the link:{jdbidocs}/core/Handle.html[Handle^] object.
 
-An elegant way to sidestep this problem is using a <<Consumer arguments, consumer argument>> to provide a callback:
+An elegant way to sidestep this problem is using a <<Consumer arguments, consumer argument>> or a <<Function, function argument>> to provide a callback:
 
 [source,java,indent=0]
 ----
@@ -4434,7 +4448,7 @@ include::{exampledir}/LiveObjectsTest.java[tag=extension-callback]
 <1> This code uses link:{jdbidocs}/core/Jdbi.html#useExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer-[Jdbi#useExtension()^] instead of link:{jdbidocs}/core/Jdbi.html#withExtension-java.lang.Class-org.jdbi.v3.core.extension.ExtensionCallback-[Jdbi#withExtension()^] as the SQL Object method returns `void`.
 
 [NOTE]
-While using a consumer argument is a great way to deal with cursor-type objects, there is the drawback that the user code is called while holding the handle (or the database connection) open. If the callback does very expensive or slow processing, this may hold the connection for a very long time.
+While using a consumer or a function argument is a great way to deal with cursor-type objects, there is the drawback that the user code is called while holding the handle (or the database connection) open. If the callback does very expensive or slow processing, this may hold the connection for a very long time.
 
 
 [#sqlobject-mapper-annotations]
