@@ -730,6 +730,12 @@
                             <artifactId>detekt-cli</artifactId>
                             <version>${dep.detekt.version}</version>
                         </dependency>
+                        <!-- Detekt's first-party unbundled plugin for library authors https://detekt.dev/docs/next/rules/libraries -->
+                        <dependency>
+                            <groupId>io.gitlab.arturbosch.detekt</groupId>
+                            <artifactId>detekt-rules-libraries</artifactId>
+                            <version>${dep.detekt.version}</version>
+                        </dependency>
                     </dependencies>
                 </plugin>
                 <plugin>
