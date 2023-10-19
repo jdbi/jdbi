@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: maven
 
@@ -52,7 +52,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: maven
 
@@ -81,7 +81,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: maven
 
@@ -110,7 +110,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: maven
 
@@ -139,7 +139,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: maven
 
@@ -168,7 +168,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: maven
 
@@ -197,7 +197,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: maven
 
@@ -226,7 +226,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: maven
 
