@@ -35,7 +35,7 @@
         <!-- Sigh. Java is really hard. Leave this at 0.3.2, all other versions are worse -->
         <dep.clickhouse.version>0.3.2</dep.clickhouse.version>
         <dep.oracle-xe.version>23.2.0.0</dep.oracle-xe.version>
-        <dep.trino.version>427</dep.trino.version>
+        <dep.trino.version>429</dep.trino.version>
         <dep.yugabyte.version>42.3.5-yb-3</dep.yugabyte.version>
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
     </properties>

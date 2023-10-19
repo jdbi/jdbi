@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flyway-version: [ 7.15.0, 8.2.3, 8.5.13, 9.22.2 ] # oldest supported, first 8.x that supports H2, latest 8.x.x, latest 9.x.x
+        flyway-version: [ 7.15.0, 8.2.3, 8.5.13, 9.22.3 ] # oldest supported, first 8.x that supports H2, latest 8.x.x, latest 9.x.x
 
     steps:
       - uses: actions/checkout@v3
