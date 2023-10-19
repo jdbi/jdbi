@@ -61,6 +61,7 @@
         <basepom.it.skip>true</basepom.it.skip>
         <basepom.it.timeout>600</basepom.it.timeout>
         <basepom.javadoc.exclude-package-names>*.internal.*:*.internal</basepom.javadoc.exclude-package-names>
+        <basepom.javadoc.legacy-mode>true</basepom.javadoc.legacy-mode>
         <basepom.maven.version>3.9.0</basepom.maven.version>
         <basepom.nexus-staging.staging-url>https://oss.sonatype.org/</basepom.nexus-staging.staging-url>
         <basepom.release.profiles>basepom.deploy-release,jdbi-release</basepom.release.profiles>
@@ -612,7 +613,6 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
                         <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
-                        <legacyMode>true</legacyMode>
                         <release>${project.build.targetJdk}</release>
                         <links>
                             <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
