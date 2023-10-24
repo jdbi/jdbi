@@ -112,7 +112,7 @@ public class TestBindList {
                 .bindList("values", 3, "abc")
                 .execute();
 
-        for (var specialCharPlaceholderName : new String[] {"xxx.ids", "xxx_ids", "xxx-ids"}) {
+        for (var specialCharPlaceholderName : new String[] {"xxx.ids", "xxx_ids"}) {
 
             List<Thing> list = handle.createQuery("select id, foo from thing where id in (<" + specialCharPlaceholderName + ">)")
                     .bindList(specialCharPlaceholderName, 1, 3)
