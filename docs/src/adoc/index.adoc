@@ -1339,7 +1339,7 @@ parameters by name:
 include::{exampledir}/FiveMinuteTourTest.java[tags=namedParameters]
 ----
 
-Names can contain alphanumeric characters, dot and dash (`.` and `-`).
+A parameter or attribute name can contain any valid Java identifier characters and the dot (`.`).
 
 [NOTE]
 By default, Jbdi uses the see the link:{jdbidocs}/core/statement/ColonPrefixSqlParser.html[ColonPrefixSqlParser^] that understands
@@ -8937,7 +8937,7 @@ handle.setSqlParser(new HashPrefixSqlParser())
       .execute();
 ----
 
-The default parsers recognize any Java identifier and additionally the dot and dash (`.` and `-`) as a valid characters in a parameter or attribute name. Even some strange cases like emoji are allowed, although the Jdbi authors encourage appropriate discretion 🧐.
+The default parsers recognize any Java identifier character and the dot (`.`) as a valid characters in a parameter or attribute name. Even some strange cases like emoji are allowed, although the Jdbi authors encourage appropriate discretion 🧐.
 
 [NOTE]
 The default parsers try to ignore parameter-like constructions inside of string literals,
