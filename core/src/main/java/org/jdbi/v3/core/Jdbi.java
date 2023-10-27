@@ -32,6 +32,7 @@ import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
+import org.jdbi.v3.core.internal.HandleScope;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
@@ -64,11 +65,9 @@ public class Jdbi implements Configurable<Jdbi> {
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(LocalTransactionHandler.binding());
     private final AtomicReference<StatementBuilderFactory> statementBuilderFactory = new AtomicReference<>(DefaultStatementBuilder.FACTORY);
     private final AtomicReference<HandleCallbackDecorator> handleCallbackDecorator = new AtomicReference<>(HandleCallbackDecorator.STANDARD_HANDLE_CALLBACK_DECORATOR);
+    private HandleScope handleScope = HandleScope.threadLocal();
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
-
-    @SuppressWarnings("ThreadLocalUsage")
-    private final ThreadLocal<HandleSupplier> threadHandleSupplier = new ThreadLocal<>();
 
     private Jdbi(ConnectionFactory connectionFactory) {
         Objects.requireNonNull(connectionFactory, "null connectionFactory");
@@ -333,6 +332,27 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * Returns the internal {@link HandleScope} object. The Jdbi instance uses this to provide handles in a given scope.
+     * The default scope is <i>per-thread</i>, so every thread manages its own handle.
+     * <br>
+     * <b>This is an internal method and not part of the public API!</b>
+     * @return A {@link HandleScope} object
+     */
+    public final HandleScope getHandleScope() {
+        return handleScope;
+    }
+
+    /**
+     * Set the {@link HandleScope} object. The Jdbi instance uses this to provide handles in a given scope.
+     * <br>
+     * @param handleScope A {@link HandleScope} object. Must not be null!
+     */
+    @Alpha
+    public final void setHandleScope(HandleScope handleScope) {
+        this.handleScope = handleScope;
+    }
+
+    /**
      * Obtain a Handle to the data source wrapped by this Jdbi instance.
      * You own this expensive resource and are required to close it or
      * risk leaks.  Using a {@code try-with-resources} block is recommended.
@@ -391,11 +411,9 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws X any exception thrown by the callback
      */
     public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
+        final HandleCallback<R, X> decoratedCallback = handleCallbackDecorator.get().decorate(callback);
 
-        HandleSupplier handleSupplier = threadHandleSupplier.get();
-
-        HandleCallback<R, X> decoratedCallback = handleCallbackDecorator.get().decorate(callback);
-
+        final var handleSupplier = handleScope.get();
         if (handleSupplier != null) {
             return decoratedCallback.withHandle(handleSupplier.getHandle());
         }
@@ -404,11 +422,10 @@ public class Jdbi implements Configurable<Jdbi> {
             SqlStatements sqlStatements = h.getConfig(SqlStatements.class);
             sqlStatements.setAttachAllStatementsForCleanup(sqlStatements.isAttachCallbackStatementsForCleanup());
 
-            handleSupplier = ConstantHandleSupplier.of(h);
-            threadHandleSupplier.set(handleSupplier);
+            handleScope.set(ConstantHandleSupplier.of(h));
             return decoratedCallback.withHandle(h);
         } finally {
-            threadHandleSupplier.remove();
+            handleScope.clear();
         }
     }
 
@@ -521,16 +538,16 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
             throws X {
-        HandleSupplier handleSupplier = threadHandleSupplier.get();
+        final var handleSupplier = handleScope.get();
         if (handleSupplier != null) {
             return callWithExtension(extensionType, callback, handleSupplier);
         }
 
         try (LazyHandleSupplier lazyHandleSupplier = new LazyHandleSupplier(this)) {
-            threadHandleSupplier.set(lazyHandleSupplier);
+            handleScope.set(lazyHandleSupplier);
             return callWithExtension(extensionType, callback, lazyHandleSupplier);
         } finally {
-            threadHandleSupplier.remove();
+            handleScope.clear();
         }
     }
 

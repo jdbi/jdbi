@@ -42,7 +42,7 @@ public class Handles implements JdbiConfig<Handles> {
      * {@link Handle} is closed. This check is enabled by default. If enabled,
      * and a handle is closed while a transaction is active (i.e. not committed
      * or rolled back), an exception will be thrown.
-     *
+     * <br>
      * This check does not apply to handles allocated with a connection that
      * already has an open transaction.
      *
