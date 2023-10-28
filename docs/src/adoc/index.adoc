@@ -15,7 +15,8 @@
 :docinfo: private
 
 :jdbidocs: ./apidocs/org/jdbi/v3
-:jdkdocs: https://docs.oracle.com/javase/8/docs/api
+:kotlindocs: ./apidocs-kotlin/jdbi3-kotlin/jdbi3-kotlin/org.jdbi.v3.
+:jdkdocs: https://docs.oracle.com/javase/11/docs/api
 :jakartadocs: https://jakarta.ee/specifications/platform/10/apidocs
 
 :projecthome: https://github.com/jdbi/jdbi
@@ -6989,7 +6990,7 @@ Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.h
 <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
 ----
 
-Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
+Then install the link:{kotlindocs}core.kotlin/-kotlin-plugin/[Kotlin Plugin^] into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,kotlin]
 ----
@@ -7036,6 +7037,99 @@ and for using a Sequence that is auto closed:
 ----
 qryAll.mapTo<Thing>.useSequence {
     it.forEach(::println)
+}
+----
+
+==== Coroutine support
+
+[NOTE]
+Coroutine support is very much experimental and not yet proven. If you find a bug or see a problem, please file a https://github.com/jdbi/jdbi/issues[bug report].
+
+Kotlin offers a https://kotlinlang.org/docs/coroutines-overview.html[coroutine extension^] to support asynchronous programming on the Kotlin platform.
+
+Coroutines work similar to "green threads" where operations are mapped onto a thread pool and may be executed on multiple threads. This clashes with the internal model that Jdbi uses to manage Handles (which is by default local to each thread).
+
+The Kotlin module offers support for coroutines with Jdbi. It allows handles to move across thread boundaries and
+allows seamless use of handles in coroutines.
+
+Coroutine support is disabled by default and is activated by passing the `enableCoroutineSupport = true` property to the constructor of the link:{kotlindocs}core.kotlin/-kotlin-plugin/[Kotlin Plugin^].
+
+[source,kotlin]
+----
+val jdbi = Jdbi.create( ... )
+    .installPlugin(KotlinPlugin(enableCoroutineSupport = true))
+
+jdbi.inTransactionUnchecked { transactionHandle ->
+    runBlocking(jdbi.inCoroutineContext()) { <1>
+        withContext(Dispatchers.Default + jdbi.inCoroutineContext(transactionHandle)) { <2>
+            launch () {
+                jdbi.useHandleUnchecked { handle -> <3>
+                    ...
+                }
+            }
+        }
+
+        launch(Dispatchers.Default) { <4>
+            jdbi.useHandleUnchecked { handle -> <5>
+                ...
+            }
+        }
+    }
+}
+----
+
+<1> calling the link:{kotlindocs}core.kotlin/in-coroutine-context.html[Jdbi#inCoroutineContext()^] extension method without a parameter disconnects the coroutine scope from any existing thread local elements.
+<2> calling the link:{kotlindocs}core.kotlin/in-coroutine-context.html[Jdbi#inCoroutineContext()^] extension method with a handle object uses this handle for all coroutines in this scope.
+<3> calling Jdbi methods within the coroutine scope will use the handle that was provided above.
+<4> Launching a coroutine without an explicitly attached handle works as well, in this case, a new handle gets created
+<5> The handle here is a newly created handle that only exists within the jdbi callback.
+
+[WARNING]
+Coroutines that are executed in parallel by different threads at the same time will get the same handle as they share the same coroutine context. While the Handle object can be shared by multiple threads (if the underlying connection object supports it), they are designed
+to be used by "one thread at a time" so additional coordination is required in this case.
+
+Coroutines are also supported for extension objects such as the <<SQL Objects, SQL Object extension>>:
+
+[source,kotlin]
+----
+val jdbi = Jdbi.create( ... )
+    .installPlugin(KotlinPlugin(enableCoroutineSupport = true))
+    .installPlugin(SqlObjectPlugin())
+
+data class Something(
+    val id: Int,
+    val name: String
+)
+
+@RegisterKotlinMapper(Something::class)
+interface SomethingDao : SqlObject {
+    @SqlUpdate("insert into something (id, name) values (:id, :name)")
+    fun insert(@BindKotlin something: Something)
+
+    @SqlQuery("select id, name from something where id=:id")
+    fun findById(@Bind("id") id: Int): Something
+}
+
+jdbi.withExtensionUnchecked(SomethingDao::class) { dao ->
+    runBlocking(Dispatchers.IO + jdbi.inCoroutineContext()) {
+        coroutineScope {
+            insertSomething(dao)
+
+            val first = selectSomething(dao, 1)
+            delay(1000L)
+        }
+
+        val second = selectSomething(dao, 2)
+    }
+}
+
+private suspend fun insertSomething(dao: SomethingDao): Unit = coroutineScope {
+    dao.insert(Something(1, "first name"))
+    dao.insert(Something(2, "second name"))
+}
+
+private suspend fun selectSomething(dao: SomethingDao, id: Int): Something = coroutineScope {
+    dao.findById(id)
 }
 ----
 

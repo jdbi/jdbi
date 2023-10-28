@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.internal;
 
+import org.jdbi.v3.core.HandleScope;
 import org.jdbi.v3.core.extension.HandleSupplier;
 
 import static java.util.Objects.requireNonNull;
@@ -20,9 +21,9 @@ import static java.util.Objects.requireNonNull;
 /**
  * The default implementation for {@link HandleScope}. Uses a {@link ThreadLocal} to manage per-thread scope.
  */
-public class ThreadLocalHandleScope implements HandleScope {
+public final class ThreadLocalHandleScope implements HandleScope {
 
-    protected final ThreadLocal<HandleSupplier> threadLocal = new ThreadLocal<>();
+    private final ThreadLocal<HandleSupplier> threadLocal = new ThreadLocal<>();
 
     @Override
     public HandleSupplier get() {
