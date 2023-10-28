@@ -15,6 +15,7 @@
 
 package org.jdbi.v3.core.kotlin
 
+import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.config.Configurable
 import org.jdbi.v3.core.config.JdbiConfig
@@ -26,8 +27,10 @@ import org.jdbi.v3.core.result.ResultBearing
 import org.jdbi.v3.core.result.ResultIterable
 import org.jdbi.v3.core.statement.SqlStatement
 import org.jdbi.v3.core.statement.StatementContext
+import org.jdbi.v3.meta.Alpha
 import org.jdbi.v3.meta.Beta
 import java.util.function.Consumer
+import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -48,7 +51,7 @@ internal fun KClass<*>.simpleName(): String = this.simpleName ?: this::java.java
  *
  * @see StatementContext.getConfig
  */
-fun <T : JdbiConfig<T>>StatementContext.getConfig(kClass: KClass<T>): T = this.getConfig(kClass.java)
+fun <T : JdbiConfig<T>> StatementContext.getConfig(kClass: KClass<T>): T = this.getConfig(kClass.java)
 
 /**
  * Use a reified parameter to map the result.
@@ -145,4 +148,25 @@ fun getQualifiers(vararg elements: KAnnotatedElement?): Set<Annotation> {
         .flatMap { element -> element.annotations }
         .filter { anno -> anno.annotationClass.findAnnotation<Qualifier>() != null }
         .toSet()
+}
+
+/**
+ * Returns a [CoroutineContext.Element] instance representing this Jdbi object which can be used to manage
+ * handles from this Jdbi in a coroutine context.
+ *
+ * @return A [CoroutineContext.Element] object. No attempt should be made to inspect or use this object directly. Coroutines
+ * that share a context which contains this element will share any derived object such as [org.jdbi.v3.core.Handle] or
+ * extension objects.
+ *
+ * @since 3.42.0
+ */
+@Alpha
+fun Jdbi.inCoroutineContext(handle: Handle? = null): CoroutineContext.Element {
+    val handleScope = this.handleScope
+    if (handleScope is CoroutineHandleScope) {
+        handleScope.handle = handle
+        return handleScope
+    } else {
+        throw IllegalStateException("Coroutine support was not enabled!")
+    }
 }

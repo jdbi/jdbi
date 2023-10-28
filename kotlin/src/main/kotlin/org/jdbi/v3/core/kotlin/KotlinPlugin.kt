@@ -23,11 +23,16 @@ import org.jdbi.v3.core.spi.JdbiPlugin
  * <ul>
  *     <li>Kotlin inference interceptor that handles the {@link KotlinMapper} for registered types</li>
  *     <li>Kotlin mapper factory that creates implicit mappers for any data class</li>
+ *     <li>Support for using Handles in Coroutines</li>
  * <ul>
  *
  *     @property installKotlinMapperFactory If true, install the {@link KotlinMapperFactory}.
+ *     @property enableCoroutineSupport If true, enable support for Kotlin Coroutines.
  */
-class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true) : JdbiPlugin.Singleton() {
+class KotlinPlugin(
+    private val installKotlinMapperFactory: Boolean = true,
+    private val enableCoroutineSupport: Boolean = false
+) : JdbiPlugin.Singleton() {
 
     override fun customizeJdbi(jdbi: Jdbi) {
         jdbi.configure(RowMappers::class.java) {
@@ -36,6 +41,14 @@ class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true) : Jdb
 
         if (installKotlinMapperFactory) {
             jdbi.registerRowMapper(KotlinMapperFactory())
+        }
+
+        // install a special handle scope that can deal with coroutines.
+        //
+        // Note that this needs to be revisited in the future if we move from the ThreadLocal in Jdbi
+        // to e.g. structured concurrency. Right now, this delegates to a ThreadLocalHandleScope.
+        if (enableCoroutineSupport) {
+            jdbi.handleScope = CoroutineHandleScope()
         }
     }
 }

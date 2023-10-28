@@ -11,10 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.internal;
+package org.jdbi.v3.core;
 
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.HandleSupplier;
+import org.jdbi.v3.core.internal.ThreadLocalHandleScope;
 
 /**
  * Jdbi manages Handles to allow transaction nesting and extension
@@ -43,6 +43,14 @@ public interface HandleScope {
      * @param handleSupplier A {@link HandleSupplier} object. Must not be null.
      */
     void set(HandleSupplier handleSupplier);
+
+    /**
+     * Associate a {@link Handle} with the current scope.
+     * @param handle A {@link Handle} object. Must not be null.
+     */
+    default void set(Handle handle) {
+        set(ConstantHandleSupplier.of(handle));
+    }
 
     /**
      * Remove a current {@link HandleSupplier association}. The {@link #get()} method will
