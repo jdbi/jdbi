@@ -19,11 +19,13 @@ import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Category(SlowTests.class)
 public class JdbiRuleTest {
     @Test
     public void migrateWithFlywayDefaultLocation() throws Throwable {
