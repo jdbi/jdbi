@@ -13,21 +13,4 @@
  */
 package org.jdbi.v3.testing;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-@Category(SlowTests.class)
-public class JdbiRulePostgresTest {
-    @Rule
-    public JdbiRule postgres = JdbiRule.embeddedPostgres();
-
-    @Test
-    public void isAlive() {
-        Integer one = postgres.getJdbi().withHandle(h -> h.createQuery("select 1").mapTo(Integer.class).one());
-
-        assertThat(one).isOne();
-    }
-}
+public interface SlowTests {}
