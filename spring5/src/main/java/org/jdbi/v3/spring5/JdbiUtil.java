@@ -86,6 +86,7 @@ public class JdbiUtil {
         public void beforeCompletion() {
             TRANSACTIONAL_HANDLES.remove(handle);
             TransactionSynchronizationManager.unbindResource(db);
+            handle.close();
         }
     }
 }

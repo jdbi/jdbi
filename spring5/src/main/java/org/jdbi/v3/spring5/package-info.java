@@ -45,5 +45,8 @@
  * &lt;/bean&gt;
  * &lt;/beans&gt;
  * </pre>
+ *
+ * The automatic detection of {@link org.jdbi.v3.spring5.JdbiRepository} can be enabled by using the
+ * {@link org.jdbi.v3.spring5.EnableJdbiRepositories} annotation.
  */
 package org.jdbi.v3.spring5;
