@@ -22,5 +22,4 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource("classpath:/org/jdbi/v3/spring5/jta/test-context.xml")
 @Import(SomethingService.class)
 @EnableJdbiRepositories(repositories = SomethingDao.class)
-public class JdbiJtaTestConfiguration {
-}
+public class JdbiJtaTestConfiguration {}

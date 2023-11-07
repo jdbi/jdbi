@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * When {@link @org.jdbi.v3.spring5.EnableJdbiRepositories} is used,
+ * When {@link EnableJdbiRepositories} is used,
  * detected interfaces with this annotation will be regarded as a jdbi (sql-object) repository
  * and are elligible for autowiring. The handle used for the execution is obtained and discarded using {@link JdbiUtil}
  * and consequently will work in combination with spring managed transactions.
