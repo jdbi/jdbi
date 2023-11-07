@@ -13,10 +13,6 @@
  */
 package org.jdbi.v3.spring5;
 
-import static org.jdbi.v3.core.internal.JdbiClassUtils.EQUALS_METHOD;
-import static org.jdbi.v3.core.internal.JdbiClassUtils.HASHCODE_METHOD;
-import static org.jdbi.v3.core.internal.JdbiClassUtils.TOSTRING_METHOD;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -30,6 +26,10 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.sqlobject.SqlObject;
+
+import static org.jdbi.v3.core.internal.JdbiClassUtils.EQUALS_METHOD;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.HASHCODE_METHOD;
+import static org.jdbi.v3.core.internal.JdbiClassUtils.TOSTRING_METHOD;
 
 class JdbiJtaBinder {
     private JdbiJtaBinder() {
