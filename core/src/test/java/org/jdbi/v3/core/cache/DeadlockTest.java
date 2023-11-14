@@ -16,6 +16,7 @@ package org.jdbi.v3.core.cache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -53,8 +54,8 @@ class DeadlockTest {
             jdbi.useHandle(h -> {
                 try (Update u = h.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")) {
                     u.bind("id", id)
-                            .bind("name", "name_" + id)
-                            .execute();
+                        .bind("name", "name_" + id)
+                        .execute();
                 }
             });
         }
@@ -64,22 +65,28 @@ class DeadlockTest {
     void testIssue2274() throws Exception {
         jdbi.getConfig(SqlStatements.class).setTemplateCache(DefaultJdbiCacheBuilder.builder().maxSize(10));
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT,
-                new ThreadFactoryBuilder().setNameFormat("test-%d").setDaemon(true).build());
+            new ThreadFactoryBuilder().setNameFormat("test-%d").setDaemon(true).build());
+
+        CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
 
         List<Future<Integer>> futures = new ArrayList<>();
         for (int i = 0; i < THREAD_COUNT; i++) {
             final int id = i;
             Callable<Integer> c = () -> {
-                return jdbi.withHandle(h -> {
+                int result = jdbi.withHandle(h -> {
                     try (Query q = h.createQuery(format("SELECT <value> FROM something where %d = :id AND id = :id", id))) {
                         q.bind("id", id);
                         q.define("value", id);
                         return q.mapTo(Integer.class).one();
                     }
                 });
+                latch.countDown();
+                latch.await();
+                return result;
             };
             futures.add(executorService.submit(c));
         }
+        latch.await();
 
         for (int i = 0; i < THREAD_COUNT; i++) {
             assertThat(futures.get(i).get()).isEqualTo(i);

@@ -169,15 +169,6 @@ public class TestHashPrefixSqlParser {
     }
 
     @Test
-    public void test2481DashStarting() {
-        assertThat(parser.parse("select #-data", ctx))
-                .isEqualTo(ParsedSql.builder()
-                        .append("select ")
-                        .appendNamedParameter("-data")
-                        .build());
-    }
-
-    @Test
     public void test2481DotStarting() {
         assertThat(parser.parse("select #.data", ctx))
                 .isEqualTo(ParsedSql.builder()
@@ -191,7 +182,8 @@ public class TestHashPrefixSqlParser {
         assertThat(parser.parse("select #data-foo-bar", ctx))
                 .isEqualTo(ParsedSql.builder()
                         .append("select ")
-                        .appendNamedParameter("data-foo-bar")
+                        .appendNamedParameter("data")
+                        .append("-foo-bar")
                         .build());
     }
 
@@ -202,5 +194,23 @@ public class TestHashPrefixSqlParser {
                         .append("select ")
                         .appendNamedParameter("data.foo.bar")
                         .build());
+    }
+
+    @Test
+    public void testQuestionMarkName() {
+        assertThat(parser.parse("select #data.foo?.bar", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("select ")
+                .appendNamedParameter("data.foo?.bar")
+                .build());
+    }
+
+    @Test
+    public void testEmojiName() {
+        assertThat(parser.parse("select #😎", ctx))
+            .isEqualTo(ParsedSql.builder()
+                .append("select ")
+                .appendNamedParameter("😎")
+                .build());
     }
 }

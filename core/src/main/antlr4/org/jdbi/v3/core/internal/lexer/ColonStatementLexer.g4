@@ -22,8 +22,7 @@ fragment COLON: {_input.LA(2) != ':'}? ':';
 fragment DOUBLE_COLON: {_input.LA(2) == ':'}? '::';
 fragment QUESTION: {_input.LA(2) != '?'}? '?';
 fragment DOUBLE_QUESTION: {_input.LA(2) == '?'}? '??';
-fragment NAME_END: JAVA_LETTER | [0-9] | '.' | '?.';
-fragment NAME: NAME_END | '-';
+fragment NAME: JAVA_LETTER | [0-9] | '.' | '?.';
 
 /* Lovingly lifted from https://github.com/antlr/grammars-v4/blob/master/java/JavaLexer.g4 */
 fragment JAVA_LETTER : [a-zA-Z$_] | ~[\u0000-\u007F\uD800-\uDBFF] | [\uD800-\uDBFF] [\uDC00-\uDFFF];
@@ -33,7 +32,7 @@ QUOTED_TEXT: QUOTE (ESCAPE_QUOTE | ~'\'')* QUOTE;
 DOUBLE_QUOTED_TEXT: DOUBLE_QUOTE (~'"')+ DOUBLE_QUOTE;
 ESCAPED_TEXT : ESCAPE . ;
 
-NAMED_PARAM: COLON (NAME* NAME_END);
+NAMED_PARAM: COLON (NAME)+;
 POSITIONAL_PARAM: QUESTION;
 
 LITERAL: DOUBLE_COLON | DOUBLE_QUESTION | .;

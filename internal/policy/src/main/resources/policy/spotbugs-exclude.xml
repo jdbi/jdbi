@@ -39,4 +39,15 @@
     <Match>
         <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION" />
     </Match>
+    <!-- when releasing 4.8.0, who smoked what, when, and can I have some? -->
+    <Match>
+        <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_CLASS_NAMES" />
+    </Match>
+    <Match>
+        <Bug pattern="PI_DO_NOT_REUSE_PUBLIC_IDENTIFIERS_FIELD_NAMES" />
+    </Match>
+    <!-- adding a rule in 2023 to deal with a problem in Java 6 that does no longer apply to modern java ... -->
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW" />
+    </Match>
 </FindBugsFilter>

@@ -3,13 +3,12 @@
 [![CD from master pushes](https://github.com/jdbi/jdbi/actions/workflows/cd.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/cd.yml) |
 [![CI Build with tests](https://github.com/jdbi/jdbi/actions/workflows/ci.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/ci.yml) | [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi) | [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi) | [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi)
 
-The Jdbi library provides convenient, idiomatic access to relational databases
-in Java.
+The Jdbi library provides convenient, idiomatic access to relational databases in Java and other JVM technologies such as Kotlin, Clojure or Scala.
 
-Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use
-Jdbi with it.
+Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use Jdbi with it.
 
-* [Developer Guide](https://jdbi.github.io/)
+
+* [Developer Guide](https://jdbi.org/)
 * [Javadoc](https://jdbi.org/apidocs/)
 * [User forums](https://github.com/jdbi/jdbi/discussions)
 * [Mailing List](http://groups.google.com/group/jdbi)
@@ -17,33 +16,25 @@ Jdbi with it.
 
 Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/tree/master/examples) module.
 
+
 ## Prerequisites
 
-Jdbi 3 requires Java 8 or better to run. Jdbi 3 requires Java 11 or better to compile.
+Jdbi requires Java 11 or better to run. Jdbi requires Java 11 or better to compile.
 
-We run CI tests against Java 11 and 17 and still support Java 8 for testing on a best-effort basis.
+We run CI tests against Java 11, 17 and 21.
 
-### Java 8 compatibility
 
-Java 8 is considered deprecated. While Jdbi does not (yet) have a specific date to drop support,
-please chart your path forward to a supported JDK! We recommend running the latest LTS JDK.
+### Compatibility with older Java versions
 
-Jdbi 3 is compiled to Java 8 byte code and is considered stable on Java 8.
-
-However, we now require Java 11 or better to compile as the tool chain no longer runs on Java 8.
-
-We run CI tests on Java 8 on a best effort basis as some of the tests require Java 11+ only dependencies.
-
-NOTE: to run on Java 8, you may need to manage the `caffeine` dependency back to the
-latest 2.x release. 3.x is necessary for newer JDKs but does not run on 8.
+Java 8, 9 and 10 are supported by  any Jdbi version before **3.40.0**.
 
 ## Building
 
-Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.9 or later is required.
+Jdbi requires JDK 11+ to build and enforces JDK 17+ for releases.
 
-Jdbi requires a modern JDK (11+) to build and enforces JDK 17+ for releases.
+Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.9 or later is required. Using the `make` targets requires GNU make.
 
-All build tasks are organized as `make` targets. The Makefile in the root directory shows which commands are run.
+All build tasks are organized as `make` targets.
 
 Build the code an install it into the local repository:
 
@@ -51,7 +42,7 @@ Build the code an install it into the local repository:
 $ make install
 ```
 
-Running `make` or `make help` displays all available build targets with a short explanation. Some of the goals will require project membership privileges.
+Running `make` or `make help` displays all available build targets with a short explanation. Some of the goals will require project membership privileges.  The [CONTRIBUTING.md](https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md) document contains a list of all supported targets.
 
 To add command line parameters to the maven executions from the Makefile, set the `MAVEN_CONFIG` variable:
 
@@ -59,7 +50,6 @@ To add command line parameters to the maven executions from the Makefile, set th
 % MAVEN_CONFIG="-B -fae" make install
 ```
 
-Note: The `JDBI_MAVEN_OPTS` variable is still supported, but deprecated. Please use `MAVEN_CONFIG` directly.
 
 ## Testing
 
@@ -81,6 +71,8 @@ Supported configurations are
 * Docker Desktop on MacOS
 * docker-ce on Linux
 * podman 3 or better on Linux and MacOS
+
+Other docker installations such as [Colima](https://github.com/abiosoft/colima) may work but are untested and unsupported.
 
 For podman on Linux, the podman socket must be activated (see
 https://stackoverflow.com/questions/71549856/testcontainers-with-podman-in-java-tests)

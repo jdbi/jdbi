@@ -80,6 +80,12 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-guice</artifactId>
+            <exclusions>
+              <exclusion>
+                <groupId>aopalliance</groupId>
+                <artifactId>aopalliance</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
