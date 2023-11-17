@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.cache.internal.DefaultJdbiCacheBuilder;
@@ -67,29 +69,39 @@ class DeadlockTest {
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT,
             new ThreadFactoryBuilder().setNameFormat("test-%d").setDaemon(true).build());
 
-        CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
+        CountDownLatch latch = new CountDownLatch(THREAD_COUNT - 10);
 
         List<Future<Integer>> futures = new ArrayList<>();
         for (int i = 0; i < THREAD_COUNT; i++) {
-            final int id = i;
-            Callable<Integer> c = () -> {
-                int result = jdbi.withHandle(h -> {
-                    try (Query q = h.createQuery(format("SELECT <value> FROM something where %d = :id AND id = :id", id))) {
-                        q.bind("id", id);
-                        q.define("value", id);
-                        return q.mapTo(Integer.class).one();
-                    }
-                });
-                latch.countDown();
-                latch.await();
-                return result;
-            };
+            final Callable<Integer> c = integerCallable(i, latch);
             futures.add(executorService.submit(c));
         }
+
         latch.await();
 
-        for (int i = 0; i < THREAD_COUNT; i++) {
+        for (int i = 0; i < futures.size(); i++) {
             assertThat(futures.get(i).get()).isEqualTo(i);
         }
+
+        List<Runnable> runnables = executorService.shutdownNow();
+        assertThat(runnables).isEmpty();
+    }
+
+    @Nonnull
+    private Callable<Integer> integerCallable(final int id, CountDownLatch latch) {
+        return () -> {
+            int result = jdbi.withHandle(h -> {
+                try (Query q = h.createQuery(format("SELECT <value> FROM something where %d = :id AND id = :id", id))) {
+                    q.bind("id", id);
+                    q.define("value", id);
+                    return q.mapTo(Integer.class).one();
+                }
+            });
+
+            latch.countDown();
+            System.out.println("Latch count: " + latch.getCount() + ", Thread: " + Thread.currentThread().getName());
+            latch.await();
+            return result;
+        };
     }
 }

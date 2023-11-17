@@ -41,7 +41,7 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
     public void contextCreated(StatementContext statementContext) {
         checkNotNull(statementContext, "statementContext is null!");
 
-        assertThat(contextElements).as("statement context has already been created").doesNotContainKey(statementContext);
+        assertThat(contextElements).withFailMessage("statement context has already been created").doesNotContainKey(statementContext);
 
         contextElements.putIfAbsent(statementContext, new RecordingContext<>());
     }
@@ -50,7 +50,7 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
     public void contextCleaned(StatementContext statementContext) {
         checkNotNull(statementContext, "statementContext is null!");
 
-        assertThat(contextElements).as("statement context is unknown").containsKey(statementContext);
+        assertThat(contextElements).withFailMessage("statement context is unknown").containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
         Set<Cleanable> leakedCleanables = Sets.difference(context.objectAdded.keySet(), context.objectRemoved.keySet());
@@ -65,12 +65,12 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(statementContext, "statementContext is null!");
         checkNotNull(cleanable, "cleanable is null");
 
-        assertThat(contextElements).as("statement context is unknown").containsKey(statementContext);
+        assertThat(contextElements).withFailMessage("statement context is unknown").containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
 
-        assertThat(context.objectAdded).as("cleanable has already been added").doesNotContainKey(cleanable);
-        assertThat(context.objectRemoved).as("cleanable has already been removed").doesNotContainKey(cleanable);
+        assertThat(context.objectAdded).withFailMessage("cleanable has already been added").doesNotContainKey(cleanable);
+        assertThat(context.objectRemoved).withFailMessage("cleanable has already been removed").doesNotContainKey(cleanable);
 
         context.objectAdded.putIfAbsent(cleanable, Boolean.TRUE);
     }
@@ -80,12 +80,12 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(statementContext, "statementContext is null!");
         checkNotNull(cleanable, "cleanable is null");
 
-        assertThat(contextElements).as("statement context is unknown").containsKey(statementContext);
+        assertThat(contextElements).withFailMessage("statement context is unknown").containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
 
-        assertThat(context.objectAdded).as("cleanable has not been added").containsKey(cleanable);
-        assertThat(context.objectRemoved).as("cleanable has already been removed").doesNotContainKey(cleanable);
+        assertThat(context.objectAdded).withFailMessage("cleanable has not been added").containsKey(cleanable);
+        assertThat(context.objectRemoved).withFailMessage("cleanable has already been removed").doesNotContainKey(cleanable);
 
         context.objectRemoved.putIfAbsent(cleanable, Boolean.TRUE);
     }
@@ -94,8 +94,8 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
     public void handleCreated(Handle handle) {
         checkNotNull(handle, "handle is null");
 
-        assertThat(handleTracker.objectAdded).as("handle has already been added").doesNotContainKey(handle);
-        assertThat(handleTracker.objectRemoved).as("handle has already been removed").doesNotContainKey(handle);
+        assertThat(handleTracker.objectAdded).withFailMessage("handle has already been added").doesNotContainKey(handle);
+        assertThat(handleTracker.objectRemoved).withFailMessage("handle has already been removed").doesNotContainKey(handle);
 
         handleTracker.objectAdded.putIfAbsent(handle, Boolean.TRUE);
     }
@@ -104,8 +104,8 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
     public void handleClosed(Handle handle) {
         checkNotNull(handle, "handle is null");
 
-        assertThat(handleTracker.objectAdded).as("handle has not been added").containsKey(handle);
-        assertThat(handleTracker.objectRemoved).as("handle has already been removed").doesNotContainKey(handle);
+        assertThat(handleTracker.objectAdded).withFailMessage("handle has not been added").containsKey(handle);
+        assertThat(handleTracker.objectRemoved).withFailMessage("handle has already been removed").doesNotContainKey(handle);
 
         handleTracker.objectRemoved.putIfAbsent(handle, Boolean.TRUE);
     }
@@ -114,7 +114,7 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
 
         Set<Handle> leakedHandles = Sets.difference(handleTracker.objectAdded.keySet(), handleTracker.objectRemoved.keySet());
 
-        if (leakedHandles.size() > 0) {
+        if (!leakedHandles.isEmpty()) {
             fail(format("Found %d leaked handles.", leakedHandles.size()));
         }
 
@@ -122,7 +122,7 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
 
         for (RecordingContext<Cleanable> context : contextElements.values()) {
             Set<Cleanable> leakedCleanables = Sets.difference(context.objectAdded.keySet(), context.objectRemoved.keySet());
-            if (leakedCleanables.size() > 0) {
+            if (!leakedCleanables.isEmpty()) {
                 leakedCleanablesCount += leakedCleanables.size();
             }
         }

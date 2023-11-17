@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +31,7 @@ import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -96,6 +98,7 @@ public class JdbiExecutorTest {
     @RegisterExtension
     private final H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
+    private ExecutorService executor;
     private JdbiExecutor jdbiExecutor = null;
     private Jdbi jdbi;
 
@@ -103,7 +106,14 @@ public class JdbiExecutorTest {
     void setup() {
         h2Extension.getJdbi().useHandle(H2DatabaseExtension.USERS_INITIALIZER::initialize);
         jdbi = spy(h2Extension.getJdbi().registerExtension(new TestExtensionFactory()));
-        jdbiExecutor = JdbiExecutor.create(jdbi, Executors.newFixedThreadPool(2));
+        executor = Executors.newFixedThreadPool(5);
+        jdbiExecutor = JdbiExecutor.create(jdbi, executor);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        executor.shutdown();
+        assertThat(executor.awaitTermination(5, TimeUnit.SECONDS)).withFailMessage("Could not shut down executor").isTrue();
     }
 
     @Test
@@ -233,9 +243,12 @@ public class JdbiExecutorTest {
         });
 
         assertThat(stage1)
+            .withFailMessage("stage 1 did not complete successfully.")
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(3);
+
         assertThat(stage2)
+            .withFailMessage("stage 2 did not complete successfully.")
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(2);
     }
