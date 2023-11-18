@@ -13,10 +13,10 @@
  */
 package org.jdbi.v3.testing.junit5.internal;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleListener;
@@ -34,13 +34,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * A simple leak checker that tracks statement context and cleanable resource management.
  */
+@SuppressWarnings("PMD.AvoidSynchronizedAtMethodLevel")
 public final class JdbiLeakChecker implements StatementContextListener, HandleListener {
 
-    private final Map<StatementContext, RecordingContext<Cleanable>> contextElements = new ConcurrentHashMap<>();
+    private final Map<StatementContext, RecordingContext<Cleanable>> contextElements = new HashMap<>();
     private final RecordingContext<Handle> handleTracker = new RecordingContext<>();
 
     @Override
-    public void contextCreated(StatementContext statementContext) {
+    public synchronized void contextCreated(StatementContext statementContext) {
         requireNonNull(statementContext, "statementContext is null!");
 
         assertFalse(contextElements.containsKey(statementContext), "statement context has already been created");
@@ -49,7 +50,7 @@ public final class JdbiLeakChecker implements StatementContextListener, HandleLi
     }
 
     @Override
-    public void contextCleaned(StatementContext statementContext) {
+    public synchronized void contextCleaned(StatementContext statementContext) {
         requireNonNull(statementContext, "statementContext is null!");
 
         assertTrue(contextElements.containsKey(statementContext), "statement context is unknown");
@@ -63,7 +64,7 @@ public final class JdbiLeakChecker implements StatementContextListener, HandleLi
     }
 
     @Override
-    public void cleanableAdded(StatementContext statementContext, Cleanable cleanable) {
+    public synchronized void cleanableAdded(StatementContext statementContext, Cleanable cleanable) {
         requireNonNull(statementContext, "statementContext is null!");
         requireNonNull(cleanable, "cleanable is null");
 
@@ -77,7 +78,7 @@ public final class JdbiLeakChecker implements StatementContextListener, HandleLi
     }
 
     @Override
-    public void cleanableRemoved(StatementContext statementContext, Cleanable cleanable) {
+    public synchronized void cleanableRemoved(StatementContext statementContext, Cleanable cleanable) {
         requireNonNull(statementContext, "statementContext is null!");
         requireNonNull(cleanable, "cleanable is null");
 
@@ -91,7 +92,7 @@ public final class JdbiLeakChecker implements StatementContextListener, HandleLi
     }
 
     @Override
-    public void handleCreated(Handle handle) {
+    public synchronized void handleCreated(Handle handle) {
         requireNonNull(handle, "handle is null");
 
         assertFalse(handleTracker.objectAdded.containsKey(handle), "handle has already been added");
@@ -101,7 +102,7 @@ public final class JdbiLeakChecker implements StatementContextListener, HandleLi
     }
 
     @Override
-    public void handleClosed(Handle handle) {
+    public synchronized void handleClosed(Handle handle) {
         requireNonNull(handle, "handle is null");
 
         assertTrue(handleTracker.objectAdded.containsKey(handle), "handle has not been added");
@@ -110,7 +111,7 @@ public final class JdbiLeakChecker implements StatementContextListener, HandleLi
         handleTracker.objectRemoved.putIfAbsent(handle, Boolean.TRUE);
     }
 
-    public void checkForLeaks() {
+    public synchronized void checkForLeaks() {
         Set<Handle> leakedHandles = difference(handleTracker.objectAdded.keySet(), handleTracker.objectRemoved.keySet());
 
         if (!leakedHandles.isEmpty()) {
@@ -155,8 +156,8 @@ public final class JdbiLeakChecker implements StatementContextListener, HandleLi
 
     private static final class RecordingContext<T> {
 
-        private final Map<T, Boolean> objectAdded = new ConcurrentHashMap<>();
-        private final Map<T, Boolean> objectRemoved = new ConcurrentHashMap<>();
+        private final Map<T, Boolean> objectAdded = new HashMap<>();
+        private final Map<T, Boolean> objectRemoved = new HashMap<>();
 
         public void reset() {
             objectAdded.clear();
