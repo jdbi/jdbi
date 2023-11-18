@@ -9,6 +9,9 @@ on:
     branches:
       - master
 
+env:
+  tarFile: "output-${{ github.job }}-${{ github.run_number }}-${{ github.run_attempt }}.tar.gz"
+
 jobs:
   guava:
     name: Test Guava versions
@@ -39,6 +42,25 @@ jobs:
         run: |
           make run-tests
 
+      - name: Package
+        if: failure()
+        run: |
+          FOLDER=$(basename `pwd`)
+          cd ..
+          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
+          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        name: Upload
+        if: failure()
+        with:
+          command: cp
+          source: ${{ github.workspace }}/${{ env.tarFile }}
+          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+
   immutables:
     name: Test Immutables versions
     runs-on: ubuntu-latest
@@ -67,6 +89,25 @@ jobs:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
         run: |
           make run-tests
+
+      - name: Package
+        if: failure()
+        run: |
+          FOLDER=$(basename `pwd`)
+          cd ..
+          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
+          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        name: Upload
+        if: failure()
+        with:
+          command: cp
+          source: ${{ github.workspace }}/${{ env.tarFile }}
+          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
 
   jackson2:
     name: Test Jackson Versions
@@ -97,6 +138,25 @@ jobs:
         run: |
           make run-tests
 
+      - name: Package
+        if: failure()
+        run: |
+          FOLDER=$(basename `pwd`)
+          cd ..
+          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
+          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        name: Upload
+        if: failure()
+        with:
+          command: cp
+          source: ${{ github.workspace }}/${{ env.tarFile }}
+          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+
   jodatime2:
     name: Test joda-time versions
     runs-on: ubuntu-latest
@@ -125,6 +185,25 @@ jobs:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
         run: |
           make run-tests
+
+      - name: Package
+        if: failure()
+        run: |
+          FOLDER=$(basename `pwd`)
+          cd ..
+          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
+          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        name: Upload
+        if: failure()
+        with:
+          command: cp
+          source: ${{ github.workspace }}/${{ env.tarFile }}
+          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
 
   vavr:
     name: Test vavr versions
@@ -155,6 +234,25 @@ jobs:
         run: |
           make run-tests
 
+      - name: Package
+        if: failure()
+        run: |
+          FOLDER=$(basename `pwd`)
+          cd ..
+          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
+          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        name: Upload
+        if: failure()
+        with:
+          command: cp
+          source: ${{ github.workspace }}/${{ env.tarFile }}
+          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+
   guice:
     name: Test guice versions
     runs-on: ubuntu-latest
@@ -183,6 +281,25 @@ jobs:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
         run: |
           make run-tests
+
+      - name: Package
+        if: failure()
+        run: |
+          FOLDER=$(basename `pwd`)
+          cd ..
+          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
+          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        name: Upload
+        if: failure()
+        with:
+          command: cp
+          source: ${{ github.workspace }}/${{ env.tarFile }}
+          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
 
   kotlin:
     name: Test kotlin runtime versions
@@ -213,6 +330,25 @@ jobs:
         run: |
           make run-tests
 
+      - name: Package
+        if: failure()
+        run: |
+          FOLDER=$(basename `pwd`)
+          cd ..
+          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
+          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        name: Upload
+        if: failure()
+        with:
+          command: cp
+          source: ${{ github.workspace }}/${{ env.tarFile }}
+          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+
   spring:
     name: Test spring framework versions
     runs-on: ubuntu-latest
@@ -241,3 +377,22 @@ jobs:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
         run: |
           make run-tests
+
+      - name: Package
+        if: failure()
+        run: |
+          FOLDER=$(basename `pwd`)
+          cd ..
+          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
+          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
+
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        name: Upload
+        if: failure()
+        with:
+          command: cp
+          source: ${{ github.workspace }}/${{ env.tarFile }}
+          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
