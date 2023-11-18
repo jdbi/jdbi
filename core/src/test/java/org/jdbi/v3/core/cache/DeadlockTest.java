@@ -91,6 +91,7 @@ class DeadlockTest {
     private Callable<Integer> integerCallable(final int id, CountDownLatch latch) {
         return () -> {
             int result = jdbi.withHandle(h -> {
+                System.out.println(format("Thread: %s, Connection: %s", Thread.currentThread(), h.getConnection()));
                 try (Query q = h.createQuery(format("SELECT <value> FROM something where %d = :id AND id = :id", id))) {
                     q.bind("id", id);
                     q.define("value", id);
