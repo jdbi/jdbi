@@ -34,101 +34,116 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * A simple leak checker that tracks statement context and cleanable resource management.
  */
-@SuppressWarnings("PMD.AvoidSynchronizedAtMethodLevel")
 public final class JdbiLeakChecker implements StatementContextListener, HandleListener {
 
     private final Map<StatementContext, RecordingContext<Cleanable>> contextElements = new HashMap<>();
     private final RecordingContext<Handle> handleTracker = new RecordingContext<>();
 
     @Override
-    public synchronized void contextCreated(StatementContext statementContext) {
+    public void contextCreated(StatementContext statementContext) {
         requireNonNull(statementContext, "statementContext is null!");
 
-        assertFalse(contextElements.containsKey(statementContext), "statement context has already been created");
+        synchronized (contextElements) {
+            assertFalse(contextElements.containsKey(statementContext), "statement context has already been created");
 
-        contextElements.putIfAbsent(statementContext, new RecordingContext<>());
-    }
-
-    @Override
-    public synchronized void contextCleaned(StatementContext statementContext) {
-        requireNonNull(statementContext, "statementContext is null!");
-
-        assertTrue(contextElements.containsKey(statementContext), "statement context is unknown");
-        RecordingContext<Cleanable> context = contextElements.get(statementContext);
-
-        Set<Cleanable> leakedCleanables = difference(context.objectAdded.keySet(), context.objectRemoved.keySet());
-        if (!leakedCleanables.isEmpty()) {
-            fail(format("Found %d cleanables that were not removed [%s]", leakedCleanables.size(), leakedCleanables));
+            contextElements.putIfAbsent(statementContext, new RecordingContext<>());
         }
-        context.reset();
     }
 
     @Override
-    public synchronized void cleanableAdded(StatementContext statementContext, Cleanable cleanable) {
+    public void contextCleaned(StatementContext statementContext) {
         requireNonNull(statementContext, "statementContext is null!");
-        requireNonNull(cleanable, "cleanable is null");
 
-        assertTrue(contextElements.containsKey(statementContext), "statement context is unknown");
-        RecordingContext<Cleanable> context = contextElements.get(statementContext);
+        synchronized (contextElements) {
+            assertTrue(contextElements.containsKey(statementContext), "statement context is unknown");
+            RecordingContext<Cleanable> context = contextElements.get(statementContext);
 
-        assertFalse(context.objectAdded.containsKey(cleanable), "cleanable has already been added");
-        assertFalse(context.objectRemoved.containsKey(cleanable), "cleanable has already been removed");
-
-        context.objectAdded.putIfAbsent(cleanable, Boolean.TRUE);
-    }
-
-    @Override
-    public synchronized void cleanableRemoved(StatementContext statementContext, Cleanable cleanable) {
-        requireNonNull(statementContext, "statementContext is null!");
-        requireNonNull(cleanable, "cleanable is null");
-
-        assertTrue(contextElements.containsKey(statementContext), "statement context is unknown");
-        RecordingContext<Cleanable> context = contextElements.get(statementContext);
-
-        assertTrue(context.objectAdded.containsKey(cleanable), "cleanable has not been added");
-        assertFalse(context.objectRemoved.containsKey(cleanable), "cleanable has already been removed");
-
-        context.objectRemoved.putIfAbsent(cleanable, Boolean.TRUE);
-    }
-
-    @Override
-    public synchronized void handleCreated(Handle handle) {
-        requireNonNull(handle, "handle is null");
-
-        assertFalse(handleTracker.objectAdded.containsKey(handle), "handle has already been added");
-        assertFalse(handleTracker.objectRemoved.containsKey(handle), "handle has already been removed");
-
-        handleTracker.objectAdded.putIfAbsent(handle, Boolean.TRUE);
-    }
-
-    @Override
-    public synchronized void handleClosed(Handle handle) {
-        requireNonNull(handle, "handle is null");
-
-        assertTrue(handleTracker.objectAdded.containsKey(handle), "handle has not been added");
-        assertFalse(handleTracker.objectRemoved.containsKey(handle), "handle has already been removed");
-
-        handleTracker.objectRemoved.putIfAbsent(handle, Boolean.TRUE);
-    }
-
-    public synchronized void checkForLeaks() {
-        Set<Handle> leakedHandles = difference(handleTracker.objectAdded.keySet(), handleTracker.objectRemoved.keySet());
-
-        if (!leakedHandles.isEmpty()) {
-            fail(format("Found %d leaked handles.", leakedHandles.size()));
-        }
-
-        int leakedCleanablesCount = 0;
-
-        for (RecordingContext<Cleanable> context : contextElements.values()) {
             Set<Cleanable> leakedCleanables = difference(context.objectAdded.keySet(), context.objectRemoved.keySet());
             if (!leakedCleanables.isEmpty()) {
-                leakedCleanablesCount += leakedCleanables.size();
+                fail(format("Found %d cleanables that were not removed [%s]", leakedCleanables.size(), leakedCleanables));
+            }
+            context.reset();
+        }
+    }
+
+    @Override
+    public void cleanableAdded(StatementContext statementContext, Cleanable cleanable) {
+        requireNonNull(statementContext, "statementContext is null!");
+        requireNonNull(cleanable, "cleanable is null");
+
+        synchronized (contextElements) {
+            assertTrue(contextElements.containsKey(statementContext), "statement context is unknown");
+            RecordingContext<Cleanable> context = contextElements.get(statementContext);
+
+            assertFalse(context.objectAdded.containsKey(cleanable), "cleanable has already been added");
+            assertFalse(context.objectRemoved.containsKey(cleanable), "cleanable has already been removed");
+
+            context.objectAdded.putIfAbsent(cleanable, Boolean.TRUE);
+        }
+    }
+
+    @Override
+    public void cleanableRemoved(StatementContext statementContext, Cleanable cleanable) {
+        requireNonNull(statementContext, "statementContext is null!");
+        requireNonNull(cleanable, "cleanable is null");
+
+        synchronized (contextElements) {
+            assertTrue(contextElements.containsKey(statementContext), "statement context is unknown");
+            RecordingContext<Cleanable> context = contextElements.get(statementContext);
+
+            assertTrue(context.objectAdded.containsKey(cleanable), "cleanable has not been added");
+            assertFalse(context.objectRemoved.containsKey(cleanable), "cleanable has already been removed");
+
+            context.objectRemoved.putIfAbsent(cleanable, Boolean.TRUE);
+        }
+    }
+
+    @Override
+    public void handleCreated(Handle handle) {
+        requireNonNull(handle, "handle is null");
+
+        synchronized (handleTracker) {
+            assertFalse(handleTracker.objectAdded.containsKey(handle), "handle has already been added");
+            assertFalse(handleTracker.objectRemoved.containsKey(handle), "handle has already been removed");
+
+            handleTracker.objectAdded.putIfAbsent(handle, Boolean.TRUE);
+        }
+    }
+
+    @Override
+    public void handleClosed(Handle handle) {
+        requireNonNull(handle, "handle is null");
+
+        synchronized (handleTracker) {
+            assertTrue(handleTracker.objectAdded.containsKey(handle), "handle has not been added");
+            assertFalse(handleTracker.objectRemoved.containsKey(handle), "handle has already been removed");
+
+            handleTracker.objectRemoved.putIfAbsent(handle, Boolean.TRUE);
+        }
+    }
+
+    public void checkForLeaks() {
+        synchronized (handleTracker) {
+            Set<Handle> leakedHandles = difference(handleTracker.objectAdded.keySet(), handleTracker.objectRemoved.keySet());
+
+            if (!leakedHandles.isEmpty()) {
+                fail(format("Found %d leaked handles.", leakedHandles.size()));
             }
         }
 
-        if (leakedCleanablesCount > 0) {
-            fail(format("Found %d leaked cleanable objects in %d contexts", leakedCleanablesCount, contextElements.size()));
+        synchronized (contextElements) {
+            int leakedCleanablesCount = 0;
+
+            for (RecordingContext<Cleanable> context : contextElements.values()) {
+                Set<Cleanable> leakedCleanables = difference(context.objectAdded.keySet(), context.objectRemoved.keySet());
+                if (!leakedCleanables.isEmpty()) {
+                    leakedCleanablesCount += leakedCleanables.size();
+                }
+            }
+
+            if (leakedCleanablesCount > 0) {
+                fail(format("Found %d leaked cleanable objects in %d contexts", leakedCleanablesCount, contextElements.size()));
+            }
         }
     }
 
