@@ -15,7 +15,6 @@ package org.jdbi.v3.spring5;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -40,21 +39,22 @@ public class JdbiRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
-        Iterable<BeanDefinition> repositoryBeanDefinitions = resolveRepositoryBeanDefinitions(metadata);
+        EnableJdbiRepositories annotation = metadata.getAnnotations().get(EnableJdbiRepositories.class).synthesize();
+        String annotatedClass = metadata.getClassName();
+        Iterable<BeanDefinition> repositoryBeanDefinitions = resolveRepositoryBeanDefinitions(annotation, annotatedClass);
         for (BeanDefinition repositoryBeanDefinition : repositoryBeanDefinitions) {
             AnnotationMetadata annotationMetadata = ((AnnotatedBeanDefinition) repositoryBeanDefinition).getMetadata();
-            registerJdbiRepositoryFactoryBean(registry, annotationMetadata);
+            String repositoryClass = annotationMetadata.getClassName();
+            JdbiRepository repositoryAnnotation = annotationMetadata.getAnnotations().get(JdbiRepository.class).synthesize();
+            registerJdbiRepositoryFactoryBean(registry, repositoryAnnotation, repositoryClass);
         }
     }
 
-    private void registerJdbiRepositoryFactoryBean(BeanDefinitionRegistry registry, AnnotationMetadata annotationMetadata) {
-        String className = annotationMetadata.getClassName();
+    private void registerJdbiRepositoryFactoryBean(BeanDefinitionRegistry registry, JdbiRepository annotation, String className) {
         @SuppressWarnings("rawtypes")
         Class clazz = ClassUtils.resolveClassName(className, null);
-
-        Map<String, Object> attributes = getAnnotationAttributes(JdbiRepository.class, annotationMetadata);
-        String jdbiQualifier = (String) attributes.get("jdbiQualifier");
-        String value = (String) attributes.get("value");
+        String jdbiQualifier = annotation.jdbiQualifier();
+        String value = annotation.value();
 
         JdbiRepositoryFactoryBean factoryBean = new JdbiRepositoryFactoryBean();
         factoryBean.setObjectType(clazz);
@@ -69,17 +69,15 @@ public class JdbiRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
         registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
     }
 
-    private Iterable<BeanDefinition> resolveRepositoryBeanDefinitions(AnnotationMetadata metadata) {
+    private Iterable<BeanDefinition> resolveRepositoryBeanDefinitions(EnableJdbiRepositories annotation, String annotatedClass) {
         LinkedHashSet<BeanDefinition> repositoryDefinitions = new LinkedHashSet<>();
-        Map<String, Object> attrs = getAnnotationAttributes(EnableJdbiRepositories.class, metadata);
-        final Class<?>[] clients = (Class<?>[]) attrs.get("repositories");
-        if (clients.length > 0) {
-            for (Class<?> clazz : clients) {
+        if (annotation.repositories().length > 0) {
+            for (Class<?> clazz : annotation.repositories()) {
                 repositoryDefinitions.add(new AnnotatedGenericBeanDefinition(clazz));
             }
         } else {
             ClassPathScanningCandidateComponentProvider scanner = createScanner();
-            Set<String> basePackages = resolveBasePackages(metadata);
+            Set<String> basePackages = resolveBasePackages(annotation, annotatedClass);
             for (String basePackage : basePackages) {
                 repositoryDefinitions.addAll(scanner.findCandidateComponents(basePackage));
             }
@@ -87,25 +85,24 @@ public class JdbiRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
         return repositoryDefinitions;
     }
 
-    private Set<String> resolveBasePackages(AnnotationMetadata metadata) {
-        Map<String, Object> attributes = getAnnotationAttributes(EnableJdbiRepositories.class, metadata);
+    private Set<String> resolveBasePackages(EnableJdbiRepositories annotation, String annotatedClass) {
         Set<String> basePackages = new HashSet<>();
-        for (String pkg : (String[]) attributes.get("value")) {
+        for (String pkg : annotation.value()) {
             if (StringUtils.hasText(pkg)) {
                 basePackages.add(pkg);
             }
         }
-        for (String pkg : (String[]) attributes.get("basePackages")) {
+        for (String pkg : annotation.basePackages()) {
             if (StringUtils.hasText(pkg)) {
                 basePackages.add(pkg);
             }
         }
-        for (Class<?> clazz : (Class<?>[]) attributes.get("basePackageClasses")) {
+        for (Class<?> clazz : annotation.basePackageClasses()) {
             basePackages.add(ClassUtils.getPackageName(clazz));
         }
 
         if (basePackages.isEmpty()) {
-            basePackages.add(ClassUtils.getPackageName(metadata.getClassName()));
+            basePackages.add(ClassUtils.getPackageName(annotatedClass));
         }
         return basePackages;
     }
@@ -119,13 +116,5 @@ public class JdbiRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
         };
         scanner.addIncludeFilter(new AnnotationTypeFilter(JdbiRepository.class));
         return scanner;
-    }
-
-    private Map<String, Object> getAnnotationAttributes(Class<?> annotationClass, AnnotationMetadata metadata) {
-        Map<String, Object> attributes = metadata.getAnnotationAttributes(annotationClass.getCanonicalName());
-        if (attributes == null) {
-            throw new IllegalStateException("Annotation for " + annotationClass + " not found in metadata?!");
-        }
-        return attributes;
     }
 }
