@@ -37,11 +37,15 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
 
     private final ConcurrentMap<StatementContext, RecordingContext<Cleanable>> contextElements = new MapMaker().makeMap();
     private final RecordingContext<Handle> handleTracker = new RecordingContext<>();
+
     @Override
     public void contextCreated(StatementContext statementContext) {
         checkNotNull(statementContext, "statementContext is null!");
 
-        assertThat(contextElements).as("statement context has already been created").doesNotContainKey(statementContext);
+        assertThat(contextElements)
+            .withFailMessage(() ->
+                format("statement context %s has already been created by thread %s", statementContext, contextElements.get(statementContext)))
+            .doesNotContainKey(statementContext);
 
         contextElements.putIfAbsent(statementContext, new RecordingContext<>());
     }
@@ -50,13 +54,17 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
     public void contextCleaned(StatementContext statementContext) {
         checkNotNull(statementContext, "statementContext is null!");
 
-        assertThat(contextElements).as("statement context is unknown").containsKey(statementContext);
+        assertThat(contextElements)
+            .withFailMessage(() -> format("statement context %s is unknown", statementContext))
+            .containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
-        Set<Cleanable> leakedCleanables = Sets.difference(context.objectAdded.keySet(), context.objectRemoved.keySet());
+
+        Set<Cleanable> leakedCleanables = context.leakedElements();
         if (!leakedCleanables.isEmpty()) {
             fail(format("Found %d cleanables that were not removed [%s]", leakedCleanables.size(), leakedCleanables));
         }
+
         context.reset();
     }
 
@@ -65,14 +73,20 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(statementContext, "statementContext is null!");
         checkNotNull(cleanable, "cleanable is null");
 
-        assertThat(contextElements).as("statement context is unknown").containsKey(statementContext);
+        assertThat(contextElements)
+            .withFailMessage(() -> format("statement context %s is unknown", statementContext))
+            .containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
 
-        assertThat(context.objectAdded).as("cleanable has already been added").doesNotContainKey(cleanable);
-        assertThat(context.objectRemoved).as("cleanable has already been removed").doesNotContainKey(cleanable);
+        assertThat(context.objectAdded)
+            .withFailMessage(() -> format("cleanable %s has already been added by thread %s", cleanable, context.objectAdded.get(cleanable)))
+            .doesNotContainKey(cleanable);
+        assertThat(context.objectRemoved)
+            .withFailMessage(() -> format("cleanable %s has already been removed by thread %s", cleanable, context.objectRemoved.get(cleanable)))
+            .doesNotContainKey(cleanable);
 
-        context.objectAdded.putIfAbsent(cleanable, Boolean.TRUE);
+        context.objectAdded.putIfAbsent(cleanable, getThreadName());
     }
 
     @Override
@@ -80,49 +94,64 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(statementContext, "statementContext is null!");
         checkNotNull(cleanable, "cleanable is null");
 
-        assertThat(contextElements).as("statement context is unknown").containsKey(statementContext);
+        assertThat(contextElements)
+            .withFailMessage(() -> format("statement context %s is unknown", statementContext))
+            .containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
 
-        assertThat(context.objectAdded).as("cleanable has not been added").containsKey(cleanable);
-        assertThat(context.objectRemoved).as("cleanable has already been removed").doesNotContainKey(cleanable);
+        assertThat(context.objectAdded)
+            .withFailMessage(() -> format("cleanable %s is unknown", cleanable))
+            .containsKey(cleanable);
+        assertThat(context.objectRemoved)
+            .withFailMessage(() -> format("cleanable %s has already been removed by thread %s", cleanable, context.objectRemoved.get(cleanable)))
+            .doesNotContainKey(cleanable);
 
-        context.objectRemoved.putIfAbsent(cleanable, Boolean.TRUE);
+        context.objectRemoved.putIfAbsent(cleanable, getThreadName());
     }
 
     @Override
     public void handleCreated(Handle handle) {
         checkNotNull(handle, "handle is null");
 
-        assertThat(handleTracker.objectAdded).as("handle has already been added").doesNotContainKey(handle);
-        assertThat(handleTracker.objectRemoved).as("handle has already been removed").doesNotContainKey(handle);
+        assertThat(handleTracker.objectAdded)
+            .withFailMessage(() -> format("handle %s has already been added by thread %s", handle, handleTracker.objectAdded.get(handle)))
+            .doesNotContainKey(handle);
 
-        handleTracker.objectAdded.putIfAbsent(handle, Boolean.TRUE);
+        assertThat(handleTracker.objectRemoved)
+            .withFailMessage(() -> format("handle %s has already been removed by thread %s", handle, handleTracker.objectRemoved.get(handle)))
+            .doesNotContainKey(handle);
+
+        handleTracker.objectAdded.putIfAbsent(handle, getThreadName());
     }
 
     @Override
     public void handleClosed(Handle handle) {
         checkNotNull(handle, "handle is null");
 
-        assertThat(handleTracker.objectAdded).as("handle has not been added").containsKey(handle);
-        assertThat(handleTracker.objectRemoved).as("handle has already been removed").doesNotContainKey(handle);
+        assertThat(handleTracker.objectAdded)
+            .withFailMessage(() -> format("handle %s is unknown", handle))
+            .containsKey(handle);
 
-        handleTracker.objectRemoved.putIfAbsent(handle, Boolean.TRUE);
+        assertThat(handleTracker.objectRemoved)
+            .withFailMessage(() -> format("handle %s has already been removed by thread %s", handle, handleTracker.objectRemoved.get(handle)))
+            .doesNotContainKey(handle);
+
+        handleTracker.objectRemoved.putIfAbsent(handle, getThreadName());
     }
 
     public void checkForLeaks() {
+        Set<Handle> leakedHandles = handleTracker.leakedElements();
 
-        Set<Handle> leakedHandles = Sets.difference(handleTracker.objectAdded.keySet(), handleTracker.objectRemoved.keySet());
-
-        if (leakedHandles.size() > 0) {
+        if (!leakedHandles.isEmpty()) {
             fail(format("Found %d leaked handles.", leakedHandles.size()));
         }
 
         int leakedCleanablesCount = 0;
 
         for (RecordingContext<Cleanable> context : contextElements.values()) {
-            Set<Cleanable> leakedCleanables = Sets.difference(context.objectAdded.keySet(), context.objectRemoved.keySet());
-            if (leakedCleanables.size() > 0) {
+            Set<Cleanable> leakedCleanables = context.leakedElements();
+            if (!leakedCleanables.isEmpty()) {
                 leakedCleanablesCount += leakedCleanables.size();
             }
         }
@@ -132,14 +161,21 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         }
     }
 
-    private static final class RecordingContext<T> {
+    private static String getThreadName() {
+        return Thread.currentThread().getName();
+    }
 
-        private final ConcurrentMap<T, Boolean> objectAdded = new MapMaker().makeMap();
-        private final ConcurrentMap<T, Boolean> objectRemoved = new MapMaker().makeMap();
+    private static final class RecordingContext<T> {
+        private final ConcurrentMap<T, String> objectAdded = new MapMaker().makeMap();
+        private final ConcurrentMap<T, String> objectRemoved = new MapMaker().makeMap();
 
         public void reset() {
             objectAdded.clear();
             objectRemoved.clear();
+        }
+
+        public Set<T> leakedElements() {
+            return Sets.difference(objectAdded.keySet(), objectRemoved.keySet());
         }
     }
 }
