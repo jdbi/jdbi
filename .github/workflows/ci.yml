@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-java@v3
         id: build_jdk
         with:
-          java-version: 17
+          java-version: 21
           distribution: ${{ matrix.distribution }}
           cache: maven
 
