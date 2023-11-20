@@ -95,8 +95,17 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
         return sharedHandle;
     }
 
+    /**
+     * Returns the last connection handed out by this extension. This is <b>not</b> a general
+     * purpose API but is intended for tests that need to compare connection objects between a
+     * handle and what the extension has handed out.
+     * <br>
+     * This API is <b>not multi-thread safe</b> and will not work if the extension is shared between
+     * multiple threads.
+     * @return A connection object. Can be null if no connection had been handed out.
+     */
     public Connection getLastConnection() {
-        return lastConnection;
+        return this.lastConnection;
     }
 
     public void clearLastConnection() {
@@ -132,8 +141,12 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
             throw new IllegalStateException("jdbi is not null!");
         }
         jdbi = Jdbi.create(() -> {
-            this.lastConnection = DriverManager.getConnection(uri);
-            return lastConnection;
+            final Connection connection = DriverManager.getConnection(uri);
+            // this will only work reliably in single-threaded tests. Any multi-threaded
+            // test will hand out the last connection used by the last thread calling this
+            // method.
+            this.lastConnection = connection;
+            return connection;
         });
 
         installTestPlugins(jdbi);
@@ -154,7 +167,7 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
     }
 
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    public void afterEach(ExtensionContext context) {
         if (sharedHandle == null) {
             throw new IllegalStateException("shared handle was not initialized!");
         }
