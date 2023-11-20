@@ -9,9 +9,6 @@ on:
     branches:
       - master
 
-env:
-  tarFile: "output-${{ github.job }}-${{ github.run_number }}-${{ github.run_attempt }}.tar.gz"
-
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -26,7 +23,7 @@ jobs:
       - uses: actions/setup-java@v3
         id: build_jdk
         with:
-          java-version: 17
+          java-version: 21
           distribution: ${{ matrix.distribution }}
           cache: maven
 
@@ -62,22 +59,3 @@ jobs:
           MAVEN_CONFIG: "-B -fae"
         run: |
           make run-tests
-
-      - name: Package
-        if: failure()
-        run: |
-          FOLDER=$(basename `pwd`)
-          cd ..
-          tar czf ${{ runner.temp }}/${{ env.tarFile }} --exclude=.git $FOLDER
-          mv ${{ runner.temp }}/${{ env.tarFile }} ${{ github.workspace }}
-
-      - uses: keithweaver/aws-s3-github-action@v1.0.0
-        name: Upload
-        if: failure()
-        with:
-          command: cp
-          source: ${{ github.workspace }}/${{ env.tarFile }}
-          destination: s3://github-action-error-logs/${{ github.repository }}/${{ env.tarFile }}
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-east-1
