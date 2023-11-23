@@ -1360,6 +1360,8 @@
                                     <enabled>true</enabled>
                                 </metadataRepository>
                                 <agent>
+                                    <enabled>true</enabled>
+                                    <!-- XXX Temporary -->
                                     <options>
                                         <enableExperimentalPredefinedClasses>true</enableExperimentalPredefinedClasses>
                                     </options>
