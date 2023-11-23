@@ -1357,6 +1357,11 @@
                                 <metadataRepository>
                                     <enabled>true</enabled>
                                 </metadataRepository>
+                                <agent>
+                                    <options>
+                                        <enableExperimentalPredefinedClasses>true</enableExperimentalPredefinedClasses>
+                                    </options>
+                                </agent>
                             </configuration>
                             <executions>
                                 <execution>
