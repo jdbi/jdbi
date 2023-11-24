@@ -48,7 +48,7 @@ BLOCK_BEGIN
     ;
 
 BLOCK_END
-    : 'END' WHITESPACE+
+    : 'END' WHITESPACE*
     ;
 
 fragment ESCAPE_SEQUENCE

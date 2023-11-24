@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.core.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
 import org.jdbi.v3.core.internal.lexer.SqlScriptLexer;
@@ -36,10 +39,10 @@ import static org.jdbi.v3.core.internal.lexer.SqlScriptLexer.SEMICOLON;
  */
 public class SqlScriptParser {
 
-    private final TokenHandler semicolonHandler;
+    private final TokenHandler tokenHandler;
 
-    public SqlScriptParser(TokenHandler semicolonHandler) {
-        this.semicolonHandler = semicolonHandler;
+    public SqlScriptParser(TokenHandler tokenHandler) {
+        this.tokenHandler = tokenHandler;
     }
 
     public String parse(CharStream charStream) {
@@ -47,38 +50,31 @@ public class SqlScriptParser {
         SqlScriptLexer lexer = new SqlScriptLexer(charStream);
         lexer.addErrorListener(new ErrorListener());
         boolean endOfFile = false;
-        int blockLevel = 0;
         while (!endOfFile) {
             Token t = lexer.nextToken();
             switch (t.getType()) {
+                // EOF ends parsing
                 case Token.EOF:
                     endOfFile = true;
                     break;
-                case SEMICOLON:
-                    if (blockLevel == 0) {
-                        semicolonHandler.handle(t, sb);
-                    } else {
-                        // preserve semicolons within begin/end block
-                        sb.append(t.getText());
-                    }
-                    break;
-                case BLOCK_BEGIN:
-                case BLOCK_END:
-                    blockLevel += BLOCK_BEGIN == t.getType() ? +1 : -1;
-                    sb.append(t.getText());
-                    break;
+                // Strip comments out
                 case COMMENT:
                 case MULTI_LINE_COMMENT:
                     break;
+                // collapse newlines
                 case NEWLINES:
                     if (sb.length() > 0) {
                         sb.append('\n');
                     }
                     break;
+                // everything else is done by the handler
+                case SEMICOLON:
+                case BLOCK_BEGIN:
+                case BLOCK_END:
                 case QUOTED_TEXT:
                 case LITERAL:
                 case OTHER:
-                    sb.append(t.getText());
+                    tokenHandler.handle(t, sb);
                     break;
                 default:
                     throw new IllegalArgumentException("Unrecognizable token " + t);
@@ -89,5 +85,57 @@ public class SqlScriptParser {
 
     public interface TokenHandler {
         void handle(Token t, StringBuilder sb);
+    }
+
+    public static final class ScriptTokenHandler implements TokenHandler {
+
+        private final List<String> statements = new ArrayList<>();
+        private Token lastToken = null;
+
+        private int blockLevel = 0;
+
+        @Override
+        public void handle(Token t, StringBuilder sb) {
+            switch (t.getType()) {
+                case BLOCK_BEGIN:
+                    blockLevel++;
+                    sb.append(t.getText());
+                    break;
+                case BLOCK_END:
+                    if (blockLevel == 0) {
+                        throw new IllegalStateException("Found END in SQL script without BEGIN!");
+                    }
+
+                    blockLevel--;
+                    sb.append(t.getText());
+                    break;
+                case SEMICOLON:
+                    if (blockLevel == 0) {
+                        if (lastToken != null && lastToken.getType() == BLOCK_END) {
+                            sb.append(t.getText());
+                        }
+                        addStatement(sb.toString());
+                        sb.setLength(0);
+                    } else {
+                        sb.append(t.getText());
+                    }
+                    break;
+                default:
+                    sb.append(t.getText());
+            }
+            lastToken = t;
+        }
+
+        public List<String> getStatements() {
+            return statements;
+        }
+
+        public List<String> addStatement(String statement) {
+            String trimmedStatement = statement.trim();
+            if (!trimmedStatement.isEmpty()) {
+                statements.add(trimmedStatement);
+            }
+            return statements;
+        }
     }
 }
