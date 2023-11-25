@@ -59,6 +59,18 @@
         </dependency>
 
         <dependency>
+            <groupId>de.softwareforge.testing</groupId>
+            <artifactId>pg-embedded</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-testing</artifactId>
             <scope>test</scope>

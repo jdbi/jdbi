@@ -1,5 +1,6 @@
 # Unreleased
 
+- Fix Vavr argument usage in SqlObjects (reported by @diversit, #2529)
 - Add Spring Jdbi repositories with `@EnableJdbiRepositories`, thanks @xfredk (#2528)
 - Move from Kotlin 1.5 to 1.6 as 1.5 is deprecated and will be removed.
 - Add support for Function arguments, similar to Consumer arguments, to SQL objects (#2326)
