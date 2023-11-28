@@ -7427,7 +7427,7 @@ To use *jdbi-spring5*, add a Maven dependency:
 ----
 
 ==== XML-based configuration
-For XML-based configurations the class `JdbiFactoryBean` is made available to set up a
+For XML-based configurations the class link:{jdbidocs}/spring5/JdbiFactoryBean.html[JdbiFactoryBean^] is made available to set up a
 link:{jdbidocs}/core/Jdbi.html[Jdbi^] singleton in a Spring 5 (or Spring Boot) application context.
 
 Then configure the Jdbi factory bean in your Spring container, e.g.:
@@ -7472,7 +7472,7 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 <1> The SQL data source that Jdbi will connect to. In this example we use an H2
     database, but it can be any JDBC-compatible database.
 <2> Enable configuration of transactions via annotations.
-<3> Configure `JdbiFactoryBean` using the data source configured earlier.
+<3> Configure link:{jdbidocs}/spring5/JdbiFactoryBean.html[JdbiFactoryBean^] using the data source configured earlier.
 <4> Inject a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance into a service class. Alternatively, use standard JSR-330 `@Inject` annotations on the target class instead of configuring it in your `beans.xml`.
 
 
@@ -7554,9 +7554,9 @@ public class JdbiConfiguration {
     }
 }
 ----
-<1> This connection factory will enable <<jta, JTA support>>.
+<1> This connection factory will enable <<spring5-jta, JTA support>>.
 
-[#jta]
+[#spring5-jta]
 ==== Synchronization between Jdbi and JTA
 If you use Spring and databases, you will most likely also use the Java Transaction API (JTA)
 to manage the transactions. The `JdbiUtil` utility can be used to obtain link:{jdbidocs}/core/Handle.html[Handles^]
