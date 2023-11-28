@@ -7414,10 +7414,9 @@ for upstream driver documentation.
 
 === Spring 5
 
-This module provides `JdbiFactoryBean`, a factory bean which sets up a link:{jdbidocs}/core/Jdbi.html[Jdbi^]
-singleton in a Spring 5 (or Spring Boot) application context.
+This module integrates Jdbi and Spring 5 (or Spring Boot), including JTA support.
 
-To use this module, add a Maven dependency:
+To use *jdbi-spring5*, add a Maven dependency:
 
 [source,xml,indent=0,subs="specialchars"]
 ----
@@ -7426,6 +7425,10 @@ To use this module, add a Maven dependency:
     <artifactId>jdbi3-spring5</artifactId>
 </dependency>
 ----
+
+==== XML-based configuration
+For XML-based configurations the class link:{jdbidocs}/spring5/JdbiFactoryBean.html[JdbiFactoryBean^] is made available to set up a
+link:{jdbidocs}/core/Jdbi.html[Jdbi^] singleton in a Spring 5 (or Spring Boot) application context.
 
 Then configure the Jdbi factory bean in your Spring container, e.g.:
 
@@ -7469,11 +7472,11 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 <1> The SQL data source that Jdbi will connect to. In this example we use an H2
     database, but it can be any JDBC-compatible database.
 <2> Enable configuration of transactions via annotations.
-<3> Configure `JdbiFactoryBean` using the data source configured earlier.
+<3> Configure link:{jdbidocs}/spring5/JdbiFactoryBean.html[JdbiFactoryBean^] using the data source configured earlier.
 <4> Inject a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance into a service class. Alternatively, use standard JSR-330 `@Inject` annotations on the target class instead of configuring it in your `beans.xml`.
 
 
-==== Installing Plugins
+===== Installing Plugins
 
 Plugins may be automatically installed by scanning the classpath for
 link:{jdkdocs}/java/util/ServiceLoader.html[ServiceLoader^] manifests.
@@ -7518,7 +7521,7 @@ auto-install some plugins and manually install the rest:
 ----
 
 
-==== Global Attributes
+===== Global Attributes
 
 Global defined attributes may be configured on the factory bean:
 
@@ -7534,6 +7537,71 @@ Global defined attributes may be configured on the factory bean:
 </bean>
 ----
 
+==== Annotation-based configuration
+For annotation based configurations you can add the following method in a
+`@Configuration` class:
+
+[source,java,indent=0]
+----
+@Configuration
+public class JdbiConfiguration {
+    @Bean
+    public Jdbi jdbi(DataSource ds) {
+        ConnectionFactory cf = new SpringConnectionFactory(dataSource); // <1>
+        final Jdbi jdbi = Jdbi.create(cf);
+        /* additional configuration goes here */
+        return jdbi;
+    }
+}
+----
+<1> This connection factory will enable <<spring5-jta, JTA support>>.
+
+[#spring5-jta]
+==== Synchronization between Jdbi and JTA
+If you use Spring and databases, you will most likely also use the Java Transaction API (JTA)
+to manage the transactions. The `JdbiUtil` utility can be used to obtain link:{jdbidocs}/core/Handle.html[Handles^]
+synchronized with Spring's JTA, as can be seen in the following fragment:
+
+[source,java,indent=0]
+----
+Handle handle = JdbiUtil.getHandle(jdbi); // <1>
+try {
+    /* Use the handle */
+} finally {
+    JdbiUtil.closeIfNeeded(handle); // <2>
+}
+----
+<1> Creates or reuses a handle, optionally synchronizing it with the current transaction
+<2> Closes the handle if it is not bound to a Spring transaction.
+
+This utility will also make sure that the handle is released when it was bound to a Spring transaction
+and that transaction is closed.
+
+==== Jdbi Repositories
+When using <<sql-objects, SQL objects>> it might be preferable to have them available for injection.
+This can be realized using the `@EnableJdbiRepositories` annotation (generally placed on your main class).
+This annotation will enable the detection of SQL objects annotated with `@JdbiRepository` and create a Spring
+bean for each of them.
+Beans created like this will also synchronize with JTA.
+
+Example usage:
+
+[source,java,indent=0]
+----
+@JdbiRepository
+public interface UserDao {
+    /* SQL Object functionality goes here */
+}
+----
+
+[source,java,indent=0]
+----
+@Component
+public class UserService {
+    @Autowired
+    private UserDao userDao;
+}
+----
 
 === SQLite
 The *jdbi3-sqlite* plugin provides support for using the
