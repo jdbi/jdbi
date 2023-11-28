@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         java-version: [ 11, 17, 21 ]
-        distribution: [ temurin ]
 
     steps:
       - uses: actions/checkout@v3
@@ -24,14 +23,14 @@ jobs:
         id: build_jdk
         with:
           java-version: 21
-          distribution: ${{ matrix.distribution }}
+          distribution: temurin
           cache: maven
 
       - uses: actions/setup-java@v3
         id: test_jdk
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: ${{ matrix.distribution }}
+          distribution: temurin
           cache: maven
 
       - name: set build_jdk
