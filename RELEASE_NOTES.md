@@ -9,6 +9,7 @@
 - correctness fix for Handle creation (#2541)
 - Fix Vavr argument usage in SqlObjects (reported by @diversit, #2529)
 - Fix MySQL Script parsing (reported by @IrinaTerlizhenko, #2535)
+- Added a written [security policy](SECURITY.md).
 
 # 3.41.3
 - Fix regression introduced by #2481 where `-` at the end of named parameters get swallowed. (#2499, thanks @gokristian for reporting).

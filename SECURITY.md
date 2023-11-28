@@ -8,7 +8,7 @@ Only the latest released version of Jdbi is actively supported. When reporting b
 
 We patch bugs and security relevant issues in the latest version and recommend upgrading. Jdbi goes to great length to ensure backwards compatibility so upgrading is almost always painless.
 
-The current version of Jdbi requires Java 11 or better. 
+The current version of Jdbi requires Java 11 or better.
 
 We will backport security fixes if needed to the [last version that supports Java 8](https://github.com/jdbi/jdbi/releases/tag/v3.39.1).
 
@@ -24,5 +24,4 @@ Historically, we have maintained a cadence of a release about every four weeks. 
 
 ## Reporting a Vulnerability
 
-Security vulnerabilities should be reported by drafting a [Security Advisory](https://github.com/jdbi/jdbi/security/advisories/new) directly on github. 
-
+Security vulnerabilities should be reported by drafting a [Security Advisory](https://github.com/jdbi/jdbi/security/advisories/new) directly on github.
