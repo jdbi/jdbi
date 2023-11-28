@@ -14,10 +14,9 @@
 package org.jdbi.v3.vavr;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import io.vavr.Lazy;
 import io.vavr.Value;
@@ -29,37 +28,62 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.generic.GenericTypes;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * supports several vavr value classes ({@link Option}, {@link Lazy}, {@link Either}, {@link Try} and {@link Validation}) with the underlying "nested" value being resolved via "get"
+ * supports several vavr value classes ({@link Option}, {@link Lazy}, {@link Either}, {@link Try} and {@link Validation}) with the underlying "nested" value
+ * being resolved via "get"
  * <p>
  * if there is no such value (Try-Failed, Either-Left...) a "null" value will be applied as argument value
  */
-class VavrValueArgumentFactory implements ArgumentFactory {
-    private static final Set<Class<?>> VALUE_CLASSES = new HashSet<>(Arrays.asList(Option.class, Lazy.class, Try.class, Either.class, Validation.class));
+class VavrValueArgumentFactory implements ArgumentFactory.Preparable {
+    private static final Class<?>[] VALUE_CLASSES = {Option.class, Lazy.class, Try.class, Either.class, Validation.class};
+
+    private static final Supplier<Type> OBJECT_SUPPLIER = () -> Object.class;
 
     @Override
     public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
-        Class<?> rawType = GenericTypes.getErasedType(type);
-
-        if (VALUE_CLASSES.stream().anyMatch(vc -> vc.isAssignableFrom(rawType))) {
-            return buildValueArgument(type, config, (Value) value);
+        if (acceptType(type)) {
+            Object nestedValue = unwrapValue((Value<?>) value);
+            Type nestedType = findGenericType(type, nestedValue);
+            return config.get(Arguments.class).findFor(nestedType, nestedValue);
+        } else {
+            return Optional.empty();
         }
+    }
 
+    @Override
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        if (acceptType(type)) {
+            return config.get(Arguments.class)
+                .prepareFor(findGenericType(type, null))
+                .map(argumentFunction ->
+                    value -> argumentFunction.apply(unwrapValue((Value<?>) value)));
+        }
         return Optional.empty();
     }
 
-    private static Optional<Argument> buildValueArgument(Type type, ConfigRegistry config, Value<?> value) {
-        Type nestedType = findGenericParameter(type, Value.class).orElseGet(() -> extractTypeOfValue(value));
-        Object nestedValue = value == null ? null : value.getOrNull();
-        return config.get(Arguments.class).findFor(nestedType, nestedValue);
+    private static boolean acceptType(Type type) {
+        Class<?> rawType = getErasedType(type);
+        for (Class<?> valueClass : VALUE_CLASSES) {
+            if (valueClass.isAssignableFrom(rawType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private static Type findGenericType(Type wrapperType, Object nestedValue) {
+        Optional<Type> nestedType = findGenericParameter(wrapperType, Value.class);
+        return nestedType.orElseGet(typeFromValue(nestedValue));
     }
 
-    private static Type extractTypeOfValue(Value<?> value) {
-        Value<Class<?>> classOfValue = value.map(Object::getClass);
-        return classOfValue.getOrElse(Object.class);
+    private static Supplier<Type> typeFromValue(Object object) {
+        return object == null ? OBJECT_SUPPLIER : object::getClass;
+    }
+
+    private static Object unwrapValue(Value<?> value) {
+        return value == null ? null : value.getOrNull();
     }
 }
