@@ -45,7 +45,7 @@ public class TestMySQL {
 
     @RegisterExtension
     JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer)
-            .withPlugin(new SqlObjectPlugin());
+        .withPlugin(new SqlObjectPlugin());
 
     @Test
     void testIssue2402() {
@@ -76,13 +76,13 @@ public class TestMySQL {
         List<Contact> getAllContacts();
 
         @SqlQuery("SELECT contact_id "
-                + " FROM contacts "
-                + " WHERE RIGHT(etag, 1) = RIGHT(:etag, 1)")
+            + " FROM contacts "
+            + " WHERE RIGHT(etag, 1) = RIGHT(:etag, 1)")
         List<String> testOne(@Bind("etag") String etag);
 
         @SqlQuery("SELECT contact_id"
-                + " FROM contacts "
-                + " WHERE etag LIKE \\'%<etagPattern>\\'")
+            + " FROM contacts "
+            + " WHERE etag LIKE \\'%<etagPattern>\\'")
         List<String> testTwo(@Define("etagPattern") String etag);
     }
 
@@ -103,5 +103,28 @@ public class TestMySQL {
         public String etag() {
             return etag;
         }
+    }
+
+
+    @Test
+    public void testIssue2535PassesSingleLine() {
+        String sqlScript = "CREATE PROCEDURE QWE() "
+            + "BEGIN "
+            + "END; "
+            + "DROP PROCEDURE IF EXISTS QWE;";
+        int[] result = extension.getJdbi().withHandle(h -> h.createScript(sqlScript).execute());
+
+        assertThat(result).isEqualTo(new int[] {0, 0 });
+    }
+
+    @Test
+    public void testIssue2535FailsMultiLine() {
+        String sqlScript = "CREATE PROCEDURE QWE()\n"
+            + "BEGIN\n"
+            + "END;\n"
+            + "DROP PROCEDURE IF EXISTS QWE;\n";
+        int[] result = extension.getJdbi().withHandle(h -> h.createScript(sqlScript).execute());
+
+        assertThat(result).isEqualTo(new int[] {0, 0});
     }
 }

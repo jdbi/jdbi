@@ -13,12 +13,12 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.internal.SqlScriptParser;
+import org.jdbi.v3.core.internal.SqlScriptParser.ScriptTokenHandler;
 
 /**
  * Represents a number of SQL statements delimited by semicolon which will be executed in order in a batch statement.
@@ -68,21 +68,10 @@ public class Script extends SqlStatement<Script> {
     }
 
     private List<String> splitToStatements(String script) {
-        final List<String> statements = new ArrayList<>();
-        String lastStatement = new SqlScriptParser((t, sb) -> {
-            addStatement(sb.toString(), statements);
-            sb.setLength(0);
-        }).parse(CharStreams.fromString(script));
-        addStatement(lastStatement, statements);
+        ScriptTokenHandler scriptTokenHandler = new ScriptTokenHandler();
+        String lastStatement = new SqlScriptParser(scriptTokenHandler)
+            .parse(CharStreams.fromString(script));
 
-        return statements;
-    }
-
-    private void addStatement(String statement, List<String> statements) {
-        String trimmedStatement = statement.trim();
-        if (trimmedStatement.isEmpty()) {
-            return;
-        }
-        statements.add(trimmedStatement);
+        return scriptTokenHandler.addStatement(lastStatement);
     }
 }

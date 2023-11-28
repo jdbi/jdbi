@@ -115,10 +115,8 @@ public final class ClasspathSqlLocator {
      * @return A new ClasspathSqlLocator that returns SQL with comments removed.
      */
     public static ClasspathSqlLocator removingComments() {
-        final SqlScriptParser commentStripper =
-                new SqlScriptParser((t, sb) -> sb.append(t.getText()));
-        return new ClasspathSqlLocator(
-                r -> commentStripper.parse(CharStreams.fromStream(r)));
+        final SqlScriptParser commentStripper = new SqlScriptParser((t, sb) -> sb.append(t.getText()));
+        return new ClasspathSqlLocator(r -> commentStripper.parse(CharStreams.fromStream(r)));
     }
 
     /**
