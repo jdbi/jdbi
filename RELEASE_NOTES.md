@@ -1,5 +1,6 @@
 # Unreleased
 
+- Support Kotlin coroutine scope. (#2524) - Suggested by @anderssv on the mailing list
 - Add Spring Jdbi repositories with `@EnableJdbiRepositories`, thanks @xfredk (#2528)
 - Move from Kotlin 1.5 to 1.6 as 1.5 is deprecated and will be removed.
 - Add support for Function arguments, similar to Consumer arguments, to SQL objects (#2326)
@@ -8,7 +9,6 @@
 - correctness fix for Handle creation (#2541)
 - Fix Vavr argument usage in SqlObjects (reported by @diversit, #2529)
 - Fix MySQL Script parsing (reported by @IrinaTerlizhenko, #2535)
-
 
 # 3.41.3
 - Fix regression introduced by #2481 where `-` at the end of named parameters get swallowed. (#2499, thanks @gokristian for reporting).

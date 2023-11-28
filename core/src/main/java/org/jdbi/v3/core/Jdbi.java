@@ -32,7 +32,6 @@ import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.extension.NoSuchExtensionException;
-import org.jdbi.v3.core.internal.HandleScope;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
