@@ -13,12 +13,7 @@
  */
 package org.jdbi.v3.core.internal;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -103,7 +98,7 @@ public class IterableLikeTest {
 
     @Test
     public void testSetToIterator() {
-        final Set<String> in = new HashSet<>(2);
+        final Set<String> in = new LinkedHashSet<>(2);
         in.add("1");
         in.add("2");
 
