@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.42.0
+
 - Add Spring Jdbi repositories with `@EnableJdbiRepositories`, thanks @xfredk (#2528, #2544)
 - Support Kotlin coroutine scope. (#2524) - Suggested by @anderssv on the mailing list
 - Move from Kotlin 1.5 to 1.6 as 1.5 is deprecated and will be removed.
@@ -12,7 +14,8 @@
 - Added a written [security policy](SECURITY.md).
 
 # 3.41.3
-- Fix regression introduced by #2481 where `-` at the end of named parameters get swallowed. (#2499, thanks @gokristian for reporting).
+
+  - Fix regression introduced by #2481 where `-` at the end of named parameters get swallowed. (#2499, thanks @gokristian for reporting).
   - un-deprecate the `otjPostgres` support in jdbi-testing as the project shipped 1.02 with JPMS module name support.
   - doc updates (#2496, thanks @hpoettker)
   - upgrade lombok version for testing with Java 21 (#2495)
