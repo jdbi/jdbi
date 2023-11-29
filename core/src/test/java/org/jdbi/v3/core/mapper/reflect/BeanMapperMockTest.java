@@ -38,6 +38,7 @@ import org.mockito.quality.Strictness;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -231,9 +232,9 @@ public class BeanMapperMockTest {
     public void shouldThrowOnPropertyTypeWithoutRegisteredMapper() throws Exception {
         mockColumns("longField", "valueTypeField");
 
-        when(resultSet.getLong(1)).thenReturn(123L);
+        lenient().when(resultSet.getLong(1)).thenReturn(123L);
         when(resultSet.getObject(2)).thenReturn(new Object());
-        when(resultSet.wasNull()).thenReturn(false);
+        lenient().when(resultSet.wasNull()).thenReturn(false);
 
         assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(ClassCastException.class);
     }
