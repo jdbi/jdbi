@@ -124,14 +124,6 @@ endif::[]
 * https://groups.google.com/group/jdbi[Mailing list^]
 * https://stackoverflow.com/questions/tagged/jdbi[Stack Overflow^]
 
-
-=== Getting involved
-
-Jdbi uses https://github.com/jdbi/jdbi[GitHub^] as the central development hub. https://github.com/jdbi/jdbi/issues[Issues^], https://github.com/jdbi/jdbi/pulls[Pull Requests^] and https://github.com/jdbi/jdbi/discussions[Discussions^] all happen here.
-
-Please see our https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribution guide^] for more information on how to contribute to Jdbi.
-
-
 === JDBI v2 (legacy version)
 
 [WARNING]
@@ -141,6 +133,17 @@ Please see our https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribu
 
 [TIP]
 Already using Jdbi v2? See <<Upgrading from v2 to v3>>
+
+=== Getting involved
+
+Jdbi uses https://github.com/jdbi/jdbi[GitHub^] as the central development hub. https://github.com/jdbi/jdbi/issues[Issues^], https://github.com/jdbi/jdbi/pulls[Pull Requests^] and https://github.com/jdbi/jdbi/discussions[Discussions^] all happen here.
+
+Please see our https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribution guide^] for more information on how to contribute to Jdbi.
+
+=== Acknowledgements and Funding
+
+* image:spotify_logo.svg[Spotify logo,30,30] https://engineering.atspotify.com/2023/10/announcing-the-recipients-of-the-2023-spotify-foss-fund/[Jdbi is a recipient of the Spotify FOSS 2023 Fund^]
+* image:tidelift_logo.png[Tidelift logo, 30, 30]https://tidelift.com/funding/github/maven/org.jdbi:jdbi3-core[Jdbi is supported by Tidelift^]
 
 
 == Using Jdbi in your projects

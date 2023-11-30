@@ -3,6 +3,8 @@
 [![CD from master pushes](https://github.com/jdbi/jdbi/actions/workflows/cd.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/cd.yml) |
 [![CI Build with tests](https://github.com/jdbi/jdbi/actions/workflows/ci.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/ci.yml) | [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi) | [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi) | [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi)
 
+
+
 The Jdbi library provides convenient, idiomatic access to relational databases in Java and other JVM technologies such as Kotlin, Clojure or Scala.
 
 Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use Jdbi with it.
@@ -16,6 +18,10 @@ Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use Jd
 
 Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/tree/master/examples) module.
 
+## Acknowledgements and Funding
+
+* <img src="docs/src/adoc/images/spotify_logo.svg" alt="spotify logo" title="spotify logo" width="30" height="30" style="vertical-align: middle; padding: 2px;"> <a href="https://engineering.atspotify.com/2023/10/announcing-the-recipients-of-the-2023-spotify-foss-fund/">Jdbi is a recipient of the Spotify FOSS 2023 Fund</a>
+* <img src="docs/src/adoc/images/tidelift_logo.png" alt="tidelift logo" title="tidelift logo" width="30" height="30" style="vertical-align: middle; padding: 2px;"><a href="https://tidelift.com/funding/github/maven/org.jdbi:jdbi3-core">Jdbi is supported by Tidelift</a>
 
 ## Prerequisites
 
