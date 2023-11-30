@@ -136,9 +136,11 @@ by pushing the code changes below and also publish the documentation web site!
 Push release commits and tag to Github:
 
 ```bash
-$ git push --tags
-$ git push master
+$ git push --follow-tags
 ```
+
+(or set the `push.followTags` setting for git).
+
 
 ## Publish the documentation
 

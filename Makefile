@@ -15,57 +15,59 @@
 #
 SHELL = /bin/sh
 .SUFFIXES:
-.PHONY: help clean install install-notests install-nodocker install-fast docs tests run-tests run-slow-tests run-tests-nodocker publish-docs deploy release release-docs
 
 MAVEN = ./mvnw ${JDBI_MAVEN_OPTS}
 
 export MAVEN_OPTS MAVEN_CONFIG
 
-default: help
+# must be the first target
+default:: help
 
-clean:
+Makefile:: ;
+
+clean::
 	${MAVEN} clean
 
-install:
+install::
 	${MAVEN} clean install
 
 tests: install-fast run-tests
 
-install-notests: MAVEN_CONFIG += -Dbasepom.test.skip=true
-install-notests: install
+install-notests:: MAVEN_CONFIG += -Dbasepom.test.skip=true
+install-notests:: install
 
-install-nodocker: MAVEN_CONFIG += -Dno-docker=true
-install-nodocker: install
+install-nodocker:: MAVEN_CONFIG += -Dno-docker=true
+install-nodocker:: install
 
-install-fast: MAVEN_CONFIG += -Pfast
-install-fast: install
+install-fast:: MAVEN_CONFIG += -Pfast
+install-fast:: install
 
 docs: MAVEN_CONFIG += -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false
 docs: install
 
-run-tests: MAVEN_CONFIG += -Dbasepom.it.skip=false
-run-tests:
+run-tests:: MAVEN_CONFIG += -Dbasepom.it.skip=false
+run-tests::
 	${MAVEN} surefire:test invoker:install invoker:integration-test invoker:verify
 
-run-slow-tests: MAVEN_CONFIG += -Pslow-tests
-run-slow-tests: run-tests
+run-slow-tests:: MAVEN_CONFIG += -Pslow-tests
+run-slow-tests:: run-tests
 
-run-tests-nodocker: MAVEN_CONFIG += -Dno-docker=true
-run-tests-nodocker: run-tests
+run-tests-nodocker:: MAVEN_CONFIG += -Dno-docker=true
+run-tests-nodocker:: run-tests
 
-publish-docs: MAVEN_CONFIG += -Pfast -Dbasepom.javadoc.skip=false
-publish-docs: install
+publish-docs:: MAVEN_CONFIG += -Pfast -Dbasepom.javadoc.skip=false
+publish-docs:: install
 	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
 
-deploy: MAVEN_CONFIG += -Dbasepom.it.skip=false
-deploy:
+deploy:: MAVEN_CONFIG += -Dbasepom.it.skip=false
+deploy::
 	${MAVEN} clean deploy
 
-release:
+release::
 	${MAVEN} clean release:clean release:prepare release:perform
 
-release-docs: MAVEN_CONFIG += -Pjdbi-release
-release-docs: publish-docs
+release-docs:: MAVEN_CONFIG += -Pjdbi-release
+release-docs:: publish-docs
 
 help:
 	@echo " * clean               - clean local build tree"
@@ -76,8 +78,8 @@ help:
 	@echo " * tests               - build code and run unit and integration tests except really slow tests"
 	@echo " * docs                - build up-to-date documentation in docs/target/generated-docs/"
 	@echo " * run-tests           - run all unit and integration tests except really slow tests"
+	@echo " * run-slow-tests      - run all unit and integration tests"
 	@echo " * run-tests-nodocker  - same as 'run-tests', but skip all tests that require a local docker installation"
-	@echo " * run-tests-container - run the full multi-database container test suite"
 	@echo " *"
 	@echo " ***********************************************************************"
 	@echo " *"
@@ -85,7 +87,7 @@ help:
 	@echo " *"
 	@echo " ***********************************************************************"
 	@echo " *"
-	@echo " * publish-docs     - build up-to-date documentation and deploy to jdbi.org"
 	@echo " * deploy           - builds and deploys the current version to the Sonatype OSS repository"
+	@echo " * publish-docs     - build up-to-date documentation and deploy to jdbi.org"
 	@echo " * release          - create and deploy a Jdbi release"
 	@echo " * release-docs     - deploy release documentation"
