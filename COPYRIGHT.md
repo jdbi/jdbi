@@ -1,5 +1,5 @@
 # JDBI
 
-Copyright (C) 2004 - 2015 Brian McCallister
+Copyright (C) 2004 - 2023 Brian McCallister
 
 ----
