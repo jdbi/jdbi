@@ -88,11 +88,17 @@ public class SqlScriptParser {
     }
 
     public static final class ScriptTokenHandler implements TokenHandler {
+        private final boolean requireSemicolon;
 
         private final List<String> statements = new ArrayList<>();
+
         private Token lastToken = null;
 
         private int blockLevel = 0;
+
+        public ScriptTokenHandler(boolean requireSemicolon) {
+            this.requireSemicolon = requireSemicolon;
+        }
 
         @Override
         public void handle(Token t, StringBuilder sb) {
@@ -111,7 +117,8 @@ public class SqlScriptParser {
                     break;
                 case SEMICOLON:
                     if (blockLevel == 0) {
-                        if (lastToken != null && lastToken.getType() == BLOCK_END) {
+                        if (requireSemicolon
+                            && (lastToken != null && lastToken.getType() == BLOCK_END)) {
                             sb.append(t.getText());
                         }
                         addStatement(sb.toString());

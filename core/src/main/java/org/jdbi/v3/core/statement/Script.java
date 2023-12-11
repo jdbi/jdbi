@@ -24,8 +24,11 @@ import org.jdbi.v3.core.internal.SqlScriptParser.ScriptTokenHandler;
  * Represents a number of SQL statements delimited by semicolon which will be executed in order in a batch statement.
  */
 public class Script extends SqlStatement<Script> {
+    private final boolean requireSemicolon;
+
     public Script(Handle handle, CharSequence sql) {
         super(handle, sql);
+        this.requireSemicolon = handle.getConfig(SqlStatements.class).isScriptStatementsNeedSemicolon();
     }
 
     /**
@@ -35,6 +38,7 @@ public class Script extends SqlStatement<Script> {
      */
     public Script(Handle handle, String sql) {
         super(handle, sql);
+        this.requireSemicolon = handle.getConfig(SqlStatements.class).isScriptStatementsNeedSemicolon();
     }
 
     /**
@@ -64,11 +68,12 @@ public class Script extends SqlStatement<Script> {
      * @return the split statements
      */
     public List<String> getStatements() {
-        return splitToStatements(getConfig(SqlStatements.class).getTemplateEngine().render(getSql(), getContext()));
+        var templateEngine = getConfig(SqlStatements.class).getTemplateEngine();
+        return splitToStatements(templateEngine.render(getSql(), getContext()));
     }
 
     private List<String> splitToStatements(String script) {
-        ScriptTokenHandler scriptTokenHandler = new ScriptTokenHandler();
+        ScriptTokenHandler scriptTokenHandler = new ScriptTokenHandler(this.requireSemicolon);
         String lastStatement = new SqlScriptParser(scriptTokenHandler)
             .parse(CharStreams.fromString(script));
 

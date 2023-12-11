@@ -584,7 +584,8 @@ Any database operation within Jdbi uses a statement. Multiple types of statement
 * link:{jdbidocs}/core/statement/Update.html[Update^] - SQL statements that return no value such as `INSERT`, `UPDATE`, `DELETE` or a DDL operation. See link:{jdbidocs}/core/Handle.html#createUpdate(java.lang.CharSequence)[createUpdate^]
 * link:{jdbidocs}/core/statement/Batch.html[Batch^] - a set of operations that are executed as a batch. See link:{jdbidocs}/core/Handle.html#createBatch()[createBatch^]
 * link:{jdbidocs}/core/statement/Call.html[Call^] - execute a stored procedure. See link:{jdbidocs}/core/Handle.html#createCall(java.lang.CharSequence)[createCall^]
-* link:{jdbidocs}/core/statement/Script.html[Script^] - a SQL script containing multiple statements separated by `;` that is executed as a batch. See link:{jdbidocs}/core/Handle.html#createScript(java.lang.CharSequence)[createScript^]
+* link:{jdbidocs}/core/statement/Script.html[Script^] - a SQL script containing multiple statements separated by `;` that is executed as a batch. See also link:{jdbidocs}/core/Handle.html#createScript(java.lang.CharSequence)[createScript^]
+* link:{jdbidocs}/core/statement/Metadata.html[Metadata^] - SQL Metadata access.
 
 
 ==== Queries
@@ -881,6 +882,22 @@ can be executed in a single *Batch* or individually.
 [source,java,indent=0]
 ----
 include::{exampledir}/StatementsTest.java[tags=script]
+----
+
+[NOTE]
+Script parsing uses a generic SQL parser and creates separate statements. Depending on the database and its driver, there are small differences in how the script needs to be parsed. The most notorious issue is whether the parsed statements need to retain a trailing semicolon or not. Some databases (e.g. Oracle) require the trailing semicolon while others (e.g. MySQL) actually report a syntax error if it is present. As we can not please everyone equally, there is the link:{jdbidocs}/core/statement/SqlStatements.html#setScriptStatementsNeedSemicolon(boolean)[setScriptStatementsNeedSemicolon()^] switch, which controls this behavior. By default, Jdbi *retains the semicolon if present*.
+
+
+Turning off the trailing semicolons for databases that have problems with it:
+[source,java,indent=0]
+----
+jdbi.withHandle(h -> {
+    // turn off trailing semicolons for script statements
+    h.getConfig(SqlStatements.class).setScriptStatementsNeedSemicolon(false);
+    return h.createScript(ClasspathSqlLocator.removingComments()
+            .getResource("scripts/mysql-script.sql"))
+        .execute();
+    });
 ----
 
 
@@ -3400,7 +3417,7 @@ Custom strategies can be set by implementing link:{jdkdocs}/java/util/function/U
 ! link:{jdbidocs}/core/array/SqlArrayArgumentStrategy.html#OBJECT_ARRAY[OBJECT_ARRAY^] ! call link:{jdkdocs}/java/sql/PreparedStatement.html#setObject-int-java.lang.Object-[PreparedStatement#setObject^] and assume that the driver can handle this.
 !===
 
-.7+| link:{jdbidocs}/core/statement/SqlStatements.html[SqlStatements^]     | attachAllStatementsForCleanup
+.8+| link:{jdbidocs}/core/statement/SqlStatements.html[SqlStatements^]     | attachAllStatementsForCleanup
     | boolean | `false`
     | Jdbi supports automatic resource management by attaching statements to their handle so that closing the handle will free up all its resources.
 If this setting is `true`, then statements are attached by default.
@@ -3413,6 +3430,11 @@ If this setting is `true`, then statements are attached by default.
 | queryTimeout
 ^| Integer ^| <unset>
 <| Sets the query timeout value in seconds. This value is used to call link:{jdkdocs}/java/sql/Statement.html#setQueryTimeout-int-[Statement#setQueryTimeout^]. Enforcement of the timeout depends on the JDBC driver.
+
+
+| scriptStatementsNeedSemicolon
+^| boolean ^| `true`
+<| Controls whether the statements parsed in a link:{jdbidocs}/core/statements/Script.html[Script^] object have trailing semicolons or not. This fixes some issues with specific JDBC drivers (e.g. MySQL when using `rewriteBatchedStatements=true`).
 
 
 <| sqlParser

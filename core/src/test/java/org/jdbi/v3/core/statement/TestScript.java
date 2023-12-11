@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
-import org.assertj.core.api.Condition;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.HandleAccess;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.locator.ClasspathSqlLocator;
@@ -112,34 +109,37 @@ public class TestScript {
         }
     }
 
-    /**
-     * <p>
-     *   Test for correct handling of semicolons in sql containing begin/end blocks.
-     * </p>
-     * <p>
-     *   Class {@link Script} splits sql scripts into lists of statements by semicolon ({@code ;}) and then batch-executes them.<br>
-     *   Statements may contain {@code BEGIN...END} blocks containing subordinated statements (also ending in semicolons).<br>
-     *   Only semicolons on the highest level (i.e. outside any block) actually signal the end of an sql statement.
-     * </p>
-     * @throws SQLException on failure to create the database handle
-     */
     @Test
-    public void testOracleScriptWithBeginEndBlock() throws SQLException {
-        String sql = getClasspathSqlLocator().getResource("script/oracle-with-begin-end-blocks.sql");
-        try (Script script = new Script(HandleAccess.createHandle(), sql)) {
+    public void testOracleScript() {
+        Handle h = h2Extension.getSharedHandle();
+        String sql = getClasspathSqlLocator().getResource("script/oracle-issue-2021.sql");
+
+        try (Script script = new Script(h, sql)) {
 
             List<String> statements = script.getStatements();
 
             assertThat(statements).hasSize(3);
 
-            // local variable of CharSequence not String because
-            // CharSequence.chars() since Java 1.8 <=> String.chars() since Java 9
-            CharSequence lastStmt = statements.get(2);
-            assertThat(lastStmt)
-                    .startsWith("CREATE OR REPLACE TRIGGER EXAMPLE_TRIGGER")
-                    .endsWith("END;")
-                    .hasLineCount(15)
-                    .has(new Condition<>(s -> 7 == s.chars().filter(ch -> ch == ';').count(), "count semicolons"));
+            for (String statement : statements) {
+                assertThat(statement).doesNotEndWithIgnoringCase("end");
+            }
+        }
+    }
+
+    @Test
+    public void testMySQLScript() {
+        Handle h = h2Extension.getSharedHandle();
+        h.getConfig(SqlStatements.class).setScriptStatementsNeedSemicolon(false);
+        String sql = getClasspathSqlLocator().getResource("script/oracle-issue-2021.sql");
+
+        try (Script script = new Script(h, sql)) {
+            List<String> statements = script.getStatements();
+
+            assertThat(statements).hasSize(3);
+
+            for (String statement : statements) {
+                assertThat(statement).doesNotEndWithIgnoringCase("end;");
+            }
         }
     }
 
