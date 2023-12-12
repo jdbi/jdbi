@@ -650,7 +650,7 @@ include::{exampledir}/TestCollections.java[tag=list]
 include::{exampledir}/TestCollections.java[tag=set]
 ----
 
-Use the link:{jdbidocs}/core/result/ResultIterable.html#list()[ResultIterable#list()^] and Use the link:{jdbidocs}/core/result/ResultIterable.html#set()[ResultIterable#set()^] methods use the default implementations from the collections framework.
+Use the link:{jdbidocs}/core/result/ResultIterable.html#list()[ResultIterable#list()^] and link:{jdbidocs}/core/result/ResultIterable.html#set()[ResultIterable#set()^] methods to use the default implementations from the collections framework.
 
 For more control over the set and list types, use the link:{jdbidocs}/core/result/ResultIterable.html#collectIntoList()[ResultIterable#collectIntoList()^] and link:{jdbidocs}/core/result/ResultIterable.html#collectIntoSet()[ResultIterable#collectIntoSet()^] methods which use the link:{jdbidocs}/core/collector/JdbiCollectors.html[JdbiCollectors^] configuration object to retrieve the collection types for link:{jdkdocs}/java/util/List.html[List^] and link:{jdkdocs}/java/util/Set.html[Set^]:
 
