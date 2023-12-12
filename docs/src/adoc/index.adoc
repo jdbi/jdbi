@@ -153,7 +153,7 @@ Please see our https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribu
 
 Jdbi is licensed under the commercial friendly https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0^] license.
 
-The core Jdbi module which offers programmatic access uses only https://slf4j.org/[slf4j^] and https://github.com/leangen/geantyref[geantryref^] as hard dependencies.
+The core Jdbi module which offers programmatic access uses only https://slf4j.org/[slf4j^] and https://github.com/leangen/geantyref[geantyref^] as hard dependencies.
 
 All Jdbi modules are available through https://search.maven.org[Maven Central^]. Jdbi also offers a BOM (Bill of materials) module for easy dependency management.
 
