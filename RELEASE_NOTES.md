@@ -1,5 +1,8 @@
 # Unreleased
 
+- finally give up on trying to guess SQL script parsing and add a switch to control whether to strip trailing semicolons or not. Another attempt to
+  fix SQL script parsing is (reported by @IrinaTerlizhenko, @2554).
+
 # 3.42.0
 
 - Add Spring Jdbi repositories with `@EnableJdbiRepositories`, thanks @xfredk (#2528, #2544)

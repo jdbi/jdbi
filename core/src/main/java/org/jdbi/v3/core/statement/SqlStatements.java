@@ -55,6 +55,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private boolean allowUnusedBindings;
     private boolean attachAllStatementsForCleanup;
     private boolean attachCallbackStatementsForCleanup = true;
+    private boolean scriptStatementsNeedSemicolon = true;
     private final Collection<StatementCustomizer> customizers;
 
     private final Collection<StatementContextListener> contextListeners;
@@ -79,6 +80,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.allowUnusedBindings = that.allowUnusedBindings;
         this.attachAllStatementsForCleanup = that.attachAllStatementsForCleanup;
         this.attachCallbackStatementsForCleanup = that.attachCallbackStatementsForCleanup;
+        this.scriptStatementsNeedSemicolon = that.scriptStatementsNeedSemicolon;
         this.customizers = new CopyOnWriteArrayList<>(that.customizers);
         this.contextListeners = new CopyOnWriteArraySet<>(that.contextListeners);
         this.templateCache = that.templateCache;
@@ -321,6 +323,36 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public boolean isAttachCallbackStatementsForCleanup() {
         return attachCallbackStatementsForCleanup;
+    }
+
+    /**
+     * If true, script statements parsed by a {@link Script} object will have a trailing semicolon. Some
+     * databases (e.g. Oracle) require that trailing semicolon while others (e.g. MySQL) do not and may consider
+     * it a syntax error. If executing a script against the database results in syntax errors that point at semicolons,
+     * change the value of this setting.
+     * <br>
+     * The default setting is {@code true} for historical reasons.
+     *
+     * @param scriptStatementsNeedSemicolon If true, parsed statements will have a trailing semicolon.
+     *
+     * @since 3.43.0
+     */
+    public void setScriptStatementsNeedSemicolon(boolean scriptStatementsNeedSemicolon) {
+        this.scriptStatementsNeedSemicolon = scriptStatementsNeedSemicolon;
+    }
+
+    /**
+     * If true, script statements parsed by a {@link Script} object will have a trailing semicolon. Some
+     * databases (e.g. Oracle) require that trailing semicolon while others (e.g. MySQL) do not and may consider
+     * it a syntax error. If executing a script against the database results in syntax errors that point at semicolons,
+     * change the value of this setting.
+     *
+     * @return True if parsed statements will have a trailing semicolon.
+     *
+     * @since 3.43.0
+     */
+    public boolean isScriptStatementsNeedSemicolon() {
+        return scriptStatementsNeedSemicolon;
     }
 
     /**
