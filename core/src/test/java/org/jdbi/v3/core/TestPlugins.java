@@ -14,15 +14,14 @@
 package org.jdbi.v3.core;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class TestPlugins {
 
@@ -30,36 +29,39 @@ public class TestPlugins {
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
-    public void testCustomizeHandle() {
-        Handle h = mock(Handle.class);
-
-        h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
-            @Override
-            public Handle customizeHandle(Handle handle) {
-                handle.close(); // otherwise the handle leaks out
-                return h;
-            }
-        });
-
-        try (Handle testHandle = h2Extension.openHandle()) {
+    public void testCustomizeHandle() throws SQLException {
+        ConnectionFactory cf = () -> DriverManager.getConnection(h2Extension.getUri());
+        Connection connection = cf.openConnection();
+        Jdbi db = Jdbi.create(connection);
+        try (Handle h = db.open()) {
+            h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
+                @Override
+                public Handle customizeHandle(Handle handle) {
+                    handle.close(); // otherwise the handle leaks out
+                    return h;
+                }
+            });
+            Handle testHandle = h2Extension.openHandle();
             assertThat(h).isSameAs(testHandle);
         }
     }
 
     @Test
-    public void testCustomizeConnection() {
-        Connection c = mock(Connection.class);
-
-        h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
-            @Override
-            public Connection customizeConnection(Connection conn) throws SQLException {
-                conn.close(); // otherwise the connection leaks out
-                return c;
+    public void testCustomizeConnection() throws SQLException {
+        ConnectionFactory cf = () -> DriverManager.getConnection(h2Extension.getUri());
+        Connection connection = cf.openConnection();
+        Jdbi db = Jdbi.create(connection);
+        try (Handle h = db.open()) {
+            h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
+                @Override
+                public Connection customizeConnection(Connection conn) throws SQLException {
+                    conn.close(); // otherwise the connection leaks out
+                    return connection;
+                }
+            });
+            try (Handle testHandle = h2Extension.openHandle()) {
+                assertThat(connection).isSameAs(testHandle.getConnection());
             }
-        });
-
-        try (Handle testHandle = h2Extension.openHandle()) {
-            assertThat(c).isSameAs(testHandle.getConnection());
         }
     }
 }
