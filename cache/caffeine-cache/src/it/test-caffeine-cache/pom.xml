@@ -25,6 +25,8 @@
 
     <properties>
         <basepom.check.skip-all>true</basepom.check.skip-all>
+        <!-- b/c we need dependency:properties for the mockito agent to work -->
+        <basepom.check.skip-dependency>false</basepom.check.skip-dependency>
     </properties>
 
     <dependencies>

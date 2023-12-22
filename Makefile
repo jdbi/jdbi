@@ -47,7 +47,7 @@ docs: install
 
 run-tests:: MAVEN_CONFIG += -Dbasepom.it.skip=false
 run-tests::
-	${MAVEN} surefire:test invoker:install invoker:integration-test invoker:verify
+	${MAVEN} dependency:properties surefire:test invoker:install invoker:integration-test invoker:verify
 
 run-slow-tests:: MAVEN_CONFIG += -Pslow-tests
 run-slow-tests:: run-tests
