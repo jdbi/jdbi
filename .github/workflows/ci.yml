@@ -38,6 +38,7 @@ jobs:
           JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
         run: |
           echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
+          ./mvnw --version
 
       - name: build distribution
         env:
