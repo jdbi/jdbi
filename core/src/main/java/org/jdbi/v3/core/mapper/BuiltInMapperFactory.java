@@ -29,7 +29,7 @@ import org.jdbi.v3.core.internal.JdbiOptionals;
 public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final List<ColumnMapperFactory> FACTORIES = Arrays.asList(
         new EnumByNameMapperFactory(),
-        new OptionalMapperFactory(),
+        new OptionalColumnMapperFactory(),
         new PrimitiveMapperFactory(),
         new BoxedMapperFactory(),
         new EssentialsMapperFactory(),

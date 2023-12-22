@@ -26,6 +26,7 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.jupiter.api.AfterEach;
@@ -60,7 +61,21 @@ public class TestOptional {
     }
 
     @Test
-    public void testMapToOptional() {
+    public void testMapRowToOptional() {
+        GenericType<Optional<Something>> optionalType = new GenericType<>() {};
+        handle.registerRowMapper(Something.class, BeanMapper.of(Something.class));
+
+        try (Query query = handle.createQuery("SELECT * FROM something WHERE id = :id")) {
+            Optional<Something> result = query.bind("id", 2)
+                .mapTo(optionalType)
+                .one();
+
+            assertThat(result).isPresent().contains(new Something(2, "brian"));
+        }
+    }
+
+    @Test
+    public void testMapColumnToOptional() {
         GenericType<Optional<String>> optionalString = new GenericType<Optional<String>>() {};
 
         assertThat(handle.select("select name from something where id = 0")
@@ -82,7 +97,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testMapToOptionalInt() {
+    public void testMapColumnToOptionalInt() {
         assertThat(handle.select("select id from something where name = 'arthur'")
             .collectInto(OptionalInt.class))
             .isEmpty();
@@ -102,7 +117,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testMapToOptionalLong() {
+    public void testMapColumnToOptionalLong() {
         assertThat(handle.select("select id from something where name = 'ford'")
             .collectInto(OptionalLong.class))
             .isEmpty();
@@ -122,7 +137,7 @@ public class TestOptional {
     }
 
     @Test
-    public void testMapToOptionalDouble() {
+    public void testMapColumnToOptionalDouble() {
         assertThat(handle.select("select id from something where name = 'slartibartfast'")
             .collectInto(OptionalDouble.class))
             .isEmpty();
