@@ -45,7 +45,7 @@ install-fast:: install
 docs: MAVEN_CONFIG += -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false
 docs: install
 
-run-tests:: MAVEN_CONFIG += -Dbasepom.it.skip=false
+run-tests:: MAVEN_CONFIG += -Dbasepom.it.skip=false -Dbasepom.check.skip-dependency=false
 run-tests::
 	${MAVEN} dependency:properties surefire:test invoker:install invoker:integration-test invoker:verify
 
