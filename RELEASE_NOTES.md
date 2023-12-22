@@ -1,5 +1,6 @@
 # Unreleased
 
+- Support nesting row types into Java `Optional` or vavr `Option` (reported by @martyn0ff, #2558)
 - finally give up on trying to guess SQL script parsing and add a switch to control whether to strip trailing semicolons or not. Another attempt to
   fix SQL script parsing is (reported by @IrinaTerlizhenko, @2554).
 
