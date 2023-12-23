@@ -123,7 +123,7 @@
         <dep.spring.version>5.3.30</dep.spring.version>
         <dep.sqlite.version>3.43.2.1</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
-        <dep.testcontainers.version>1.19.1</dep.testcontainers.version>
+        <dep.testcontainers.version>1.19.3</dep.testcontainers.version>
         <dep.vavr.version>0.9.3</dep.vavr.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
         <jdbi.check.fail-kotlin>${basepom.check.fail-extended}</jdbi.check.fail-kotlin>
