@@ -5351,8 +5351,8 @@ This is most useful for SQL object instances that get passed from other code, ha
 link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] or use default methods. Any object that was created using the
 link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] method will return the handle it was attached to.
 
-
-==== Using default Methods with the `SqlObject` mixin
+[#sqlobject-mixin]
+==== Getting access to the handle with the `SqlObject` mixin
 
 Occasionally a use case comes up where SQL Method annotations don't fit. In these situations, it is possible to "drop down" to the Core API using interface
 `default` methods and the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface:
@@ -5367,7 +5367,66 @@ public interface SplineDao extends SqlObject {
 }
 ----
 
-Default methods can also be used to group multiple SQL operations into a single method call:
+The link:{jdbidocs}/core/Handle.html[Handle^] can be used for most operations available in the fluent API.
+
+A handle should only be obtained in this way for very specific reasons, and it is a good practice to restrain the use of the handle to code within a Dao class (e.g. a default method). If fluent code and declarative code needs to be mixed, moving from fluent to declarative should be preferred.
+
+[WARNING]
+A very notable exception is modifying the configuration of the handle. When a SQL object is created, every method on the SQL object gets its own, distinct configuration object. Calling any configuration modification method (any `set*` or `register*` method from the link:{jdbidocs}/core/config/Configurable.html[Configurable^] interface) will modify *only* the configuration object for the link:{jdbidocs}/sqlobject/SqlObject.html#getHandle()[getHandle()^] method but not for any other method.
+
+
+The following code example *DOES NOT WORK!*
+[source,java,indent=0]
+----
+@Test
+public void testSqlObjectHandleConfigDoesNotWork() {
+    List<Sulu> sulus = Arrays.asList(
+        new Sulu(1, "George", "Takei"),
+        new Sulu(2, "John", "Cho"));
+
+    db.useExtension(SuluDao.class, s -> {
+        Handle h = s.getHandle();
+        // THIS DOES NOT WORK! The argument factory is only
+        // registered for the getHandle() method, not
+        // for the insertSulus() method!
+        h.registerArgument(new SuluArgumentFactory());
+        // This call results in an exception that no argument
+        // factory for the Sulu data type could be found!
+        dao.insertSulus(sulus);
+    }
+}
+
+public interface SuluDao extends SqlObject {
+    @SqlBatch("insert into something (id, name) values (:bean.id, :sulu)")
+    void insertSulus(@Bind("sulu") @BindBean("bean") List<Sulu> sulus);
+}
+----
+
+The code above can be rewritten to move from fluent to declarative API:
+
+[source,java,indent=0]
+----
+public void testMixFluentAndSqlObject() {
+    List<Sulu> sulus = Arrays.asList(
+        new Sulu(1, "George", "Takei"),
+        new Sulu(2, "John", "Cho"));
+
+    db.withHandle(h -> {
+        // register the argument with the handle before attaching
+        // the dao to the handle
+        h.registerArgument(new SuluArgumentFactory());
+        SuluDao dao = h.attach(SuluDao.class);
+        // all methods on the dao have received the configuration with the
+        // argument factory
+        dao.insertSulus(sulus);
+        return null;
+    });
+}
+----
+
+==== Using default Methods
+
+Default methods can be used to group multiple SQL operations into a single method call:
 
 [source,java,indent=0]
 ----
@@ -5514,6 +5573,9 @@ public void createUsers(Jdbi jdbi) {
     }
 }
 ----
+
+[NOTE]
+The link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^] interface  has the same constraints as the <<sqlobject-mixin, SQLObject>> mixin. Especially modifying the configuration by obtaining a handle using link:{jdbidocs}/sqlobject/SqlObject.html#getHandle()[getHandle()^] and then calling any `set*` or `register*` method from the link:{jdbidocs}/core/config/Configurable.html[Configurable^] interface is not supported and will modify only the configuration for the link:{jdbidocs}/sqlobject/SqlObject.html#getHandle()[getHandle()^] method.
 
 
 == Miscellaneous
@@ -5734,7 +5796,7 @@ Multiple comment styles are supported:
 
 Each piece of core or extension that wishes to participate in
 configuration defines a configuration class, for example the `SqlStatements`
-class stores SqlStatement related configuration.  Then, on any `Configurable` context
+class stores SqlStatement related configuration.  Then, on any link:{jdbidocs}/core/config/Configurable.html[Configurable^] context
 (like a link:{jdbidocs}/core/Jdbi.html[Jdbi^] or link:{jdbidocs}/core/Handle.html[Handle^]) you can change configuration in a type safe way:
 
 [source,java,indent=0]
