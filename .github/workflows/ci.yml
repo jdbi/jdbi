@@ -52,6 +52,7 @@ jobs:
           JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
         run: |
           echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
+          ./mvnw --version
 
       - name: run tests
         env:
