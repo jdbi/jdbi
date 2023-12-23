@@ -181,17 +181,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * Example: the prefix {@code foo} applied to a bean property {@code bar} will be bound as {@code foo.bar}.
      *
      * @param prefix a prefix to apply to all property names.
-     * @param bean source of named parameter values to use as arguments
+     * @param bean source of named parameter values to use as arguments. Can be null, in this case, nothing is bound.
      *
      * @return modified statement
      */
     public This bindBean(String prefix, Object bean) {
-        return bindNamedArgumentFinder(
+        if (bean != null) {
+            return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.BEAN,
                 prefix,
                 bean,
                 bean.getClass(),
                 () -> new BeanPropertyArguments(prefix, bean, getConfig()));
+        }
+        return typedThis;
     }
 
     /**
@@ -255,12 +258,15 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      */
     @Beta
     public This bindPojo(String prefix, Object pojo, Type type) {
-        return bindNamedArgumentFinder(
+        if (pojo != null) {
+            return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.POJO,
                 prefix,
                 pojo,
                 type,
                 () -> new PojoPropertyArguments(prefix, pojo, type, getConfig()));
+        }
+        return typedThis;
     }
 
     /**
@@ -311,17 +317,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * Binds public fields of the specified object as arguments for the query.
      *
      * @param prefix a prefix to apply to all field names.
-     * @param object source of the public fields to bind.
+     * @param object source of the public fields to bind. If the object is null, nothing is bound.
      *
      * @return modified statement
      */
     public This bindFields(String prefix, Object object) {
-        return bindNamedArgumentFinder(
+        if (object != null) {
+            return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.FIELDS,
                 prefix,
                 object,
                 object.getClass(),
                 () -> new ObjectFieldArguments(prefix, object));
+        }
+        return typedThis;
     }
 
     /**
@@ -339,17 +348,20 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * Binds methods with no parameters on the argument, with the given prefix.
      *
      * @param prefix a prefix to apply to all property names.
-     * @param object source of methods to use as arguments
+     * @param object source of methods to use as arguments. If the object is null, nothing is bound.
      *
      * @return modified statement
      */
     public This bindMethods(String prefix, Object object) {
-        return bindNamedArgumentFinder(
+        if (object != null) {
+            return bindNamedArgumentFinder(
                 NamedArgumentFinderFactory.METHODS,
                 prefix,
                 object,
                 object.getClass(),
                 () -> new ObjectMethodArguments(prefix, object));
+        }
+        return typedThis;
     }
 
     /**
