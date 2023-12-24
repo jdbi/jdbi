@@ -1,0 +1,115 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jdbi.v3.integrationtest.testcontainer;
+
+import java.sql.Types;
+import java.util.List;
+
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.statement.Call;
+import org.jdbi.v3.core.statement.OutParameters;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.testing.junit5.tc.JdbiTestcontainersExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@Tag("slow")
+@Testcontainers
+class TestMSSQLStoredProcedure {
+
+    @Container
+    static JdbcDatabaseContainer<?> dbContainer = new MSSQLServerContainer<>()
+        .acceptLicense();
+
+    @RegisterExtension
+    JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer)
+        .withPlugin(new SqlObjectPlugin());
+
+    @Test
+    void testMsSqlServerCall() {
+        Handle h = extension.getSharedHandle();
+        h.execute("CREATE PROCEDURE simpleCursor\n"
+            + "AS\n"
+            + "BEGIN\n"
+            + "SELECT 'hello' UNION ALL SELECT 'world'\n"
+            + "END;");
+
+        try (Call call = h.createCall("{ call simpleCursor()}")) {
+            OutParameters output = call.invoke();
+
+            List<String> results = output.getResultSet().mapTo(String.class).list();
+            assertThat(results).isNotEmpty().containsExactly("hello", "world");
+        }
+    }
+
+    @Test
+    void testMsSqlOutParameter() {
+        Handle h = extension.getSharedHandle();
+        h.execute("CREATE PROCEDURE passValues\n"
+            + "@inValue NVARCHAR(64),\n"
+            + "@outValue1 NVARCHAR(64) OUTPUT,\n"
+            + "@outValue2 NVARCHAR(64) OUTPUT\n"
+            + "AS\n"
+            + "BEGIN\n"
+            + "SELECT @outValue1 = @inValue;\n"
+            + "SELECT @outValue2 = 'hello';\n"
+            + "END;");
+
+        try (Call call = h.createCall("{ call passValues(?, ?, ?)}")) {
+            call.registerOutParameter(1, Types.NVARCHAR)
+                .registerOutParameter(2, Types.NVARCHAR)
+                .bind(0, "input value");
+            OutParameters output = call.invoke();
+            assertThat(output.getString(1)).isEqualTo("input value");
+            assertThat(output.getString(2)).isEqualTo("hello");
+        }
+    }
+
+    @Test
+    @Disabled
+    void testMsSqlOutParametersAndResultSet() {
+        Handle h = extension.getSharedHandle();
+        h.execute("CREATE PROCEDURE passValues\n"
+            + "@inValue NVARCHAR(64),\n"
+            + "@outValue1 NVARCHAR(64) OUTPUT,\n"
+            + "@outValue2 NVARCHAR(64) OUTPUT\n"
+            + "AS\n"
+            + "BEGIN\n"
+            + "SELECT @outValue1 = @inValue;\n"
+            + "SELECT @outValue2 = 'hello';\n"
+            + "SELECT 'hello' UNION ALL SELECT 'world'\n"
+            + "END;");
+
+        try (Call call = h.createCall("{ call passValues(?, ?, ?)}")) {
+            call.registerOutParameter(1, Types.NVARCHAR)
+                .registerOutParameter(2, Types.NVARCHAR)
+                .bind(0, "input value");
+            OutParameters output = call.invoke();
+            List<String> results = output.getResultSet().mapTo(String.class).list();
+            assertThat(results).isNotEmpty().containsExactly("hello", "world");
+
+            assertThat(output.getString(1)).isEqualTo("input value");
+            assertThat(output.getString(2)).isEqualTo("hello");
+        }
+    }
+}
