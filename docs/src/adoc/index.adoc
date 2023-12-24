@@ -6025,7 +6025,7 @@ class TestWithContainers {
 
 The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] has built-in support to isolate each test method in a test class. The container can be declared as a static class member which speeds up test execution significantly.
 
-There is built-in support for MySQL, MariaDB, TiDB, PostgreSQL, CockroachDB, YugabyteDB, ClickHouse, Oracle XE and Trino. It also supports the various compatible flavors (such as PostGIS for PostgreSQL).
+There is built-in support for MySQL, MariaDB, TiDB, PostgreSQL, CockroachDB, YugabyteDB, ClickHouse, Oracle XE, Trino and MS SQLServer. It also supports the various compatible flavors (such as PostGIS for PostgreSQL).
 
 ==== Providing custom database information
 

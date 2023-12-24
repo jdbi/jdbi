@@ -2,9 +2,10 @@
 
 - Support nesting row types into Java `Optional` or vavr `Option` (reported by @martyn0ff, #2558)
 - finally give up on trying to guess SQL script parsing and add a switch to control whether to strip trailing semicolons or not. Another attempt to
-  fix SQL script parsing is (reported by @IrinaTerlizhenko, @2554).
+  fix SQL script parsing is (reported by @IrinaTerlizhenko, #2554).
 - add a new `integration-test` module for tests that require different parts of the code base. Should be used to write test cases for issue investigations.
 - support `null` as a value for binding bean, method, field and pojo objects (Suggested by @xak2000 in #2562)
+- Add testcontainers support for MS SQLServer
 
 # 3.42.0
 

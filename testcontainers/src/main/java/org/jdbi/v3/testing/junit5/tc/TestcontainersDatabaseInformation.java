@@ -64,6 +64,10 @@ public final class TestcontainersDatabaseInformation {
     private static final TestcontainersDatabaseInformation TRINO =
         of(null, "memory", null, (catalogName, schemaName) -> format("CREATE SCHEMA %s", schemaName));
 
+    private static final TestcontainersDatabaseInformation MSSQL =
+        of("sa", null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s", catalogName));
+
+
     private static final Map<String, TestcontainersDatabaseInformation> KNOWN_CONTAINERS;
 
     static {
@@ -82,6 +86,7 @@ public final class TestcontainersDatabaseInformation {
         knownContainers.put("org.testcontainers.containers.ClickHouseContainer", TestcontainersDatabaseInformation.CLICKHOUSE);
         knownContainers.put("org.testcontainers.containers.OracleContainer", TestcontainersDatabaseInformation.ORACLE_XE);
         knownContainers.put("org.testcontainers.containers.TrinoContainer", TestcontainersDatabaseInformation.TRINO);
+        knownContainers.put("org.testcontainers.containers.MSSQLServerContainer", TestcontainersDatabaseInformation.MSSQL);
 
         KNOWN_CONTAINERS = knownContainers;
     }
