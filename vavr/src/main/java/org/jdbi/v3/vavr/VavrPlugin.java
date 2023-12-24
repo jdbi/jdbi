@@ -31,7 +31,8 @@ public class VavrPlugin extends JdbiPlugin.Singleton {
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerCollector(new VavrCollectorFactory());
         jdbi.registerRowMapper(new VavrTupleRowMapperFactory());
+        jdbi.registerRowMapper(new VavrOptionRowMapperFactory());
         jdbi.registerArgument(new VavrValueArgumentFactory());
-        jdbi.registerColumnMapper(VavrOptionMapper.factory());
+        jdbi.registerColumnMapper(new VavrOptionColumnMapperFactory());
     }
 }

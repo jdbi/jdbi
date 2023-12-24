@@ -18,9 +18,12 @@ import java.util.Objects;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,6 +97,23 @@ public class TestVavrOptionMapperWithDB {
         assertThat(result.getName()).isInstanceOf(Option.class);
         assertThat(result).isEqualTo(new SomethingWithOption(2, Option.none()));
     }
+
+    @Test
+    public void testOptionWithRowMapper() {
+        GenericType<Option<Something>> vavrType = new GenericType<>() {};
+        final Handle handle = h2Extension.getSharedHandle();
+        handle.registerRowMapper(Something.class, BeanMapper.of(Something.class));
+
+        try (Query query = handle.createQuery("SELECT * FROM something WHERE id = :id")) {
+            Option<Something> result = query.bind("id", 1)
+                .mapTo(vavrType)
+                .one();
+
+            assertThat(result.isDefined()).isTrue();
+            assertThat(result.get()).isEqualTo(new Something(1, "eric"));
+        }
+    }
+
 
     public static class SomethingWithOption {
         private int id;

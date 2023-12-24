@@ -40,13 +40,13 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  *     <li>{@link OptionalDouble}</li>
  * </ul>
  */
-class OptionalMapperFactory implements ColumnMapperFactory {
+class OptionalColumnMapperFactory implements ColumnMapperFactory {
     private static final Map<Class<?>, BiFunction<Type, ConfigRegistry, ColumnMapper<?>>> STRATEGIES;
 
     static {
         Map<Class<?>, BiFunction<Type, ConfigRegistry, ColumnMapper<?>>> s = new HashMap<>();
 
-        s.put(Optional.class, OptionalMapperFactory::create);
+        s.put(Optional.class, OptionalColumnMapperFactory::create);
         s.put(OptionalInt.class, singleton(create(ResultSet::getInt, OptionalInt::empty, OptionalInt::of)));
         s.put(OptionalLong.class, singleton(create(ResultSet::getLong, OptionalLong::empty, OptionalLong::of)));
         s.put(OptionalDouble.class, singleton(create(ResultSet::getDouble, OptionalDouble::empty, OptionalDouble::of)));
@@ -74,7 +74,7 @@ class OptionalMapperFactory implements ColumnMapperFactory {
         final ColumnMapper<?> mapper = config.get(ColumnMappers.class).findFor(
                 GenericTypes.findGenericParameter(type, Optional.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Optional type")))
-                .orElseThrow(() -> new NoSuchMapperException("No mapper for type " + type + " nested in Optional"));
+                .orElseThrow(() -> new NoSuchMapperException("No column mapper for type " + type + ", nested in Optional"));
         return (r, i, ctx) -> (Optional<?>) Optional.ofNullable(mapper.map(r, i, ctx));
     }
 }

@@ -46,6 +46,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         cache = new CopyOnWriteHashMap<>();
         register(MapEntryMapper.factory());
         register(new PojoMapperFactory());
+        register(new OptionalRowMapperFactory());
     }
 
     private RowMappers(RowMappers that) {
