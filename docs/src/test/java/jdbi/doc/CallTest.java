@@ -18,6 +18,7 @@ import java.sql.Types;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.Test;
@@ -41,18 +42,18 @@ public class CallTest {
         handle.execute(findSqlOnClasspath("create_stored_proc_add"));
 
         // tag::invokeProcedure[]
-        OutParameters result = handle
-            .createCall("{:sum = call add(:a, :b)}") // <1>
-                .bind("a", 13) // <2>
+        try (Call call = handle.createCall("{:sum = call add(:a, :b)}")) { // <1>
+            OutParameters result = call.bind("a", 13) // <2>
                 .bind("b", 9) // <2>
                 .registerOutParameter("sum", Types.INTEGER) // <3> <4>
                 .invoke(); // <5>
-        // end::invokeProcedure[]
+            // end::invokeProcedure[]
 
-        // tag::getOutParameters[]
-        int sum = result.getInt("sum");
-        // end::getOutParameters[]
+            // tag::getOutParameters[]
+            int sum = result.getInt("sum");
+            // end::getOutParameters[]
 
-        assertThat(sum).isEqualTo(22);
+            assertThat(sum).isEqualTo(22);
+        }
     }
 }

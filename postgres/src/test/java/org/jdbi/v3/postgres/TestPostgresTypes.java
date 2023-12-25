@@ -22,6 +22,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
@@ -155,16 +156,18 @@ public class TestPostgresTypes {
     public void testWriteViaFluentAPI() {
         FooBarPGType fooBar3 = new FooBarPGType(3, "foo3", "bar3");
 
-        handle.createCall("SELECT insert_foo_bar(:fooBar)")
-                .bind("fooBar", fooBar3)
+        try (Call call = handle.createCall("SELECT insert_foo_bar(:fooBar)")) {
+
+            call.bind("fooBar", fooBar3)
                 .invoke();
 
-        FooBarPGType result = handle.createQuery("SELECT get_foo_bar(:id)")
+            FooBarPGType result = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar3.getId())
                 .mapTo(FooBarPGType.class)
                 .one();
 
-        assertThat(fooBar3).isEqualTo(result);
+            assertThat(fooBar3).isEqualTo(result);
+        }
     }
 
     @Test
@@ -172,22 +175,23 @@ public class TestPostgresTypes {
         FooBarPGType fooBar5 = new FooBarPGType(5, "foo5", "bar5");
         FooBarPGType fooBar6 = new FooBarPGType(6, "foo6", "bar6");
 
-        handle.createCall("SELECT insert_foo_bars(:fooBar)")
-                .bind("fooBar", new FooBarPGType[]{fooBar5, fooBar6})
+        try (Call call = handle.createCall("SELECT insert_foo_bars(:fooBar)")) {
+            call.bind("fooBar", new FooBarPGType[] {fooBar5, fooBar6})
                 .invoke();
 
-        FooBarPGType result5 = handle.createQuery("SELECT get_foo_bar(:id)")
+            FooBarPGType result5 = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar5.getId())
                 .mapTo(FooBarPGType.class)
                 .one();
 
-        FooBarPGType result6 = handle.createQuery("SELECT get_foo_bar(:id)")
+            FooBarPGType result6 = handle.createQuery("SELECT get_foo_bar(:id)")
                 .bind("id", fooBar6.getId())
                 .mapTo(FooBarPGType.class)
                 .one();
 
-        assertThat(fooBar5).isEqualTo(result5);
-        assertThat(fooBar6).isEqualTo(result6);
+            assertThat(fooBar5).isEqualTo(result5);
+            assertThat(fooBar6).isEqualTo(result6);
+        }
     }
 
     @Test
@@ -243,17 +247,18 @@ public class TestPostgresTypes {
         foos.add(new FooBarPGType(9, "foo9", "bar9"));
         foos.add(new FooBarPGType(10, "foo10", "bar10"));
 
-        handle.createCall("SELECT insert_foo_bars(:fooBar)")
-                .bindByType("fooBar", foos, new GenericType<List<FooBarPGType>>() {})
+        try (Call call = handle.createCall("SELECT insert_foo_bars(:fooBar)")) {
+            call.bindByType("fooBar", foos, new GenericType<List<FooBarPGType>>() {})
                 .invoke();
 
-        assertThat(handle.createQuery("SELECT get_foo_bars()")
+            assertThat(handle.createQuery("SELECT get_foo_bars()")
                 .mapTo(FooBarPGType.class)
                 .list())
                 .containsExactlyInAnyOrder(new FooBarPGType(1, "foo1", "bar1"),
-                                           new FooBarPGType(2, "foo2", "bar2"),
-                                           new FooBarPGType(9, "foo9", "bar9"),
-                                           new FooBarPGType(10, "foo10", "bar10"));
+                    new FooBarPGType(2, "foo2", "bar2"),
+                    new FooBarPGType(9, "foo9", "bar9"),
+                    new FooBarPGType(10, "foo10", "bar10"));
+        }
     }
 
     @Test
