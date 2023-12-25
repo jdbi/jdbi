@@ -32,10 +32,22 @@ import static java.lang.String.format;
  */
 public class OutParameters {
     private final StatementContext ctx;
+    private final ResultBearing resultSet;
     private final Map<Object, Object> map = new HashMap<>();
 
-    OutParameters(StatementContext ctx) {
+    OutParameters(ResultBearing resultSet, StatementContext ctx) {
+        this.resultSet = resultSet;
         this.ctx = ctx;
+    }
+
+    /**
+     * Returns a ResultBearing backed by the main result set returned by the procedure. This is not
+     * supported by all databases.
+     *
+     * @return a ResultBearing
+     */
+    public ResultBearing getResultSet() {
+        return resultSet;
     }
 
     /**

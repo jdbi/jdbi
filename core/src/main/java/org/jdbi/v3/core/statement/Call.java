@@ -15,15 +15,19 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
+import org.jdbi.v3.core.result.ResultBearing;
 
 /**
  * Used for invoking stored procedures.
@@ -117,31 +121,38 @@ public class Call extends SqlStatement<Call> {
      * returning a computed value of type {@code T}.
      */
     public <T> T invoke(Function<OutParameters, T> resultComputer) {
-        try {
-            // it is ok to ignore the PreparedStatement returned here. internalExecute registers it to close with the context and the
-            // nullSafeCleanUp below will take care of it.
-            internalExecute();
-            OutParameters out = new OutParameters(getContext());
-            for (OutParamArgument param : params) {
-                final Object obj = param.map((CallableStatement) stmt);
+        // it is ok to ignore the PreparedStatement returned here. internalExecute registers it to close with the context and the
+        // nullSafeCleanUp below will take care of it.
+        internalExecute();
 
-                // convert from JDBC 1-based position to Jdbi's 0-based
-                final int index = param.position - 1;
-
-                if (param.isNull((CallableStatement) stmt)) {
-                    out.getMap().put(index, null);
-                } else {
-                    out.getMap().put(index, obj);
-                }
-
-                if (param.name != null) {
-                    out.getMap().put(param.name, obj);
-                }
+        final Supplier<ResultSet> resultSetSupplier = () -> {
+            try {
+                return stmt.getResultSet();
+            } catch (SQLException e) {
+                throw Sneaky.throwAnyway(e);
             }
-            return resultComputer.apply(out);
-        } finally {
-            close();
+        };
+
+        final ResultBearing resultSet = ResultBearing.of(resultSetSupplier, getContext());
+
+        OutParameters out = new OutParameters(resultSet, getContext());
+        for (OutParamArgument param : params) {
+            final Object obj = param.map((CallableStatement) stmt);
+
+            // convert from JDBC 1-based position to Jdbi's 0-based
+            final int index = param.position - 1;
+
+            if (param.isNull((CallableStatement) stmt)) {
+                out.getMap().put(index, null);
+            } else {
+                out.getMap().put(index, obj);
+            }
+
+            if (param.name != null) {
+                out.getMap().put(param.name, obj);
+            }
         }
+        return resultComputer.apply(out);
     }
 
     // TODO tostring?
