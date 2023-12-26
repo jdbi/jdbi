@@ -48,10 +48,7 @@ public class ResultSetResultIterable<T> implements ResultIterable<T> {
     @Override
     public ResultIterator<T> iterator() {
         try {
-            ResultSet resultSet = resultSetSupplier.get();
-            ctx.addCleanable(resultSet::close);
-
-            return new ResultSetResultIterator<>(resultSet, mapper, ctx);
+            return new ResultSetResultIterator<>(resultSetSupplier, mapper, ctx);
         } catch (final SQLException e) {
             throw new ResultSetException("Unable to iterate result set", e, ctx);
         }

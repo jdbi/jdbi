@@ -20,6 +20,7 @@ import java.sql.Statement;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.result.internal.EmptyResultSet;
 import org.jdbi.v3.core.statement.StatementContext;
 
 /**
@@ -126,10 +127,10 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
         return this;
     }
 
-    @FunctionalInterface
     /**
      * Returns a ResultSet from a Statement.
      */
+    @FunctionalInterface
     public interface ResultSetCreator {
 
         /**

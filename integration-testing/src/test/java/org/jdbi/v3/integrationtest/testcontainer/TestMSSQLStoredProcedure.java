@@ -22,7 +22,6 @@ import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.tc.JdbiTestcontainersExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -86,7 +85,6 @@ class TestMSSQLStoredProcedure {
     }
 
     @Test
-    @Disabled
     void testMsSqlOutParametersAndResultSet() {
         Handle h = extension.getSharedHandle();
         h.execute("CREATE PROCEDURE passValues\n"
@@ -112,4 +110,26 @@ class TestMSSQLStoredProcedure {
             assertThat(output.getString(2)).isEqualTo("hello");
         }
     }
+
+    @Test
+    void testMsSqlDocExample() {
+        Handle h = extension.getSharedHandle();
+        h.execute("CREATE PROCEDURE mssql_add\n"
+            + "@a INT,\n"
+            + "@b INT\n"
+            + "AS\n"
+            + "BEGIN\n"
+            + "SELECT @a + @b;\n"
+            + "END");
+
+        try (Call call = h.createCall("{ call mssql_add(:a, :b)}")) {
+            call.bind("a", 13)
+                .bind("b", 9);
+            OutParameters output = call.invoke();
+
+            int sum = output.getResultSet().mapTo(Integer.class).one();
+            assertThat(sum).isEqualTo(22);
+        }
+    }
+
 }

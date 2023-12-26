@@ -16,35 +16,56 @@ package org.jdbi.v3.core.result.internal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultSetException;
 import org.jdbi.v3.core.statement.StatementContext;
 
-import static java.util.Objects.requireNonNull;
-
 class ResultSetResultIterator<T> implements ResultIterator<T> {
     private final ResultSet resultSet;
     private final RowMapper<T> rowMapper;
+
+    private final ResultSetSupplier resultSetSupplier;
     private final StatementContext context;
 
     private volatile boolean alreadyAdvanced = false;
     private volatile boolean hasNext = false;
     private volatile boolean closed = false;
 
-    ResultSetResultIterator(ResultSet resultSet,
-                            RowMapper<T> rowMapper,
-                            StatementContext context) throws SQLException {
-        this.resultSet = requireNonNull(resultSet);
-        this.rowMapper = rowMapper.specialize(resultSet, context);
+    ResultSetResultIterator(Supplier<ResultSet> resultSetSupplier,
+        RowMapper<T> rowMapper,
+        StatementContext context) throws SQLException {
+
         this.context = context;
+
+        if (resultSetSupplier instanceof ResultSetSupplier) {
+            this.resultSetSupplier = (ResultSetSupplier) resultSetSupplier;
+        } else {
+            this.resultSetSupplier = ResultSetSupplier.closingContext(resultSetSupplier, context);
+        }
+
+        this.resultSet = this.resultSetSupplier.get();
+
+        if (resultSet != null) {
+            context.addCleanable(resultSet::close);
+            this.rowMapper = rowMapper.specialize(resultSet, context);
+        } else {
+            close();
+            this.rowMapper = null;
+        }
     }
 
     @Override
     public void close() {
         closed = true;
-        context.close();
+        try {
+            resultSetSupplier.close();
+        } catch (SQLException e) {
+            throw Sneaky.throwAnyway(e);
+        }
     }
 
     @Override
@@ -70,13 +91,13 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
 
     @Override
     public T next() {
-        if (closed) {
-            throw new IllegalStateException("iterator is closed");
-        }
-
         if (!hasNext()) {
             close();
             throw new NoSuchElementException("No element to advance to");
+        }
+
+        if (closed) {
+            throw new IllegalStateException("iterator is closed");
         }
 
         try {

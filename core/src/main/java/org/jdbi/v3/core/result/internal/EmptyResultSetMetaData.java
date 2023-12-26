@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.result;
+package org.jdbi.v3.core.result.internal;
 
 import java.sql.ResultSetMetaData;
 

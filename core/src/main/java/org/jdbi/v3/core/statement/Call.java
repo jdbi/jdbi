@@ -29,18 +29,16 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.result.ResultBearing;
+import org.jdbi.v3.core.result.internal.ResultSetSupplier;
 
 /**
  * Used for invoking stored procedures. The most common way to use this is to register {@link OutParameters} with the call and then use the {@link Call#invoke()} method
  * to retrieve the return values from the invoked procedure.
  * <br>
- * There are some databases, most prominently MS SqlServer that only support limited out parameters, especially do not support cursors
+ * There are some databases, most prominently MS SqlServer that only support limited OUT parameters, especially do not support cursors
  * (for MS SqlServer see <a href="https://learn.microsoft.com/en-us/sql/connect/jdbc/using-a-stored-procedure-with-output-parameters">Using a stored procedure with output parameters</a>).
- * Those databases may support returning a result set from the procedure invocation, in this case, use the {@link OutParameters#getResultSet()} method to retrieve
+ * Those databases may support returning a result set from the procedure invocation, to access this result set use the {@link OutParameters#getResultSet()} method to retrieve
  * the result set from the underlying call operation.
- * <br>
- * There is currently a limitation that Jdbi supports <b>either</b> using the result set from the call operation <b>or</b> outparameters. The JDBC 3.0 standard
- * suggests that databases should support both at the same time. This limitation will be lifted in a later release.
  */
 public class Call extends SqlStatement<Call> {
     private final List<OutParamArgument> outParamArguments = new ArrayList<>();
@@ -143,7 +141,8 @@ public class Call extends SqlStatement<Call> {
             }
         };
 
-        final ResultBearing resultSet = ResultBearing.of(resultSetSupplier, getContext());
+
+        final ResultBearing resultSet = ResultBearing.of(ResultSetSupplier.notClosingContext(resultSetSupplier), getContext());
 
         OutParameters out = new OutParameters(resultSet, getContext());
 

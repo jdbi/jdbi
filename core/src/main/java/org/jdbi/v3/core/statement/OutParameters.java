@@ -24,6 +24,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import org.jdbi.v3.core.result.ResultBearing;
+import org.jdbi.v3.core.result.internal.ResultSetSupplier;
 
 import static java.lang.String.format;
 
@@ -223,24 +224,12 @@ public class OutParameters {
 
     @Nonnull
     public ResultBearing getRowSet(String name) {
-        return ResultBearing.of(() -> {
-            ResultSet resultSet = getObject(name, ResultSet.class);
-            if (resultSet != null) {
-                ctx.addCleanable(resultSet::close);
-            }
-            return resultSet;
-        }, ctx);
+        return ResultBearing.of(ResultSetSupplier.notClosingContext(() -> getObject(name, ResultSet.class)), ctx);
     }
 
     @Nonnull
     public ResultBearing getRowSet(int pos) {
-        return ResultBearing.of(() -> {
-            ResultSet resultSet = getObject(pos, ResultSet.class);
-            if (resultSet != null) {
-                ctx.addCleanable(resultSet::close);
-            }
-            return resultSet;
-        }, ctx);
+        return ResultBearing.of(ResultSetSupplier.notClosingContext(() -> getObject(pos, ResultSet.class)), ctx);
     }
 
     @Nullable

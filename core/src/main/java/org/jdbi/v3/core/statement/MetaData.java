@@ -17,11 +17,11 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.function.Supplier;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultSetScanner;
+import org.jdbi.v3.core.result.internal.ResultSetSupplier;
 
 /**
  * Access to Database Metadata.
@@ -37,7 +37,7 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
 
     @Override
     public <R> R scanResultSet(ResultSetScanner<R> resultSetScanner) {
-        return ResultBearing.of(getResultSetSupplier(), getContext()).scanResultSet(resultSetScanner);
+        return ResultBearing.of(ResultSetSupplier.closingContext(this::execute, getContext()), getContext()).scanResultSet(resultSetScanner);
     }
 
     @SuppressWarnings("TypeParameterUnusedInFormals")
@@ -48,15 +48,6 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
         } catch (SQLException e) {
             throw new UnableToRetrieveMetaDataException(e, getContext());
         }
-    }
-
-    @SuppressWarnings("UnnecessaryLambda") // factored out for readablity
-    private Supplier<ResultSet> getResultSetSupplier() {
-        return () -> {
-            ResultSet resultSet = execute();
-            getContext().addCleanable(resultSet::close);
-            return resultSet;
-        };
     }
 
     @FunctionalInterface

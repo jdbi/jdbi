@@ -19,8 +19,10 @@ import java.util.function.Function;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.OutParameters;
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.sqlobject.customizer.OutParameter;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestOutParameterAnnotation {
 
@@ -43,45 +46,132 @@ public class TestOutParameterAnnotation {
             h.execute("CREATE FUNCTION swap(IN a INT, IN b INT, OUT c INT, OUT d INT) AS $$ BEGIN c := b; d := a; END; $$ LANGUAGE plpgsql");
         });
 
-    private Jdbi db;
+    Jdbi db;
+    Handle handle;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         db = pgExtension.getJdbi();
+        handle = pgExtension.getSharedHandle();
     }
 
     @Test
-    public void testOutParameterReturn() {
+    void testOutParameterReturnExtension() {
+        db.useExtension(MyDao.class, myDao -> {
+            OutParameters outParameters = myDao.callStoredProc();
+            assertThat(outParameters.getInt("outparam")).isEqualTo(100);
+        });
+    }
+
+    @Test
+    void testOutParameterReturnOnDemand() {
         MyDao myDao = db.onDemand(MyDao.class);
-
         OutParameters outParameters = myDao.callStoredProc();
+        assertThatThrownBy(() -> {
+            assertThat(outParameters.getInt("outparam")).isEqualTo(100);
+        }).isInstanceOf(UnableToExecuteStatementException.class);
+    }
 
+    @Test
+    void testOutParameterReturnHandleAttach() {
+        MyDao myDao = handle.attach(MyDao.class);
+        OutParameters outParameters = myDao.callStoredProc();
         assertThat(outParameters.getInt("outparam")).isEqualTo(100);
     }
 
     @Test
-    public void testUseOutParameter() {
-        MyDao myDao = db.onDemand(MyDao.class);
+    void testUseOutParameterExtension() {
+        db.useExtension(MyDao.class, myDao ->
+            myDao.useStoredProc(outParameters -> assertThat(outParameters.getInt("outparam")).isEqualTo(100)));
+    }
 
+    @Test
+    void testUseOutParameterOnDemand() {
+        MyDao myDao = db.onDemand(MyDao.class);
         myDao.useStoredProc(outParameters -> assertThat(outParameters.getInt("outparam")).isEqualTo(100));
     }
 
     @Test
-    public void testWithOutParameter() {
-        MyDao myDao = db.onDemand(MyDao.class);
-
-        assertThat(myDao.withStoredProc((Function<OutParameters, Integer>) outParameters -> outParameters.getInt("outparam")))
-                .isEqualTo(100);
+    void testUseOutParameterHandleAttach() {
+        MyDao myDao = handle.attach(MyDao.class);
+        myDao.useStoredProc(outParameters -> assertThat(outParameters.getInt("outparam")).isEqualTo(100));
     }
 
     @Test
-    public void testMultipleOutParameters() {
-        MyDao myDao = db.onDemand(MyDao.class);
+    void testWithOutParameterExtension() {
+        db.useExtension(MyDao.class, myDao ->
+            assertThat(myDao.withStoredProc((Function<OutParameters, Integer>) outParameters -> outParameters.getInt("outparam")))
+                .isEqualTo(100));
+    }
 
+    @Test
+    void testWithOutParameterOnDemand() {
+        MyDao myDao = db.onDemand(MyDao.class);
+        assertThat(myDao.withStoredProc((Function<OutParameters, Integer>) outParameters -> outParameters.getInt("outparam")))
+            .isEqualTo(100);
+    }
+
+    @Test
+    void testWithOutParameterHandleAttach() {
+        MyDao myDao = handle.attach(MyDao.class);
+        assertThat(myDao.withStoredProc((Function<OutParameters, Integer>) outParameters -> outParameters.getInt("outparam")))
+            .isEqualTo(100);
+    }
+
+    @Test
+    void testReturnMultipleOutParametersExtension() {
+        db.useExtension(MyDao.class, myDao -> {
+            OutParameters outParameters = myDao.callMultipleOutParameters(1, 9);
+            assertThat(outParameters.getInt("c")).isEqualTo(9);
+            assertThat(outParameters.getInt("d")).isOne();
+        });
+    }
+
+    @Test
+    void testReturnMultipleOutParametersOnDemandFails() {
+        MyDao myDao = db.onDemand(MyDao.class);
         OutParameters outParameters = myDao.callMultipleOutParameters(1, 9);
 
+        assertThatThrownBy(() -> {
+            assertThat(outParameters.getInt("c")).isEqualTo(9);
+            assertThat(outParameters.getInt("d")).isOne();
+        }).isInstanceOf(UnableToExecuteStatementException.class);
+    }
+
+    @Test
+    void testReturnMultipleOutParametersHandleAttach() {
+        MyDao myDao = handle.attach(MyDao.class);
+        OutParameters outParameters = myDao.callMultipleOutParameters(1, 9);
         assertThat(outParameters.getInt("c")).isEqualTo(9);
         assertThat(outParameters.getInt("d")).isOne();
+    }
+
+    @Test
+    void testUseMultipleOutParametersExtension() {
+        db.useExtension(MyDao.class, myDao -> {
+            myDao.useMultipleOutParameters(1, 9, outParameters -> {
+                assertThat(outParameters.getInt("c")).isEqualTo(9);
+                assertThat(outParameters.getInt("d")).isOne();
+            });
+        });
+    }
+
+    @Test
+    void testUseMultipleOutParametersOnDemand() {
+        MyDao myDao = db.onDemand(MyDao.class);
+        myDao.useMultipleOutParameters(1, 9, outParameters -> {
+            assertThat(outParameters.getInt("c")).isEqualTo(9);
+            assertThat(outParameters.getInt("d")).isOne();
+        });
+    }
+
+    @Test
+    void testUseMultipleOutParametersHandleAttach() {
+        MyDao myDao = handle.attach(MyDao.class);
+        myDao.useMultipleOutParameters(1, 9, outParameters -> {
+            assertThat(outParameters.getInt("c")).isEqualTo(9);
+            assertThat(outParameters.getInt("d")).isOne();
+        });
     }
 
     public interface MyDao {
@@ -97,10 +187,14 @@ public class TestOutParameterAnnotation {
         @OutParameter(name = "outparam", sqlType = Types.INTEGER)
         <T> T withStoredProc(Function<OutParameters, T> transformer);
 
-
         @SqlCall("{call swap(:a, :b, :c, :d)}")
         @OutParameter(name = "c", sqlType = Types.INTEGER)
         @OutParameter(name = "d", sqlType = Types.INTEGER)
         OutParameters callMultipleOutParameters(int a, int b);
+
+        @SqlCall("{call swap(:a, :b, :c, :d)}")
+        @OutParameter(name = "c", sqlType = Types.INTEGER)
+        @OutParameter(name = "d", sqlType = Types.INTEGER)
+        void useMultipleOutParameters(int a, int b, Consumer<OutParameters> consumer);
     }
 }
