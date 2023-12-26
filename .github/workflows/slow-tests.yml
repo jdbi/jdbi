@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 1.18.3, 1.19.0 ]
+        testcontainer-version: [ 1.18.3, 1.19.3 ]
 
     steps:
       - uses: actions/checkout@v3
@@ -35,6 +35,6 @@ jobs:
 
       - name: run slow tests
         env:
-          MAVEN_CONFIG: "-B -fae -Ddep.testcontainers.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -fae -Ddep.testcontainers.version=${{ matrix.testcontainer-version }}"
         run: |
           make run-slow-tests
