@@ -31,10 +31,19 @@ import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.result.ResultBearing;
 
 /**
- * Used for invoking stored procedures.
+ * Used for invoking stored procedures. The most common way to use this is to register {@link OutParameters} with the call and then use the {@link Call#invoke()} method
+ * to retrieve the return values from the invoked procedure.
+ * <br>
+ * There are some databases, most prominently MS SqlServer that only support limited out parameters, especially do not support cursors
+ * (for MS SqlServer see <a href="https://learn.microsoft.com/en-us/sql/connect/jdbc/using-a-stored-procedure-with-output-parameters">Using a stored procedure with output parameters</a>).
+ * Those databases may support returning a result set from the procedure invocation, in this case, use the {@link OutParameters#getResultSet()} method to retrieve
+ * the result set from the underlying call operation.
+ * <br>
+ * There is currently a limitation that Jdbi supports <b>either</b> using the result set from the call operation <b>or</b> outparameters. The JDBC 3.0 standard
+ * suggests that databases should support both at the same time. This limitation will be lifted in a later release.
  */
 public class Call extends SqlStatement<Call> {
-    private final List<OutParamArgument> params = new ArrayList<>();
+    private final List<OutParamArgument> outParamArguments = new ArrayList<>();
 
     public Call(Handle handle, CharSequence sql) {
         super(handle, sql);
@@ -137,22 +146,13 @@ public class Call extends SqlStatement<Call> {
         final ResultBearing resultSet = ResultBearing.of(resultSetSupplier, getContext());
 
         OutParameters out = new OutParameters(resultSet, getContext());
-        for (OutParamArgument param : params) {
-            final Object obj = param.map((CallableStatement) stmt);
 
-            // convert from JDBC 1-based position to Jdbi's 0-based
-            final int index = param.position - 1;
+        outParamArguments.forEach(outparamArgument -> {
+            Supplier<Object> supplier = outparamArgument.supplier((CallableStatement) stmt);
+            // index is 0 based, position is 1 based.
+            out.setValue(outparamArgument.position - 1, outparamArgument.name, supplier);
+        });
 
-            if (param.isNull((CallableStatement) stmt)) {
-                out.getMap().put(index, null);
-            } else {
-                out.getMap().put(index, obj);
-            }
-
-            if (param.name != null) {
-                out.getMap().put(param.name, obj);
-            }
-        }
         return resultComputer.apply(out);
     }
 
@@ -218,7 +218,7 @@ public class Call extends SqlStatement<Call> {
             this.sqlType = sqlType;
             this.mapper = mapper;
             this.name = name;
-            params.add(this);
+            outParamArguments.add(this);
         }
 
         @Override
@@ -227,7 +227,14 @@ public class Call extends SqlStatement<Call> {
             this.position = outPosition;
         }
 
-        public Object map(CallableStatement stmt) {
+        public Supplier<Object> supplier(CallableStatement stmt) {
+            return () -> {
+                Object value = map(stmt);
+                return isNull(stmt) ? null : value;
+            };
+        }
+
+        private Object map(CallableStatement stmt) {
             try {
                 if (mapper != null) {
                     return mapper.map(position, stmt);

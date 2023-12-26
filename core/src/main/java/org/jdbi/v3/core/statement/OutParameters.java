@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -28,12 +29,13 @@ import static java.lang.String.format;
 
 /**
  * Represents output from a Call (CallableStatement).
+ *
  * @see Call
  */
 public class OutParameters {
     private final StatementContext ctx;
     private final ResultBearing resultSet;
-    private final Map<Object, Object> map = new HashMap<>();
+    private final ParameterValueMap map = new ParameterValueMap();
 
     OutParameters(ResultBearing resultSet, StatementContext ctx) {
         this.resultSet = resultSet;
@@ -41,8 +43,7 @@ public class OutParameters {
     }
 
     /**
-     * Returns a ResultBearing backed by the main result set returned by the procedure. This is not
-     * supported by all databases.
+     * Returns a ResultBearing backed by the main result set returned by the procedure. This is not supported by all databases.
      *
      * @return a ResultBearing
      */
@@ -51,12 +52,11 @@ public class OutParameters {
     }
 
     /**
-     * Type-casting convenience method which obtains an object from the map, the
-     * object obtained should have been created with {@link CallableStatementMapper}
+     * Type-casting convenience method which obtains an object from the map, the object obtained should have been created with {@link CallableStatementMapper}
      *
      * @param name The out parameter name
      * @param type The java type to obtain
-     * @param <T> the output parameter type
+     * @param <T>  the output parameter type
      * @return the output of name as type T
      */
     @Nullable
@@ -65,36 +65,35 @@ public class OutParameters {
     }
 
     /**
-     * Obtains an object from the map, the
-     * object obtained should have been created with {@link CallableStatementMapper}
+     * Obtains an object from the map, the object obtained should have been created with {@link CallableStatementMapper}
      *
      * @param name The out parameter name
      * @return the output of name as type T
      */
     @Nullable
     public Object getObject(String name) {
-        return map.get(name);
+        return map.getValue(name);
     }
 
     /**
-     * Type-casting convenience method which obtains an object from the results positionally
-     * object obtained should have been created with {@link CallableStatementMapper}
+     * Type-casting convenience method which obtains an object from the results positionally object obtained should have been created with
+     * {@link CallableStatementMapper}
      *
      * @param position The out parameter name
      * @return the output of name as type T
      */
     @Nullable
     public Object getObject(int position) {
-        return map.get(position);
+        return map.getValue(position);
     }
 
     /**
-     * Type-casting convenience method which obtains an object from the map positionally
-     * object obtained should have been created with {@link CallableStatementMapper}
+     * Type-casting convenience method which obtains an object from the map positionally object obtained should have been created with
+     * {@link CallableStatementMapper}
      *
-     * @param pos The out parameter position
+     * @param pos  The out parameter position
      * @param type The java type to obtain
-     * @param <T> the output parameter type
+     * @param <T>  the output parameter type
      * @return the output of name as type T
      */
     @Nullable
@@ -104,44 +103,22 @@ public class OutParameters {
 
     @Nullable
     public String getString(String name) {
-        Object obj = map.get(name);
-        if (obj == null) {
-            if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
-            }
-
-            return null;
-        }
-
-        return obj.toString();
+        Object obj = getObject(name);
+        return obj == null ? null : obj.toString();
     }
 
     @Nullable
     public String getString(int pos) {
-        Object obj = map.get(pos);
-
-        if (obj == null) {
-            if (!map.containsKey(pos)) {
-                throw new IllegalArgumentException(format("Parameter at %d does not exist", pos));
-            }
-
-            return null;
-        }
-
-        return obj.toString();
+        Object obj = map.getValue(pos);
+        return obj == null ? null : obj.toString();
     }
 
     @Nullable
     public byte[] getBytes(String name) {
-        Object obj = map.get(name);
+        Object obj = getObject(name);
         if (obj == null) {
-            if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
-            }
-
             return null;
-        }
-        if (obj instanceof byte[]) {
+        } else if (obj instanceof byte[]) {
             return (byte[]) obj;
         } else {
             throw new IllegalArgumentException(format("Parameter '%s' is a %s, not a byte[]", name, obj.getClass()));
@@ -150,16 +127,10 @@ public class OutParameters {
 
     @Nullable
     public byte[] getBytes(int pos) {
-        Object obj = map.get(pos);
+        Object obj = map.getValue(pos);
         if (obj == null) {
-            if (!map.containsKey(pos)) {
-                throw new IllegalArgumentException(format("Parameter at %d does not exist", pos));
-            }
-
             return null;
-        }
-
-        if (obj instanceof byte[]) {
+        } else if (obj instanceof byte[]) {
             return (byte[]) obj;
         } else {
             throw new IllegalArgumentException(format("Parameter at %d is a %s, not a byte[]", pos, obj.getClass()));
@@ -205,45 +176,25 @@ public class OutParameters {
     @Nullable
     public Date getDate(String name) {
         Long epoch = getEpoch(name);
-
-        if (epoch == null) {
-            return null;
-        }
-
-        return new Date(epoch);
+        return epoch == null ? null : new Date(epoch);
     }
 
     @Nullable
     public Date getDate(int pos) {
         Long epoch = getEpoch(pos);
-
-        if (epoch == null) {
-            return null;
-        }
-
-        return new Date(epoch);
+        return epoch == null ? null : new Date(epoch);
     }
 
     @Nullable
     public Timestamp getTimestamp(String name) {
         Long epoch = getEpoch(name);
-
-        if (epoch == null) {
-            return null;
-        }
-
-        return new Timestamp(epoch);
+        return epoch == null ? null : new Timestamp(epoch);
     }
 
     @Nullable
     public Timestamp getTimestamp(int pos) {
         Long epoch = getEpoch(pos);
-
-        if (epoch == null) {
-            return null;
-        }
-
-        return new Timestamp(epoch);
+        return epoch == null ? null : new Timestamp(epoch);
     }
 
     @Nullable
@@ -274,7 +225,9 @@ public class OutParameters {
     public ResultBearing getRowSet(String name) {
         return ResultBearing.of(() -> {
             ResultSet resultSet = getObject(name, ResultSet.class);
-            ctx.addCleanable(resultSet::close);
+            if (resultSet != null) {
+                ctx.addCleanable(resultSet::close);
+            }
             return resultSet;
         }, ctx);
     }
@@ -283,22 +236,19 @@ public class OutParameters {
     public ResultBearing getRowSet(int pos) {
         return ResultBearing.of(() -> {
             ResultSet resultSet = getObject(pos, ResultSet.class);
-            ctx.addCleanable(resultSet::close);
+            if (resultSet != null) {
+                ctx.addCleanable(resultSet::close);
+            }
             return resultSet;
         }, ctx);
     }
 
     @Nullable
     private Number getNumber(String name) {
-        Object obj = map.get(name);
+        Object obj = getObject(name);
         if (obj == null) {
-            if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
-            }
             return null;
-        }
-
-        if (obj instanceof Number) {
+        } else if (obj instanceof Number) {
             return (Number) obj;
         } else {
             throw new IllegalArgumentException(format("Parameter '%s' is a %s, not a number", name, obj.getClass()));
@@ -307,15 +257,10 @@ public class OutParameters {
 
     @Nullable
     private Number getNumber(int pos) {
-        Object obj = map.get(pos);
+        Object obj = map.getValue(pos);
         if (obj == null) {
-            if (!map.containsKey(pos)) {
-                throw new IllegalArgumentException(format("Parameter %d does not exist", pos));
-            }
             return null;
-        }
-
-        if (obj instanceof Number) {
+        } else if (obj instanceof Number) {
             return (Number) obj;
         } else {
             throw new IllegalArgumentException(format("Parameter %d is a %s, not a number", pos, obj.getClass()));
@@ -325,17 +270,11 @@ public class OutParameters {
     @Nullable
     @SuppressWarnings("JavaUtilDate")
     private Long getEpoch(String name) {
-        Object obj = map.get(name);
+        Object obj = getObject(name);
 
         if (obj == null) {
-            if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
-            }
-
             return null;
-        }
-
-        if (obj instanceof java.util.Date) {
+        } else if (obj instanceof java.util.Date) {
             return ((java.util.Date) obj).getTime();
         } else {
             throw new IllegalArgumentException(format("Parameter '%s' is a %s, not a Date", name, obj.getClass()));
@@ -345,24 +284,45 @@ public class OutParameters {
     @Nullable
     @SuppressWarnings("JavaUtilDate")
     private Long getEpoch(int pos) {
-        Object obj = map.get(pos);
+        Object obj = map.getValue(pos);
+
         if (obj == null) {
-            if (!map.containsKey(pos)) {
-                throw new IllegalArgumentException(format("Parameter at %d does not exist", pos));
-            }
-
             return null;
-        }
-
-        if (obj instanceof java.util.Date) {
+        } else if (obj instanceof java.util.Date) {
             return ((java.util.Date) obj).getTime();
         } else {
             throw new IllegalArgumentException(format("Parameter at %d is a %s, not a Date", pos, obj.getClass()));
         }
     }
 
-    @Nonnull
-    Map<Object, Object> getMap() {
-        return map;
+    void setValue(int index, String key, Supplier<Object> value) {
+        map.setValue(index, key, value);
+    }
+
+    private static final class ParameterValueMap {
+        private final Map<Object, Supplier<Object>> map = new HashMap<>();
+
+        void setValue(int index, String key, Supplier<Object> value) {
+            map.put(index, value);
+            if (key != null) {
+                map.put(key, value);
+            }
+        }
+
+        Object getValue(int index) {
+            if (!map.containsKey(index)) {
+                throw new IllegalArgumentException(format("Parameter #%d does not exist", index));
+            }
+            Supplier<Object> supplier = map.get(index);
+            return supplier != null ? supplier.get() : null;
+        }
+
+        Object getValue(String name) {
+            if (!map.containsKey(name)) {
+                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
+            }
+            Supplier<Object> supplier = map.get(name);
+            return supplier != null ? supplier.get() : null;
+        }
     }
 }
