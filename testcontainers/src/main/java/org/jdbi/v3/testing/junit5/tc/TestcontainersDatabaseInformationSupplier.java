@@ -18,6 +18,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
@@ -39,7 +40,7 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
     private final ExecutorService executor;
     private final SynchronousQueue<TestcontainersDatabaseInformation> nextSchema = new SynchronousQueue<>();
     private final AtomicBoolean closed = new AtomicBoolean();
-
+    private final CountDownLatch stopped = new CountDownLatch(1);
     private volatile DataSource dataSource = null;
 
     TestcontainersDatabaseInformationSupplier(TestcontainersDatabaseInformation templateDatabaseInformation) {
@@ -59,8 +60,17 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
 
     @Override
     public void close() {
+        LOG.info("Shutdown initiated...");
         if (!this.closed.getAndSet(true)) {
             executor.shutdownNow();
+            try {
+                if (!stopped.await(10, TimeUnit.SECONDS)) {
+                    LOG.warn("Could not shut down database creation thread within 10 seconds");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            LOG.info("Shutdown completed.");
         }
     }
 
@@ -89,7 +99,7 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
                 LOG.error("Could not create database:", t);
             }
         }
-        closed.set(true);
+        stopped.countDown();
     }
 
     @Override
