@@ -6,6 +6,8 @@
 - add a new `integration-test` module for tests that require different parts of the code base. Should be used to write test cases for issue investigations.
 - support `null` as a value for binding bean, method, field and pojo objects (Suggested by @xak2000 in #2562)
 - Add testcontainers support for MS SQLServer
+- support returning a `ResultSet` from `Call` statements for databases that do not support cursor parameters. (suggested in #2557 by @metaforte and @0x1F528 in #2546)
+- support `int`, `long`, `short`, `double` and `float` return values from out parameters directly.
 
 # 3.42.0
 

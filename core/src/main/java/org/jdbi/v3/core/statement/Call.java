@@ -141,7 +141,6 @@ public class Call extends SqlStatement<Call> {
             }
         };
 
-
         final ResultBearing resultSet = ResultBearing.of(ResultSetSupplier.notClosingContext(resultSetSupplier), getContext());
 
         OutParameters out = new OutParameters(resultSet, getContext());
@@ -149,7 +148,7 @@ public class Call extends SqlStatement<Call> {
         outParamArguments.forEach(outparamArgument -> {
             Supplier<Object> supplier = outparamArgument.supplier((CallableStatement) stmt);
             // index is 0 based, position is 1 based.
-            out.setValue(outparamArgument.position - 1, outparamArgument.name, supplier);
+            out.putValueSupplier(outparamArgument.position - 1, outparamArgument.name, supplier);
         });
 
         return resultComputer.apply(out);
@@ -164,6 +163,7 @@ public class Call extends SqlStatement<Call> {
      * @param fetchSize the number of rows to fetch in a bunch
      *
      * @return the modified call
+     * @since 3.43.0
      */
     public Call setFetchSize(final int fetchSize) {
         return addCustomizer(StatementCustomizers.fetchSize(fetchSize));
@@ -176,6 +176,7 @@ public class Call extends SqlStatement<Call> {
      * @param maxRows maximum number of rows to return
      *
      * @return modified call
+     * @since 3.43.0
      */
     public Call setMaxRows(final int maxRows) {
         return addCustomizer(StatementCustomizers.maxRows(maxRows));
@@ -188,6 +189,7 @@ public class Call extends SqlStatement<Call> {
      * @param maxFields maximum field size
      *
      * @return modified call
+     * @since 3.43.0
      */
     public Call setMaxFieldSize(final int maxFields) {
         return addCustomizer(StatementCustomizers.maxFieldSize(maxFields));
@@ -200,6 +202,7 @@ public class Call extends SqlStatement<Call> {
      * Call.
      *
      * @return the modified call
+     * @since 3.43.0
      */
     public Call concurrentUpdatable() {
         getContext().setConcurrentUpdatable(true);

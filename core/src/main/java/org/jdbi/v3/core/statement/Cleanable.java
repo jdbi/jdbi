@@ -26,7 +26,11 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface Cleanable extends AutoCloseable {
 
-    /** A cleanable that does nothing. */
+    /**
+     * A cleanable that does nothing.
+     *
+     * @since 3.43.0
+     */
     Cleanable NO_OP = () -> {};
 
     @Override

@@ -75,11 +75,11 @@ public class TestCallable {
                 .invoke();
 
             Double expected = Math.toDegrees(100.0d);
-            assertThat(ret.getDouble(0)).isEqualTo(expected, Offset.offset(0.001));
-            assertThat(ret.getLong(0).longValue()).isEqualTo(expected.longValue());
-            assertThat(ret.getShort(0).shortValue()).isEqualTo(expected.shortValue());
-            assertThat(ret.getInt(0).intValue()).isEqualTo(expected.intValue());
-            assertThat(ret.getFloat(0).floatValue()).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
+            assertThat(ret.getDoubleValue(0)).isEqualTo(expected, Offset.offset(0.001));
+            assertThat(ret.getLongValue(0)).isEqualTo(expected.longValue());
+            assertThat(ret.getShortValue(0)).isEqualTo(expected.shortValue());
+            assertThat(ret.getIntValue(0)).isEqualTo(expected.intValue());
+            assertThat(ret.getFloatValue(0)).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
 
             assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ret.getDate(0));
             assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ret.getDate(1));
@@ -95,11 +95,11 @@ public class TestCallable {
                 .invoke();
 
             Double expected = Math.toDegrees(100.0d);
-            assertThat(ret.getDouble("x")).isEqualTo(expected, Offset.offset(0.001));
-            assertThat(ret.getLong("x").longValue()).isEqualTo(expected.longValue());
-            assertThat(ret.getShort("x").shortValue()).isEqualTo(expected.shortValue());
-            assertThat(ret.getInt("x").intValue()).isEqualTo(expected.intValue());
-            assertThat(ret.getFloat("x")).isEqualTo(expected.floatValue());
+            assertThat(ret.getDoubleValue("x")).isEqualTo(expected, Offset.offset(0.001));
+            assertThat(ret.getLongValue("x")).isEqualTo(expected.longValue());
+            assertThat(ret.getShortValue("x")).isEqualTo(expected.shortValue());
+            assertThat(ret.getIntValue("x")).isEqualTo(expected.intValue());
+            assertThat(ret.getFloatValue("x")).isEqualTo(expected.floatValue());
 
             assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate("x"));
             assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate("y"));
