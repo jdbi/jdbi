@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +26,8 @@ import java.util.function.Function;
 import org.jdbi.v3.core.array.SqlArrayArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.config.cache.JdbiConfigCache;
+import org.jdbi.v3.core.config.cache.JdbiConfigCacheStats;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
 
@@ -39,7 +40,7 @@ import org.jdbi.v3.meta.Beta;
  */
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<QualifiedArgumentFactory> factories;
-    private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories = new ConcurrentHashMap<>();
+    private final JdbiConfigCache<QualifiedType<?>, Function<Object, Argument>> preparedFactories;
     private final Set<QualifiedType<?>> didPrepare = ConcurrentHashMap.newKeySet();
 
     private ConfigRegistry registry;
@@ -48,7 +49,8 @@ public class Arguments implements JdbiConfig<Arguments> {
     private boolean preparedArgumentsEnabled = true;
 
     public Arguments(final ConfigRegistry registry) {
-        factories = new CopyOnWriteArrayList<>();
+        this.factories = new CopyOnWriteArrayList<>();
+        this.preparedFactories = new JdbiConfigCache<>("argument factories");
         this.registry = registry;
 
         // register built-in factories, priority of factories is by reverse registration order
@@ -73,10 +75,11 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     private Arguments(final Arguments that) {
-        factories = new CopyOnWriteArrayList<>(that.factories);
-        untypedNullArgument = that.untypedNullArgument;
-        bindingNullToPrimitivesPermitted = that.bindingNullToPrimitivesPermitted;
-        preparedArgumentsEnabled = that.preparedArgumentsEnabled;
+        this.factories = new CopyOnWriteArrayList<>(that.factories);
+        this.preparedFactories = that.preparedFactories.copy();
+        this.untypedNullArgument = that.untypedNullArgument;
+        this.bindingNullToPrimitivesPermitted = that.bindingNullToPrimitivesPermitted;
+        this.preparedArgumentsEnabled = that.preparedArgumentsEnabled;
     }
 
     @Override
@@ -244,5 +247,10 @@ public class Arguments implements JdbiConfig<Arguments> {
     @Override
     public Arguments createCopy() {
         return new Arguments(this);
+    }
+
+    @Override
+    public Set<JdbiConfigCacheStats> reportStats() {
+        return Collections.singleton(preparedFactories.getStats());
     }
 }

@@ -13,13 +13,17 @@
  */
 package org.jdbi.v3.core.config;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.collector.JdbiCollectors;
+import org.jdbi.v3.core.config.cache.JdbiConfigCacheStats;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.ColumnMappers;
@@ -100,5 +104,11 @@ public final class ConfigRegistry {
      */
     public ConfigRegistry createCopy() {
         return new ConfigRegistry(this);
+    }
+
+    public Set<JdbiConfigCacheStats> reportStats() {
+        Set<JdbiConfigCacheStats> stats = new LinkedHashSet<>();
+        configs.values().forEach(config -> stats.addAll(config.reportStats()));
+        return Collections.unmodifiableSet(stats);
     }
 }

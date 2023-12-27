@@ -14,18 +14,20 @@
 package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.config.cache.JdbiConfigCache;
+import org.jdbi.v3.core.config.cache.JdbiConfigCacheStats;
 import org.jdbi.v3.core.enums.internal.EnumMapperFactory;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
-import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Alpha;
 
@@ -33,19 +35,18 @@ import org.jdbi.v3.meta.Alpha;
  * Configuration registry for {@link ColumnMapperFactory} instances.
  */
 public class ColumnMappers implements JdbiConfig<ColumnMappers> {
-
     private final JdbiInterceptionChainHolder<ColumnMapper<?>, QualifiedColumnMapperFactory> inferenceInterceptors;
 
     private final List<QualifiedColumnMapperFactory> factories;
-    private final Map<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> cache;
-
+    private final JdbiConfigCache<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> cache;
     private boolean coalesceNullPrimitivesToDefaults = true;
     private ConfigRegistry registry;
 
     public ColumnMappers() {
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredColumnMapperFactory::new);
         factories = new CopyOnWriteArrayList<>();
-        cache = new CopyOnWriteHashMap<>();
+        cache = new JdbiConfigCache<>("column mappers");
+
         register(new SqlArrayMapperFactory());
         register(new JavaTimeMapperFactory());
         register(new SqlTimeMapperFactory());
@@ -60,7 +61,8 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
 
     private ColumnMappers(ColumnMappers that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
-        cache = new CopyOnWriteHashMap<>(that.cache);
+        cache = that.cache.copy();
+
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
         coalesceNullPrimitivesToDefaults = that.coalesceNullPrimitivesToDefaults;
     }
@@ -250,5 +252,10 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
     @Override
     public ColumnMappers createCopy() {
         return new ColumnMappers(this);
+    }
+
+    @Override
+    public Set<JdbiConfigCacheStats> reportStats() {
+        return Collections.singleton(cache.getStats());
     }
 }
