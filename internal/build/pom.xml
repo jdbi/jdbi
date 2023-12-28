@@ -1083,6 +1083,7 @@
                                 </goals>
                                 <phase>generate-sources</phase>
                                 <configuration>
+                                    <skipAddSourceIfMissing>true</skipAddSourceIfMissing>
                                     <sources>
                                         <source>${project.basedir}/src/main/kotlin</source>
                                     </sources>
@@ -1095,6 +1096,7 @@
                                 </goals>
                                 <phase>generate-test-sources</phase>
                                 <configuration>
+                                    <skipAddSourceIfMissing>true</skipAddSourceIfMissing>
                                     <sources>
                                         <source>${project.basedir}/src/test/kotlin</source>
                                     </sources>
