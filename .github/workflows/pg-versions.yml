@@ -17,7 +17,7 @@ jobs:
         postgres-version: [ 9.6, 10, 11, 12, 13, 14, 15, 16 ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install locales on runner
         run: |
