@@ -145,4 +145,40 @@ public class TestCallable {
             assertThat(name).isEqualTo("John Doe");
         }
     }
+
+    @Test
+    public void testNullValue() {
+        h.execute("CREATE OR REPLACE PROCEDURE RETURN_VALUE(input integer, OUT result integer) AS $$\n"
+            + "BEGIN\n"
+            + "result := input;\n"
+            + "END;\n"
+            + "$$ LANGUAGE plpgsql;");
+
+        try (Call call = h.createCall("CALL RETURN_VALUE(:in, :out)")) {
+            OutParameters result = call.bind("in", 10)
+                .registerOutParameter("out", Types.INTEGER)
+                .invoke();
+
+            int out = result.getIntValue("out");
+            assertThat(out).isEqualTo(10);
+        }
+
+        try (Call call = h.createCall("CALL RETURN_VALUE(:in, :out)")) {
+            OutParameters result = call.bindNull("in", Types.INTEGER)
+                .registerOutParameter("out", Types.INTEGER)
+                .invoke();
+
+            int out = result.getIntValue("out");
+            assertThat(out).isZero();
+        }
+
+        try (Call call = h.createCall("CALL RETURN_VALUE(:in, :out)")) {
+            OutParameters result = call.bindNull("in", Types.INTEGER)
+                .registerOutParameter("out", Types.INTEGER)
+                .invoke();
+
+            Integer out = result.getInt("out");
+            assertThat(out).isNull();
+        }
+    }
 }

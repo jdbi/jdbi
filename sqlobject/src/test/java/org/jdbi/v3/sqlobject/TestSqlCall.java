@@ -16,10 +16,13 @@ package org.jdbi.v3.sqlobject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.core.statement.Call;
+import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
@@ -54,14 +57,14 @@ public class TestSqlCall {
     @Test
     public void testFoo() {
         Dao dao = handle.attach(Dao.class);
-//        OutParameters out = handle.createCall(":num = call stored_insert(:id, :name)")
-//                                  .bind("id", 1)
-//                                  .bind("name", "Jeff")
-//                                  .registerOutParameter("num", Types.INTEGER)
-//                                  .invoke();
-        dao.insert(1, "Jeff");
+        try (Call call = handle.createCall(":num = call stored_insert(:id, :name)")) {
+            OutParameters out = call.bind("id", 1)
+                .bind("name", "Jeff")
+                .registerOutParameter("num", Types.INTEGER)
+                .invoke();
+        }
 
-        assertThat(handle.attach(Dao.class).findById(1)).isEqualTo(new Something(1, "Jeff"));
+        assertThat(dao.findById(1)).isEqualTo(new Something(1, "Jeff"));
     }
 
     public interface Dao {
