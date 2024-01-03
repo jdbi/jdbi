@@ -96,10 +96,6 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
             throw new NoSuchElementException("No element to advance to");
         }
 
-        if (closed) {
-            throw new IllegalStateException("iterator is closed");
-        }
-
         try {
             return rowMapper.map(resultSet, context);
         } catch (SQLException e) {

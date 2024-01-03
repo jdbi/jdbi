@@ -539,19 +539,21 @@ public class OutParameters {
         }
 
         Object getValue(int index) {
-            if (!map.containsKey(index)) {
-                throw new IllegalArgumentException(format("Parameter #%d does not exist", index));
-            }
             Supplier<Object> supplier = map.get(index);
-            return supplier != null ? supplier.get() : null;
+            if (supplier != null) {
+                return supplier.get();
+            }
+
+            throw new IllegalArgumentException(format("Parameter #%d does not exist", index));
         }
 
         Object getValue(String name) {
-            if (!map.containsKey(name)) {
-                throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
-            }
             Supplier<Object> supplier = map.get(name);
-            return supplier != null ? supplier.get() : null;
+            if (supplier != null) {
+                return supplier.get();
+            }
+
+            throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
         }
     }
 }
