@@ -69,74 +69,116 @@ public class TestCallable {
 
     @Test
     public void testStatement() {
-        OutParameters ret = h.createCall("CALL TO_DEGREES(?, ?)")
-            .registerOutParameter(0, Types.DOUBLE)
-            .bind(1, 100.0d)
-            .invoke();
+        try (Call call = h.createCall("CALL TO_DEGREES(?, ?)")) {
+            OutParameters ret = call.registerOutParameter(0, Types.DOUBLE)
+                .bind(1, 100.0d)
+                .invoke();
 
-        Double expected = Math.toDegrees(100.0d);
-        assertThat(ret.getDouble(0)).isEqualTo(expected, Offset.offset(0.001));
-        assertThat(ret.getLong(0).longValue()).isEqualTo(expected.longValue());
-        assertThat(ret.getShort(0).shortValue()).isEqualTo(expected.shortValue());
-        assertThat(ret.getInt(0).intValue()).isEqualTo(expected.intValue());
-        assertThat(ret.getFloat(0).floatValue()).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
+            Double expected = Math.toDegrees(100.0d);
+            assertThat(ret.getDoubleValue(0)).isEqualTo(expected, Offset.offset(0.001));
+            assertThat(ret.getLongValue(0)).isEqualTo(expected.longValue());
+            assertThat(ret.getShortValue(0)).isEqualTo(expected.shortValue());
+            assertThat(ret.getIntValue(0)).isEqualTo(expected.intValue());
+            assertThat(ret.getFloatValue(0)).isEqualTo(expected.floatValue(), Offset.offset(0.001f));
 
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ret.getDate(0));
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ret.getDate(1));
+            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ret.getDate(0));
+            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> ret.getDate(1));
+        }
     }
 
     @Test
     public void testStatementWithNamedParam() {
-        OutParameters ret = h.createCall("CALL TO_DEGREES(:x, :y)")
-            .registerOutParameter("x", Types.DOUBLE)
-            .bind("y", 100.0d)
-            .invoke();
+        try (Call call = h.createCall("CALL TO_DEGREES(:x, :y)")) {
+            OutParameters ret = call
+                .registerOutParameter("x", Types.DOUBLE)
+                .bind("y", 100.0d)
+                .invoke();
 
-        Double expected = Math.toDegrees(100.0d);
-        assertThat(ret.getDouble("x")).isEqualTo(expected, Offset.offset(0.001));
-        assertThat(ret.getLong("x").longValue()).isEqualTo(expected.longValue());
-        assertThat(ret.getShort("x").shortValue()).isEqualTo(expected.shortValue());
-        assertThat(ret.getInt("x").intValue()).isEqualTo(expected.intValue());
-        assertThat(ret.getFloat("x")).isEqualTo(expected.floatValue());
+            Double expected = Math.toDegrees(100.0d);
+            assertThat(ret.getDoubleValue("x")).isEqualTo(expected, Offset.offset(0.001));
+            assertThat(ret.getLongValue("x")).isEqualTo(expected.longValue());
+            assertThat(ret.getShortValue("x")).isEqualTo(expected.shortValue());
+            assertThat(ret.getIntValue("x")).isEqualTo(expected.intValue());
+            assertThat(ret.getFloatValue("x")).isEqualTo(expected.floatValue());
 
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate("x"));
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate("y"));
+            assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate("x"));
+            assertThatExceptionOfType(Exception.class).isThrownBy(() -> ret.getDate("y"));
+        }
     }
 
     @Test
     public void testWithNullReturn() {
-        OutParameters ret = h.createCall("CALL DO_LENGTH(?, ?)")
-            .bind(0, (String) null)
-            .registerOutParameter(1, Types.INTEGER)
-            .invoke();
+        try (Call call = h.createCall("CALL DO_LENGTH(?, ?)")) {
+            OutParameters ret = call.bind(0, (String) null)
+                .registerOutParameter(1, Types.INTEGER)
+                .invoke();
 
-        Integer out = ret.getInt(1);
-        assertThat(out).isNull();
+            Integer out = ret.getInt(1);
+            assertThat(out).isNull();
+        }
     }
 
     @Test
     public void testWithNullReturnWithNamedParam() {
-        OutParameters ret = h.createCall("CALL DO_LENGTH(:in, :out)")
-            .bindNull("in", Types.VARCHAR)
-            .registerOutParameter("out", Types.INTEGER)
-            .invoke();
+        try (Call call = h.createCall("CALL DO_LENGTH(:in, :out)")) {
+            OutParameters ret = call.bindNull("in", Types.VARCHAR)
+                .registerOutParameter("out", Types.INTEGER)
+                .invoke();
 
-        Integer out = ret.getInt(1);
-        assertThat(out).isNull();
+            Integer out = ret.getInt(1);
+            assertThat(out).isNull();
+        }
     }
 
     @Test
     public void testProcedureWithoutOutParameter() {
-        h.createCall("CALL WITH_SIDE_EFFECT(:id, :name)")
-            .bind("id", 10)
-            .bind("name", "John")
-            .invoke();
+        try (Call call = h.createCall("CALL WITH_SIDE_EFFECT(:id, :name)")) {
+            call.bind("id", 10)
+                .bind("name", "John")
+                .invoke();
 
-        String name = h.createQuery("SELECT name FROM something WHERE id = :id")
-            .bind("id", 10)
-            .mapTo(String.class)
-            .one();
+            String name = h.createQuery("SELECT name FROM something WHERE id = :id")
+                .bind("id", 10)
+                .mapTo(String.class)
+                .one();
 
-        assertThat(name).isEqualTo("John Doe");
+            assertThat(name).isEqualTo("John Doe");
+        }
+    }
+
+    @Test
+    public void testNullValue() {
+        h.execute("CREATE OR REPLACE PROCEDURE RETURN_VALUE(input integer, OUT result integer) AS $$\n"
+            + "BEGIN\n"
+            + "result := input;\n"
+            + "END;\n"
+            + "$$ LANGUAGE plpgsql;");
+
+        try (Call call = h.createCall("CALL RETURN_VALUE(:in, :out)")) {
+            OutParameters result = call.bind("in", 10)
+                .registerOutParameter("out", Types.INTEGER)
+                .invoke();
+
+            int out = result.getIntValue("out");
+            assertThat(out).isEqualTo(10);
+        }
+
+        try (Call call = h.createCall("CALL RETURN_VALUE(:in, :out)")) {
+            OutParameters result = call.bindNull("in", Types.INTEGER)
+                .registerOutParameter("out", Types.INTEGER)
+                .invoke();
+
+            int out = result.getIntValue("out");
+            assertThat(out).isZero();
+        }
+
+        try (Call call = h.createCall("CALL RETURN_VALUE(:in, :out)")) {
+            OutParameters result = call.bindNull("in", Types.INTEGER)
+                .registerOutParameter("out", Types.INTEGER)
+                .invoke();
+
+            Integer out = result.getInt("out");
+            assertThat(out).isNull();
+        }
     }
 }

@@ -824,9 +824,17 @@ Suppressed: org.postgresql.util.PSQLException: ERROR: duplicate key value violat
 
 ==== Stored Procedure Calls
 
-A *Call* invokes a database stored procedure.
+A *Call* invokes a database stored procedure. Stored procedures execute on the database and take input and output parameters.
 
-Let's assume an existing stored procedure as an example:
+Most databases solely support input and output parameters. Input parameters can be mapped using the standard Jdbi
+mechanisms for parameters, while output values are returned using link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] objects.
+
+Some databases do not support all SQL types as out parameters but use a mechanism similar to a query and
+return a link:{jdkdocs}/java.sql/java/sql/ResultSet.html[ResultSet^] object.
+
+===== Using OutParameters to access database return values
+
+This is an example for a PostgreSQL stored procedure. PostgreSQL (and most other databases) stored procedures use `IN` parameters to pass values into the procedure and `OUT` parameters to return values.
 
 [source,sql]
 ----
@@ -853,25 +861,70 @@ include::{exampledir}/CallTest.java[tags=invokeProcedure]
 
 Invoking the stored procedure returns an
 link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object, which
-contains the value(s) returned from the stored procedure call.
-
-Now we can extract the result(s) from link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^]:
+contains the value(s) returned from the stored procedure call and the results can
+be extracted from it:
 
 [source,java,indent=0]
 ----
 include::{exampledir}/CallTest.java[tags=getOutParameters]
 ----
 
-It is possible to return open cursors as a result-like object by declaring it
-as `Types.REF_CURSOR` and then inspecting it via `OutParameters.getRowSet()`.
-Usually this must be done in a transaction, and the results must be consumed
-before closing the statement by processing it using the `Call.invoke(Consumer)`
-or `Call.invoke(Function)` callback style.
+It is possible to access open cursors as a result set objects by declaring them
+as link:{jdkdocs}/java.sql/java/sql/Types.html#REF_CURSOR[Types.REF_CURSOR^] and then using link:{jdbidocs}/core/statement/OutParameters.html#getRowSet(int)[OutParameters#getRowSet()^] to access them as link:{jdbidocs}/core/result/ResultBearing.html[ResultBearing^] objects. This requires  support from the JDBC driver for the database and is not supported by all databases. Please consult the documentation for the database driver first before filing a bug.
+
+Results must be consumed before closing the statement because closing it will also close all resources and result sets associated with it.
+
+The link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object can either be returned from the Call using link:{jdbidocs}/core/statement/Call.html#invoke()[Call#invoke()^] or it can be processed as
+a consumer argument with link:{jdbidocs}/core/statement/Call.html#invoke(java.util.function.Consumer)[Call#invoke(Consumer)^] or a function argument with
+link:{jdbidocs}/core/statement/Call.html#invoke(java.util.function.Function)[Call#invoke(Function)^].
 
 [WARNING]
 Due to design constraints within JDBC, the parameter data types available
-through link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] is limited to those types supported directly by JDBC.
-This cannot be expanded through e.g. mapper registration.
+through link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] are limited to those types supported directly by JDBC. This cannot be expanded through e.g. mapper registration.
+
+
+===== Using a ResultSet for procedure output values
+
+Some database drivers might return a link:{jdkdocs}/java.sql/java/sql/ResultSet.html[ResultSet^] containing the results of a stored procedure. This result set is available as a link:{jdbidocs}/core/result/ResultBearing.html[ResultBearing^] object by calling link:{jdbidocs}/core/statement/OutParameters.html#getResultSet()[OutParameters#getResultSet()^].
+
+[NOTE]
+While returning a result set from a procedure call is supported in the JDBC standard, it is pretty uncommon and only very few databases support it. The most prominent one is the JDBC driver for MS SQLServer. Most databases will either return null or an empty result set; in this case the link:{jdbidocs}/core/statement/OutParameters.html#getResultSet()[OutParameters#getResultSet()^] will return an empty link:{jdbidocs}/core/result/ResultBearing.html[ResultBearing^] object.
+
+This is the equivalent procedure from above for MS SQLServer using a result set:
+
+[source,sql]
+----
+CREATE PROCEDURE mssql_add
+    @a INT,
+    @b INT
+AS
+BEGIN
+  SELECT @a + @b;
+END
+----
+
+To access data from this procedure, it retrieves the result set using link:{jdbidocs}/core/statement/OutParameters.html#getResultSet()[OutParameters#getResultSet()^]:
+
+[source, java]
+----
+try (Call call = h.createCall("{call mssql_add(:a, :b)}")) {
+    call.bind("a", 13)
+        .bind("b", 9);
+    OutParameters output = call.invoke();
+
+    int sum = output.getResultSet() // <1>
+        .mapTo(Integer.class) // <2>
+        .one();
+
+    assertThat(sum).isEqualTo(22);
+}
+----
+<1> Retrieve the output from the procedure using a result set.
+<2> Map the first column in the result set to an integer value.
+
+It may not be necessary to use a result set if the JDBC driver also supports OUT parameters. However, e.g. MS SQL Server does not allow link:{jdkdocs}/java.sql/java/sql/Types.html#REF_CURSOR[Types.REF_CURSOR^] as OUT parameters and requires the use of a result set.
+
+It is possible to mix OUT parameters and a result set. In this case, the result set should be consumed before accessing any out parameters as the database driver might invalidate the result set when accessing out parameters.
 
 
 ==== Scripts
@@ -1229,6 +1282,70 @@ jdbi.useHandle(handle -> {
             // consume the iterator contents
         });
     });
+----
+
+
+==== OutParameters return values for stored procedures
+
+Interacting with stored procedures generally involves passing values back and forth from database. Jdbi uses link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] objects which are returned from the various invoke methods of the link:{jdbidocs}/core/statement/Call.html[Call^] object.
+
+When using link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] with stored procedures, the link:{jdbidocs}/core/statement/Call.html[Call^] statement *must* be managed. Calling link:{jdkdocs}/java.base/java/lang/AutoCloseable.html#close--[close()^] on the statement terminates the operation and release all resources.
+
+Closing the stream or iterator associated with an object returned by link:{jdbidocs}/core/statement/OutParameters.html#getResultSet()[OutParameters#getResultSet()^] or link:{jdbidocs}/core/statement/OutParameters.html#getRowSet(int)[OutParameters#getRowSet()^] is *not* sufficient as the link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object may hold multiple result sets.
+
+[source, java]
+----
+try (Call call = h.createCall("{call some_procedure()}")) {
+    OutParameters output = call.invoke();
+
+    output.getRowSet("result") // <1>
+        .mapTo(SomeType.class) // <2>
+        .useStream(stream -> { ... consume stream ... }); <3>
+}
+----
+<1> Retrieve the cursor for the `result` parameter
+<2> Map the results onto a data type using a row mapper
+<3> Consume the stream of objects with a consumer argument.
+
+When the stream terminates, the link:{jdbidocs}/core/statement/Call.html[Call^] statement is *not* closed as it may have returned multiple cursor parameters. It must be managed using try-with-resources as shown above.
+
+link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] objects are cursor-type "live" objects. They require an active statment and any operation that closes and releases the statement will cause future operations on a related link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object to fail.
+
+The following code *does not work*:
+
+[source,java,indent=0]
+----
+// DOES NOT WORK!
+OutParameters out  = jdbi.withHandle(handle -> {
+    Call call = handle.createCall("{call some_procedure()}");
+    return call.invoke(); // <1>
+}); // <2>
+String result = out.getString("result"); // <3>
+----
+<1> Creates an OutParameter object and returns it from withHandle.
+<2> Leaving the callback closes the handle and releases all resources including the statement.
+<3> throws an exception because closing the handle and the statement invalidates the link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object.
+
+This can be avoided by either processing the link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object within the handle callback or by using either the link:{jdbidocs}/core/statement/Call.html#invoke(java.util.function.Consumer)[Call#invoke(Consumer)^] or
+link:{jdbidocs}/core/statement/Call.html#invoke(java.util.function.Function)[Call#invoke(Function)^] callback methods:
+
+[source,java,indent=0]
+----
+// process the OutParameters within the handle callback
+String result  = jdbi.withHandle(handle -> {
+    Call call = handle.createCall("{call some_procedure()}");
+    OutParameters out = call.invoke();
+    return out.getString("result");
+});
+----
+
+[source,java,indent=0]
+----
+// use a callback method from the Call statement
+String result  = jdbi.withHandle(handle -> {
+    Call call = handle.createCall("{call some_procedure()}");
+    return call.invoke(out -> out.getString("result"));
+});
 ----
 
 
@@ -1646,7 +1763,7 @@ include::{exampledir}/ResultsTest.java[tags=inlineRowMapper]
 
 [TIP]
 There are three different types being used in the above example. link:{jdbidocs}/core/statement/Query.html[Query^],
-returned by `Handle.createQuery()`, implements the `ResultBearing` interface.
+returned by `Handle.createQuery()`, implements the link:{jdbidocs}/core/result/ResultBearing.html[ResultBearing^] interface.
 The `ResultBearing.map()` method takes a link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<T>^] and returns a
 `ResultIterable<T>`. Finally, `ResultBearing.list()` collects each row in the
 result set into a link:{jdkdocs}/java.base/java/util/List.html[List<T>^].
@@ -3915,25 +4032,43 @@ link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] methods can return `
 link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] if the stored procedure has any output parameters. Each output parameter must be registered
 with the link:{jdbidocs}/sqlobject/customizer/OutParameter.html[@OutParameter^] annotation.
 
+Returning an link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object from an extension method is *incompatible* with <<on-demand-extension, on-demand objects>>. Any <<using-jdbi-extensions, other extension method>> can be used to create extension objects that can provide output parameters. Alternatively, it is possible to use <<sql-call-consumer-arguments, consumer or function arguments>> with on-demand extensions.
+
+
 [source,java,indent=0]
 ----
 public interface OrderDao {
+    // only works with Handle#attach() or Jdbi#withExtension() / Jdbi#useExtension()
     @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
     @OutParameter(name = "orderId",    sqlType = java.sql.Types.BIGINT)
     @OutParameter(name = "orderTotal", sqlType = java.sql.Types.DECIMAL)
     OutParameters prepareOrderFromCart(@Bind("cartId") long cartId);
+
+    // using a consumer argument works with any extension method
+    @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
+    @OutParameter(name = "orderId",    sqlType = java.sql.Types.BIGINT)
+    @OutParameter(name = "orderTotal", sqlType = java.sql.Types.DECIMAL)
+    prepareOrderFromCart(@Bind("cartId") long cartId, Consumer<OutParameters> consumer);
+
+    // using a function argument also works with any extension method
+    @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
+    @OutParameter(name = "orderId",    sqlType = java.sql.Types.BIGINT)
+    @OutParameter(name = "orderTotal", sqlType = java.sql.Types.DECIMAL)
+    SomeResult prepareOrderFromCart(@Bind("cartId") long cartId, Function<OutParameters, SomeResult> function);
 }
 ----
 
 Individual output parameters can be extracted from the
-link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] returned from
-the method:
+link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] object:
 
 [source,java,indent=0]
 ----
-OutParameters outParams = orderDao.prepareOrderFromCart(cartId);
-long orderId = outParams.getLong("orderId");
-double orderTotal = outParams.getDouble("orderTotal");
+db.useExtension(OrderDao.class, orderDao -> {
+    OutParameters outParams = orderDao.prepareOrderFromCart(cartId);
+    long orderId = outParams.getLong("orderId");
+    double orderTotal = outParams.getDouble("orderTotal");
+    ...
+});
 ----
 
 link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] supports <<sql-call-consumer-arguments, special arguments>> for link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] processing.
@@ -4016,6 +4151,8 @@ long bobId = dao.insertFullContact(bob); // <1>
 <1> each of these operations creates and releases a new database connection.
 
 The performance of on-demand objects depends on the database and database connection pooling. For performance critical operations, it may be better to manage the handle manually and use attached objects.
+
+On-demand instances open and close the underlying link:{jdkdocs}/java.sql/java/sql/PreparedStatement.html[PreparedStatement^] objects for every call to an extension method. They are incompatible with any object or operation that relies on an open statement to retrieve data from the database (e.g. link:{jdkdocs}/java/util/stream/Stream.html[Stream^] and link:{jdkdocs}/java/util/Iterator.html[Iterator^] for query operations or link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] for call operations). It is possible to use <<consumer-and-function-arguments, consumer or function arguments>> to process these values as the callback is executed while the statement is still open.
 
 
 ==== Interface default methods
@@ -4201,6 +4338,7 @@ void insert(long id, String name);
 ----
 
 
+[#consumer-and-function-arguments]
 ==== Consumer and Function arguments
 
 ===== Consumer arguments
@@ -8059,6 +8197,7 @@ The Extension framework is generic and supports any type of extension that can b
 Jdbi provides the <<sql-objects,SQLObject plugin>>, which offers a declarative API by placing annotations on interface methods.
 
 
+[#using-jdbi-extensions]
 === Using Jdbi extensions
 
 _Extension types are usually java interface classes._ Any interface can be an extension type.
@@ -8106,6 +8245,7 @@ include::{exampledir}/ExtensionFrameworkTest.java[tags=handle_attach]
 The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^], link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] and link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] methods are the most common way to use extension type implementations.
 
 
+[#on-demand-extension]
 ==== On-demand extensions
 
 An extension type implementation can be acquired by calling the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] method which returns
@@ -9382,7 +9522,7 @@ Core API:
 * `ResultColumnMapperFactory` -> link:{jdbidocs}/core/mapper/ColumnMapperFactory.html[ColumnMapperFactory^]
 * link:{jdbidocs}/core/statement/Query.html[Query^] no longer maps to `Map<String, Object>` by default. Call
   `Query.mapToMap()`, `.mapToBean(type)`, `.map(mapper)` or `.mapTo(type)`.
-* `ResultBearing<T>` was refactored into `ResultBearing` (no generic parameter)
+* `ResultBearing<T>` was refactored into link:{jdbidocs}/core/result/ResultBearing.html[ResultBearing^] (no generic parameter)
   and `ResultIterable<T>`. Call `.mapTo(type)` to get a `ResultIterable<T>`.
 * `TransactionConsumer` and `TransactionCallback` only take a link:{jdbidocs}/core/Handle.html[Handle^] now--the
   `TransactionStatus` argument is removed. Just rollback the handle now.

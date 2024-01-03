@@ -194,7 +194,7 @@ public class TestIterator {
         it.next();
         assertThat(it).isExhausted();
 
-        assertThatThrownBy(it::next).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(it::next).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test

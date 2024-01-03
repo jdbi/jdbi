@@ -164,12 +164,13 @@ public class TestStatements {
 
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
 
-        Call call = h.createCall("? = CALL TO_DEGREES(?)")
-            .registerOutParameter(0, Types.DOUBLE)
-            .bind(1, 100.0d)
-            .bind(2, "foo");
+        try (Call call = h.createCall("? = CALL TO_DEGREES(?)")) {
+            call.registerOutParameter(0, Types.DOUBLE)
+                .bind(1, 100.0d)
+                .bind(2, "foo");
 
-        assertThatThrownBy(call::invoke).isInstanceOf(UnableToCreateStatementException.class);
+            assertThatThrownBy(call::invoke).isInstanceOf(UnableToCreateStatementException.class);
+        }
     }
 
     @Test
@@ -177,13 +178,13 @@ public class TestStatements {
         Handle h = h2Extension.getSharedHandle();
 
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
+        h.configure(SqlStatements.class, stmts -> stmts.setUnusedBindingAllowed(true));
+        try (Call call = h.createCall("? = CALL TO_DEGREES(?)")) {
+            call.registerOutParameter(0, Types.DOUBLE)
+                .bind(1, 100.0d)
+                .bind(2, "foo");
 
-        Call call = h.configure(SqlStatements.class, stmts -> stmts.setUnusedBindingAllowed(true))
-            .createCall("? = CALL TO_DEGREES(?)")
-            .registerOutParameter(0, Types.DOUBLE)
-            .bind(1, 100.0d)
-            .bind(2, "foo");
-
-        assertThatCode(call::invoke).doesNotThrowAnyException();
+            assertThatCode(call::invoke).doesNotThrowAnyException();
+        }
     }
 }

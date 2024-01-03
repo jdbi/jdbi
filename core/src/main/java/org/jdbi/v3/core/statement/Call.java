@@ -15,21 +15,33 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
+import org.jdbi.v3.core.result.ResultBearing;
+import org.jdbi.v3.core.result.internal.ResultSetSupplier;
 
 /**
- * Used for invoking stored procedures.
+ * Used for invoking stored procedures. The most common way to use this is to register {@link OutParameters} with the call and then use the {@link Call#invoke()} method
+ * to retrieve the return values from the invoked procedure.
+ * <br>
+ * There are some databases, most prominently MS SqlServer that only support limited OUT parameters, especially do not support cursors
+ * (for MS SqlServer see <a href="https://learn.microsoft.com/en-us/sql/connect/jdbc/using-a-stored-procedure-with-output-parameters">Using a stored procedure with output parameters</a>).
+ * Those databases may support returning a result set from the procedure invocation, to access this result set use the {@link OutParameters#getResultSet()} method to retrieve
+ * the result set from the underlying call operation.
  */
 public class Call extends SqlStatement<Call> {
-    private final List<OutParamArgument> params = new ArrayList<>();
+    private final List<OutParamArgument> outParamArguments = new ArrayList<>();
 
     public Call(Handle handle, CharSequence sql) {
         super(handle, sql);
@@ -117,31 +129,84 @@ public class Call extends SqlStatement<Call> {
      * returning a computed value of type {@code T}.
      */
     public <T> T invoke(Function<OutParameters, T> resultComputer) {
-        try {
-            // it is ok to ignore the PreparedStatement returned here. internalExecute registers it to close with the context and the
-            // nullSafeCleanUp below will take care of it.
-            internalExecute();
-            OutParameters out = new OutParameters(getContext());
-            for (OutParamArgument param : params) {
-                final Object obj = param.map((CallableStatement) stmt);
+        // it is ok to ignore the PreparedStatement returned here. internalExecute registers it to close with the context and the
+        // nullSafeCleanUp below will take care of it.
+        internalExecute();
 
-                // convert from JDBC 1-based position to Jdbi's 0-based
-                final int index = param.position - 1;
-
-                if (param.isNull((CallableStatement) stmt)) {
-                    out.getMap().put(index, null);
-                } else {
-                    out.getMap().put(index, obj);
-                }
-
-                if (param.name != null) {
-                    out.getMap().put(param.name, obj);
-                }
+        final Supplier<ResultSet> resultSetSupplier = () -> {
+            try {
+                return stmt.getResultSet();
+            } catch (SQLException e) {
+                throw Sneaky.throwAnyway(e);
             }
-            return resultComputer.apply(out);
-        } finally {
-            close();
-        }
+        };
+
+        final ResultBearing resultSet = ResultBearing.of(ResultSetSupplier.notClosingContext(resultSetSupplier), getContext());
+
+        OutParameters out = new OutParameters(resultSet, getContext());
+
+        outParamArguments.forEach(outparamArgument -> {
+            Supplier<Object> supplier = outparamArgument.supplier((CallableStatement) stmt);
+            // index is 0 based, position is 1 based.
+            out.putValueSupplier(outparamArgument.position - 1, outparamArgument.name, supplier);
+        });
+
+        return resultComputer.apply(out);
+    }
+
+    /**
+     * Specify the fetch size for the call. This should cause the results to be
+     * fetched from the underlying RDBMS in groups of rows equal to the number passed.
+     * This is useful for doing chunked streaming of results when exhausting memory
+     * could be a problem.
+     *
+     * @param fetchSize the number of rows to fetch in a bunch
+     *
+     * @return the modified call
+     * @since 3.43.0
+     */
+    public Call setFetchSize(final int fetchSize) {
+        return addCustomizer(StatementCustomizers.fetchSize(fetchSize));
+    }
+
+    /**
+     * Specify the maximum number of rows the call is to return. This uses the underlying JDBC
+     * {@link Statement#setMaxRows(int)}}.
+     *
+     * @param maxRows maximum number of rows to return
+     *
+     * @return modified call
+     * @since 3.43.0
+     */
+    public Call setMaxRows(final int maxRows) {
+        return addCustomizer(StatementCustomizers.maxRows(maxRows));
+    }
+
+    /**
+     * Specify the maximum field size in the result set. This uses the underlying JDBC
+     * {@link Statement#setMaxFieldSize(int)}
+     *
+     * @param maxFields maximum field size
+     *
+     * @return modified call
+     * @since 3.43.0
+     */
+    public Call setMaxFieldSize(final int maxFields) {
+        return addCustomizer(StatementCustomizers.maxFieldSize(maxFields));
+    }
+
+    /**
+     * Specify that the result set should be concurrent updatable.
+     *
+     * This will allow the update methods to be called on the result set produced by this
+     * Call.
+     *
+     * @return the modified call
+     * @since 3.43.0
+     */
+    public Call concurrentUpdatable() {
+        getContext().setConcurrentUpdatable(true);
+        return this;
     }
 
     // TODO tostring?
@@ -155,7 +220,7 @@ public class Call extends SqlStatement<Call> {
             this.sqlType = sqlType;
             this.mapper = mapper;
             this.name = name;
-            params.add(this);
+            outParamArguments.add(this);
         }
 
         @Override
@@ -164,7 +229,14 @@ public class Call extends SqlStatement<Call> {
             this.position = outPosition;
         }
 
-        public Object map(CallableStatement stmt) {
+        public Supplier<Object> supplier(CallableStatement stmt) {
+            return () -> {
+                Object value = map(stmt);
+                return isNull(stmt) ? null : value;
+            };
+        }
+
+        private Object map(CallableStatement stmt) {
             try {
                 if (mapper != null) {
                     return mapper.map(position, stmt);

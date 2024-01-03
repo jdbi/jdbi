@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.core.result;
+package org.jdbi.v3.core.result.internal;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -34,7 +34,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
 
-class EmptyResultSet implements ResultSet {
+public final class EmptyResultSet implements ResultSet {
     @Override
     public <T> T unwrap(Class<T> iface) {
         return iface.cast(this);
