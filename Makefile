@@ -16,7 +16,7 @@
 SHELL = /bin/sh
 .SUFFIXES:
 
-MAVEN = ./mvnw ${JDBI_MAVEN_OPTS}
+MAVEN = ./mvnw
 
 export MAVEN_OPTS MAVEN_CONFIG
 
