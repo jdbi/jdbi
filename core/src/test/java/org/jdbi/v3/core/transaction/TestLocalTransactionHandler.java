@@ -16,22 +16,18 @@ package org.jdbi.v3.core.transaction;
 import java.sql.Connection;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith(MockitoExtension.class)
 public class TestLocalTransactionHandler {
-    @Mock
-    Handle h;
 
-    @Mock
-    Connection c;
+    Connection c = Mockito.mock(Connection.class);
+
+    Handle h = Jdbi.create(() -> c).open();
 
     @Test
     public void testRollbackThrow() throws Exception {
@@ -39,8 +35,7 @@ public class TestLocalTransactionHandler {
         RuntimeException inner = new RuntimeException("Rollback throws!");
 
         Mockito.when(c.getAutoCommit()).thenReturn(true);
-        Mockito.when(h.getConnection()).thenReturn(c);
-        Mockito.when(h.rollback()).thenThrow(inner);
+        Mockito.doThrow(inner).when(c).rollback();
 
         try {
             new LocalTransactionHandler().inTransaction(h, x -> {
@@ -58,7 +53,6 @@ public class TestLocalTransactionHandler {
         Error error = new Error("Transaction throws!");
 
         Mockito.when(c.getAutoCommit()).thenReturn(true);
-        Mockito.when(h.getConnection()).thenReturn(c);
 
         assertThatThrownBy(() ->
             new LocalTransactionHandler().inTransaction(h, x -> {

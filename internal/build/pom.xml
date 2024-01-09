@@ -379,6 +379,12 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${dep.mockito.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy-agent</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -906,11 +912,6 @@
             <activation>
                 <jdk>[21,)</jdk>
             </activation>
-            <properties>
-                <!-- see https://github.com/mockito/mockito/issues/3037 -->
-                <basepom.it.arguments>-XX:+EnableDynamicAgentLoading</basepom.it.arguments>
-                <basepom.test.arguments>-XX:+EnableDynamicAgentLoading</basepom.test.arguments>
-            </properties>
             <build>
                 <pluginManagement>
                     <plugins>

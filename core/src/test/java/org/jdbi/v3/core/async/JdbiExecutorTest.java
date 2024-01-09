@@ -37,10 +37,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class JdbiExecutorTest {
 
@@ -102,7 +98,7 @@ public class JdbiExecutorTest {
     @BeforeEach
     void setup() {
         h2Extension.getJdbi().useHandle(H2DatabaseExtension.USERS_INITIALIZER::initialize);
-        jdbi = spy(h2Extension.getJdbi().registerExtension(new TestExtensionFactory()));
+        jdbi = h2Extension.getJdbi().registerExtension(new TestExtensionFactory());
         jdbiExecutor = JdbiExecutor.create(jdbi, Executors.newFixedThreadPool(2));
     }
 
@@ -112,7 +108,6 @@ public class JdbiExecutorTest {
             jdbiExecutor.withHandle(RUN_QUERY))
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(2);
-        verify(jdbi).withHandle(any());
     }
 
     @Test
@@ -125,7 +120,6 @@ public class JdbiExecutorTest {
             .failsWithin(Duration.ofSeconds(10))
             .withThrowableOfType(ExecutionException.class)
             .withCauseInstanceOf(RuntimeException.class);
-        verify(jdbi).withHandle(any());
     }
 
     @Test
@@ -136,47 +130,42 @@ public class JdbiExecutorTest {
         assertThat(jdbiExecutor.withHandle(RUN_QUERY))
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(3);
-        verify(jdbi).useHandle(any());
     }
 
     @Test
     void testInTransaction() {
         assertThat(
-            jdbiExecutor.inTransaction(RUN_QUERY))
+            jdbiExecutor.inTransaction(checkInTxn(RUN_QUERY)))
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(2);
-        verify(jdbi).inTransaction(any());
     }
 
     @Test
     void testInTransactionWithLevel() {
         assertThat(
-            jdbiExecutor.inTransaction(TransactionIsolationLevel.READ_COMMITTED, RUN_QUERY))
+            jdbiExecutor.inTransaction(TransactionIsolationLevel.READ_COMMITTED, checkReadCommitted(RUN_QUERY)))
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(2);
-        verify(jdbi).inTransaction(eq(TransactionIsolationLevel.READ_COMMITTED), any());
     }
 
     @Test
     void testUseTransaction() {
         assertThat(
-            jdbiExecutor.useTransaction(RUN_UPDATE))
+            jdbiExecutor.useTransaction(checkInTxn(RUN_UPDATE)))
             .succeedsWithin(Duration.ofSeconds(10));
         assertThat(jdbiExecutor.withHandle(RUN_QUERY))
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(3);
-        verify(jdbi).useTransaction(any());
     }
 
     @Test
     void testUseTransactionWithLevel() {
         assertThat(
-            jdbiExecutor.useTransaction(TransactionIsolationLevel.READ_COMMITTED, RUN_UPDATE))
+            jdbiExecutor.useTransaction(TransactionIsolationLevel.READ_COMMITTED, checkReadCommitted(RUN_UPDATE)))
             .succeedsWithin(Duration.ofSeconds(10));
         assertThat(jdbiExecutor.withHandle(RUN_QUERY))
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(3);
-        verify(jdbi).useTransaction(eq(TransactionIsolationLevel.READ_COMMITTED), any());
     }
 
     @Test
@@ -185,7 +174,6 @@ public class JdbiExecutorTest {
             jdbiExecutor.withExtension(TestExtension.class, TestExtension::get)
         ).succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(5);
-        verify(jdbi).withExtension(eq(TestExtension.class), any());
     }
 
     @Test
@@ -193,7 +181,6 @@ public class JdbiExecutorTest {
         assertThat(
             jdbiExecutor.useExtension(TestExtension.class, TestExtension::set)
         ).succeedsWithin(Duration.ofSeconds(10));
-        verify(jdbi).useExtension(eq(TestExtension.class), any());
     }
 
     @Test
@@ -238,5 +225,35 @@ public class JdbiExecutorTest {
         assertThat(stage2)
             .succeedsWithin(Duration.ofSeconds(10))
             .isEqualTo(2);
+    }
+
+    <R, X extends Exception> HandleCallback<R, X> checkInTxn(HandleCallback<R, X> callback) {
+        return h -> {
+            assertThat(h.isInTransaction()).isTrue();
+            return callback.withHandle(h);
+        };
+    }
+
+    <X extends Exception> HandleConsumer<X> checkInTxn(HandleConsumer<X> consumer) {
+        return h -> {
+            assertThat(h.isInTransaction()).isTrue();
+            consumer.useHandle(h);
+        };
+    }
+
+    <R, X extends Exception> HandleCallback<R, X> checkReadCommitted(HandleCallback<R, X> callback) {
+        return h -> {
+            assertThat(h.isInTransaction()).isTrue();
+            assertThat(h.getTransactionIsolationLevel()).isEqualTo(TransactionIsolationLevel.READ_COMMITTED);
+            return callback.withHandle(h);
+        };
+    }
+
+    <X extends Exception> HandleConsumer<X> checkReadCommitted(HandleConsumer<X> consumer) {
+        return h -> {
+            assertThat(h.isInTransaction()).isTrue();
+            assertThat(h.getTransactionIsolationLevel()).isEqualTo(TransactionIsolationLevel.READ_COMMITTED);
+            consumer.useHandle(h);
+        };
     }
 }

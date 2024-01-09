@@ -13,66 +13,56 @@
  */
 package org.jdbi.v3.core.statement;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TestMessageFormatTemplateEngine {
     private TemplateEngine templateEngine;
     private StatementContext ctx;
-    private Map<String, Object> attributes;
 
     @BeforeEach
     public void setUp() {
         templateEngine = new MessageFormatTemplateEngine();
-        attributes = new HashMap<>();
-        ctx = mock(StatementContext.class);
-        when(ctx.getAttributes()).thenReturn(attributes);
+        ctx = StatementContextAccess.createContext();
     }
 
     @Test
     public void testNoPlaceholdersNoValues() {
-        attributes.clear();
-
         assertThat(templateEngine.render("foo bar", ctx)).isEqualTo("foo bar");
     }
 
     @Test
     public void testWithPlaceholdersAndValues() {
-        attributes.put("02", "!");
-        attributes.put("000", "hello");
-        attributes.put("01", "world");
+        ctx.define("02", "!");
+        ctx.define("000", "hello");
+        ctx.define("01", "world");
 
         assertThat(templateEngine.render("{0} {1}{2}", ctx)).isEqualTo("hello world!");
     }
 
     @Test
     public void testManyValues() {
-        attributes.put("000", "a");
-        attributes.put("001", "b");
-        attributes.put("002", "c");
-        attributes.put("003", "d");
-        attributes.put("004", "e");
-        attributes.put("005", "f");
-        attributes.put("006", "g");
-        attributes.put("007", "h");
-        attributes.put("008", "i");
-        attributes.put("009", "j");
-        attributes.put("010", "k");
+        ctx.define("000", "a");
+        ctx.define("001", "b");
+        ctx.define("002", "c");
+        ctx.define("003", "d");
+        ctx.define("004", "e");
+        ctx.define("005", "f");
+        ctx.define("006", "g");
+        ctx.define("007", "h");
+        ctx.define("008", "i");
+        ctx.define("009", "j");
+        ctx.define("010", "k");
 
         assertThat(templateEngine.render("{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}", ctx)).isEqualTo("abcdefghijk");
     }
 
     @Test
     public void testNoPlaceholdersButWithValues() {
-        attributes.put("0", "hello");
+        ctx.define("0", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("foo bar", ctx))
             .isInstanceOf(IllegalArgumentException.class)
@@ -81,8 +71,6 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testWithPlaceholdersButNoValues() {
-        attributes.clear();
-
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("expected 1 keys but got 0");
@@ -90,7 +78,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testNullValue() {
-        attributes.put("0", null);
+        ctx.define("0", null);
 
         assertThat(templateEngine.render("{0} bar", ctx))
             .isEqualTo("null bar");
@@ -98,7 +86,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testNegativeKey() {
-        attributes.put("-1", "hello");
+        ctx.define("-1", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
             .isInstanceOf(IllegalArgumentException.class)
@@ -107,8 +95,8 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testDuplicateKey() {
-        attributes.put("0", "hello");
-        attributes.put("00", "world");
+        ctx.define("0", "hello");
+        ctx.define("00", "world");
 
         assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx))
             .isInstanceOf(IllegalArgumentException.class)
@@ -117,8 +105,8 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testSkippedKey() {
-        attributes.put("0", "hello");
-        attributes.put("2", "world");
+        ctx.define("0", "hello");
+        ctx.define("2", "world");
 
         assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx))
             .isInstanceOf(IllegalArgumentException.class)
@@ -127,7 +115,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testNonNumericKey() {
-        attributes.put("abc", "hello");
+        ctx.define("abc", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
             .isInstanceOf(IllegalArgumentException.class)
@@ -136,7 +124,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testWhitespaceInKey() {
-        attributes.put(" 1 ", "hello");
+        ctx.define(" 1 ", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
             .isInstanceOf(IllegalArgumentException.class)
@@ -145,7 +133,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testBlankKey() {
-        attributes.put(" ", "hello");
+        ctx.define(" ", "hello");
 
         assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
             .isInstanceOf(IllegalArgumentException.class)
@@ -154,7 +142,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testEscaping() {
-        attributes.put("0", "foo");
+        ctx.define("0", "foo");
 
         assertThat(templateEngine.render("select * from {0} where name = ''john'' and stuff = '''{0}'''", ctx))
             .isEqualTo("select * from foo where name = 'john' and stuff = '{0}'");

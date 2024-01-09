@@ -144,7 +144,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the JDBC {@link Connection} this Handle uses.
      */
     public Connection getConnection() {
-        return this.connection;
+        return connection;
     }
 
     /**

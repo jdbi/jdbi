@@ -18,7 +18,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -37,9 +37,6 @@ public class TestLocalDateArgument {
     @Mock
     PreparedStatement stmt;
 
-    @Mock
-    StatementContext ctx;
-
     @Test
     public void testBindLocalDate() throws SQLException {
         ArgumentFactory factory = new JavaTimeArgumentFactory();
@@ -50,7 +47,7 @@ public class TestLocalDateArgument {
         assertThat(optionalArgument).isPresent();
 
         Argument argument = optionalArgument.get();
-        argument.apply(5, stmt, ctx);
+        argument.apply(5, stmt, StatementContextAccess.createContext());
 
         verify(stmt).setDate(5, java.sql.Date.valueOf(date));
     }

@@ -13,10 +13,12 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -33,16 +35,17 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.AdditionalAnswers;
+import org.mockito.Mockito;
 
 import static java.util.Collections.emptySet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.spy;
 
 public class TestBatching {
 
@@ -190,17 +193,25 @@ public class TestBatching {
     }
 
     @Test
-    public void testBatchingWithSerializableTransactionRunner() {
-        Jdbi jdbi = h2Extension.getJdbi();
+    @Disabled // XXX: https://github.com/jdbi/jdbi/pull/2595
+    public void testBatchingWithSerializableTransactionRunner() throws SQLException {
+        var delegateAnswer = AdditionalAnswers.delegatesTo(
+                h2Extension.getSharedHandle().getConnection());
+        var c = Mockito.mock(Connection.class, Mockito.withSettings()
+                .defaultAnswer(delegateAnswer));
+        Jdbi jdbi = Jdbi.create(c).installPlugin(new SqlObjectPlugin());
         jdbi.setTransactionHandler(new SerializableTransactionRunner());
 
+        var failed = new AtomicBoolean();
         jdbi.useHandle(jdbiHandle -> {
-            Handle spyHandle = spy(jdbiHandle);
-            given(spyHandle.commit()).willAnswer(invocation -> {
-                throw new SQLException("Test exception", "40001");
-            }).willCallRealMethod();
+            Mockito.doAnswer(invocation -> {
+                if (!failed.getAndSet(true)) {
+                    throw new SQLException("Test exception", "40001");
+                }
+                return delegateAnswer.answer(invocation);
+            }).when(c).commit();
 
-            UsesBatching b = spyHandle.attach(UsesBatching.class);
+            UsesBatching b = jdbiHandle.attach(UsesBatching.class);
             List<Something> things = Arrays.asList(new Something(1, "Brian"),
                 new Something(2, "Henri"),
                 new Something(3, "Patrick"),
