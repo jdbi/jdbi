@@ -22,17 +22,17 @@
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-integration-testing</artifactId>
+    <artifactId>jdbi3-e2e</artifactId>
 
-    <name>jdbi3 - internal - integration testing</name>
-    <description>Integration tests for the full Jdbi code base</description>
+    <name>jdbi3 - internal - end-to-end testing suite</name>
+    <description>Tests for the full Jdbi code base</description>
 
     <properties>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.install.skip>true</basepom.install.skip>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
-        <moduleName>org.jdbi.v3.integrationtest</moduleName>
+        <moduleName>org.jdbi.v3.e2e</moduleName>
     </properties>
 
     <dependencies>

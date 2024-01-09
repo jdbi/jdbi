@@ -69,10 +69,10 @@
 
         <!-- we have lots of bug reports that use different parts of the
              Jdbi stack and it becomes difficult to write tests that fit into
-             very specific places. Add an integration test module that allows
-             pulling in every module listed above as needed
+             very specific places. The e2e test module allows pulling in
+             every module listed above as needed.
         -->
-        <module>integration-testing</module>
+        <module>e2e</module>
 
         <!-- support pieces, examples, benchmark, tests etc. -->
         <!-- none of those ship actual end-user code -->

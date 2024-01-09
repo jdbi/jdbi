@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.integrationtest;
+package org.jdbi.v3.e2e;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +62,7 @@ public class TestIssue2564 {
         BatchResultBearing batchResult = batch.executePreparedBatch("id");
         List<Integer> ids = batchResult.mapTo(Integer.class).list();
 
-        assertThat(ids).hasSize(6);
-        assertThat(ids).containsExactly(1, 2, 3, 4, 5, 6);
+        assertThat(ids).hasSize(6)
+            .containsExactly(1, 2, 3, 4, 5, 6);
     }
 }
