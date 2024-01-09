@@ -13,11 +13,14 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.transaction.TransactionException;
@@ -36,9 +39,12 @@ import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import static java.util.Collections.emptyList;
@@ -52,15 +58,31 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class TestSqlObject {
-
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2();
 
-    private Handle handle;
+    Connection c;
+    Jdbi jdbi;
+    Handle handle;
 
     @BeforeEach
-    public void setUp() {
-        handle = h2Extension.getSharedHandle();
+    public void setUp() throws SQLException {
+        c = Mockito.mock(Connection.class, Mockito.withSettings()
+                .defaultAnswer(AdditionalAnswers.delegatesTo(
+                        h2Extension.getSharedHandle().getConnection())));
+        jdbi = Jdbi.create(c).installPlugin(new SqlObjectPlugin());
+        handle = jdbi.open();
+        TestingInitializers.something().initialize(null, handle);
+    }
+
+    @AfterEach
+    public void close() throws SQLException {
+        if (handle != null) {
+            handle.close();
+        }
+        if (c != null) {
+            c.close();
+        }
     }
 
     @Test
@@ -108,60 +130,56 @@ public class TestSqlObject {
 
     @Test
     public void testSimpleTransactionsSucceed() {
-        SomethingDao dao = h2Extension.getJdbi().onDemand(SomethingDao.class);
+        SomethingDao dao = jdbi.onDemand(SomethingDao.class);
 
         assertThat(dao.insertInSingleTransaction(10, "Linda")).isOne();
     }
 
     @Test
     public void testTransactionAnnotationWorksOnInterfaceDefaultMethod() {
-        Dao dao = h2Extension.getSharedHandle().attach(Dao.class);
+        Dao dao = handle.attach(Dao.class);
         assertThat(dao.doesTransactionAnnotationWork()).isTrue();
     }
 
     @Test
-    public void testNestedTransactionsCollapseIntoSingleTransaction() {
-        Handle spyHandle = Mockito.spy(h2Extension.getSharedHandle());
-        Dao dao = spyHandle.attach(Dao.class);
+    public void testNestedTransactionsCollapseIntoSingleTransaction() throws SQLException {
+        Dao dao = handle.attach(Dao.class);
 
         dao.threeNestedTransactions();
-        verify(spyHandle, times(1)).begin();
-        verify(spyHandle, times(1)).commit();
+        verify(c, times(1)).setAutoCommit(false);
+        verify(c, times(1)).commit();
 
         dao.twoNestedTransactions();
-        verify(spyHandle, times(2)).begin();
-        verify(spyHandle, times(2)).commit();
+        verify(c, times(2)).setAutoCommit(false);
+        verify(c, times(2)).commit();
     }
 
     @Test
-    public void testNestedTransactionWithSameIsolation() {
-        Handle spyHandle = Mockito.spy(h2Extension.getSharedHandle());
-        Dao dao = spyHandle.attach(Dao.class);
+    public void testNestedTransactionWithSameIsolation() throws SQLException {
+        Dao dao = handle.attach(Dao.class);
 
         dao.nestedTransactionWithSameIsolation();
-        verify(spyHandle, times(1)).begin();
-        verify(spyHandle, times(1)).commit();
+        verify(c, times(1)).setAutoCommit(false);
+        verify(c, times(1)).commit();
     }
 
     @Test
-    public void testNestedTransactionWithDifferentIsoltion() {
-        Handle spyHandle = Mockito.spy(h2Extension.getSharedHandle());
-        Dao dao = spyHandle.attach(Dao.class);
+    public void testNestedTransactionWithDifferentIsolation() {
+        Dao dao = handle.attach(Dao.class);
 
         assertThatThrownBy(dao::nestedTransactionWithDifferentIsolation).isInstanceOf(TransactionException.class);
     }
 
     @Test
-    public void testSqlUpdateWithTransaction() {
-        Handle spyHandle = Mockito.spy(h2Extension.getSharedHandle());
-        Dao dao = spyHandle.attach(Dao.class);
+    public void testSqlUpdateWithTransaction() throws SQLException {
+        Dao dao = handle.attach(Dao.class);
 
         dao.insert(1, "foo");
-        verify(spyHandle, never()).begin();
+        verify(c, never()).setAutoCommit(ArgumentMatchers.anyBoolean());
         assertThat(dao.findById(1)).isEqualTo(new Something(1, "foo"));
 
         assertThat(dao.insertTransactional(2, "bar")).isOne();
-        verify(spyHandle, times(1)).begin();
+        verify(c, times(1)).setAutoCommit(false);
         assertThat(dao.findById(2)).isEqualTo(new Something(2, "bar"));
     }
 

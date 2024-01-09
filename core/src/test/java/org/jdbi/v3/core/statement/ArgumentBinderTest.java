@@ -17,9 +17,6 @@ import java.sql.PreparedStatement;
 import java.util.Arrays;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +27,6 @@ import org.mockito.quality.Strictness;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -39,16 +35,11 @@ public class ArgumentBinderTest {
 
     @Mock
     private PreparedStatement stmt;
-    @Mock
-    private StatementContext ctx;
-
-    private SqlStatements statements = new SqlStatements();
+    StatementContext ctx;
 
     @BeforeEach
     public void before() {
-        when(ctx.getConfig(Qualifiers.class)).thenReturn(new Qualifiers());
-        when(ctx.getConfig(SqlStatements.class)).thenReturn(statements);
-        when(ctx.getConfig(Arguments.class)).thenReturn(new Arguments(new ConfigRegistry()));
+        ctx = StatementContextAccess.createContext();
     }
 
     @Test
@@ -130,6 +121,6 @@ public class ArgumentBinderTest {
     }
 
     private void allowUnused() {
-        statements.setUnusedBindingAllowed(true);
+        ctx.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
     }
 }

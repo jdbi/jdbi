@@ -14,24 +14,17 @@
 package org.jdbi.v3.sqlobject;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.v3.core.ConnectionFactory;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class TestOnDemandObjectMethodBehavior {
 
     public interface UselessDao extends SqlObject {
         void finalize();
     }
-
-    @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
 
     /**
      * Sometimes the GC will call {@link #finalize()} on a SqlObject from
@@ -41,13 +34,15 @@ public class TestOnDemandObjectMethodBehavior {
      */
     @Test
     public void testFinalizeDoesntConnect() {
-
-        Handle handle = spy(h2Extension.getSharedHandle());
-        UselessDao dao = handle.attach(UselessDao.class);
-
-        dao.finalize(); // Normally GC would do this, but just fake it
-
-        verify(handle, never()).getConnection();
-        verify(handle, never()).getJdbi();
+        var cf = new ConnectionFactory() {
+            @Override
+            public Connection openConnection() throws SQLException {
+                throw new AssertionError();
+            }
+        };
+        Jdbi.create(cf)
+                .installPlugin(new SqlObjectPlugin())
+                .onDemand(UselessDao.class)
+                .finalize();
     }
 }

@@ -45,13 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class TestQueries {
 
@@ -617,26 +610,30 @@ public class TestQueries {
         assertThatThrownBy(() -> ri1.filter(null)).isInstanceOf(NullPointerException.class)
                 .hasMessage("Filter required");
 
-        final Predicate<String> startsWithJPredicate = spy(new Predicate<String>() {
+        final var startsWithJPredicate = new Predicate<String>() {
+            int times;
             @Override
             public boolean test(final String s) {
+                times++;
                 return s != null && s.startsWith("j");
             }
-        });
-        final Predicate<String> containsHPredicate = spy(new Predicate<String>() {
+        };
+        final var containsHPredicate = new Predicate<String>() {
+            int times;
             @Override
             public boolean test(final String s) {
+                times++;
                 return s.contains("h");
             }
-        });
+        };
 
         final ResultIterable<String> ri2 = ri1
                 .filter(startsWithJPredicate)
                 .filter(containsHPredicate);
 
         // as iteration has not yet taken place, test filters were not invoked
-        verify(startsWithJPredicate, never()).test(any());
-        verify(containsHPredicate, never()).test(any());
+        assertThat(startsWithJPredicate.times).isZero();
+        assertThat(containsHPredicate.times).isZero();
 
         assertThat(ri1).isNotSameAs(ri2);
 
@@ -650,9 +647,9 @@ public class TestQueries {
         }
 
         // the first filter should have seen all records
-        verify(startsWithJPredicate, times(5)).test(nullable(String.class));
+        assertThat(startsWithJPredicate.times).isEqualTo(5);
         // the second filter only two records that matched the first filter
-        verify(containsHPredicate, times(2)).test(anyString());
+        assertThat(containsHPredicate.times).isEqualTo(2);
 
         assertThatThrownBy(iter::next).isInstanceOf(NoSuchElementException.class)
                 .hasMessage("No more filtered results");

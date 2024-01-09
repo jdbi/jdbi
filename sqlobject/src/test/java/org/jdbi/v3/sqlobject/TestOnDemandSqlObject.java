@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,14 +42,13 @@ import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class TestOnDemandSqlObject {
 
@@ -81,23 +81,18 @@ public class TestOnDemandSqlObject {
     }
 
     @Test
-    public void testExceptionOnClose() {
-        // mockito is a terrible piece of software and should not be used.
-        // this is needed because of https://github.com/mockito/mockito/issues/2331
-        h2Extension.enableLeakChecker(false);
+    public void testExceptionOnClose() throws Exception {
+        var c = Mockito.mock(Connection.class, Mockito.withSettings()
+                .defaultAnswer(AdditionalAnswers.delegatesTo(
+                        h2Extension.getSharedHandle().getConnection())));
+        Mockito.doThrow(TransactionException.class).when(c)
+                .prepareStatement(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(ResultSet.TYPE_FORWARD_ONLY),
+                        ArgumentMatchers.eq(ResultSet.CONCUR_READ_ONLY));
+        Mockito.doThrow(CloseException.class).when(c).close();
 
-        JdbiPlugin plugin = new JdbiPlugin() {
-            @Override
-            public Handle customizeHandle(Handle handle) {
-                Handle spyHandle = spy(handle);
-                when(spyHandle.createUpdate(anyString())).thenThrow(new TransactionException("connection reset"));
-                doCallRealMethod().doThrow(new CloseException("already closed", null)).when(spyHandle).close();
-                return spyHandle;
-            }
-        };
-        jdbi.installPlugin(plugin);
-
-        Spiffy s = jdbi.onDemand(Spiffy.class);
+        Spiffy s = Jdbi.create(c).installPlugin(new SqlObjectPlugin()).onDemand(Spiffy.class);
         assertThatThrownBy(() -> s.insert(1, "Tom")).isInstanceOf(TransactionException.class);
     }
 

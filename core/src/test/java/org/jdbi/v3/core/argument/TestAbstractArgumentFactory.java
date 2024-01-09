@@ -24,6 +24,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -39,8 +40,7 @@ public class TestAbstractArgumentFactory {
     @Mock
     PreparedStatement statement;
 
-    @Mock
-    StatementContext ctx;
+    StatementContext ctx = StatementContextAccess.createContext();
 
     static class SimpleType {
         final String value;

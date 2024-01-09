@@ -13,36 +13,20 @@
  */
 package org.jdbi.v3.commonstext;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextAccess;
 import org.jdbi.v3.core.statement.TemplateEngine;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 public class TestStringSubstitutorTemplateEngine {
 
-    @Mock
-    private StatementContext ctx;
-
-    private final Map<String, Object> attributes = new HashMap<>();
-
-    @BeforeEach
-    public void before() {
-        when(ctx.getAttributes()).thenReturn(attributes);
-    }
+    private StatementContext ctx = StatementContextAccess.createContext();
 
     @Test
     public void testDefaults() {
-        attributes.put("name", "foo");
+        ctx.define("name", "foo");
 
         assertThat(new StringSubstitutorTemplateEngine().render("create table ${name};", ctx))
             .isEqualTo("create table foo;");
@@ -50,8 +34,6 @@ public class TestStringSubstitutorTemplateEngine {
 
     @Test
     public void testMissingAttribute() {
-        attributes.clear();
-
         TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
 
         assertThat(engine.render("select * from foo where x=<x>", ctx))
@@ -60,7 +42,7 @@ public class TestStringSubstitutorTemplateEngine {
 
     @Test
     public void testNullAttribute() {
-        attributes.put("x", null);
+        ctx.define("x", null);
 
         TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
 
@@ -70,7 +52,7 @@ public class TestStringSubstitutorTemplateEngine {
 
     @Test
     public void testCustomPrefixSuffix() {
-        attributes.put("name", "foo");
+        ctx.define("name", "foo");
 
         TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
 
@@ -80,7 +62,7 @@ public class TestStringSubstitutorTemplateEngine {
 
     @Test
     public void testEscapeCharacter() {
-        attributes.put("name", "foo");
+        ctx.define("name", "foo");
 
         TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>', '@');
 
