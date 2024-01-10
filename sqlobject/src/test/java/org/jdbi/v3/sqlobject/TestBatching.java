@@ -193,7 +193,6 @@ public class TestBatching {
     }
 
     @Test
-    @Disabled // XXX: https://github.com/jdbi/jdbi/pull/2595
     public void testBatchingWithSerializableTransactionRunner() throws SQLException {
         var delegateAnswer = AdditionalAnswers.delegatesTo(
                 h2Extension.getSharedHandle().getConnection());
