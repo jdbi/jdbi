@@ -61,7 +61,7 @@ public class TestSqlArrays {
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
         .withInitializer((ds, h) -> h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
-            th.execute("CREATE TABLE uuids (u UUID[], i INT[], t TIMESTAMP[])");
+            th.execute("CREATE TABLE uuids (u UUID[], i INT[], t TIMESTAMPTZ[])");
         }));
 
     private Handle handle;
@@ -71,7 +71,7 @@ public class TestSqlArrays {
     public void setUp() {
         handle = pgExtension.openHandle()
             // register array type to the handle
-            .registerArrayType(Instant.class, "timestamp");
+            .registerArrayType(Instant.class, "timestamptz");
 
         // attach the array object to the handle as well.
         ao = handle.attach(ArrayObject.class);
