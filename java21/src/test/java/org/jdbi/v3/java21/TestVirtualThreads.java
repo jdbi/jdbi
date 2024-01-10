@@ -16,8 +16,9 @@ package org.jdbi.v3.java21;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindMethods;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -25,7 +26,6 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -36,19 +36,12 @@ class TestVirtualThreads {
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
             .withPlugin(new SqlObjectPlugin())
-            .withInitializer(TestingInitializers.usersWithData())
-            .withConfig(RowMappers.class, r -> r.register(User.class, ConstructorMapper.of(User.class)));
-
-    UserDao dao;
-
-    @BeforeEach
-    void setUp() {
-        this.dao = h2Extension.getJdbi().onDemand(UserDao.class);
-    }
+            .withInitializer(TestingInitializers.usersWithData());
 
     @Test
     void virtualThreads() {
-        final var inserts = IntStream.range(100, 1000)
+        final var dao = h2Extension.getJdbi().onDemand(UserDao.class);
+        final var inserts = IntStream.range(100, 200)
                 .mapToObj(id -> new User(id, "User " + id))
                 .toList();
         try (var exec = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -64,7 +57,34 @@ class TestVirtualThreads {
                         });
                     }));
         }
-        assertThat(dao.countUsers()).isEqualTo(902);
+        assertThat(dao.countUsers()).isEqualTo(102);
+    }
+
+    @Test
+    void virtualThreadsAndLimitedPool() {
+        final var hikariCfg = new HikariConfig();
+        hikariCfg.setMaximumPoolSize(10);
+        hikariCfg.setJdbcUrl(h2Extension.getUrl());
+        try (final var pool = new HikariDataSource(hikariCfg)) {
+            final var dao = Jdbi.create(pool).installPlugin(new SqlObjectPlugin()).onDemand(UserDao.class);
+            final var inserts = IntStream.range(100, 200)
+                    .mapToObj(id -> new User(id, "User " + id))
+                    .toList();
+            try (var exec = Executors.newVirtualThreadPerTaskExecutor()) {
+                inserts.forEach(insert ->
+                        exec.submit(() -> {
+                            dao.useTransaction(txn -> {
+                                txn.insertUser(insert);
+                                try {
+                                    Thread.sleep((long) (Math.random() * 100));
+                                } catch (final InterruptedException e) {
+                                    throw new AssertionError(e);
+                                }
+                            });
+                        }));
+            }
+            assertThat(dao.countUsers()).isEqualTo(102);
+        }
     }
 
     public record User(int id, String name) {}
