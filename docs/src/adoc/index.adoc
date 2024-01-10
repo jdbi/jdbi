@@ -173,6 +173,11 @@ Jdbi runs on all Java versions 11 or later. All releases are built with the late
 Jdbi ended support for Java 8 with version 3.39. There are occasional backports of security relevant things or major bugs but as of version 3.40.0, JDK 11+ is required.
 
 
+==== Virtual Threads
+
+Jdbi has experimental support for virtual threads. Basic use cases are verified to work, and we welcome reports of any issues.
+As virtual thread support is still evolving, please make sure to verify against the latest JDK before reporting any issues.
+
 === Getting started
 
 Jdbi has a flexible plugin architecture, which makes it easy to fold in support for your favorite libraries (Guava, JodaTime, Spring, Vavr) or database vendors (Oracle, Postgres, H2).
