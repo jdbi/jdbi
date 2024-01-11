@@ -30,6 +30,8 @@ import static java.lang.String.format;
 
 /**
  * Holds all output parameters from a stored procedure call using {@link Call}.
+ * Since output parameters can themselves be streaming result sets or cursors, it is important
+ * to consume your OutParameters before closing the Call or Handle they came from.
  *
  * @see Call
  * @see java.sql.CallableStatement

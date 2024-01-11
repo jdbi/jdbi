@@ -2,6 +2,17 @@
 
 # 3.43.0
 
+** POTENTIAL BREAKING CHANGE **
+
+With 3.43.0, we have improved the support for calling stored procedures via Call, and in particular
+returning result sets.
+Like any object that comes from a Statement, the expectation is that code will consume
+all results (whether it's "normal" result set or a stored procedure result) before closing the Statement.
+However, previously, Jdbi did not enforce this - OutParameters could be used after the statement closed.
+
+So, you might observe new exceptions while trying to use OutParameters after closing the Call they came from.
+See: https://github.com/jdbi/jdbi/issues/2592
+
 - Support nesting row types into Java `Optional` or vavr `Option` (reported by @martyn0ff, #2558)
 - finally give up on trying to guess SQL script parsing and add a switch to control whether to strip trailing semicolons or not. Another attempt to
   fix SQL script parsing is (reported by @IrinaTerlizhenko, #2554).
