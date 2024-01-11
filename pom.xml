@@ -112,5 +112,14 @@
                 <module>java17</module>
             </modules>
         </profile>
+        <profile>
+            <id>java21</id>
+            <activation>
+                <jdk>[21,)</jdk>
+            </activation>
+            <modules>
+                <module>java21</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
