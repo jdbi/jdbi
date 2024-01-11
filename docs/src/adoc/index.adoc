@@ -835,6 +835,10 @@ return a link:{jdkdocs}/java.sql/java/sql/ResultSet.html[ResultSet^] object.
 
 ===== Using OutParameters to access database return values
 
+OutParameters hold the output parameters of a stored procedure Call.
+Since they can hold result sets and cursors, OutParameters must be consumed before
+closing the Call that it came from.
+
 This is an example for a PostgreSQL stored procedure. PostgreSQL (and most other databases) stored procedures use `IN` parameters to pass values into the procedure and `OUT` parameters to return values.
 
 [source,sql]
