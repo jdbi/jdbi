@@ -78,7 +78,7 @@ _*PLEASE DO NOT RELEASE BEFORE UPDATING THE `RELEASE_NOTES.md` and the `index.ad
 ## Build the release on your workstation
 
 Create the release artifacts in Maven, and deploy them to Sonatype staging repository.
-Use the latest Java LTS version (currently 17) to build the artifacts.
+Use the latest Java LTS version (currently 21) to build the artifacts.
 
 ```bash
 $ make release

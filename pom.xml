@@ -56,7 +56,6 @@
         <module>kotlin-sqlobject</module>
         <module>kotlin</module>
         <module>moshi</module>
-        <module>mysql</module>
         <module>postgis</module>
         <module>postgres</module>
         <module>spring5</module>
@@ -69,10 +68,10 @@
 
         <!-- we have lots of bug reports that use different parts of the
              Jdbi stack and it becomes difficult to write tests that fit into
-             very specific places. Add an integration test module that allows
-             pulling in every module listed above as needed
+             very specific places. The e2e test module allows pulling in
+             every module listed above as needed.
         -->
-        <module>integration-testing</module>
+        <module>e2e</module>
 
         <!-- support pieces, examples, benchmark, tests etc. -->
         <!-- none of those ship actual end-user code -->
@@ -80,7 +79,6 @@
         <module>docs</module>
         <module>examples</module>
         <module>noparameters</module>
-        <module>lombok</module>
     </modules>
 
     <scm>
@@ -101,16 +99,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <profiles>
-        <profile>
-            <id>java17</id>
-            <activation>
-                <jdk>[17,)</jdk>
-            </activation>
-            <modules>
-                <module>java17</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

@@ -25,18 +25,18 @@ Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/
 
 ## Prerequisites
 
-Jdbi requires Java 11 or better to run. Jdbi requires Java 11 or better to compile.
+Jdbi requires Java 11 or better to run.
 
 We run CI tests against Java 11, 17 and 21.
 
 
 ### Compatibility with older Java versions
 
-Java 8, 9 and 10 are supported by  any Jdbi version before **3.40.0**.
+Java 8, 9 and 10 are supported by any Jdbi version before **3.40.0**.
 
 ## Building
 
-Jdbi requires JDK 11+ to build and enforces JDK 17+ for releases.
+Jdbi requires a JDK version 17 or better to build. We enforce the latest LTS (currently Java 21) for releases.
 
 Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.9 or later is required. Using the `make` targets requires GNU make.
 

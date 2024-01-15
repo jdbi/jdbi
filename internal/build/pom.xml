@@ -898,6 +898,11 @@
                                     </excludes>
                                     <searchTransitive>false</searchTransitive>
                                 </bannedDependencies>
+
+                                <!--  we now require java 17 for building -->
+                                <requireJavaVersion>
+                                    <version>[17,)</version>
+                                </requireJavaVersion>
                             </rules>
                         </configuration>
                     </execution>
@@ -1167,6 +1172,7 @@
                 </plugins>
             </build>
         </profile>
+
         <profile>
             <id>jdbi-release</id>
             <properties>
@@ -1186,9 +1192,9 @@
                                 </goals>
                                 <configuration>
                                     <rules>
-                                        <!-- releases must be built with Java 17 or better -->
+                                        <!-- releases must be built with Java 21 or better -->
                                         <requireJavaVersion>
-                                            <version>[17,)</version>
+                                            <version>[21,)</version>
                                         </requireJavaVersion>
                                     </rules>
                                 </configuration>
