@@ -23,7 +23,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.calls;
@@ -48,17 +48,18 @@ public class TestTransactionsAutoCommit {
         when(statement.execute()).thenReturn(true);
         when(statement.getUpdateCount()).thenReturn(1);
         // throw e.g some underlying database error
-        doThrow(new SQLException("infrastructure error")).when(connection).commit();
+        var exception = new SQLException("infrastructure error");
+        doThrow(exception).when(connection).commit();
 
         try (Handle h = Jdbi.create(() -> connection).open()) {
             h.begin();
 
-            assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
+            assertThatThrownBy(() -> {
                 h.execute(SAMPLE_SQL, 1L, "Tom");
 
                 // throws exception on commit
                 h.commit();
-            });
+            }).hasCause(exception);
         }
 
         InOrder inOrder = inOrder(connection, statement);
@@ -75,10 +76,13 @@ public class TestTransactionsAutoCommit {
         inOrder.verify(statement).execute();
         inOrder.verify(statement).getUpdateCount();
 
-        // 4. commit transaction
+        // 4. commit transaction, which explodes
         inOrder.verify(connection).commit();
 
-        // 5. set auto-commit back to initial state
+        // 5. rollback transaction
+        inOrder.verify(connection).rollback();
+
+        // 6. set auto-commit back to initial state
         inOrder.verify(connection).setAutoCommit(true);
 
         inOrder.verify(connection, times(1)).close();

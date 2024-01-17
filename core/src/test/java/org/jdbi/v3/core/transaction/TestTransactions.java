@@ -118,12 +118,10 @@ public class TestTransactions {
             h.commit();
         });
 
-        List<Integer> result = h.createQuery("SELECT count(1) from something")
+        int result = h.createQuery("SELECT count(1) from something")
             .mapTo(Integer.class)
-            .list();
-        assertThat(result)
-            .hasSize(1)
-            .containsExactly(1);
+            .one();
+        assertThat(result).isEqualTo(1);
     }
 
     @Test
@@ -213,16 +211,18 @@ public class TestTransactions {
     @Test
     public void commitThrowsDoesntCommit() throws SQLException {
         h.execute("create table commitTable (id int primary key)");
+
         var forwardAnswer = AdditionalAnswers.delegatesTo(h.getConnection());
         var c = Mockito.mock(Connection.class, Mockito.withSettings()
                 .defaultAnswer(forwardAnswer));
+
+        var jdbi = Jdbi.create(c);
+
         var expectedExn = new SQLException("woof");
         Mockito.doThrow(expectedExn).when(c).commit();
-        assertThatThrownBy(() -> {
-            Jdbi.create(c).useTransaction(txn -> {
-                txn.execute("insert into commitTable(id) values (1)");
-            });
-        }).hasCause(expectedExn);
+        assertThatThrownBy(() -> jdbi.useTransaction(txn -> txn.execute("insert into commitTable(id) values (1)")))
+            .hasCause(expectedExn);
+
         assertThat(h.createQuery("select count(1) from commitTable")
                 .mapTo(int.class)
                 .one())
