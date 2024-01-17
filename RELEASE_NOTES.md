@@ -1,5 +1,8 @@
 # Unreleased
 
+- fix edge condition when calling `Connection#commit()` threw an Exception, we called commit() again. Now the
+  code explicitly calls `Connection#rollback()`. Fixes #2595
+
 # 3.43.0
 
 ** POTENTIAL BREAKING CHANGE **
