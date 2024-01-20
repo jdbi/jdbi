@@ -1,5 +1,5 @@
 ---
-name: Code style analysis
+name: Run all code checkers (style, static analysis, api versions etc.)
 
 on:
   push:
@@ -19,6 +19,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
         with:
