@@ -134,6 +134,9 @@
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
         <jdbi.test.pg-version>15</jdbi.test.pg-version>
+        <jdbi.test.timezone>UTC</jdbi.test.timezone>
+        <jdbi.test.language>en</jdbi.test.language>
+        <jdbi.test.region>US</jdbi.test.region>
         <kotlin.compiler.apiVersion>1.6</kotlin.compiler.apiVersion>
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.6</kotlin.compiler.languageVersion>
@@ -850,8 +853,11 @@
                         <groups />
                         <!-- junit 4 and 5 -->
                         <excludedGroups>slow,org.jdbi.v3.testing.SlowTests</excludedGroups>
-                        <systemPropertyVariables combine.children="append">
+                        <systemPropertyVariables combine.children="override">
                             <pg-embedded.postgres-version>${jdbi.test.pg-version}</pg-embedded.postgres-version>
+                            <user.timezone>${jdbi.test.timezone}</user.timezone>
+                            <user.language>${jdbi.test.language}</user.language>
+                            <user.region>${jdbi.test.region}</user.region>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>

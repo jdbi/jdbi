@@ -58,3 +58,28 @@ jobs:
           MAVEN_CONFIG: "-B -fae"
         run: |
           make run-tests
+
+  ci-locale:
+    name: Run tests with different timezone and locale
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: install code
+        env:
+          MAVEN_CONFIG: "-B -fae"
+        run: |
+          make install-fast
+
+      - name: run tests
+        env:
+          MAVEN_CONFIG: "-B -fae -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
+        run: |
+          make run-tests
