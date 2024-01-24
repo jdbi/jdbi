@@ -13,8 +13,10 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
@@ -36,7 +38,7 @@ public class TestPreparedBatchGenerateKeysPostgres {
 
     @RegisterExtension
     public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(
-        handle -> handle.execute("create table something (id serial, name varchar(50), create_time timestamp default now())")
+        handle -> handle.execute("create table something (id serial primary key, name varchar(50), create_time timestamptz)")
     );
 
     @Test
@@ -60,17 +62,17 @@ public class TestPreparedBatchGenerateKeysPostgres {
     public void testBatchInsertWithKeyGenerationAndExplicitSeveralColumnNames() {
         Handle h = pgExtension.getSharedHandle();
 
-        PreparedBatch batch = h.prepareBatch("insert into something (name) values (?) ");
-        batch.add("Brian");
-        batch.add("Thom");
+        PreparedBatch batch = h.prepareBatch("insert into something (name, create_time) values (?, ?)");
+        batch.add("Brian", Instant.ofEpochSecond(1));
+        batch.add("Thom", Instant.ofEpochSecond(2));
 
         List<IdCreateTime> ids = batch.executePreparedBatch("id", "create_time")
-            .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getDate("create_time")))
+            .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getObject("create_time", OffsetDateTime.class)))
             .list();
 
         assertThat(ids).hasSize(2);
         assertThat(ids).extracting(ic -> ic.id).containsExactly(1, 2);
-        assertThat(ids).extracting(ic -> ic.createTime).doesNotContainNull();
+        assertThat(ids).extracting(ic -> ic.createTime.toEpochSecond()).containsExactly(1L, 2L);
     }
 
     @Test
@@ -85,29 +87,38 @@ public class TestPreparedBatchGenerateKeysPostgres {
             List<IdCreateTime> ids = batch1.executePreparedBatch("id", "create_time")
                 .map((r, ctx) -> new IdCreateTime(
                     r.getInt("id"),
-                    r.getTimestamp("create_time")))
+                    r.getObject("create_time", OffsetDateTime.class)))
                 .list();
 
-            PreparedBatch batch2 = h.prepareBatch("update something set create_time = now() where name like :name returning id, name, create_time");
+            assertThat(ids).hasSize(4);
+            assertThat(ids).extracting(ic -> ic.id).containsExactly(1, 2, 3, 4);
+            assertThat(ids).extracting(ic -> ic.createTime).containsExactly(null, null, null, null);
+
+            var now = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1234567), ZoneOffset.UTC);
+
+            PreparedBatch batch2 = h.prepareBatch("update something set create_time = :now where name like :name returning id, name, create_time");
 
             batch2.bind("name", "Brian%")
+                .bind("now", now)
                 .add()
+                .bind("now", now)
                 .bind("name", "Thom%")
                 .add()
+                .bind("now", now)
                 .bind("name", "Nothing%")
                 .add();
 
             List<List<IdCreateTime>> choppedList = batch2.executePreparedBatch("id", "create_time")
-                .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getTimestamp("create_time")))
+                .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getObject("create_time", OffsetDateTime.class)))
                 .listPerBatch();
 
             assertThat(choppedList).hasSize(3);
             assertThat(choppedList.get(0)).extracting(ic -> ic.id).containsExactly(1, 2);
             assertThat(choppedList.get(0)).extracting(ic -> ic.createTime)
-                .allMatch(date -> ids.stream().map(idCreateTime -> idCreateTime.createTime).allMatch(date1 -> date1.before(date)));
+                .containsExactly(now, now);
             assertThat(choppedList.get(1)).extracting(ic -> ic.id).containsExactly(3, 4);
             assertThat(choppedList.get(1)).extracting(ic -> ic.createTime)
-                .allMatch(date -> ids.stream().map(idCreateTime -> idCreateTime.createTime).allMatch(date1 -> date1.before(date)));
+                .containsExactly(now, now);
             assertThat(choppedList.get(2)).extracting(ic -> ic.id).isEmpty();
             assertThat(choppedList.get(2)).extracting(ic -> ic.createTime).isEmpty();
         }
@@ -150,16 +161,15 @@ public class TestPreparedBatchGenerateKeysPostgres {
 
             int[] batchCounts = batchResultBearing.modifiedRowCounts();
             assertThat(batchCounts).containsExactly(5, 5, 5, 0);
-
         }
     }
 
     private static class IdCreateTime {
 
         final Integer id;
-        final Date createTime;
+        final OffsetDateTime createTime;
 
-        IdCreateTime(Integer id, Date createTime) {
+        IdCreateTime(Integer id, OffsetDateTime createTime) {
             this.id = id;
             this.createTime = createTime;
         }
