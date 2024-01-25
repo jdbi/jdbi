@@ -3,6 +3,7 @@
 - fix edge condition when calling `Connection#commit()` threw an Exception, we called commit() again. Now the
   code explicitly calls `Connection#rollback()`. Fixes #2595
 - FieldMapper: skip static fields (#2607, reported by @mvysny)
+- fix StackOverflowError when encountering recursive types like `<T extends This<T>>` (#2582, reported by @johnarrr)
 
 # 3.43.0
 
