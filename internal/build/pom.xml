@@ -133,6 +133,9 @@
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
+        <!-- see https://github.com/testcontainers/testcontainers-java/pull/8131. -->
+        <!-- tc 1.19.4 will fix this but we need to retain the property for integration testing with older tc -->
+        <jdbi.test.mysql-version>mysql:8.0</jdbi.test.mysql-version>
         <jdbi.test.pg-version>15</jdbi.test.pg-version>
         <kotlin.compiler.apiVersion>1.6</kotlin.compiler.apiVersion>
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
@@ -838,6 +841,7 @@
                         <excludedGroups>slow,org.jdbi.v3.testing.SlowTests</excludedGroups>
                         <systemPropertyVariables combine.children="append">
                             <pg-embedded.postgres-version>${jdbi.test.pg-version}</pg-embedded.postgres-version>
+                            <jdbi.test.mysql-version>${jdbi.test.mysql-version}</jdbi.test.mysql-version>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>

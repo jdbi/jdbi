@@ -35,8 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Tag("slow")
 @Testcontainers
 public class TestScript {
+    static final String MYSQL_VERSION = System.getProperty("jdbi.test.mysql-version", "mysql");
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>("mysql").withUrlParam("rewriteBatchedStatements", "true");
+    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_VERSION).withUrlParam("rewriteBatchedStatements", "true");
 
     @RegisterExtension
     JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer);
