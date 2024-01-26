@@ -32,8 +32,7 @@
         <basepom.test.fork-count>1</basepom.test.fork-count>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
-        <!-- Sigh. Java is really hard. Leave this at 0.3.2, all other versions are worse -->
-        <dep.clickhouse.version>0.3.2</dep.clickhouse.version>
+        <dep.clickhouse.version>0.6.0</dep.clickhouse.version>
         <dep.oracle-xe.version>23.3.0.23.09</dep.oracle-xe.version>
         <dep.trino.version>435</dep.trino.version>
         <dep.yugabyte.version>42.3.5-yb-4</dep.yugabyte.version>
@@ -53,13 +52,7 @@
                 <groupId>com.clickhouse</groupId>
                 <artifactId>clickhouse-jdbc</artifactId>
                 <version>${dep.clickhouse.version}</version>
-                <exclusions>
-                    <!-- sigh. Java is hard -->
-                    <exclusion>
-                        <groupId>com.clickhouse</groupId>
-                        <artifactId>clickhouse-grpc-client</artifactId>
-                    </exclusion>
-                </exclusions>
+                <classifier>all</classifier>
             </dependency>
 
             <dependency>
@@ -124,6 +117,7 @@
         <dependency>
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
+            <classifier>all</classifier>
             <scope>test</scope>
         </dependency>
 
