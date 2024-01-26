@@ -19,14 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         id: test_jdk
         with:
           java-version: ${{ matrix.java-version }}
@@ -66,7 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: temurin
