@@ -71,7 +71,7 @@
         <dep.antlr.version>4.13.1</dep.antlr.version>
         <dep.asciidoctorj-diagram.version>2.2.14</dep.asciidoctorj-diagram.version>
         <dep.asciidoctorj.version>2.5.10</dep.asciidoctorj.version>
-        <dep.assertj.version>3.24.2</dep.assertj.version>
+        <dep.assertj.version>3.25.1</dep.assertj.version>
         <dep.caffeine.version>3.1.8</dep.caffeine.version>
         <dep.checkerframework.version>3.42.0</dep.checkerframework.version>
         <dep.commons-compress.version>1.25.0</dep.commons-compress.version>
@@ -133,6 +133,9 @@
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
+        <!-- see https://github.com/testcontainers/testcontainers-java/pull/8131. -->
+        <!-- tc 1.19.4 will fix this but we need to retain the property for integration testing with older tc -->
+        <jdbi.test.mysql-version>mysql:8.0</jdbi.test.mysql-version>
         <jdbi.test.pg-version>15</jdbi.test.pg-version>
         <jdbi.test.timezone>UTC</jdbi.test.timezone>
         <jdbi.test.language>en</jdbi.test.language>
@@ -173,7 +176,7 @@
             <dependency>
                 <groupId>io.leangen.geantyref</groupId>
                 <artifactId>geantyref</artifactId>
-                <version>1.3.14</version>
+                <version>1.3.15</version>
             </dependency>
 
             <dependency>
@@ -406,13 +409,6 @@
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-guava</artifactId>
                 <version>${dep.assertj.version}</version>
-                <exclusions>
-                    <!-- exclusion is needed, otherwise the version checks on CI fail -->
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
@@ -527,13 +523,6 @@
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>${dep.hikari-cp.version}</version>
-                <exclusions>
-                    <!-- excluded because it asks for 2.0.0 -->
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
@@ -855,6 +844,7 @@
                         <excludedGroups>slow,org.jdbi.v3.testing.SlowTests</excludedGroups>
                         <systemPropertyVariables combine.children="override">
                             <pg-embedded.postgres-version>${jdbi.test.pg-version}</pg-embedded.postgres-version>
+                            <jdbi.test.mysql-version>${jdbi.test.mysql-version}</jdbi.test.mysql-version>
                             <user.timezone>${jdbi.test.timezone}</user.timezone>
                             <user.language>${jdbi.test.language}</user.language>
                             <user.region>${jdbi.test.region}</user.region>

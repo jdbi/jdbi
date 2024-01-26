@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -143,7 +144,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
             for (Field field : aType.getDeclaredFields()) {
                 Nested nested = field.getAnnotation(Nested.class);
-                if (!JdbiAnnotations.isMapped(field)) {
+                if (Modifier.isStatic(field.getModifiers()) || !JdbiAnnotations.isMapped(field)) {
                     continue;
                 }
 

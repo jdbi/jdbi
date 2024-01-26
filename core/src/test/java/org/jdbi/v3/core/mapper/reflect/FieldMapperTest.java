@@ -334,4 +334,20 @@ public class FieldMapperTest {
         @Nullable
         String s;
     }
+
+    @Test
+    public void staticFieldIgnored() {
+        Handle handle = h2Extension.getSharedHandle();
+
+        assertThat(handle.select("select 42 as id")
+                .map(FieldMapper.of(StaticIdThing.class))
+                .one())
+            .extracting(i -> i.id)
+            .isEqualTo(42);
+    }
+
+    static class StaticIdThing {
+        public static final String ID = "id";
+        int id;
+    }
 }
