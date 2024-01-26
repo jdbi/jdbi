@@ -19,10 +19,13 @@ import java.util.UUID;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@EnabledForJreRange(min = JRE.JAVA_17)
 public class JdbiGenericExtensionTest {
 
     @RegisterExtension

@@ -16,7 +16,12 @@ jobs:
 
     strategy:
       matrix:
-        testcontainer-version: [ 1.18.3, 1.19.3 ]
+        testcontainer-version: [ 1.19.4 ]
+        mysql-version: [ "mysql:latest" ]
+        # 1.18.3 does not work with mysql:latest (8.3.x).
+        include:
+          - testcontainer-version: 1.18.3
+            mysql-version: "mysql:8.0"
 
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +40,7 @@ jobs:
 
       - name: run slow tests
         env:
-          MAVEN_CONFIG: "-B -fae -Ddep.testcontainers.version=${{ matrix.testcontainer-version }}"
+          MAVEN_CONFIG: "-B -fae -Ddep.testcontainers.version=${{ matrix.testcontainer-version }} -Djdbi.test.mysql-version=${{ matrix.mysql-version }}"
         run: |
           make run-slow-tests
 
