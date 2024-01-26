@@ -36,9 +36,8 @@ import static java.lang.String.format;
 @Beta
 public final class TestcontainersDatabaseInformation {
 
-    // Clickhouse driver uses schema for database selection...
     private static final TestcontainersDatabaseInformation CLICKHOUSE =
-        of(null, null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s Engine = Memory", schemaName));
+        of(null, null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s Engine = Memory", catalogName));
 
     private static final TestcontainersDatabaseInformation MYSQL =
         of("root", null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s", catalogName));

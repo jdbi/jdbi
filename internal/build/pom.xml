@@ -77,8 +77,8 @@
         <dep.commons-compress.version>1.25.0</dep.commons-compress.version>
         <dep.commons-lang.version>3.14.0</dep.commons-lang.version>
         <dep.commons-text.version>1.11.0</dep.commons-text.version>
-        <!-- derby 10.16 is JDK 17 only, keep it on 10.15 for now -->
-        <dep.derby.version>10.15.2.0</dep.derby.version>
+        <!-- derby 10.17 is JDK 21 only, keep it on 10.16 for now -->
+        <dep.derby.version>10.16.1.1</dep.derby.version>
         <dep.detekt.version>1.23.4</dep.detekt.version>
         <dep.errorprone.version>2.24.0</dep.errorprone.version>
         <dep.flyway.version>9.22.3</dep.flyway.version>
@@ -124,7 +124,7 @@
         <dep.spring.version>5.3.31</dep.spring.version>
         <dep.sqlite.version>3.44.1.0</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
-        <dep.testcontainers.version>1.19.3</dep.testcontainers.version>
+        <dep.testcontainers.version>1.19.4</dep.testcontainers.version>
         <dep.vavr.version>0.9.3</dep.vavr.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
         <jdbi.check.fail-kotlin>${basepom.check.fail-extended}</jdbi.check.fail-kotlin>
@@ -133,9 +133,7 @@
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
-        <!-- see https://github.com/testcontainers/testcontainers-java/pull/8131. -->
-        <!-- tc 1.19.4 will fix this but we need to retain the property for integration testing with older tc -->
-        <jdbi.test.mysql-version>mysql:8.0</jdbi.test.mysql-version>
+        <jdbi.test.mysql-version>mysql:latest</jdbi.test.mysql-version>
         <jdbi.test.pg-version>15</jdbi.test.pg-version>
         <jdbi.test.timezone>UTC</jdbi.test.timezone>
         <jdbi.test.language>en</jdbi.test.language>
