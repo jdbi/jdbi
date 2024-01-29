@@ -581,7 +581,8 @@
                 <groupId>jakarta.annotation</groupId>
                 <artifactId>jakarta.annotation-api</artifactId>
                 <version>${dep.jakarta-annotation-api.version}</version>
-                <scope>provided</scope>
+                <!-- XXX https://github.com/graalvm/native-build-tools/issues/562 -->
+                <!-- <scope>provided</scope> -->
                 <optional>true</optional>
             </dependency>
 
