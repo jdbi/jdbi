@@ -7643,9 +7643,12 @@ https://jdbc.postgresql.org/documentation/head/binary-data.html[Pg-JDBC docs^]
 for upstream driver documentation.
 
 
-=== Spring 5
+=== Spring
 
-This module integrates Jdbi and Spring 5 (or Spring Boot), including JTA support.
+This module integrates Jdbi and Spring / Spring Boot, including JTA support.
+
+The `spring5` module supports Spring 5 (Spring Boot 2) and newer.
+We currently test with Spring 5 and Spring 6.
 
 To use *jdbi-spring5*, add a Maven dependency:
 
