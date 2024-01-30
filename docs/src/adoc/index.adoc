@@ -4881,6 +4881,14 @@ the same type or method to register multiple constructor mappers.
 
 === Other SQL Object annotations
 
+==== @Definition
+
+Annotate a SqlObject type, or a method or field within, with `@Definition` to define an attribute
+for all SqlObject methods of the type. The key will default to the field or method name. The value
+will default to the result of calling the method or getting the field.
+
+An example use is to take a list of columns and join them using `,` in order to template in a column list.
+
 [#sqlupdate-getgeneratedkeys]
 ==== @GetGeneratedKeys
 
