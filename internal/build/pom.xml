@@ -115,7 +115,6 @@
         <dep.plugin.dokka.version>1.9.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.3.0</dep.plugin.inline.version>
-        <dep.plugin.javadoc.version>3.6.0</dep.plugin.javadoc.version>
         <dep.plugin.kotlin.version>1.9.22</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>2.0.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
@@ -133,11 +132,11 @@
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
+        <jdbi.test.language>en</jdbi.test.language>
         <jdbi.test.mysql-version>mysql:latest</jdbi.test.mysql-version>
         <jdbi.test.pg-version>15</jdbi.test.pg-version>
-        <jdbi.test.timezone>UTC</jdbi.test.timezone>
-        <jdbi.test.language>en</jdbi.test.language>
         <jdbi.test.region>US</jdbi.test.region>
+        <jdbi.test.timezone>UTC</jdbi.test.timezone>
         <kotlin.compiler.apiVersion>1.6</kotlin.compiler.apiVersion>
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.6</kotlin.compiler.languageVersion>
