@@ -33,6 +33,7 @@
 
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.install.skip>true</basepom.install.skip>
+        <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
         <moduleName>org.jdbi.v3.noparameters</moduleName>
     </properties>
 
