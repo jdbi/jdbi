@@ -41,6 +41,7 @@
         <basepom.site.scm.site-path>/</basepom.site.scm.site-path>
         <basepom.site.scm.skip-deploy>false</basepom.site.scm.skip-deploy>
         <basepom.site.scm.url>scm:git:https://github.com/jdbi/jdbi.github.io</basepom.site.scm.url>
+        <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
         <moduleName>org.jdbi.v3.docs</moduleName>
     </properties>
 

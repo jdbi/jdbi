@@ -32,6 +32,7 @@
         <basepom.install.skip>true</basepom.install.skip>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
+        <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
         <moduleName>org.jdbi.v3.e2e</moduleName>
         <!-- e2e tests can use all java 17 features. -->
         <!-- current PMD 6.xx does not allow upgrade to full 21 yet -->
