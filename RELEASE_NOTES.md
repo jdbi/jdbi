@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.44.0
+
 - New Feature: annotate types, methods, or fields as `@Definition` to define computed constants
 - fix edge condition when calling `Connection#commit()` threw an Exception, we called commit() again. Now the
   code explicitly calls `Connection#rollback()`. Fixes #2595
