@@ -111,6 +111,7 @@
         <dep.otj-pg-embedded.version>1.0.2</dep.otj-pg-embedded.version>
         <dep.pg-embedded.version>5.1.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.4</dep.plugin.asciidoctor.version>
+        <dep.plugin.cyclonedx.version>2.7.11</dep.plugin.cyclonedx.version>
         <dep.plugin.detekt.version>1.23.4</dep.plugin.detekt.version>
         <dep.plugin.dokka.version>1.9.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
@@ -134,6 +135,7 @@
         <jdbi.check.skip-japicmp>${basepom.check.skip-extended}</jdbi.check.skip-japicmp>
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
+        <jdbi.check.skip-sbom>${jdbi.check.skip-extended}</jdbi.check.skip-sbom>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
         <jdbi.test.language>en</jdbi.test.language>
         <jdbi.test.mysql-version>mysql:latest</jdbi.test.mysql-version>
@@ -871,6 +873,20 @@
                 </plugin>
 
                 <plugin>
+                    <groupId>org.cyclonedx</groupId>
+                    <artifactId>cyclonedx-maven-plugin</artifactId>
+                    <version>${dep.plugin.cyclonedx.version}</version>
+                    <configuration>
+                        <skip>${jdbi.check.skip-sbom}</skip>
+                        <includeTestScope>false</includeTestScope>
+                        <includeLicenseText>false</includeLicenseText>
+                        <outputReactorProjects>true</outputReactorProjects>
+                        <outputFormat>all</outputFormat>
+                        <outputName>bom</outputName>
+                    </configuration>
+                </plugin>
+
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
@@ -972,6 +988,19 @@
                     <execution>
                         <goals>
                             <goal>cmp</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>cyclonedx</id>
+                        <goals>
+                            <goal>makeBom</goal>
                         </goals>
                         <phase>verify</phase>
                     </execution>
