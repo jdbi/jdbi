@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.44.1
+
 - New `@Definition` feature also supports super-interface definitions
 
 # 3.44.0
