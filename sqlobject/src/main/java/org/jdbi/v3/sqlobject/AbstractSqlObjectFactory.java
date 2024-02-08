@@ -48,7 +48,7 @@ abstract class AbstractSqlObjectFactory implements ExtensionFactory {
         builder.addMethodHandler(GET_HANDLE_METHOD, GET_HANDLE_HANDLER);
         builder.addMethodHandler(WITH_HANDLE_METHOD, WITH_HANDLE_HANDLER);
 
-        new DefinitionsFactory(extensionType).configureDefinitions(builder);
+        DefinitionsFactory.configureDefinitions(extensionType, builder);
     }
 
     @Override

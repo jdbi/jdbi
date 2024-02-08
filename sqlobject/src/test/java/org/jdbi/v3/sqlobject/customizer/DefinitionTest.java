@@ -38,15 +38,27 @@ public class DefinitionTest {
     @UseTemplateEngine(DefinedAttributeTemplateEngine.class)
     @Definition(key = "TYPE_DEFN", value = "2")
     @Definition(key = "TYPE_DEFN_2", value = "1")
-    public interface DefinitionDao {
-        @Definition
-        int STATIC_CONSTANT = 39;
+    public interface DefinitionDao extends SuperDefinition1, SuperDefinition2 {
         @Definition
         static String staticMethod() {
-            return "select";
+            return "sel";
         }
 
-        @SqlQuery("<staticMethod> <STATIC_CONSTANT> + <TYPE_DEFN> + <TYPE_DEFN_2>")
+        @SqlQuery("<staticMethod><superStaticMethod> <STATIC_CONSTANT> + <TYPE_DEFN> + <TYPE_DEFN_2> + <SUPER_TYPE_DEFN>")
         int select();
+    }
+
+    @SuppressWarnings("checkstyle:InterfaceIsType")
+    public interface SuperDefinition1 {
+        @Definition
+        int STATIC_CONSTANT = 36;
+    }
+
+    @Definition(key = "SUPER_TYPE_DEFN", value = "3")
+    public interface SuperDefinition2 {
+        @Definition
+        static String superStaticMethod() {
+            return "ect";
+        }
     }
 }

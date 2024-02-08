@@ -1,5 +1,7 @@
 # Unreleased
 
+- New `@Definition` feature also supports super-interface definitions
+
 # 3.44.0
 
 - New Feature: annotate types, methods, or fields as `@Definition` to define computed constants

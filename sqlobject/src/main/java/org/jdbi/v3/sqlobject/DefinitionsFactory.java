@@ -14,25 +14,26 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jdbi.v3.core.extension.ExtensionMetadata;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.customizer.Definition;
 
 class DefinitionsFactory {
-    private final Class<?> extensionType;
     private final Map<String, Object> definitions = new HashMap<>();
 
-    DefinitionsFactory(Class<?> extensionType) {
-        this.extensionType = extensionType;
+    private DefinitionsFactory() {}
+
+    static void configureDefinitions(Class<?> extensionType, ExtensionMetadata.Builder builder) {
+        new DefinitionsFactory().configure(extensionType, builder);
     }
 
-    void configureDefinitions(ExtensionMetadata.Builder builder) {
-        configureTypeDefinitions();
-        configureFieldDefinitions();
-        configureMethodDefinitions();
+    void configure(Class<?> extensionType, ExtensionMetadata.Builder builder) {
+        configureTypeDefinitions(extensionType);
 
         if (!definitions.isEmpty()) {
             builder.addInstanceConfigCustomizer(config ->
@@ -41,31 +42,37 @@ class DefinitionsFactory {
         }
     }
 
-    private void configureTypeDefinitions() {
-        for (var typeDefinition : extensionType.getAnnotationsByType(Definition.class)) {
+    private void configureTypeDefinitions(Class<?> type) {
+        Arrays.asList(type.getInterfaces())
+                .forEach(this::configureTypeDefinitions);
+        Optional.ofNullable(type.getSuperclass())
+                .ifPresent(this::configureTypeDefinitions);
+        for (var typeDefinition : type.getAnnotationsByType(Definition.class)) {
             if (notDefined(typeDefinition.key())) {
                 throw new UnableToCreateSqlObjectException(String.format(
                         "Type level @Definition on %s must have specific key",
-                        extensionType));
+                        type));
             }
 
             if (notDefined(typeDefinition.value())) {
                 throw new UnableToCreateSqlObjectException(String.format(
                         "Type level @Definition on %s must have specific value",
-                        extensionType));
+                        type));
             }
 
             definitions.put(typeDefinition.key(), typeDefinition.value());
         }
+        configureFieldDefinitions(type);
+        configureMethodDefinitions(type);
     }
 
-    private void configureFieldDefinitions() {
-        for (var field : extensionType.getDeclaredFields()) {
+    private void configureFieldDefinitions(Class<?> type) {
+        for (var field : type.getDeclaredFields()) {
             for (var fieldDefinition : field.getAnnotationsByType(Definition.class)) {
                 if (defined(fieldDefinition.value())) {
                     throw new UnableToCreateSqlObjectException(String.format(
                             "Field %s @Definition on %s may not specify value",
-                            field.getName(), extensionType));
+                            field.getName(), type));
                 }
 
                 try {
@@ -74,26 +81,26 @@ class DefinitionsFactory {
                             field.get(null));
                 } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new UnableToCreateSqlObjectException(
-                            String.format("Could not read field %s of %s", field.getName(), extensionType),
+                            String.format("Could not read field %s of %s", field.getName(), type),
                             e);
                 }
             }
         }
     }
 
-    private void configureMethodDefinitions() {
-        for (var method : extensionType.getDeclaredMethods()) {
+    private void configureMethodDefinitions(Class<?> type) {
+        for (var method : type.getDeclaredMethods()) {
             for (var methodDefinition : method.getAnnotationsByType(Definition.class)) {
                 if (method.getParameterCount() > 0) {
                     throw new UnableToCreateSqlObjectException(
                             String.format("@Definition annotated method %s may not have any parameters (on %s)",
-                                    method.getName(), extensionType));
+                                    method.getName(), type));
                 }
 
                 if (defined(methodDefinition.value())) {
                     throw new UnableToCreateSqlObjectException(String.format(
                             "Method %s @Definition on %s may not specify value",
-                            method.getName(), extensionType));
+                            method.getName(), type));
                 }
 
                 try {
@@ -102,7 +109,7 @@ class DefinitionsFactory {
                             method.invoke(null));
                 } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
                     throw new UnableToCreateSqlObjectException(
-                            String.format("Could not invoke method %s of %s", method.getName(), extensionType),
+                            String.format("Could not invoke method %s of %s", method.getName(), type),
                             e);
                 }
             }
