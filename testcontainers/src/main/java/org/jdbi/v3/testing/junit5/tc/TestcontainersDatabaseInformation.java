@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.testing.junit5.tc;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +29,24 @@ import static java.lang.String.format;
 /**
  * Describes the parameters needed to create a new test-specific database or schema to isolate a test. Testcontainers supports many different databases and the
  * Jdbi specific extension requires parameterization.
+ * <p></p>
+ * The <a href="https://testcontainers.org/">Testcontainers</a> project provides a convenient way to spin up dependencies as containers and offers a Java API to
+ * access these instances. Jdbi can use these instances for testing and offers the same functionality as the builtin support for PostgreSQL, H2 and Sqlite.
+ * <p></p>
+ * As every database engine is slightly different and supports different features, there is some "glue" needed, which is specific to the testcontainer class.
+ * Out of the box, Jdbi works with the testcontainer support for MySQL, MariaDB, TiDB, PostgreSQL (inclusive PostGIS), CockroachDB, YugabyteDB, ClickhouseDB,
+ * Oracle XE, Oracle Free, TrinoDB and MSSQL Server.
  * <br>
- * Custom TestcontainersDatabaseInformation instances can be created e.g. for a specific local setup or a customer docker image.
+ * Any of the testcontainer instances for these databases, can be used with {@link JdbiTestcontainersExtension#instance(JdbcDatabaseContainer)} to create a
+ * JUnit 5 {@link org.junit.jupiter.api.extension.Extension} instance that will manage database and schema instances for tests.
+ * <p></p>
+ * If a testcontainer class is not supported by Jdbi or the current Jdbi behavior does not match what is required for a test (e.g. schema or user creation), a
+ * custom {@link TestcontainersDatabaseInformation} instance can be created using the
+ * {@link TestcontainersDatabaseInformation#of(String, String, String, BiFunction)} method.
+ * <br>
+ * This instance can be passed into the {@link JdbiTestcontainersExtension#instance(TestcontainersDatabaseInformation, JdbcDatabaseContainer)} method to create
+ * a custom JUnit 5 {@link org.junit.jupiter.api.extension.Extension}.
+ * <br>
  */
 @Beta
 public final class TestcontainersDatabaseInformation {
@@ -44,18 +59,15 @@ public final class TestcontainersDatabaseInformation {
 
     // Oracle is ... special. This works with the gvenzl images; YMMV.
     private static final TestcontainersDatabaseInformation ORACLE_XE =
-        ofScript("system", null, null, (catalogName, schemaName) -> {
-            List<String> script = new ArrayList<>();
-            script.add(format("CREATE USER %s IDENTIFIED BY %s QUOTA UNLIMITED ON USERS", schemaName, schemaName));
-            script.add(format("GRANT CREATE session TO %s", schemaName));
-            script.add(format("GRANT CREATE table TO %s", schemaName));
-            script.add(format("GRANT CREATE view TO %s", schemaName));
-            script.add(format("GRANT CREATE any trigger TO %s", schemaName));
-            script.add(format("GRANT CREATE any procedure TO %s", schemaName));
-            script.add(format("GRANT CREATE sequence TO %s", schemaName));
-            script.add(format("GRANT CREATE synonym TO %s", schemaName));
-            return script;
-        });
+        ofScript("system", null, null, (catalogName, schemaName) -> List.of(
+            format("CREATE USER %s IDENTIFIED BY %s QUOTA UNLIMITED ON USERS", schemaName, schemaName),
+            format("GRANT CREATE session TO %s", schemaName),
+            format("GRANT CREATE table TO %s", schemaName),
+            format("GRANT CREATE view TO %s", schemaName),
+            format("GRANT CREATE any trigger TO %s", schemaName),
+            format("GRANT CREATE any procedure TO %s", schemaName),
+            format("GRANT CREATE sequence TO %s", schemaName),
+            format("GRANT CREATE synonym TO %s", schemaName)));
 
     private static final TestcontainersDatabaseInformation POSTGRES =
         of(null, "test", null, (catalogName, schemaName) -> format("CREATE SCHEMA %s", schemaName));
@@ -85,7 +97,9 @@ public final class TestcontainersDatabaseInformation {
 
         // odd ones
         knownContainers.put("org.testcontainers.containers.ClickHouseContainer", TestcontainersDatabaseInformation.CLICKHOUSE);
+        knownContainers.put("org.testcontainers.clickhouse.ClickHouseContainer", TestcontainersDatabaseInformation.CLICKHOUSE);
         knownContainers.put("org.testcontainers.containers.OracleContainer", TestcontainersDatabaseInformation.ORACLE_XE);
+        knownContainers.put("org.testcontainers.oracle.OracleContainer", TestcontainersDatabaseInformation.ORACLE_XE);
         knownContainers.put("org.testcontainers.containers.TrinoContainer", TestcontainersDatabaseInformation.TRINO);
         knownContainers.put("org.testcontainers.containers.MSSQLServerContainer", TestcontainersDatabaseInformation.MSSQL);
         knownContainers.put("org.testcontainers.containers.Db2Container", TestcontainersDatabaseInformation.DB2);
@@ -112,33 +126,30 @@ public final class TestcontainersDatabaseInformation {
     /**
      * Creates a new database information instance that describes a database.
      *
-     * @param user            Specify a user that can create a new schema or database. If this parameter is null, the testcontainer specific default user is
-     *                        used.
+     * @param user            Specify a user that can create a new schema or database. If this parameter is null, the testcontainer specific default user,
+     *                        returned by {@link JdbcDatabaseContainer#getUsername()} is used.
      * @param catalog         Specify a catalog that should be used. This is for databases that do not support creating a new catalog or require a fixed catalog
      *                        for schema creation (e.g. Trino). If null, use a random catalog identifier.
      * @param schema          Specify a schema that should be used. This is for databases that do not support schemas but create a new database for each test.
      *                        If null, use a random schema identifier.
-     * @param createStatement Provides the statement to create a new database or schema for test isolation. It gets the selected catalog and schema name als
-     *                        parameters and returns a valid SQL statement.
-     * @return A {@link TestcontainersDatabaseInformation} object.
+     * @param createStatement A {@link BiFunction} that returns a single statement to create a new database or schema for test isolation. The function is called
+     *                        with the catalog and schema name and must return a single, valid SQL statement.
+     * @return A {@link TestcontainersDatabaseInformation} object
      */
     public static TestcontainersDatabaseInformation of(String user, String catalog, String schema, BiFunction<String, String, String> createStatement) {
         return new TestcontainersDatabaseInformation(user, catalog, schema, wrapperFor(createStatement));
     }
 
     /**
-     * Creates a new database information instance that describes a database. This method is used for databases that require more than one statement to create a
-     * new schema or database.
-     *
-     * @param user            Specify a user that can create a new schema or database. If this parameter is null, the testcontainer specific default user is
-     *                        used.
+     * @param user            Specify a user that can create a new schema or database. If this parameter is null, the testcontainer specific default user,
+     *                        returned by {@link JdbcDatabaseContainer#getUsername()} is used.
      * @param catalog         Specify a catalog that should be used. This is for databases that do not support creating a new catalog or require a fixed catalog
      *                        for schema creation (e.g. Trino). If null, use a random catalog identifier.
      * @param schema          Specify a schema that should be used. This is for databases that do not support schemas but create a new database for each test.
      *                        If null, use a random schema identifier.
-     * @param createStatement Provides the statement to create a new database or schema for test isolation. It gets the selected catalog and schema name als
-     *                        parameters and returns a list of one or more valid SQL statements.
-     * @return A {@link TestcontainersDatabaseInformation} object.
+     * @param createStatement A {@link BiFunction} that returns a single statement to create a new database or schema for test isolation. The function is called
+     *                        with the catalog and schema name and must return a list of one or more valid SQL statements.
+     * @return A {@link TestcontainersDatabaseInformation} object
      */
     public static TestcontainersDatabaseInformation ofScript(String user, String catalog, String schema,
         BiFunction<String, String, List<String>> createStatement) {

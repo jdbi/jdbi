@@ -6176,61 +6176,74 @@ class TestWithContainers {
 }
 ----
 
+[TIP]
+The `dbContainer` object is registered as class level field for sharing between all the tests in the test class https://junit.org/junit5/docs/current/user-guide/#extensions-registration-programmatic-static-fields[as described in the JUnit 5 documentation^]. Some IDEs warn that this field should not be static. *This is a false positive/bug*. Changing `dbContainer` to an instance field will result in starting and stopping a new database per test which is a significant performance penalty.
+
+
 The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] has built-in support to isolate each test method in a test class. The container can be declared as a static class member which speeds up test execution significantly.
 
-There is built-in support for MySQL, MariaDB, TiDB, PostgreSQL, CockroachDB, YugabyteDB, ClickHouse, Oracle XE, Trino and MS SQLServer. It also supports the various compatible flavors (such as PostGIS for PostgreSQL).
+There is built-in support for MySQL, MariaDB, TiDB, PostgreSQL, CockroachDB, YugabyteDB, ClickHouseDB, Oracle XE, Oracle free, Trino and MS SQLServer. It also supports the various compatible flavors (such as PostGIS for PostgreSQL).
+
+By default, Jdbi tries to run every test with its own schema instance in a single schema. For database engines that do not support schemas, it will use separate catalogs. For database engines that do not support catalogs or schemas (e.g. MySQL), it will use separate databases.
+
+For each database, Jdbi can provide custom user, catalog and schema names and requires one or more SQL statements to initialize an isolated instance for testing.
+
+[%header, cols=5*]
+.Supported Testcontainer databases
+|=====
+| Database | Isolation type | Database User | Catalog/Database name | Schema name
+| MySQL, MariaDB, TiDB | Catalog | `root` | (random) |
+| PostgreSQL, CockroachDB, YugabyteDB | Schema | (default) | `test` | (random)
+| ClickhouseDB | Catalog | (default) | (random) |
+| Oracle XE, Oracle free | Schema | `system` | (default catalog) | (random)
+| Trino | Schema | (default) | `memory` | (random)
+| MS SQLServer | Catalog | `sa` | (random) |
+|=====
+
+- Database user _(default)_: Jdbi uses the default user as returned by the testcontainer class.
+- Isolation type _Catalog_: A new catalog (or database) is created for each test. The schema name is not used or the database does not support schemas.
+- Isolation type _Schema_:  A new schema is created in the specified catalog (or database).
+- Catalog or Schema name _(random)_: Jdbi will create a random name.
+
 
 ==== Providing custom database information
 
-The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] creates a new database or schema (depending on the database engine) for each test. This speeds up test execution. In some cases (e.g. when using a not yet supported database engine or when using a custom docker image), it may be necessary to provide a custom instance of the link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html[TestcontainersDatabaseInformation^] class that describes how to manage a specific database engine.
+While Jdbi makes an effort to support all databases provided by the Testcontainers project that support JDBC, there are some situation when it is necessary to provide additional information:
 
-Here are examples for MySQL and PostgreSQL:
+- Using a database that is supported by testcontainer but not yet by Jdbi.
+- Using a custom docker image that is incompatible with the default Jdbi testcontainer support.
+- Require specific behavior in tests that is different from the Jdbi testcontainer support.
 
-[source,java,indent=0]
-----
-// MySQL has only databases, no schemata. The Jdbi extension creates a new database
-// for each test method.
-private static final TestcontainersDatabaseInformation MYSQL = TestcontainersDatabaseInformation.of(
-        "root",  // Testcontainers provides the 'root' superuser for MySQL instances.
-        null,    // do not override the generated catalog name
-        null,    // do not override the generated schema name (which is not used by MySQL)
-        // create a new database from the catalog name
-        (catalogName, schemaName) -> format("CREATE DATABASE %s", catalogName)
-);
+The link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html#of(java.lang.String,java.lang.String,java.lang.String,java.util.function.BiFunction)[TestcontainersDatabaseInformation#of()^] method allows creation of custom database information instances which then can be passed into link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html#instance(org.jdbi.v3.testing.junit5.tc.TestcontainersDatabaseInformation,org.testcontainers.containers.JdbcDatabaseContainer)[JdbiTestcontainersExtension#instance(TestcontainersDatabaseInformation, JdbcDatabaseContainer)^] to create extensions with custom behavior.
 
-// PostgreSQL knows about schemata but needs to use the predefined "test" database.
-// The Jdbi extension creates a new schema for each test method
-private static final TestcontainersDatabaseInformation POSTGRES = TestcontainersDatabaseInformation.of(
-        null,   // Use the default user that testcontainers provides
-        "test", // override the generated catalog name with 'test'
-        null,   // do not override the generated schema name
-        // create a new schema from the schema name
-        (catalogName, schemaName) -> format("CREATE SCHEMA %s", schemaName)
-);
-----
-
-See the Javadoc for the link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html[TestcontainersDatabaseInformation^] class for further details.
-
-The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] provides the link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html#instance(org.jdbi.v3.testing.junit5.tc.TestcontainersDatabaseInformation,org.testcontainers.containers.JdbcDatabaseContainer)[instance(TestcontainersDatabaseInformation, JdbcDatabaseContainer)^] method which uses a custom database information object:
+This is an example that uses a custom user with a special database image:
 
 [source,java,indent=0]
 ----
 @Testcontainers
-class TestWithCustomContainer {
+class UseCustomMysqlContainer {
+private static final TestcontainersDatabaseInformation CUSTOM_MYSQL =
+    TestcontainersDatabaseInformation.of(
+            "custom_user",  // This user must have privileges to create databases
+            null,    // do not override the generated catalog name
+            null,    // mysql does not know anything about schemas, so this value is ignored
+            // create a new database from the catalog name
+            (catalogName, schemaName) -> format("CREATE DATABASE %s", catalogName)
+    );
+
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new PostgreSQLContainer<>(
-       DockerImageName.parse("custom-image").asCompatibleSubstituteFor("postgres"));
-
-
-    static final TestcontainersDatabaseInformation CUSTOM_DATABASE =
-       TestcontainersDatabaseInformation.of( ... custom setup ...);
+    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(
+       DockerImageName.parse("custom/mysql-image").asCompatibleSubstituteFor("mysql"));
 
     @RegisterExtension
-    JdbiExtension extension = JdbiTestcontainersExtension.instance(CUSTOM_DATABASE, dbContainer);
+    JdbiExtension extension = JdbiTestcontainersExtension.instance(CUSTOM_MYSQL, dbContainer);
 
-    // ... test code using the custom engine
+    // ... test code using the custom mysql instance
 }
 ----
+
+
+The Javadoc for the link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html[TestcontainersDatabaseInformation^] class has additional details on how to create custom link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] instances.
 
 
 == Third-Party Integration
