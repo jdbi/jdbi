@@ -1,5 +1,7 @@
 # Unreleased
 
+- Test DB2 basic integration (#2625, thanks @stoyants)
+
 # 3.44.1
 
 - New `@Definition` feature also supports super-interface definitions
