@@ -29,7 +29,8 @@ public class DB2JdbiTestContainersExtensionTest extends AbstractJdbiTestcontaine
 
     @Container
     static JdbcDatabaseContainer<?> dbContainer =
-        new Db2Container(DockerImageName.parse("icr.io/db2_community/db2:11.5.9.0"))
+        new Db2Container(DockerImageName.parse("icr.io/db2_community/db2:11.5.9.0")
+                .asCompatibleSubstituteFor("ibmcom/db2"))
             .acceptLicense();
 
     @Override
