@@ -14,7 +14,7 @@ on:
       - master
 
 jobs:
-  style:
+  checks:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,3 +34,30 @@ jobs:
           MAVEN_CONFIG: "-B -fae"
         run: |
           make install-notests
+
+  reproducible-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: run first build
+        env:
+          MAVEN_CONFIG: "-B -fae"
+        run: |
+          make install-notests
+
+      - name: compare builds
+        env:
+          MAVEN_CONFIG: "-B -fae -Dbasepom.test.skip=true"
+        run: |
+          make compare-reproducible
