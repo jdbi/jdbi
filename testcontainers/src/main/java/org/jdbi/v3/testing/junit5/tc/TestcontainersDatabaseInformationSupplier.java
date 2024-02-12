@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import javax.sql.DataSource;
@@ -41,6 +42,7 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
     private final SynchronousQueue<TestcontainersDatabaseInformation> nextSchema = new SynchronousQueue<>();
     private final AtomicBoolean closed = new AtomicBoolean();
     private final CountDownLatch stopped = new CountDownLatch(1);
+    private final ReentrantLock mutex = new ReentrantLock();
     private volatile DataSource dataSource = null;
 
     TestcontainersDatabaseInformationSupplier(TestcontainersDatabaseInformation templateDatabaseInformation) {
@@ -62,6 +64,7 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
     public void close() {
         LOG.info("Shutdown initiated...");
         if (!this.closed.getAndSet(true)) {
+            mutex.lock();
             executor.shutdownNow();
             try {
                 if (!stopped.await(10, TimeUnit.SECONDS)) {
@@ -85,7 +88,12 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
                     templateDatabaseInformation.getCatalog().orElse(dbName),
                     templateDatabaseInformation.getSchema().orElse(schemaName));
 
-                executeStatements(databaseInformation.getCreationScript());
+                try {
+                    mutex.lock();
+                    executeStatements(databaseInformation.getCreationScript());
+                } finally {
+                    mutex.unlock();
+                }
 
                 nextSchema.put(databaseInformation);
             } catch (InterruptedException e) {
@@ -124,6 +132,9 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
     private void executeStatements(final List<String> statements) throws SQLException {
         try (Connection c = dataSource.getConnection()) {
             for (String statement : statements) {
+                if (closed.get()) {
+                    break;
+                }
                 try (Statement stmt = c.createStatement()) {
                     stmt.executeUpdate(statement);
                 }
