@@ -993,19 +993,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.cyclonedx</groupId>
-                <artifactId>cyclonedx-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>cyclonedx</id>
-                        <goals>
-                            <goal>makeBom</goal>
-                        </goals>
-                        <phase>verify</phase>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -1284,7 +1271,7 @@
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>enforce-java17</id>
+                                <id>enforce-java21</id>
                                 <goals>
                                     <goal>enforce</goal>
                                 </goals>
@@ -1296,6 +1283,19 @@
                                         </requireJavaVersion>
                                     </rules>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.cyclonedx</groupId>
+                        <artifactId>cyclonedx-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>cyclonedx</id>
+                                <goals>
+                                    <goal>makeBom</goal>
+                                </goals>
+                                <phase>verify</phase>
                             </execution>
                         </executions>
                     </plugin>

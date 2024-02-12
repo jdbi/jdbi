@@ -1,6 +1,7 @@
 # Unreleased
 
 - Test DB2 basic integration (#2625, thanks @stoyants)
+- create CycloneDX SBOM files for release versions
 
 # 3.44.1
 
