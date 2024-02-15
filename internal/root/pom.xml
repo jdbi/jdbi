@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-oss</artifactId>
-        <version>58</version>
+        <version>59</version>
         <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
         <relativePath />
     </parent>
@@ -30,6 +30,12 @@
 
     <name>jdbi3 - internal - root</name>
     <description>Jdbi3 build root. This is a Jdbi internal module and not part of the public API.</description>
+
+    <properties>
+        <!-- make the build reproducible. These settings are applied to all poms in the project -->
+        <basepom.git-id.skip-pom-projects>false</basepom.git-id.skip-pom-projects>
+        <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
+    </properties>
 
     <licenses>
         <license>

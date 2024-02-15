@@ -115,7 +115,7 @@
         <dep.plugin.detekt.version>1.23.4</dep.plugin.detekt.version>
         <dep.plugin.dokka.version>1.9.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
-        <dep.plugin.inline.version>1.3.0</dep.plugin.inline.version>
+        <dep.plugin.inline.version>1.4.0</dep.plugin.inline.version>
         <dep.plugin.japicmp.version>0.18.3</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>1.9.22</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>2.0.0</dep.plugin.ktlint.version>
