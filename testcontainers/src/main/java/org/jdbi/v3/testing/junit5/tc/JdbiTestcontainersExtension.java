@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.meta.Beta;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.testcontainers.containers.JdbcDatabaseContainer;
@@ -45,7 +46,7 @@ public final class JdbiTestcontainersExtension extends JdbiExtension {
      * @return An initialized {@link JdbiExtension} instance that uses the database container.
      * @throws IllegalArgumentException If the provided container class is not supported.
      */
-    public static JdbiExtension instance(JdbcDatabaseContainer<?> jdbcDatabaseContainer) {
+    public static JdbiTestcontainersExtension instance(JdbcDatabaseContainer<?> jdbcDatabaseContainer) {
         TestcontainersDatabaseInformation databaseInformation = TestcontainersDatabaseInformation.forTestcontainerClass(jdbcDatabaseContainer.getClass());
 
         if (databaseInformation == null) {
@@ -62,7 +63,7 @@ public final class JdbiTestcontainersExtension extends JdbiExtension {
      * @param jdbcDatabaseContainer A {@link JdbcDatabaseContainer} instance.
      * @return An initialized {@link JdbiExtension} instance that uses the database container.
      */
-    public static JdbiExtension instance(TestcontainersDatabaseInformation databaseInformation, JdbcDatabaseContainer<?> jdbcDatabaseContainer) {
+    public static JdbiTestcontainersExtension instance(TestcontainersDatabaseInformation databaseInformation, JdbcDatabaseContainer<?> jdbcDatabaseContainer) {
         return new JdbiTestcontainersExtension(databaseInformation, jdbcDatabaseContainer);
     }
 
@@ -70,6 +71,19 @@ public final class JdbiTestcontainersExtension extends JdbiExtension {
         this.jdbcDatabaseContainer = jdbcDatabaseContainer;
         this.databaseInformation = databaseInformation;
         this.instanceProvider = new TestcontainersDatabaseInformationSupplier(databaseInformation);
+    }
+
+    /**
+     * Sets the maximum wait time for shutting down the extension.
+     * @see TestcontainersDatabaseInformation#setShutdownWaitTimeInSeconds(int)
+     *
+     * @since 3.45.0
+     */
+    @Alpha
+    public JdbiTestcontainersExtension setShutdownWaitTimeInSeconds(int seconds) {
+        this.databaseInformation.setShutdownWaitTimeInSeconds(seconds);
+
+        return this;
     }
 
     @Override
