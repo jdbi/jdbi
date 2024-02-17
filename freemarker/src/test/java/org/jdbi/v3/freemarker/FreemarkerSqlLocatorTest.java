@@ -116,6 +116,27 @@ public class FreemarkerSqlLocatorTest {
         assertThat(roo.findById(2L)).isEqualTo(new Something(2, "Brian"));
     }
 
+    @Test
+    public void testAnnotationUseFreemarkerEngine() {
+        var koala = handle.attach(Koala.class);
+        koala.insert(new Something(8, "xak2000"));
+
+        String name = handle.createQuery("select name from something where id = 8")
+            .mapTo(String.class)
+            .one();
+
+        assertThat(name).isEqualTo("xak2000");
+    }
+
+    @Test
+    public void testAnnotationUseFreemarkerSqlLocator() {
+        handle.execute("insert into something (id, name) values (6, 'Martin')");
+
+        Something s = handle.attach(Koala.class).findById(6L);
+        assertThat(s.getName()).isEqualTo("Martin");
+    }
+
+
     @UseFreemarkerSqlLocator
     @RegisterRowMapper(SomethingMapper.class)
     public interface Wombat {
@@ -144,6 +165,18 @@ public class FreemarkerSqlLocatorTest {
         @SqlBatch
         void insertBunches(@BindBean Something... somethings);
     }
+
+    @RegisterRowMapper(SomethingMapper.class)
+    public interface Koala {
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        @UseFreemarkerEngine
+        void insert(@BindBean Something s);
+
+        @SqlQuery
+        @UseFreemarkerSqlLocator
+        Something findById(@Bind("id") Long id);
+    }
+
 
     public static class SomethingMapper implements RowMapper<Something> {
         @Override
