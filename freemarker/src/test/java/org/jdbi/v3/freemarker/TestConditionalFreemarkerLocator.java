@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.stringtemplate4;
+package org.jdbi.v3.freemarker;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestConditionalStringTemplateLocator {
+public class TestConditionalFreemarkerLocator {
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
@@ -53,18 +53,6 @@ public class TestConditionalStringTemplateLocator {
     }
 
     @Test
-    public void testLocatedWithDifferentNameFindAndSortByName() {
-        List<Integer> ids = h2Extension.getSharedHandle().attach(Dao.class).findLocatedWithDifferentName(true, "name");
-        assertThat(ids).containsExactly(3, 2, 1);
-    }
-
-    @Test
-    public void testLocatedWithDifferentNameFindWithoutSorting() {
-        List<Integer> ids = h2Extension.getSharedHandle().attach(Dao.class).findLocatedWithDifferentName(false, "");
-        assertThat(ids).containsExactly(1, 2, 3);
-    }
-
-    @Test
     public void testInlineFindAndSortByName() {
         List<Integer> ids = h2Extension.getSharedHandle().attach(Dao.class).findInline(true, "name");
         assertThat(ids).containsExactly(3, 2, 1);
@@ -78,15 +66,11 @@ public class TestConditionalStringTemplateLocator {
 
     public interface Dao {
         @SqlQuery
-        @UseStringTemplateSqlLocator
+        @UseFreemarkerSqlLocator
         List<Integer> findLocated(@Define("sort") boolean sort, @Define("sortBy") String sortBy);
 
-        @SqlQuery("findLocated")
-        @UseStringTemplateSqlLocator
-        List<Integer> findLocatedWithDifferentName(@Define("sort") boolean sort, @Define("sortBy") String sortBy);
-
-        @SqlQuery("select id from something order by <if(sort)> <sortBy>, <endif> id")
-        @UseStringTemplateEngine
+        @SqlQuery("select id from something order by <#if sort> ${sortBy}, </#if> id")
+        @UseFreemarkerEngine
         List<Integer> findInline(@Define("sort") boolean sort, @Define("sortBy") String sortBy);
     }
 }
