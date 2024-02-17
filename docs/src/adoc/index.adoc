@@ -554,8 +554,10 @@ Executing an operation using the link:{jdbidocs}/core/Jdbi.html#useHandle(org.jd
 include::{exampledir}/FiveMinuteTourTest.java[tags=useHandle]
 ----
 
-[TIP]
-You may notice the "consumer" vs "callback" naming pattern in a few  places in Jdbi. Callbacks return a value, and are coupled to `with-` methods. Consumers do not return a value, and are coupled to `use-` methods.
+You may notice the "consumer" vs "callback" naming pattern in a few  places in Jdbi. `with-` methods return a value and use objects named `-Callback`. `use-` methods do not return a value, and use objects named `-Consumer`. When referring to both type of objects, the term "callback" is used throughout the documentation.
+
+[NOTE]
+The <<Nesting Callbacks with managed Handles and Transactions>> chapter has more information about nesting callbacks with managed handle objects.
 
 
 ==== Managing the Handle lifecycle manually
@@ -3337,6 +3339,9 @@ Executing a SQL operation in a transaction:
 ----
 include::{exampledir}/TransactionTest.java[tags=simpleTransaction]
 ----
+
+[NOTE]
+The <<Nesting Callbacks with managed Handles and Transactions>> chapter has more information about nesting callbacks with managed handle objects.
 
 
 === Unmanaged Transactions
@@ -9473,6 +9478,29 @@ public class ExampleJdbiPlugin
     }
 }
 ----
+
+==== Nesting Callbacks with managed Handles and Transactions
+
+Jdbi has a number of methods that provide a managed handle or use a managed handle, e.g. link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[Jdbi#withHandle()^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[Jdbi#useHandle()^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[Jdbi#inTransaction()^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[Jdbi#useTransaction()^], link:{jdbidocs}/core/Handle.html#inTransaction(org.jdbi.v3.core.HandleCallback)[Handle#inTransaction()^], link:{jdbidocs}/core/Handle.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[HandleuseTransaction()^], link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[SqlObject#withHandle()^], link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[SqlObject#useHandle()^] and methods that use the <<SQL Object Transactions>> annotations.
+
+All of these methods use the same underlying mechanism to reuse the handle object if one of these methods is called from another within a callback. In this case, there is *no new handle object or transaction created* but the same Handle object is passed into the nested callback:
+
+[source,java,indent=0]
+----
+jdbi.useHandle(outerHandle -> {
+    jdbi.useTransaction(nestedHandle -> {
+        jdbi.useHandle(innerHandle -> {
+            // all three variables (outerHandle, nestedHandle and innerHandle)
+            // refer to the same object
+            assertThat(innerHandle).isSame(nestedHandle);
+            assertThat(innerHandle).isSame(outerHandleHandle);
+        });
+    });
+}
+----
+
+[WARNING]
+Nesting callback methods is possible but should be avoided. Reusing the Handle object in nested calls is based on the thread identity, executing methods asynchronously (on another thread) may lead to surprising results, especially when using a thread pool that may execute code on the main thread (where the nested handle would be reused) or from another thread (where a new handle object would be created). The experimental Kotlin <<Coroutine support>> manages handle objects transparently between threads for co-routines.
 
 
 == Appendix
