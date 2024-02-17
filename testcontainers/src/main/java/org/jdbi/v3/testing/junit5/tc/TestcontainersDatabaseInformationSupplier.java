@@ -64,7 +64,13 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
     public void close() {
         LOG.info("Shutdown initiated...");
         if (!this.closed.getAndSet(true)) {
-            mutex.lock();
+            try {
+                if (!mutex.tryLock(1, TimeUnit.SECONDS)) {
+                    LOG.warn("Could not stop database creation statements within 1 second");
+                }
+            } catch (InterruptedException e) {
+                LOG.warn("Interrupt ignored");
+            }
             executor.shutdownNow();
             try {
                 if (!stopped.await(10, TimeUnit.SECONDS)) {
