@@ -15,6 +15,7 @@ package org.jdbi.v3.testing.junit5.tc;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.testcontainers.containers.Db2Container;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -25,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("slow")
 @Testcontainers
+@EnabledOnOs(architectures = {"x86_64"})
 public class DB2JdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
