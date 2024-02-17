@@ -69,7 +69,7 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
                     LOG.warn("Could not stop database creation statements within 1 second");
                 }
             } catch (InterruptedException e) {
-                LOG.warn("Interrupt ignored");
+                Thread.currentThread().interrupt();
             }
             executor.shutdownNow();
             try {
