@@ -2,6 +2,7 @@
 
 - Test DB2 basic integration (#2625, thanks @stoyants)
 - create CycloneDX SBOM files for release versions
+- add `JdbiTestContainersExtension#setShutdownWaitTime(int)` to control waiting for extension shutdown if a database is very slow. Addresses #2629 (thanks @stoyants).
 
 # 3.44.1
 

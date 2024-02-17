@@ -6187,7 +6187,7 @@ The `dbContainer` object is registered as class level field for sharing between 
 
 The link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] has built-in support to isolate each test method in a test class. The container can be declared as a static class member which speeds up test execution significantly.
 
-There is built-in support for MySQL, MariaDB, TiDB, PostgreSQL, CockroachDB, YugabyteDB, ClickHouseDB, Oracle XE, Oracle free, Trino and MS SQLServer. It also supports the various compatible flavors (such as PostGIS for PostgreSQL).
+There is built-in support for MySQL, MariaDB, TiDB, PostgreSQL, CockroachDB, YugabyteDB, ClickHouseDB, Oracle XE, Oracle free, Trino, MS SQLServer and DB2. It also supports the various compatible flavors (such as PostGIS for PostgreSQL).
 
 By default, Jdbi tries to run every test with its own schema instance in a single schema. For database engines that do not support schemas, it will use separate catalogs. For database engines that do not support catalogs or schemas (e.g. MySQL), it will use separate databases.
 
@@ -6203,6 +6203,7 @@ For each database, Jdbi can provide custom user, catalog and schema names and re
 | Oracle XE, Oracle free | Schema | `system` | (default catalog) | (random)
 | Trino | Schema | (default) | `memory` | (random)
 | MS SQLServer | Catalog | `sa` | (random) |
+| DB2 | Schema | (default) | `test` | (random) |
 |=====
 
 - Database user _(default)_: Jdbi uses the default user as returned by the testcontainer class.
@@ -6249,6 +6250,20 @@ private static final TestcontainersDatabaseInformation CUSTOM_MYSQL =
 
 
 The Javadoc for the link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html[TestcontainersDatabaseInformation^] class has additional details on how to create custom link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] instances.
+
+==== Controlling the extension shutdown timeout
+
+Some testcontainer based database may take a long time to create a new schema so when tests run very fast, shutting down the link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] at the end of a test may interrupt this process and log spurious messages in the logs. Those messages are benign and can be safely ignored. If it is necessary (e.g. because there is a "no messages" policy in place at your organization), the shutdown time can be extended by setting the wait time to a higher value than the default of 10 seconds:
+
+[source,java,indent=0]
+----
+@RegisterExtension
+JdbiExtension extension = JdbiTestcontainersExtension.instance(CUSTOM_MYSQL, dbContainer)
+    .setShutdownWaitTimeInSeconds(20); // set shutdown wait time to 20 seconds
+----
+
+[WARNING]
+Using a wait time of 0 seconds will wait until all of the internal state has been shutdown completely. This may result in infinite hangs of the tests when shutting down.
 
 
 == Third-Party Integration

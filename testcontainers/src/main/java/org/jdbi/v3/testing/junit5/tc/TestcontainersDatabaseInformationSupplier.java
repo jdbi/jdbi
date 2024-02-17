@@ -31,6 +31,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.String.format;
+
 
 final class TestcontainersDatabaseInformationSupplier implements Supplier<TestcontainersDatabaseInformation>, AutoCloseable, Runnable {
 
@@ -60,18 +62,43 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
 
     @Override
     public void close() {
-        LOG.info("Shutdown initiated...");
+        LOG.debug("Shutdown initiated...");
         if (!this.closed.getAndSet(true)) {
-            executor.shutdownNow();
+
+            // initiate executor shutdown
+            executor.shutdown();
+
             try {
-                if (!stopped.await(10, TimeUnit.SECONDS)) {
-                    LOG.warn("Could not shut down database creation thread within 10 seconds");
+                boolean creatorHasShutdown = false;
+                if (nextSchema.poll() == null) {
+                    // returning null means that the thread sits in I/O wait creating statements.
+                    // it should exit as soon as the current statement finishes (closed is set).
+                    // Wait for the latch to count down.
+                    creatorHasShutdown = awaitDatabaseCreatorShutdown(false);
+                }
+
+                if (!creatorHasShutdown) {
+                    executor.shutdownNow();
+                    awaitDatabaseCreatorShutdown(true);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            LOG.info("Shutdown completed.");
+            LOG.debug("Shutdown completed.");
         }
+    }
+    private boolean awaitDatabaseCreatorShutdown(boolean logWarning) throws InterruptedException {
+        int shutdownWaitTimeInSeconds = templateDatabaseInformation.getShutdownWaitTimeInSeconds();
+
+        if (shutdownWaitTimeInSeconds == 0) {
+            stopped.await();
+        } else if (!stopped.await(shutdownWaitTimeInSeconds, TimeUnit.SECONDS)) {
+            if (logWarning) {
+                LOG.warn(format("Could not shut down database creation thread within %d seconds", shutdownWaitTimeInSeconds));
+            }
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -85,18 +112,27 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
                     templateDatabaseInformation.getCatalog().orElse(dbName),
                     templateDatabaseInformation.getSchema().orElse(schemaName));
 
-                executeStatements(databaseInformation.getCreationScript());
+                if (!closed.get()) {
+                    executeStatements(databaseInformation.getCreationScript());
+                }
 
-                nextSchema.put(databaseInformation);
+                if (!closed.get()) {
+                    nextSchema.put(databaseInformation);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break; // while
             } catch (SQLException e) {
-                LOG.error("SQL Exception caught:", e);
-                break;
+                if (!closed.get()) {
+                    LOG.error("SQL Exception caught:", e);
+                }
+                break; // while
 
             } catch (Exception t) {
-                LOG.error("Could not create database:", t);
+                if (!closed.get()) {
+                    LOG.error("Could not create database:", t);
+                }
+                break; // while
             }
         }
         stopped.countDown();
@@ -124,8 +160,10 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
     private void executeStatements(final List<String> statements) throws SQLException {
         try (Connection c = dataSource.getConnection()) {
             for (String statement : statements) {
-                try (Statement stmt = c.createStatement()) {
-                    stmt.executeUpdate(statement);
+                if (!closed.get()) {
+                    try (Statement stmt = c.createStatement()) {
+                        stmt.executeUpdate(statement);
+                    }
                 }
             }
         }

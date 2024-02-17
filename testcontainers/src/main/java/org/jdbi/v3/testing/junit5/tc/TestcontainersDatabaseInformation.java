@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
 
+import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.meta.Beta;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
@@ -123,6 +124,8 @@ public final class TestcontainersDatabaseInformation {
     private final String schema;
     private final BiFunction<String, String, List<String>> createStatement;
 
+    private volatile int shutdownWaitTimeInSeconds = 10; // default shutdown wait time is 10 seconds
+
     /**
      * Creates a new database information instance that describes a database.
      *
@@ -163,14 +166,29 @@ public final class TestcontainersDatabaseInformation {
         this.createStatement = createStatement;
     }
 
+    /**
+     * Returns the user for database creation.
+     *
+     * @return The user for database creation if configured or {@link Optional#empty()}
+     */
     Optional<String> getUser() {
         return Optional.ofNullable(user);
     }
 
+    /**
+     * Returns the catalog for database creation.
+     *
+     * @return The catalog for database creation if configured or {@link Optional#empty()}
+     */
     Optional<String> getCatalog() {
         return Optional.ofNullable(catalog);
     }
 
+    /**
+     * Returns the schema for database creation.
+     *
+     * @return The schema for database creation if configured or {@link Optional#empty()}
+     */
     Optional<String> getSchema() {
         return Optional.ofNullable(schema);
     }
@@ -179,10 +197,45 @@ public final class TestcontainersDatabaseInformation {
         return new TestcontainersDatabaseInformation(user, catalog, schema, createStatement);
     }
 
+    /**
+     * Returns the database creation statements. These statements are executed to create a new
+     * database or schema.
+     *
+     * @return A list of SQL statements to execute. May be empty but not null.
+     */
     List<String> getCreationScript() {
         return this.createStatement.apply(
             getCatalog().orElseThrow(() -> new IllegalArgumentException("no catalog name present!")),
             getSchema().orElseThrow(() -> new IllegalArgumentException("no schema name present!")));
+    }
+
+    /**
+     * Returns the time in seconds that a test will wait to shut down the Jdbi extension.
+     *
+     * @return The time to wait in seconds to shut down the Jdbi extension. 0 means wait infinitely until the extension has
+     * been stopped. This can lead to infinite hangs in test cases and should be used with caution.
+     * @since 3.45.0
+     */
+    @Alpha
+    public int getShutdownWaitTimeInSeconds() {
+        return shutdownWaitTimeInSeconds;
+    }
+
+    /**
+     * Sets the wait time in seconds that a test will wait to shut down the Jdbi extension.
+     *
+     * @param shutdownWaitTimeInSeconds The wait time in seconds to shut down the Jdbi extension. Can be set to 0 which means that
+     *                          it will wait infinitely until the extension has shut down. 0 may lead to infinite hangs in tests
+     *                          and should be used with caution.
+     * @since 3.45.0
+     */
+    @Alpha
+    public void setShutdownWaitTimeInSeconds(int shutdownWaitTimeInSeconds) {
+        if (shutdownWaitTimeInSeconds < 0) {
+            throw new IllegalArgumentException("shutdownWaitTimeInSeconds must be >= 0!");
+        }
+
+        this.shutdownWaitTimeInSeconds = shutdownWaitTimeInSeconds;
     }
 
     @Override
