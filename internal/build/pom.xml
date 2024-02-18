@@ -1295,7 +1295,7 @@
                                 <goals>
                                     <goal>makeBom</goal>
                                 </goals>
-                                <phase>verify</phase>
+                                <phase>package</phase>
                             </execution>
                         </executions>
                     </plugin>
