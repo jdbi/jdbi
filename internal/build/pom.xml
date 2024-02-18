@@ -1262,6 +1262,7 @@
             <id>jdbi-release</id>
             <properties>
                 <basepom.check.skip-all>true</basepom.check.skip-all>
+                <basepom.check.skip-enforcer>false</basepom.check.skip-enforcer>
             </properties>
 
             <build>
