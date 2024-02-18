@@ -73,7 +73,7 @@ release::
 release-docs:: MAVEN_CONFIG += -Pjdbi-release
 release-docs:: publish-docs
 
-help:
+help::
 	@echo " * clean                - clean local build tree"
 	@echo " * install              - build, run static analysis and unit tests, then install in the local repository"
 	@echo " * install-notests      - same as 'install', but skip unit tests"
