@@ -42,7 +42,7 @@ install-nodocker:: install
 install-fast:: MAVEN_CONFIG += -Pfast
 install-fast:: install
 
-compare-reproducible:: MAVEN_CONFIG += -Dbasepom.test.skip=true
+compare-reproducible:: MAVEN_CONFIG += -Dbasepom.test.skip=true -Djdbi.check.skip-japicmp=true
 compare-reproducible::
 	${MAVEN} clean verify artifact:compare
 
