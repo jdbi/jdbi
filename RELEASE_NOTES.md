@@ -1,8 +1,12 @@
 # Unreleased
 
-- Test DB2 basic integration (#2625, thanks @stoyants)
+# 3.45.0
+
+- Testcontainer support for DB2 (#2625, thanks @stoyants)
 - create CycloneDX SBOM files for release versions
+- make builds reproducible
 - add `JdbiTestContainersExtension#setShutdownWaitTime(int)` to control waiting for extension shutdown if a database is very slow. Addresses #2629 (thanks @stoyants).
+- documentation updates
 
 # 3.44.1
 
