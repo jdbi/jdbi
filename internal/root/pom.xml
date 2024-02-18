@@ -34,7 +34,7 @@
     <properties>
         <!-- make the build reproducible. These settings are applied to all poms in the project -->
         <basepom.git-id.skip-pom-projects>false</basepom.git-id.skip-pom-projects>
-        <project.build.outputTimestamp>2024-02-18T20:52:21Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
     </properties>
 
     <licenses>
