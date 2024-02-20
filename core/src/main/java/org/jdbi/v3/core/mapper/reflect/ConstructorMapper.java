@@ -17,6 +17,7 @@ import java.beans.ConstructorProperties;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -206,14 +207,14 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                                                List<String> unmatchedColumns) {
         final int count = factory.getParameterCount();
         final Parameter[] parameters = factory.getParameters();
-
+        final Type[] types = factory.getTypes();
         boolean matchedColumns = false;
         final List<String> unmatchedParameters = new ArrayList<>();
         final List<ParameterData> paramData = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
             final Parameter parameter = parameters[i];
-
+            final Type parameterType = types[i];
             boolean nullable = isNullable(parameter);
             Nested nested = parameter.getAnnotation(Nested.class);
             if (nested == null) {
@@ -224,7 +225,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
 
                 if (columnIndex.isPresent()) {
                     int colIndex = columnIndex.getAsInt();
-                    final QualifiedType<?> type = QualifiedType.of(parameter.getParameterizedType())
+                    final QualifiedType<?> type = QualifiedType.of(parameterType)
                         .withAnnotations(ctx.getConfig(Qualifiers.class).findFor(parameter));
                     paramData.add(new ParameterData(i, parameter, ctx.findColumnMapperFor(type)
                         .map(mapper -> new SingleColumnMapper<>(mapper, colIndex + 1))
