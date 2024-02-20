@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.ConstructorProperties;
+import java.util.Optional;
 
 import jakarta.annotation.Nullable;
 
@@ -467,5 +468,84 @@ public class ConstructorMapperTest {
         static MultipleStaticFactoryMethodsBean two(String s) {
             return new MultipleStaticFactoryMethodsBean();
         }
+    }
+
+    // Note: the tests with ClassWithGeneric* are to simulate the behavior which triggers https://bugs.openjdk.org/browse/JDK-8320575
+    // A record constructor block will lose it's generic type information.
+    static class ClassWithGenericThing {
+        Optional<String> s;
+        Optional<Integer> i;
+
+        ClassWithGenericThing(Optional s, Optional i) {
+            this.s = (Optional<String>) s;
+            this.i = (Optional<Integer>) i;
+        }
+    }
+
+    @Test
+    public void testClassWithGenerics() {
+        assertThat(handle
+            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThing.class))
+            .select("select s, i from bean")
+            .mapTo(ClassWithGenericThing.class)
+            .one())
+                    .extracting("s", "i")
+                    .containsExactly(Optional.of("3"), Optional.of(2));
+    }
+
+    static class ClassWithGenericThingJdbiConstructor {
+        Optional<String> s;
+        Optional<Integer> i;
+
+
+        @JdbiConstructor
+        ClassWithGenericThingJdbiConstructor(Optional s, Optional i) {
+            this.s = (Optional<String>) s;
+            this.i = (Optional<Integer>) i;
+        }
+
+        ClassWithGenericThingJdbiConstructor(String s, int i) {
+            this.s = Optional.ofNullable(s);
+            this.i = Optional.of(i);
+        }
+    }
+
+    @Test
+    public void testClassWithGenericsJdbiConstructor() {
+        assertThat(handle
+            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThingJdbiConstructor.class))
+            .select("select s, i from bean")
+            .mapTo(ClassWithGenericThingJdbiConstructor.class)
+            .one())
+                    .extracting("s", "i")
+                    .containsExactly(Optional.of("3"), Optional.of(2));
+    }
+
+    static class ClassWithGenericThingAlternateJdbiConstructor {
+        Optional<String> s;
+        Optional<Integer> i;
+
+
+        ClassWithGenericThingAlternateJdbiConstructor(Optional s, Optional i) {
+            this.s = (Optional<String>) s;
+            this.i = (Optional<Integer>) i;
+        }
+
+        @JdbiConstructor
+        ClassWithGenericThingAlternateJdbiConstructor(Optional<String> s) {
+            this.s = s;
+            this.i = s.map(Integer::valueOf);
+        }
+    }
+
+    @Test
+    public void testClassWithGenericsCanonicalConstructor() {
+        assertThat(handle
+            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThingAlternateJdbiConstructor.class))
+            .select("select s, i from bean")
+            .mapTo(ClassWithGenericThingAlternateJdbiConstructor.class)
+            .one())
+                    .extracting("s", "i")
+                    .containsExactly(Optional.of("3"), Optional.of(3));
     }
 }

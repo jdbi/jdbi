@@ -16,6 +16,8 @@ package org.jdbi.v3.core.mapper.reflect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -40,6 +42,12 @@ abstract class InstanceFactory<T> {
 
     Parameter[] getParameters() {
         return executable.getParameters();
+    }
+
+    Type[] getTypes() {
+        return Arrays.stream(getParameters())
+            .map(Parameter::getParameterizedType)
+            .toArray(Type[]::new);
     }
 
     @Nullable
