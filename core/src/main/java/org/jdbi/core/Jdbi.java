@@ -35,9 +35,11 @@ import org.jdbi.core.internal.OnDemandExtensions;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.statement.DefaultStatementBuilder;
+import org.jdbi.core.statement.StatementTemplateBuilder;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementBuilder;
 import org.jdbi.core.statement.StatementBuilderFactory;
+import org.jdbi.core.statement.internal.StatementTemplateBuilderImpl;
 import org.jdbi.core.transaction.LocalTransactionHandler;
 import org.jdbi.core.transaction.TransactionHandler;
 import org.jdbi.core.transaction.TransactionIsolationLevel;
@@ -401,7 +403,7 @@ public class Jdbi implements Configurable<Jdbi> {
         }
 
         try (Handle h = this.open()) {
-            SqlStatements sqlStatements = h.getConfig(SqlStatements.class);
+            final SqlStatements sqlStatements = h.getConfig(SqlStatements.class);
             sqlStatements.setAttachAllStatementsForCleanup(sqlStatements.isAttachCallbackStatementsForCleanup());
 
             handleScope.set(ConstantHandleSupplier.of(h));
@@ -536,7 +538,7 @@ public class Jdbi implements Configurable<Jdbi> {
     private <R, E, X extends Exception> R callWithExtension(final Class<E> extensionType,
                                                             final ExtensionCallback<R, E, X> callback,
                                                             final HandleSupplier handleSupplier) throws X {
-        E extension = getConfig(Extensions.class)
+        final E extension = getConfig(Extensions.class)
             .findFor(extensionType, handleSupplier)
             .orElseThrow(() -> new NoSuchExtensionException(extensionType));
 
@@ -580,5 +582,14 @@ public class Jdbi implements Configurable<Jdbi> {
         }
 
         return getConfig(OnDemandExtensions.class).create(this, extensionType);
+    }
+
+    /**
+     * Return a StatementTemplate builder. XXX docs
+     * @param sql
+     * @return
+     */
+    public StatementTemplateBuilder buildStatementTemplate(final CharSequence sql) {
+        return new StatementTemplateBuilderImpl(this, sql);
     }
 }

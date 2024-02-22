@@ -27,32 +27,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 
 import jakarta.annotation.Nullable;
 
 import org.jdbi.core.CloseException;
 import org.jdbi.core.Handle;
-import org.jdbi.core.argument.Argument;
-import org.jdbi.core.argument.Arguments;
-import org.jdbi.core.array.SqlArrayArgumentStrategy;
-import org.jdbi.core.array.SqlArrayType;
-import org.jdbi.core.array.SqlArrayTypes;
-import org.jdbi.core.collector.JdbiCollectors;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.ExtensionMethod;
-import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.exceptions.ThrowableSuppressor;
-import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
-import org.jdbi.core.mapper.Mappers;
-import org.jdbi.core.mapper.RowMapper;
-import org.jdbi.core.mapper.RowMappers;
-import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.meta.Alpha;
 import org.jdbi.meta.Beta;
 
@@ -67,7 +50,7 @@ import static java.util.Objects.requireNonNull;
  * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
  * mock tools to create a mock object of this class in the user code.
  */
-public class StatementContext implements Closeable {
+public class StatementContext implements Closeable, ConfigReader {
 
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
@@ -126,42 +109,13 @@ public class StatementContext implements Closeable {
     }
 
     /**
-     * Gets the configuration object of the given type, associated with this context.
-     *
-     * @param configClass the configuration type
-     * @param <C>         the configuration type
-     * @return the configuration object of the given type, associated with this context.
-     */
-    public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
-        return config.get(configClass);
-    }
-
-    /**
      * Returns the {@code ConfigRegistry}.
      *
      * @return the {@code ConfigRegistry} used by this context.
      */
+    @Override
     public ConfigRegistry getConfig() {
         return config;
-    }
-
-    /**
-     * Returns the attributes applied in this context.
-     *
-     * @return the defined attributes.
-     */
-    public Map<String, Object> getAttributes() {
-        return getConfig(SqlStatements.class).getAttributes();
-    }
-
-    /**
-     * Obtain the value of an attribute
-     *
-     * @param key the name of the attribute
-     * @return the value of the attribute
-     */
-    public Object getAttribute(String key) {
-        return getConfig(SqlStatements.class).getAttribute(key);
     }
 
     /**
@@ -172,187 +126,6 @@ public class StatementContext implements Closeable {
      */
     public void define(final String key, final Object value) {
         getConfig(SqlStatements.class).define(key, value);
-    }
-
-    /**
-     * Obtain an argument for given value in this context
-     *
-     * @param type  the type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
-     */
-    public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value);
-    }
-
-    /**
-     * Obtain an argument for given value in this context
-     *
-     * @param type  the type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
-     */
-    public Optional<Argument> findArgumentFor(QualifiedType<?> type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value);
-    }
-
-    /**
-     * Returns the strategy used by this context to bind array-type arguments to SQL statements.
-     *
-     * @return the strategy used to bind array-type arguments to SQL statements
-     */
-    public SqlArrayArgumentStrategy getSqlArrayArgumentStrategy() {
-        return getConfig(SqlArrayTypes.class).getArgumentStrategy();
-    }
-
-    /**
-     * Obtain an {@link SqlArrayType} for the given array element type in this context
-     *
-     * @param elementType the array element type.
-     * @return an {@link SqlArrayType} for the given element type.
-     */
-    public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
-        return getConfig(SqlArrayTypes.class).findFor(elementType);
-    }
-
-    /**
-     * Obtain a mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a mapper for the given type, or empty if no row or column mappers
-     * is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findMapperFor(Class<T> type) {
-        return getConfig(Mappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a mapper for the given type, or empty if no row or column mappers
-     * is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findMapperFor(GenericType<T> type) {
-        return getConfig(Mappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a mapper for the given type, or empty if no row or column mappers
-     * is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findMapperFor(Type type) {
-        return getConfig(Mappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a mapper for the given qualified type in this context.
-     *
-     * @param type the target qualified type to map to
-     * @return a mapper for the given qualified type, or empty if no row or column mappers
-     * is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findMapperFor(QualifiedType<T> type) {
-        return getConfig(Mappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a column mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(Class<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a column mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(GenericType<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a column mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
-        return getConfig(ColumnMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a column mapper for the given qualified type in this context.
-     *
-     * @param type the qualified target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(QualifiedType<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findRowMapperFor(Type type) {
-        return getConfig(RowMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findRowMapperFor(Class<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findRowMapperFor(GenericType<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a collector for the given type.
-     *
-     * @param containerType the container type.
-     * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
-     */
-    public Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
-        return getConfig(JdbiCollectors.class).findFor(containerType);
-    }
-
-    /**
-     * Returns the element type for the given container type.
-     *
-     * @param containerType the container type.
-     * @return the element type for the given container type, if available.
-     */
-    public Optional<Type> findElementTypeFor(Type containerType) {
-        return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
     }
 
     StatementContext setRawSql(final String rawSql) {

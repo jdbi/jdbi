@@ -74,7 +74,7 @@ public class Batch extends BaseStatement<Batch> {
 
             try {
                 for (String part : parts) {
-                    final String sql = stmtConfig.getTemplateEngine().render(part, getContext());
+                    final String sql = stmtConfig.getTemplateEngine().render(part, getConfig());
                     LOG.trace(" {}", sql);
                     stmt.addBatch(sql);
                 }

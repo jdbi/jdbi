@@ -40,6 +40,7 @@ import org.jdbi.core.cache.internal.DefaultJdbiCacheBuilder;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.internal.exceptions.Sneaky;
 import org.jdbi.meta.Beta;
+import org.jdbi.core.config.ConfigRegistry;
 
 /**
  * Configuration holder for {@link SqlStatement}s.
@@ -51,7 +52,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
     private TemplateEngine templateEngine;
-    private JdbiCache<StatementCacheKey, Function<StatementContext, String>> templateCache;
+    private JdbiCache<StatementCacheKey, Function<ConfigRegistry, String>> templateCache;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
@@ -473,16 +474,16 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return contextListeners;
     }
 
-    String preparedRender(String template, StatementContext ctx) {
+    String preparedRender(final String template, final ConfigRegistry config) {
         try {
             return Optional.ofNullable(
                             templateCache.getWithLoader(
                                     new StatementCacheKey(templateEngine, template),
-                                    cacheLoaderFunction(ctx)))
+                                    cacheLoaderFunction(config)))
                     .orElse(cx -> templateEngine.render(template, cx)) // fall-back to old behavior
-                    .apply(ctx);
+                    .apply(config);
         } catch (final IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception rendering SQL template", e, ctx);
+            throw new UnableToCreateStatementException("Exception rendering SQL template", e);
         }
     }
 
@@ -501,8 +502,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         throw new UnableToExecuteStatementException(e, ctx);
     }
 
-    private static JdbiCacheLoader<StatementCacheKey, Function<StatementContext, String>> cacheLoaderFunction(StatementContext ctx) {
-        return key -> key.getTemplateEngine().parse(key.getTemplate(), ctx.getConfig()).orElse(null);
+    private static JdbiCacheLoader<StatementCacheKey, Function<ConfigRegistry, String>> cacheLoaderFunction(final ConfigRegistry config) {
+        return key -> key.getTemplateEngine().parse(key.getTemplate(), config).orElse(null);
     }
 
     private static final class StatementCacheKey {

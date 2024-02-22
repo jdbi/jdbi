@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.Arguments;
 import org.jdbi.core.argument.NamedArgumentFinder;
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 
@@ -44,7 +45,7 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
     }
 
     @Override
-    public final Optional<Argument> find(String name, StatementContext ctx) {
+    public final Optional<Argument> find(final String name, final ConfigRegistry config) {
         if (name.startsWith(prefix)) {
             final String actualName = name.substring(prefix.length());
 
@@ -56,18 +57,17 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
 
                 return childArgumentFinders
                     .computeIfAbsent(parentName.endsWith("?") ? parentName.substring(0, parentName.length() - 1) : parentName, pn ->
-                        getValue(pn, ctx).map(typedValue -> getValueNested(typedValue, parentName, childName)))
-                    .flatMap(arg -> arg.find(childName, ctx));
+                        getValue(pn, config).map(typedValue -> getValueNested(typedValue, parentName, childName)))
+                    .flatMap(arg -> arg.find(childName, config));
             }
 
-            return getValue(actualName, ctx)
-                .map(tv -> ctx.findArgumentFor(tv.getType(), tv.getValue())
+            return getValue(actualName, config)
+                .map(tv -> config.findArgumentFor(tv.getType(), tv.getValue())
                     .orElseThrow(() -> new UnableToCreateStatementException(
                         String.format("No argument factory registered for type [%s] for element [%s] on [%s]",
                             tv.getType(),
                             name,
-                            obj),
-                        ctx)));
+                            obj))));
         }
 
         return Optional.empty();
@@ -78,7 +78,7 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
             return getNestedArgumentFinder(typedValue);
         }
         if (parentName.endsWith("?")) {
-            return (n, c) -> Optional.of(c.getConfig(Arguments.class).getUntypedNullArgument());
+            return (n, c) -> Optional.of(c.get(Arguments.class).getUntypedNullArgument());
         }
         throw new IllegalArgumentException(
             String.format("Trying to bind nested argument [%s], but found null value at [%s], may mark it as an optional with [%s]",
@@ -87,6 +87,6 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
                 parentName + '?'));
     }
 
-    protected abstract Optional<TypedValue> getValue(String name, StatementContext ctx);
+    protected abstract Optional<TypedValue> getValue(String name, ConfigRegistry ctx);
     protected abstract NamedArgumentFinder getNestedArgumentFinder(TypedValue obj);
 }

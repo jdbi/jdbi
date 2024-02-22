@@ -43,7 +43,7 @@ public class FreemarkerEngine implements TemplateEngine.Parsing {
     }
 
     @Override
-    public Optional<Function<StatementContext, String>> parse(String sqlTemplate, ConfigRegistry config) {
+    public Optional<Function<ConfigRegistry, String>> parse(String sqlTemplate, ConfigRegistry config) {
         try {
             Template template = new Template(null, sqlTemplate,
                     config.get(FreemarkerConfig.class).getFreemarkerConfiguration());

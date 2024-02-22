@@ -78,7 +78,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     @Override
-    PreparedBatch bindNamedArgumentFinder(NamedArgumentFinderFactory factory, String prefix, Object value, Type type, Supplier<NamedArgumentFinder> backupArgumentFinder) {
+    public PreparedBatch bindNamedArgumentFinder(NamedArgumentFinderFactory factory, String prefix, Object value, Type type, Supplier<NamedArgumentFinder> backupArgumentFinder) {
         PreparedBinding binding = getBinding();
         PrepareKey key = factory.keyFor(prefix, value);
         preparedFinders.computeIfAbsent(key,
@@ -89,7 +89,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     @Override
-    protected PreparedBinding getBinding() {
+    public PreparedBinding getBinding() {
         return (PreparedBinding) super.getBinding();
     }
 

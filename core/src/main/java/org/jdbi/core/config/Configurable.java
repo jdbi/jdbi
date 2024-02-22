@@ -47,6 +47,7 @@ import org.jdbi.core.statement.StatementCustomizer;
 import org.jdbi.core.statement.TemplateEngine;
 import org.jdbi.core.statement.TimingCollector;
 import org.jdbi.meta.Beta;
+import org.jdbi.core.statement.internal.DefineNamedBindingsStatementCustomizer;
 
 /**
  * A type with access to access and modify arbitrary Jdbi configuration.
@@ -382,6 +383,16 @@ public interface Configurable<This> {
     default This registerCodecFactory(final CodecFactory codecFactory) {
         registerColumnMapper(codecFactory);
         return registerArgument(codecFactory);
+    }
+
+    /**
+     * Define all bound arguments that don't already have a definition with a boolean indicating their presence.
+     * Useful to easily template optional properties of pojos or beans like {@code <if(property)>property = :property<endif>}.
+     * @return this
+     */
+    @Beta
+    default This defineNamedBindings() {
+        return addCustomizer(new DefineNamedBindingsStatementCustomizer());
     }
 }
 

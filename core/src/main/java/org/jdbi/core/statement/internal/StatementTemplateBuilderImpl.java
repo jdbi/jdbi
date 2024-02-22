@@ -11,16 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.statement;
+package org.jdbi.core.statement.internal;
 
+import org.jdbi.core.Jdbi;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.statement.StatementTemplateBuilder;
 
-/**
- * A TemplateEngine that does not do any templating but returns SQL verbatim.
- */
-public class NoTemplateEngine implements TemplateEngine {
+public class StatementTemplateBuilderImpl implements StatementTemplateBuilder {
+
+    private final ConfigRegistry config;
+    final String sql;
+
+    public StatementTemplateBuilderImpl(final Jdbi jdbi, final CharSequence sql) {
+        this.sql = sql.toString();
+        config = jdbi.getConfig().createCopy();
+    }
+
     @Override
-    public String render(final String template, final ConfigRegistry config) {
-        return template;
+    public ConfigRegistry getConfig() {
+        return config;
+    }
+
+    @Override
+    public String getSql() {
+        return sql;
     }
 }

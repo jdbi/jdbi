@@ -22,8 +22,8 @@ import java.util.List;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
-import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.TemplateEngine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -133,7 +133,7 @@ public class TestTransactions {
             }))
             .isInstanceOf(IOException.class);
 
-        List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
+        final List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
         assertThat(r).isEmpty();
     }
 
@@ -146,7 +146,7 @@ public class TestTransactions {
             }))
             .isInstanceOf(IOException.class);
 
-        List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
+        final List<Something> r = h.createQuery("select * from something").mapToBean(Something.class).list();
         assertThat(r).isEmpty();
     }
 
@@ -213,7 +213,7 @@ public class TestTransactions {
         h.execute("create table commitTable (id int primary key)");
 
         final var forwardAnswer = AdditionalAnswers.delegatesTo(h.getConnection());
-        var c = Mockito.mock(Connection.class, Mockito.withSettings()
+        final var c = Mockito.mock(Connection.class, Mockito.withSettings()
                 .defaultAnswer(forwardAnswer));
 
         final var jdbi = Jdbi.create(c);
@@ -232,7 +232,7 @@ public class TestTransactions {
     static class BoomEngine implements TemplateEngine {
 
         @Override
-        public String render(String template, StatementContext ctx) {
+        public String render(final String template, final ConfigRegistry config) {
             throw new Error("boom");
         }
     }
