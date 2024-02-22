@@ -18,12 +18,14 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import jakarta.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 abstract class InstanceFactory<T> {
     private final Executable executable;
@@ -44,10 +46,10 @@ abstract class InstanceFactory<T> {
         return executable.getParameters();
     }
 
-    Type[] getTypes() {
+    List<Type> getTypes() {
         return Arrays.stream(getParameters())
             .map(Parameter::getParameterizedType)
-            .toArray(Type[]::new);
+            .collect(toUnmodifiableList());
     }
 
     @Nullable
