@@ -207,14 +207,14 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                                                List<String> unmatchedColumns) {
         final int count = factory.getParameterCount();
         final Parameter[] parameters = factory.getParameters();
-        final Type[] types = factory.getTypes();
+        final List<Type> types = factory.getTypes();
         boolean matchedColumns = false;
         final List<String> unmatchedParameters = new ArrayList<>();
         final List<ParameterData> paramData = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
             final Parameter parameter = parameters[i];
-            final Type parameterType = types[i];
+            final Type parameterType = types.get(i);
             boolean nullable = isNullable(parameter);
             Nested nested = parameter.getAnnotation(Nested.class);
             if (nested == null) {

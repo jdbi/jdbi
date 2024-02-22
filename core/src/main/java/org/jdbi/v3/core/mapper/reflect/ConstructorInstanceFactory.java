@@ -13,38 +13,50 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
+import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 class ConstructorInstanceFactory<T> extends InstanceFactory<T> {
-    private final Constructor<T> constructor;
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
+    private static final Map<Constructor, ConstructorHandleAndTypes> CONSTRUCTOR_CACHE = synchronizedMap(new WeakHashMap<>());
 
-    private final Supplier<Type[]> typeSupplier;
+    private final Constructor<T> constructor;
+    private final List<Type> types;
+    private final MethodHandle constructorHandle;
 
     ConstructorInstanceFactory(Constructor<T> constructor) {
         super(constructor);
         this.constructor = requireNonNull(constructor, "constructor is null");
-        this.typeSupplier = getTypeSupplier(constructor, super::getTypes);
+        ConstructorHandleAndTypes constructorHandleAndTypes = getConstructorHandleAndTypes(constructor, super::getTypes);
+        this.types = constructorHandleAndTypes.getTypes();
+        this.constructorHandle = constructorHandleAndTypes.getConstructorHandle();
     }
 
     @Override
-    Type[] getTypes() {
-        return typeSupplier.get();
+    List<Type> getTypes() {
+        return types;
     }
 
     @Override
     T newInstance(Object... params) {
-        return Unchecked.<Object[], T>function(constructor::newInstance).apply(params);
+        return (T) Unchecked.<Object[], Object>function(constructorHandle::invokeWithArguments).apply(params);
     }
 
     @Override
@@ -76,17 +88,48 @@ class ConstructorInstanceFactory<T> extends InstanceFactory<T> {
         return lossDetected;
     }
 
-    private static <T> Supplier<Type[]> getTypeSupplier(Constructor<T> constructor, Supplier<Type[]> defaultSupplier) {
+    private static <T> ConstructorHandleAndTypes getConstructorHandleAndTypes(Constructor<T> constructor, Supplier<List<Type>> defaultSupplier) {
+        return CONSTRUCTOR_CACHE.computeIfAbsent(constructor, ctor -> computeConstructorHandleAndTypes(ctor, defaultSupplier));
+    }
+
+    private static <T> ConstructorHandleAndTypes computeConstructorHandleAndTypes(Constructor<T> constructor, Supplier<List<Type>> defaultSupplier) {
+        MethodHandle constructorMethodHandle = getConstructorMethodHandle(constructor);
         if (isGenericInformationLost(constructor)) {
-            return () -> getFields(constructor)
+            return new ConstructorHandleAndTypes(constructorMethodHandle, getFields(constructor)
                 .map(Field::getGenericType)
-                .toArray(Type[]::new);
+                .collect(toUnmodifiableList()));
         }
-        return defaultSupplier;
+        return new ConstructorHandleAndTypes(constructorMethodHandle, defaultSupplier.get());
+    }
+
+    private static <T> MethodHandle getConstructorMethodHandle(Constructor<T> constructor) {
+        try {
+            return LOOKUP.unreflectConstructor(constructor).asFixedArity();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static <T> Stream<Field> getFields(Constructor<T> constructor) {
         return Arrays.stream(constructor.getDeclaringClass().getDeclaredFields())
             .filter(field -> !Modifier.isStatic(field.getModifiers()));
+    }
+
+    private static class ConstructorHandleAndTypes {
+        private final MethodHandle constructorHandle;
+        private final List<Type> types;
+
+        ConstructorHandleAndTypes(MethodHandle constructorHandle, List<Type> types) {
+            this.constructorHandle = requireNonNull(constructorHandle, "constructorHandle is null");
+            this.types = requireNonNull(types, "types is null");
+        }
+
+        public MethodHandle getConstructorHandle() {
+            return constructorHandle;
+        }
+
+        public List<Type> getTypes() {
+            return types;
+        }
     }
 }
