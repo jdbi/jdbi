@@ -41,9 +41,9 @@ import static org.jdbi.v3.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
  */
 public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
     @Override
-    public Optional<Function<StatementContext, String>> parse(String template, ConfigRegistry config) {
+    public Optional<Function<ConfigRegistry, String>> parse(String template, ConfigRegistry config) {
         StringBuilder buf = new StringBuilder();
-        List<BiConsumer<StatementContext, StringBuilder>> preparation = new ArrayList<>();
+        List<BiConsumer<ConfigRegistry, StringBuilder>> preparation = new ArrayList<>();
         Runnable pushBuf = () -> { // NOPMD
             if (buf.length() > 0) {
                 String bit = buf.toString();
@@ -66,10 +66,10 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
                     pushBuf.run();
                     String text = t.getText();
                     String key = text.substring(1, text.length() - 1);
-                    preparation.add((ctx, b) -> {
-                        Object value = ctx.getAttribute(key);
+                    preparation.add((cfg, b) -> {
+                        Object value = cfg.getAttribute(key);
                         if (value == null) {
-                            throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'", ctx);
+                            throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'");
                         }
                         b.append(value);
                     });
@@ -83,13 +83,13 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
             t = lexer.nextToken();
         }
         pushBuf.run();
-        return Optional.of(ctx -> {
+        return Optional.of(cfg -> {
             try {
                 StringBuilder result = new StringBuilder();
-                preparation.forEach(a -> a.accept(ctx, result));
+                preparation.forEach(a -> a.accept(cfg, result));
                 return result.toString();
             } catch (RuntimeException e) {
-                throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, ctx);
+                throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, null);
             }
         });
     }

@@ -43,7 +43,7 @@ public interface TemplateEngine {
      * @return something which can provide the actual SQL to prepare a statement from
      * and which can bind the correct arguments to that prepared statement
      */
-    String render(String template, StatementContext ctx);
+    String render(String template, ConfigRegistry config);
 
     /**
      * Parse a SQL template and return a parsed representation ready to apply to a statement.
@@ -53,7 +53,7 @@ public interface TemplateEngine {
      * @param config   the Jdbi configuration at prepare time
      * @return a parsed representation, if available
      */
-    default Optional<Function<StatementContext, String>> parse(String template, ConfigRegistry config) {
+    default Optional<Function<ConfigRegistry, String>> parse(final String template, final ConfigRegistry config) {
         return Optional.empty();
     }
 
@@ -61,13 +61,13 @@ public interface TemplateEngine {
     interface Parsing extends TemplateEngine {
 
         @Override
-        default String render(String template, StatementContext ctx) {
-            return parse(template, ctx.getConfig())
+        default String render(final String template, final ConfigRegistry config) {
+            return parse(template, config)
                 .orElseThrow(() -> new UnableToCreateStatementException("Caching template engine did not prepare"))
-                .apply(ctx);
+                .apply(config);
         }
 
         @Override
-        Optional<Function<StatementContext, String>> parse(String template, ConfigRegistry config);
+        Optional<Function<ConfigRegistry, String>> parse(String template, ConfigRegistry config);
     }
 }

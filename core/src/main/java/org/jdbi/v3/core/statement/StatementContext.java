@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.statement;
 
 import java.io.Closeable;
-import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,32 +26,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 
 import jakarta.annotation.Nullable;
-
 import org.jdbi.v3.core.CloseException;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.Arguments;
-import org.jdbi.v3.core.array.SqlArrayArgumentStrategy;
-import org.jdbi.v3.core.array.SqlArrayType;
-import org.jdbi.v3.core.array.SqlArrayTypes;
-import org.jdbi.v3.core.collector.JdbiCollectors;
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionMethod;
-import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.exceptions.ThrowableSuppressor;
-import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMappers;
-import org.jdbi.v3.core.mapper.Mappers;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.qualifier.QualifiedType;
 
 import static java.util.Objects.requireNonNull;
 
@@ -65,7 +46,7 @@ import static java.util.Objects.requireNonNull;
  * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
  * mock tools to create a mock object of this class in the user code.
  */
-public class StatementContext implements Closeable {
+public class StatementContext implements Closeable, ConfigReader {
 
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
@@ -87,26 +68,15 @@ public class StatementContext implements Closeable {
     private Instant completionMoment;
     private Instant exceptionMoment;
 
-    static StatementContext create(ConfigRegistry config, ExtensionMethod extensionMethod) {
+    static StatementContext create(final ConfigRegistry config, final ExtensionMethod extensionMethod) {
         final StatementContext context = new StatementContext(config, extensionMethod);
         context.notifyContextCreated();
         return context;
     }
 
-    private StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod) {
+    private StatementContext(final ConfigRegistry config, final ExtensionMethod extensionMethod) {
         this.config = requireNonNull(config);
         this.extensionMethod = extensionMethod;
-    }
-
-    /**
-     * Gets the configuration object of the given type, associated with this context.
-     *
-     * @param configClass the configuration type
-     * @param <C>         the configuration type
-     * @return the configuration object of the given type, associated with this context.
-     */
-    public <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
-        return config.get(configClass);
     }
 
     /**
@@ -114,27 +84,9 @@ public class StatementContext implements Closeable {
      *
      * @return the {@code ConfigRegistry} used by this context.
      */
+    @Override
     public ConfigRegistry getConfig() {
         return config;
-    }
-
-    /**
-     * Returns the attributes applied in this context.
-     *
-     * @return the defined attributes.
-     */
-    public Map<String, Object> getAttributes() {
-        return getConfig(SqlStatements.class).getAttributes();
-    }
-
-    /**
-     * Obtain the value of an attribute
-     *
-     * @param key the name of the attribute
-     * @return the value of the attribute
-     */
-    public Object getAttribute(String key) {
-        return getConfig(SqlStatements.class).getAttribute(key);
     }
 
     /**
@@ -143,192 +95,11 @@ public class StatementContext implements Closeable {
      * @param key   the key for the attribute
      * @param value the value for the attribute
      */
-    public void define(String key, Object value) {
+    public void define(final String key, final Object value) {
         getConfig(SqlStatements.class).define(key, value);
     }
 
-    /**
-     * Obtain an argument for given value in this context
-     *
-     * @param type  the type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
-     */
-    public Optional<Argument> findArgumentFor(Type type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value);
-    }
-
-    /**
-     * Obtain an argument for given value in this context
-     *
-     * @param type  the type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
-     */
-    public Optional<Argument> findArgumentFor(QualifiedType<?> type, Object value) {
-        return getConfig(Arguments.class).findFor(type, value);
-    }
-
-    /**
-     * Returns the strategy used by this context to bind array-type arguments to SQL statements.
-     *
-     * @return the strategy used to bind array-type arguments to SQL statements
-     */
-    public SqlArrayArgumentStrategy getSqlArrayArgumentStrategy() {
-        return getConfig(SqlArrayTypes.class).getArgumentStrategy();
-    }
-
-    /**
-     * Obtain an {@link SqlArrayType} for the given array element type in this context
-     *
-     * @param elementType the array element type.
-     * @return an {@link SqlArrayType} for the given element type.
-     */
-    public Optional<SqlArrayType<?>> findSqlArrayTypeFor(Type elementType) {
-        return getConfig(SqlArrayTypes.class).findFor(elementType);
-    }
-
-    /**
-     * Obtain a mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a mapper for the given type, or empty if no row or column mappers
-     * is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findMapperFor(Class<T> type) {
-        return getConfig(Mappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a mapper for the given type, or empty if no row or column mappers
-     * is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findMapperFor(GenericType<T> type) {
-        return getConfig(Mappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a mapper for the given type, or empty if no row or column mappers
-     * is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findMapperFor(Type type) {
-        return getConfig(Mappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a mapper for the given qualified type in this context.
-     *
-     * @param type the target qualified type to map to
-     * @return a mapper for the given qualified type, or empty if no row or column mappers
-     * is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findMapperFor(QualifiedType<T> type) {
-        return getConfig(Mappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a column mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(Class<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a column mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(GenericType<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a column mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public Optional<ColumnMapper<?>> findColumnMapperFor(Type type) {
-        return getConfig(ColumnMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a column mapper for the given qualified type in this context.
-     *
-     * @param type the qualified target type to map to
-     * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
-     */
-    public <T> Optional<ColumnMapper<T>> findColumnMapperFor(QualifiedType<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in this context.
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findRowMapperFor(Type type) {
-        return getConfig(RowMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findRowMapperFor(Class<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in this context.
-     *
-     * @param <T> the type to map
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public <T> Optional<RowMapper<T>> findRowMapperFor(GenericType<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
-    }
-
-    /**
-     * Obtain a collector for the given type.
-     *
-     * @param containerType the container type.
-     * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
-     */
-    public Optional<Collector<?, ?, ?>> findCollectorFor(Type containerType) {
-        return getConfig(JdbiCollectors.class).findFor(containerType);
-    }
-
-    /**
-     * Returns the element type for the given container type.
-     *
-     * @param containerType the container type.
-     * @return the element type for the given container type, if available.
-     */
-    public Optional<Type> findElementTypeFor(Type containerType) {
-        return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
-    }
-
-    StatementContext setRawSql(String rawSql) {
+    StatementContext setRawSql(final String rawSql) {
         this.rawSql = rawSql;
         return this;
     }
@@ -342,7 +113,7 @@ public class StatementContext implements Closeable {
         return rawSql;
     }
 
-    void setRenderedSql(String renderedSql) {
+    void setRenderedSql(final String renderedSql) {
         this.renderedSql = renderedSql;
     }
 
@@ -358,7 +129,7 @@ public class StatementContext implements Closeable {
         return renderedSql;
     }
 
-    void setParsedSql(ParsedSql parsedSql) {
+    void setParsedSql(final ParsedSql parsedSql) {
         this.parsedSql = parsedSql;
     }
 
@@ -374,7 +145,7 @@ public class StatementContext implements Closeable {
         return parsedSql;
     }
 
-    void setStatement(PreparedStatement stmt) {
+    void setStatement(final PreparedStatement stmt) {
         statement = stmt;
     }
 
@@ -390,7 +161,7 @@ public class StatementContext implements Closeable {
         return statement;
     }
 
-    StatementContext setConnection(Connection connection) {
+    StatementContext setConnection(final Connection connection) {
         this.connection = connection;
         return this;
     }
@@ -404,7 +175,7 @@ public class StatementContext implements Closeable {
         return connection;
     }
 
-    StatementContext setBinding(Binding b) {
+    StatementContext setBinding(final Binding b) {
         this.binding = b;
         return this;
     }
@@ -422,7 +193,7 @@ public class StatementContext implements Closeable {
      * Sets whether the current statement returns generated keys.
      * @param b return generated keys?
      */
-    public void setReturningGeneratedKeys(boolean b) {
+    public void setReturningGeneratedKeys(final boolean b) {
         if (isConcurrentUpdatable() && b) {
             throw new IllegalArgumentException("Cannot create a result set that is concurrent "
                     + "updatable and is returning generated keys.");
@@ -452,7 +223,7 @@ public class StatementContext implements Closeable {
      * Set the generated key column names.
      * @param generatedKeysColumnNames the generated key column names
      */
-    public void setGeneratedKeysColumnNames(String[] generatedKeysColumnNames) {
+    public void setGeneratedKeysColumnNames(final String[] generatedKeysColumnNames) {
         this.generatedKeysColumnNames = Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
     }
 
@@ -502,7 +273,7 @@ public class StatementContext implements Closeable {
      *
      * @param executionMoment Sets the start of query execution.
      */
-    public void setExecutionMoment(Instant executionMoment) {
+    public void setExecutionMoment(final Instant executionMoment) {
         this.executionMoment = executionMoment;
     }
 
@@ -522,7 +293,7 @@ public class StatementContext implements Closeable {
      *
      * @param completionMoment Sets the end of query execution.
      */
-    public void setCompletionMoment(Instant completionMoment) {
+    public void setCompletionMoment(final Instant completionMoment) {
         this.completionMoment = completionMoment;
     }
 
@@ -542,7 +313,7 @@ public class StatementContext implements Closeable {
      *
      * @param exceptionMoment Sets the end of query execution.
      */
-    public void setExceptionMoment(Instant exceptionMoment) {
+    public void setExceptionMoment(final Instant exceptionMoment) {
         this.exceptionMoment = exceptionMoment;
     }
 
@@ -551,7 +322,7 @@ public class StatementContext implements Closeable {
      * @param unit the time unit to convert to
      * @return the elapsed time in the given unit
      */
-    public long getElapsedTime(ChronoUnit unit) {
+    public long getElapsedTime(final ChronoUnit unit) {
         return unit.between(executionMoment, completionMoment == null ? exceptionMoment : completionMoment);
     }
 
@@ -565,7 +336,7 @@ public class StatementContext implements Closeable {
      *
      * @param cleanable the Cleanable to clean on close
      */
-    public void addCleanable(Cleanable cleanable) {
+    public void addCleanable(final Cleanable cleanable) {
 
         synchronized (cleanables) {
             cleanables.add(cleanable);
@@ -592,9 +363,9 @@ public class StatementContext implements Closeable {
             Collections.reverse(cleanablesCopy);
             cleanablesCopy.forEach(this::notifyCleanableRemoved);
 
-            ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
+            final ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
 
-            for (Cleanable cleanable : cleanablesCopy) {
+            for (final Cleanable cleanable : cleanablesCopy) {
                 throwableSuppressor.suppressAppend(cleanable::close);
             }
 
@@ -619,32 +390,22 @@ public class StatementContext implements Closeable {
     }
 
     private void notifyContextCreated() {
-        Collection<StatementContextListener> listeners = getListeners();
+        final Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.contextCreated(this));
     }
 
     private void notifyContextCleaned() {
-        Collection<StatementContextListener> listeners = getListeners();
+        final Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.contextCleaned(this));
     }
 
-    private void notifyCleanableRemoved(Cleanable cleanable) {
-        Collection<StatementContextListener> listeners = getListeners();
+    private void notifyCleanableRemoved(final Cleanable cleanable) {
+        final Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.cleanableRemoved(this, cleanable));
     }
 
-    private void notifyCleanableAdded(Cleanable cleanable) {
-        Collection<StatementContextListener> listeners = getListeners();
+    private void notifyCleanableAdded(final Cleanable cleanable) {
+        final Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.cleanableAdded(this, cleanable));
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        return this == o;
-    }
-
-    @Override
-    public final int hashCode() {
-        return super.hashCode() * 11;
     }
 }

@@ -25,6 +25,7 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.mapper.ColumnMappers;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMappers;
+import org.jdbi.v3.core.statement.ConfigReader;
 import org.jdbi.v3.core.statement.SqlStatements;
 
 /**
@@ -32,7 +33,7 @@ import org.jdbi.v3.core.statement.SqlStatements;
  *
  * @see Configurable
  */
-public final class ConfigRegistry {
+public final class ConfigRegistry implements ConfigReader {
 
     private static final Class<?>[] JDBI_CONFIG_TYPES = {ConfigRegistry.class};
 
@@ -100,5 +101,10 @@ public final class ConfigRegistry {
      */
     public ConfigRegistry createCopy() {
         return new ConfigRegistry(this);
+    }
+
+    @Override
+    public ConfigRegistry getConfig() {
+        return this;
     }
 }

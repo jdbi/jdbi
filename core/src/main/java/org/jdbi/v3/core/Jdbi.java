@@ -37,9 +37,11 @@ import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.Cleanable;
 import org.jdbi.v3.core.statement.DefaultStatementBuilder;
+import org.jdbi.v3.core.statement.QueryTemplateBuilder;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementBuilder;
 import org.jdbi.v3.core.statement.StatementBuilderFactory;
+import org.jdbi.v3.core.statement.internal.QueryTemplateBuilderImpl;
 import org.jdbi.v3.core.transaction.LocalTransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
@@ -68,7 +70,7 @@ public class Jdbi implements Configurable<Jdbi> {
 
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
-    private Jdbi(ConnectionFactory connectionFactory) {
+    private Jdbi(final ConnectionFactory connectionFactory) {
         Objects.requireNonNull(connectionFactory, "null connectionFactory");
         this.connectionFactory = connectionFactory;
     }
@@ -80,7 +82,7 @@ public class Jdbi implements Configurable<Jdbi> {
      *
      * @return A {@link Jdbi} instance that uses a single database connection.
      */
-    public static Jdbi create(Connection connection) {
+    public static Jdbi create(final Connection connection) {
         return create(new SingleConnectionFactory(connection));
     }
 
@@ -91,7 +93,7 @@ public class Jdbi implements Configurable<Jdbi> {
      *
      * @return a Jdbi which uses the given data source as a connection factory.
      */
-    public static Jdbi create(DataSource dataSource) {
+    public static Jdbi create(final DataSource dataSource) {
         return create(dataSource::getConnection);
     }
 
@@ -107,7 +109,7 @@ public class Jdbi implements Configurable<Jdbi> {
      *
      * @return a Jdbi which uses the given connection factory.
      */
-    public static Jdbi create(ConnectionFactory connectionFactory) {
+    public static Jdbi create(final ConnectionFactory connectionFactory) {
         return new Jdbi(connectionFactory);
     }
 
@@ -160,7 +162,7 @@ public class Jdbi implements Configurable<Jdbi> {
      *
      * @return Handle using a Connection obtained from the provided DataSource
      */
-    public static Handle open(DataSource dataSource) {
+    public static Handle open(final DataSource dataSource) {
         return create(dataSource).open();
     }
 
@@ -171,7 +173,7 @@ public class Jdbi implements Configurable<Jdbi> {
      *
      * @return Handle using a Connection obtained from the provided connection factory
      */
-    public static Handle open(ConnectionFactory connectionFactory) {
+    public static Handle open(final ConnectionFactory connectionFactory) {
         return create(connectionFactory).open();
     }
 
@@ -241,7 +243,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @param plugin the plugin to install
      * @return this
      */
-    public Jdbi installPlugin(JdbiPlugin plugin) {
+    public Jdbi installPlugin(final JdbiPlugin plugin) {
         if (plugins.addIfAbsent(plugin)) {
             Unchecked.consumer(plugin::customizeJdbi).accept(this);
         }
@@ -257,7 +259,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @param factory the new statement builder factory.
      * @return this
      */
-    public Jdbi setStatementBuilderFactory(StatementBuilderFactory factory) {
+    public Jdbi setStatementBuilderFactory(final StatementBuilderFactory factory) {
         this.statementBuilderFactory.set(factory);
         return this;
     }
@@ -289,7 +291,7 @@ public class Jdbi implements Configurable<Jdbi> {
      *                from this Jdbi
      * @return this
      */
-    public Jdbi setTransactionHandler(TransactionHandler handler) {
+    public Jdbi setTransactionHandler(final TransactionHandler handler) {
         Objects.requireNonNull(handler, "null transaction handler");
         this.transactionhandler.set(handler);
         return this;
@@ -314,7 +316,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @return this
      */
     @Alpha
-    public Jdbi setHandleCallbackDecorator(HandleCallbackDecorator handleCallbackDecorator) {
+    public Jdbi setHandleCallbackDecorator(final HandleCallbackDecorator handleCallbackDecorator) {
         Objects.requireNonNull(handleCallbackDecorator, "null handler");
         this.handleCallbackDecorator.set(handleCallbackDecorator);
         return this;
@@ -347,7 +349,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @param handleScope A {@link HandleScope} object. Must not be null!
      */
     @Alpha
-    public final void setHandleScope(HandleScope handleScope) {
+    public final void setHandleScope(final HandleScope handleScope) {
         this.handleScope = handleScope;
     }
 
@@ -371,11 +373,11 @@ public class Jdbi implements Configurable<Jdbi> {
             // this looks like a t-w-r but it is not. The connection is only closed in the error case.
             final Cleanable connectionCleaner = connectionFactory.getCleanableFor(conn);
             try {
-                for (JdbiPlugin p : plugins) {
+                for (final JdbiPlugin p : plugins) {
                     conn = p.customizeConnection(conn);
                 }
 
-                StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
+                final StatementBuilder cache = statementBuilderFactory.get().createStatementBuilder(conn);
 
                 Handle h = Handle.createHandle(this,
                         connectionCleaner, // don't use conn::close, the cleanup must be done by the connection factory!
@@ -383,16 +385,16 @@ public class Jdbi implements Configurable<Jdbi> {
                         cache,
                         conn);
 
-                for (JdbiPlugin p : plugins) {
+                for (final JdbiPlugin p : plugins) {
                     h = p.customizeHandle(h);
                 }
                 LOG.trace("Jdbi [{}] obtain handle [{}] in {}ms", this, h, MILLISECONDS.convert(stop - start, NANOSECONDS));
                 return h;
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 connectionCleaner.closeAndSuppress(t);
                 throw t;
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new ConnectionException(e);
         }
     }
@@ -409,7 +411,7 @@ public class Jdbi implements Configurable<Jdbi> {
      *
      * @throws X any exception thrown by the callback
      */
-    public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
+    public <R, X extends Exception> R withHandle(final HandleCallback<R, X> callback) throws X {
         final HandleCallback<R, X> decoratedCallback = handleCallbackDecorator.get().decorate(callback);
 
         final var handleSupplier = handleScope.get();
@@ -418,7 +420,7 @@ public class Jdbi implements Configurable<Jdbi> {
         }
 
         try (Handle h = this.open()) {
-            SqlStatements sqlStatements = h.getConfig(SqlStatements.class);
+            final SqlStatements sqlStatements = h.getConfig(SqlStatements.class);
             sqlStatements.setAttachAllStatementsForCleanup(sqlStatements.isAttachCallbackStatementsForCleanup());
 
             handleScope.set(ConstantHandleSupplier.of(h));
@@ -535,7 +537,7 @@ public class Jdbi implements Configurable<Jdbi> {
      *                                  type.
      * @throws X                        if thrown by the callback.
      */
-    public <R, E, X extends Exception> R withExtension(Class<E> extensionType, ExtensionCallback<R, E, X> callback)
+    public <R, E, X extends Exception> R withExtension(final Class<E> extensionType, final ExtensionCallback<R, E, X> callback)
             throws X {
         final var handleSupplier = handleScope.get();
         if (handleSupplier != null) {
@@ -550,10 +552,10 @@ public class Jdbi implements Configurable<Jdbi> {
         }
     }
 
-    private <R, E, X extends Exception> R callWithExtension(Class<E> extensionType,
-                                                            ExtensionCallback<R, E, X> callback,
-                                                            HandleSupplier handleSupplier) throws X {
-        E extension = getConfig(Extensions.class)
+    private <R, E, X extends Exception> R callWithExtension(final Class<E> extensionType,
+                                                            final ExtensionCallback<R, E, X> callback,
+                                                            final HandleSupplier handleSupplier) throws X {
+        final E extension = getConfig(Extensions.class)
             .findFor(extensionType, handleSupplier)
             .orElseThrow(() -> new NoSuchExtensionException(extensionType));
 
@@ -571,7 +573,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @throws NoSuchExtensionException if no {@link ExtensionFactory} is registered which supports the given extension type.
      * @throws X                        if thrown by the callback.
      */
-    public <E, X extends Exception> void useExtension(Class<E> extensionType, ExtensionConsumer<E, X> callback)
+    public <E, X extends Exception> void useExtension(final Class<E> extensionType, final ExtensionConsumer<E, X> callback)
             throws X {
         withExtension(extensionType, extension -> {
             callback.useExtension(extension);
@@ -588,7 +590,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * @return an extension which opens and closes handles (as needed) for individual method calls. Only public
      * interface types may be used as on-demand extensions.
      */
-    public <E> E onDemand(Class<E> extensionType) {
+    public <E> E onDemand(final Class<E> extensionType) {
         if (!extensionType.isInterface()) {
             throw new IllegalArgumentException("On-demand extensions are only supported for interfaces.");
         }
@@ -597,5 +599,14 @@ public class Jdbi implements Configurable<Jdbi> {
         }
 
         return getConfig(OnDemandExtensions.class).create(this, extensionType);
+    }
+
+    /**
+     * Return a QueryTemplate builder. XXX docs
+     * @param sql
+     * @return
+     */
+    public QueryTemplateBuilder buildQueryTemplate(final CharSequence sql) {
+        return new QueryTemplateBuilderImpl(this, sql);
     }
 }

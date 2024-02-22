@@ -22,6 +22,7 @@ import java.util.List;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TemplateEngine;
@@ -232,7 +233,7 @@ public class TestTransactions {
     static class BoomEngine implements TemplateEngine {
 
         @Override
-        public String render(String template, StatementContext ctx) {
+        public String render(String template, ConfigRegistry config) {
             throw new Error("boom");
         }
     }

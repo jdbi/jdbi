@@ -30,7 +30,6 @@ import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
-import org.jdbi.v3.core.statement.StatementContext;
 
 /**
  * Inspect an object and binds parameters based on each of its public fields.
@@ -65,8 +64,8 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
-    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
-        return getter(name, ctx.getConfig())
+    protected Optional<TypedValue> getValue(String name, ConfigRegistry config) {
+        return getter(name, config)
                 .map(getter -> getter.apply(obj));
     }
 

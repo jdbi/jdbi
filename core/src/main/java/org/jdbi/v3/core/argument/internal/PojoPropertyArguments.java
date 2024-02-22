@@ -59,7 +59,7 @@ public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
-    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
+    protected Optional<TypedValue> getValue(String name, ConfigRegistry config) {
         return Optional.ofNullable(properties.getProperties().get(name))
                 .map(PojoProperty.class::cast)
                 .filter(JdbiAnnotations::isBound)
