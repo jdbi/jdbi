@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.statement.StatementContext;
 
 /**
@@ -25,7 +26,12 @@ import org.jdbi.core.statement.StatementContext;
 @FunctionalInterface
 public interface NamedArgumentFinder {
 
-    Optional<Argument> find(String name, StatementContext ctx);
+    @Deprecated(forRemoval = true)
+    default Optional<Argument> find(final String name, final StatementContext ctx) {
+        return find(name, ctx.getConfig());
+    }
+
+    Optional<Argument> find(String name, ConfigRegistry config);
 
     /**
      * Returns the names this named argument finder can find. Returns an empty collection otherwise.

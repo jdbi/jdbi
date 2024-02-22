@@ -84,22 +84,22 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    static Handle createHandle(Jdbi jdbi,
-            Cleanable connectionCleaner,
-            TransactionHandler transactionHandler,
-            StatementBuilder statementBuilder,
-            Connection connection) throws SQLException {
-        Handle handle = new Handle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection);
+    static Handle createHandle(final Jdbi jdbi,
+            final Cleanable connectionCleaner,
+            final TransactionHandler transactionHandler,
+            final StatementBuilder statementBuilder,
+            final Connection connection) throws SQLException {
+        final Handle handle = new Handle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection);
 
         handle.notifyHandleCreated();
         return handle;
     }
 
-    private Handle(Jdbi jdbi,
-            Cleanable connectionCleaner,
-            TransactionHandler transactionHandler,
-            StatementBuilder statementBuilder,
-            Connection connection) throws SQLException {
+    private Handle(final Jdbi jdbi,
+            final Cleanable connectionCleaner,
+            final TransactionHandler transactionHandler,
+            final StatementBuilder statementBuilder,
+            final Connection connection) throws SQLException {
         this.jdbi = jdbi;
         this.connectionCleaner = connectionCleaner;
         this.connection = connection;
@@ -162,7 +162,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param builder StatementBuilder to be used. Must not be null.
      * @return this
      */
-    public Handle setStatementBuilder(StatementBuilder builder) {
+    public Handle setStatementBuilder(final StatementBuilder builder) {
         this.statementBuilder = builder;
         return this;
     }
@@ -177,7 +177,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param handleListener A {@link HandleListener} object.
      * @return The handle itself.
      */
-    public Handle addHandleListener(HandleListener handleListener) {
+    public Handle addHandleListener(final HandleListener handleListener) {
         handleListeners.add(handleListener);
 
         return this;
@@ -191,7 +191,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param handleListener A {@link HandleListener} object.
      * @return The handle itself.
      */
-    public Handle removeHandleListener(HandleListener handleListener) {
+    public Handle removeHandleListener(final HandleListener handleListener) {
         handleListeners.remove(handleListener);
 
         return this;
@@ -204,7 +204,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      *
      * @param cleanable the Cleanable to clean on close
      */
-    public final void addCleanable(Cleanable cleanable) {
+    public final void addCleanable(final Cleanable cleanable) {
 
         synchronized (cleanables) {
             cleanables.add(cleanable);
@@ -216,7 +216,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      *
      * @param cleanable the Cleanable to be unregistered.
      */
-    public final void removeCleanable(Cleanable cleanable) {
+    public final void removeCleanable(final Cleanable cleanable) {
 
         synchronized (cleanables) {
             cleanables.remove(cleanable);
@@ -241,13 +241,13 @@ public class Handle implements Closeable, Configurable<Handle> {
         final boolean doForceEndTransactions = this.forceEndTransactions && getConfig().get(Handles.class).isForceEndTransactions();
 
         try {
-            ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
+            final ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
 
             doClean(throwableSuppressor);
 
             try {
                 cleanConnection(doForceEndTransactions);
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 throwableSuppressor.attachToThrowable(t);
                 throw t;
             }
@@ -265,7 +265,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * any statement that was created from the Handle.
      */
     public void clean() {
-        ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
+        final ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
 
         doClean(throwableSuppressor);
 
@@ -286,7 +286,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         }
     }
 
-    private void doClean(ThrowableSuppressor throwableSuppressor) {
+    private void doClean(final ThrowableSuppressor throwableSuppressor) {
         List<Cleanable> cleanablesCopy;
 
         synchronized (cleanables) {
@@ -296,7 +296,7 @@ public class Handle implements Closeable, Configurable<Handle> {
 
         Collections.reverse(cleanablesCopy);
 
-        for (Cleanable cleanable : cleanablesCopy) {
+        for (final Cleanable cleanable : cleanablesCopy) {
             throwableSuppressor.suppressAppend(cleanable::close);
         }
     }
@@ -317,10 +317,10 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param args arguments to bind positionally
      * @return query object
      */
-    public Query select(CharSequence sql, Object... args) {
-        Query query = this.createQuery(sql);
+    public Query select(final CharSequence sql, final Object... args) {
+        final Query query = this.createQuery(sql);
         int position = 0;
-        for (Object arg : args) {
+        for (final Object arg : args) {
             query.bind(position++, arg);
         }
         return query;
@@ -334,7 +334,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return query object
      * @see Handle#select(CharSequence, Object...)
      */
-    public Query select(String sql, Object... args) {
+    public Query select(final String sql, final Object... args) {
         return select((CharSequence) sql, args);
     }
 
@@ -345,10 +345,10 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param args positional arguments.
      * @return the number of rows affected.
      */
-    public int execute(CharSequence sql, Object... args) {
+    public int execute(final CharSequence sql, final Object... args) {
         try (Update stmt = createUpdate(sql)) {
             int position = 0;
-            for (Object arg : args) {
+            for (final Object arg : args) {
                 stmt.bind(position++, arg);
             }
             return stmt.execute();
@@ -363,7 +363,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the number of rows affected.
      * @see Handle#execute(CharSequence, Object...)
      */
-    public int execute(String sql, Object... args) {
+    public int execute(final String sql, final Object... args) {
         return execute((CharSequence) sql, args);
     }
 
@@ -384,7 +384,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param sql the batch SQL.
      * @return a batch which can have "statements" added.
      */
-    public PreparedBatch prepareBatch(CharSequence sql) {
+    public PreparedBatch prepareBatch(final CharSequence sql) {
         return new PreparedBatch(this, sql);
     }
 
@@ -396,7 +396,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return a batch which can have "statements" added.
      * @see Handle#prepareBatch(CharSequence)
      */
-    public PreparedBatch prepareBatch(String sql) {
+    public PreparedBatch prepareBatch(final String sql) {
         return prepareBatch((CharSequence) sql);
     }
 
@@ -406,7 +406,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param sql the stored procedure sql.
      * @return the Call.
      */
-    public Call createCall(CharSequence sql) {
+    public Call createCall(final CharSequence sql) {
         return new Call(this, sql);
     }
 
@@ -417,7 +417,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the Call.
      * @see Handle#createCall(CharSequence)
      */
-    public Call createCall(String sql) {
+    public Call createCall(final String sql) {
         return createCall((CharSequence) sql);
     }
 
@@ -428,7 +428,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param sql SQL that may return results.
      * @return a Query builder.
      */
-    public Query createQuery(CharSequence sql) {
+    public Query createQuery(final CharSequence sql) {
         return new Query(this, sql);
     }
 
@@ -440,7 +440,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return a Query builder.
      * @see Handle#createQuery(CharSequence)
      */
-    public Query createQuery(String sql) {
+    public Query createQuery(final String sql) {
         return createQuery((CharSequence) sql);
     }
 
@@ -450,7 +450,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param sql the SQL script.
      * @return the created Script.
      */
-    public Script createScript(CharSequence sql) {
+    public Script createScript(final CharSequence sql) {
         return new Script(this, sql);
     }
 
@@ -461,7 +461,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the Update builder.
      * @see Handle#createScript(CharSequence)
      */
-    public Script createScript(String sql) {
+    public Script createScript(final String sql) {
         return createScript((CharSequence) sql);
     }
 
@@ -471,7 +471,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param sql the statement sql.
      * @return the Update builder.
      */
-    public Update createUpdate(CharSequence sql) {
+    public Update createUpdate(final CharSequence sql) {
         return new Update(this, sql);
     }
 
@@ -482,7 +482,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the Update builder.
      * @see Handle#createUpdate(CharSequence)
      */
-    public Update createUpdate(String sql) {
+    public Update createUpdate(final String sql) {
         return createUpdate((CharSequence) sql);
     }
 
@@ -501,7 +501,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param metadataFunction Maps the provided {@link java.sql.DatabaseMetaData} object onto a {@link java.sql.ResultSet} object.
      * @return The metadata builder.
      */
-    public ResultBearing queryMetadata(MetaData.MetaDataResultSetProvider metadataFunction) {
+    public ResultBearing queryMetadata(final MetaData.MetaDataResultSetProvider metadataFunction) {
         return new MetaData(this, metadataFunction);
     }
 
@@ -515,7 +515,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param metadataFunction Maps the provided {@link java.sql.DatabaseMetaData} object to a response object.
      * @return The response object.
      */
-    public <T> T queryMetadata(MetaData.MetaDataValueProvider<T> metadataFunction) {
+    public <T> T queryMetadata(final MetaData.MetaDataValueProvider<T> metadataFunction) {
         try (MetaData metadata = new MetaData(this, metadataFunction)) {
             return metadata.execute();
         }
@@ -576,7 +576,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return this Handle.
      */
     @Beta
-    public Handle afterCommit(Runnable afterCommit) {
+    public Handle afterCommit(final Runnable afterCommit) {
         return addTransactionCallback(new TransactionCallback() {
             @Override
             public void afterCommit() {
@@ -592,7 +592,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return this Handle.
      */
     @Beta
-    public Handle afterRollback(Runnable afterRollback) {
+    public Handle afterRollback(final Runnable afterRollback) {
         return addTransactionCallback(new TransactionCallback() {
             @Override
             public void afterRollback() {
@@ -603,13 +603,13 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     List<TransactionCallback> drainCallbacks() {
         synchronized (transactionCallbacks) {
-            List<TransactionCallback> result = new ArrayList<>(transactionCallbacks);
+            final List<TransactionCallback> result = new ArrayList<>(transactionCallbacks);
             transactionCallbacks.clear();
             return result;
         }
     }
 
-    Handle addTransactionCallback(TransactionCallback cb) {
+    Handle addTransactionCallback(final TransactionCallback cb) {
         if (!isInTransaction()) {
             throw new IllegalStateException("Handle must be in transaction");
         }
@@ -625,7 +625,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param savepointName the name of the savepoint, previously declared with {@link Handle#savepoint}.
      * @return the same handle.
      */
-    public Handle rollbackToSavepoint(String savepointName) {
+    public Handle rollbackToSavepoint(final String savepointName) {
         final long start = System.nanoTime();
         transactionHandler.rollbackToSavepoint(this, savepointName);
         LOG.trace("Handle [{}] rollback to savepoint \"{}\" in {}ms", this, savepointName, msSince(start));
@@ -642,7 +642,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param name The name of the savepoint.
      * @return The same handle.
      */
-    public Handle savepoint(String name) {
+    public Handle savepoint(final String name) {
         transactionHandler.savepoint(this, name);
         LOG.trace("Handle [{}] savepoint \"{}\"", this, name);
         return this;
@@ -656,7 +656,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @deprecated Use {@link Handle#releaseSavepoint(String)}
      */
     @Deprecated(since = "3.35.0", forRemoval = true)
-    public Handle release(String savepointName) {
+    public Handle release(final String savepointName) {
         return releaseSavepoint(savepointName);
     }
 
@@ -666,7 +666,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param savepointName the name of the savepoint to release.
      * @return the same handle.
      */
-    public Handle releaseSavepoint(String savepointName) {
+    public Handle releaseSavepoint(final String savepointName) {
         transactionHandler.releaseSavepoint(this, savepointName);
         LOG.trace("Handle [{}] release savepoint \"{}\"", this, savepointName);
         return this;
@@ -681,7 +681,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public boolean isReadOnly() {
         try {
             return connection.isReadOnly();
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new UnableToManipulateTransactionIsolationLevelException("Could not get read-only status for a connection", e);
         }
     }
@@ -695,10 +695,10 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return this Handle.
      * @see Connection#setReadOnly(boolean)
      */
-    public Handle setReadOnly(boolean readOnly) {
+    public Handle setReadOnly(final boolean readOnly) {
         try {
             connection.setReadOnly(readOnly);
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new UnableToManipulateTransactionIsolationLevelException("Could not setReadOnly", e);
         }
         return this;
@@ -713,7 +713,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return value returned from the callback
      * @throws X any exception thrown by the callback
      */
-    public <R, X extends Exception> R inTransaction(HandleCallback<R, X> callback) throws X {
+    public <R, X extends Exception> R inTransaction(final HandleCallback<R, X> callback) throws X {
         return isInTransaction()
                 ? callback.withHandle(this)
                 : transactionHandler.inTransaction(this, callback);
@@ -746,9 +746,9 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @throws X any exception thrown by the callback
      */
     @SuppressWarnings("PMD.UnusedLocalVariable")
-    public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
+    public <R, X extends Exception> R inTransaction(final TransactionIsolationLevel level, final HandleCallback<R, X> callback) throws X {
         if (isInTransaction()) {
-            TransactionIsolationLevel currentLevel = getTransactionIsolationLevel();
+            final TransactionIsolationLevel currentLevel = getTransactionIsolationLevel();
             if (currentLevel != level && level != TransactionIsolationLevel.UNKNOWN) {
                 throw new TransactionException(
                         "Tried to execute nested transaction with isolation level " + level + ", "
@@ -775,7 +775,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param <X>      exception type thrown by the callback, if any
      * @throws X any exception thrown by the callback
      */
-    public <X extends Exception> void useTransaction(TransactionIsolationLevel level, HandleConsumer<X> consumer) throws X {
+    public <X extends Exception> void useTransaction(final TransactionIsolationLevel level, final HandleConsumer<X> consumer) throws X {
         inTransaction(level, consumer.asCallback());
     }
 
@@ -787,7 +787,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @deprecated Use {@link Handle#setTransactionIsolationLevel(int)}
      */
     @Deprecated(since = "3.35.0", forRemoval = true)
-    public void setTransactionIsolation(TransactionIsolationLevel level) {
+    public void setTransactionIsolation(final TransactionIsolationLevel level) {
         setTransactionIsolationLevel(level);
     }
 
@@ -797,7 +797,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param level the {@link TransactionIsolationLevel} to use.
      * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver.
      */
-    public void setTransactionIsolationLevel(TransactionIsolationLevel level) {
+    public void setTransactionIsolationLevel(final TransactionIsolationLevel level) {
         if (level != TransactionIsolationLevel.UNKNOWN) {
             setTransactionIsolationLevel(level.intValue());
         }
@@ -816,7 +816,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @deprecated Use {@link Handle#setTransactionIsolationLevel(TransactionIsolationLevel)}
      */
     @Deprecated(since = "3.35.0", forRemoval = true)
-    public void setTransactionIsolation(int level) {
+    public void setTransactionIsolation(final int level) {
         setTransactionIsolationLevel(level);
     }
 
@@ -831,12 +831,12 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @see Connection#TRANSACTION_REPEATABLE_READ
      * @see Connection#TRANSACTION_SERIALIZABLE
      */
-    public void setTransactionIsolationLevel(int level) {
+    public void setTransactionIsolationLevel(final int level) {
         try {
             if (connection.getTransactionIsolation() != level) {
                 connection.setTransactionIsolation(level);
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new UnableToManipulateTransactionIsolationLevelException(level, e);
         }
     }
@@ -849,7 +849,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public TransactionIsolationLevel getTransactionIsolationLevel() {
         try {
             return TransactionIsolationLevel.valueOf(connection.getTransactionIsolation());
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new UnableToManipulateTransactionIsolationLevelException("unable to access current setting", e);
         }
     }
@@ -862,7 +862,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @param <T>           the extension type
      * @return the new extension object bound to this handle
      */
-    public <T> T attach(Class<T> extensionType) {
+    public <T> T attach(final Class<T> extensionType) {
         return getConfig(Extensions.class)
                 .findFor(extensionType, ConstantHandleSupplier.of(this))
                 .orElseThrow(() -> new NoSuchExtensionException(extensionType));
@@ -877,7 +877,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         return currentExtensionContext.getExtensionMethod();
     }
 
-    Handle acceptExtensionContext(ExtensionContext extensionContext) {
+    Handle acceptExtensionContext(final ExtensionContext extensionContext) {
         this.currentExtensionContext = extensionContext == null ? defaultExtensionContext : extensionContext;
 
         return this;
@@ -891,7 +891,7 @@ public class Handle implements Closeable, Configurable<Handle> {
         handleListeners.forEach(listener -> listener.handleClosed(this));
     }
 
-    private void cleanConnection(boolean doForceEndTransactions) {
+    private void cleanConnection(final boolean doForceEndTransactions) {
 
         final ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
 
@@ -912,8 +912,8 @@ public class Handle implements Closeable, Configurable<Handle> {
 
         try {
             connectionCleaner.close();
-        } catch (SQLException e) {
-            CloseException ce = new CloseException("Unable to close Connection", e);
+        } catch (final SQLException e) {
+            final CloseException ce = new CloseException("Unable to close Connection", e);
             throwableSuppressor.attachToThrowable(ce);
             throw ce;
         }
@@ -930,14 +930,14 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Handle handle = (Handle) o;
+        final Handle handle = (Handle) o;
         return jdbi.equals(handle.jdbi) && connection.equals(handle.connection);
     }
 
@@ -949,7 +949,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     class SetTransactionIsolation implements AutoCloseable {
         private final TransactionIsolationLevel prevLevel;
 
-        SetTransactionIsolation(TransactionIsolationLevel setLevel) {
+        SetTransactionIsolation(final TransactionIsolationLevel setLevel) {
             prevLevel = getTransactionIsolationLevel();
             setTransactionIsolationLevel(setLevel);
         }

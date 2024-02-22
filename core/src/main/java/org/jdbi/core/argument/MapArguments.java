@@ -18,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.statement.SqlStatement;
 import org.jdbi.core.statement.StatementContext;
 
@@ -30,17 +31,17 @@ import org.jdbi.core.statement.StatementContext;
 public class MapArguments implements NamedArgumentFinder {
     private final Map<String, ?> args;
 
-    public MapArguments(Map<String, ?> args) {
+    public MapArguments(final Map<String, ?> args) {
         this.args = args;
     }
 
     @Override
-    public Optional<Argument> find(String name, StatementContext ctx) {
+    public Optional<Argument> find(final String name, final ConfigRegistry config) {
         if (args.containsKey(name)) {
             final Object argument = args.get(name);
             final Class<?> argumentClass =
                     argument == null ? Object.class : argument.getClass();
-            return ctx.findArgumentFor(argumentClass, argument);
+            return config.findArgumentFor(argumentClass, argument);
         }
         return Optional.empty();
     }

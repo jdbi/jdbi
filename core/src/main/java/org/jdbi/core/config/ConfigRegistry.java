@@ -26,13 +26,14 @@ import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.statement.SqlStatements;
+import org.jdbi.core.statement.ConfigReader;
 
 /**
  * A registry of {@link JdbiConfig} instances by type.
  *
  * @see Configurable
  */
-public final class ConfigRegistry {
+public final class ConfigRegistry implements ConfigReader {
 
     private static final Class<?>[] JDBI_CONFIG_TYPES = {ConfigRegistry.class};
 
@@ -100,5 +101,10 @@ public final class ConfigRegistry {
      */
     public ConfigRegistry createCopy() {
         return new ConfigRegistry(this);
+    }
+
+    @Override
+    public ConfigRegistry getConfig() {
+        return this;
     }
 }

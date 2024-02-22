@@ -26,7 +26,6 @@ import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.core.mapper.reflect.internal.PojoTypes;
-import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 
 /**
@@ -60,7 +59,7 @@ public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
+    protected Optional<TypedValue> getValue(String name, ConfigRegistry config) {
         return Optional.ofNullable(properties.getProperties().get(name))
                 .map(PojoProperty.class::cast)
                 .filter(JdbiAnnotations::isBound)

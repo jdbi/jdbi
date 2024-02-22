@@ -13,14 +13,20 @@
  */
 package org.jdbi.core.statement;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.Handle;
+import org.jdbi.core.result.ResultIterable;
+import org.jdbi.core.result.ResultSetScanner;
 
-/**
- * A TemplateEngine that does not do any templating but returns SQL verbatim.
- */
-public class NoTemplateEngine implements TemplateEngine {
-    @Override
-    public String render(final String template, final ConfigRegistry config) {
-        return template;
+public class QueryTemplate<R> {
+    final QueryTemplateBuilder builder;
+    final ResultSetScanner<ResultIterable<R>> scanner;
+
+    QueryTemplate(final QueryTemplateBuilder builder, final ResultSetScanner<ResultIterable<R>> scanner) {
+        this.builder = builder;
+        this.scanner = scanner;
+    }
+
+    public QueryTemplateBinding<R> with(final Handle handle) {
+        return new QueryTemplateBinding<>(handle, this);
     }
 }

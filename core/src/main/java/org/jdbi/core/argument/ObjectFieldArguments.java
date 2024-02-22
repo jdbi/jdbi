@@ -65,8 +65,8 @@ public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
-    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
-        return getter(name, ctx.getConfig())
+    protected Optional<TypedValue> getValue(String name, ConfigRegistry config) {
+        return getter(name, config)
                 .map(getter -> getter.apply(obj));
     }
 

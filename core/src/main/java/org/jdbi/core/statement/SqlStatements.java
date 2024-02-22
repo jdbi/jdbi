@@ -37,6 +37,7 @@ import org.jdbi.core.cache.JdbiCacheLoader;
 import org.jdbi.core.cache.internal.DefaultJdbiCacheBuilder;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.meta.Beta;
+import org.jdbi.core.config.ConfigRegistry;
 
 /**
  * Configuration holder for {@link SqlStatement}s.
@@ -48,7 +49,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
     private TemplateEngine templateEngine;
-    private JdbiCache<StatementCacheKey, Function<StatementContext, String>> templateCache;
+    private JdbiCache<StatementCacheKey, Function<ConfigRegistry, String>> templateCache;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
@@ -75,7 +76,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         templateCache = DefaultJdbiCacheBuilder.builder().maxSize(SQL_TEMPLATE_CACHE_SIZE).build();
     }
 
-    private SqlStatements(SqlStatements that) {
+    private SqlStatements(final SqlStatements that) {
         this.attributes = Collections.synchronizedMap(that.getAttributes()); // already copied
         this.templateEngine = that.templateEngine;
         this.sqlParser = that.sqlParser;
@@ -99,7 +100,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param value the value for the attribute
      * @return this
      */
-    public SqlStatements define(String key, Object value) {
+    public SqlStatements define(final String key, final Object value) {
         attributes.put(key, value);
         return this;
     }
@@ -123,7 +124,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param key the name of the attribute
      * @return the value of the attribute
      */
-    public Object getAttribute(String key) {
+    public Object getAttribute(final String key) {
         return attributes.get(key);
     }
 
@@ -173,7 +174,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param templateEngine the new template engine.
      * @return this
      */
-    public SqlStatements setTemplateEngine(TemplateEngine templateEngine) {
+    public SqlStatements setTemplateEngine(final TemplateEngine templateEngine) {
         this.templateEngine = templateEngine;
         return this;
     }
@@ -185,7 +186,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return this
      */
     @Beta
-    public SqlStatements setTemplateCache(JdbiCacheBuilder cacheBuilder) {
+    public SqlStatements setTemplateCache(final JdbiCacheBuilder cacheBuilder) {
         templateCache = cacheBuilder.build();
         return this;
     }
@@ -202,7 +203,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param sqlParser the new SQL parser.
      * @return this
      */
-    public SqlStatements setSqlParser(SqlParser sqlParser) {
+    public SqlStatements setSqlParser(final SqlParser sqlParser) {
         this.sqlParser = sqlParser;
         return this;
     }
@@ -225,10 +226,10 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @deprecated use {@link #setSqlLogger} instead
      */
     @Deprecated(since = "3.2.0", forRemoval = true)
-    public SqlStatements setTimingCollector(TimingCollector timingCollector) {
+    public SqlStatements setTimingCollector(final TimingCollector timingCollector) {
         this.sqlLogger = timingCollector == null ? SqlLogger.NOP_SQL_LOGGER : new SqlLogger() {
             @Override
-            public void logAfterExecution(StatementContext context) {
+            public void logAfterExecution(final StatementContext context) {
                 timingCollector.collect(context.getElapsedTime(ChronoUnit.NANOS), context);
             }
         };
@@ -248,7 +249,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param sqlLogger The logger. Using <code>null</code> turns off all logging
      * @return this
      */
-    public SqlStatements setSqlLogger(SqlLogger sqlLogger) {
+    public SqlStatements setSqlLogger(final SqlLogger sqlLogger) {
         this.sqlLogger = sqlLogger == null ? SqlLogger.NOP_SQL_LOGGER : sqlLogger;
         return this;
     }
@@ -267,7 +268,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return this
      */
     @Beta
-    public SqlStatements setQueryTimeout(@Nullable Integer seconds) {
+    public SqlStatements setQueryTimeout(@Nullable final Integer seconds) {
         if (seconds != null && seconds < 0) {
             throw new IllegalArgumentException("queryTimeout must not be < 0");
         }
@@ -288,7 +289,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return this
      * @see org.jdbi.core.argument.Argument
      */
-    public SqlStatements setUnusedBindingAllowed(boolean unusedBindingAllowed) {
+    public SqlStatements setUnusedBindingAllowed(final boolean unusedBindingAllowed) {
         this.allowUnusedBindings = unusedBindingAllowed;
         return this;
     }
@@ -315,7 +316,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @since 3.38.0
      */
     @Beta
-    public void setAttachAllStatementsForCleanup(boolean attachAllStatementsForCleanup) {
+    public void setAttachAllStatementsForCleanup(final boolean attachAllStatementsForCleanup) {
         this.attachAllStatementsForCleanup = attachAllStatementsForCleanup;
     }
 
@@ -343,7 +344,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      *
      * @since 3.43.0
      */
-    public void setScriptStatementsNeedSemicolon(boolean scriptStatementsNeedSemicolon) {
+    public void setScriptStatementsNeedSemicolon(final boolean scriptStatementsNeedSemicolon) {
         this.scriptStatementsNeedSemicolon = scriptStatementsNeedSemicolon;
     }
 
@@ -369,7 +370,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      *
      * @since 3.38.0
      */
-    public void setAttachCallbackStatementsForCleanup(boolean attachCallbackStatementsForCleanup) {
+    public void setAttachCallbackStatementsForCleanup(final boolean attachCallbackStatementsForCleanup) {
         this.attachCallbackStatementsForCleanup = attachCallbackStatementsForCleanup;
     }
 
@@ -419,7 +420,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
 
-    void customize(Statement statement) throws SQLException {
+    void customize(final Statement statement) throws SQLException {
         if (queryTimeout != null) {
             statement.setQueryTimeout(queryTimeout);
         }
@@ -438,21 +439,21 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return contextListeners;
     }
 
-    String preparedRender(String template, StatementContext ctx) {
+    String preparedRender(final String template, final ConfigRegistry config) {
         try {
             return Optional.ofNullable(
                             templateCache.getWithLoader(
                                     new StatementCacheKey(templateEngine, template),
-                                    cacheLoaderFunction(ctx)))
+                                    cacheLoaderFunction(config)))
                     .orElse(cx -> templateEngine.render(template, cx)) // fall-back to old behavior
-                    .apply(ctx);
+                    .apply(config);
         } catch (final IllegalArgumentException e) {
-            throw new UnableToCreateStatementException("Exception rendering SQL template", e, ctx);
+            throw new UnableToCreateStatementException("Exception rendering SQL template", e);
         }
     }
 
-    private static JdbiCacheLoader<StatementCacheKey, Function<StatementContext, String>> cacheLoaderFunction(StatementContext ctx) {
-        return key -> key.getTemplateEngine().parse(key.getTemplate(), ctx.getConfig()).orElse(null);
+    private static JdbiCacheLoader<StatementCacheKey, Function<ConfigRegistry, String>> cacheLoaderFunction(final ConfigRegistry config) {
+        return key -> key.getTemplateEngine().parse(key.getTemplate(), config).orElse(null);
     }
 
     private static final class StatementCacheKey {
@@ -460,7 +461,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         private final TemplateEngine templateEngine;
         private final String template;
 
-        StatementCacheKey(TemplateEngine templateEngine, String template) {
+        StatementCacheKey(final TemplateEngine templateEngine, final String template) {
             this.templateEngine = templateEngine;
             this.template = template;
         }
@@ -474,14 +475,14 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (this == o) {
                 return true;
             }
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            StatementCacheKey that = (StatementCacheKey) o;
+            final StatementCacheKey that = (StatementCacheKey) o;
             return templateEngine.equals(that.templateEngine) && template.equals(that.template);
         }
 

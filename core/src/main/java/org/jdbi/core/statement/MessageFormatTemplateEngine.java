@@ -16,7 +16,10 @@ package org.jdbi.core.statement;
 import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
+
+import org.jdbi.core.config.ConfigRegistry;
 
 /**
  * Uses the equivalent of {@link MessageFormat#format(String, Object...)} as a template engine.
@@ -45,12 +48,13 @@ public class MessageFormatTemplateEngine implements TemplateEngine {
     public MessageFormatTemplateEngine() {}
 
     @Override
-    public String render(String template, StatementContext ctx) {
+    public String render(String template, ConfigRegistry config) {
         MessageFormat msgFormat = new MessageFormat(template);
 
-        validateKeys(ctx.getAttributes().keySet(), msgFormat.getFormats().length);
+        Map<String, Object> attributes = config.getAttributes();
+        validateKeys(attributes.keySet(), msgFormat.getFormats().length);
 
-        Object[] args = ctx.getAttributes()
+        Object[] args = attributes
             .entrySet()
             .stream()
             .map(x -> new AbstractMap.SimpleImmutableEntry<>(Integer.valueOf(x.getKey()), x.getValue()))

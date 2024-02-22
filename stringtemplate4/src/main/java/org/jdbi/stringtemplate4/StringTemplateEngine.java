@@ -17,6 +17,7 @@ import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.TemplateEngine;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
+import org.jdbi.core.config.ConfigRegistry;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
@@ -28,26 +29,26 @@ import org.stringtemplate.v4.misc.STMessage;
  */
 public class StringTemplateEngine implements TemplateEngine {
     @Override
-    public String render(String sql, StatementContext ctx) {
+    public String render(String sql, ConfigRegistry config) {
         STGroup group = new STGroup();
-        group.setListener(new ErrorListener(ctx));
+        group.setListener(new ErrorListener(config));
         ST template = new ST(group, sql);
 
-        ctx.getAttributes().forEach(template::add);
+        config.getAttributes().forEach(template::add);
 
         return template.render();
     }
 
     static class ErrorListener implements STErrorListener {
-        private final StatementContext ctx;
+        private final ConfigRegistry config;
 
-        ErrorListener(StatementContext ctx) {
-            this.ctx = ctx;
+        ErrorListener(ConfigRegistry config) {
+            this.config = config;
         }
 
         @Override
         public void compileTimeError(STMessage msg) {
-            throw new UnableToCreateStatementException("Compiling StringTemplate failed: " + msg, msg.cause, ctx);
+            throw new UnableToCreateStatementException("Compiling StringTemplate failed: " + msg, msg.cause, null);
         }
 
         @Override
@@ -56,12 +57,12 @@ public class StringTemplateEngine implements TemplateEngine {
                 case NO_SUCH_PROPERTY:
                     break;
                 case NO_SUCH_ATTRIBUTE:
-                    if (!ctx.getConfig(StringTemplates.class).isFailOnMissingAttribute()) {
+                    if (!config.getConfig(StringTemplates.class).isFailOnMissingAttribute()) {
                         break;
                     }
                 // fallthrough
                 default:
-                    throw new UnableToExecuteStatementException("Executing StringTemplate failed: " + msg, msg.cause, ctx);
+                    throw new UnableToExecuteStatementException("Executing StringTemplate failed: " + msg, msg.cause, null);
             }
         }
 

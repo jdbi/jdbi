@@ -76,8 +76,8 @@ public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
-    protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
-        return getter(name, ctx.getConfig()).map(m -> m.apply(obj));
+    protected Optional<TypedValue> getValue(String name, ConfigRegistry config) {
+        return getter(name, config).map(m -> m.apply(obj));
     }
 
     public Optional<Function<Object, TypedValue>> getter(String name, ConfigRegistry config) {

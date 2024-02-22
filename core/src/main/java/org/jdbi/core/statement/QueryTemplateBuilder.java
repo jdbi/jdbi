@@ -11,15 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.result;
+package org.jdbi.core.statement;
 
 import java.lang.reflect.Type;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Map;
-import java.util.function.Supplier;
 
-import org.jdbi.core.config.Configurable;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.GenericMapMapperFactory;
@@ -30,46 +26,21 @@ import org.jdbi.core.mapper.RowViewMapper;
 import org.jdbi.core.mapper.SingleColumnMapper;
 import org.jdbi.core.mapper.reflect.BeanMapper;
 import org.jdbi.core.qualifier.QualifiedType;
-import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.result.ResultIterable;
 
-/**
- * Provides access to the contents of a {@link ResultSet} by mapping to Java types.
- */
-@SuppressWarnings("PMD.ImplicitFunctionalInterface")
-public interface ResultBearing extends ResultScannable {
-    /**
-     * Returns a ResultBearing backed by the given result set supplier and context.
-     *
-     * @param resultSetSupplier result set supplier
-     * @param ctx the statement context
-     * @return a ResultBearing
-     */
-    static ResultBearing of(final Supplier<ResultSet> resultSetSupplier, final StatementContext ctx) {
-        return new ResultBearing() {
-            @Override
-            public <R> R scanResultSet(final ResultSetScanner<R> resultSetScanner) {
-                try {
-                    return resultSetScanner.scanResultSet(resultSetSupplier, ctx);
-                } catch (final SQLException e) {
-                    throw new ResultSetException("Error reading result set", e, ctx);
-                }
-            }
-        };
-    }
-
-
+public interface QueryTemplateBuilder extends QueryCustomizerMixin<QueryTemplateBuilder> {
     /**
      * Maps this result set to a {@link ResultIterable} of the given element type.
      *
      * @param type the type to map the result set rows to
-     * @param <T>  the type to map the result set rows to
+     * @param <R>  the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(org.jdbi.core.mapper.RowMapperFactory)
-     * @see Configurable#registerColumnMapper(org.jdbi.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<T> mapTo(final Class<T> type) {
+    default <R> QueryTemplate<R> mapTo(final Class<R> type) {
         return mapTo(QualifiedType.of(type));
     }
 
@@ -77,14 +48,14 @@ public interface ResultBearing extends ResultScannable {
      * Maps this result set to a {@link ResultIterable} of the given element type.
      *
      * @param type the type to map the result set rows to
-     * @param <T>  the type to map the result set rows to
+     * @param <R>  the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(org.jdbi.core.mapper.RowMapperFactory)
-     * @see Configurable#registerColumnMapper(org.jdbi.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<T> mapTo(final GenericType<T> type) {
+    default <R> QueryTemplate<R> mapTo(final GenericType<R> type) {
         return mapTo(QualifiedType.of(type));
     }
 
@@ -94,11 +65,11 @@ public interface ResultBearing extends ResultScannable {
      * @param type the type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(org.jdbi.core.mapper.RowMapperFactory)
-     * @see Configurable#registerColumnMapper(org.jdbi.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default ResultIterable<?> mapTo(final Type type) {
+    default QueryTemplate<?> mapTo(final Type type) {
         return mapTo(QualifiedType.of(type));
     }
 
@@ -108,13 +79,13 @@ public interface ResultBearing extends ResultScannable {
      * @param type the qualified type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      * @see Configurable#registerRowMapper(RowMapper)
-     * @see Configurable#registerRowMapper(org.jdbi.core.mapper.RowMapperFactory)
-     * @see Configurable#registerColumnMapper(org.jdbi.core.mapper.ColumnMapperFactory)
+     * @see Configurable#registerRowMapper(org.jdbi.v3.core.mapper.RowMapperFactory)
+     * @see Configurable#registerColumnMapper(org.jdbi.v3.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<T> mapTo(final QualifiedType<T> type) {
-        return scanResultSet((resultSetSupplier, ctx) -> {
-            final RowMapper<T> rowMapper = ctx.findMapperFor(type)
+    default <R> QueryTemplate<R> mapTo(final QualifiedType<R> type) {
+        return new QueryTemplate<R>(this, (resultSetSupplier, ctx) -> {
+            final RowMapper<R> rowMapper = ctx.findMapperFor(type)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
             return ResultIterable.of(resultSetSupplier, rowMapper, ctx);
         });
@@ -124,10 +95,10 @@ public interface ResultBearing extends ResultScannable {
      * Maps this result set to a {@link ResultIterable} of the given element type, using {@link BeanMapper}.
      *
      * @param type the bean type to map the result set rows to
-     * @param <T>  the bean type to map the result set rows to
+     * @param <R>  the bean type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      */
-    default <T> ResultIterable<T> mapToBean(final Class<T> type) {
+    default <R> QueryTemplate<R> mapToBean(final Class<R> type) {
         return map(BeanMapper.of(type));
     }
 
@@ -137,33 +108,33 @@ public interface ResultBearing extends ResultScannable {
      *
      * @return a {@link ResultIterable ResultIterable&lt;Map&lt;String,Object&gt;&gt;}.
      */
-    default ResultIterable<Map<String, Object>> mapToMap() {
+    default QueryTemplate<Map<String, Object>> mapToMap() {
         return map(new MapMapper());
     }
 
     /**
      * Maps this result set to a {@link Map} of {@link String} and the given value class.
      *
-     * @param <T> the value type
+     * @param <R> the value type
      * @param valueType the class to map the resultset columns to
      * @return a {@link Map} of String and the given type.
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<Map<String, T>> mapToMap(final Class<T> valueType) {
-        return scanResultSet((resultSetSupplier, ctx) ->
+    default <R> QueryTemplate<Map<String, R>> mapToMap(final Class<R> valueType) {
+        return new QueryTemplate<>(this, (resultSetSupplier, ctx) ->
                 ResultIterable.of(resultSetSupplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
 
     /**
      * Maps this result set to a {@link Map} of {@link String} and the given value type.
      *
-     * @param <T> the value type
+     * @param <R> the value type
      * @param valueType the type to map the resultset columns to
      * @return a {@link Map} of String and the given type.
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<Map<String, T>> mapToMap(final GenericType<T> valueType) {
-        return scanResultSet((resultSetSupplier, ctx) ->
+    default <R> QueryTemplate<Map<String, R>> mapToMap(final GenericType<R> valueType) {
+        return new QueryTemplate<>(this, (resultSetSupplier, ctx) ->
                 ResultIterable.of(resultSetSupplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
 
@@ -171,10 +142,10 @@ public interface ResultBearing extends ResultScannable {
      * Maps this result set to a {@link ResultIterable}, using the given column mapper.
      *
      * @param mapper column mapper used to map the first column of each row
-     * @param <T>    the type to map the result set rows to
-     * @return a {@link ResultIterable} of type {@code <T>}.
+     * @param <R>    the type to map the result set rows to
+     * @return a {@link ResultIterable} of type {@code <R>}.
      */
-    default <T> ResultIterable<T> map(final ColumnMapper<T> mapper) {
+    default <R> QueryTemplate<R> map(final ColumnMapper<R> mapper) {
         return map(new SingleColumnMapper<>(mapper));
     }
 
@@ -182,11 +153,12 @@ public interface ResultBearing extends ResultScannable {
      * Maps this result set to a {@link ResultIterable}, using the given row mapper.
      *
      * @param mapper mapper used to map each row
-     * @param <T>    the type to map the result set rows to
-     * @return a {@link ResultIterable} of type {@code <T>}.
+     * @param <R>    the type to map the result set rows to
+     * @return a {@link ResultIterable} of type {@code <R>}.
      */
-    default <T> ResultIterable<T> map(final RowMapper<T> mapper) {
-        return scanResultSet((resultSetSupplier, ctx) -> ResultIterable.of(resultSetSupplier, mapper, ctx));
+    default <R> QueryTemplate<R> map(final RowMapper<R> mapper) {
+        return new QueryTemplate<>(this, (resultSetSupplier, ctx) ->
+                ResultIterable.of(resultSetSupplier, mapper, ctx));
     }
 
     /**
@@ -194,10 +166,12 @@ public interface ResultBearing extends ResultScannable {
      * This overload only exists to allow RowViewMapper as the type of a lambda expression.
      *
      * @param mapper RowViewMapper used to map each row
-     * @param <T>    the type to map the result set rows to
-     * @return a {@link ResultIterable} of type {@code <T>}.
+     * @param <R>    the type to map the result set rows to
+     * @return a {@link ResultIterable} of type {@code <R>}.
      */
-    default <T> ResultIterable<T> map(final RowViewMapper<T> mapper) {
-        return map((RowMapper<T>) mapper);
+    default <R> QueryTemplate<R> map(final RowViewMapper<R> mapper) {
+        return map((RowMapper<R>) mapper);
     }
+
+    String getSql();
 }
