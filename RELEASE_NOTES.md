@@ -1,5 +1,7 @@
 # Unreleased
 
+- Improve record constructor detection of generic types to work around JDK-8320575 (#2648, thanks @elonazoulay !)
+
 # 3.45.0
 
 - Testcontainer support for DB2 (#2625, thanks @stoyants)
