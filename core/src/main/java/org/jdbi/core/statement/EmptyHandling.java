@@ -18,7 +18,7 @@ import java.util.function.BiConsumer;
 /**
  * describes what should be done if the value passed to {@link SqlStatement#bindList} is null or empty
  */
-public enum EmptyHandling implements BiConsumer<SqlStatement, String> {
+public enum EmptyHandling implements BiConsumer<SqlStatement<?>, String> {
     /**
      * <p>Render nothing in the query.</p>
      * <p>
@@ -26,7 +26,7 @@ public enum EmptyHandling implements BiConsumer<SqlStatement, String> {
      */
     BLANK {
         @Override
-        public void accept(SqlStatement stmt, String key) {
+        public void accept(final SqlStatement<?> stmt, final String key) {
             stmt.define(key, "");
         }
     },
@@ -37,7 +37,7 @@ public enum EmptyHandling implements BiConsumer<SqlStatement, String> {
      */
     NULL_KEYWORD {
         @Override
-        public void accept(SqlStatement stmt, String key) {
+        public void accept(final SqlStatement<?> stmt, final String key) {
             stmt.define(key, "null");
         }
     },
@@ -48,7 +48,7 @@ public enum EmptyHandling implements BiConsumer<SqlStatement, String> {
      */
     DEFINE_NULL {
         @Override
-        public void accept(SqlStatement stmt, String key) {
+        public void accept(final SqlStatement<?> stmt, final String key) {
             stmt.define(key, null);
         }
     },
@@ -57,7 +57,7 @@ public enum EmptyHandling implements BiConsumer<SqlStatement, String> {
      */
     THROW {
         @Override
-        public void accept(SqlStatement stmt, String key) {
+        public void accept(final SqlStatement<?> stmt, final String key) {
             throw new IllegalArgumentException("argument is null or empty; this is forbidden on this call to `bindList`");
         }
     }

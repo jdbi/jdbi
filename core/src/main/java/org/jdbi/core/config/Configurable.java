@@ -47,6 +47,7 @@ import org.jdbi.core.statement.StatementCustomizer;
 import org.jdbi.core.statement.TemplateEngine;
 import org.jdbi.core.statement.TimingCollector;
 import org.jdbi.meta.Beta;
+import org.jdbi.core.statement.internal.DefineNamedBindingsStatementCustomizer;
 
 /**
  * A type with access to access and modify arbitrary Jdbi configuration.
@@ -70,7 +71,7 @@ public interface Configurable<This> {
      * @param <C>         the configuration type
      * @return the configuration object of the given type, associated with this object.
      */
-    default <C extends JdbiConfig<C>> C getConfig(Class<C> configClass) {
+    default <C extends JdbiConfig<C>> C getConfig(final Class<C> configClass) {
         return getConfig().get(configClass);
     }
 
@@ -83,7 +84,7 @@ public interface Configurable<This> {
      * @return this object (for call chaining)
      */
     @SuppressWarnings("unchecked")
-    default <C extends JdbiConfig<C>> This configure(Class<C> configClass, Consumer<C> configurer) {
+    default <C extends JdbiConfig<C>> This configure(final Class<C> configClass, final Consumer<C> configurer) {
         configurer.accept(getConfig(configClass));
         return (This) this;
     }
@@ -94,7 +95,7 @@ public interface Configurable<This> {
      * @param templateEngine the template engine
      * @return this
      */
-    default This setTemplateEngine(TemplateEngine templateEngine) {
+    default This setTemplateEngine(final TemplateEngine templateEngine) {
         return configure(SqlStatements.class, c -> c.setTemplateEngine(templateEngine));
     }
 
@@ -104,7 +105,7 @@ public interface Configurable<This> {
      * @param parser SQL parser
      * @return this
      */
-    default This setSqlParser(SqlParser parser) {
+    default This setSqlParser(final SqlParser parser) {
         return configure(SqlStatements.class, c -> c.setSqlParser(parser));
     }
 
@@ -116,15 +117,15 @@ public interface Configurable<This> {
      * @deprecated use {@link #setSqlLogger} instead
      */
     @Deprecated(since = "3.2.0", forRemoval = true)
-    default This setTimingCollector(TimingCollector collector) {
+    default This setTimingCollector(final TimingCollector collector) {
         return configure(SqlStatements.class, c -> c.setTimingCollector(collector));
     }
 
-    default This setSqlLogger(SqlLogger sqlLogger) {
+    default This setSqlLogger(final SqlLogger sqlLogger) {
         return configure(SqlStatements.class, c -> c.setSqlLogger(sqlLogger));
     }
 
-    default This addCustomizer(StatementCustomizer customizer) {
+    default This addCustomizer(final StatementCustomizer customizer) {
         return configure(SqlStatements.class, c -> c.addCustomizer(customizer));
     }
 
@@ -135,7 +136,7 @@ public interface Configurable<This> {
      * @param value attribute value
      * @return this
      */
-    default This define(String key, Object value) {
+    default This define(final String key, final Object value) {
         return configure(SqlStatements.class, c -> c.define(key, value));
     }
 
@@ -145,7 +146,7 @@ public interface Configurable<This> {
      * @param factory argument factory
      * @return this
      */
-    default This registerArgument(ArgumentFactory factory) {
+    default This registerArgument(final ArgumentFactory factory) {
         return configure(Arguments.class, c -> c.register(factory));
     }
 
@@ -155,7 +156,7 @@ public interface Configurable<This> {
      * @param factory qualified argument factory
      * @return this
      */
-    default This registerArgument(QualifiedArgumentFactory factory) {
+    default This registerArgument(final QualifiedArgumentFactory factory) {
         return configure(Arguments.class, c -> c.register(factory));
     }
 
@@ -165,7 +166,7 @@ public interface Configurable<This> {
      * @param strategy argument strategy
      * @return this
      */
-    default This setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy strategy) {
+    default This setSqlArrayArgumentStrategy(final SqlArrayArgumentStrategy strategy) {
         return configure(SqlArrayTypes.class, c -> c.setArgumentStrategy(strategy));
     }
 
@@ -175,7 +176,7 @@ public interface Configurable<This> {
      * @param keyColumn the key column name
      * @return this
      */
-    default This setMapKeyColumn(String keyColumn) {
+    default This setMapKeyColumn(final String keyColumn) {
         return configure(MapEntryMappers.class, c -> c.setKeyColumn(keyColumn));
     }
 
@@ -185,7 +186,7 @@ public interface Configurable<This> {
      * @param valueColumn the value column name
      * @return this
      */
-    default This setMapValueColumn(String valueColumn) {
+    default This setMapValueColumn(final String valueColumn) {
         return configure(MapEntryMappers.class, c -> c.setValueColumn(valueColumn));
     }
 
@@ -196,7 +197,7 @@ public interface Configurable<This> {
      * @param sqlTypeName SQL type name
      * @return this
      */
-    default This registerArrayType(Class<?> elementType, String sqlTypeName) {
+    default This registerArrayType(final Class<?> elementType, final String sqlTypeName) {
         return configure(SqlArrayTypes.class, c -> c.register(elementType, sqlTypeName));
     }
 
@@ -209,7 +210,7 @@ public interface Configurable<This> {
      * @param <T>         element type
      * @return this
      */
-    default <T> This registerArrayType(Class<T> elementType, String sqlTypeName, Function<T, ?> conversion) {
+    default <T> This registerArrayType(final Class<T> elementType, final String sqlTypeName, final Function<T, ?> conversion) {
         return registerArrayType(SqlArrayTypeFactory.of(elementType, sqlTypeName, conversion));
     }
 
@@ -219,7 +220,7 @@ public interface Configurable<This> {
      * @param arrayType SQL array type
      * @return this
      */
-    default This registerArrayType(SqlArrayType<?> arrayType) {
+    default This registerArrayType(final SqlArrayType<?> arrayType) {
         return configure(SqlArrayTypes.class, c -> c.register(arrayType));
     }
 
@@ -229,7 +230,7 @@ public interface Configurable<This> {
      * @param factory SQL array type factory
      * @return this
      */
-    default This registerArrayType(SqlArrayTypeFactory factory) {
+    default This registerArrayType(final SqlArrayTypeFactory factory) {
         return configure(SqlArrayTypes.class, c -> c.register(factory));
     }
 
@@ -241,7 +242,7 @@ public interface Configurable<This> {
      * @return this
      * @since 3.38.0
      */
-    default This registerCollector(Type collectionType, Collector<?, ?, ?> collector) {
+    default This registerCollector(final Type collectionType, final Collector<?, ?, ?> collector) {
         return configure(JdbiCollectors.class, c -> c.registerCollector(collectionType, collector));
     }
 
@@ -251,7 +252,7 @@ public interface Configurable<This> {
      * @param factory collector factory
      * @return this
      */
-    default This registerCollector(CollectorFactory factory) {
+    default This registerCollector(final CollectorFactory factory) {
         return configure(JdbiCollectors.class, c -> c.register(factory));
     }
 
@@ -261,7 +262,7 @@ public interface Configurable<This> {
      * @param mapper column mapper
      * @return this
      */
-    default This registerColumnMapper(ColumnMapper<?> mapper) {
+    default This registerColumnMapper(final ColumnMapper<?> mapper) {
         return configure(ColumnMappers.class, c -> c.register(mapper));
     }
 
@@ -273,7 +274,7 @@ public interface Configurable<This> {
      * @param mapper the mapper to use on that type
      * @return this
      */
-    default <T> This registerColumnMapper(GenericType<T> type, ColumnMapper<T> mapper) {
+    default <T> This registerColumnMapper(final GenericType<T> type, final ColumnMapper<T> mapper) {
         return configure(ColumnMappers.class, c -> c.register(type, mapper));
     }
 
@@ -284,7 +285,7 @@ public interface Configurable<This> {
      * @param mapper the mapper to use on that type
      * @return this
      */
-    default This registerColumnMapper(Type type, ColumnMapper<?> mapper) {
+    default This registerColumnMapper(final Type type, final ColumnMapper<?> mapper) {
         return configure(ColumnMappers.class, c -> c.register(type, mapper));
     }
 
@@ -295,7 +296,7 @@ public interface Configurable<This> {
      * @param mapper the mapper to use on that type
      * @return this
      */
-    default <T> This registerColumnMapper(QualifiedType<T> type, ColumnMapper<T> mapper) {
+    default <T> This registerColumnMapper(final QualifiedType<T> type, final ColumnMapper<T> mapper) {
         return configure(ColumnMappers.class, c -> c.register(type, mapper));
     }
 
@@ -305,7 +306,7 @@ public interface Configurable<This> {
      * @param factory column mapper factory
      * @return this
      */
-    default This registerColumnMapper(ColumnMapperFactory factory) {
+    default This registerColumnMapper(final ColumnMapperFactory factory) {
         return configure(ColumnMappers.class, c -> c.register(factory));
     }
 
@@ -315,7 +316,7 @@ public interface Configurable<This> {
      * @param factory column mapper factory
      * @return this
      */
-    default This registerColumnMapper(QualifiedColumnMapperFactory factory) {
+    default This registerColumnMapper(final QualifiedColumnMapperFactory factory) {
         return configure(ColumnMappers.class, c -> c.register(factory));
     }
 
@@ -325,7 +326,7 @@ public interface Configurable<This> {
      * @param factory extension factory
      * @return this
      */
-    default This registerExtension(ExtensionFactory factory) {
+    default This registerExtension(final ExtensionFactory factory) {
         return configure(Extensions.class, c -> c.register(factory));
     }
 
@@ -335,7 +336,7 @@ public interface Configurable<This> {
      * @param mapper row mapper
      * @return this
      */
-    default This registerRowMapper(RowMapper<?> mapper) {
+    default This registerRowMapper(final RowMapper<?> mapper) {
         return configure(RowMappers.class, c -> c.register(mapper));
     }
 
@@ -347,7 +348,7 @@ public interface Configurable<This> {
      * @param mapper row mapper
      * @return this
      */
-    default <T> This registerRowMapper(GenericType<T> type, RowMapper<T> mapper) {
+    default <T> This registerRowMapper(final GenericType<T> type, final RowMapper<T> mapper) {
         return configure(RowMappers.class, c -> c.register(type, mapper));
     }
 
@@ -358,7 +359,7 @@ public interface Configurable<This> {
      * @param mapper row mapper
      * @return this
      */
-    default This registerRowMapper(Type type, RowMapper<?> mapper) {
+    default This registerRowMapper(final Type type, final RowMapper<?> mapper) {
         return configure(RowMappers.class, c -> c.register(type, mapper));
     }
 
@@ -368,7 +369,7 @@ public interface Configurable<This> {
      * @param factory row mapper factory
      * @return this
      */
-    default This registerRowMapper(RowMapperFactory factory) {
+    default This registerRowMapper(final RowMapperFactory factory) {
         return configure(RowMappers.class, c -> c.register(factory));
     }
 
@@ -379,9 +380,19 @@ public interface Configurable<This> {
      * @return this
      */
     @Beta
-    default This registerCodecFactory(CodecFactory codecFactory) {
+    default This registerCodecFactory(final CodecFactory codecFactory) {
         registerColumnMapper(codecFactory);
         return registerArgument(codecFactory);
+    }
+
+    /**
+     * Define all bound arguments that don't already have a definition with a boolean indicating their presence.
+     * Useful to easily template optional properties of pojos or beans like {@code <if(property)>property = :property<endif>}.
+     * @return this
+     */
+    @Beta
+    default This defineNamedBindings() {
+        return addCustomizer(new DefineNamedBindingsStatementCustomizer());
     }
 }
 

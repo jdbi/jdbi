@@ -32,7 +32,7 @@ public class TestMessageFormatTemplateEngine {
 
     @Test
     public void testNoPlaceholdersNoValues() {
-        assertThat(templateEngine.render("foo bar", ctx)).isEqualTo("foo bar");
+        assertThat(templateEngine.render("foo bar", ctx.getConfig())).isEqualTo("foo bar");
     }
 
     @Test
@@ -41,7 +41,7 @@ public class TestMessageFormatTemplateEngine {
         ctx.define("000", "hello");
         ctx.define("01", "world");
 
-        assertThat(templateEngine.render("{0} {1}{2}", ctx)).isEqualTo("hello world!");
+        assertThat(templateEngine.render("{0} {1}{2}", ctx.getConfig())).isEqualTo("hello world!");
     }
 
     @Test
@@ -58,21 +58,21 @@ public class TestMessageFormatTemplateEngine {
         ctx.define("009", "j");
         ctx.define("010", "k");
 
-        assertThat(templateEngine.render("{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}", ctx)).isEqualTo("abcdefghijk");
+        assertThat(templateEngine.render("{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}", ctx.getConfig())).isEqualTo("abcdefghijk");
     }
 
     @Test
     public void testNoPlaceholdersButWithValues() {
         ctx.define("0", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("foo bar", ctx))
+        assertThatThrownBy(() -> templateEngine.render("foo bar", ctx.getConfig()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("expected 0 keys but got 1");
     }
 
     @Test
     public void testWithPlaceholdersButNoValues() {
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx.getConfig()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("expected 1 keys but got 0");
     }
@@ -81,7 +81,7 @@ public class TestMessageFormatTemplateEngine {
     public void testNullValue() {
         ctx.define("0", null);
 
-        assertThat(templateEngine.render("{0} bar", ctx))
+        assertThat(templateEngine.render("{0} bar", ctx.getConfig()))
             .isEqualTo("null bar");
     }
 
@@ -89,7 +89,7 @@ public class TestMessageFormatTemplateEngine {
     public void testNegativeKey() {
         ctx.define("-1", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx.getConfig()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("must be 0");
     }
@@ -99,7 +99,7 @@ public class TestMessageFormatTemplateEngine {
         ctx.define("0", "hello");
         ctx.define("00", "world");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx))
+        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx.getConfig()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("0 was given more than once");
     }
@@ -109,7 +109,7 @@ public class TestMessageFormatTemplateEngine {
         ctx.define("0", "hello");
         ctx.define("2", "world");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx))
+        assertThatThrownBy(() -> templateEngine.render("{0} {1}", ctx.getConfig()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("skip from 0 to 2");
     }
@@ -118,7 +118,7 @@ public class TestMessageFormatTemplateEngine {
     public void testNonNumericKey() {
         ctx.define("abc", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx.getConfig()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("\"abc\"");
     }
@@ -127,7 +127,7 @@ public class TestMessageFormatTemplateEngine {
     public void testWhitespaceInKey() {
         ctx.define(" 1 ", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx.getConfig()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("\" 1 \"");
     }
@@ -136,7 +136,7 @@ public class TestMessageFormatTemplateEngine {
     public void testBlankKey() {
         ctx.define(" ", "hello");
 
-        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx))
+        assertThatThrownBy(() -> templateEngine.render("{0} bar", ctx.getConfig()))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("\" \"");
     }
@@ -145,7 +145,7 @@ public class TestMessageFormatTemplateEngine {
     public void testEscaping() {
         ctx.define("0", "foo");
 
-        assertThat(templateEngine.render("select * from {0} where name = ''john'' and stuff = '''{0}'''", ctx))
+        assertThat(templateEngine.render("select * from {0} where name = ''john'' and stuff = '''{0}'''", ctx.getConfig()))
             .isEqualTo("select * from foo where name = 'john' and stuff = '{0}'");
     }
 }

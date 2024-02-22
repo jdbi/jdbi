@@ -17,9 +17,9 @@ package org.jdbi.core.kotlin.internal
 import org.jdbi.core.argument.NamedArgumentFinder
 import org.jdbi.core.argument.internal.ObjectPropertyNamedArgumentFinder
 import org.jdbi.core.argument.internal.TypedValue
+import org.jdbi.core.config.ConfigRegistry
 import org.jdbi.core.kotlin.getQualifiers
 import org.jdbi.core.qualifier.QualifiedType
-import org.jdbi.core.statement.StatementContext
 import java.util.Optional
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -35,7 +35,7 @@ class KotlinPropertyArguments(obj: Any, prefix: String = "") : ObjectPropertyNam
 
     override fun getNames(): Collection<String> = properties.keys
 
-    override fun getValue(name: String, ctx: StatementContext): Optional<TypedValue> {
+    override fun getValue(name: String, config: ConfigRegistry): Optional<TypedValue> {
         val property: KProperty1<*, *> = properties[name] ?: return Optional.empty()
         val mutableProperty = property as? KMutableProperty1
         val type = QualifiedType.of(toJavaType(property.returnType))

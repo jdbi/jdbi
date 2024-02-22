@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.statement;
+package org.jdbi.core.statement.internal;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
@@ -26,12 +26,15 @@ import java.util.stream.Stream;
 
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.internal.exceptions.Unchecked;
+import org.jdbi.core.statement.Binding;
+import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.statement.StatementCustomizer;
 
 import static java.util.function.Function.identity;
 
-class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
+public class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
     @Override
-    public void beforeTemplating(PreparedStatement stmt, StatementContext ctx) {
+    public void beforeTemplating(final PreparedStatement stmt, final StatementContext ctx) {
         final Set<String> alreadyDefined = ctx.getAttributes().keySet();
         final Binding binding = ctx.getBinding();
         final SetNullHandler handler = new SetNullHandler(ctx);
@@ -60,16 +63,16 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
         private boolean setNull;
         private boolean setCalled;
 
-        SetNullHandler(StatementContext ctx) {
+        SetNullHandler(final StatementContext ctx) {
             this.ctx = ctx;
         }
 
-        private static Object defaultValue(Class<?> clazz) {
+        private static Object defaultValue(final Class<?> clazz) {
             return Array.get(Array.newInstance(clazz, 1), 0);
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws SQLException {
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws SQLException {
             if ("unwrap".equals(method.getName())
                 && args.length == 1
                 && method.getParameterTypes()[0].equals(Class.class)) {
@@ -83,14 +86,14 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
 
             if (method.getName().startsWith("set")) {
                 setCalled = true;
-                boolean argNull = args.length > 1 && args[1] == null;
+                final boolean argNull = args.length > 1 && args[1] == null;
                 setNull = argNull || "setNull".equals(method.getName());
             }
 
             return DEFAULT_VALUES.get(method.getReturnType());
         }
 
-        void define(String name, Argument arg) {
+        void define(final String name, final Argument arg) {
             setNull = false;
             setCalled = false;
             Unchecked.runnable(() -> arg.apply(1, fakeStmt, ctx)).run();

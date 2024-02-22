@@ -16,7 +16,7 @@ package org.jdbi.commonstext;
 import java.util.function.Consumer;
 
 import org.apache.commons.text.StringSubstitutor;
-import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.statement.TemplateEngine;
 
 /**
@@ -48,8 +48,8 @@ public class StringSubstitutorTemplateEngine implements TemplateEngine {
     }
 
     @Override
-    public String render(String template, StatementContext ctx) {
-        StringSubstitutor substitutor = new StringSubstitutor(ctx.getAttributes());
+    public String render(String template, ConfigRegistry cfg) {
+        StringSubstitutor substitutor = new StringSubstitutor(cfg.getAttributes());
         customizer.accept(substitutor);
         return substitutor.replace(template);
     }
