@@ -59,7 +59,7 @@ public class ConstructorBenchmark {
 
     public static void main(final String[] args) throws RunnerException {
         final Options options = new OptionsBuilder()
-            .include(BeanBindingBenchmark.class.getSimpleName())
+            .include(ConstructorBenchmark.class.getSimpleName())
             .forks(0)
             .build();
         new Runner(options).run();
