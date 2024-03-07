@@ -120,7 +120,7 @@
         <dep.plugin.kotlin.version>1.9.22</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>2.0.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
-        <dep.postgresql.version>42.7.1</dep.postgresql.version>
+        <dep.postgresql.version>42.7.2</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
         <dep.spring.version>5.3.31</dep.spring.version>
         <dep.sqlite.version>3.44.1.0</dep.sqlite.version>
