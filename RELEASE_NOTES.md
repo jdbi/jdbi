@@ -1,6 +1,7 @@
 # Unreleased
 
 - Improve record constructor detection of generic types to work around JDK-8320575 (#2648, thanks @elonazoulay !)
+- Attempt to improve ConstructorMapper performance by caching constructor MethodHandles (#2657, thanks @elonazoulay! )
 
 # 3.45.0
 
