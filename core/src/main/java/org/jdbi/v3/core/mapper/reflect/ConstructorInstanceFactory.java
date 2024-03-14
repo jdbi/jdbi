@@ -27,7 +27,7 @@ import java.util.WeakHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.requireNonNull;
@@ -35,7 +35,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 class ConstructorInstanceFactory<T> extends InstanceFactory<T> {
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
-    private static final Map<Constructor, ConstructorHandleAndTypes> CONSTRUCTOR_CACHE = synchronizedMap(new WeakHashMap<>());
+    private static final Map<Constructor<?>, ConstructorHandleAndTypes> CONSTRUCTOR_CACHE = synchronizedMap(new WeakHashMap<>());
 
     private final Constructor<T> constructor;
     private final List<Type> types;
@@ -54,9 +54,14 @@ class ConstructorInstanceFactory<T> extends InstanceFactory<T> {
         return types;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     T newInstance(Object... params) {
-        return (T) Unchecked.<Object[], Object>function(constructorHandle::invokeWithArguments).apply(params);
+        try {
+            return (T) constructorHandle.invokeWithArguments(params);
+        } catch (Throwable e) {
+            throw Sneaky.throwAnyway(e);
+        }
     }
 
     @Override
