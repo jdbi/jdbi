@@ -241,3 +241,32 @@ jobs:
           MAVEN_CONFIG: "-B -fae -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
         run: |
           make run-tests
+
+  oracle:
+    name: Test Oracle versions
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test-version: [ '21-slim-faststart', '18-slim-faststart' ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: Build
+        env:
+          MAVEN_CONFIG: "-B -fae"
+        run: |
+          make install-fast
+
+      - name: Test
+        env:
+          MAVEN_CONFIG: "-B -fae -Doracle.container.version=${{ matrix.test-version }}"
+        run: |
+          make run-slow-tests
