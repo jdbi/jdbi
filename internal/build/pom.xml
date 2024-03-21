@@ -108,6 +108,7 @@
         <dep.moshi.version>1.15.0</dep.moshi.version>
         <dep.mssql.version>12.4.2.jre11</dep.mssql.version>
         <dep.mysql.version>8.2.0</dep.mysql.version>
+        <dep.oracle-xe.version>23.3.0.23.09</dep.oracle-xe.version>
         <dep.otj-pg-embedded.version>1.0.2</dep.otj-pg-embedded.version>
         <dep.pg-embedded.version>5.1.0</dep.pg-embedded.version>
         <dep.plugin.asciidoctor.version>2.2.4</dep.plugin.asciidoctor.version>
@@ -311,6 +312,12 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${dep.postgresql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc8</artifactId>
+                <version>${dep.oracle-xe.version}</version>
             </dependency>
 
             <dependency>
