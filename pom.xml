@@ -56,6 +56,7 @@
         <module>kotlin-sqlobject</module>
         <module>kotlin</module>
         <module>moshi</module>
+        <module>oracle12</module>
         <module>postgis</module>
         <module>postgres</module>
         <module>spring5</module>
