@@ -4062,7 +4062,7 @@ public interface OrderDao {
     @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
     @OutParameter(name = "orderId",    sqlType = java.sql.Types.BIGINT)
     @OutParameter(name = "orderTotal", sqlType = java.sql.Types.DECIMAL)
-    prepareOrderFromCart(@Bind("cartId") long cartId, Consumer<OutParameters> consumer);
+    void prepareOrderFromCart(@Bind("cartId") long cartId, Consumer<OutParameters> consumer);
 
     // using a function argument also works with any extension method
     @SqlCall("{call prepare_order_from_cart(:cartId, :orderId, :orderTotal)}")
