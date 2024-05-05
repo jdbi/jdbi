@@ -29,7 +29,6 @@ import org.jdbi.v3.testing.junit5.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -42,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Tag("slow")
 @Testcontainers
-@EnabledOnOs(architectures = {"x86_64", "amd64"})
 public class TestGetGeneratedKeysOracle {
 
     static final String CONTAINER_VERSION = "gvenzl/oracle-xe:" + System.getProperty("oracle.container.version", "slim-faststart");
