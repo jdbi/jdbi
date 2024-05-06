@@ -39,10 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 public class TestScript {
 
-    static final String CONTAINER_VERSION = "gvenzl/oracle-xe:" + System.getProperty("oracle.container.version", "slim-faststart");
-
     @Container
-    static OracleContainer oc = new OracleContainer(CONTAINER_VERSION);
+    static OracleContainer oc = JdbiOracleContainer.create();
 
     @RegisterExtension
     public JdbiExtension oracleExtension = JdbiTestcontainersExtension.instance(oc);
