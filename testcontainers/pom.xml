@@ -34,7 +34,6 @@
         <basepom.test.timeout>600</basepom.test.timeout>
         <dep.clickhouse.version>0.6.0</dep.clickhouse.version>
         <dep.db2.version>11.5.9.0</dep.db2.version>
-        <dep.oracle-xe.version>23.3.0.23.09</dep.oracle-xe.version>
         <dep.trino.version>435</dep.trino.version>
         <dep.yugabyte.version>42.3.5-yb-4</dep.yugabyte.version>
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
@@ -43,12 +42,6 @@
     <!-- we need tons of additional JDBC drivers in this one module. So we keep them all here. -->
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.oracle.database.jdbc</groupId>
-                <artifactId>ojdbc8</artifactId>
-                <version>${dep.oracle-xe.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.clickhouse</groupId>
                 <artifactId>clickhouse-jdbc</artifactId>
