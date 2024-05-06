@@ -1,5 +1,7 @@
 # Unreleased
 
+- Move oracle12 module back into main build (#2664, thanks @stoyants!)
+
 # 3.45.1
 
 - Work around JDK-8320575 losing record constructor generic type information
