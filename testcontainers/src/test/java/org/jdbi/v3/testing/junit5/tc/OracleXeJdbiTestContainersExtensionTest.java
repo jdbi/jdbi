@@ -13,23 +13,32 @@
  */
 package org.jdbi.v3.testing.junit5.tc;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.OracleContainer;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Tag("slow")
 @Testcontainers
-@EnabledOnOs(architectures = {"x86_64"})
+@EnabledOnOs(architectures = {"x86_64", "amd64"})
 class OracleXeJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new OracleContainer("gvenzl/oracle-xe:slim-faststart");
+    static JdbcDatabaseContainer<?> dbContainer = new OracleContainer("gvenzl/oracle-xe:slim-faststart").
+        waitingFor(new LogMessageWaitStrategy()
+                .withRegEx(".*DATABASE IS READY TO USE!.*\\s")
+                .withTimes(1)
+                .withStartupTimeout(Duration.of(10, ChronoUnit.MINUTES)));
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {
         return dbContainer;
     }
+
 }
