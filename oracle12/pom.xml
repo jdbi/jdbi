@@ -29,6 +29,7 @@
 
     <properties>
         <moduleName>org.jdbi.v3.oracle12</moduleName>
+        <basepom.test.fork-count>1</basepom.test.fork-count>
     </properties>
 
     <dependencies>
