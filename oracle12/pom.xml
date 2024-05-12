@@ -28,8 +28,8 @@
     <description>Support for Oracle 12+ specific features.</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.oracle12</moduleName>
         <basepom.test.fork-count>1</basepom.test.fork-count>
+        <moduleName>org.jdbi.v3.oracle12</moduleName>
     </properties>
 
     <dependencies>
