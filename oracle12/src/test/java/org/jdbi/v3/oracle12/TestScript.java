@@ -56,7 +56,7 @@ public class TestScript {
             .getResource("scripts/oracle-issue-2021.sql");
         try (Script script = new Script(h, sql)) {
             List<String> statements = script.getStatements();
-            assertThat(statements.size()).isEqualTo(3);
+            assertThat(statements).hasSize(3);
 
             for (String statement : statements) {
                 assertThat(statement).doesNotEndWithIgnoringCase("end"); // end needs to be trailed by semicolon
@@ -85,7 +85,7 @@ public class TestScript {
 
         try (Query q = h.createQuery("SELECT * FROM EXAMPLE ORDER BY ID")) {
             List<Example> result = q.map(new ExampleMapper()).list();
-            assertThat(result.size()).isEqualTo(10);
+            assertThat(result).hasSize(10);
 
             for (int i = 0; i < result.size(); i++) {
                 Example example = result.get(i);

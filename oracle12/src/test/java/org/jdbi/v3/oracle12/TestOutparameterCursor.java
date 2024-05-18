@@ -59,7 +59,7 @@ public class TestOutparameterCursor {
             });
 
     @Test
-    public void someTest() throws Exception {
+    public void someTest() {
         RowMapper<User> userMapper = ConstructorMapper.of(User.class);
 
         try (Call call = oracleExtension.getSharedHandle().createCall("call get_user_by_name(:a,:b)")
