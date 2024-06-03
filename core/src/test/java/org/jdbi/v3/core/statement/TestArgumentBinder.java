@@ -287,15 +287,15 @@ public class TestArgumentBinder {
     @Test
     public void testMissingParamThrowsError() {
         try (Handle h = pgDatabaseExtension.openHandle()) {
-            assertThatThrownBy(() -> {
+            assertThatThrownBy(
                 // Right number of params, but indexes are non-contiguous by mistake.
                 h.createQuery("SELECT COUNT(1) from binder_test WHERE i = ? OR i = ? OR i = ?")
                     .bind(0, 100)
                     .bind(1, 101)
                     .bind(3, 102)
                     .mapTo(Integer.class)
-                    .one();
-            }).isInstanceOf(UnableToCreateStatementException.class)
+                    ::one
+            ).isInstanceOf(UnableToCreateStatementException.class)
                 .hasMessage("Param at (0 based) position 2 was not provided");
         }
     }
@@ -303,13 +303,13 @@ public class TestArgumentBinder {
     @Test
     public void testOneBasedIndexingThrowsError() {
         try (Handle h = pgDatabaseExtension.openHandle()) {
-            assertThatThrownBy(() -> {
+            assertThatThrownBy(
                 // Mistakenly thought the params are 1-based.
                 h.createQuery("SELECT COUNT(1) from binder_test WHERE i = ?")
                     .bind(1, 100)
                     .mapTo(Integer.class)
-                    .one();
-            }).isInstanceOf(UnableToCreateStatementException.class)
+                    ::one
+            ).isInstanceOf(UnableToCreateStatementException.class)
                 .hasMessage("Param at (0 based) position 0 was not provided");
         }
     }
