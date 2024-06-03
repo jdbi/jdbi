@@ -70,11 +70,10 @@ class ArgumentBinder {
     }
 
     void bindPositional(Binding binding) {
-        boolean moreArgumentsProvidedThanDeclared = binding.positionals.size() != params.getParameterCount();
-        if (moreArgumentsProvidedThanDeclared && !ctx.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
-            throw new UnableToCreateStatementException("Superfluous positional param at (0 based) position " + params.getParameterCount(), ctx);
-        }
         for (int index = 0; index < params.getParameterCount(); index++) {
+            if (!binding.positionals.containsKey(index)) {
+                throw new UnableToCreateStatementException(format("Missing positional parameter %d in binding:%s", index, binding), ctx);
+            }
             QualifiedType<?> type = typeOf(binding.positionals.get(index));
             try {
                 argumentFactoryForType(type)
@@ -83,6 +82,10 @@ class ArgumentBinder {
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException("Exception while binding positional param at (0 based) position " + index, e, ctx);
             }
+        }
+        boolean moreArgumentsProvidedThanDeclared = binding.positionals.size() != params.getParameterCount();
+        if (moreArgumentsProvidedThanDeclared && !ctx.getConfig(SqlStatements.class).isUnusedBindingAllowed()) {
+            throw new UnableToCreateStatementException("Superfluous positional param at (0 based) position " + params.getParameterCount(), ctx);
         }
     }
 
