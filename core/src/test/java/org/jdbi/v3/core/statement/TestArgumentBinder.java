@@ -286,7 +286,7 @@ public class TestArgumentBinder {
 
     @Test
     public void testMissingParamThrowsError() {
-        try (Handle h = pgDatabaseExtension.openHandle()) {
+        pgDatabaseExtension.getJdbi().useHandle(h ->
             assertThatThrownBy(
                 // Right number of params, but indexes are non-contiguous by mistake.
                 h.createQuery("SELECT COUNT(1) from binder_test WHERE i = ? OR i = ? OR i = ?")
@@ -296,13 +296,13 @@ public class TestArgumentBinder {
                     .mapTo(Integer.class)
                     ::one
             ).isInstanceOf(UnableToCreateStatementException.class)
-                .hasMessageStartingWith("Missing positional parameter 2 in binding:{positional:{0:100,1:101,3:102}, named:{}, finder:[]}");
-        }
+                .hasMessageStartingWith("Missing positional parameter 2 in binding:{positional:{0:100,1:101,3:102}, named:{}, finder:[]}")
+        );
     }
 
     @Test
     public void testOneBasedIndexingThrowsError() {
-        try (Handle h = pgDatabaseExtension.openHandle()) {
+        pgDatabaseExtension.getJdbi().useHandle(h ->
             assertThatThrownBy(
                 // Mistakenly thought the params are 1-based.
                 h.createQuery("SELECT COUNT(1) from binder_test WHERE i = ?")
@@ -310,8 +310,8 @@ public class TestArgumentBinder {
                     .mapTo(Integer.class)
                     ::one
             ).isInstanceOf(UnableToCreateStatementException.class)
-                .hasMessageStartingWith("Missing positional parameter 0 in binding:{positional:{1:100}, named:{}, finder:[]}");
-        }
+                .hasMessageStartingWith("Missing positional parameter 0 in binding:{positional:{1:100}, named:{}, finder:[]}")
+        );
     }
 
     public static class TestBean {
