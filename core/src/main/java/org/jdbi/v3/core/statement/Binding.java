@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
 import static org.jdbi.v3.core.statement.ArgumentBinder.unwrap;
@@ -123,7 +122,7 @@ public class Binding {
         }
 
         return namedArgumentFinder.stream()
-                .flatMap(arguments -> JdbiOptionals.stream(arguments.find(name, ctx2)))
+                .flatMap(arguments -> arguments.find(name, ctx2).stream())
                 .findFirst();
     }
 

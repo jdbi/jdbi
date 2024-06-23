@@ -21,7 +21,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
  * Registry for {@link HandlerFactory handler factories}, which produce {@link Handler handlers} for SQL object methods.
@@ -61,7 +60,7 @@ public class Handlers implements JdbiConfig<Handlers> {
 
     public Optional<Handler> findFor(Class<?> sqlObjectType, Method method) {
         return factories.stream()
-                .flatMap(factory -> JdbiOptionals.stream(factory.buildHandler(sqlObjectType, method)))
+                .flatMap(factory -> factory.buildHandler(sqlObjectType, method).stream())
                 .findFirst();
     }
 
