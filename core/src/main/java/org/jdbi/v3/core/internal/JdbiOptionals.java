@@ -25,11 +25,7 @@ public class JdbiOptionals {
     @SafeVarargs
     public static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {
         return Stream.of(suppliers)
-                .flatMap(supplier -> stream(supplier.get()))
+                .flatMap(supplier -> supplier.get().stream())
                 .findFirst();
-    }
-
-    public static <T> Stream<T> stream(Optional<T> optional) {
-        return optional.map(Stream::of).orElseGet(Stream::empty);
     }
 }

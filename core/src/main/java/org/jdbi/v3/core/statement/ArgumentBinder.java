@@ -37,7 +37,6 @@ import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory.PrepareKey;
 import org.jdbi.v3.core.argument.internal.TypedValue;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.internal.exceptions.CheckedConsumer;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -227,9 +226,9 @@ class ArgumentBinder {
                         preparedBindingTemplate.prepareKeys.keySet().stream()
                             .map(pk -> new AbstractMap.SimpleImmutableEntry<>(pk, batch.preparedFinders.get(pk)))
                             .flatMap(e ->
-                                JdbiOptionals.stream(e.getValue()
+                                e.getValue()
                                     .apply(name)
-                                    .<Entry<PrepareKey, Function<Object, Argument>>>map(pf -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), pf))))
+                                    .<Entry<PrepareKey, Function<Object, Argument>>>map(pf -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), pf)).stream())
                             .findFirst();
                     if (preparation.isPresent()) {
                         Entry<PrepareKey, Function<Object, Argument>> p = preparation.get();
@@ -240,11 +239,11 @@ class ArgumentBinder {
                     } else {
                         innerBinders.add(wrapCheckedConsumer(name,
                             binding -> binding.namedArgumentFinder.stream()
-                                .flatMap(naf -> JdbiOptionals.stream(naf.find(name, ctx)))
+                                .flatMap(naf -> naf.find(name, ctx).stream())
                                 .findFirst()
                                 .orElseGet(() ->
                                     binding.realizedBackupArgumentFinders.get().stream()
-                                        .flatMap(naf -> JdbiOptionals.stream(naf.find(name, ctx)))
+                                        .flatMap(naf -> naf.find(name, ctx).stream())
                                         .findFirst()
                                         .orElseThrow(() -> missingNamedParameter(name, binding)))
                                 .apply(index + 1, stmt, ctx)));

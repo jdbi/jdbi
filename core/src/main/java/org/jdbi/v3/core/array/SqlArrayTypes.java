@@ -24,7 +24,6 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.enums.internal.EnumSqlArrayTypeFactory;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.meta.Alpha;
 
 /**
@@ -136,7 +135,7 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      */
     public Optional<SqlArrayType<?>> findFor(Type elementType) {
         return factories.stream()
-                .flatMap(factory -> JdbiOptionals.stream(factory.build(elementType, registry)))
+                .flatMap(factory -> factory.build(elementType, registry).stream())
                 .findFirst();
     }
 

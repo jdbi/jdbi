@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 
 /**
  * @deprecated will be replaced by an opt-out plugin to give the core no hardwired behavior
@@ -41,7 +40,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         return FACTORIES.stream()
-            .flatMap(factory -> JdbiOptionals.stream(factory.build(type, config)))
+            .flatMap(factory -> factory.build(type, config).stream())
             .findFirst();
     }
 }

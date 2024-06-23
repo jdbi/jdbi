@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.enums.EnumByName;
-import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -56,14 +55,14 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return FACTORIES.stream()
-            .flatMap(factory -> JdbiOptionals.stream(factory.prepare(type, config)))
+            .flatMap(factory -> factory.prepare(type, config).stream())
             .findFirst();
     }
 
     @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
         return FACTORIES.stream()
-            .flatMap(factory -> JdbiOptionals.stream(factory.build(expectedType, value, config)))
+            .flatMap(factory -> factory.build(expectedType, value, config).stream())
             .findFirst();
     }
 
