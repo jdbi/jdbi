@@ -1,6 +1,7 @@
 # Unreleased
 
-- Move oracle12 module back into main build (#2664, thanks @stoyants!)
+- Move oracle12 module back into main build (#2664, thanks @stoyants !)
+- Raise UnableToCreateStatementException if a positional param is missing (#2675, thanks @angusholder !)
 
 # 3.45.1
 
