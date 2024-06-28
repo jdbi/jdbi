@@ -164,5 +164,4 @@ $ make release-docs
 
 A small number of JDBI3 modules is maintained outside the main build. Consider releasing those as well:
 
-* [JDBI3 Oracle support](https://github.com/jdbi/jdbi3-oracle12)
 * [JDBI3 Guava cache module](https://github.com/jdbi/jdbi3-guava-cache)
