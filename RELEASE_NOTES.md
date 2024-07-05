@@ -1,5 +1,7 @@
 # Unreleased
 
+- Fix Connection.close() on JdbiPlugin customizeConnection (#2676)
+
 # 3.45.2
 
 - Move oracle12 module back into main build (#2664, thanks @stoyants !)
