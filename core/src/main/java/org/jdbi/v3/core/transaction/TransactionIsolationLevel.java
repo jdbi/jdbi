@@ -14,22 +14,33 @@
 package org.jdbi.v3.core.transaction;
 
 import java.sql.Connection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Supported transaction isolation levels.
  */
-public enum TransactionIsolationLevel {
-    NONE(Connection.TRANSACTION_NONE),
-    READ_UNCOMMITTED(Connection.TRANSACTION_READ_UNCOMMITTED),
-    READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED),
-    REPEATABLE_READ(Connection.TRANSACTION_REPEATABLE_READ),
-    SERIALIZABLE(Connection.TRANSACTION_SERIALIZABLE),
+public final class TransactionIsolationLevel {
+    private static final Map<Integer, TransactionIsolationLevel> VALUE_OF = new ConcurrentHashMap<>();
+    public static final TransactionIsolationLevel NONE =
+            valueOf(Connection.TRANSACTION_NONE, "NONE");
+    public static final TransactionIsolationLevel READ_UNCOMMITTED =
+            valueOf(Connection.TRANSACTION_READ_UNCOMMITTED, "READ_UNCOMMITTED");
+    public static final TransactionIsolationLevel READ_COMMITTED =
+            valueOf(Connection.TRANSACTION_READ_COMMITTED, "READ_COMMITTED");
+    public static final TransactionIsolationLevel REPEATABLE_READ =
+            valueOf(Connection.TRANSACTION_REPEATABLE_READ, "REPEATABLE_READ");
+    public static final TransactionIsolationLevel SERIALIZABLE =
+            valueOf(Connection.TRANSACTION_SERIALIZABLE, "SERIALIZABLE");
     /** The transaction isolation level wasn't specified or is unknown to jdbi. */
-    UNKNOWN(Integer.MIN_VALUE);
+    public static final TransactionIsolationLevel UNKNOWN =
+            valueOf(Integer.MIN_VALUE, "UNKNOWN");
 
+    private final String name;
     private final int value;
 
-    TransactionIsolationLevel(int value) {
+    private TransactionIsolationLevel(String name, int value) {
+        this.name = name;
         this.value = value;
     }
 
@@ -37,14 +48,20 @@ public enum TransactionIsolationLevel {
         return this.value;
     }
 
+    public String name() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
     public static TransactionIsolationLevel valueOf(int val) {
-        switch (val) {
-            case Connection.TRANSACTION_READ_UNCOMMITTED: return READ_UNCOMMITTED;
-            case Connection.TRANSACTION_READ_COMMITTED: return READ_COMMITTED;
-            case Connection.TRANSACTION_NONE: return NONE;
-            case Connection.TRANSACTION_REPEATABLE_READ: return REPEATABLE_READ;
-            case Connection.TRANSACTION_SERIALIZABLE: return SERIALIZABLE;
-            default: return UNKNOWN;
-        }
+        return valueOf(val, "UNKNOWN");
+    }
+
+    public static TransactionIsolationLevel valueOf(int val, String name) {
+        return VALUE_OF.computeIfAbsent(val, x -> new TransactionIsolationLevel(name, val));
     }
 }

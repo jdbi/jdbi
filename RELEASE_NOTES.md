@@ -1,4 +1,5 @@
 # Unreleased
+- *MINOR BREAKING CHANGE* TransactionIsolationLevel is no longer an Enum, to support custom isolation levels in MSSQL (#2651)
 
 # 3.45.2
 
