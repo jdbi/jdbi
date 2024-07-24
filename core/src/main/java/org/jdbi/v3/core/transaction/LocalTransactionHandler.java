@@ -113,7 +113,7 @@ public class LocalTransactionHandler implements TransactionHandler {
 
         BoundLocalTransactionHandler(Handle handle) throws SQLException {
             this.initialAutocommit = handle.getConnection().getAutoCommit();
-            this.handlerState = initialAutocommit ? State.OUTSIDE_TRANSACTION : State.AFTER_BEGIN;
+            this.handlerState = getInitialHandlerState();
         }
 
         @Override
@@ -137,7 +137,7 @@ public class LocalTransactionHandler implements TransactionHandler {
                 if (handlerState != State.OUTSIDE_TRANSACTION) {
                     handle.getConnection().commit();
                 }
-                handlerState = State.OUTSIDE_TRANSACTION;
+                handlerState = getInitialHandlerState();
                 restoreAutoCommitState(handle);
             } catch (SQLException e) {
                 try {
@@ -159,7 +159,7 @@ public class LocalTransactionHandler implements TransactionHandler {
             } catch (SQLException e) {
                 throw new TransactionException("Failed to rollback transaction", e);
             } finally {
-                handlerState = State.OUTSIDE_TRANSACTION;
+                handlerState = getInitialHandlerState();
                 restoreAutoCommitState(handle);
             }
         }
@@ -277,5 +277,10 @@ public class LocalTransactionHandler implements TransactionHandler {
                 }
             }
         }
+
+        private State getInitialHandlerState() {
+            return initialAutocommit ? State.OUTSIDE_TRANSACTION : State.AFTER_BEGIN;
+        }
+
     }
 }
