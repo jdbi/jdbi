@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.internal;
 
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -32,9 +33,11 @@ public class MemoizingSupplier<T> implements Supplier<T> {
     private Supplier<T> delegate = this::init;
     private volatile boolean initialized;
     private T value;
+    private final ReentrantLock initializationLock;
 
     private MemoizingSupplier(Supplier<T> create) {
         this.create = create;
+        this.initializationLock = new ReentrantLock();
     }
 
     public static <T> MemoizingSupplier<T> of(Supplier<T> supplier) {
@@ -63,13 +66,16 @@ public class MemoizingSupplier<T> implements Supplier<T> {
     }
 
     private T init() {
-        synchronized (this) {
+        initializationLock.lock();
+        try {
             if (!initialized) {
                 value = create.get();
                 initialized = true;
                 delegate = this::internalGet;
             }
             return delegate.get();
+        } finally {
+            initializationLock.unlock();
         }
     }
 }
