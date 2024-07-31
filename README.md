@@ -111,9 +111,7 @@ This project is licensed under the
 * **Brian McCallister (@brianm)** - Project Founder
 * **Steven Schlansker (@stevenschlansker)**
 * **Henning Schmiedehausen (@hgschmie)**
-* **Matthew Hall (@qualidafial)**
 * **Artem Prigoda (@arteam)**
-* **Marnick L'Eau (@TheRealMarnes)**
 
 
 ## Special Thanks
