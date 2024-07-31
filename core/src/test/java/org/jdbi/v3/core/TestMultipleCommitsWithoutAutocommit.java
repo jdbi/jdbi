@@ -13,14 +13,14 @@
  */
 package org.jdbi.v3.core;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+
 import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
