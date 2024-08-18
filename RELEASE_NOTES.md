@@ -1,9 +1,10 @@
 # Unreleased
 
+- Avoid virtual thread deadlock on connection acquire (#2686, thanks @mhib !)
+
 # 3.45.3
 
 - Fix Connection.close() on JdbiPlugin customizeConnection (#2676)
-- Avoid virtual thread deadlock on connection acquire (#2686, thanks @mhib !)
 - Fix multiple commits on handle with autocommit disabled (#2685, thanks @mhib !)
 
 # 3.45.2
