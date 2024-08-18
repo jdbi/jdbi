@@ -120,7 +120,10 @@
         <dep.plugin.japicmp.version>0.18.3</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>1.9.22</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>2.0.0</dep.plugin.ktlint.version>
+        <dep.plugin.pmd.version>3.24.0</dep.plugin.pmd.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
+        <!-- https://github.com/basepom/basepom/issues/74 -->
+        <dep.pmd.version>7.4.0</dep.pmd.version>
         <dep.postgresql.version>42.7.2</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
         <dep.spring.version>5.3.31</dep.spring.version>
