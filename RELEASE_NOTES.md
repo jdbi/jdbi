@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.45.4
+
 - Avoid virtual thread deadlock on connection acquire (#2686, thanks @mhib !)
 
 # 3.45.3
