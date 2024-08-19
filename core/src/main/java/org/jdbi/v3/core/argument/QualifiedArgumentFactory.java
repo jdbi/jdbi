@@ -105,11 +105,11 @@ public interface QualifiedArgumentFactory {
          */
         static QualifiedArgumentFactory.Preparable adapt(ConfigRegistry config, ArgumentFactory.Preparable factory) {
             return new Preparable() {
-                Set<Annotation> qualifiers =
+                final Set<Annotation> qualifiers =
                         config.get(Qualifiers.class)
                         .findFor(factory.getClass());
 
-                Collection<QualifiedType<?>> prePreparedTypes = Collections.unmodifiableList(
+                final Collection<QualifiedType<?>> prePreparedTypes = Collections.unmodifiableList(
                         factory.prePreparedTypes().stream()
                             .map(QualifiedType::of)
                             .map(qt -> qt.withAnnotations(qualifiers))

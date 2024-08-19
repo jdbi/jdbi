@@ -84,6 +84,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
                 : enumClass.cast(BY_NAME_CACHE.get(enumClass, ctx).get(name, ctx));
         }
 
+        @SuppressWarnings("PMD.UnusedPrivateMethod")
         private static Object getValueByName(Class<? extends Enum<?>> enumClass, String name) {
             return Stream.concat(
                         enumConstants(enumClass).filter(enumValueMatches(name, String::equals)),

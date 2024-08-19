@@ -41,6 +41,7 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
                     a -> handler.define(name, a)));
     }
 
+    @SuppressWarnings("PMD.SingularField")
     private static class SetNullHandler implements InvocationHandler {
         private static final Map<Class<?>, Object> DEFAULT_VALUES = Stream.of(
             boolean.class,

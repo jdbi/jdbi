@@ -165,10 +165,9 @@ public class PojoMapper<T> implements RowMapper<T> {
             .orElseThrow(() -> new UnableToProduceResultException("Couldn't find properties for " + type));
     }
 
-    @SuppressWarnings("rawtypes") // Type loses <T>
     protected PojoMapper<?> createNestedMapper(StatementContext ctx, PojoProperty<T> property, String nestedPrefix) {
         final Type propertyType = property.getQualifiedType().getType();
-        return new PojoMapper(
+        return new PojoMapper<>(
             GenericTypes.getErasedType(propertyType),
             nestedPrefix);
     }

@@ -34,7 +34,7 @@ final class PostgisCodec implements Codec<Geometry> {
     public ColumnMapper<Geometry> getColumnMapper() {
         return (resultSet, index, context) -> {
             byte[] bytes = hexStringToByteArray(resultSet.getString(index));
-            return (Geometry) deserialize(bytes);
+            return deserialize(bytes);
         };
     }
 

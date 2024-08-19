@@ -225,6 +225,6 @@ public final class ClasspathSqlLocator {
     }
 
     static class Holder {
-        static final ClasspathSqlLocator INSTANCE = ClasspathSqlLocator.removingComments();
+        static final ClasspathSqlLocator INSTANCE = removingComments();
     }
 }

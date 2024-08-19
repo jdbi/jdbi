@@ -745,6 +745,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return value returned from the callback
      * @throws X any exception thrown by the callback
      */
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public <R, X extends Exception> R inTransaction(TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
         if (isInTransaction()) {
             TransactionIsolationLevel currentLevel = getTransactionIsolationLevel();

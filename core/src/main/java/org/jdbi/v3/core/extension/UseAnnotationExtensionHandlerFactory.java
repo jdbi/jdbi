@@ -36,12 +36,7 @@ final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFact
 
     @Override
     public boolean accepts(Class<?> extensionType, Method method) {
-
-        if (method.isBridge()) {
-            return false;
-        }
-
-        return !findAnnotations(method).isEmpty();
+        return !method.isBridge() && !findAnnotations(method).isEmpty();
     }
 
     private static boolean matchAnnotation(Annotation a) {
@@ -57,6 +52,7 @@ final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFact
 
 
     @Override
+    @SuppressWarnings("PMD.UnnecessaryCast")
     public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
 
         List<Class<?>> extensionAnnotations = findAnnotations(method);

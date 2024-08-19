@@ -29,12 +29,7 @@ class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
 
     @Override
     public boolean accepts(Class<?> extensionType, Method method) {
-
-        if (method.isBridge()) {
-            return false;
-        }
-
-        return !SqlObjectAnnotationHelper.findSqlMethodAnnotations(method).isEmpty();
+        return !method.isBridge() && !SqlObjectAnnotationHelper.findSqlMethodAnnotations(method).isEmpty();
     }
 
     @Override
@@ -62,7 +57,7 @@ class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
         return Optional.of(SqlObjectAnnotationHelper.findOldAnnotations(method)
                 .map(type -> type.getAnnotation(SqlOperation.class))
                 .map(SqlOperation::value)
-                .map(klass -> (ExtensionHandler) JdbiClassUtils.findConstructorAndCreateInstance(klass, SQL_METHOD_HANDLER_TYPES,
+                .map(klass -> JdbiClassUtils.findConstructorAndCreateInstance(klass, SQL_METHOD_HANDLER_TYPES,
                         handle -> handle.invokeExact(sqlObjectType, method)))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(format(

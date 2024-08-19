@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.array.SqlArrayMapperFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -192,7 +193,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     public Optional<ColumnMapper<?>> findFor(Type type) {
-        return findFor(QualifiedType.of(type)).map(m -> (ColumnMapper<?>) m);
+        return findFor(QualifiedType.of(type)).map(Function.identity());
     }
 
     /**

@@ -50,7 +50,6 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
     private final RowMapper<K> keyMapper;
     private final RowMapper<V> valueMapper;
 
-    @SuppressWarnings("unchecked")
     static RowMapperFactory factory() {
         return (type, config) -> {
             if (type instanceof ParameterizedType && getErasedType(type).equals(Map.Entry.class)) {
@@ -60,7 +59,7 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
                 RowMapper<?> keyMapper = getKeyMapper(keyType, config);
                 RowMapper<?> valueMapper = getValueMapper(valueType, config);
 
-                return Optional.of(new MapEntryMapper(keyMapper, valueMapper));
+                return Optional.of(new MapEntryMapper<>(keyMapper, valueMapper));
             }
             return Optional.empty();
         };

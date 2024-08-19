@@ -41,7 +41,7 @@ public final class BeanMapper<T> extends PojoMapper<T> {
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory factory(Class<?> type) {
-        return RowMapperFactory.of(type, BeanMapper.of(type));
+        return RowMapperFactory.of(type, of(type));
     }
 
     /**
@@ -52,7 +52,7 @@ public final class BeanMapper<T> extends PojoMapper<T> {
      * @return a mapper factory that maps to the given bean class
      */
     public static RowMapperFactory factory(Class<?> type, String prefix) {
-        return RowMapperFactory.of(type, BeanMapper.of(type, prefix));
+        return RowMapperFactory.of(type, of(type, prefix));
     }
 
     /**
@@ -63,7 +63,7 @@ public final class BeanMapper<T> extends PojoMapper<T> {
      * @return a mapper for the given bean class
      */
     public static <T> RowMapper<T> of(Class<T> type) {
-        return BeanMapper.of(type, DEFAULT_PREFIX);
+        return of(type, DEFAULT_PREFIX);
     }
 
     /**

@@ -55,6 +55,7 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
     private Object createProxy(Jdbi jdbi, Class<?> extensionType, Class<?>... extraTypes) {
         jdbi.getConfig(Extensions.class).onCreateProxy();
 
+        @SuppressWarnings("PMD.CompareObjectsWithEquals")
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {
                 return proxy == args[0];

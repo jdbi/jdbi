@@ -78,7 +78,7 @@ class ArgumentBinder {
             try {
                 argumentFactoryForType(type)
                     .apply(unwrap(binding.positionals.get(index)))
-                    .apply((int) index + 1, stmt, ctx);
+                    .apply(index + 1, stmt, ctx);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException("Exception while binding positional param at (0 based) position " + index, e, ctx);
             }

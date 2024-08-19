@@ -56,6 +56,7 @@ class JdbiJtaBinder {
         };
     }
 
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     private static Object createProxy(InvocationHandler naiveHandler, Class<?> extensionType, Class<?>... extraTypes) {
         InvocationHandler handler = (proxy, method, args) -> {
             if (EQUALS_METHOD.equals(method)) {

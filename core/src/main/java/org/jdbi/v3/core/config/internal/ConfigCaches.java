@@ -55,7 +55,7 @@ public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
     }
 
     public static <K, V> ConfigCache<K, V> declare(Function<K, ?> keyNormalizer, BiFunction<ConfigRegistry, K, V> computer) {
-        return new ConfigCache<K, V>() {
+        return new ConfigCache<>() {
             @SuppressWarnings("unchecked")
             @Override
             public V get(K key, ConfigRegistry config) {

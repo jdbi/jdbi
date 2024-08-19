@@ -33,8 +33,7 @@ public interface BatchResultIterable<T> extends ResultIterable<T> {
     List<List<T>> listPerBatch();
 
     static <U> BatchResultIterable<U> of(ResultIterable<U> delegate, Supplier<int[]> modifiedRowCountsSupplier) {
-
-        return new BatchResultIterable<U>() {
+        return new BatchResultIterable<>() {
             @Override
             public List<List<U>> listPerBatch() {
                 List<List<U>> results = new LinkedList<>();

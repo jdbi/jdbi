@@ -42,6 +42,7 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      * @return update count
      * @see PreparedStatement#getUpdateCount()
      */
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public static ResultProducer<Integer> returningUpdateCount() {
         return (statementSupplier, ctx) -> {
             // suppress exception if ctx.close method raises

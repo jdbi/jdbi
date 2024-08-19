@@ -60,27 +60,27 @@ public final class InternalJdbiBinder implements JdbiBinder {
     private InternalJdbiBinder(Binder binder) {
         Binder b = checkNotNull(binder, "binder is null").skipSources(getClass());
 
-        this.rowMapperBinder = Multibinder.newSetBinder(b, new TypeLiteral<RowMapper<?>>() {});
-        this.qualifiedRowMapperBinder = MapBinder.newMapBinder(b, new TypeLiteral<Type>() {}, new TypeLiteral<RowMapper<?>>() {});
-        this.columnMapperBinder = Multibinder.newSetBinder(b, new TypeLiteral<ColumnMapper<?>>() {});
-        this.qualifiedColumnMapperBinder = MapBinder.newMapBinder(b, new TypeLiteral<QualifiedType<?>>() {}, new TypeLiteral<ColumnMapper<?>>() {});
-        this.codecBinder = MapBinder.newMapBinder(b, new TypeLiteral<QualifiedType<?>>() {}, new TypeLiteral<Codec<?>>() {});
-        this.arrayTypeBinder = MapBinder.newMapBinder(b, new TypeLiteral<Class<?>>() {}, new TypeLiteral<String>() {});
-        this.pluginBinder = Multibinder.newSetBinder(b, new TypeLiteral<JdbiPlugin>() {});
-        this.customizerBinder = Multibinder.newSetBinder(b, new TypeLiteral<GuiceJdbiCustomizer>() {});
+        this.rowMapperBinder = Multibinder.newSetBinder(b, new TypeLiteral<>() {});
+        this.qualifiedRowMapperBinder = MapBinder.newMapBinder(b, new TypeLiteral<>() {}, new TypeLiteral<>() {});
+        this.columnMapperBinder = Multibinder.newSetBinder(b, new TypeLiteral<>() {});
+        this.qualifiedColumnMapperBinder = MapBinder.newMapBinder(b, new TypeLiteral<>() {}, new TypeLiteral<>() {});
+        this.codecBinder = MapBinder.newMapBinder(b, new TypeLiteral<>() {}, new TypeLiteral<>() {});
+        this.arrayTypeBinder = MapBinder.newMapBinder(b, new TypeLiteral<>() {}, new TypeLiteral<>() {});
+        this.pluginBinder = Multibinder.newSetBinder(b, new TypeLiteral<>() {});
+        this.customizerBinder = Multibinder.newSetBinder(b, new TypeLiteral<>() {});
     }
 
     private InternalJdbiBinder(Binder binder, Class<? extends Annotation> a) {
         Binder b = checkNotNull(binder, "binder is null").skipSources(getClass());
 
-        this.rowMapperBinder = Multibinder.newSetBinder(b, new TypeLiteral<RowMapper<?>>() {}, a);
-        this.qualifiedRowMapperBinder = MapBinder.newMapBinder(b, new TypeLiteral<Type>() {}, new TypeLiteral<RowMapper<?>>() {}, a);
-        this.columnMapperBinder = Multibinder.newSetBinder(b, new TypeLiteral<ColumnMapper<?>>() {}, a);
-        this.qualifiedColumnMapperBinder = MapBinder.newMapBinder(b, new TypeLiteral<QualifiedType<?>>() {}, new TypeLiteral<ColumnMapper<?>>() {}, a);
-        this.codecBinder = MapBinder.newMapBinder(b, new TypeLiteral<QualifiedType<?>>() {}, new TypeLiteral<Codec<?>>() {}, a);
-        this.arrayTypeBinder = MapBinder.newMapBinder(b, new TypeLiteral<Class<?>>() {}, new TypeLiteral<String>() {}, a);
-        this.pluginBinder = Multibinder.newSetBinder(b, new TypeLiteral<JdbiPlugin>() {}, a);
-        this.customizerBinder = Multibinder.newSetBinder(b, new TypeLiteral<GuiceJdbiCustomizer>() {}, a);
+        this.rowMapperBinder = Multibinder.newSetBinder(b, new TypeLiteral<>() {}, a);
+        this.qualifiedRowMapperBinder = MapBinder.newMapBinder(b, new TypeLiteral<>() {}, new TypeLiteral<>() {}, a);
+        this.columnMapperBinder = Multibinder.newSetBinder(b, new TypeLiteral<>() {}, a);
+        this.qualifiedColumnMapperBinder = MapBinder.newMapBinder(b, new TypeLiteral<>() {}, new TypeLiteral<>() {}, a);
+        this.codecBinder = MapBinder.newMapBinder(b, new TypeLiteral<>() {}, new TypeLiteral<>() {}, a);
+        this.arrayTypeBinder = MapBinder.newMapBinder(b, new TypeLiteral<>() {}, new TypeLiteral<>() {}, a);
+        this.pluginBinder = Multibinder.newSetBinder(b, new TypeLiteral<>() {}, a);
+        this.customizerBinder = Multibinder.newSetBinder(b, new TypeLiteral<>() {}, a);
     }
 
     @Override

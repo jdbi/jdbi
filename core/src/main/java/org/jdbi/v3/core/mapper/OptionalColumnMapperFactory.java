@@ -75,6 +75,6 @@ class OptionalColumnMapperFactory implements ColumnMapperFactory {
                 GenericTypes.findGenericParameter(type, Optional.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Optional type")))
                 .orElseThrow(() -> new NoSuchMapperException("No column mapper for type " + type + ", nested in Optional"));
-        return (r, i, ctx) -> (Optional<?>) Optional.ofNullable(mapper.map(r, i, ctx));
+        return (r, i, ctx) -> Optional.ofNullable(mapper.map(r, i, ctx));
     }
 }
