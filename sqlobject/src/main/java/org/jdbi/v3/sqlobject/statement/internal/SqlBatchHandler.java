@@ -281,7 +281,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         } else {
             // only created to get access to the context.
             PreparedBatch dummy = handle.prepareBatch(sql);
-            result = new ResultIterator<Object>() {
+            result = new ResultIterator<>() {
                 @Override
                 public void close() {
                     // no op
@@ -328,7 +328,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                     + " did you mean @SqlQuery?", null, null);
         }
 
-        return new Iterator<Object[]>() {
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 for (Iterator<?> extra : extras) {

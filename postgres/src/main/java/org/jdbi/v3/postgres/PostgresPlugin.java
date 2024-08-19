@@ -152,7 +152,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         if (installLegacy) {
             // legacy unqualified HSTORE
             jdbi.registerArgument((ArgumentFactory) new HStoreArgumentFactory()::build);
-            jdbi.registerColumnMapper(new GenericType<Map<String, String>>() {}, new HStoreColumnMapper());
+            jdbi.registerColumnMapper(new GenericType<>() {}, new HStoreColumnMapper());
         }
 
         // optional integration

@@ -108,6 +108,7 @@ public class JdbiOtjPostgresExtension extends JdbiExtension {
     }
 
     @Override
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     protected void stopExtension() throws Exception {
 
         if (this.epg == null || this.postgresConnection == null) {

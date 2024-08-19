@@ -86,7 +86,7 @@ public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
     @Override
     public PojoBuilder<T> create() {
         final Object b = builder.get();
-        return new PojoBuilder<T>() {
+        return new PojoBuilder<>() {
             @Override
             public void set(String property, Object value) {
                 Unchecked.biConsumer(getProperties().get(property).setter::invokeExact).accept(b, value);

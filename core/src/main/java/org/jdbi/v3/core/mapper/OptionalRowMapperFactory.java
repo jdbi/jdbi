@@ -37,6 +37,6 @@ class OptionalRowMapperFactory implements RowMapperFactory {
         return config.get(RowMappers.class).findFor(
                 GenericTypes.findGenericParameter(type, Optional.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Optional type")))
-            .map(mapper -> (r, ctx) -> (Optional<?>) Optional.ofNullable(mapper.map(r, ctx)));
+            .map(mapper -> (r, ctx) -> Optional.ofNullable(mapper.map(r, ctx)));
     }
 }

@@ -28,6 +28,7 @@ import static java.lang.String.format;
  * Support <a href="https://testcontainers.org/">Testcontainer JDBC containers</a> as database for Jdbi tests.
  */
 @Beta
+@SuppressWarnings("PMD.UnusedLocalVariable")
 public final class JdbiTestcontainersExtension extends JdbiExtension {
 
     private final JdbcDatabaseContainer<?> jdbcDatabaseContainer;

@@ -82,7 +82,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
      * @return the factory
      */
     public static RowMapperFactory factory(Class<?> clazz) {
-        return RowMapperFactory.of(clazz, ConstructorMapper.of(clazz));
+        return RowMapperFactory.of(clazz, of(clazz));
     }
 
     /**
@@ -93,7 +93,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
      * @return the factory
      */
     public static RowMapperFactory factory(Class<?> clazz, String prefix) {
-        return RowMapperFactory.of(clazz, ConstructorMapper.of(clazz, prefix));
+        return RowMapperFactory.of(clazz, of(clazz, prefix));
     }
 
     /**
@@ -103,7 +103,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
      * @return the factory
      */
     public static RowMapperFactory factory(Constructor<?> constructor) {
-        return RowMapperFactory.of(constructor.getDeclaringClass(), ConstructorMapper.of(constructor));
+        return RowMapperFactory.of(constructor.getDeclaringClass(), of(constructor));
     }
 
     /**
@@ -114,7 +114,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
      * @return the factory
      */
     public static RowMapperFactory factory(Constructor<?> constructor, String prefix) {
-        return RowMapperFactory.of(constructor.getDeclaringClass(), ConstructorMapper.of(constructor, prefix));
+        return RowMapperFactory.of(constructor.getDeclaringClass(), of(constructor, prefix));
     }
 
     /**
@@ -125,7 +125,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
      * @return the mapper
      */
     public static <T> RowMapper<T> of(Class<T> type) {
-        return ConstructorMapper.of(type, DEFAULT_PREFIX);
+        return of(type, DEFAULT_PREFIX);
     }
 
     /**
@@ -148,7 +148,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
      * @return the mapper
      */
     public static <T> RowMapper<T> of(Constructor<T> constructor) {
-        return ConstructorMapper.of(constructor, DEFAULT_PREFIX);
+        return of(constructor, DEFAULT_PREFIX);
     }
 
     /**

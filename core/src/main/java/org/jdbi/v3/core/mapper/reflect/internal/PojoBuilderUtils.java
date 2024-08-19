@@ -43,7 +43,6 @@ public class PojoBuilderUtils {
     }
 
     public static String propertyName(Method m) {
-
         return Optional.ofNullable(m.getAnnotation(ColumnName.class))
             .map(ColumnName::value)
             .orElseGet(() -> defaultSetterName(m.getName()));
@@ -78,7 +77,7 @@ public class PojoBuilderUtils {
         throws IllegalAccessException {
         final List<NoSuchMethodException> failures = new ArrayList<>();
         final Set<String> names = new LinkedHashSet<>();
-        names.add(PojoBuilderUtils.defaultSetterName(decl.getName()));
+        names.add(defaultSetterName(decl.getName()));
         names.add(name);
         if (name.length() > 1) {
             names.addAll(setterNames(name));
@@ -89,7 +88,7 @@ public class PojoBuilderUtils {
 
         columnName.ifPresent(n -> {
             if (n.equals(name)) {
-                names.addAll(setterNames(PojoBuilderUtils.defaultSetterName(decl.getName())));
+                names.addAll(setterNames(defaultSetterName(decl.getName())));
             }
         });
 

@@ -135,7 +135,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     public ResultIterator<Integer> executeAndGetModCount() {
         StatementContext ctx = getContext();
         final int[] modCount = execute();
-        return new ResultIterator<Integer>() {
+        return new ResultIterator<>() {
             int pos = 0;
             @Override
             public boolean hasNext() {

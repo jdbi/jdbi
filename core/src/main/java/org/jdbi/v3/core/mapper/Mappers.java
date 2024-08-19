@@ -15,6 +15,7 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
@@ -88,7 +89,7 @@ public class Mappers implements JdbiConfig<Mappers> {
      * is registered for the given type.
      */
     public Optional<RowMapper<?>> findFor(Type type) {
-        return findFor(QualifiedType.of(type)).map(rowMapper -> (RowMapper<?>) rowMapper);
+        return findFor(QualifiedType.of(type)).map(Function.identity());
     }
 
     /**
@@ -104,6 +105,7 @@ public class Mappers implements JdbiConfig<Mappers> {
      */
     public <T> Optional<RowMapper<T>> findFor(QualifiedType<T> type) {
         if (type.getQualifiers().isEmpty()) {
+            @SuppressWarnings("unchecked")
             Optional<RowMapper<T>> result = rowMappers.findFor(type.getType()).map(m -> (RowMapper<T>) m);
             if (result.isPresent()) {
                 return result;

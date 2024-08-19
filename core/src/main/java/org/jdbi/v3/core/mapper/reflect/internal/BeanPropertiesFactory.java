@@ -210,7 +210,7 @@ public class BeanPropertiesFactory {
                 ctorHandleHolder = JdbiClassUtils.findConstructor(this.clazz);
             }
 
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({ "unchecked", "PMD.LambdaCanBeMethodReference" })
             public T getInstance() {
                 return (T) ctorHandleHolder.invoke(handle -> handle.invokeExact());
             }

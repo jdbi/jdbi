@@ -36,6 +36,7 @@ import static java.lang.String.format;
 public interface ExtensionHandler {
 
     /** Implementation for the {@link Object#equals(Object)} method. Each object using this handler is only equal to itself. */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     ExtensionHandler EQUALS_HANDLER = (handleSupplier, target, args) -> target == args[0];
 
     /** Implementation for the {@link Object#hashCode()} method. */
@@ -85,7 +86,7 @@ public interface ExtensionHandler {
      * @throws IllegalAccessException If the method could not be unreflected
      */
     static ExtensionHandler createForMethod(Method method) throws IllegalAccessException {
-        Class<?> declaringClass = method.getDeclaringClass();
+        final Class<?> declaringClass = method.getDeclaringClass();
         final MethodHandle methodHandle = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup()).unreflect(method);
         return createForMethodHandle(methodHandle);
     }
@@ -98,7 +99,7 @@ public interface ExtensionHandler {
      * @throws IllegalAccessException If the method could not be unreflected
      */
     static ExtensionHandler createForSpecialMethod(Method method) throws IllegalAccessException {
-        Class<?> declaringClass = method.getDeclaringClass();
+        final Class<?> declaringClass = method.getDeclaringClass();
         final MethodHandle methodHandle = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup()).unreflectSpecial(method, declaringClass);
         return createForMethodHandle(methodHandle);
     }

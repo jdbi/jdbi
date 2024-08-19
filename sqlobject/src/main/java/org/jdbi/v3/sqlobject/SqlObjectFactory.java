@@ -25,6 +25,7 @@ public final class SqlObjectFactory extends AbstractSqlObjectFactory {
     SqlObjectFactory() {}
 
     @Override
+    @SuppressWarnings("PMD.SimplifyBooleanReturns")
     public boolean accepts(Class<?> extensionType) {
         // only allow interfaces.
         if (!extensionType.isInterface()) {

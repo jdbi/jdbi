@@ -44,7 +44,7 @@ public abstract class ResultSetSupplier implements Supplier<ResultSet>, Cleanabl
 
     private final Supplier<ResultSet> supplier;
 
-    protected Cleanable cleanable = Cleanable.NO_OP;
+    protected Cleanable cleanable = NO_OP;
 
     private ResultSetSupplier(Supplier<ResultSet> supplier) {
         this.supplier = supplier;

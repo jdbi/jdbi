@@ -35,14 +35,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class InternalGlobalJdbiModule extends PrivateModule {
 
-    private static final TypeLiteral<Set<RowMapper<?>>> ROW_MAPPER_TYPE_LITERAL = new TypeLiteral<Set<RowMapper<?>>>() {};
-    private static final TypeLiteral<Map<Type, RowMapper<?>>> QUALIFIED_ROW_MAPPER_TYPE_LITERAL = new TypeLiteral<Map<Type, RowMapper<?>>>() {};
-    private static final TypeLiteral<Set<ColumnMapper<?>>> COLUMN_MAPPER_TYPE_LITERAL = new TypeLiteral<Set<ColumnMapper<?>>>() {};
-    private static final TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>> QUALIFIED_COLUMN_MAPPER_TYPE_LITERAL = new TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>>() {};
-    private static final TypeLiteral<Set<GuiceJdbiCustomizer>> CUSTOMIZER_TYPE_LITERAL = new TypeLiteral<Set<GuiceJdbiCustomizer>>() {};
-    private static final TypeLiteral<Map<Class<?>, String>> ARRAY_TYPES_TYPE_LITERAL = new TypeLiteral<Map<Class<?>, String>>() {};
-    private static final TypeLiteral<Set<JdbiPlugin>> PLUGINS_TYPE_LITERAL = new TypeLiteral<Set<JdbiPlugin>>() {};
-    private static final TypeLiteral<Map<QualifiedType<?>, Codec<?>>> CODECS_TYPE_LITERAL = new TypeLiteral<Map<QualifiedType<?>, Codec<?>>>() {};
+    private static final TypeLiteral<Set<RowMapper<?>>> ROW_MAPPER_TYPE_LITERAL = new TypeLiteral<>() {};
+    private static final TypeLiteral<Map<Type, RowMapper<?>>> QUALIFIED_ROW_MAPPER_TYPE_LITERAL = new TypeLiteral<>() {};
+    private static final TypeLiteral<Set<ColumnMapper<?>>> COLUMN_MAPPER_TYPE_LITERAL = new TypeLiteral<>() {};
+    private static final TypeLiteral<Map<QualifiedType<?>, ColumnMapper<?>>> QUALIFIED_COLUMN_MAPPER_TYPE_LITERAL = new TypeLiteral<>() {};
+    private static final TypeLiteral<Set<GuiceJdbiCustomizer>> CUSTOMIZER_TYPE_LITERAL = new TypeLiteral<>() {};
+    private static final TypeLiteral<Map<Class<?>, String>> ARRAY_TYPES_TYPE_LITERAL = new TypeLiteral<>() {};
+    private static final TypeLiteral<Set<JdbiPlugin>> PLUGINS_TYPE_LITERAL = new TypeLiteral<>() {};
+    private static final TypeLiteral<Map<QualifiedType<?>, Codec<?>>> CODECS_TYPE_LITERAL = new TypeLiteral<>() {};
 
     private static final ConcurrentHashMap<Class<? extends Annotation>, InternalGlobalJdbiModule> REGISTRY = new ConcurrentHashMap<>();
 

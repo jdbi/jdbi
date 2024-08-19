@@ -81,7 +81,7 @@ public interface ModifiablePojoPropertiesFactory extends PojoPropertiesFactory {
         @Override
         public PojoBuilder<T> create() {
             final Object instance = builder.get();
-            return new PojoBuilder<T>() {
+            return new PojoBuilder<>() {
                 @Override
                 public void set(String property, Object value) {
                     Unchecked.biConsumer(getProperties().get(property).setter::invoke).accept(instance, value);

@@ -84,7 +84,7 @@ public final class ConfigRegistry {
         return configFactories.computeIfAbsent(configClass, klass -> {
             var handleHolder = JdbiClassUtils.findConstructor(klass, JDBI_CONFIG_TYPES);
             return registry -> {
-                var config = (JdbiConfig<?>) handleHolder.invoke(handle -> handle.invokeExact(registry));
+                var config = handleHolder.invoke(handle -> handle.invokeExact(registry));
                 config.setRegistry(registry);
                 return config;
             };

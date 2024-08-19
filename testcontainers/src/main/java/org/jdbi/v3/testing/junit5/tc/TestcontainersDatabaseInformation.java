@@ -87,23 +87,23 @@ public final class TestcontainersDatabaseInformation {
     static {
         Map<String, TestcontainersDatabaseInformation> knownContainers = new HashMap<>();
         // mysql crowd
-        knownContainers.put("org.testcontainers.containers.MySQLContainer", TestcontainersDatabaseInformation.MYSQL);
-        knownContainers.put("org.testcontainers.containers.MariaDBContainer", TestcontainersDatabaseInformation.MYSQL);
-        knownContainers.put("org.testcontainers.tidb.TiDBContainer", TestcontainersDatabaseInformation.MYSQL);
+        knownContainers.put("org.testcontainers.containers.MySQLContainer", MYSQL);
+        knownContainers.put("org.testcontainers.containers.MariaDBContainer", MYSQL);
+        knownContainers.put("org.testcontainers.tidb.TiDBContainer", MYSQL);
 
         // postgres crowd
-        knownContainers.put("org.testcontainers.containers.PostgreSQLContainer", TestcontainersDatabaseInformation.POSTGRES);
-        knownContainers.put("org.testcontainers.containers.CockroachContainer", TestcontainersDatabaseInformation.POSTGRES);
-        knownContainers.put("org.testcontainers.containers.YugabyteDBYSQLContainer", TestcontainersDatabaseInformation.POSTGRES);
+        knownContainers.put("org.testcontainers.containers.PostgreSQLContainer", POSTGRES);
+        knownContainers.put("org.testcontainers.containers.CockroachContainer", POSTGRES);
+        knownContainers.put("org.testcontainers.containers.YugabyteDBYSQLContainer", POSTGRES);
 
         // odd ones
-        knownContainers.put("org.testcontainers.containers.ClickHouseContainer", TestcontainersDatabaseInformation.CLICKHOUSE);
-        knownContainers.put("org.testcontainers.clickhouse.ClickHouseContainer", TestcontainersDatabaseInformation.CLICKHOUSE);
-        knownContainers.put("org.testcontainers.containers.OracleContainer", TestcontainersDatabaseInformation.ORACLE_XE);
-        knownContainers.put("org.testcontainers.oracle.OracleContainer", TestcontainersDatabaseInformation.ORACLE_XE);
-        knownContainers.put("org.testcontainers.containers.TrinoContainer", TestcontainersDatabaseInformation.TRINO);
-        knownContainers.put("org.testcontainers.containers.MSSQLServerContainer", TestcontainersDatabaseInformation.MSSQL);
-        knownContainers.put("org.testcontainers.containers.Db2Container", TestcontainersDatabaseInformation.DB2);
+        knownContainers.put("org.testcontainers.containers.ClickHouseContainer", CLICKHOUSE);
+        knownContainers.put("org.testcontainers.clickhouse.ClickHouseContainer", CLICKHOUSE);
+        knownContainers.put("org.testcontainers.containers.OracleContainer", ORACLE_XE);
+        knownContainers.put("org.testcontainers.oracle.OracleContainer", ORACLE_XE);
+        knownContainers.put("org.testcontainers.containers.TrinoContainer", TRINO);
+        knownContainers.put("org.testcontainers.containers.MSSQLServerContainer", MSSQL);
+        knownContainers.put("org.testcontainers.containers.Db2Container", DB2);
 
         KNOWN_CONTAINERS = knownContainers;
     }

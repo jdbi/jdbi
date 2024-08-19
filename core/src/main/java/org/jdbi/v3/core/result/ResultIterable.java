@@ -509,6 +509,7 @@ public interface ResultIterable<T> extends Iterable<T> {
              * Forwards the resultset to the next result that passes the filter (i.e. {@link Predicate} tests {@code true}).<br>
              * @return true if another such result exists, false otherwise
              */
+            @SuppressWarnings("PMD.UnusedAssignment")
             private boolean findNext() {
                 next = null;
                 while (getDelegate().hasNext()) {
