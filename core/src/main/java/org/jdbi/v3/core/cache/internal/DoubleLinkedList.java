@@ -81,7 +81,7 @@ final class DoubleLinkedList<K, V> {
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
         Node<K, V> node = rootNode.right;
-        while (node != rootNode) {
+        while (node != null && node != rootNode) {
             sb.append(node.key).append(" = ").append(node.value);
 
             if (node.right != null) {

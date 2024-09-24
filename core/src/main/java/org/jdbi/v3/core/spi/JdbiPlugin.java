@@ -16,6 +16,7 @@ package org.jdbi.v3.core.spi;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
@@ -56,6 +57,7 @@ public interface JdbiPlugin {
      * Abstract base class for single-install JdbiPlugins.
      */
     @SuppressWarnings("EqualsGetClass")
+    @SuppressFBWarnings("SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR")
     abstract class Singleton implements JdbiPlugin {
         @Override
         public boolean equals(Object obj) {
