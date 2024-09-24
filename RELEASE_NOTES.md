@@ -1,5 +1,7 @@
 # Unreleased
 
+- geantyref 2.0.0
+
 # 3.45.4
 
 - Avoid virtual thread deadlock on connection acquire (#2686, thanks @mhib !)
