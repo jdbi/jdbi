@@ -55,7 +55,7 @@ public interface JdbiPlugin {
     /**
      * Abstract base class for single-install JdbiPlugins.
      */
-    @SuppressWarnings("EqualsGetClass")
+    @SuppressWarnings({ "EqualsGetClass", "SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR"})
     abstract class Singleton implements JdbiPlugin {
         @Override
         public boolean equals(Object obj) {
