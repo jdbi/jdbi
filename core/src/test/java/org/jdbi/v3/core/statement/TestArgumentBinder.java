@@ -296,7 +296,7 @@ public class TestArgumentBinder {
                     .mapTo(Integer.class)
                     ::one
             ).isInstanceOf(UnableToCreateStatementException.class)
-                .hasMessageStartingWith("Missing positional parameter 2 in binding:{positional:{0:100,1:101,3:102}, named:{}, finder:[]}")
+                .hasMessageStartingWith("Missing positional parameter 2 in binding:{pos:{0:100,1:101,3:102}}")
         );
     }
 
@@ -310,7 +310,7 @@ public class TestArgumentBinder {
                     .mapTo(Integer.class)
                     ::one
             ).isInstanceOf(UnableToCreateStatementException.class)
-                .hasMessageStartingWith("Missing positional parameter 0 in binding:{positional:{1:100}, named:{}, finder:[]}")
+                .hasMessageStartingWith("Missing positional parameter 0 in binding:{pos:{1:100}}")
         );
     }
 

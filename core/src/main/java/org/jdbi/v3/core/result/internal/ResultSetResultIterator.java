@@ -31,6 +31,8 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
     private final ResultSetSupplier resultSetSupplier;
     private final StatementContext context;
 
+    private long mappedRows = 0;
+
     private volatile boolean alreadyAdvanced = false;
     private volatile boolean hasNext = false;
     private volatile boolean closed = false;
@@ -61,6 +63,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
     @Override
     public void close() {
         closed = true;
+        context.setMappedRows(mappedRows);
         try {
             resultSetSupplier.close();
         } catch (SQLException e) {
@@ -95,6 +98,8 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
             close();
             throw new NoSuchElementException("No element to advance to");
         }
+
+        mappedRows++;
 
         try {
             return rowMapper.map(resultSet, context);

@@ -16,13 +16,13 @@ package org.jdbi.v3.core.statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
@@ -34,8 +34,8 @@ import static org.jdbi.v3.core.statement.ArgumentBinder.unwrap;
  * Represents the arguments bound to a particular statement.
  */
 public class Binding {
-    protected final Map<Integer, Object> positionals = new HashMap<>();
-    protected final Map<String, Object> named = new HashMap<>();
+    protected final Map<Integer, Object> positionals = new TreeMap<>();
+    protected final Map<String, Object> named = new LinkedHashMap<>();
     protected final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
     private final StatementContext ctx;
 
@@ -151,19 +151,81 @@ public class Binding {
 
     @Override
     public String toString() {
-        String positionalsDescription = positionals.entrySet().stream()
-            .map(x -> x.getKey().toString() + ':' + unwrap(x.getValue()))
-            .collect(Collectors.joining(","));
+        return describe(Integer.MAX_VALUE);
+    }
 
-        String namedDescription = named.entrySet().stream()
-            .map(x -> x.getKey() + ':' + unwrap(x.getValue()))
-            .collect(Collectors.joining(","));
-
-        String found = namedArgumentFinder.stream()
-            .map(Object::toString)
-            .collect(Collectors.joining(","));
-
-        return "{positional:{" + positionalsDescription + "}, named:{" + namedDescription + "}, finder:[" + found + "]}";
+    /**
+     * Generate toString but with a maximum length.
+     * This is used to generate a preview even if the arguments may be very long.
+     * @param maxLength The maximum length of string to return
+     * @return toString truncated to maxLength
+     */
+    public String describe(final int maxLength) {
+        boolean firstSection = true;
+        boolean firstElem = true;
+        final StringBuilder buf = new StringBuilder();
+        buf.append('{');
+        if (!positionals.isEmpty()) {
+            firstSection = false;
+            buf.append("pos:{");
+            for (final var e : positionals.entrySet()) {
+                if (!firstElem) {
+                    buf.append(',');
+                }
+                firstElem = false;
+                buf.append(e.getKey())
+                    .append(':')
+                    .append(unwrap(e.getValue()));
+                if (buf.length() > maxLength) {
+                    break;
+                }
+            }
+            buf.append('}');
+        }
+        if (!named.isEmpty() && buf.length() < maxLength) {
+            if (!firstSection) {
+                buf.append(", ");
+            }
+            firstSection = false;
+            firstElem = true;
+            buf.append("named:{");
+            for (final var e : named.entrySet()) {
+                if (!firstElem) {
+                    buf.append(',');
+                }
+                firstElem = false;
+                buf.append(e.getKey())
+                    .append(':')
+                    .append(unwrap(e.getValue()));
+                if (buf.length() > maxLength) {
+                    break;
+                }
+            }
+            buf.append('}');
+        }
+        if (!namedArgumentFinder.isEmpty() && buf.length() < maxLength) {
+            if (!firstSection) {
+                buf.append(", ");
+            }
+            firstElem = true;
+            buf.append("finder:[");
+            for (final var naf : namedArgumentFinder) {
+                if (!firstElem) {
+                    buf.append(',');
+                }
+                firstElem = false;
+                buf.append(naf);
+                if (buf.length() > maxLength) {
+                    break;
+                }
+            }
+            buf.append('}');
+        }
+        if (buf.length() > maxLength - 2) {
+            buf.setLength(maxLength - 2);
+            buf.append('…');
+        }
+        return buf + "}";
     }
 
     /**

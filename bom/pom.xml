@@ -129,6 +129,16 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-opentelemetry</artifactId>
+                <version>${dep.jdbi3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-oracle12</artifactId>
+                <version>${dep.jdbi3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-postgis</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>

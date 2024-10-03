@@ -53,6 +53,8 @@ import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 
 import static java.util.Objects.requireNonNull;
 
@@ -69,6 +71,7 @@ public class StatementContext implements Closeable {
 
     private final ConfigRegistry config;
     private final ExtensionMethod extensionMethod;
+    private final Type jdbiStatementType;
 
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
 
@@ -86,16 +89,38 @@ public class StatementContext implements Closeable {
     private Instant executionMoment;
     private Instant completionMoment;
     private Instant exceptionMoment;
+    private long mappedRows;
+    private String traceId;
 
-    static StatementContext create(ConfigRegistry config, ExtensionMethod extensionMethod) {
-        final StatementContext context = new StatementContext(config, extensionMethod);
+    static StatementContext create(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType) {
+        final StatementContext context = new StatementContext(config, extensionMethod, jdbiStatementType);
         context.notifyContextCreated();
         return context;
     }
 
-    private StatementContext(ConfigRegistry config, ExtensionMethod extensionMethod) {
+    private StatementContext(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType) {
         this.config = requireNonNull(config);
         this.extensionMethod = extensionMethod;
+        this.jdbiStatementType = jdbiStatementType;
+    }
+
+    /**
+     * Inspect the type of the statement that owns this statement context.
+     */
+    @Beta
+    public Type getJdbiStatementType() {
+        return jdbiStatementType;
+    }
+
+    /**
+     * @return the type of the statement that owns this statement context as a descriptive string
+     */
+    @Beta
+    public String describeJdbiStatementType() {
+        if (jdbiStatementType instanceof Class<?>) {
+            return ((Class<?>) jdbiStatementType).getSimpleName();
+        }
+        return jdbiStatementType.getTypeName();
     }
 
     /**
@@ -544,6 +569,38 @@ public class StatementContext implements Closeable {
      */
     public void setExceptionMoment(Instant exceptionMoment) {
         this.exceptionMoment = exceptionMoment;
+    }
+
+    /**
+     * Retrieve the number of mapped rows. Only intended for internal instrumentation to call.
+     */
+    @Alpha
+    public long getMappedRows() {
+        return mappedRows;
+    }
+
+    /**
+     * Instrument the number of mapped rows. Only intended for internal instrumentation to call.
+     */
+    @Alpha
+    public void setMappedRows(final long mappedRows) {
+        this.mappedRows = mappedRows;
+    }
+
+    /**
+     * Instrument the telemetry trace id. Only intended for internal instrumentation to call.
+     */
+    @Alpha
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
+    /**
+     * Instrument the telemetry trace id. Only intended for internal instrumentation to call.
+     */
+    @Alpha
+    public String getTraceId() {
+        return traceId;
     }
 
     /**
