@@ -29,14 +29,14 @@ public @interface JdbiProperty {
     /**
      * Returns true if the property is mapped in a result. The property will be read from the database into a result.
      *
-     * @return true if the property is unmappable
+     * @return true if the property is mappable
      */
     boolean map() default true;
 
     /**
      * Returns true if the property is bound as an argument. Property will be bound as an argument.
      *
-     * @return true if the property is unbindable
+     * @return true if the property is bindable
      */
     boolean bind() default true;
 }
