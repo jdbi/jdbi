@@ -435,7 +435,7 @@ public class TestQueries {
             .bindBean(new Object())
             .execute())
             .isInstanceOf(StatementException.class)
-            .hasMessageContaining("binding:{positional:{7:8}, named:{one:two,name:brian}, finder:[{lazy bean property arguments \"java.lang.Object");
+            .hasMessageContaining("binding:{pos:{7:8}, named:{name:brian,one:two}, finder:[{lazy bean property arguments \"java.lang.Object");
     }
 
     @Test
