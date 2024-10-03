@@ -24,18 +24,18 @@ public final class StatementContextAccess {
     }
 
     public static StatementContext createContext() {
-        return StatementContext.create(new ConfigRegistry(), null);
+        return StatementContext.create(new ConfigRegistry(), null, StatementContextAccess.class);
     }
 
-    public static StatementContext createContext(ConfigRegistry config) {
-        return StatementContext.create(config, null);
+    public static StatementContext createContext(final ConfigRegistry config) {
+        return StatementContext.create(config, null, StatementContextAccess.class);
     }
 
     /**
      * Create a simple statement context that shares configuration
      * with the given handle.
      */
-    public static StatementContext createContext(Handle handle) {
-        return StatementContext.create(handle.getConfig(), null);
+    public static StatementContext createContext(final Handle handle) {
+        return StatementContext.create(handle.getConfig(), null, StatementContextAccess.class);
     }
 }

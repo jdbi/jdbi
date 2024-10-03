@@ -6262,6 +6262,24 @@ JdbiExtension extension = JdbiTestcontainersExtension.instance(CUSTOM_MYSQL, dbC
 [WARNING]
 Using a wait time of 0 seconds will wait until all of the internal state has been shutdown completely. This may result in infinite hangs of the tests when shutting down.
 
+== Telemetry
+
+Jdbi provides support for collecting telemetry about executed database statements.
+
+=== JDK Flight Recorder
+
+The link:https://en.wikipedia.org/wiki/JDK_Flight_Recorder[JDK Flight Recorder^] provides a lightweight event recorder mechanism suitable to enable in production.
+When active, Jdbi will record a `jdbi.statement` event for every statement executed, indicating the timestamp,
+duration, executed sql, and parameters.
+
+Configuration to limit large amounts of data recorded is available on the `SqlStatements` configuration class.
+
+=== OpenTelemetry Tracing
+
+The link:https://opentelemetry.io/[OpenTelemetry^] project provides a SDK to implement distributed tracing.
+Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^] 
+from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data
+similarly as JFR events above. Additionally, it will add the trace id to JFR events.
 
 == Third-Party Integration
 

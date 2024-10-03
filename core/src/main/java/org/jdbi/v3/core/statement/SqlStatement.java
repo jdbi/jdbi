@@ -72,6 +72,10 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     private final String sql;
     PreparedStatement stmt;
 
+    static {
+        jdk.jfr.FlightRecorder.register(JdbiStatementEvent.class);
+    }
+
     SqlStatement(Handle handle,
                  CharSequence sql) {
         super(handle);
@@ -1786,6 +1790,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     PreparedStatement internalExecute() {
         final StatementContext ctx = getContext();
+        final JdbiStatementEvent evt = new JdbiStatementEvent();
+        evt.begin();
 
         beforeTemplating();
 
@@ -1808,6 +1814,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         new ArgumentBinder(stmt, ctx, parsedSql.getParameters()).bind(getBinding());
 
         beforeExecution();
+
+        attachJfrEvent(evt, ctx);
 
         try {
             SqlLoggerUtil.wrap(stmt::execute, ctx, getConfig(SqlStatements.class).getSqlLogger());
@@ -1870,5 +1878,23 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     void afterExecution() {
         callCustomizers(c -> c.afterExecution(stmt, getContext()));
+    }
+
+    private void attachJfrEvent(JdbiStatementEvent evt, StatementContext ctx) {
+        if (evt.shouldCommit()) {
+            evt.traceId = ctx.getTraceId();
+            evt.type = ctx.describeJdbiStatementType();
+            final var stmtConfig = getConfig(SqlStatements.class);
+            final String renderedSql = ctx.getRenderedSql();
+            if (renderedSql != null) {
+                evt.sql = renderedSql.substring(0,
+                        Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength()));
+            }
+            evt.parameters = getBinding().describe(stmtConfig.getJfrParamMaxLength());
+            ctx.addCleanable(() -> {
+                evt.rowsMapped = ctx.getMappedRows();
+                evt.commit();
+            });
+        }
     }
 }

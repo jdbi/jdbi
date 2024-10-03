@@ -122,6 +122,10 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-opentelemetry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-postgis</artifactId>
         </dependency>
         <dependency>
@@ -172,6 +176,11 @@
         <dependency>
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
         </dependency>
 
         <dependency>

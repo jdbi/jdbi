@@ -60,6 +60,10 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Collection<StatementContextListener> contextListeners;
 
+    // Don't emit unlimited amounts of data via telemetry
+    private int jfrSqlMaxLength = 512;
+    private int jfrParamMaxLength = 512;
+
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());
         templateEngine = new DefinedAttributeTemplateEngine();
@@ -84,6 +88,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.customizers = new CopyOnWriteArrayList<>(that.customizers);
         this.contextListeners = new CopyOnWriteArraySet<>(that.contextListeners);
         this.templateCache = that.templateCache;
+        this.jfrSqlMaxLength = that.jfrSqlMaxLength;
+        this.jfrParamMaxLength = that.jfrParamMaxLength;
     }
 
     /**
@@ -365,6 +371,40 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public void setAttachCallbackStatementsForCleanup(boolean attachCallbackStatementsForCleanup) {
         this.attachCallbackStatementsForCleanup = attachCallbackStatementsForCleanup;
+    }
+
+    /**
+     * When recording JFR events, the maximum length of rendered SQL to store in the event record.
+     */
+    @Beta
+    public SqlStatements setJfrSqlMaxLength(final int jfrSqlMaxLength) {
+        this.jfrSqlMaxLength = jfrSqlMaxLength;
+        return this;
+    }
+
+    /**
+     * When recording JFR events, the maximum length of rendered SQL to store in the event record.
+     */
+    @Beta
+    public int getJfrSqlMaxLength() {
+        return jfrSqlMaxLength;
+    }
+
+    /**
+     * When recording JFR events, the maximum length of rendered parameters to store in the event record.
+     */
+    @Beta
+    public SqlStatements setJfrParamMaxLength(final int jfrParamMaxLength) {
+        this.jfrParamMaxLength = jfrParamMaxLength;
+        return this;
+    }
+
+    /**
+     * When recording JFR events, the maximum length of rendered parameters to store in the event record.
+     */
+    @Beta
+    public int getJfrParamMaxLength() {
+        return jfrParamMaxLength;
     }
 
     /**
