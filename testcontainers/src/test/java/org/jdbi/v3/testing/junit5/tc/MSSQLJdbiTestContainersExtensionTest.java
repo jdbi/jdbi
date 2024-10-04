@@ -24,7 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class MSSQLJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-CU12")
+    static JdbcDatabaseContainer<?> dbContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2017-latest")
         .acceptLicense();
 
     @Override
