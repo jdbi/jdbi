@@ -1,6 +1,7 @@
 # Unreleased
 
 - geantyref 2.0.0
+- sqlite: fix sqlite extension memory database usage to share between different connection (#2688)
 
 # 3.45.4
 
