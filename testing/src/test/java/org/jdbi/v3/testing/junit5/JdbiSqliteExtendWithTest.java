@@ -36,4 +36,14 @@ public class JdbiSqliteExtendWithTest {
 
         assertThat(one).isOne();
     }
+
+    @Test
+    public void dataSourceSharesData(Jdbi jdbi) {
+        jdbi.useHandle(h -> {
+            h.execute("create table shared_data (id integer)");
+        });
+        jdbi.useHandle(h -> {
+            h.execute("insert into shared_data(id) values(1)");
+        });
+    }
 }
