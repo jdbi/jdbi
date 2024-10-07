@@ -1,5 +1,6 @@
 # Unreleased
 
+- Introduce JDK Flight Recorder and OpenTelemetry support
 - geantyref 2.0.0
 
 # 3.45.4
