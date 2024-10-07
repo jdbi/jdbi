@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.testing.junit5;
 
+import java.util.UUID;
+
 import javax.sql.DataSource;
 
 import org.sqlite.SQLiteDataSource;
@@ -51,7 +53,9 @@ import org.sqlite.SQLiteDataSource;
  */
 public class JdbiSqliteExtension extends JdbiExtension {
 
-    private static final String URL = "jdbc:sqlite::memory:";
+    private static final String URL_FMT = "jdbc:sqlite:file:%s?mode=memory&cache=shared";
+
+    private final String id = UUID.randomUUID().toString();
 
     static JdbiExtension instance() {
         return new JdbiSqliteExtension();
@@ -61,7 +65,7 @@ public class JdbiSqliteExtension extends JdbiExtension {
 
     @Override
     public String getUrl() {
-        return URL;
+        return String.format(URL_FMT, id);
     }
 
     @Override
