@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @ExtendWith(JdbiSqliteExtension.class)
 public class JdbiSqliteExtendWithTest {
@@ -35,5 +36,16 @@ public class JdbiSqliteExtendWithTest {
         Integer one = handle.createQuery("select 1").mapTo(Integer.class).one();
 
         assertThat(one).isOne();
+    }
+
+    @Test
+    public void dataSourceSharesData(Jdbi jdbi) {
+        jdbi.useHandle(h -> {
+            h.execute("create table shared_data (id integer)");
+        });
+        assertThatNoException().isThrownBy(() ->
+                jdbi.useHandle(h -> {
+                    h.execute("insert into shared_data(id) values(1)");
+                }));
     }
 }
