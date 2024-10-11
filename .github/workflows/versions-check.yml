@@ -29,13 +29,13 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
         run: |
           make run-tests
 
@@ -58,13 +58,13 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
         run: |
           make run-tests
 
@@ -87,13 +87,13 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
         run: |
           make run-tests
 
@@ -116,13 +116,13 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
         run: |
           make run-tests
 
@@ -145,13 +145,13 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
         run: |
           make run-tests
 
@@ -174,13 +174,13 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
         run: |
           make run-tests
 
@@ -203,13 +203,13 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-kotlin,:jdbi3-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-kotlin,:jdbi3-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
         run: |
           make run-tests
 
@@ -232,13 +232,13 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
         run: |
           make run-tests
 
@@ -261,12 +261,12 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -Doracle.container.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -Doracle.container.version=${{ matrix.test-version }}"
         run: |
           make run-slow-tests

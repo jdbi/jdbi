@@ -32,12 +32,12 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -fae -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
+          MAVEN_CONFIG: "-B -ff -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
         run: |
           make run-tests

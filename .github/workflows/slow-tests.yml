@@ -34,13 +34,13 @@ jobs:
 
       - name: install code
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: run slow tests
         env:
-          MAVEN_CONFIG: "-B -fae -Ddep.testcontainers.version=${{ matrix.testcontainer-version }} -Djdbi.test.mysql-version=${{ matrix.mysql-version }}"
+          MAVEN_CONFIG: "-B -ff -Ddep.testcontainers.version=${{ matrix.testcontainer-version }} -Djdbi.test.mysql-version=${{ matrix.mysql-version }}"
         run: |
           make run-slow-tests
 
@@ -59,12 +59,12 @@ jobs:
 
       - name: install code
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: run slow tests
         env:
-          MAVEN_CONFIG: "-B -fae -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
+          MAVEN_CONFIG: "-B -ff -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
         run: |
           make run-slow-tests
