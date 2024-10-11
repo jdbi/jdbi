@@ -26,13 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("slow")
 @Testcontainers
-@EnabledOnOs(architectures = {"x86_64"})
+@EnabledOnOs(architectures = { "x86_64", "amd64" })
 public class DB2JdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
     static JdbcDatabaseContainer<?> dbContainer =
         new Db2Container(DockerImageName.parse("icr.io/db2_community/db2:11.5.9.0")
-                .asCompatibleSubstituteFor("ibmcom/db2"))
+            .asCompatibleSubstituteFor("ibmcom/db2"))
             .acceptLicense();
 
     @Override
