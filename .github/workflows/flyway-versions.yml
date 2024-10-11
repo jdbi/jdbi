@@ -27,12 +27,12 @@ jobs:
 
       - name: Build
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: test flyway versions
         env:
-          MAVEN_CONFIG: "-B -fae -pl :jdbi3-testing -Ddep.flyway.version=${{ matrix.flyway-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-testing -Ddep.flyway.version=${{ matrix.flyway-version }}"
         run: |
           make run-tests

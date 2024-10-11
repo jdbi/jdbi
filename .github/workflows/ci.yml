@@ -42,7 +42,7 @@ jobs:
       - name: build distribution
         env:
           JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
-          MAVEN_CONFIG: "-Dbasepom.check.skip-enforcer=false -B -fae"
+          MAVEN_CONFIG: "-Dbasepom.check.skip-enforcer=false -B -ff"
         run: |
           make install-fast
 
@@ -55,7 +55,7 @@ jobs:
       - name: run tests
         env:
           JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make run-tests
 
@@ -74,12 +74,12 @@ jobs:
 
       - name: install code
         env:
-          MAVEN_CONFIG: "-B -fae"
+          MAVEN_CONFIG: "-B -ff"
         run: |
           make install-fast
 
       - name: run tests
         env:
-          MAVEN_CONFIG: "-B -fae -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
+          MAVEN_CONFIG: "-B -ff -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
         run: |
           make run-tests

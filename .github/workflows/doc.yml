@@ -27,6 +27,6 @@ jobs:
 
       - name: docs
         env:
-          MAVEN_CONFIG: "-Dbasepom.check.fail-javadoc=true -B -fae"
+          MAVEN_CONFIG: "-Dbasepom.check.fail-javadoc=true -B -ff"
         run: |
           make docs
