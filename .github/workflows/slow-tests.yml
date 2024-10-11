@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        testcontainer-version: [ 1.19.4 ]
+        testcontainer-version: [ 1.19.8, 1.20.2 ]
         mysql-version: [ "mysql:latest" ]
         # 1.18.3 does not work with mysql:latest (8.3.x).
         include:
