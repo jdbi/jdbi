@@ -20,23 +20,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
 
   immutables:
@@ -49,23 +55,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
 
   jackson2:
@@ -78,23 +90,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
 
   jodatime2:
@@ -107,23 +125,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
 
   vavr:
@@ -136,23 +160,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
 
   guice:
@@ -165,23 +195,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
 
   kotlin:
@@ -194,23 +230,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-kotlin,:jdbi3-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
 
   spring:
@@ -223,23 +265,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
 
   oracle:
@@ -252,21 +300,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -Doracle.container.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-slow-tests

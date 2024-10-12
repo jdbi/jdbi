@@ -18,6 +18,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - name: Install locales on runner
         run: |
@@ -25,19 +28,22 @@ jobs:
           sudo apt-get install -y locales-all
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
         run: |
+          ./mvnw --version
           make run-tests

@@ -25,23 +25,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: install code
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: run slow tests
+      - id: run_slow_tests
         env:
           MAVEN_CONFIG: "-B -ff -Ddep.testcontainers.version=${{ matrix.testcontainer-version }} -Djdbi.test.mysql-version=${{ matrix.mysql-version }}"
         run: |
+          ./mvnw --version
           make run-slow-tests
 
   slow-tests-locale:
@@ -50,21 +56,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: install code
+      - id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: run slow tests
+      - id: run_slow_tests
         env:
           MAVEN_CONFIG: "-B -ff -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
         run: |
+          ./mvnw --version
           make run-slow-tests
