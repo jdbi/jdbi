@@ -17,6 +17,8 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
@@ -38,6 +40,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - name: configure git user
         run: |
@@ -45,6 +50,8 @@ jobs:
           git config --global user.email github-cd-action@jdbi.org
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin

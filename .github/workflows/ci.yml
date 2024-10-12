@@ -14,72 +14,118 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 11, 17, 21, 22-ea ]
+        java-version: [ 11, 17, 21, 23 ]
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
         id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
+      - name: build code
+        id: install_fast
+        env:
+          MAVEN_CONFIG: "-B -ff"
+        run: |
+          ./mvnw --version
+          make install-fast
+
       - uses: actions/setup-java@v4
+        name: setup test jdk
         id: test_jdk
         with:
           java-version: ${{ matrix.java-version }}
           distribution: temurin
           cache: maven
 
-      - name: set build_jdk
-        env:
-          JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
-        run: |
-          echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
-
-      - name: build distribution
-        env:
-          JAVA_HOME: ${{ steps.build_jdk.outputs.path }}
-          MAVEN_CONFIG: "-Dbasepom.check.skip-enforcer=false -B -ff"
-        run: |
-          make install-fast
-
-      - name: set test_jdk
-        env:
-          JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
-        run: |
-          echo "$JAVA_HOME/bin" >> ${GITHUB_PATH}
-
       - name: run tests
+        id: run_tests
         env:
-          JAVA_HOME: ${{ steps.test_jdk.outputs.path }}
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make run-tests
 
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.java-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.java-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
+
   ci-locale:
-    name: Run tests with different timezone and locale
+    name: run_tests with different timezone and locale
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: install code
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
       - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
