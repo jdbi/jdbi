@@ -6,10 +6,6 @@ on:
     branches:
       - master
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
     branches:
       - master
 
@@ -24,6 +20,8 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
@@ -35,6 +33,28 @@ jobs:
         run: |
           make install-notests
 
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
+
+
   reproducible-build:
     runs-on: ubuntu-latest
 
@@ -45,6 +65,8 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
@@ -61,3 +83,24 @@ jobs:
           MAVEN_CONFIG: "-B -ff -Dbasepom.test.skip=true"
         run: |
           make compare-reproducible
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar

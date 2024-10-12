@@ -20,24 +20,54 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
 
   immutables:
     name: Test Immutables versions
@@ -49,24 +79,54 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
 
   jackson2:
     name: Test Jackson Versions
@@ -78,24 +138,54 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
 
   jodatime2:
     name: Test joda-time versions
@@ -107,24 +197,54 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
 
   vavr:
     name: Test vavr versions
@@ -136,24 +256,54 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
 
   guice:
     name: Test guice versions
@@ -165,24 +315,54 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
 
   kotlin:
     name: Test kotlin runtime versions
@@ -194,24 +374,54 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-kotlin,:jdbi3-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
 
   spring:
     name: Test spring framework versions
@@ -223,24 +433,54 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
 
   oracle:
     name: Test Oracle versions
@@ -252,21 +492,51 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
         with:
           java-version: 21
           distribution: temurin
           cache: maven
 
-      - name: Build
+      - name: build code
+        id: install_fast
         env:
           MAVEN_CONFIG: "-B -ff"
         run: |
+          ./mvnw --version
           make install-fast
 
-      - name: Test
+      - name: run tests
+        id: run_tests
         env:
           MAVEN_CONFIG: "-B -ff -Doracle.container.version=${{ matrix.test-version }}"
         run: |
+          ./mvnw --version
           make run-slow-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
