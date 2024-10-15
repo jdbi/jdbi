@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TestMSSQLStoredProcedure {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new MSSQLServerContainer<>()
+    static JdbcDatabaseContainer<?> dbContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-latest")
         .acceptLicense();
 
     @RegisterExtension
