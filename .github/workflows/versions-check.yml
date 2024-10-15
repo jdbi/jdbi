@@ -267,6 +267,6 @@ jobs:
 
       - name: Test
         env:
-          MAVEN_CONFIG: "-B -ff -Doracle.container.version=${{ matrix.test-version }}"
+          MAVEN_CONFIG: "-B -ff -pl :jdbi3-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
         run: |
           make run-slow-tests
