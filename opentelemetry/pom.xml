@@ -28,7 +28,6 @@
     <description>Use OpenTelemetry for distributed tracing</description>
 
     <properties>
-        <japicmp.skip>true</japicmp.skip>
         <moduleName>org.jdbi.v3.opentelemetry</moduleName>
     </properties>
 
