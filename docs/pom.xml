@@ -126,6 +126,10 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-oracle12</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-postgis</artifactId>
         </dependency>
         <dependency>
@@ -221,6 +225,11 @@
         <dependency>
             <groupId>com.opentable.components</groupId>
             <artifactId>otj-pg-embedded</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>oracle-xe</artifactId>
         </dependency>
 
         <dependency>
@@ -368,7 +377,7 @@
                                 </goals>
                                 <phase>package</phase>
                                 <configuration>
-                                    <reportOutputDirectory>${project.build.directory}/generated-docs/apidocs</reportOutputDirectory>
+                                    <outputDirectory>${project.build.directory}/generated-docs</outputDirectory>
                                     <includeDependencySources>true</includeDependencySources>
                                     <dependencySourceIncludes>
                                         <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
