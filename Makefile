@@ -59,8 +59,8 @@ run-slow-tests:: run-tests
 run-tests-nodocker:: MAVEN_ARGS += -Dno-docker=true
 run-tests-nodocker:: run-tests
 
-publish-docs:: MAVEN_ARGS += -Pfast -Dbasepom.javadoc.skip=false
-publish-docs:: install
+publish-docs:: MAVEN_ARGS += -Dbasepom.javadoc.skip=false
+publish-docs:: install-fast
 	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
 
 deploy:: MAVEN_ARGS += -Dbasepom.it.skip=false
