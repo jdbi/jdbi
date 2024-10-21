@@ -37,12 +37,12 @@
         <dependencies>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-commons-text</artifactId>
+                <artifactId>jdbi3-caffeine-cache</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-caffeine-cache</artifactId>
+                <artifactId>jdbi3-commons-text</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
@@ -181,12 +181,12 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-testing</artifactId>
+                <artifactId>jdbi3-testcontainers</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-testcontainers</artifactId>
+                <artifactId>jdbi3-testing</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
             <dependency>
