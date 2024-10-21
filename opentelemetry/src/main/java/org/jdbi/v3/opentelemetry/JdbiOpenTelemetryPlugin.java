@@ -25,6 +25,10 @@ import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextListener;
 
+/**
+ * Enable OpenTelemetry support.
+ * Emits a trace span for every statement executed by Jdbi.
+ */
 public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     public static final AttributeKey<String> SQL = AttributeKey.stringKey("sql");
     public static final AttributeKey<String> BINDING = AttributeKey.stringKey("binding");
@@ -32,10 +36,17 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
 
     private final Tracer tracer;
 
+    /**
+     * Enable OpenTelemetry support with the global OpenTelemetry instance.
+     */
     public JdbiOpenTelemetryPlugin() {
         this(GlobalOpenTelemetry.get());
     }
 
+    /**
+     * Enable OpenTelemetry support with the supplied OpenTelemetry instance.
+     * @param telemetry the OpenTelemetry to emit spans to
+     */
     public JdbiOpenTelemetryPlugin(final OpenTelemetry telemetry) {
         tracer = telemetry.getTracer("jdbi");
     }

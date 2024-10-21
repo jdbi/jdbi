@@ -215,6 +215,11 @@ jdbi3-testing::
 jdbi3-testcontainers::
     Support for arbitrary databases running in https://testcontainers.org/[Testcontainers^]. Currently, only supports JUnit 5.
 
+===== Telemetry support
+
+[glossary]
+jdbi3-opentelemetry::
+    OpenTelemetry tracing support
 
 ===== External data types and libraries
 
