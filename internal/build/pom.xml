@@ -119,7 +119,7 @@
         <dep.plugin.dokka.version>1.9.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.5.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.5.0</dep.plugin.inline.version>
-        <dep.plugin.japicmp.version>0.18.3</dep.plugin.japicmp.version>
+        <dep.plugin.japicmp.version>0.23.0</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>1.9.22</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>2.0.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
@@ -877,6 +877,7 @@
                             <onlyModified>true</onlyModified>
                             <skipPomModules>true</skipPomModules>
                             <ignoreNonResolvableArtifacts>true</ignoreNonResolvableArtifacts>
+                            <ignoreMissingOldVersion>true</ignoreMissingOldVersion>
                             <breakBuildBasedOnSemanticVersioning>${jdbi.check.fail-japicmp}</breakBuildBasedOnSemanticVersioning>
 
                             <excludes>
