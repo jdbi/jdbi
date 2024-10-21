@@ -53,6 +53,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.flyway-version }})
@@ -65,6 +66,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.flyway-version }})
           retention-days: 1

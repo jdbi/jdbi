@@ -55,6 +55,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -67,6 +68,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
@@ -114,6 +116,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -126,6 +129,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
@@ -173,6 +177,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -185,6 +190,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
@@ -232,6 +238,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -244,6 +251,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
@@ -291,6 +299,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -303,6 +312,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
@@ -350,6 +360,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -362,6 +373,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
@@ -409,6 +421,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -421,6 +434,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
@@ -468,6 +482,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -480,6 +495,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
@@ -527,6 +543,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build logs
         id: upload_build_logs
+        continue-on-error: true
         if: ${{ always() }}
         with:
           name: build logs (${{ github.job }}, ${{ matrix.test-version }})
@@ -539,6 +556,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: upload build artifacts
         id: upload_build_artifacts
+        continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
