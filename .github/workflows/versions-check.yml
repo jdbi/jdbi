@@ -35,7 +35,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -43,7 +43,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-guava,:jdbi3-guice -Ddep.guava.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests
@@ -94,7 +94,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -102,7 +102,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-core -Ddep.immutables.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests
@@ -153,7 +153,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -161,7 +161,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests
@@ -212,7 +212,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -220,7 +220,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests
@@ -271,7 +271,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -279,7 +279,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests
@@ -330,7 +330,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -338,7 +338,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-guice -Ddep.guice.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests
@@ -389,7 +389,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -397,7 +397,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-kotlin,:jdbi3-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-kotlin,:jdbi3-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests
@@ -448,7 +448,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -456,7 +456,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests
@@ -507,7 +507,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -515,7 +515,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-slow-tests

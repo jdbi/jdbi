@@ -40,14 +40,14 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
 
       - id: run_slow_tests
         env:
-          MAVEN_CONFIG: "-B -ff -Ddep.testcontainers.version=${{ matrix.testcontainer-version }} -Djdbi.test.mysql-version=${{ matrix.mysql-version }}"
+          MAVEN_ARGS: "-B -ff -Ddep.testcontainers.version=${{ matrix.testcontainer-version }} -Djdbi.test.mysql-version=${{ matrix.mysql-version }}"
         run: |
           ./mvnw --version
           make run-slow-tests
@@ -94,14 +94,14 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
 
       - id: run_slow_tests
         env:
-          MAVEN_CONFIG: "-B -ff -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
+          MAVEN_ARGS: "-B -ff -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
         run: |
           ./mvnw --version
           make run-slow-tests

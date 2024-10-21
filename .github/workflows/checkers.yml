@@ -29,7 +29,7 @@ jobs:
 
       - name: run code checkers
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           make install-notests
 
@@ -74,13 +74,13 @@ jobs:
 
       - name: run first build
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           make install-notests
 
       - name: compare builds
         env:
-          MAVEN_CONFIG: "-B -ff -Dbasepom.test.skip=true"
+          MAVEN_ARGS: "-B -ff -Dbasepom.test.skip=true"
         run: |
           make compare-reproducible
 
