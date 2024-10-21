@@ -50,10 +50,10 @@ $ make install
 
 Running `make` or `make help` displays all available build targets with a short explanation. Some of the goals will require project membership privileges.  The [CONTRIBUTING.md](https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md) document contains a list of all supported targets.
 
-To add command line parameters to the maven executions from the Makefile, set the `MAVEN_CONFIG` variable:
+To add command line parameters to the maven executions from the Makefile, set the `MAVEN_ARGS` variable:
 
 ``` bash
-% MAVEN_CONFIG="-B -fae" make install
+% MAVEN_ARGS="-B -fae" make install
 ```
 
 

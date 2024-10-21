@@ -38,7 +38,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -46,7 +46,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
+          MAVEN_ARGS: "-B -ff -Dpg-embedded.postgres-version=${{ matrix.postgres-version }}"
         run: |
           ./mvnw --version
           make run-tests

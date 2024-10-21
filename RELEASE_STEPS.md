@@ -103,7 +103,7 @@ It also creates a release tag, pointing to the release commit.
 First, please don't. But if you really have to, it is possible to run
 
 ```bash
-$ MAVEN_CONFIG=-Dno-docker=true make release
+$ MAVEN_ARGS=-Dno-docker=true make release
 ```
 
 Which will skip all docker related tests. This is explicitly

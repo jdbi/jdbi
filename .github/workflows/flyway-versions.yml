@@ -33,7 +33,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -41,7 +41,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -pl :jdbi3-testing -Ddep.flyway.version=${{ matrix.flyway-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-testing -Ddep.flyway.version=${{ matrix.flyway-version }}"
         run: |
           ./mvnw --version
           make run-tests

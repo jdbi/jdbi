@@ -33,7 +33,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -49,7 +49,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make run-tests
@@ -96,7 +96,7 @@ jobs:
       - name: build code
         id: install_fast
         env:
-          MAVEN_CONFIG: "-B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make install-fast
@@ -104,7 +104,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_CONFIG: "-B -ff -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
+          MAVEN_ARGS: "-B -ff -Djdbi.test.timezone=Asia/Colombo -Djdbi.test.language=tr -Djdbi.test.region=TR"
         run: |
           ./mvnw --version
           make run-tests
