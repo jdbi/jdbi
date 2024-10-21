@@ -117,7 +117,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <dependenciesToScan>
-                        <dependency>org.jdbi:jdbi3-core:*:*:tests</dependency>
+                        <dependency>org.jdbi:jdbi3-core:*:tests</dependency>
                     </dependenciesToScan>
                 </configuration>
             </plugin>
