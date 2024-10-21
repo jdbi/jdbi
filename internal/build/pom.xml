@@ -125,7 +125,7 @@
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.7.2</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
-        <dep.spring.version>5.3.31</dep.spring.version>
+        <dep.spring.version>5.3.39</dep.spring.version>
         <dep.sqlite.version>3.44.1.0</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
         <dep.testcontainers.version>1.20.2</dep.testcontainers.version>
