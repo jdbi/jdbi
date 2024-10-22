@@ -1,5 +1,6 @@
 # Unreleased
 
+- spring aot: fix `@JdbiRepository` so aot generation works (#2727, thanks @hpoettker !)
 - spring5: update spring dependency and tests to latest releases (dependabot #36 / CVE-2024-38820 asks for 5.3.41 but that is not released (neither is 5.3.40. Spring is a mess)).
 
 # 3.46.0
