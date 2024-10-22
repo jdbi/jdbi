@@ -60,13 +60,13 @@ jobs:
           java-version: 21
           distribution: temurin
           cache: maven
-          server-id: github
-          server-username: git
-          server-password: SITE_DEPLOY
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.JDBI_GITHUB_IO_DEPLOY_KEY }}
 
       - name: publish docs
         env:
-          SITE_DEPLOY: ${{ secrets.SITE_DEPLOY_TOKEN  }}
           MAVEN_ARGS: "-B -ff"
         run: |
           make publish-docs

@@ -37,10 +37,9 @@
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.site.scm.branch>master</basepom.site.scm.branch>
         <basepom.site.scm.checkout-directory>${java.io.tmpdir}/gh-pages-publish/jdbi-docs</basepom.site.scm.checkout-directory>
-        <basepom.site.scm.id>github</basepom.site.scm.id>
         <basepom.site.scm.site-path>/</basepom.site.scm.site-path>
         <basepom.site.scm.skip-deploy>false</basepom.site.scm.skip-deploy>
-        <basepom.site.scm.url>scm:git:https://github.com/jdbi/jdbi.github.io</basepom.site.scm.url>
+        <basepom.site.scm.url>scm:git:git@github.com:jdbi/jdbi.github.io.git</basepom.site.scm.url>
         <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
         <moduleName>org.jdbi.v3.docs</moduleName>
     </properties>
