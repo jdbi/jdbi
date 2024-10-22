@@ -61,6 +61,7 @@ jobs:
           distribution: temurin
           cache: maven
           server-id: github
+          server-username: git
           server-password: SITE_DEPLOY
 
       - name: publish docs
