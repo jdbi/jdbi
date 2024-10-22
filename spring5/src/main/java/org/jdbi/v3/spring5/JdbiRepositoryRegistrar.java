@@ -17,12 +17,11 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
@@ -51,22 +50,17 @@ public class JdbiRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
     }
 
     private void registerJdbiRepositoryFactoryBean(BeanDefinitionRegistry registry, JdbiRepository annotation, String annotatedClass) {
-        @SuppressWarnings("rawtypes")
-        Class clazz = ClassUtils.resolveClassName(annotatedClass, null);
-        String jdbiQualifier = annotation.jdbiQualifier();
+        Class<?> clazz = ClassUtils.resolveClassName(annotatedClass, null);
+        String jdbiQualifier = StringUtils.hasText(annotation.jdbiQualifier()) ? annotation.jdbiQualifier() : null;
         String value = annotation.value();
 
-        JdbiRepositoryFactoryBean factoryBean = new JdbiRepositoryFactoryBean();
-        factoryBean.setObjectType(clazz);
-        factoryBean.setBeanFactory((BeanFactory) registry);
-        if (StringUtils.hasText(jdbiQualifier)) {
-            factoryBean.setJdbiQualifier(jdbiQualifier);
-        }
+        RootBeanDefinition beanDefinition = new RootBeanDefinition(JdbiRepositoryFactoryBean.class);
+        beanDefinition.setTargetType(clazz);
+        beanDefinition.getPropertyValues().add("objectType", clazz).add("jdbiQualifier", jdbiQualifier);
+        beanDefinition.validate();
 
-        @SuppressWarnings("unchecked")
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz, factoryBean::getObject);
         String beanName = StringUtils.hasText(value) ? value : annotatedClass;
-        registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
+        registry.registerBeanDefinition(beanName, beanDefinition);
     }
 
     private Iterable<BeanDefinition> resolveRepositoryBeanDefinitions(EnableJdbiRepositories annotation, String annotatedClass) {

@@ -52,6 +52,7 @@ public class JdbiRepositoryFactoryBean implements FactoryBean<Object>, Applicati
     /**
      * The object type of the repository.
      */
+    @SuppressWarnings("unused")
     public void setObjectType(Class<?> objectType) {
         this.objectType = objectType;
     }
@@ -61,6 +62,7 @@ public class JdbiRepositoryFactoryBean implements FactoryBean<Object>, Applicati
      * @param jdbiQualifier The name of the jdbi bean to bind the repository to.
      *                      if <code>null</code> then no name will be specified during resolution.
      */
+    @SuppressWarnings("unused")
     public void setJdbiQualifier(@Nullable String jdbiQualifier) {
         this.jdbiQualifier = jdbiQualifier;
     }
