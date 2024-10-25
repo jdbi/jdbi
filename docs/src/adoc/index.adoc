@@ -6198,7 +6198,7 @@ For each database, Jdbi can provide custom user, catalog and schema names and re
 
 [%header, cols=5*]
 .Supported Testcontainer databases
-|=====
+|===
 | Database | Isolation type | Database User | Catalog/Database name | Schema name
 | MySQL, MariaDB, TiDB | Catalog | `root` | (random) |
 | PostgreSQL, CockroachDB, YugabyteDB | Schema | (default) | `test` | (random)
@@ -6206,8 +6206,8 @@ For each database, Jdbi can provide custom user, catalog and schema names and re
 | Oracle XE, Oracle free | Schema | `system` | (default catalog) | (random)
 | Trino | Schema | (default) | `memory` | (random)
 | MS SQLServer | Catalog | `sa` | (random) |
-| DB2 | Schema | (default) | `test` | (random) |
-|=====
+| DB2 | Schema | (default) | `test` | (random)
+|===
 
 - Database user _(default)_: Jdbi uses the default user as returned by the testcontainer class.
 - Isolation type _Catalog_: A new catalog (or database) is created for each test. The schema name is not used or the database does not support schemas.
@@ -6697,7 +6697,7 @@ When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jd
 
 [%header, cols=3*]
 .Supported bindings
-|=====
+|===
 | Method | Type of binding | Jdbi function
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper()[bindRowMapper()^]
@@ -6728,7 +6728,7 @@ When implementing the link:{jdbidocs}/guice/AbstractJdbiDefinitionModule.html#jd
 | link:{jdbidocs}/guice/JdbiBinder.html#bindCustomizer()[bindCustomizer()^]
 | link:{jdbidocs}/guice/GuiceJdbiCustomizer.html[GuiceJdbiCustomizer^]
 | <<Jdbi customization using Guice>>
-|=====
+|===
 
 Each Jdbi definition module is completely independent and all definitions within the module only apply to the specific link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance.
 
