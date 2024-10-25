@@ -37,19 +37,16 @@
  * &lt;bean id="derby" class="org.apache.derby.jdbc.EmbeddedDataSource" destroy-method="close"&gt;
  * &lt;property name="databaseName" value="testing"/&gt;
  * &lt;/bean&gt;
- * &lt;bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean"&gt;
+ * &lt;bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean"&gt;
  * &lt;property name="dataSource" ref="derby"/&gt;
  * &lt;/bean&gt;
- * &lt;bean id="service" class="org.jdbi.v3.spring5.DummyService"&gt;
+ * &lt;bean id="service" class="org.jdbi.v3.spring.DummyService"&gt;
  * &lt;constructor-arg ref="jdbi"/&gt;
  * &lt;/bean&gt;
  * &lt;/beans&gt;
  * </pre>
  *
- * The automatic detection of {@link org.jdbi.v3.spring5.JdbiRepository} can be enabled by using the
- * {@link org.jdbi.v3.spring5.EnableJdbiRepositories} annotation.
- *
- * @deprecated Use the {@link org.jdbi.v3.spring} module with Spring 6.x or newer.
+ * The automatic detection of {@link org.jdbi.v3.spring.JdbiRepository} can be enabled by using the
+ * {@link org.jdbi.v3.spring.EnableJdbiRepositories} annotation.
  */
-@Deprecated(forRemoval = true, since = "3.47.0")
-package org.jdbi.v3.spring5;
+package org.jdbi.v3.spring;

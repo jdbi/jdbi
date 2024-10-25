@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring5;
+package org.jdbi.v3.spring;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -25,14 +25,11 @@ import org.springframework.context.annotation.Import;
  * Annotating a spring configuration class with this annotation enables the scanning/detection of jdbi repositories.
  * The scanned packages can be configured in the annotation. If no explicit configuration is done the package of the
  * annotated element will be used as the sole base package.
- *
- * @deprecated Use the {@link org.jdbi.v3.spring} module with Spring 6.x or newer.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
 @Import(JdbiRepositoryRegistrar.class)
-@Deprecated(forRemoval = true, since = "3.47.0")
 public @interface EnableJdbiRepositories {
 
     /**

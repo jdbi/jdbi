@@ -252,8 +252,10 @@ jdbi3-moshi::
 [glossary]
 jdbi3-guice::
     Support dependency injection and modules with https://github.com/google/guice[Google Guice^].
+jdbi3-spring::
+    Provides support for all https://spring.io/[Spring Framework^] versions that are under OSS support.
 jdbi3-spring5::
-    Provides a https://spring.io/[Spring Framework^] factory bean to set up Jdbi singleton.
+    Provides a https://spring.io/[Spring Framework^] version 5 compatible factory bean to set up Jdbi singleton. _This module is deprecated, please migrate to the `spring` module._
 jdbi3-jpa::
     Some support for https://www.oracle.com/java/technologies/persistence-jsp.html[JPA^] annotations.
 
@@ -7830,14 +7832,11 @@ https://jdbc.postgresql.org/documentation/head/binary-data.html[Pg-JDBC docs^]
 for upstream driver documentation.
 
 
-=== Spring
+=== Spring framework
 
-This module integrates Jdbi and Spring / Spring Boot, including JTA support.
+Jdbi supports https://spring.io[Spring Framework] with the `spring` module. It integrates Jdbi and Spring / Spring Boot, including JTA support.
 
-The `spring5` module supports Spring 5 (Spring Boot 2) and newer.
-We currently test with Spring 5 and Spring 6.
-
-To use *jdbi-spring5*, add a dependency:
+To use *jdbi-spring*, add a dependency:
 
 For Apache Maven:
 
@@ -7845,7 +7844,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-spring5</artifactId>
+    <artifactId>jdbi3-spring</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7855,9 +7854,19 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-spring5:{project_version}")
+    implementation("org.jdbi:jdbi3-spring:{project_version}")
 }
 ----
+
+==== Supported versions
+
+The `spring` module supports Spring 6.1 (Spring Boot 3.2.x) and newer. All versions of Spring framework that are under OSS support are supported. Other versions may work but are no tested and bug reports for older versions will not be addressed.
+
+The deprecated `spring5` module supports Spring Framework version 5.x and 6.0. These versions are no longer under OSS support and updates
+are no longer publicly available.
+
+[NOTE]
+The spring5 module will be removed in a future version of Jdbi! Please migrate to the `spring` module.
 
 
 ==== XML-based configuration
@@ -7891,7 +7900,7 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 
   <!--3-->
   <bean id="jdbi"
-    class="org.jdbi.v3.spring5.JdbiFactoryBean">
+    class="org.jdbi.v3.spring.JdbiFactoryBean">
     <property name="dataSource" ref="db"/>
   </bean>
 
@@ -7903,10 +7912,9 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 </beans>
 ----
 
-<1> The SQL data source that Jdbi will connect to. In this example we use an H2
-    database, but it can be any JDBC-compatible database.
+<1> The SQL data source that Jdbi will connect to. In this example we use an H2 database, but it can be any JDBC-compatible database.
 <2> Enable configuration of transactions via annotations.
-<3> Configure link:{jdbidocs}/spring5/JdbiFactoryBean.html[JdbiFactoryBean^] using the data source configured earlier.
+<3> Configure link:{jdbidocs}/spring/JdbiFactoryBean.html[JdbiFactoryBean^] using the data source configured earlier.
 <4> Inject a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance into a service class. Alternatively, use standard JSR-330 `@Inject` annotations on the target class instead of configuring it in your `beans.xml`.
 
 
@@ -7917,7 +7925,7 @@ link:{jdkdocs}/java.base/java/util/ServiceLoader.html[ServiceLoader^] manifests.
 
 [source,xml,indent=0]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
   ...
   <property name="autoInstallPlugins" value="true"/>
 </bean>
@@ -7927,7 +7935,7 @@ Plugins may also be installed explicitly:
 
 [source,xml,indent=0]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
   ...
   <property name="plugins">
     <list>
@@ -7943,7 +7951,7 @@ auto-install some plugins and manually install the rest:
 
 [source,xml,indent=0]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
   ...
   <property name="autoInstallPlugins" value="true"/>
   <property name="plugins">
@@ -7961,7 +7969,7 @@ Global defined attributes may be configured on the factory bean:
 
 [source,xml,indent=0]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
   <property name="dataSource" ref="db"/>
   <property name="globalDefines">
     <map>
@@ -7988,9 +7996,9 @@ public class JdbiConfiguration {
     }
 }
 ----
-<1> This connection factory will enable <<spring5-jta, JTA support>>.
+<1> This connection factory will enable <<spring-jta, JTA support>>.
 
-[#spring5-jta]
+[#spring-jta]
 ==== Synchronization between Jdbi and JTA
 If you use Spring and databases, you will most likely also use the Java Transaction API (JTA)
 to manage the transactions. The `JdbiUtil` utility can be used to obtain link:{jdbidocs}/core/Handle.html[Handles^]
