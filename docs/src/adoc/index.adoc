@@ -7860,7 +7860,7 @@ dependencies {
 
 ==== Supported versions
 
-The `spring` module supports Spring 6.1 (Spring Boot 3.2.x) and newer. All versions of Spring framework that are under OSS support are supported. Other versions may work but are no tested and bug reports for older versions will not be addressed.
+The `spring` module supports Spring 6.1 (Spring Boot 3.2.x) and newer. All versions of Spring framework that are under OSS support are supported. Other versions may work but are not tested and bug reports for older versions will not be addressed.
 
 The deprecated `spring5` module supports Spring Framework version 5.x and 6.0. These versions are no longer under OSS support and updates
 are no longer publicly available.
