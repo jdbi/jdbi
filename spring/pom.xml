@@ -22,15 +22,13 @@
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-spring5</artifactId>
+    <artifactId>jdbi3-spring</artifactId>
 
-    <name>jdbi3 spring5</name>
-    <description>SpringFramework and SpringBoot support.</description>
+    <name>jdbi3 spring</name>
+    <description>Support for Spring Framework and Spring Boot.</description>
 
     <properties>
-        <!-- last public version -->
-        <dep.spring.version>5.3.39</dep.spring.version>
-        <moduleName>org.jdbi.v3.spring5</moduleName>
+        <moduleName>org.jdbi.v3.spring</moduleName>
     </properties>
 
     <dependencies>

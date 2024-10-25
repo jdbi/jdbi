@@ -137,6 +137,17 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-spring</artifactId>
+            <!--- it is always spring. always. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-spring5</artifactId>
             <!--- it is always spring. always. -->
             <exclusions>

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring5;
+package org.jdbi.v3.spring;
 
 import java.util.Collections;
 import java.util.Set;
@@ -25,10 +25,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 /**
  * Utility for working with Jdbi and Spring transaction bound resources
- *
- * @deprecated Use the {@link org.jdbi.v3.spring} module with Spring 6.x or newer.
  */
-@Deprecated(forRemoval = true, since = "3.47.0")
 public class JdbiUtil {
     private static final Set<Handle> TRANSACTIONAL_HANDLES = Collections.newSetFromMap(new ConcurrentHashMap<>());
 

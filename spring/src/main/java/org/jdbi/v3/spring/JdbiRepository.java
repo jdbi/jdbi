@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring5;
+package org.jdbi.v3.spring;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -24,13 +24,10 @@ import java.lang.annotation.Target;
  * detected interfaces with this annotation will be regarded as a jdbi (sql-object) repository
  * and are elligible for autowiring. The handle used for the execution is obtained and discarded using {@link JdbiUtil}
  * and consequently will work in combination with spring managed transactions.
- *
- * @deprecated Use the {@link org.jdbi.v3.spring} module with Spring 6.x or newer.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Deprecated(forRemoval = true, since = "3.47.0")
 public @interface JdbiRepository {
     /**
      * The name of the created bean. if omitted the default naming mechanism is used.

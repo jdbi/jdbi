@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring5;
+package org.jdbi.v3.spring;
 
 import org.jdbi.v3.core.Jdbi;
 import org.springframework.beans.factory.BeanFactory;
@@ -22,10 +22,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.Nullable;
 
-/**
- * @deprecated Use the {@link org.jdbi.v3.spring} module with Spring 6.x or newer.
- */
-@Deprecated(forRemoval = true, since = "3.47.0")
 public class JdbiRepositoryFactoryBean implements FactoryBean<Object>, ApplicationContextAware, BeanFactoryAware, InitializingBean {
 
     private Class<?> objectType;

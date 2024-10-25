@@ -447,7 +447,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 5.3.39, 6.0.23, 6.1.9 ]
+        test-version: [ 6.0.23, 6.1.14 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -474,7 +474,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi3-spring5 -Ddep.spring.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-spring -Ddep.spring.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-tests

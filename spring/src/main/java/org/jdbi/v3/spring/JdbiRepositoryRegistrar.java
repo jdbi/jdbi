@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.spring5;
+package org.jdbi.v3.spring;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -33,10 +33,7 @@ import org.springframework.util.StringUtils;
  * This bean registers the bean definitions of all repositories.
  * Interfaces found using the configuration of {@link EnableJdbiRepositories}
  * and annotated with {@link JdbiRepository} will be registered.
- *
- * @deprecated Use the {@link org.jdbi.v3.spring} module with Spring 6.x or newer.
  */
-@Deprecated(forRemoval = true, since = "3.47.0")
 public class JdbiRepositoryRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
