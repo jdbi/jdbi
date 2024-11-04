@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper.reflect;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.mapper.ColumnMapper;
@@ -36,6 +38,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.internal.NullDelegatingMapper;
+import org.jdbi.v3.core.mapper.reflect.internal.RowMapperFieldPostProcessor;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -43,10 +46,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static java.lang.String.format;
 
 import static org.jdbi.v3.core.mapper.ColumnMapper.getDefaultColumnMapper;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.*;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -123,7 +123,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
         final List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, org.jdbi.v3.core.mapper.reflect.internal.RowMapperFieldPostProcessor.noPostProcessing())
             .orElseThrow(() -> new IllegalArgumentException(format("Mapping fields for type %s didn't find any matching columns in result set", type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
@@ -135,10 +135,10 @@ public final class FieldMapper<T> implements RowMapper<T> {
         return mapper;
     }
 
-    private Optional<RowMapper<T>> createSpecializedRowMapper(StatementContext ctx,
+    private <R> Optional<RowMapper<R>> createSpecializedRowMapper(StatementContext ctx,
                                                List<String> columnNames,
                                                List<ColumnNameMatcher> columnNameMatchers,
-                                               List<String> unmatchedColumns) {
+                                               List<String> unmatchedColumns, org.jdbi.v3.core.mapper.reflect.internal.RowMapperFieldPostProcessor<T, R> postProcessor) {
         final List<FieldData> fields = new ArrayList<>();
 
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
@@ -164,10 +164,21 @@ public final class FieldMapper<T> implements RowMapper<T> {
                     String nestedPrefix = addPropertyNamePrefix(prefix, nested.value());
 
                     if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
-                        nestedMappers
-                            .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
-                            .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns)
-                            .ifPresent(mapper ->
+                        Optional<? extends RowMapper<?>> nestedMapper;
+                        if (field.getType().equals(Optional.class)) {
+                            Class<?> rawType = extractFirstTypeParameter((ParameterizedType) field.getGenericType());
+                            nestedMapper = nestedMappers
+                                .computeIfAbsent(field, f -> new FieldMapper<>(rawType, nestedPrefix))
+                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());;
+                        } else {
+                            boolean nullable = ReflectionMapperUtil.hasNullableAnnotation(Stream.of(field.getAnnotations()));
+                            nestedMapper = nestedMappers
+                                .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
+                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, nullable ?
+                                    RowMapperFieldPostProcessor.nullIfAllParametersNull() : RowMapperFieldPostProcessor.noPostProcessing());
+                        }
+
+                        nestedMapper.ifPresent(mapper ->
                                 fields.add(new FieldData(field, mapper)));
                     }
                 }
@@ -190,7 +201,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
         } catch (ReflectiveOperationException e) {
             throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
         }
-        RowMapper<T> boundMapper = new BoundFieldMapper(constructor, fields);
+        RowMapper<R> boundMapper = new BoundFieldMapper<>(constructor, fields, postProcessor);
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
@@ -249,28 +260,33 @@ public final class FieldMapper<T> implements RowMapper<T> {
         final boolean isPrimitive;
     }
 
-    class BoundFieldMapper implements RowMapper<T> {
+    class BoundFieldMapper<R> implements RowMapper<R> {
         private final Constructor<T> constructor;
         private final List<FieldData> fields;
+        private final RowMapperFieldPostProcessor<T, R> postProcessor;
 
-        BoundFieldMapper(Constructor<T> constructor, List<FieldData> fields) {
+        BoundFieldMapper(Constructor<T> constructor, List<FieldData> fields, RowMapperFieldPostProcessor<T, R> postProcessor) {
             this.constructor = constructor;
             this.fields = fields;
+            this.postProcessor = postProcessor;
         }
 
         @Override
-        public T map(ResultSet rs, StatementContext ctx) throws SQLException {
+        public R map(ResultSet rs, StatementContext ctx) throws SQLException {
             T obj = construct();
 
+            boolean allParametersNull = true;
             for (FieldData f : fields) {
                 Object value = f.mapper.map(rs, ctx);
-                if (f.propagateNull && (value == null || (f.isPrimitive && rs.wasNull()))) {
-                    return null;
+                boolean wasNull = (value == null || (f.isPrimitive && rs.wasNull()));
+                allParametersNull &= (wasNull || isOptionalAndEmpty(value));
+                if (f.propagateNull && wasNull) {
+                    return postProcessor.process(null, true);
                 }
                 writeField(obj, f.field, value);
             }
 
-            return obj;
+            return postProcessor.process(obj, allParametersNull);
         }
 
         private T construct() {

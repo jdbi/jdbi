@@ -14,9 +14,9 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.ConstructorProperties;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,6 +36,7 @@ import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
+import org.jdbi.v3.core.mapper.reflect.internal.RowMapperFieldPostProcessor;
 import org.jdbi.v3.core.mapper.reflect.internal.NullDelegatingMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -44,10 +45,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static java.lang.String.format;
 
 import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findFactoryFor;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.*;
 
 /**
  * A row mapper which maps the fields in a result set into a constructor. The default implementation will perform a case insensitive mapping between the
@@ -236,7 +234,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing())
             .orElseGet(() -> new UnmatchedConstructorMapper<>(format(
                 UNMATCHED_CONSTRUCTOR_PARAMETERS, factory)));
 
@@ -250,10 +248,11 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
         return mapper;
     }
 
-    private Optional<RowMapper<T>> createSpecializedRowMapper(StatementContext ctx,
-                                               List<String> columnNames,
-                                               List<ColumnNameMatcher> columnNameMatchers,
-                                               List<String> unmatchedColumns) {
+    private <R> Optional<RowMapper<R>> createSpecializedRowMapper(StatementContext ctx,
+                                                                  List<String> columnNames,
+                                                                  List<ColumnNameMatcher> columnNameMatchers,
+                                                                  List<String> unmatchedColumns,
+                                                                  RowMapperFieldPostProcessor<T, R> postProcessor) {
         final int count = factory.getParameterCount();
         final Parameter[] parameters = factory.getParameters();
         final List<Type> types = factory.getTypes();
@@ -290,12 +289,21 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 }
             } else {
                 final String nestedPrefix = addPropertyNamePrefix(prefix, nested.value());
+                Optional<? extends RowMapper<?>> nestedMapper;
+                if (parameter.getType().equals(Optional.class)) {
+                    Class<?> rawType = extractFirstTypeParameter((ParameterizedType) parameter.getParameterizedType());
+                    ConstructorMapper<?> mapper = nestedMappers.computeIfAbsent(parameter, p ->
+                            new ConstructorMapper<>(findFactoryFor(rawType), nestedPrefix));
 
-                final Optional<? extends RowMapper<?>> nestedMapper = nestedMappers
-                    .computeIfAbsent(parameter, p ->
-                        new ConstructorMapper<>(findFactoryFor(p.getType()), nestedPrefix))
-                    .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns);
+                    nestedMapper = mapper.createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());
+                } else {
+                    nestedMapper = nestedMappers
+                        .computeIfAbsent(parameter, p ->
+                            new ConstructorMapper<>(findFactoryFor(p.getType()), nestedPrefix))
+                        .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, nullable ?
+                            RowMapperFieldPostProcessor.nullIfAllParametersNull() : RowMapperFieldPostProcessor.noPostProcessing());
 
+                }
                 if (nestedMapper.isPresent()) {
                     paramData.add(new ParameterData(i, parameter, nestedMapper.get()));
                     matchedColumns = true;
@@ -319,7 +327,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 UNMATCHED_CONSTRUCTOR_PARAMETER, factory, unmatchedParameters));
         }
 
-        RowMapper<T> boundMapper = new BoundConstructorMapper(paramData);
+        RowMapper<R> boundMapper = new BoundConstructorMapper(paramData, postProcessor);
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
@@ -343,11 +351,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
     }
 
     private boolean isNullable(Parameter parameter) {
-        // Any annotation named @Nullable is honored. We're nice that way.
-        return Stream.of(parameter.getAnnotations())
-            .map(Annotation::annotationType)
-            .map(Class::getSimpleName)
-            .anyMatch("Nullable"::equals);
+        return ReflectionMapperUtil.hasNullableAnnotation(Stream.of(parameter.getAnnotations()));
     }
 
     private static String paramName(Parameter[] parameters,
@@ -413,28 +417,32 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
         }
     }
 
-    class BoundConstructorMapper implements RowMapper<T> {
+    class BoundConstructorMapper<R> implements RowMapper<R> {
 
         private final List<ParameterData> paramData;
         private final int count;
+        private final RowMapperFieldPostProcessor<T, R> postProcessor;
 
-        BoundConstructorMapper(List<ParameterData> paramData) {
+        BoundConstructorMapper(List<ParameterData> paramData, RowMapperFieldPostProcessor<T, R> postProcessor) {
             this.paramData = paramData;
             this.count = factory.getParameterCount();
+            this.postProcessor = postProcessor;
         }
 
         @Override
-        public T map(ResultSet rs, StatementContext ctx) throws SQLException {
+        public R map(ResultSet rs, StatementContext ctx) throws SQLException {
             final Object[] params = new Object[count];
-
+            boolean allParametersNull = true;
             for (ParameterData p : paramData) {
                 params[p.index] = p.mapper == null ? null : p.mapper.map(rs, ctx);
-                if (p.propagateNull && (params[p.index] == null || (p.isPrimitive && rs.wasNull()))) {
-                    return null;
+                boolean wasNull = (params[p.index] == null || (p.isPrimitive && rs.wasNull()));
+                allParametersNull &= (wasNull || isOptionalAndEmpty(params[p.index]));
+                if (p.propagateNull && wasNull) {
+                    return postProcessor.process(null, true);
                 }
             }
 
-            return factory.newInstance(params);
+            return postProcessor.process(factory.newInstance(params), allParametersNull);
         }
 
         @Override
