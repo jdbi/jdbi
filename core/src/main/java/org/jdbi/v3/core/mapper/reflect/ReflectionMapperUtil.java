@@ -13,15 +13,23 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.mapper.CaseStrategy;
@@ -137,5 +145,45 @@ public final class ReflectionMapperUtil {
         } else {
             return prefix + "." + name;
         }
+    }
+
+    /**
+     * Returns whether the given object is an empty {@link Optional}, {@link OptionalInt}, {@link OptionalDouble},
+     * or {@link OptionalLong}.
+     *
+     * @param o the object to check
+     * @return whether the object is an empty optional. Always returns false if the object is not an optional
+     */
+    public static boolean isOptionalAndEmpty(Object o) {
+        return (o instanceof Optional && ((Optional<?>) o).isEmpty()) ||
+               (o instanceof OptionalDouble && ((OptionalDouble) o).isEmpty()) ||
+               (o instanceof OptionalInt && ((OptionalInt) o).isEmpty()) ||
+               (o instanceof OptionalLong && ((OptionalLong) o).isEmpty());
+    }
+
+    /**
+     * Extracts the first type parameter from a parameterized type.
+     *
+     * @param parameterizedType the parameterized type to extract the type parameter from
+     * @return the class of the first type parameter
+     */
+    public static Class<?> extractFirstTypeParameter(ParameterizedType parameterizedType) {
+        Type typeArg = parameterizedType.getActualTypeArguments()[0];
+        return  (Class<?>) typeArg;
+    }
+
+
+    /**
+     * Returns whether any of the given annotations are named {@code Nullable}.
+     *
+     * @param annotations the annotations to check
+     * @return whether any of the annotations are named {@code Nullable}
+     */
+    public static boolean hasNullableAnnotation(Stream<Annotation> annotations) {
+        // Any annotation named @Nullable is honored. We're nice that way.
+        return annotations
+            .map(Annotation::annotationType)
+            .map(Class::getSimpleName)
+            .anyMatch("Nullable"::equals);
     }
 }

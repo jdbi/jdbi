@@ -2289,6 +2289,7 @@ Unless otherwise noted, all annotations are supported on bean getters and setter
 Without this annotation, any attribute is treated as mappable from a single column.
 This annotation creates a mapper for the nested bean.
 There is a limitation that only one type of mapper can be nested at a time; `BeanMapper` will create another `BeanMapper`, `ConstructorMapper` will create another `ConstructorMapper` etc. link:{jdbidocs}/core/mapper/Nested.html[@Nested^] supports an optional prefix for all attributes in the nested bean (`@Nested("prefix")`).
+When the nested attribute is `@Nullable` or wrapped in `Optional` then then the attribute will automatically be `null` or `Optional.empty()` if all mapped nested fields are `null` in the result set.
 * `@PropagateNull` on a given attribute propagates a null value for a specific attribute up.
 So if the attribute or column is null, the whole bean will be discarded and a null value will be used instead of the bean itself.
 This annotation can also be used on the bean class with a column name that must be present in the result set.
@@ -6286,7 +6287,7 @@ Configuration to limit large amounts of data recorded is available on the `SqlSt
 === OpenTelemetry Tracing
 
 The link:https://opentelemetry.io/[OpenTelemetry^] project provides a SDK to implement distributed tracing.
-Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^] 
+Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^]
 from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data
 similarly as JFR events above. Additionally, it will add the trace id to JFR events.
 

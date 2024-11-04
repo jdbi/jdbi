@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.jdbi.v3.core.qualifier.QualifiedType;
 
@@ -51,6 +52,7 @@ public abstract class PojoProperties<T> {
         String getName();
         QualifiedType<?> getQualifiedType();
         <A extends Annotation> Optional<A> getAnnotation(Class<A> anno);
+        Stream<Annotation> getAnnotations();
         Object get(T pojo);
     }
 }
