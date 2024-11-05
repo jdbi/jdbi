@@ -28,7 +28,7 @@
         <exclude name="AccessorMethodGeneration"/>
         <exclude name="AvoidStringBufferField"/>
         <exclude name="GuardLogStatement"/>
-        <exclude name="JUnit4TestShouldUseTestAnnotation"/>
+        <exclude name="UnitTestShouldUseTestAnnotation"/>
         <exclude name="LooseCoupling"/>
         <exclude name="UnusedFormalParameter"/>
         <exclude name="UseVarargs"/>
