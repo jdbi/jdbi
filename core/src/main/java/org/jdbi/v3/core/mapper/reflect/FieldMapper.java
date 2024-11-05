@@ -31,6 +31,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
@@ -166,7 +167,10 @@ public final class FieldMapper<T> implements RowMapper<T> {
                     if (anyColumnsStartWithPrefix(columnNames, nestedPrefix, columnNameMatchers)) {
                         Optional<? extends RowMapper<?>> nestedMapper;
                         if (field.getType().equals(Optional.class)) {
-                            Class<?> rawType = extractFirstTypeParameter((ParameterizedType) field.getGenericType());
+                            Class<?> rawType = GenericTypes.findGenericParameter(field.getGenericType(), Optional.class)
+                                .map(GenericTypes::getErasedType)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                    format("Could not determine the type of the Optional field %s", field.getName())));
                             nestedMapper = nestedMappers
                                 .computeIfAbsent(field, f -> new FieldMapper<>(rawType, nestedPrefix))
                                 .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());;

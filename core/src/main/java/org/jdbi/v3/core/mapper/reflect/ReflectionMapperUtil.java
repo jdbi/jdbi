@@ -162,18 +162,6 @@ public final class ReflectionMapperUtil {
     }
 
     /**
-     * Extracts the first type parameter from a parameterized type.
-     *
-     * @param parameterizedType the parameterized type to extract the type parameter from
-     * @return the class of the first type parameter
-     */
-    public static Class<?> extractFirstTypeParameter(ParameterizedType parameterizedType) {
-        Type typeArg = parameterizedType.getActualTypeArguments()[0];
-        return  (Class<?>) typeArg;
-    }
-
-
-    /**
      * Returns whether any of the given annotations are named {@code Nullable}.
      *
      * @param annotations the annotations to check

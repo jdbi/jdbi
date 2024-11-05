@@ -124,7 +124,10 @@ public class PojoMapper<T> implements RowMapper<T> {
                     Optional<? extends RowMapper<?>> nestedMapper;
                     Type propertyType = property.getQualifiedType().getType();
                     if (propertyType instanceof ParameterizedType && ((ParameterizedType) propertyType).getRawType().equals(Optional.class)) {
-                        Class<?> rawType = extractFirstTypeParameter((ParameterizedType) propertyType);
+                        Class<?> rawType = GenericTypes.findGenericParameter(propertyType, Optional.class)
+                            .map(GenericTypes::getErasedType)
+                            .orElseThrow(() -> new IllegalArgumentException(
+                                format("Could not determine the type of Optional property %s", property.getName())));
                         nestedMapper = nestedMappers
                             .computeIfAbsent(property, d -> createNestedMapper(ctx, rawType, nestedPrefix))
                             .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());

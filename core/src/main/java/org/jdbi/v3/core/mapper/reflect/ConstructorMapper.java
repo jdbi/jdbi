@@ -31,6 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -242,7 +244,10 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 final String nestedPrefix = addPropertyNamePrefix(prefix, nested.value());
                 Optional<? extends RowMapper<?>> nestedMapper;
                 if (parameter.getType().equals(Optional.class)) {
-                    Class<?> rawType = extractFirstTypeParameter((ParameterizedType) parameter.getParameterizedType());
+                    Class<?> rawType = GenericTypes.findGenericParameter(parameter.getParameterizedType(), Optional.class)
+                        .map(GenericTypes::getErasedType)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                            format("Could not determine the type of the Optional parameter '%s' for instance factory '%s'", parameter.getName(), factory)));
                     ConstructorMapper<?> mapper = nestedMappers.computeIfAbsent(parameter, p ->
                             new ConstructorMapper<>(findFactoryFor(rawType), nestedPrefix));
 
