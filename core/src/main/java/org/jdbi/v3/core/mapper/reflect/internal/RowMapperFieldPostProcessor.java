@@ -27,40 +27,20 @@ public interface RowMapperFieldPostProcessor<T, R> {
     /**
      * Process the object
      * @param object the object to process
-     * @param allParametersNull whether all parameters are null (or empty Optionals)
      */
-    R process(T object, boolean allParametersNull);
+    R process(T object);
 
     /**
      * Keep the object as is
      */
     static <T> RowMapperFieldPostProcessor<T, T> noPostProcessing() {
-        return (object, allParametersNullOrEmpty) -> object;
+        return (object) -> object;
     }
 
     /**
      * Wrap the object in an {@link Optional}, returning {@link Optional#empty()} if all parameters are null or empty
      */
     static <T> RowMapperFieldPostProcessor<T, Optional<T>> wrapNestedOptional() {
-        return (object, allParametersNullOrEmpty) -> {
-            if (allParametersNullOrEmpty) {
-                return Optional.empty();
-            } else {
-                return Optional.of(object);
-            }
-        };
-    }
-
-    /**
-     * return {@code null} if all parameters are null or empty, otherwise return the object as is
-     */
-    static <T> RowMapperFieldPostProcessor<T, T> nullIfAllParametersNull() {
-        return (object, allParametersNullOrEmpty) -> {
-            if (allParametersNullOrEmpty) {
-                return null;
-            } else {
-                return object;
-            }
-        };
+        return (object) -> Optional.ofNullable(object);
     }
 }

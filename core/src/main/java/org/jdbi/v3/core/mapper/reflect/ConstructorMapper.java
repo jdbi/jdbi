@@ -14,9 +14,9 @@
 package org.jdbi.v3.core.mapper.reflect;
 
 import java.beans.ConstructorProperties;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,7 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
@@ -47,7 +46,10 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static java.lang.String.format;
 
 import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findFactoryFor;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.*;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 /**
  * A row mapper which maps the fields in a result set into a constructor. The default implementation will perform a case insensitive mapping between the
@@ -305,8 +307,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                     nestedMapper = nestedMappers
                         .computeIfAbsent(parameter, p ->
                             new ConstructorMapper<>(findFactoryFor(p.getType()), nestedPrefix))
-                        .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, nullable ?
-                            RowMapperFieldPostProcessor.nullIfAllParametersNull() : RowMapperFieldPostProcessor.noPostProcessing());
+                        .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing());
 
                 }
                 if (nestedMapper.isPresent()) {
@@ -332,7 +333,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 UNMATCHED_CONSTRUCTOR_PARAMETER, factory, unmatchedParameters));
         }
 
-        RowMapper<R> boundMapper = new BoundConstructorMapper(paramData, postProcessor);
+        RowMapper<R> boundMapper = new BoundConstructorMapper<>(paramData, postProcessor);
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
@@ -356,7 +357,11 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
     }
 
     private boolean isNullable(Parameter parameter) {
-        return ReflectionMapperUtil.hasNullableAnnotation(Stream.of(parameter.getAnnotations()));
+        // Any annotation named @Nullable is honored. We're nice that way.
+        return Stream.of(parameter.getAnnotations())
+            .map(Annotation::annotationType)
+            .map(Class::getSimpleName)
+            .anyMatch("Nullable"::equals);
     }
 
     private static String paramName(Parameter[] parameters,
@@ -437,17 +442,15 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
         @Override
         public R map(ResultSet rs, StatementContext ctx) throws SQLException {
             final Object[] params = new Object[count];
-            boolean allParametersNull = true;
             for (ParameterData p : paramData) {
                 params[p.index] = p.mapper == null ? null : p.mapper.map(rs, ctx);
                 boolean wasNull = (params[p.index] == null || (p.isPrimitive && rs.wasNull()));
-                allParametersNull &= (wasNull || isOptionalAndEmpty(params[p.index]));
                 if (p.propagateNull && wasNull) {
-                    return postProcessor.process(null, true);
+                    return postProcessor.process(null);
                 }
             }
 
-            return postProcessor.process(factory.newInstance(params), allParametersNull);
+            return postProcessor.process(factory.newInstance(params));
         }
 
         @Override

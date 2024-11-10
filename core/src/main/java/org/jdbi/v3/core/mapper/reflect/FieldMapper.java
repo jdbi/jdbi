@@ -16,7 +16,6 @@ package org.jdbi.v3.core.mapper.reflect;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.generic.GenericTypes;
@@ -47,7 +45,10 @@ import org.jdbi.v3.core.statement.StatementContext;
 import static java.lang.String.format;
 
 import static org.jdbi.v3.core.mapper.ColumnMapper.getDefaultColumnMapper;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.*;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 /**
  * A row mapper which maps the columns in a statement into an object, using reflection
@@ -173,13 +174,11 @@ public final class FieldMapper<T> implements RowMapper<T> {
                                     format("Could not determine the type of the Optional field %s", field.getName())));
                             nestedMapper = nestedMappers
                                 .computeIfAbsent(field, f -> new FieldMapper<>(rawType, nestedPrefix))
-                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());;
+                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());
                         } else {
-                            boolean nullable = ReflectionMapperUtil.hasNullableAnnotation(Stream.of(field.getAnnotations()));
                             nestedMapper = nestedMappers
                                 .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
-                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, nullable ?
-                                    RowMapperFieldPostProcessor.nullIfAllParametersNull() : RowMapperFieldPostProcessor.noPostProcessing());
+                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing());
                         }
 
                         nestedMapper.ifPresent(mapper ->
@@ -279,18 +278,16 @@ public final class FieldMapper<T> implements RowMapper<T> {
         public R map(ResultSet rs, StatementContext ctx) throws SQLException {
             T obj = construct();
 
-            boolean allParametersNull = true;
             for (FieldData f : fields) {
                 Object value = f.mapper.map(rs, ctx);
                 boolean wasNull = (value == null || (f.isPrimitive && rs.wasNull()));
-                allParametersNull &= (wasNull || isOptionalAndEmpty(value));
                 if (f.propagateNull && wasNull) {
-                    return postProcessor.process(null, true);
+                    return postProcessor.process(null);
                 }
                 writeField(obj, f.field, value);
             }
 
-            return postProcessor.process(obj, allParametersNull);
+            return postProcessor.process(obj);
         }
 
         private T construct() {

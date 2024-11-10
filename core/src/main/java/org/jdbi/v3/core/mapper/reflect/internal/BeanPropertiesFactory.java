@@ -185,12 +185,6 @@ public class BeanPropertiesFactory {
             }
 
             @Override
-            public Stream<Annotation> getAnnotations() {
-                return Stream.of(descriptor.getWriteMethod(), descriptor.getReadMethod())
-                    .flatMap(m -> Stream.of(m.getAnnotations()));
-            }
-
-            @Override
             public Object get(T pojo) {
                 return getter().apply(pojo);
             }
