@@ -38,7 +38,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.mapper.reflect.ColumnNameMatcher;
-import org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil;
 import org.jdbi.v3.core.mapper.reflect.ReflectionMappers;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoBuilder;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
@@ -132,11 +131,9 @@ public class PojoMapper<T> implements RowMapper<T> {
                             .computeIfAbsent(property, d -> createNestedMapper(ctx, rawType, nestedPrefix))
                             .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());
                     } else {
-                        boolean nullable = ReflectionMapperUtil.hasNullableAnnotation(property.getAnnotations());
                         nestedMapper = nestedMappers
                             .computeIfAbsent(property, d -> createNestedMapper(ctx, GenericTypes.getErasedType(propertyType), nestedPrefix))
-                            .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, nullable ?
-                                RowMapperFieldPostProcessor.nullIfAllParametersNull() : RowMapperFieldPostProcessor.noPostProcessing());
+                            .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing());
                     }
 
                     nestedMapper
@@ -235,14 +232,11 @@ public class PojoMapper<T> implements RowMapper<T> {
         @Override
         public R map(ResultSet rs, StatementContext ctx) throws SQLException {
             final PojoBuilder<T> pojo = getProperties(ctx.getConfig()).create();
-
-            boolean allParametersNull = true;
             for (PropertyData<T> p : propList) {
                 Object value = p.mapper.map(rs, ctx);
                 boolean wasNull = (value == null || (p.isPrimitive && rs.wasNull()));
-                allParametersNull &= (wasNull || isOptionalAndEmpty(value));
                 if (p.propagateNull && wasNull) {
-                    return postProcessor.process(null, true);
+                    return postProcessor.process(null);
                 }
 
                 if (value != null) {
@@ -250,7 +244,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                 }
             }
 
-            return postProcessor.process(pojo.build(), allParametersNull);
+            return postProcessor.process(pojo.build());
         }
 
         @Override

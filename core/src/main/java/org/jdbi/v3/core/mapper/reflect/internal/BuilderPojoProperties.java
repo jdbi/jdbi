@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.leangen.geantyref.GenericTypeReflector;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -130,11 +129,6 @@ public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
         @Override
         public <A extends Annotation> Optional<A> getAnnotation(Class<A> anno) {
             return Optional.ofNullable(defn.getAnnotation(anno));
-        }
-
-        @Override
-        public Stream<Annotation> getAnnotations() {
-            return Stream.of(defn.getAnnotations());
         }
 
         @Override
