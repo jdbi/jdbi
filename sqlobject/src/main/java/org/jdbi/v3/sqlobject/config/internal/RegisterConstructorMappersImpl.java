@@ -21,7 +21,6 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.SimpleExtensionConfigurer;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.RowMappers;
-import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMappers;
 
@@ -34,14 +33,7 @@ public class RegisterConstructorMappersImpl extends SimpleExtensionConfigurer {
         this.constructorMappers = new ArrayList<>(registerConstructorMappers.value().length);
 
         for (RegisterConstructorMapper registerConstructorMapper : registerConstructorMappers.value()) {
-            Class<?> constructorClass = registerConstructorMapper.value();
-            String prefix = registerConstructorMapper.prefix();
-
-            if (prefix.isEmpty()) {
-                this.constructorMappers.add(ConstructorMapper.factory(constructorClass));
-            } else {
-                this.constructorMappers.add(ConstructorMapper.factory(constructorClass, prefix));
-            }
+            this.constructorMappers.add(RegisterConstructorMapperImpl.createFactory(registerConstructorMapper));
         }
     }
 

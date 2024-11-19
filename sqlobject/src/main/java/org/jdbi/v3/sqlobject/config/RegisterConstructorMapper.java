@@ -42,4 +42,11 @@ public @interface RegisterConstructorMapper {
      * @return Column name prefix for the mapped type.
      */
     String prefix() default "";
+
+    /**
+     * If specified, find a static factory method in the given class to instantiate the mapped type.
+     *
+     * @return The type to inspect for a static factory method
+     */
+    Class<?> usingStaticMethodIn() default void.class;
 }
