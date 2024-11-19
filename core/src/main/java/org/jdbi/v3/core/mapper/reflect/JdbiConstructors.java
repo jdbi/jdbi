@@ -66,6 +66,34 @@ public class JdbiConstructors {
     }
 
     /**
+     * Find a static factory method.
+     * Prefer an {@link JdbiConstructor} annotated static factory method if one is present.
+     * Otherwise, choose a static factory method that returns the given type, if exactly one exists.
+     * @param <T> the return type of the factory
+     * @param factoryReturnType the return type of the factory method
+     * @param factoryMethodClass the type to inspect
+     * @return the static factory method
+     */
+    static <T> InstanceFactory<T> findFactoryFor(Class<T> factoryReturnType, Class<?> factoryMethodClass) {
+        List<Method> allFactoryMethods = Stream.of(factoryMethodClass.getDeclaredMethods())
+            .filter(method -> method.getReturnType().equals(factoryReturnType))
+            .collect(Collectors.toList());
+        List<Method> explicitFactoryMethods = allFactoryMethods.stream()
+            .filter(method -> method.isAnnotationPresent(JdbiConstructor.class))
+            .collect(Collectors.toList());
+
+        if (explicitFactoryMethods.size() == 1) {
+            return new StaticMethodInstanceFactory<>(factoryReturnType, explicitFactoryMethods.get(0));
+        }
+        if (allFactoryMethods.size() == 1) {
+            return new StaticMethodInstanceFactory<>(factoryReturnType, allFactoryMethods.get(0));
+        }
+
+        throw new IllegalArgumentException(String.format("%s must have exactly one factory method returning %s, or specify it with @JdbiConstructor",
+                factoryMethodClass, factoryReturnType));
+    }
+
+    /**
      * Find an invokable constructor.  Prefer an {@link JdbiConstructor} annotated
      * one if present.  Throws if multiple or zero candidates are found.
      *
