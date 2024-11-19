@@ -50,6 +50,7 @@ import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.v3.core.argument.internal.PojoPropertyArguments;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.IterableLike;
+import org.jdbi.v3.core.internal.JfrSupport;
 import org.jdbi.v3.core.mapper.Mappers;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
@@ -73,7 +74,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     PreparedStatement stmt;
 
     static {
-        jdk.jfr.FlightRecorder.register(JdbiStatementEvent.class);
+        JfrSupport.initJdbiEvent();
     }
 
     SqlStatement(Handle handle,
@@ -1790,8 +1791,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     PreparedStatement internalExecute() {
         final StatementContext ctx = getContext();
-        final JdbiStatementEvent evt = new JdbiStatementEvent();
-        evt.begin();
+
+        var evt = JfrSupport.beginEvent();
 
         beforeTemplating();
 
@@ -1815,7 +1816,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         beforeExecution();
 
-        attachJfrEvent(evt, ctx);
+        JfrSupport.attachJfrEvent(evt, ctx);
 
         try {
             SqlLoggerUtil.wrap(stmt::execute, ctx, getConfig(SqlStatements.class).getSqlLogger());
@@ -1878,23 +1879,5 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     void afterExecution() {
         callCustomizers(c -> c.afterExecution(stmt, getContext()));
-    }
-
-    private void attachJfrEvent(JdbiStatementEvent evt, StatementContext ctx) {
-        if (evt.shouldCommit()) {
-            evt.traceId = ctx.getTraceId();
-            evt.type = ctx.describeJdbiStatementType();
-            final var stmtConfig = getConfig(SqlStatements.class);
-            final String renderedSql = ctx.getRenderedSql();
-            if (renderedSql != null) {
-                evt.sql = renderedSql.substring(0,
-                        Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength()));
-            }
-            evt.parameters = getBinding().describe(stmtConfig.getJfrParamMaxLength());
-            ctx.addCleanable(() -> {
-                evt.rowsMapped = ctx.getMappedRows();
-                evt.commit();
-            });
-        }
     }
 }
