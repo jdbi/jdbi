@@ -47,6 +47,14 @@ public class TestRegisterConstructorMapper {
     }
 
     @Test
+    public void testStaticFactoryMapperRegistered() {
+        dao.insert(1, "brain");
+        Something brain = dao.getByIdUsingFactoryMethod(1);
+        assertThat(brain.getId()).isOne();
+        assertThat(brain.getName()).isEqualTo("brain");
+    }
+
+    @Test
     public void testMapperPrefixed() {
         dao.insert(1, "brain");
         Something brain = dao.getByIdPrefixed(1);
@@ -61,6 +69,13 @@ public class TestRegisterConstructorMapper {
         }
     }
 
+    public static class FactoryClass {
+        @SuppressWarnings("unused")
+        public static Something createSomething(int id, String name) {
+            return new SubSomething(id, name);
+        }
+    }
+
     public interface Dao {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);
@@ -68,6 +83,10 @@ public class TestRegisterConstructorMapper {
         @SqlQuery("select id, name from something where id=:id")
         @RegisterConstructorMapper(SubSomething.class)
         SubSomething getById(@Bind("id") int id);
+
+        @SqlQuery("select id, name from something where id=:id")
+        @RegisterConstructorMapper(value = Something.class, usingStaticMethodIn = FactoryClass.class)
+        Something getByIdUsingFactoryMethod(@Bind("id") int id);
 
         @SqlQuery("select id thing_id, name thing_name from something where id=:id")
         @RegisterConstructorMapper(value = SubSomething.class, prefix = "thing_")
