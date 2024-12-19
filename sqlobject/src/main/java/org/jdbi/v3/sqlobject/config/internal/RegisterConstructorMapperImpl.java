@@ -28,14 +28,17 @@ public class RegisterConstructorMapperImpl extends SimpleExtensionConfigurer {
 
     public RegisterConstructorMapperImpl(Annotation annotation) {
         RegisterConstructorMapper registerConstructorMapper = (RegisterConstructorMapper) annotation;
+        constructorMapper = createFactory(registerConstructorMapper);
+    }
 
-        Class<?> constructorClass = registerConstructorMapper.value();
-        String prefix = registerConstructorMapper.prefix();
-
-        if (prefix.isEmpty()) {
-            constructorMapper = ConstructorMapper.factory(constructorClass);
+    static RowMapperFactory createFactory(RegisterConstructorMapper annotation) {
+        Class<?> constructorClass = annotation.value();
+        String prefix = annotation.prefix();
+        Class<?> factoryMethodClass = annotation.usingStaticMethodIn();
+        if (void.class.equals(factoryMethodClass)) {
+            return ConstructorMapper.factory(constructorClass, prefix);
         } else {
-            constructorMapper = ConstructorMapper.factory(constructorClass, prefix);
+            return ConstructorMapper.factory(constructorClass, factoryMethodClass, prefix);
         }
     }
 
