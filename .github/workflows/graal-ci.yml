@@ -23,6 +23,6 @@ jobs:
 
       - name: build
         env:
-          MAVEN_CONFIG: "-Dbasepom.check.skip-enforcer=false -B -Djdbi.native=true"
+          MAVEN_CONFIG: "-Dbasepom.check.skip-enforcer=false -B -Djdbi.native=true -Djdbi.check.skip-japicmp=true"
         run: |
           make install
