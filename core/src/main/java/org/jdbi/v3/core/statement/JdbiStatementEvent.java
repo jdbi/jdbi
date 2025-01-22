@@ -14,11 +14,12 @@
 package org.jdbi.v3.core.statement;
 
 import jdk.jfr.Label;
+import org.jdbi.v3.core.statement.internal.OptionalEvent;
 
 @jdk.jfr.Category("jdbi")
 @jdk.jfr.Name(JdbiStatementEvent.NAME)
 @Label("Jdbi Statement")
-public final class JdbiStatementEvent extends jdk.jfr.Event {
+public final class JdbiStatementEvent extends jdk.jfr.Event implements OptionalEvent {
     public static final String NAME = "jdbi.statement";
     @Label("Type")
     public String type;
