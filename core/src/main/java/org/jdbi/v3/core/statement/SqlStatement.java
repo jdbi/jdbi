@@ -55,6 +55,8 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.qualifier.NVarchar;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.statement.internal.JfrSupport;
+import org.jdbi.v3.core.statement.internal.OptionalEvent;
 import org.jdbi.v3.meta.Beta;
 
 import static java.util.stream.Collectors.joining;
@@ -73,7 +75,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     PreparedStatement stmt;
 
     static {
-        jdk.jfr.FlightRecorder.register(JdbiStatementEvent.class);
+        JfrSupport.registerEvents();
     }
 
     SqlStatement(Handle handle,
@@ -1790,7 +1792,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     PreparedStatement internalExecute() {
         final StatementContext ctx = getContext();
-        final JdbiStatementEvent evt = new JdbiStatementEvent();
+        final OptionalEvent evt = JfrSupport.newStatementEvent();
         evt.begin();
 
         beforeTemplating();
@@ -1880,21 +1882,26 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         callCustomizers(c -> c.afterExecution(stmt, getContext()));
     }
 
-    private void attachJfrEvent(JdbiStatementEvent evt, StatementContext ctx) {
-        if (evt.shouldCommit()) {
-            evt.traceId = ctx.getTraceId();
-            evt.type = ctx.describeJdbiStatementType();
-            final var stmtConfig = getConfig(SqlStatements.class);
-            final String renderedSql = ctx.getRenderedSql();
-            if (renderedSql != null) {
-                evt.sql = renderedSql.substring(0,
-                        Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength()));
-            }
-            evt.parameters = getBinding().describe(stmtConfig.getJfrParamMaxLength());
-            ctx.addCleanable(() -> {
-                evt.rowsMapped = ctx.getMappedRows();
-                evt.commit();
-            });
+    private void attachJfrEvent(OptionalEvent statementEvent, StatementContext ctx) {
+        if (statementEvent.shouldCommit()) {
+            new Object() {
+                void attach() {
+                    final var evt = (JdbiStatementEvent) statementEvent;
+                    evt.traceId = ctx.getTraceId();
+                    evt.type = ctx.describeJdbiStatementType();
+                    final var stmtConfig = getConfig(SqlStatements.class);
+                    final String renderedSql = ctx.getRenderedSql();
+                    if (renderedSql != null) {
+                        evt.sql = renderedSql.substring(0,
+                                Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength()));
+                    }
+                    evt.parameters = getBinding().describe(stmtConfig.getJfrParamMaxLength());
+                    ctx.addCleanable(() -> {
+                        evt.rowsMapped = ctx.getMappedRows();
+                        evt.commit();
+                    });
+                }
+            }.attach();
         }
     }
 }
