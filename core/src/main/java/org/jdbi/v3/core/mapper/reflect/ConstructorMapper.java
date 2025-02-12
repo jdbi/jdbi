@@ -97,6 +97,30 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
     }
 
     /**
+     * Use the only declared static factory method to map a class.
+     *
+     * @param clazz the class to static factory method for
+     * @param factoryMethodClass the type to inspect for a static factory method
+     * @return the factory
+     */
+    public static RowMapperFactory factory(Class<?> clazz, Class<?> factoryMethodClass) {
+        return RowMapperFactory.of(clazz, of(clazz, factoryMethodClass));
+    }
+
+
+    /**
+     * Use the only declared static factory method to map a class.
+     *
+     * @param clazz the class to static factory method for
+     * @param factoryMethodClass the type to inspect for a static factory method
+     * @param prefix a prefix for the parameter names
+     * @return the factory
+     */
+    public static RowMapperFactory factory(Class<?> clazz, Class<?> factoryMethodClass, String prefix) {
+        return RowMapperFactory.of(clazz, of(clazz, factoryMethodClass, prefix));
+    }
+
+    /**
      * Use a {@code Constructor<T>} to map its declaring type.
      *
      * @param constructor the constructor to invoke
@@ -138,6 +162,31 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
      */
     public static <T> RowMapper<T> of(Class<T> type, String prefix) {
         return new ConstructorMapper<>(findFactoryFor(type), prefix);
+    }
+
+    /**
+     * Return a ConstructorMapper for the given type, based on a static factory method found in the given class.
+     *
+     * @param <T>  the type to map
+     * @param type the mapped type
+     * @param factoryMethodClass the type to inspect for a static factory method
+     * @return the mapper
+     */
+    public static <T> RowMapper<T> of(Class<T> type, Class<?> factoryMethodClass) {
+        return of(type, factoryMethodClass, DEFAULT_PREFIX);
+    }
+
+    /**
+     * Return a ConstructorMapper for the given type and prefix, based on a static factory method found in the given class.
+     *
+     * @param <T>    the type to map
+     * @param type   the mapped type
+     * @param factoryMethodClass the type to inspect for a static factory method
+     * @param prefix the column name prefix
+     * @return the mapper
+     */
+    public static <T> RowMapper<T> of(Class<T> type, Class<?> factoryMethodClass, String prefix) {
+        return new ConstructorMapper<>(findFactoryFor(type, factoryMethodClass), prefix);
     }
 
     /**

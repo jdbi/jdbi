@@ -26,9 +26,12 @@ import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 
 public class ConstructorMapperTest {
 
@@ -548,4 +551,69 @@ public class ConstructorMapperTest {
                     .extracting("s", "i")
                     .containsExactly(Optional.of("3"), Optional.of(3));
     }
+
+
+    static class ClassWithJustOneString {
+        String si;
+        ClassWithJustOneString(String si) {
+            this.si = si;
+        }
+    }
+
+    static class OneFactoryMethod {
+        @SuppressWarnings("unused")
+        static ClassWithJustOneString createClassWithStaticMethodAsJdbiConstructor(String s, int i) {
+            return new ClassWithJustOneString(s + i);
+        }
+    }
+
+    static class MultipleFactoryMethodsWhereOneIsAnnotated {
+        @SuppressWarnings("unused")
+        @JdbiConstructor
+        static ClassWithJustOneString createClassWithJustOneString(String s, int i) {
+            return new ClassWithJustOneString(s + i);
+        }
+
+        @SuppressWarnings("unused")
+        static ClassWithJustOneString otherFactoryMethodWithoutAnnotation(String s, int it) {
+            fail("This method should never be called, "
+                 + "but exists to show that @JdbiConstructor is required when there are multiple static factory methods");
+            return null;
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {OneFactoryMethod.class, MultipleFactoryMethodsWhereOneIsAnnotated.class})
+    public void testStaticMethodFactory(Class<?> factoryMethodClass) {
+        assertThat(handle
+            .registerRowMapper(ConstructorMapper.factory(ClassWithJustOneString.class, factoryMethodClass))
+            .select("select s, i from bean")
+            .mapTo(ClassWithJustOneString.class)
+            .one())
+            .extracting("si")
+            .isEqualTo("32");
+    }
+
+    static class NoFactoryMethod {}
+    static class TwoFactoryMethods {
+        @SuppressWarnings("unused")
+        static ClassWithJustOneString first(String s, int it) {
+            fail("This method should never be called");
+            return null;
+        }
+        @SuppressWarnings("unused")
+        static ClassWithJustOneString second(String s, int it) {
+            fail("This method should never be called");
+            return null;
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {NoFactoryMethod.class, TwoFactoryMethods.class})
+    public void testNoSingleStaticMethodFactoryFound(Class<?> factoryMethodClass) {
+        assertThatThrownBy(() -> ConstructorMapper.factory(ClassWithJustOneString.class, factoryMethodClass))
+            .hasMessageContaining("%s must have exactly one factory method returning %s", factoryMethodClass, ClassWithJustOneString.class)
+            .hasMessageContaining("or specify it with @JdbiConstructor");
+    }
+
 }
