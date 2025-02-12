@@ -1,5 +1,9 @@
 # Unreleased
 
+# 3.48.0
+
+- fix new JFR feature failing on some JDKs (#2736)
+
 # 3.47.0
 
 - spring aot: fix `@JdbiRepository` so aot generation works (#2727, thanks @hpoettker !)
