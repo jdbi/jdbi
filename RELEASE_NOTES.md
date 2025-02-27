@@ -1,5 +1,7 @@
 # Unreleased
 
+- Support creating a ConstructorMapper using a static factory method (#2738, thanks @WellingR!)
+
 # 3.48.0
 
 - fix new JFR feature failing on some JDKs (#2736)
