@@ -25,7 +25,7 @@
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-root</artifactId>
-    <version>3.48.1-SNAPSHOT</version>
+    <version>3.49.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jdbi3 - internal - root</name>
@@ -34,7 +34,7 @@
     <properties>
         <!-- make the build reproducible. These settings are applied to all poms in the project -->
         <basepom.git-id.skip-pom-projects>false</basepom.git-id.skip-pom-projects>
-        <project.build.outputTimestamp>2025-02-12T16:58:38Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2025-02-27T23:27:30Z</project.build.outputTimestamp>
     </properties>
 
     <licenses>
