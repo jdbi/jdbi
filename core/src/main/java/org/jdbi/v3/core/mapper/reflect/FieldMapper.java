@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
@@ -37,7 +38,6 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.internal.NullDelegatingMapper;
-import org.jdbi.v3.core.mapper.reflect.internal.RowMapperFieldPostProcessor;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -125,7 +125,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
         final List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing())
+        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
             .orElseThrow(() -> new IllegalArgumentException(format("Mapping fields for type %s didn't find any matching columns in result set", type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
@@ -140,7 +140,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
     private <R> Optional<RowMapper<R>> createSpecializedRowMapper(StatementContext ctx,
                                                List<String> columnNames,
                                                List<ColumnNameMatcher> columnNameMatchers,
-                                               List<String> unmatchedColumns, RowMapperFieldPostProcessor<T, R> postProcessor) {
+                                               List<String> unmatchedColumns, Function<T, R> postProcessor) {
         final List<FieldData> fields = new ArrayList<>();
 
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
@@ -174,11 +174,11 @@ public final class FieldMapper<T> implements RowMapper<T> {
                                     format("Could not determine the type of the Optional field %s", field.getName())));
                             nestedMapper = nestedMappers
                                 .computeIfAbsent(field, f -> new FieldMapper<>(rawType, nestedPrefix))
-                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());
+                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Optional::ofNullable);
                         } else {
                             nestedMapper = nestedMappers
                                 .computeIfAbsent(field, f -> new FieldMapper<>(field.getType(), nestedPrefix))
-                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing());
+                                .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity());
                         }
 
                         nestedMapper.ifPresent(mapper ->
@@ -266,9 +266,9 @@ public final class FieldMapper<T> implements RowMapper<T> {
     class BoundFieldMapper<R> implements RowMapper<R> {
         private final Constructor<T> constructor;
         private final List<FieldData> fields;
-        private final RowMapperFieldPostProcessor<T, R> postProcessor;
+        private final Function<T, R> postProcessor;
 
-        BoundFieldMapper(Constructor<T> constructor, List<FieldData> fields, RowMapperFieldPostProcessor<T, R> postProcessor) {
+        BoundFieldMapper(Constructor<T> constructor, List<FieldData> fields, Function<T, R> postProcessor) {
             this.constructor = constructor;
             this.fields = fields;
             this.postProcessor = postProcessor;
@@ -282,12 +282,12 @@ public final class FieldMapper<T> implements RowMapper<T> {
                 Object value = f.mapper.map(rs, ctx);
                 boolean wasNull = (value == null || (f.isPrimitive && rs.wasNull()));
                 if (f.propagateNull && wasNull) {
-                    return postProcessor.process(null);
+                    return postProcessor.apply(null);
                 }
                 writeField(obj, f.field, value);
             }
 
-            return postProcessor.process(obj);
+            return postProcessor.apply(obj);
         }
 
         private T construct() {
