@@ -125,7 +125,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
         final List<ColumnNameMatcher> columnNameMatchers = ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, org.jdbi.v3.core.mapper.reflect.internal.RowMapperFieldPostProcessor.noPostProcessing())
+        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing())
             .orElseThrow(() -> new IllegalArgumentException(format("Mapping fields for type %s didn't find any matching columns in result set", type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
@@ -140,7 +140,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
     private <R> Optional<RowMapper<R>> createSpecializedRowMapper(StatementContext ctx,
                                                List<String> columnNames,
                                                List<ColumnNameMatcher> columnNameMatchers,
-                                               List<String> unmatchedColumns, org.jdbi.v3.core.mapper.reflect.internal.RowMapperFieldPostProcessor<T, R> postProcessor) {
+                                               List<String> unmatchedColumns, RowMapperFieldPostProcessor<T, R> postProcessor) {
         final List<FieldData> fields = new ArrayList<>();
 
         for (Class<?> aType = type; aType != null; aType = aType.getSuperclass()) {
