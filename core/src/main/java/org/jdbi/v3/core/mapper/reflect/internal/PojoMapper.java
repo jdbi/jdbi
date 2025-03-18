@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
@@ -73,7 +74,7 @@ public class PojoMapper<T> implements RowMapper<T> {
             ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> result = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing())
+        RowMapper<T> result = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
             .orElseThrow(() -> new IllegalArgumentException(format("Mapping bean %s didn't find any matching columns in result set", type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
@@ -90,7 +91,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                                                                   List<String> columnNames,
                                                                   List<ColumnNameMatcher> columnNameMatchers,
                                                                   List<String> unmatchedColumns,
-                                                                  RowMapperFieldPostProcessor<T, R> postProcessor) {
+                                                                  Function<T, R> postProcessor) {
         final List<PropertyData<T>> propList = new ArrayList<>();
 
         for (PojoProperty<T> property : getProperties(ctx.getConfig()).getProperties().values()) {
@@ -129,11 +130,11 @@ public class PojoMapper<T> implements RowMapper<T> {
                                 format("Could not determine the type of Optional property %s", property.getName())));
                         nestedMapper = nestedMappers
                             .computeIfAbsent(property, d -> createNestedMapper(ctx, rawType, nestedPrefix))
-                            .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());
+                            .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Optional::ofNullable);
                     } else {
                         nestedMapper = nestedMappers
                             .computeIfAbsent(property, d -> createNestedMapper(ctx, GenericTypes.getErasedType(propertyType), nestedPrefix))
-                            .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing());
+                            .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity());
                     }
 
                     nestedMapper
@@ -222,9 +223,9 @@ public class PojoMapper<T> implements RowMapper<T> {
     class BoundPojoMapper<R> implements RowMapper<R> {
 
         private final List<PropertyData<T>> propList;
-        private final RowMapperFieldPostProcessor<T, R> postProcessor;
+        private final Function<T, R> postProcessor;
 
-        BoundPojoMapper(List<PropertyData<T>> propList, RowMapperFieldPostProcessor<T, R> postProcessor) {
+        BoundPojoMapper(List<PropertyData<T>> propList, Function<T, R> postProcessor) {
             this.propList = propList;
             this.postProcessor = postProcessor;
         }
@@ -236,7 +237,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                 Object value = p.mapper.map(rs, ctx);
                 boolean wasNull = (value == null || (p.isPrimitive && rs.wasNull()));
                 if (p.propagateNull && wasNull) {
-                    return postProcessor.process(null);
+                    return postProcessor.apply(null);
                 }
 
                 if (value != null) {
@@ -244,7 +245,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                 }
             }
 
-            return postProcessor.process(pojo.build());
+            return postProcessor.apply(pojo.build());
         }
 
         @Override

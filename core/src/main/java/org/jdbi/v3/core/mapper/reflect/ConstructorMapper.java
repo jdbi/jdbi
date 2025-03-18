@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -37,7 +38,6 @@ import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
-import org.jdbi.v3.core.mapper.reflect.internal.RowMapperFieldPostProcessor;
 import org.jdbi.v3.core.mapper.reflect.internal.NullDelegatingMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -189,7 +189,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing())
+        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
             .orElseGet(() -> new UnmatchedConstructorMapper<>(format(
                 UNMATCHED_CONSTRUCTOR_PARAMETERS, factory)));
 
@@ -207,7 +207,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                                                                   List<String> columnNames,
                                                                   List<ColumnNameMatcher> columnNameMatchers,
                                                                   List<String> unmatchedColumns,
-                                                                  RowMapperFieldPostProcessor<T, R> postProcessor) {
+                                                                  Function<T, R> postProcessor) {
         final int count = factory.getParameterCount();
         final Parameter[] parameters = factory.getParameters();
         final List<Type> types = factory.getTypes();
@@ -253,12 +253,12 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                     ConstructorMapper<?> mapper = nestedMappers.computeIfAbsent(parameter, p ->
                             new ConstructorMapper<>(findFactoryFor(rawType), nestedPrefix));
 
-                    nestedMapper = mapper.createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.wrapNestedOptional());
+                    nestedMapper = mapper.createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Optional::ofNullable);
                 } else {
                     nestedMapper = nestedMappers
                         .computeIfAbsent(parameter, p ->
                             new ConstructorMapper<>(findFactoryFor(p.getType()), nestedPrefix))
-                        .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, RowMapperFieldPostProcessor.noPostProcessing());
+                        .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity());
 
                 }
                 if (nestedMapper.isPresent()) {
@@ -382,9 +382,9 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
 
         private final List<ParameterData> paramData;
         private final int count;
-        private final RowMapperFieldPostProcessor<T, R> postProcessor;
+        private final Function<T, R> postProcessor;
 
-        BoundConstructorMapper(List<ParameterData> paramData, RowMapperFieldPostProcessor<T, R> postProcessor) {
+        BoundConstructorMapper(List<ParameterData> paramData, Function<T, R> postProcessor) {
             this.paramData = paramData;
             this.count = factory.getParameterCount();
             this.postProcessor = postProcessor;
@@ -397,11 +397,11 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 params[p.index] = p.mapper == null ? null : p.mapper.map(rs, ctx);
                 boolean wasNull = (params[p.index] == null || (p.isPrimitive && rs.wasNull()));
                 if (p.propagateNull && wasNull) {
-                    return postProcessor.process(null);
+                    return postProcessor.apply(null);
                 }
             }
 
-            return postProcessor.process(factory.newInstance(params));
+            return postProcessor.apply(factory.newInstance(params));
         }
 
         @Override
