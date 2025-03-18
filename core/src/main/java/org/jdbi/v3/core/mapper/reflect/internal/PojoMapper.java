@@ -46,7 +46,11 @@ import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
 import static java.lang.String.format;
-import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.*;
+
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
+import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 /** This class is the future home of BeanMapper functionality. */
 public class PojoMapper<T> implements RowMapper<T> {

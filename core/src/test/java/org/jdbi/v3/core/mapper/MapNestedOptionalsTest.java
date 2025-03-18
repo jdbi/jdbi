@@ -13,6 +13,10 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.stream.Stream;
+
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.DatabaseExtension;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
@@ -24,10 +28,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -106,8 +106,7 @@ public class MapNestedOptionalsTest {
             this.intValue = intValue;
             this.name = name;
         }
-        public OptionalBean() {
-        }
+        public OptionalBean() {}
 
         public OptionalInt getIntValue() {
             return intValue;
@@ -135,8 +134,7 @@ public class MapNestedOptionalsTest {
         public OptionalBeanWithNestedOptionals(@Nested Optional<OptionalBean> bean) {
             this.bean = bean;
         }
-        public OptionalBeanWithNestedOptionals() {
-        }
+        public OptionalBeanWithNestedOptionals() {}
 
         public Optional<OptionalBean> getBean() {
             return bean;
@@ -156,8 +154,7 @@ public class MapNestedOptionalsTest {
         public NestedBeanWithPropagateNullPrimitive(@PropagateNull int intValue) {
             this.intValue = intValue;
         }
-        public NestedBeanWithPropagateNullPrimitive() {
-        }
+        public NestedBeanWithPropagateNullPrimitive() {}
 
         public int getIntValue() {
             return intValue;
@@ -178,8 +175,7 @@ public class MapNestedOptionalsTest {
         public OptionalBeanWithNestedWithPropagateNullPrimitiveField(@Nested Optional<NestedBeanWithPropagateNullPrimitive> bean) {
             this.bean = bean;
         }
-        public OptionalBeanWithNestedWithPropagateNullPrimitiveField() {
-        }
+        public OptionalBeanWithNestedWithPropagateNullPrimitiveField() {}
 
         public Optional<NestedBeanWithPropagateNullPrimitive> getBean() {
             return bean;
