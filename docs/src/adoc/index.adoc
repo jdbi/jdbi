@@ -2304,6 +2304,11 @@ This used to be called `@Unmappable`.
 The link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation only applies while mapping SQL data into Java objects.
 When binding object properties (e.g. with `bindBean()`), bind the property name (`:id`) rather than the column name (`:user_id`).
 
+[NOTE]
+link:{jdbidocs}/core/mapper/Nested.html[@Nested^] also can be used in combination with link:{jdkdocs}/java.base/java/util/Optional.html[Optional^].
+When mapping a value `@Nested Optional<MyBean>` then it will be `Optional.empty()` when all columns in the result set are null,
+or when `MyBean` itself would be null (e.g. because `@PropagateNull` annotation is used on a `MyBean` field that was null).
+
 ===== Using `@Nullable` annotations
 
 Jdbi accepts any annotation that is named `Nullable` to mark a field or method as nullable.
@@ -6287,7 +6292,7 @@ Configuration to limit large amounts of data recorded is available on the `SqlSt
 === OpenTelemetry Tracing
 
 The link:https://opentelemetry.io/[OpenTelemetry^] project provides a SDK to implement distributed tracing.
-Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^] 
+Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^]
 from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data
 similarly as JFR events above. Additionally, it will add the trace id to JFR events.
 

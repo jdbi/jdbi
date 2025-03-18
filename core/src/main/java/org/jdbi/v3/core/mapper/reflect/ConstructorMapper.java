@@ -28,9 +28,11 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
+import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.Nested;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -236,7 +238,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 ctx.getConfig(ReflectionMappers.class).getColumnNameMatchers();
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
-        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns)
+        RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
             .orElseGet(() -> new UnmatchedConstructorMapper<>(format(
                 UNMATCHED_CONSTRUCTOR_PARAMETERS, factory)));
 
@@ -250,10 +252,11 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
         return mapper;
     }
 
-    private Optional<RowMapper<T>> createSpecializedRowMapper(StatementContext ctx,
-                                               List<String> columnNames,
-                                               List<ColumnNameMatcher> columnNameMatchers,
-                                               List<String> unmatchedColumns) {
+    private <R> Optional<RowMapper<R>> createSpecializedRowMapper(StatementContext ctx,
+                                                                  List<String> columnNames,
+                                                                  List<ColumnNameMatcher> columnNameMatchers,
+                                                                  List<String> unmatchedColumns,
+                                                                  Function<T, R> postProcessor) {
         final int count = factory.getParameterCount();
         final Parameter[] parameters = factory.getParameters();
         final List<Type> types = factory.getTypes();
@@ -290,12 +293,23 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 }
             } else {
                 final String nestedPrefix = addPropertyNamePrefix(prefix, nested.value());
+                Optional<? extends RowMapper<?>> nestedMapper;
+                if (parameter.getType().equals(Optional.class)) {
+                    Class<?> rawType = GenericTypes.findGenericParameter(parameter.getParameterizedType(), Optional.class)
+                        .map(GenericTypes::getErasedType)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                            format("Could not determine the type of the Optional parameter '%s' for instance factory '%s'", parameter.getName(), factory)));
+                    ConstructorMapper<?> mapper = nestedMappers.computeIfAbsent(parameter, p ->
+                            new ConstructorMapper<>(findFactoryFor(rawType), nestedPrefix));
 
-                final Optional<? extends RowMapper<?>> nestedMapper = nestedMappers
-                    .computeIfAbsent(parameter, p ->
-                        new ConstructorMapper<>(findFactoryFor(p.getType()), nestedPrefix))
-                    .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns);
+                    nestedMapper = mapper.createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Optional::ofNullable);
+                } else {
+                    nestedMapper = nestedMappers
+                        .computeIfAbsent(parameter, p ->
+                            new ConstructorMapper<>(findFactoryFor(p.getType()), nestedPrefix))
+                        .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity());
 
+                }
                 if (nestedMapper.isPresent()) {
                     paramData.add(new ParameterData(i, parameter, nestedMapper.get()));
                     matchedColumns = true;
@@ -319,7 +333,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 UNMATCHED_CONSTRUCTOR_PARAMETER, factory, unmatchedParameters));
         }
 
-        RowMapper<T> boundMapper = new BoundConstructorMapper(paramData);
+        RowMapper<R> boundMapper = new BoundConstructorMapper<>(paramData, postProcessor);
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
@@ -413,28 +427,30 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
         }
     }
 
-    class BoundConstructorMapper implements RowMapper<T> {
+    class BoundConstructorMapper<R> implements RowMapper<R> {
 
         private final List<ParameterData> paramData;
         private final int count;
+        private final Function<T, R> postProcessor;
 
-        BoundConstructorMapper(List<ParameterData> paramData) {
+        BoundConstructorMapper(List<ParameterData> paramData, Function<T, R> postProcessor) {
             this.paramData = paramData;
             this.count = factory.getParameterCount();
+            this.postProcessor = postProcessor;
         }
 
         @Override
-        public T map(ResultSet rs, StatementContext ctx) throws SQLException {
+        public R map(ResultSet rs, StatementContext ctx) throws SQLException {
             final Object[] params = new Object[count];
-
             for (ParameterData p : paramData) {
                 params[p.index] = p.mapper == null ? null : p.mapper.map(rs, ctx);
-                if (p.propagateNull && (params[p.index] == null || (p.isPrimitive && rs.wasNull()))) {
-                    return null;
+                boolean wasNull = (params[p.index] == null || (p.isPrimitive && rs.wasNull()));
+                if (p.propagateNull && wasNull) {
+                    return postProcessor.apply(null);
                 }
             }
 
-            return factory.newInstance(params);
+            return postProcessor.apply(factory.newInstance(params));
         }
 
         @Override
