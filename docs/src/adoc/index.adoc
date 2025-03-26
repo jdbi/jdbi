@@ -2305,8 +2305,8 @@ When binding object properties (e.g. with `bindBean()`), bind the property name 
 
 [NOTE]
 link:{jdbidocs}/core/mapper/Nested.html[@Nested^] also can be used in combination with link:{jdkdocs}/java.base/java/util/Optional.html[Optional^].
-When mapping a value `@Nested Optional<MyBean>` then it will be `Optional.empty()` when all columns in the result set are null,
-or when `MyBean` itself would be null (e.g. because `@PropagateNull` annotation is used on a `MyBean` field that was null).
+When mapping a value `@Nested Optional<MyBean>` then it will wrapped inside an optional, and will be `Optional.empty()`
+when `MyBean` itself would be null (e.g. because `@PropagateNull` annotation is used on a `MyBean` field that was null).
 
 ===== Using `@Nullable` annotations
 
