@@ -1,6 +1,7 @@
 # Unreleased
 
 - Support creating a ConstructorMapper using a static factory method (#2738, thanks @WellingR!)
+- Add support for @Nested Optional fields (#2733, thanks @WellingR!)
 
 # 3.48.0
 
