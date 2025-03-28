@@ -124,7 +124,7 @@
         <dep.plugin.kotlin.version>1.9.22</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>2.0.0</dep.plugin.ktlint.version>
         <dep.plugin.pmd.version>3.24.0</dep.plugin.pmd.version>
-        <dep.plugin.native.version>0.10.4</dep.plugin.native.version>
+        <dep.plugin.native.version>0.10.6</dep.plugin.native.version>
         <dep.plugin.sortpom.version>3.3.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.7.2</dep.postgresql.version>
         <dep.slf4j.version>1.7.36</dep.slf4j.version>
