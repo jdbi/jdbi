@@ -72,7 +72,8 @@
         <dep.antlr.version>4.13.2</dep.antlr.version>
         <dep.asciidoctorj-diagram.version>2.3.1</dep.asciidoctorj-diagram.version>
         <dep.asciidoctorj.version>3.0.0</dep.asciidoctorj.version>
-        <dep.assertj.version>4.0.0-M1</dep.assertj.version>
+        <!-- leave at 3.x for now, 4.0.0 needs Java 17 -->
+        <dep.assertj.version>3.27.3</dep.assertj.version>
         <dep.caffeine.version>3.2.0</dep.caffeine.version>
         <dep.checkerframework.version>3.49.1</dep.checkerframework.version>
         <dep.commons-compress.version>1.27.1</dep.commons-compress.version>
