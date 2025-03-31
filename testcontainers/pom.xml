@@ -164,7 +164,6 @@
         </dependency>
 
         <!-- containers -->
-
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mysql</artifactId>
