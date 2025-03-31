@@ -44,12 +44,7 @@ class TestGetGeneratedKeys {
             h.execute("create table something (id serial primary key, name varchar(50), integerValue integer, intValue integer)")
         }
 
-    data class Something(
-        val id: Long,
-        val name: String,
-        val intValue: Int,
-        val integerValue: Int
-    )
+    data class Something(val id: Long, val name: String, val intValue: Int, val integerValue: Int)
 
     interface StringDAO {
 

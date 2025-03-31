@@ -23,10 +23,9 @@ import org.jdbi.v3.core.internal.ThreadLocalHandleScope
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-internal class CoroutineHandleScope private constructor(
-    var handle: Handle?,
-    private val delegate: HandleScope
-) : CopyableThreadContextElement<HandleSupplier?>, HandleScope {
+internal class CoroutineHandleScope private constructor(var handle: Handle?, private val delegate: HandleScope) :
+    CopyableThreadContextElement<HandleSupplier?>,
+    HandleScope {
 
     override val key: CoroutineContext.Key<CoroutineHandleScope> = Key
 

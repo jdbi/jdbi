@@ -44,16 +44,9 @@ class Issue1944Test {
             )
         }
 
-    data class Tag(
-        val id: Int?,
-        val name: String?
-    )
+    data class Tag(val id: Int?, val name: String?)
 
-    data class Product(
-        val id: Int?,
-        val primaryName: String?,
-        val tagId: Int?
-    )
+    data class Product(val id: Int?, val primaryName: String?, val tagId: Int?)
 
     @Test
     fun testWithKotlinMapperFactory(jdbi: Jdbi) {

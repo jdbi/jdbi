@@ -45,6 +45,8 @@ class KotlinBindTest {
     }
 
     enum class MyEnum {
-        A, B, C
+        A,
+        B,
+        C
     }
 }

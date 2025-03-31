@@ -52,11 +52,9 @@ class KotlinSqlObjectPluginTest {
         @SqlUpdate("insert into something (id, name) values (:something.id, :something.name)")
         fun insert(something: Thing)
 
-        fun list(): List<Thing> {
-            return handle.createQuery("select id, name from something")
-                .mapTo(Thing::class.java)
-                .list()
-        }
+        fun list(): List<Thing> = handle.createQuery("select id, name from something")
+            .mapTo(Thing::class.java)
+            .list()
 
         @SqlQuery("select id, name, null as nullable, null as nullableDefaultedNull, null as nullableDefaultedNotNull, 'test' as defaulted from something")
         fun listWithNulls(): List<Thing>
@@ -73,9 +71,7 @@ class KotlinSqlObjectPluginTest {
             return findById(something.id)
         }
 
-        fun throwsException(e: Exception): Thing {
-            throw e
-        }
+        fun throwsException(e: Exception): Thing = throw e
     }
 
     private fun commonTest(dao: ThingDao) {

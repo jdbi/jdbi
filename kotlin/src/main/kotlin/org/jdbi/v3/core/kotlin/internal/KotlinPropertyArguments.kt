@@ -28,10 +28,7 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.javaType
 
-class KotlinPropertyArguments(
-    obj: Any,
-    prefix: String = ""
-) : ObjectPropertyNamedArgumentFinder(prefix, obj) {
+class KotlinPropertyArguments(obj: Any, prefix: String = "") : ObjectPropertyNamedArgumentFinder(prefix, obj) {
 
     private val kClass: KClass<*> = obj.javaClass.kotlin
     private val properties = kClass.memberProperties

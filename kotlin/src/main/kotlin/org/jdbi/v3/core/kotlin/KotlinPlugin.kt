@@ -29,10 +29,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin
  *     @property installKotlinMapperFactory If true, install the {@link KotlinMapperFactory}.
  *     @property enableCoroutineSupport If true, enable support for Kotlin Coroutines.
  */
-class KotlinPlugin(
-    private val installKotlinMapperFactory: Boolean = true,
-    private val enableCoroutineSupport: Boolean = false
-) : JdbiPlugin.Singleton() {
+class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true, private val enableCoroutineSupport: Boolean = false) : JdbiPlugin.Singleton() {
 
     override fun customizeJdbi(jdbi: Jdbi) {
         jdbi.configure(RowMappers::class.java) {
