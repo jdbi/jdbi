@@ -20,12 +20,8 @@ jobs:
 
     strategy:
       matrix:
-        testcontainer-version: [ 1.19.8, 1.20.2 ]
+        testcontainer-version: [ 1.19.8, 1.20.6 ]
         mysql-version: [ "mysql:latest" ]
-        # 1.18.3 does not work with mysql:latest (8.3.x).
-        include:
-          - testcontainer-version: 1.18.3
-            mysql-version: "mysql:8.0"
 
     steps:
       - uses: actions/checkout@v4

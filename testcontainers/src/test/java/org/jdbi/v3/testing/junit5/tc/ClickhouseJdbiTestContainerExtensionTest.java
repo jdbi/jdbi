@@ -24,7 +24,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class ClickhouseJdbiTestContainerExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new ClickHouseContainer("clickhouse/clickhouse-server:latest");
+    static JdbcDatabaseContainer<?> dbContainer = new ClickHouseContainer("clickhouse/clickhouse-server:latest")
+        .withUsername("test")
+        .withPassword("test");
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {
