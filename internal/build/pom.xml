@@ -73,44 +73,45 @@
         <dep.asciidoctorj-diagram.version>2.3.1</dep.asciidoctorj-diagram.version>
         <dep.asciidoctorj.version>3.0.0</dep.asciidoctorj.version>
         <dep.assertj.version>4.0.0-M1</dep.assertj.version>
-        <dep.caffeine.version>3.1.8</dep.caffeine.version>
+        <dep.caffeine.version>3.2.0</dep.caffeine.version>
         <dep.checkerframework.version>3.49.1</dep.checkerframework.version>
-        <dep.commons-compress.version>1.26.1</dep.commons-compress.version>
-        <dep.commons-lang.version>3.14.0</dep.commons-lang.version>
-        <dep.commons-text.version>1.11.0</dep.commons-text.version>
+        <dep.commons-compress.version>1.27.1</dep.commons-compress.version>
+        <dep.commons-lang.version>3.17.0</dep.commons-lang.version>
+        <dep.commons-text.version>1.13.0</dep.commons-text.version>
         <!-- derby 10.17 is JDK 21 only, keep it on 10.16 for now -->
         <dep.derby.version>10.16.1.1</dep.derby.version>
         <dep.detekt.version>1.23.8</dep.detekt.version>
         <dep.errorprone.version>2.37.0</dep.errorprone.version>
         <dep.flyway.version>9.22.3</dep.flyway.version>
         <dep.freebuilder.version>2.8.0</dep.freebuilder.version>
-        <dep.freemarker.version>2.3.32</dep.freemarker.version>
+        <dep.freemarker.version>2.3.34</dep.freemarker.version>
+        <dep.geantyref.version>2.0.1</dep.geantyref.version>
         <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
-        <dep.gson.version>2.10.1</dep.gson.version>
-        <dep.guava.version>33.0.0-jre</dep.guava.version>
+        <dep.gson.version>2.12.1</dep.gson.version>
+        <dep.guava.version>33.4.6-jre</dep.guava.version>
         <dep.guice.version>5.1.0</dep.guice.version>
         <dep.h2.version>2.3.232</dep.h2.version>
         <dep.hikari-cp.version>6.3.0</dep.hikari-cp.version>
         <dep.hsqldb.version>2.7.4</dep.hsqldb.version>
-        <dep.immutables.version>2.10.0</dep.immutables.version>
-        <dep.jackson2.version>2.12.7.20221012</dep.jackson2.version>
-        <dep.jakarta-annotation-api.version>2.1.1</dep.jakarta-annotation-api.version>
+        <dep.immutables.version>2.10.1</dep.immutables.version>
+        <dep.jackson2.version>2.12.7.20240502</dep.jackson2.version>
+        <dep.jakarta-annotation-api.version>3.0.0</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
         <dep.jdbi-policy.version>3.49.1-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>26.0.2</dep.jetbrainsAnnotations.version>
         <dep.jfrunit.version>1.0.0.Alpha2</dep.jfrunit.version>
-        <dep.joda-time.version>2.12.5</dep.joda-time.version>
-        <dep.jts.version>1.19.0</dep.jts.version>
+        <dep.joda-time.version>2.14.0</dep.joda-time.version>
+        <dep.jts.version>1.20.0</dep.jts.version>
         <dep.junit5.version>5.13.0-M2</dep.junit5.version>
         <dep.kotlin.version>1.6.21</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.6.4</dep.kotlinx-coroutines.version>
         <dep.lombok.version>1.18.36</dep.lombok.version>
         <dep.mockito.version>5.16.1</dep.mockito.version>
-        <dep.moshi.version>1.15.0</dep.moshi.version>
+        <dep.moshi.version>1.15.2</dep.moshi.version>
         <dep.mssql.version>12.10.0.jre11</dep.mssql.version>
         <dep.mysql.version>9.2.0</dep.mysql.version>
-        <dep.opentelemetry.version>1.42.1</dep.opentelemetry.version>
+        <dep.opentelemetry.version>1.48.0</dep.opentelemetry.version>
         <dep.oracle-xe.version>23.7.0.25.01</dep.oracle-xe.version>
         <dep.otj-pg-embedded.version>1.1.0</dep.otj-pg-embedded.version>
         <dep.pg-embedded.version>5.2.0</dep.pg-embedded.version>
@@ -140,7 +141,7 @@
         <jdbi.check.skip-japicmp>${basepom.check.skip-extended}</jdbi.check.skip-japicmp>
         <jdbi.check.skip-kotlin>${basepom.check.skip-extended}</jdbi.check.skip-kotlin>
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
-        <jdbi.check.skip-sbom>${jdbi.check.skip-extended}</jdbi.check.skip-sbom>
+        <jdbi.check.skip-sbom>${basepom.check.skip-extended}</jdbi.check.skip-sbom>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
         <jdbi.test.language>en</jdbi.test.language>
         <jdbi.test.mysql-version>mysql:latest</jdbi.test.mysql-version>
@@ -191,7 +192,7 @@
             <dependency>
                 <groupId>io.leangen.geantyref</groupId>
                 <artifactId>geantyref</artifactId>
-                <version>2.0.0</version>
+                <version>${dep.geantyref.version}</version>
             </dependency>
 
             <dependency>
