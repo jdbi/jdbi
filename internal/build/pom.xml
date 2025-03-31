@@ -1230,7 +1230,7 @@
                                 </goals>
                                 <phase>generate-test-sources</phase>
                                 <configuration>
-                                    <skipAddSourceIfMissing>true</skipAddSourceIfMissing>
+                                    <skipAddTestSourceIfMissing>true</skipAddTestSourceIfMissing>
                                     <sources>
                                         <source>${project.basedir}/src/test/kotlin</source>
                                     </sources>
