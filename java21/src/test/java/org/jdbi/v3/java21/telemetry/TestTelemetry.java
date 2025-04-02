@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 @JfrEventTest
 @EnableEvent(JdbiStatementEvent.NAME)
-@EnabledIf("org.jdbi.v3.core.statement.internal.JfrSupport#isJfrAvailable")
+@EnabledIf("org.jdbi.v3.core.statement.internal.JfrSupport#isFlightRecorderAvailable")
 // While JFR is available all the way back to Java 9, the utilities to test it are not.
 public class TestTelemetry {
     @RegisterExtension
