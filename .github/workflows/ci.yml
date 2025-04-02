@@ -18,7 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        distribution: [ temurin ]
         java-version: [ 11, 17, 21, 23 ]
+        include:
+          - distribution: semeru
+            java-version: 21
 
     steps:
       - uses: actions/checkout@v4
@@ -47,13 +51,12 @@ jobs:
         id: test_jdk
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: temurin
-          cache: maven
+          distribution: ${{ matrix.distribution }}
 
       - name: run tests
         id: run_tests
         env:
-          MAVEN_ARGS: "-B -ff"
+          MAVEN_ARGS: "-o -B -ff"
         run: |
           ./mvnw --version
           make run-tests
@@ -64,7 +67,7 @@ jobs:
         continue-on-error: true
         if: ${{ always() }}
         with:
-          name: build logs (${{ github.job }}, ${{ matrix.java-version }})
+          name: build logs (${{ github.job }}, ${{ matrix.java-version }}, ${{ matrix.distribution }})
           retention-days: 90
           path: |
             **/target
@@ -76,7 +79,7 @@ jobs:
         id: upload_build_artifacts
         continue-on-error: true
         with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.java-version }})
+          name: build artifacts (${{ github.job }}, ${{ matrix.java-version }}, ${{ matrix.distribution }})
           retention-days: 1
           path: |
             **/target/**/*.jar

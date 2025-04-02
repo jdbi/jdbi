@@ -51,9 +51,9 @@ public class TestDefineNull {
     @Test
     public void testDefineNullDoesntWriteToStderr() {
         assertThat(h.createQuery("select true<if(defined)>broken<endif>")
-                .define("defined", null)
-                .mapTo(boolean.class)
-                .one())
+                       .define("defined", null)
+                       .mapTo(boolean.class)
+                       .one())
             .isTrue();
         assertThat(err.toString()).isEmpty();
     }

@@ -74,10 +74,6 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     private final String sql;
     PreparedStatement stmt;
 
-    static {
-        JfrSupport.registerEvents();
-    }
-
     SqlStatement(Handle handle,
                  CharSequence sql) {
         super(handle);
