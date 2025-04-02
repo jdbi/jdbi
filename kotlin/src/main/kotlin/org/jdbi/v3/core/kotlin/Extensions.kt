@@ -143,12 +143,10 @@ fun <E : Any, X : Exception> Jdbi.useExtension(extensionType: KClass<E>, callbac
  * @param elements the annotated element. Null elements are ignored.
  * @return the set of qualifying annotations on the given elements.
  */
-fun getQualifiers(vararg elements: KAnnotatedElement?): Set<Annotation> {
-    return elements.filterNotNull()
-        .flatMap { element -> element.annotations }
-        .filter { anno -> anno.annotationClass.findAnnotation<Qualifier>() != null }
-        .toSet()
-}
+fun getQualifiers(vararg elements: KAnnotatedElement?): Set<Annotation> = elements.filterNotNull()
+    .flatMap { element -> element.annotations }
+    .filter { anno -> anno.annotationClass.findAnnotation<Qualifier>() != null }
+    .toSet()
 
 /**
  * Returns a [CoroutineContext.Element] instance representing this Jdbi object which can be used to manage

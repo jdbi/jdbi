@@ -51,10 +51,7 @@ class CoroutineSqlObjectTest {
         jdbi = h2Extension.jdbi
     }
 
-    data class Something(
-        val id: Int,
-        val name: String
-    )
+    data class Something(val id: Int, val name: String)
 
     @RegisterKotlinMapper(Something::class)
     interface SomethingDao : SqlObject {

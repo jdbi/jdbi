@@ -20,11 +20,9 @@ import org.jdbi.v3.core.mapper.RowMapperFactory
 
 internal class KotlinRowMapperInterceptor : JdbiInterceptor<RowMapper<*>, RowMapperFactory> {
 
-    override fun intercept(source: RowMapper<*>?, chain: JdbiInterceptionChain<RowMapperFactory>): RowMapperFactory {
-        return if (source is KotlinMapper) {
-            RowMapperFactory.of(source.kClass.java, source)
-        } else {
-            chain.next()
-        }
+    override fun intercept(source: RowMapper<*>?, chain: JdbiInterceptionChain<RowMapperFactory>): RowMapperFactory = if (source is KotlinMapper) {
+        RowMapperFactory.of(source.kClass.java, source)
+    } else {
+        chain.next()
     }
 }

@@ -410,7 +410,9 @@ class KotlinMapperTest {
     }
 
     enum class KotlinTestEnum {
-        A, B, C
+        A,
+        B,
+        C
     }
 
     @Test
@@ -433,10 +435,7 @@ class KotlinMapperTest {
         assertThat(result).containsAll(values.asList())
     }
 
-    data class DataClassWithNullableConstructorParameter(
-        val id: Int,
-        val name: String?
-    )
+    data class DataClassWithNullableConstructorParameter(val id: Int, val name: String?)
 
     @Test
     fun testDataClassWithNullableConstructorParameter() {
@@ -497,15 +496,9 @@ class KotlinMapperTest {
             .isEqualTo(ClassWithNullableProperty(1).also { it.name = "foo" })
     }
 
-    data class NestedDataClass(
-        val foo: String,
-        val bar: String?
-    )
+    data class NestedDataClass(val foo: String, val bar: String?)
 
-    data class DataClassWithNullableNestedConstructorParameter(
-        val id: Int,
-        @Nested val nested: NestedDataClass?
-    )
+    data class DataClassWithNullableNestedConstructorParameter(val id: Int, @Nested val nested: NestedDataClass?)
 
     @Test
     fun testDataClassWithNullableNestedConstructorParameter() {

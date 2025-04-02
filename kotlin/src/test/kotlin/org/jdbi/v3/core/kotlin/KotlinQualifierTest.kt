@@ -69,10 +69,7 @@ class KotlinQualifierTest {
             .isEqualTo(DataClassQualifiedConstructorParam(1, "cba"))
     }
 
-    data class DataClassQualifiedConstructorParam(
-        val id: Int,
-        @Reversed val name: String
-    )
+    data class DataClassQualifiedConstructorParam(val id: Int, @Reversed val name: String)
 
     @Test
     fun bindDataClassWithQualifiedLateInitProperty() {

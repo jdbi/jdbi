@@ -164,10 +164,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
         }
     }
 
-    private fun locatePropagateNullColumnIndex(
-        columnNames: List<String>,
-        columnNameMatchers: List<ColumnNameMatcher>
-    ): OptionalInt {
+    private fun locatePropagateNullColumnIndex(columnNames: List<String>, columnNameMatchers: List<ColumnNameMatcher>): OptionalInt {
         val propagateNullColumn =
             Optional.ofNullable(kClass.findAnnotation<PropagateNull>())
                 .map(PropagateNull::value)
@@ -311,11 +308,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
         return propagateNullValue.isPresent
     }
 
-    private data class ParamData(
-        val type: ParamResolution,
-        val mapper: RowMapper<*>?,
-        val propagateNull: Boolean
-    )
+    private data class ParamData(val type: ParamResolution, val mapper: RowMapper<*>?, val propagateNull: Boolean)
 
     override fun toString() = "KotlinMapper(kClass=$kClass, prefix='$prefix')"
 

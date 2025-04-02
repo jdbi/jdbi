@@ -34,9 +34,7 @@
         <basepom.test.timeout>600</basepom.test.timeout>
         <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
         <moduleName>org.jdbi.v3.e2e</moduleName>
-        <!-- e2e tests can use all java 17 features. -->
-        <!-- current PMD 6.xx does not allow upgrade to full 21 yet -->
-        <project.build.targetJdk>17</project.build.targetJdk>
+        <project.build.targetJdk>21</project.build.targetJdk>
     </properties>
 
     <dependencies>
@@ -185,11 +183,11 @@
                 </plugins>
             </build>
         </profile>
-        <!-- e2e tests require java 17 or better. Skip tests otherwise (for java 11 testing) -->
+        <!-- e2e tests require java 21 or better. Skip tests otherwise (for java 11-17 testing) -->
         <profile>
-            <id>no-java17</id>
+            <id>no-java21</id>
             <activation>
-                <jdk>(,17]</jdk>
+                <jdk>(,21]</jdk>
             </activation>
             <properties>
                 <basepom.test.skip>true</basepom.test.skip>

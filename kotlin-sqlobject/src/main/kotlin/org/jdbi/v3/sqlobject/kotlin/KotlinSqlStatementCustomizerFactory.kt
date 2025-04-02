@@ -26,13 +26,7 @@ import kotlin.reflect.jvm.kotlinFunction
 
 class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
 
-    override fun createForParameter(
-        sqlObjectType: Class<*>,
-        method: Method,
-        parameter: Parameter,
-        paramIdx: Int,
-        type: Type
-    ): SqlStatementParameterCustomizer {
+    override fun createForParameter(sqlObjectType: Class<*>, method: Method, parameter: Parameter, paramIdx: Int, type: Type): SqlStatementParameterCustomizer {
         val bindName = if (parameter.isNamePresent) {
             parameter.name
         } else {
