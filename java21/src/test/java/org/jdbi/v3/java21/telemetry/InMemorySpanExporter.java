@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.java21.util;
+package org.jdbi.v3.java21.telemetry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +26,7 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import static io.opentelemetry.sdk.common.CompletableResultCode.ofFailure;
 import static io.opentelemetry.sdk.common.CompletableResultCode.ofSuccess;
 
-public class InMemorySpanExporter implements SpanExporter {
+final class InMemorySpanExporter implements SpanExporter {
     private final List<SpanData> exported = new ArrayList<>();
     private boolean shutdown;
 

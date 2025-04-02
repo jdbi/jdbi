@@ -18,7 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        distribution: [ temurin ]
         java-version: [ 11, 17, 21, 23 ]
+        include:
+          - distribution: semeru
+            java-version: 21
 
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +51,7 @@ jobs:
         id: test_jdk
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: temurin
+          distribution: ${{ matrix.distribution }}
           cache: maven
 
       - name: run tests

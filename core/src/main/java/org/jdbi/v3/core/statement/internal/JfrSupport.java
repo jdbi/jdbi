@@ -13,39 +13,43 @@
  */
 package org.jdbi.v3.core.statement.internal;
 
+import java.lang.reflect.Method;
+
 import org.jdbi.v3.core.statement.JdbiStatementEvent;
 
 public final class JfrSupport {
-    private static boolean present = false;
+    private static final boolean JFR_AVAILABLE = ModuleLayer.boot().findModule("jdk.jfr").isPresent();
 
     private JfrSupport() {
-        throw new AssertionError();
+        throw new AssertionError("JfrSupport can not be instantiated");
     }
 
-    public static void registerEvents() {
-        try {
-            present = Class.forName("jdk.jfr.FlightRecorder") != null;
-            if (present) {
-                Holder.registerEvents();
+    static {
+        if (JFR_AVAILABLE) {
+            try {
+                Class<?> flightRecorder = Class.forName("jdk.jfr.FlightRecorder");
+                Method register = flightRecorder.getMethod("register", Class.class);
+                register.invoke(null, JdbiStatementEvent.class);
+            } catch (ReflectiveOperationException e) {
+                throw new ExceptionInInitializerError(e);
             }
-        } catch (ClassNotFoundException | NoClassDefFoundError | UnsatisfiedLinkError ignored) {
-            present = false;
         }
+    }
+
+    public static boolean isJfrAvailable() {
+        return JFR_AVAILABLE;
     }
 
     public static OptionalEvent newStatementEvent() {
-        if (present) {
+        if (JFR_AVAILABLE) {
             return Holder.newEvent();
+        } else {
+            return new NoStatementEvent();
         }
-        return new NoStatementEvent();
     }
 
-    private static class Holder {
+    private static final class Holder {
         private Holder() {}
-
-        static void registerEvents() {
-            jdk.jfr.FlightRecorder.register(JdbiStatementEvent.class);
-        }
 
         public static OptionalEvent newEvent() {
             return new JdbiStatementEvent();
