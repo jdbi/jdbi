@@ -107,7 +107,7 @@
         <dep.junit5.version>5.13.0-M2</dep.junit5.version>
         <dep.kotlin.version>1.6.21</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.6.4</dep.kotlinx-coroutines.version>
-        <dep.lombok.version>1.18.36</dep.lombok.version>
+        <dep.lombok.version>1.18.38</dep.lombok.version>
         <dep.mockito.version>5.16.1</dep.mockito.version>
         <dep.moshi.version>1.15.2</dep.moshi.version>
         <dep.mssql.version>12.10.0.jre11</dep.mssql.version>
@@ -122,6 +122,8 @@
         <dep.plugin.dokka.version>2.0.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.7.0</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.5.0</dep.plugin.inline.version>
+        <!-- remove after next basepom release (63) -->
+        <dep.plugin.jacoco.version>0.8.13</dep.plugin.jacoco.version>
         <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>2.1.20</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
