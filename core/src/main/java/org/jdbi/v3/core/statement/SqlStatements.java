@@ -52,17 +52,17 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
-    private boolean allowUnusedBindings;
-    private boolean attachAllStatementsForCleanup;
-    private boolean attachCallbackStatementsForCleanup = true;
-    private boolean scriptStatementsNeedSemicolon = true;
+    private volatile boolean allowUnusedBindings;
+    private volatile boolean attachAllStatementsForCleanup;
+    private volatile boolean attachCallbackStatementsForCleanup = true;
+    private volatile boolean scriptStatementsNeedSemicolon = true;
     private final Collection<StatementCustomizer> customizers;
 
     private final Collection<StatementContextListener> contextListeners;
 
     // Don't emit unlimited amounts of data via telemetry
-    private int jfrSqlMaxLength = 512;
-    private int jfrParamMaxLength = 512;
+    private volatile int jfrSqlMaxLength = 512;
+    private volatile int jfrParamMaxLength = 512;
 
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());

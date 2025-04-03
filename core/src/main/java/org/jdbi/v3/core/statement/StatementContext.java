@@ -82,14 +82,14 @@ public class StatementContext implements Closeable {
     private Connection connection;
     private Binding binding = new Binding(this);
 
-    private boolean returningGeneratedKeys = false;
+    private volatile boolean returningGeneratedKeys = false;
     private String[] generatedKeysColumnNames = new String[0];
-    private boolean concurrentUpdatable = false;
+    private volatile boolean concurrentUpdatable = false;
 
     private Instant executionMoment;
     private Instant completionMoment;
     private Instant exceptionMoment;
-    private long mappedRows;
+    private volatile long mappedRows;
     private String traceId;
 
     static StatementContext create(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType) {
@@ -445,14 +445,13 @@ public class StatementContext implements Closeable {
 
     /**
      * Sets whether the current statement returns generated keys.
-     * @param b return generated keys?
+     * @param returningGeneratedKeys return generated keys?
      */
-    public void setReturningGeneratedKeys(boolean b) {
-        if (isConcurrentUpdatable() && b) {
-            throw new IllegalArgumentException("Cannot create a result set that is concurrent "
-                    + "updatable and is returning generated keys.");
+    public void setReturningGeneratedKeys(boolean returningGeneratedKeys) {
+        if (isConcurrentUpdatable() && returningGeneratedKeys) {
+            throw new IllegalArgumentException("Cannot create a result set that is concurrent updatable and is returning generated keys.");
         }
-        this.returningGeneratedKeys = b;
+        this.returningGeneratedKeys = returningGeneratedKeys;
     }
 
     /**
