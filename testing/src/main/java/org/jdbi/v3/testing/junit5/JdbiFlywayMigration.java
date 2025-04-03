@@ -30,7 +30,7 @@ public final class JdbiFlywayMigration implements JdbiExtensionInitializer {
 
     private final List<String> schemas = new ArrayList<>();
     private final List<String> paths = new ArrayList<>();
-    private boolean cleanAfter = true;
+    private volatile boolean cleanAfter = true;
 
     private volatile Flyway flyway;
 

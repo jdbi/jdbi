@@ -18,6 +18,8 @@
     xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd"
     xsi:noNamespaceSchemaLocation="https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
 
+    <!-- PMD 7.12.0 - 4/2/2025 -->
+
     <description>custom rules for jdbi</description>
 
     <exclude-pattern>.*/org/jdbi/v3/core/internal/lexer/.+Lexer.*</exclude-pattern>
@@ -33,6 +35,7 @@
         <exclude name="UnusedFormalParameter"/>
         <exclude name="UseVarargs"/>
         <exclude name="LiteralsFirstInComparisons"/>
+        <exclude name="ImplicitFunctionalInterface"/>
     </rule>
 
     <rule ref="category/java/codestyle.xml">
@@ -119,5 +122,9 @@
         <exclude name="AvoidInstantiatingObjectsInLoops"/>
         <exclude name="InsufficientStringBufferDeclaration"/>
         <exclude name="RedundantFieldInitializer"/>
+    </rule>
+
+    <rule ref="category/java/bestpractices.xml/ImplicitFunctionalInterface">
+        <priority>5</priority>
     </rule>
 </ruleset>

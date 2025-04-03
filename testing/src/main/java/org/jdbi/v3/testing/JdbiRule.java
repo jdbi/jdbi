@@ -38,7 +38,7 @@ public abstract class JdbiRule extends ExternalResource {
     private Jdbi jdbi;
     private Handle handle;
     private Flyway flyway;
-    private boolean installPlugins;
+    private volatile boolean installPlugins;
     private Migration migration;
 
     protected abstract DataSource createDataSource();
