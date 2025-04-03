@@ -20,6 +20,7 @@ import java.util.Set;
 import com.google.common.reflect.TypeToken;
 import com.google.common.reflect.TypeToken.TypeSet;
 import com.google.errorprone.annotations.ThreadSafe;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.v3.core.codec.Codec;
 import org.jdbi.v3.core.codec.CodecFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -37,11 +38,20 @@ public class TypeResolvingCodecFactory extends CodecFactory {
 
     /**
      * Returns a builder for fluent API.
+     * @return A {@link CodecFactory.Builder} instance.
      */
+    @SuppressFBWarnings("HSM_HIDING_METHOD")
     public static Builder builder() {
         return new Builder(TypeResolvingCodecFactory::new);
     }
 
+    /**
+     * Creates a {@link CodecFactory} for a single type.
+     * @param type The type for which the factory is created.
+     * @param codec The {@link Codec} to use.
+     * @return A new {@link} CodecFactory that will be used if the given type is requested.
+     */
+    @SuppressFBWarnings("HSM_HIDING_METHOD")
     public static CodecFactory forSingleCodec(QualifiedType<?> type, Codec<?> codec) {
         return new TypeResolvingCodecFactory(Collections.singletonMap(type, codec));
     }
