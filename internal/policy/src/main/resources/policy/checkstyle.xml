@@ -86,7 +86,6 @@
         <module name="MethodParamPad"/>
         <module name="MissingDeprecated"/>
         <module name="MissingOverride"/>
-        <module name="MissingSwitchDefault"/>
         <module name="ModifierOrder"/>
         <module name="MutableException"/>
         <module name="NeedBraces"/>

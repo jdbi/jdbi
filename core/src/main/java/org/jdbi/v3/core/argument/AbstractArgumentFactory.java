@@ -125,6 +125,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
      */
     protected abstract Argument build(T value, ConfigRegistry config);
 
+    @FunctionalInterface
     private interface ArgumentPredicate {
         boolean test(Type type, Object value);
     }

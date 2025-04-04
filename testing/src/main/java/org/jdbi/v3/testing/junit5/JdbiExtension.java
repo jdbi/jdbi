@@ -68,8 +68,8 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
 
     private Optional<JdbiExtensionInitializer> initializerMaybe = Optional.empty();
 
-    private boolean installPlugins = false;
-    private boolean enableLeakchecker = true;
+    private volatile boolean installPlugins = false;
+    private volatile boolean enableLeakchecker = true;
 
     private volatile Jdbi jdbi;
     private volatile Handle sharedHandle;

@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         distribution: [ temurin ]
-        java-version: [ 11, 17, 21, 23 ]
+        java-version: [ 11, 17, 21, 24 ]
         include:
           - distribution: semeru
             java-version: 21

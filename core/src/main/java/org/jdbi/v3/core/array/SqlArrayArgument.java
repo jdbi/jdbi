@@ -47,8 +47,6 @@ class SqlArrayArgument<T> implements Argument {
             case OBJECT_ARRAY:
                 statement.setObject(position, array);
                 break;
-            default:
-                throw new UnsupportedOperationException("Unknown array argument style " + argumentStyle);
         }
     }
 

@@ -16,6 +16,7 @@ package org.jdbi.v3.core.result.internal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
@@ -31,7 +32,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
     private final ResultSetSupplier resultSetSupplier;
     private final StatementContext context;
 
-    private long mappedRows = 0;
+    private final AtomicLong mappedRows = new AtomicLong();
 
     private volatile boolean alreadyAdvanced = false;
     private volatile boolean hasNext = false;
@@ -63,7 +64,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
     @Override
     public void close() {
         closed = true;
-        context.setMappedRows(mappedRows);
+        context.setMappedRows(mappedRows.get());
         try {
             resultSetSupplier.close();
         } catch (SQLException e) {
@@ -99,7 +100,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
             throw new NoSuchElementException("No element to advance to");
         }
 
-        mappedRows++;
+        mappedRows.incrementAndGet();
 
         try {
             return rowMapper.map(resultSet, context);
