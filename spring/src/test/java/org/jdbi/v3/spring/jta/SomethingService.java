@@ -30,11 +30,11 @@ public class SomethingService {
 
     @Transactional
     public void inTransaction(Function<SomethingDao, ?> function) {
-        function.apply(somethingDao);
+        var unused = function.apply(somethingDao);
     }
 
     public void withoutTransaction(Function<SomethingDao, ?> function) {
-        function.apply(somethingDao);
+        var unused = function.apply(somethingDao);
     }
 
 }
