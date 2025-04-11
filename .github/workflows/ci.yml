@@ -56,7 +56,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_ARGS: "-o -B -ff"
+          MAVEN_ARGS: "-B -ff"
         run: |
           ./mvnw --version
           make run-tests
