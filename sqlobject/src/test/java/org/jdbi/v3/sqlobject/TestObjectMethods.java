@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import com.google.common.testing.EqualsTester;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
@@ -47,7 +48,7 @@ public class TestObjectMethods {
     @Test
     public void testEquals() {
         DAO dao = handle.attach(DAO.class);
-        assertThat(dao).isEqualTo(dao);
+        new EqualsTester().addEqualityGroup(dao, dao).testEquals();
     }
 
     @Test

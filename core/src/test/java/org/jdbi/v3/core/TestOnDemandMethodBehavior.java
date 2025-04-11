@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.google.common.testing.EqualsTester;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,15 +98,18 @@ public class TestOnDemandMethodBehavior {
 
     @Test
     public void testEqualsDoesntAttach() throws SQLException {
-        assertThat(onDemand).isEqualTo(onDemand)
-                .isNotEqualTo(anotherOnDemand);
+
+        new EqualsTester()
+            .addEqualityGroup(onDemand, onDemand)
+            .addEqualityGroup(anotherOnDemand)
+            .testEquals();
         verify(connectionFactory, never()).openConnection();
     }
 
     @Test
     public void testHashCodeDoesntAttach() throws SQLException {
         assertThat(onDemand).hasSameHashCodeAs(onDemand)
-                .doesNotHaveSameHashCodeAs(anotherOnDemand);
+            .doesNotHaveSameHashCodeAs(anotherOnDemand);
         verify(connectionFactory, never()).openConnection();
     }
 

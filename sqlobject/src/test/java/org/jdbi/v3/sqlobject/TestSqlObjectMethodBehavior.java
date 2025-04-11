@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject;
 import java.sql.Connection;
 import java.util.concurrent.Callable;
 
+import com.google.common.testing.EqualsTester;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -95,8 +96,9 @@ public class TestSqlObjectMethodBehavior {
 
     @Test
     public void testEquals() {
-        assertThat(dao).isEqualTo(dao)
-                .isNotEqualTo(anotherDao);
+        new EqualsTester().addEqualityGroup(dao, dao)
+            .addEqualityGroup(anotherDao)
+            .testEquals();
     }
 
     @Test
@@ -108,7 +110,7 @@ public class TestSqlObjectMethodBehavior {
     @Test
     public void testToStringDoesntConnect() {
         try {
-            dao.toString();
+            assertThat(dao.toString()).isNotNull();
         } catch (UnsupportedOperationException e) {
             fail("should not open a connection");
         }
