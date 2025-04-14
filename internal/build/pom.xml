@@ -105,8 +105,8 @@
         <dep.joda-time.version>2.14.0</dep.joda-time.version>
         <dep.jts.version>1.20.0</dep.jts.version>
         <dep.junit5.version>5.13.0-M2</dep.junit5.version>
-        <dep.kotlin.version>1.6.21</dep.kotlin.version>
-        <dep.kotlinx-coroutines.version>1.6.4</dep.kotlinx-coroutines.version>
+        <dep.kotlin.version>2.1.20</dep.kotlin.version>
+        <dep.kotlinx-coroutines.version>1.10.2</dep.kotlinx-coroutines.version>
         <dep.lombok.version>1.18.38</dep.lombok.version>
         <dep.mockito.version>5.16.1</dep.mockito.version>
         <dep.moshi.version>1.15.2</dep.moshi.version>
@@ -151,9 +151,8 @@
         <jdbi.test.pg-version>15</jdbi.test.pg-version>
         <jdbi.test.region>US</jdbi.test.region>
         <jdbi.test.timezone>UTC</jdbi.test.timezone>
-        <kotlin.compiler.apiVersion>1.6</kotlin.compiler.apiVersion>
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
-        <kotlin.compiler.languageVersion>1.6</kotlin.compiler.languageVersion>
+        <kotlin.compiler.languageVersion>2.1</kotlin.compiler.languageVersion>
         <no-docker>false</no-docker>
         <project.build.targetJdk>11</project.build.targetJdk>
     </properties>

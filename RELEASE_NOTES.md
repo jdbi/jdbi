@@ -1,6 +1,7 @@
 # Unreleased
 
 - Move all kotlin deps into the module poms (fixes #2762, thanks @simonolander)
+- Drop explicit support for obsolete Kotlin versions < 1.9 (#2764)
 
 # 3.49.0
 
