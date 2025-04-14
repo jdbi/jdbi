@@ -1,6 +1,7 @@
 # Unreleased
 
 - Drop explicit support for unsupported Kotlin versions < 2.1 (#2764)
+- Fix kotlin-reflect dependency not declared (#2762)
 
 # 3.49.0
 
