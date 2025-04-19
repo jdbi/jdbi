@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.google.common.testing.EqualsTester;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.HandleConsumer;
@@ -56,9 +57,11 @@ public class TestVariousOddities {
     public void testEquals() {
         Spiffy s1 = h2Extension.getSharedHandle().attach(Spiffy.class);
         Spiffy s2 = h2Extension.getSharedHandle().attach(Spiffy.class);
-        assertThat(s1).isEqualTo(s1);
         assertThat(s1).isNotSameAs(s2);
-        assertThat(s1).isNotEqualTo(s2);
+        new EqualsTester()
+            .addEqualityGroup(s1, s1)
+            .addEqualityGroup(s2)
+            .testEquals();
     }
 
     @Test

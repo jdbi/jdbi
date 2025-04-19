@@ -70,17 +70,16 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                 .flatMap(CustomizingStatementHandler::annotationsFor)
                 .map(a -> instantiateFactory(a).createForType(a, sqlObjectType))
                 .map(BoundCustomizer::of)
-                .collect(Collectors.toCollection(() -> statementCustomizers));
+                .forEach(statementCustomizers::add);
 
         // method customizers
         annotationsFor(method)
                 .map(a -> instantiateFactory(a).createForMethod(a, sqlObjectType, method))
                 .map(BoundCustomizer::of)
-                .collect(Collectors.toCollection(() -> statementCustomizers));
+                .forEach(statementCustomizers::add);
 
         // parameter customizers
-        parameterCustomizers()
-                .collect(Collectors.toCollection(() -> statementCustomizers));
+        parameterCustomizers().forEach(statementCustomizers::add);
     }
 
     @Override
