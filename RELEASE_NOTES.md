@@ -1,5 +1,7 @@
 # Unreleased
 
+- Drop explicit support for unsupported Kotlin versions < 2.1 (#2764)
+
 # 3.49.0
 
 - Support creating a ConstructorMapper using a static factory method (#2738, thanks @WellingR!)
