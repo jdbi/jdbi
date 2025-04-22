@@ -226,7 +226,7 @@ jdbi3-opentelemetry::
 
 ===== External data types and libraries
 
-The core module contains support for the https://immutables.github.io/[Immutables^] and https://github.com/inferred/FreeBuilder[Freebuilder^] libraries.
+The core module contains support for the https://immutables.github.io/[Immutables^] library.
 
 [glossary]
 jdbi3-guava::
@@ -2259,11 +2259,6 @@ This may be disabled by configuring
 === Immutables Mapping
 
 `Immutables` value objects may be mapped, see the <<Immutables>> section for details.
-
-
-=== Freebuilder Mapping
-
-`Freebuilder` value objects may be mapped, see the <<Freebuilder>> section for details.
 
 
 === Reflection Mappers for Beans and POJOs
@@ -6565,31 +6560,6 @@ The configuration will both register appropriate link:{jdbidocs}/core/mapper/Row
 [source,java,indent=0]
 ----
 include::{coreexampledir}/ImmutablesTest.java[tags=example]
-----
-
-
-=== Freebuilder
-https://freebuilder.inferred.org/[Freebuilder^] is an annotation
-processor that generates value types based on simple interface or abstract
-class descriptions. Jdbi supports Freebuilder in much the same way that it
-supports Immutables.
-
-[WARNING]
-Freebuilder support is still experimental and may not support all Freebuilder
-implemented features. We do support both JavaBean style getters and setters as
-well as unprefixed getters and setters.
-
-Just tell us about your Freebuilder types by installing the plugin and
-configuring your `Freebuilder` type:
-
-`jdbi.getConfig(JdbiFreebuilder.class).registerFreebuilder(MyFreeBuilderType.class)`
-
-The configuration will both register appropriate link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^]s as well as
-configure the new `bindPojo` (or `@BindPojo`) binders:
-
-[source,java,indent=0]
-----
-include::{coreexampledir}/FreeBuildersTest.java[tags=example]
 ----
 
 
