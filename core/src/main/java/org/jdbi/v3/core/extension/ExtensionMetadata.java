@@ -31,6 +31,7 @@ import org.jdbi.v3.core.config.ConfigCustomizer;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.internal.ConfigCustomizerChain;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.JdbiClassUtils.MethodKey;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.meta.Alpha;
 
@@ -161,7 +162,7 @@ public final class ExtensionMetadata {
 
             this.extensionTypeMethods.stream()
                     .filter(m -> !m.isSynthetic())
-                    .collect(Collectors.groupingBy(m -> Arrays.asList(m.getName(), Arrays.asList(m.getParameterTypes()))))
+                    .collect(Collectors.groupingBy(MethodKey::methodKey))
                     .values()
                     .stream()
                     .filter(methodCount -> methodCount.size() > 1)
