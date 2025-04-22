@@ -47,6 +47,15 @@ public class TestJsr310 {
     }
 
     @Test
+    public void instant1500() {
+        Handle h = h2Extension.getSharedHandle();
+
+        Instant i = Instant.parse("1500-03-10T23:00Z");
+        h.execute("insert into stuff(ts) values (?)", i);
+        assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).one()).isEqualTo(i);
+    }
+
+    @Test
     public void localDate() {
         Handle h = h2Extension.getSharedHandle();
 
