@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.49.1
+
 - Fix onDemand extension handling of method invocations from a subtype (#2769, thanks @djsstarburst!)
 - Move all kotlin deps into the module poms (fixes #2762, thanks @simonolander)
 - Drop explicit support for obsolete Kotlin versions < 1.9 (#2764)
