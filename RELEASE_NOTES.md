@@ -1,5 +1,7 @@
 # Unreleased
 
+- Move all kotlin deps into the module poms (fixes #2762, thanks @simonolander)
+
 # 3.49.0
 
 - Support creating a ConstructorMapper using a static factory method (#2738, thanks @WellingR!)
