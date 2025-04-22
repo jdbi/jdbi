@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         testcontainer-version: [ 1.19.8, 1.20.6 ]
-        mysql-version: [ "mysql:latest" ]
+        mysql-version: [ "mysql:lts" ]
 
     steps:
       - uses: actions/checkout@v4

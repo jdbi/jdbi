@@ -147,7 +147,7 @@
         <jdbi.check.skip-sbom>${basepom.check.skip-extended}</jdbi.check.skip-sbom>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
         <jdbi.test.language>en</jdbi.test.language>
-        <jdbi.test.mysql-version>mysql:latest</jdbi.test.mysql-version>
+        <jdbi.test.mysql-version>mysql:lts</jdbi.test.mysql-version>
         <jdbi.test.pg-version>15</jdbi.test.pg-version>
         <jdbi.test.region>US</jdbi.test.region>
         <jdbi.test.timezone>UTC</jdbi.test.timezone>
