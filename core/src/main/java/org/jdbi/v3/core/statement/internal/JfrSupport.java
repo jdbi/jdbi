@@ -31,15 +31,14 @@ public final class JfrSupport {
         if (isJfrAvailable()) {
             try {
                 Class<?> flightRecorder = Class.forName("jdk.jfr.FlightRecorder");
-                Method register = flightRecorder.getMethod("register", Class.class);
-                register.invoke(null, JdbiStatementEvent.class);
-
                 Method isAvailable = flightRecorder.getMethod("isAvailable");
                 flightRecorderAvailable = (boolean) isAvailable.invoke(null);
 
-            } catch (ReflectiveOperationException e) {
-                throw new ExceptionInInitializerError(e);
-            }
+                if (flightRecorderAvailable) {
+                    Method register = flightRecorder.getMethod("register", Class.class);
+                    register.invoke(null, JdbiStatementEvent.class);
+                }
+            } catch (ReflectiveOperationException ignored) {}
         }
 
         FLIGHT_RECORDER_AVAILABLE = flightRecorderAvailable;
