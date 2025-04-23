@@ -72,10 +72,12 @@ public class JpaTest {
             setName(name);
         }
 
+        @Override
         public int getId() {
             return id;
         }
 
+        @Override
         public String getName() {
             return name;
         }
@@ -126,10 +128,12 @@ public class JpaTest {
             setName(name);
         }
 
+        @Override
         public int getId() {
             return id;
         }
 
+        @Override
         public String getName() {
             return name;
         }
@@ -179,10 +183,12 @@ public class JpaTest {
             setName(name);
         }
 
+        @Override
         public int getId() {
             return id;
         }
 
+        @Override
         public String getName() {
             return name;
         }
@@ -232,11 +238,13 @@ public class JpaTest {
         }
 
         @Column
+        @Override
         public int getId() {
             return id;
         }
 
         @Column
+        @Override
         public String getName() {
             return name;
         }
@@ -286,11 +294,13 @@ public class JpaTest {
         }
 
         @Column(name = "foo")
+        @Override
         public int getId() {
             return id;
         }
 
         @Column(name = "bar")
+        @Override
         public String getName() {
             return name;
         }
@@ -339,10 +349,12 @@ public class JpaTest {
             setName(name);
         }
 
+        @Override
         public int getId() {
             return id;
         }
 
+        @Override
         public String getName() {
             return name;
         }
@@ -393,10 +405,12 @@ public class JpaTest {
             setName(name);
         }
 
+        @Override
         public int getId() {
             return id;
         }
 
+        @Override
         public String getName() {
             return name;
         }
@@ -458,6 +472,7 @@ public class JpaTest {
 
         private String name;
 
+        @Override
         public String getName() {
             return name;
         }
@@ -503,11 +518,13 @@ public class JpaTest {
         }
 
         @Column(name = "ignored")
+        @Override
         public int getId() {
             return id;
         }
 
         @Column(name = NAME_ANNOTATION_NAME)
+        @Override
         public String getName() {
             return name;
         }
@@ -597,10 +614,12 @@ public class JpaTest {
         @Column(name = "bar")
         private String name;
 
+        @Override
         public int getId() {
             return id;
         }
 
+        @Override
         public String getName() {
             return name;
         }
@@ -1023,10 +1042,12 @@ public class JpaTest {
             setName(name);
         }
 
+        @Override
         public int getId() {
             return id;
         }
 
+        @Override
         public String getName() {
             return name;
         }

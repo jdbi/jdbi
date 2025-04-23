@@ -53,8 +53,6 @@ import org.sqlite.SQLiteDataSource;
  */
 public class JdbiSqliteExtension extends JdbiExtension {
 
-    private static final String JDBC_URL_TEMPLATE = "jdbc:sqlite:file:%s?mode=memory&cache=shared";
-
     private final String url;
 
     static JdbiExtension instance() {
@@ -62,7 +60,7 @@ public class JdbiSqliteExtension extends JdbiExtension {
     }
 
     public JdbiSqliteExtension() {
-        this(String.format(JDBC_URL_TEMPLATE, UUID.randomUUID().toString()));
+        this(String.format("jdbc:sqlite:file:%s?mode=memory&cache=shared", UUID.randomUUID()));
     }
 
     public JdbiSqliteExtension(String url) {

@@ -32,7 +32,7 @@ import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
  * @deprecated Use {@link ExtensionHandlerFactory} instances that are returned
  * from the {@link org.jdbi.v3.core.extension.ExtensionFactory#getExtensionHandlerFactories(ConfigRegistry)} method.
  */
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 public class Handlers implements JdbiConfig<Handlers> {
     private final List<HandlerFactory> factories;
 

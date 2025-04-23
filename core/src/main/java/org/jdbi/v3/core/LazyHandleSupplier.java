@@ -52,7 +52,7 @@ final class LazyHandleSupplier extends AbstractHandleSupplier implements OnDeman
 
     @Override
     protected void withHandle(Consumer<Handle> handleConsumer) {
-        handleHolder.ifInitialized(handleConsumer::accept);
+        handleHolder.ifInitialized(handleConsumer);
     }
 
     @Override

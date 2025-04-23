@@ -22,7 +22,6 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.statement.Call;
-import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlCall;
@@ -58,7 +57,7 @@ public class TestSqlCall {
     public void testFoo() {
         Dao dao = handle.attach(Dao.class);
         try (Call call = handle.createCall(":num = call stored_insert(:id, :name)")) {
-            OutParameters out = call.bind("id", 1)
+            call.bind("id", 1)
                 .bind("name", "Jeff")
                 .registerOutParameter("num", Types.INTEGER)
                 .invoke();

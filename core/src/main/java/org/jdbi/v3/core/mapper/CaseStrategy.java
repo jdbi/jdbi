@@ -53,7 +53,7 @@ public enum CaseStrategy implements UnaryOperator<String> {
     LOCALE_LOWER {
         @Override
         public String apply(String t) {
-            return t.toLowerCase();
+            return t.toLowerCase(Locale.getDefault());
         }
     },
     /**
@@ -62,7 +62,7 @@ public enum CaseStrategy implements UnaryOperator<String> {
     LOCALE_UPPER {
         @Override
         public String apply(String t) {
-            return t.toUpperCase();
+            return t.toUpperCase(Locale.getDefault());
         }
     },
 }

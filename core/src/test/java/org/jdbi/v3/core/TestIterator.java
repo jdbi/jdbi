@@ -349,6 +349,7 @@ class TestIterator {
             return query.attachToHandleForCleanup().mapTo(Something.class).iterator();
         }
 
+        @Override
         public void iterator(Consumer<Iterator<Something>> consumer) {
             Handle handle = handleSupplier.getHandle();
             try (Query query = handle.createQuery("SELECT id, name FROM something ORDER BY id DESC")) {

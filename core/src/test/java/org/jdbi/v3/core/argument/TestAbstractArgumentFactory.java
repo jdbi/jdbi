@@ -57,7 +57,7 @@ public class TestAbstractArgumentFactory {
 
         @Override
         protected Argument build(SimpleType value, ConfigRegistry config) {
-            return (pos, stmt, ctx) -> stmt.setString(pos, value.value);
+            return (pos, stmt, statementContext) -> stmt.setString(pos, value.value);
         }
     }
 
@@ -113,7 +113,7 @@ public class TestAbstractArgumentFactory {
 
         @Override
         protected Argument build(Box<String> value, ConfigRegistry config) {
-            return (pos, stmt, ctx) -> stmt.setString(pos, value.value);
+            return (pos, stmt, statementContext) -> stmt.setString(pos, value.value);
         }
     }
 
@@ -235,7 +235,7 @@ public class TestAbstractArgumentFactory {
 
         @Override
         protected Argument build(final Thing<String> value, final ConfigRegistry config) {
-            return ((position, statement, ctx1) -> statement.setString(position, value.getKey()));
+            return (position, stmt, ctx1) -> stmt.setString(position, value.getKey());
         }
     }
 

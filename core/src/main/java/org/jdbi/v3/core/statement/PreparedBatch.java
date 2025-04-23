@@ -169,7 +169,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      * @return A {@link ResultBearing} object that can be used to access the results of the batch.
      * @deprecated Use {@link #executePreparedBatch(String...)} which has the same functionality but also returns the per-batch modified row counts.
      */
-    @Deprecated
+    @Deprecated(since = "3.32.0", forRemoval = true)
     public ResultBearing executeAndReturnGeneratedKeys(String... columnNames) {
         return execute(returningGeneratedKeys(columnNames));
     }

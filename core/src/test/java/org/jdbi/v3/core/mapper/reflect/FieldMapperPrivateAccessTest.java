@@ -20,10 +20,12 @@ import org.jdbi.v3.core.SampleBean;
  */
 public class FieldMapperPrivateAccessTest extends FieldMapperAccessTest {
 
+    @Override
     protected Class<?> getBeanClass() {
         return PrivateSampleBean.class;
     }
 
+    @Override
     protected Class<?> getDerivedBeanClass() {
         return PrivateDerivedBean.class;
     }

@@ -47,7 +47,7 @@ public class TestHandlePg {
     }
 
     @Test
-    public void testAfterCommitThrowsRollback() throws Exception {
+    public void testAfterCommitThrowsRollback() {
         assertThatThrownBy(() -> h.useTransaction(inner -> {
             inner.execute("create table names(id int, name varchar)");
             h.afterCommit(() ->

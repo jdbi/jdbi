@@ -39,7 +39,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * Binds public methods with no parameters on a specified object.
  * @deprecated this functionality will remain supported, but this class should not be API
  */
-@Deprecated
+@Deprecated(since = "3.11.0")
 public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
     private static final ConfigCache<Class<?>, Map<String, Function<Object, TypedValue>>> NULLARY_METHOD_CACHE =
             ConfigCaches.declare(ObjectMethodArguments::load);

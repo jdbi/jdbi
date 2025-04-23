@@ -32,7 +32,7 @@ import org.jdbi.v3.core.extension.ExtensionHandler;
  * @deprecated Use {@link org.jdbi.v3.core.extension.ExtensionHandlerCustomizer} instances which are returned directly
  * from the {@link org.jdbi.v3.core.extension.ExtensionFactory#getExtensionHandlerCustomizers(ConfigRegistry)}.
  */
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 public class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
     private final List<HandlerDecorator> decorators;
 

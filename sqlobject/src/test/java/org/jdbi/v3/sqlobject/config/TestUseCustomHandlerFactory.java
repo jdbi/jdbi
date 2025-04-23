@@ -55,13 +55,13 @@ public class TestUseCustomHandlerFactory {
             @Override
             public Optional<Handler> buildHandler(Class<?> sqlObjectType, Method method) {
                 return getImplementation(sqlObjectType, method).map(m ->
-                    (target, args, handleSupplier) -> m.invoke(null, Stream.concat(Stream.of(target), Stream.of(args)).toArray())
-               );
+                        (target, args, handleSupplier) -> m.invoke(null, Stream.concat(Stream.of(target), Stream.of(args)).toArray())
+                );
             }
 
             private Optional<Method> getImplementation(Class<?> type, Method method) {
                 return Stream.of(type.getClasses())
-                        .filter(c -> c.getSimpleName().equals("DefaultImpls"))
+                        .filter(SomethingDao.DefaultImpls.class::isAssignableFrom)
                         .flatMap(c -> Stream.of(c.getMethods()).filter(m -> m.getName().equals(method.getName())))
                         .findAny();
             }

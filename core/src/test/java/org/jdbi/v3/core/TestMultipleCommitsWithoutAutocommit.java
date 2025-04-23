@@ -33,7 +33,7 @@ public class TestMultipleCommitsWithoutAutocommit {
     }
 
     @Test
-    public void testMultipleCommitsWithoutAutocommit() throws Exception {
+    public void testMultipleCommitsWithoutAutocommit() {
         Jdbi jdbi = Jdbi.create(() -> {
             // create connection with auto-commit == false
             Connection connection = DriverManager.getConnection(h2Extension.getUri());

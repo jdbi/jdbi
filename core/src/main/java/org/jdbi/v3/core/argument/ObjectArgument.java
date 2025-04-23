@@ -33,7 +33,7 @@ public class ObjectArgument implements Argument {
      * @see java.sql.Types
      * @deprecated use {@link #of(Object, Integer)} factory method for more consistent {@code null} handling
      */
-    @Deprecated
+    @Deprecated(since = "3.11.0", forRemoval = true)
     public ObjectArgument(Object value, Integer sqlType) {
         this.sqlType = sqlType;
         this.value = value;

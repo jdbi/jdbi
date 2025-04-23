@@ -174,5 +174,10 @@ public final class JdbiLeakChecker implements StatementContextListener, HandleLi
 
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "Context " + Integer.toHexString(System.identityHashCode(this));
+        }
     }
 }

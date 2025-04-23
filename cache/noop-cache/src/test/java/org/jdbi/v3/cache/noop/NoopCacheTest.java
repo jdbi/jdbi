@@ -28,6 +28,7 @@ class NoopCacheTest extends JdbiCacheTest {
         this.builder = NoopCache.builder();
     }
 
+    @Override
     protected void doTestWithGlobalLoader(JdbiCache<String, String> cache) {
         assertThat(cacheLoader.created()).isZero();
 
@@ -51,6 +52,7 @@ class NoopCacheTest extends JdbiCacheTest {
         assertThat(value2).isEqualTo(cacheLoader.checkKey(key2));
     }
 
+    @Override
     protected void doTestWithLoader(JdbiCache<String, String> cache) {
         assertThat(cacheLoader.created()).isZero();
 

@@ -31,6 +31,8 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -76,33 +78,10 @@ public class BeanMapperMockTest {
         when(resultSet.wasNull()).thenReturn(true);
     }
 
-    @Test
-    public void shouldSetValueOnPublicSetter() throws Exception {
-        mockColumns("longField");
-
-        Long aLongVal = 100L;
-        mockLongResult(aLongVal);
-
-        SampleBean sampleBean = mapper.map(resultSet, ctx);
-
-        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
-    }
-
-    @Test
-    public void shouldHandleColumNameWithUnderscores() throws Exception {
-        mockColumns("LONG_FIELD");
-
-        Long aLongVal = 100L;
-        mockLongResult(aLongVal);
-
-        SampleBean sampleBean = mapper.map(resultSet, ctx);
-
-        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
-    }
-
-    @Test
-    public void shouldBeCaseInSensitiveOfColumnWithUnderscoresAndPropertyNames() throws Exception {
-        mockColumns("LoNg_FiElD");
+    @ParameterizedTest
+    @ValueSource(strings = { "longField", "LONG_FIELD", "LoNg_FiElD", "LoNgfielD" })
+    public void testSetterNames(String name) throws Exception {
+        mockColumns(name);
 
         Long aLongVal = 100L;
         mockLongResult(aLongVal);
@@ -119,18 +98,6 @@ public class BeanMapperMockTest {
         SampleBean sampleBean = mapper.map(resultSet, ctx);
 
         assertThat(sampleBean).isNotNull();
-    }
-
-    @Test
-    public void shouldBeCaseInSensitiveOfColumnAndPropertyNames() throws Exception {
-        mockColumns("LoNgfielD");
-
-        Long aLongVal = 100L;
-        mockLongResult(aLongVal);
-
-        SampleBean sampleBean = mapper.map(resultSet, ctx);
-
-        assertThat(sampleBean.getLongField()).isEqualTo(aLongVal);
     }
 
     @Test

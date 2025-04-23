@@ -51,7 +51,7 @@ import java.util.stream.Collector;
  *
  * @deprecated will be replaced by plugin
  */
-@Deprecated
+@Deprecated(since = "3.6.0")
 public class BuiltInCollectorFactory implements CollectorFactory {
     private static final List<CollectorFactory> FACTORIES = Arrays.asList(
         new MapCollectorFactory(),
@@ -92,7 +92,7 @@ public class BuiltInCollectorFactory implements CollectorFactory {
      * @return a {@code Collector} which collects 0 or 1 input elements into an {@code Optional<T>}.
      * @deprecated Use {@link OptionalCollectors#toOptional()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.0.1", forRemoval = true)
     @SuppressWarnings("InlineMeSuggester")
     public static <T> Collector<T, ?, Optional<T>> toOptional() {
         return OptionalCollectors.toOptional();
@@ -111,7 +111,7 @@ public class BuiltInCollectorFactory implements CollectorFactory {
      *
      * @deprecated Use {@link MapCollectors#toMap(Supplier)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.0.1", forRemoval = true)
     public static <K, V, M extends Map<K, V>> Collector<Map.Entry<K, V>, ?, M> toMap(Supplier<M> mapFactory) {
         return Collector.of(
                 mapFactory,

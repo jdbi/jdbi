@@ -66,28 +66,28 @@ public class TestJavaTime {
 
     @Test
     public void localDate() {
-        LocalDate d = LocalDate.now();
+        LocalDate d = LocalDate.now(ZoneId.systemDefault());
         h.execute("insert into stuff(d) values (?)", d);
         assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).one()).isEqualTo(d);
     }
 
     @Test
     public void localDateTime() {
-        LocalDateTime d = LocalDateTime.now();
+        LocalDateTime d = LocalDateTime.now(ZoneId.systemDefault());
         h.execute("insert into stuff(ts) values (?)", d);
         assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).one()).isCloseTo(d, getAllowableOffset());
     }
 
     @Test
     public void offsetDateTime() {
-        OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.UTC);
+        OffsetDateTime dt = OffsetDateTime.now(ZoneId.systemDefault()).withOffsetSameInstant(ZoneOffset.UTC);
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one()).isCloseTo(dt, getAllowableOffset());
     }
 
     @Test
     public void offsetDateTimeLosesOffset() {
-        OffsetDateTime dt = OffsetDateTime.now().withOffsetSameInstant(ZoneOffset.ofHours(-7));
+        OffsetDateTime dt = OffsetDateTime.now(ZoneId.systemDefault()).withOffsetSameInstant(ZoneOffset.ofHours(-7));
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one()).isCloseTo(dt, getAllowableOffset());
     }

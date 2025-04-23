@@ -91,7 +91,9 @@
         <module name="NeedBraces"/>
         <module name="NoClone"/>
         <module name="NoFinalizer"/>
-        <module name="NoWhitespaceAfter"/>
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value = "AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, LNOT, DOT, ARRAY_DECLARATOR, INDEX_OP" />
+        </module>
         <module name="NoWhitespaceBefore"/>
         <module name="OneStatementPerLine"/>
         <module name="OneTopLevelClass"/>

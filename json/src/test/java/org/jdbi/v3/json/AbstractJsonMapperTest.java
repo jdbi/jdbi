@@ -141,6 +141,12 @@ public abstract class AbstractJsonMapperTest {
 
         @Override
         public boolean equals(Object x) {
+            if (this == x) {
+                return true;
+            } else if (x == null || getClass() != x.getClass()) {
+                return false;
+            }
+
             JsonBean other = (JsonBean) x;
             return bitcoins == other.bitcoins
                 && Objects.equals(food, other.food);

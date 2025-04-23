@@ -103,7 +103,7 @@ public class TestDefaultExtensionMethods {
         class Impl implements ExtensionHandler {
 
             @Override
-            public Object invoke(HandleSupplier handleSupplier, Object target, Object[] args) {
+            public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
                 return "foo";
             }
         }

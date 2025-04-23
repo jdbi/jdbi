@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.extension;
 
+import com.google.errorprone.annotations.FormatMethod;
 import org.jdbi.v3.core.JdbiException;
 import org.jdbi.v3.meta.Beta;
 
@@ -33,6 +34,7 @@ public final class UnableToCreateExtensionException extends JdbiException {
      * @param format A {@link String#format} format string
      * @param args Arguments for the format string
      */
+    @FormatMethod
     public UnableToCreateExtensionException(String format, Object... args) {
         super(format(format, args));
     }
@@ -43,6 +45,7 @@ public final class UnableToCreateExtensionException extends JdbiException {
      * @param format A {@link String#format} format string
      * @param args Arguments for the format string
      */
+    @FormatMethod
     public UnableToCreateExtensionException(Throwable throwable, String format, Object... args) {
         super(format(format, args), throwable);
     }

@@ -61,7 +61,7 @@ public final class ClasspathSqlLocator {
      * @return the located SQL.
      * @deprecated {@link #create()} an instance instead of using static methods
      */
-    @Deprecated
+    @Deprecated(since = "3.10.0", forRemoval = true)
     public static String findSqlOnClasspath(Class<?> type, String methodName) {
         return Holder.INSTANCE.locate(type, methodName);
     }
@@ -74,7 +74,7 @@ public final class ClasspathSqlLocator {
      * @return the located SQL.
      * @deprecated {@link #create()} an instance instead of using static methods
      */
-    @Deprecated
+    @Deprecated(since = "3.10.0", forRemoval = true)
     public static String findSqlOnClasspath(String name) {
         return Holder.INSTANCE.locate(name);
     }
@@ -88,7 +88,7 @@ public final class ClasspathSqlLocator {
      * @see ClassLoader#getResource(String)
      * @deprecated {@link #create()} an instance instead of using static methods
      */
-    @Deprecated
+    @Deprecated(since = "3.10.0", forRemoval = true)
     public static String getResourceOnClasspath(String path) {
         return Holder.INSTANCE.getResource(path);
     }
@@ -104,7 +104,7 @@ public final class ClasspathSqlLocator {
      * @see ClassLoader#getResource(String)
      * @deprecated {@link #create()} an instance instead of using static methods
      */
-    @Deprecated
+    @Deprecated(since = "3.10.0", forRemoval = true)
     public static String getResourceOnClasspath(ClassLoader classLoader, String path) {
         return Holder.INSTANCE.getResource(classLoader, path);
     }

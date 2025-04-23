@@ -29,7 +29,9 @@ public class JdbiRepositoryFactoryBean implements FactoryBean<Object>, Applicati
     private BeanFactory beanFactory;
 
     /**
-     * @return The jdbi instance to attach this repository to.
+     * Returns the {@link Jdbi} instance to attach this repository to.
+     *
+     * @return The {@link Jdbi} instance to attach this repository to.
      */
     protected Jdbi getJdbi() {
         if (jdbiQualifier != null) {

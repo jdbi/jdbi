@@ -119,7 +119,7 @@ public class TestLobStream {
         int countLob();
     }
 
-    class IntsInputStream extends InputStream {
+    static class IntsInputStream extends InputStream {
         private final int lo;
         private final int hi;
         private int count;
@@ -143,7 +143,7 @@ public class TestLobStream {
         }
     }
 
-    class IntsReader extends Reader {
+    static class IntsReader extends Reader {
         private final char lo;
         private final char hi;
         private int count;

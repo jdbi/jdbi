@@ -50,7 +50,7 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
      * @param toLowerCase if true, column names are converted to lowercase in the mapped {@link Map}. If false, nothing is done. Use the other constructor to delegate case control to MapMappers instead.
      * @deprecated use {@link MapMappers#setCaseChange(UnaryOperator)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.38.0", forRemoval = true)
     public MapMapper(boolean toLowerCase) {
         caseStrategy = toLowerCase ? ctx -> CaseStrategy.LOCALE_LOWER : ctx -> CaseStrategy.NOP;
     }

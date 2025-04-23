@@ -47,11 +47,12 @@ class TestMSSQLStoredProcedure {
     @Test
     void testMsSqlServerCall() {
         Handle h = extension.getSharedHandle();
-        h.execute("CREATE PROCEDURE simpleCursor\n"
-            + "AS\n"
-            + "BEGIN\n"
-            + "SELECT 'hello' UNION ALL SELECT 'world'\n"
-            + "END;");
+        h.execute("""
+                CREATE PROCEDURE simpleCursor
+                AS
+                BEGIN
+                SELECT 'hello' UNION ALL SELECT 'world'
+                END;""");
 
         try (Call call = h.createCall("{ call simpleCursor()}")) {
             OutParameters output = call.invoke();
@@ -64,15 +65,16 @@ class TestMSSQLStoredProcedure {
     @Test
     void testMsSqlOutParameter() {
         Handle h = extension.getSharedHandle();
-        h.execute("CREATE PROCEDURE passValues\n"
-            + "@inValue NVARCHAR(64),\n"
-            + "@outValue1 NVARCHAR(64) OUTPUT,\n"
-            + "@outValue2 NVARCHAR(64) OUTPUT\n"
-            + "AS\n"
-            + "BEGIN\n"
-            + "SELECT @outValue1 = @inValue;\n"
-            + "SELECT @outValue2 = 'hello';\n"
-            + "END;");
+        h.execute("""
+                CREATE PROCEDURE passValues
+                @inValue NVARCHAR(64),
+                @outValue1 NVARCHAR(64) OUTPUT,
+                @outValue2 NVARCHAR(64) OUTPUT
+                AS
+                BEGIN
+                SELECT @outValue1 = @inValue;
+                SELECT @outValue2 = 'hello';
+                END;""");
 
         try (Call call = h.createCall("{ call passValues(?, ?, ?)}")) {
             call.registerOutParameter(1, Types.NVARCHAR)
@@ -87,16 +89,17 @@ class TestMSSQLStoredProcedure {
     @Test
     void testMsSqlOutParametersAndResultSet() {
         Handle h = extension.getSharedHandle();
-        h.execute("CREATE PROCEDURE passValues\n"
-            + "@inValue NVARCHAR(64),\n"
-            + "@outValue1 NVARCHAR(64) OUTPUT,\n"
-            + "@outValue2 NVARCHAR(64) OUTPUT\n"
-            + "AS\n"
-            + "BEGIN\n"
-            + "SELECT @outValue1 = @inValue;\n"
-            + "SELECT @outValue2 = 'hello';\n"
-            + "SELECT 'hello' UNION ALL SELECT 'world'\n"
-            + "END;");
+        h.execute("""
+                CREATE PROCEDURE passValues
+                @inValue NVARCHAR(64),
+                @outValue1 NVARCHAR(64) OUTPUT,
+                @outValue2 NVARCHAR(64) OUTPUT
+                AS
+                BEGIN
+                SELECT @outValue1 = @inValue;
+                SELECT @outValue2 = 'hello';
+                SELECT 'hello' UNION ALL SELECT 'world'
+                END;""");
 
         try (Call call = h.createCall("{ call passValues(?, ?, ?)}")) {
             call.registerOutParameter(1, Types.NVARCHAR)

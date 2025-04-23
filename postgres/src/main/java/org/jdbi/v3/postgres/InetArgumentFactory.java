@@ -43,7 +43,7 @@ public class InetArgumentFactory extends AbstractArgumentFactory<InetAddress> {
      * @deprecated no longer used
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "3.39.0", forRemoval = true)
     public Collection<Type> prePreparedTypes() {
         return Arrays.asList(InetAddress.class, Inet4Address.class, Inet6Address.class);
     }

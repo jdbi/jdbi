@@ -114,7 +114,7 @@ public class Binding {
      * @deprecated don't inspect a Binding: keep your own state!
      * @return the bound Argument
      */
-    @Deprecated
+    @Deprecated(since = "3.11.0", forRemoval = true)
     public Optional<Argument> findForName(String name, StatementContext ctx2) {
         final Object found = named.get(name);
         if (found != null || named.containsKey(name)) {
@@ -130,7 +130,7 @@ public class Binding {
      * @return the set of known binding names
      * @deprecated this is expensive to compute, and it's bad practice to inspect a Binding: keep track of your own state!
      */
-    @Deprecated
+    @Deprecated(since = "3.11.0", forRemoval = true)
     public Collection<String> getNames() {
         final Set<String> names = new HashSet<>(named.keySet());
         namedArgumentFinder.forEach(args -> names.addAll(args.getNames()));
@@ -144,7 +144,7 @@ public class Binding {
      * @deprecated don't inspect a Binding: keep your own state!
      * @return argument bound to that position
      */
-    @Deprecated
+    @Deprecated(since = "3.11.0", forRemoval = true)
     public Optional<Argument> findForPosition(int position) {
         return Optional.ofNullable(new ArgumentBinder(null, ctx, ParsedParameters.NONE).toArgument(positionals.get(position)));
     }

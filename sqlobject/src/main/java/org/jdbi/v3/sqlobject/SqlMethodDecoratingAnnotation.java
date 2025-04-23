@@ -28,7 +28,7 @@ import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 public @interface SqlMethodDecoratingAnnotation {
     /**
      * Factory class that decorates {@link Handler} instances for methods annotated with the associated annotation.

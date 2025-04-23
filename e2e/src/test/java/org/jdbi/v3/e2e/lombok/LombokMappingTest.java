@@ -48,11 +48,11 @@ public class LombokMappingTest {
     @Test
     public void testIssue2083BooleanObject() {
         BooleanObjectTable t1 = new BooleanObjectTable();
-        t1.setTableName(("abc"));
+        t1.setTableName("abc");
         t1.setIsView(true);
 
         BooleanObjectTable t2 = new BooleanObjectTable();
-        t2.setTableName(("def"));
+        t2.setTableName("def");
         t2.setIsView(false);
 
         List<BooleanObjectTable> data = handle.createQuery("SELECT * FROM test_table")
@@ -65,11 +65,11 @@ public class LombokMappingTest {
     @Test
     public void testIssue2083BooleanPrimitive() {
         BooleanPrimitiveTable t1 = new BooleanPrimitiveTable();
-        t1.setTableName(("abc"));
+        t1.setTableName("abc");
         t1.setView(true);
 
         BooleanPrimitiveTable t2 = new BooleanPrimitiveTable();
-        t2.setTableName(("def"));
+        t2.setTableName("def");
         t2.setView(false);
 
         List<BooleanPrimitiveTable> data = handle.createQuery("SELECT * FROM test_table")

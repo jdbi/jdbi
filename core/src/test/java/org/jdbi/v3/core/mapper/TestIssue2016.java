@@ -210,6 +210,7 @@ public class TestIssue2016 {
 
         protected String state;
 
+        @Override
         public String getState() {
             return state;
         }

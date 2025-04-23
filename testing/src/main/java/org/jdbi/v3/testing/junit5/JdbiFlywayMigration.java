@@ -117,7 +117,7 @@ public final class JdbiFlywayMigration implements JdbiExtensionInitializer {
      * @return The instance itself for chaining method calls.
      * @deprecated The default changed to <tt>true</tt> so this call actually does nothing.
      */
-    @Deprecated
+    @Deprecated(since = "3.35.0", forRemoval = true)
     public JdbiFlywayMigration cleanAfter() {
         this.cleanAfter = true;
         return this;

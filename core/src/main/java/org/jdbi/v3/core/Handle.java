@@ -655,7 +655,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @return the same handle.
      * @deprecated Use {@link Handle#releaseSavepoint(String)}
      */
-    @Deprecated
+    @Deprecated(since = "3.35.0", forRemoval = true)
     public Handle release(String savepointName) {
         return releaseSavepoint(savepointName);
     }
@@ -786,7 +786,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver.
      * @deprecated Use {@link Handle#setTransactionIsolationLevel(int)}
      */
-    @Deprecated
+    @Deprecated(since = "3.35.0", forRemoval = true)
     public void setTransactionIsolation(TransactionIsolationLevel level) {
         setTransactionIsolationLevel(level);
     }
@@ -815,7 +815,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      * @see Connection#TRANSACTION_SERIALIZABLE
      * @deprecated Use {@link Handle#setTransactionIsolationLevel(TransactionIsolationLevel)}
      */
-    @Deprecated
+    @Deprecated(since = "3.35.0", forRemoval = true)
     public void setTransactionIsolation(int level) {
         setTransactionIsolationLevel(level);
     }

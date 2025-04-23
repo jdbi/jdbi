@@ -177,5 +177,10 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         public Set<T> leakedElements() {
             return Sets.difference(objectAdded.keySet(), objectRemoved.keySet());
         }
+
+        @Override
+        public String toString() {
+            return "Context " + Integer.toHexString(System.identityHashCode(this));
+        }
     }
 }

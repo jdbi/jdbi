@@ -34,7 +34,7 @@ public class FreemarkerEngine implements TemplateEngine.Parsing {
     /**
      * @deprecated use {@link #instance()} for a shared engine instead
      */
-    @Deprecated
+    @Deprecated(since = "3.39.0", forRemoval = true)
     @SuppressFBWarnings("SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR")
     public FreemarkerEngine() {}
 

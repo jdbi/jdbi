@@ -29,19 +29,17 @@ public class CopyOnWriteHashMapTest {
     @Test
     void put() {
         Map<String, String> a = new CopyOnWriteHashMap<>();
-        assertThat(a.isEmpty()).isTrue();
-        assertThat(a.size()).isEqualTo(0);
+        assertThat(a).hasSize(0).isEmpty();
         assertThat(a.put("a", "1")).isNull();
-        assertThat(a.isEmpty()).isFalse();
-        assertThat(a.size()).isEqualTo(1);
+        assertThat(a).hasSize(1).isNotEmpty();
         Map<String, String> b = new CopyOnWriteHashMap<>(a);
-        assertThat(b.get("a")).isEqualTo("1");
+        assertThat(b).containsEntry("a", "1");
         assertThat(a.put("a", "2")).isEqualTo("1");
-        assertThat(a.get("a")).isEqualTo("2");
-        assertThat(b.get("a")).isEqualTo("1");
+        assertThat(a).containsEntry("a", "2");
+        assertThat(b).containsEntry("a", "1");
         assertThat(b.put("a", "3")).isEqualTo("1");
-        assertThat(a.get("a")).isEqualTo("2");
-        assertThat(b.get("a")).isEqualTo("3");
+        assertThat(a).containsEntry("a", "2");
+        assertThat(b).containsEntry("a", "3");
     }
 
     @Test
@@ -49,7 +47,7 @@ public class CopyOnWriteHashMapTest {
         Map<String, String> a = new CopyOnWriteHashMap<>();
         assertThat(a.putIfAbsent("a", "1")).isNull();
         assertThat(a.putIfAbsent("a", "2")).isEqualTo("1");
-        assertThat(a.get("a")).isEqualTo("1");
+        assertThat(a).containsEntry("a", "1");
     }
 
     @Test
@@ -57,13 +55,13 @@ public class CopyOnWriteHashMapTest {
         Map<String, String> a = new CopyOnWriteHashMap<>();
         a.putAll(singletonMap("a", "1"));
         Map<String, String> b = new CopyOnWriteHashMap<>(a);
-        assertThat(b.get("a")).isEqualTo("1");
+        assertThat(b).containsEntry("a", "1");
         a.putAll(singletonMap("a", "2"));
-        assertThat(a.get("a")).isEqualTo("2");
-        assertThat(b.get("a")).isEqualTo("1");
+        assertThat(a).containsEntry("a", "2");
+        assertThat(b).containsEntry("a", "1");
         b.putAll(singletonMap("a", "3"));
-        assertThat(a.get("a")).isEqualTo("2");
-        assertThat(b.get("a")).isEqualTo("3");
+        assertThat(a).containsEntry("a", "2");
+        assertThat(b).containsEntry("a", "3");
     }
 
     @Test
@@ -72,13 +70,13 @@ public class CopyOnWriteHashMapTest {
         assertThat(a.remove("a")).isNull();
         a.put("a", "1");
         Map<String, String> b = new CopyOnWriteHashMap<>(a);
-        assertThat(b.get("a")).isEqualTo("1");
+        assertThat(b).containsEntry("a", "1");
         assertThat(a.remove("a")).isEqualTo("1");
         assertThat(a.get("a")).isNull();
-        assertThat(b.get("a")).isEqualTo("1");
+        assertThat(b).containsEntry("a", "1");
         b.put("a", "3");
         assertThat(a.get("a")).isNull();
-        assertThat(b.get("a")).isEqualTo("3");
+        assertThat(b).containsEntry("a", "3");
     }
 
     @Test
@@ -86,13 +84,13 @@ public class CopyOnWriteHashMapTest {
         Map<String, String> a = new CopyOnWriteHashMap<>();
         a.put("a", "1");
         Map<String, String> b = new CopyOnWriteHashMap<>(a);
-        assertThat(b.get("a")).isEqualTo("1");
+        assertThat(b).containsEntry("a", "1");
         a.clear();
-        assertThat(a.get("a")).isNull();
-        assertThat(b.get("a")).isEqualTo("1");
+        assertThat(a).isEmpty();
+        assertThat(b).containsEntry("a", "1");
         b.put("a", "3");
-        assertThat(a.get("a")).isNull();
-        assertThat(b.get("a")).isEqualTo("3");
+        assertThat(a).isEmpty();
+        assertThat(b).containsEntry("a", "3");
     }
 
     @Test
@@ -108,7 +106,7 @@ public class CopyOnWriteHashMapTest {
             assertThat(v).isEqualTo("1");
             return "2";
         })).isEqualTo("2");
-        assertThat(a.get("a")).isEqualTo("2");
+        assertThat(a).containsEntry("a", "2");
     }
 
     @Test
@@ -121,7 +119,7 @@ public class CopyOnWriteHashMapTest {
         assertThat(a.computeIfAbsent("a", k -> {
             throw new AssertionError();
         })).isEqualTo("1");
-        assertThat(a.get("a")).isEqualTo("1");
+        assertThat(a).containsEntry("a", "1");
     }
 
     @Test
@@ -136,7 +134,7 @@ public class CopyOnWriteHashMapTest {
             assertThat(v).isEqualTo("1");
             return "2";
         })).isEqualTo("2");
-        assertThat(a.get("a")).isEqualTo("2");
+        assertThat(a).containsEntry("a", "2");
     }
 
     @Test
@@ -150,7 +148,7 @@ public class CopyOnWriteHashMapTest {
             assertThat(v2).isEqualTo("2");
             return "3";
         })).isEqualTo("3");
-        assertThat(a.get("a")).isEqualTo("3");
+        assertThat(a).containsEntry("a", "3");
     }
 
     @Test
@@ -159,8 +157,7 @@ public class CopyOnWriteHashMapTest {
         a.put("a", "1");
         Map<String, String> b = new CopyOnWriteHashMap<>(a);
         assertThat(b).isEqualTo(a);
-        assertThat(a).isEqualTo(b);
-        assertThat(a.hashCode()).isEqualTo(b.hashCode());
+        assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
 
         b.put("a", "3");
         assertThat(b).isNotEqualTo(a);
@@ -177,6 +174,6 @@ public class CopyOnWriteHashMapTest {
         Entry<String, String> entry = iter.next();
         assertThat(entry).isEqualTo(new AbstractMap.SimpleImmutableEntry<>("a", "1"));
         assertThatThrownBy(() -> entry.setValue("2")).isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> iter.remove()).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(iter::remove).isInstanceOf(UnsupportedOperationException.class);
     }
 }

@@ -19,7 +19,7 @@ package org.jdbi.v3.core.statement;
  * @deprecated Use {@link SqlLogger} instead.
  */
 @FunctionalInterface
-@Deprecated
+@Deprecated(since = "3.2.0", forRemoval = true)
 public interface TimingCollector {
     /**
      * Called after a statement completes with how long it took to execute.
@@ -28,7 +28,7 @@ public interface TimingCollector {
      * @param elapsedNs the elapsed time in nanoseconds.
      * @param ctx the context of the just completed statement
      */
-    @Deprecated
+    @Deprecated(since = "3.2.0", forRemoval = true)
     void collect(long elapsedNs, StatementContext ctx);
 
     /**
@@ -36,6 +36,6 @@ public interface TimingCollector {
      *
      * @deprecated Use {@link SqlLogger#NOP_SQL_LOGGER} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.2.0", forRemoval = true)
     TimingCollector NOP_TIMING_COLLECTOR = (ns, ctx) -> {};
 }

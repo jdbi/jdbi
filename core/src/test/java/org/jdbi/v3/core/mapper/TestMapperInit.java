@@ -93,7 +93,7 @@ public class TestMapperInit {
                 .contains(new StringValue("foo"), new StringValue("bar"), new StringValue("baz"));
 
         // redo with another handle
-        values = jdbi.withHandle(h -> {
+        jdbi.useHandle(h -> {
             List<StringValue> value = h.createQuery("SELECT string_value FROM column_mappers")
                 .mapTo(StringValue.class)
                 .list();
@@ -103,8 +103,6 @@ public class TestMapperInit {
 
             // has been called for every row again (mapper gets reused)
             assertThat(value.size() * 3).isEqualTo(mapper.getMappedCount());
-
-            return value;
         });
     }
 
@@ -153,7 +151,7 @@ public class TestMapperInit {
                 .hasSize(3);
 
         // redo with another handle
-        values = jdbi.withHandle(h -> {
+        jdbi.useHandle(h -> {
             List<Map.Entry<StringValue, Integer>> value = h.createQuery("SELECT * FROM column_mappers")
                 .mapTo(resultType)
                 .list();
@@ -162,8 +160,6 @@ public class TestMapperInit {
 
             // has been called for every row again (mapper gets reused)
             assertThat(value).hasSize(mapper.getMappedCount() / 3);
-
-            return value;
         });
     }
 

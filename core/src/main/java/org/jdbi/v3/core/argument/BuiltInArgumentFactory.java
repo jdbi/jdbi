@@ -35,7 +35,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
  *
  * @deprecated will be replaced by a plugin
  */
-@Deprecated
+@Deprecated(since = "3.6.0")
 public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
     public static final ArgumentFactory INSTANCE = new BuiltInArgumentFactory();
 
@@ -70,7 +70,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
      * @deprecated no longer used
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "3.39.0", forRemoval = true)
     public Collection<? extends Type> prePreparedTypes() {
         return FACTORIES.stream()
                 .map(ArgumentFactory.Preparable::prePreparedTypes)

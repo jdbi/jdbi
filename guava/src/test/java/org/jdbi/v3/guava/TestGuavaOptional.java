@@ -141,7 +141,7 @@ public class TestGuavaOptional {
         }
     }
 
-    class Name {
+    static class Name {
         final String value;
 
         Name(String value) {
@@ -163,7 +163,7 @@ public class TestGuavaOptional {
         }
     }
 
-    class NameArgumentFactory implements ArgumentFactory {
+    static class NameArgumentFactory implements ArgumentFactory {
         @Override
         public java.util.Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
             if (expectedType == Name.class) {

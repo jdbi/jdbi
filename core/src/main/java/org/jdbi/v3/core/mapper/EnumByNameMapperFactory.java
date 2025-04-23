@@ -33,8 +33,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  * @see EnumMapper#byName(Class)
  * @deprecated Use {@link Enums#setEnumStrategy(EnumStrategy) getConfig(Enums.class).setEnumStrategy(BY_NAME)} instead.
  */
-@Deprecated
-// TODO jdbi4: delete
+@Deprecated(since = "3.7.0") // TODO jdbi4: delete
 public class EnumByNameMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {

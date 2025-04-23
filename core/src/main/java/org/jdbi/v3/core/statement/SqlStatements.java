@@ -211,7 +211,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return the timing collector
      * @deprecated use {@link #getSqlLogger} instead
      */
-    @Deprecated
+    @Deprecated(since = "3.2.0", forRemoval = true)
     public TimingCollector getTimingCollector() {
         return (elapsed, ctx) -> sqlLogger.logAfterExecution(ctx);
     }
@@ -224,7 +224,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return this
      * @deprecated use {@link #setSqlLogger} instead
      */
-    @Deprecated
+    @Deprecated(since = "3.2.0", forRemoval = true)
     public SqlStatements setTimingCollector(TimingCollector timingCollector) {
         this.sqlLogger = timingCollector == null ? SqlLogger.NOP_SQL_LOGGER : new SqlLogger() {
             @Override
@@ -410,6 +410,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     /**
      * Returns cache statistics for the internal template cache. This returns a cache specific object,
      * so the user needs to know what caching library is in use.
+     *
+     * @param <T> the type of the cache statistics object
      */
     @Beta
     public <T> T cacheStats() {

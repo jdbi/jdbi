@@ -166,7 +166,7 @@ public class TestJdbiClassUtils {
         assertThat(testFcThree).isNotNull();
         assertThat(testFcThree.str()).isEqualTo("one");
         assertThat(testFcThree.i()).isEqualTo(2);
-        assertThat(testFcThree.bool()).isEqualTo(true);
+        assertThat(testFcThree.bool()).isTrue();
     }
 
     static final Class<?>[] CLASS_PARAMETERS = {String.class, int.class, boolean.class};

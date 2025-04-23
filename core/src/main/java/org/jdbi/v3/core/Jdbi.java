@@ -590,7 +590,7 @@ public class Jdbi implements Configurable<Jdbi> {
             throw new IllegalArgumentException("On-demand extensions are only supported for interfaces.");
         }
         if (!getConfig(Extensions.class).hasExtensionFor(extensionType)) {
-            throw new NoSuchExtensionException(extensionType, "Extension not found: %s");
+            throw new NoSuchExtensionException(extensionType);
         }
 
         return getConfig(OnDemandExtensions.class).create(this, extensionType);

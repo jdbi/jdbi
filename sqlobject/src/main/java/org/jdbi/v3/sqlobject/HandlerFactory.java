@@ -27,7 +27,7 @@ import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
  *
  * @deprecated Use {@link ExtensionHandlerFactory} instances directly.
  */
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 public interface HandlerFactory extends ExtensionHandlerFactory {
 
     /**

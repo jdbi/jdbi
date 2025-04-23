@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -71,12 +72,12 @@ public class TestTelemetry {
 
     @BeforeEach
     void setupOpenTelemetry() throws InvocationTargetException, IllegalAccessException {
-        setupOpenTelemetryMethod.invoke(instance);
+        assertThat(setupOpenTelemetryMethod.invoke(instance)).isNull();
     }
 
     @Test
     void events() throws InvocationTargetException, IllegalAccessException {
-        eventsMethod.invoke(instance);
+        assertThat(eventsMethod.invoke(instance)).isNull();
     }
 
     @Test
@@ -194,7 +195,7 @@ public class TestTelemetry {
                 .containsEntry("type", "Update");
         }
 
-        private List<TreeMap<String, Object>> extractEventProperties() {
+        private List<Map<String, Object>> extractEventProperties() {
             return jfrEvents.events()
                 .sorted(Comparator.comparing(RecordedEvent::getStartTime))
                 .map(evt -> {

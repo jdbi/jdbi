@@ -95,6 +95,7 @@ public class TypeResolvingCodecFactoryTest {
 
     public interface YInterface<Y> extends XInterface<String> {
 
+        @Override
         default String getX() {
             return null;
         }
@@ -109,6 +110,7 @@ public class TypeResolvingCodecFactoryTest {
 
     public static class XClass implements XInterface<String> {
 
+        @Override
         public String getX() {
             return null;
         }
@@ -116,10 +118,12 @@ public class TypeResolvingCodecFactoryTest {
 
     public static class YClass implements YInterface<Integer> {
 
+        @Override
         public String getX() {
             return null;
         }
 
+        @Override
         public Integer getY() {
             return null;
         }

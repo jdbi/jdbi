@@ -114,7 +114,7 @@ public interface Configurable<This> {
      * @return this
      * @deprecated use {@link #setSqlLogger} instead
      */
-    @Deprecated
+    @Deprecated(since = "3.2.0", forRemoval = true)
     default This setTimingCollector(TimingCollector collector) {
         return configure(SqlStatements.class, c -> c.setTimingCollector(collector));
     }

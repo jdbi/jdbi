@@ -117,7 +117,7 @@ public class AsyncTest {
         // wait for stage to complete (don't do this in production code!)
         Iterator<String> result = futureResult.toCompletableFuture().join();
         // result.hasNext() fails because the handle is already closed at this point
-        assertThatException().isThrownBy(() -> result.hasNext());
+        assertThatException().isThrownBy(result::hasNext);
         // end::failReturningIterator[]
     }
 }

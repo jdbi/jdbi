@@ -15,13 +15,12 @@ package org.jdbi.v3.core.result;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
 /**
  * Extend the {@link ResultIterable} for batch operations.
- * @param <T>
+ * @param <T> The generic type for the iterable.
  */
 public interface BatchResultIterable<T> extends ResultIterable<T> {
 
@@ -36,7 +35,7 @@ public interface BatchResultIterable<T> extends ResultIterable<T> {
         return new BatchResultIterable<>() {
             @Override
             public List<List<U>> listPerBatch() {
-                List<List<U>> results = new LinkedList<>();
+                List<List<U>> results = new ArrayList<>();
                 try (ResultIterator<U> iterator = delegate.iterator()) {
                     for (int modCount : modifiedRowCountsSupplier.get()) {
                         if (modCount <= 0) {

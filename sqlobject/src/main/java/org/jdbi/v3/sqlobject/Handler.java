@@ -23,7 +23,7 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
  * @deprecated Use {@link ExtensionHandler} directly.
  */
 @FunctionalInterface
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 public interface Handler extends ExtensionHandler {
 
     /**

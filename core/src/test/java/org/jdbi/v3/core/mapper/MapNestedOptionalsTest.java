@@ -63,9 +63,9 @@ public class MapNestedOptionalsTest {
         h.execute("insert into something(intValue, name) values(1, 'Duke')");
         h.execute("insert into something(intValue, name) values(null, null)");
 
-        var resultList = (h.createQuery("select * from something order by id")
+        var resultList = h.createQuery("select * from something order by id")
             .map(factory.createRowMapper(OptionalBeanWithNestedOptionals.class))
-            .list());
+            .list();
         assertThat(resultList).hasSize(2);
         var first = resultList.get(0);
         var second = resultList.get(1);
@@ -74,7 +74,7 @@ public class MapNestedOptionalsTest {
         assertThat(first.bean.get().name).isEqualTo(Optional.of("Duke"));
         assertThat(second.bean).isPresent();
         assertThat(second.bean.get().intValue).isEqualTo(OptionalInt.empty());
-        assertThat(second.bean.get().name).isEqualTo(Optional.empty());
+        assertThat(second.bean.get().name).isNotPresent();
     }
 
     @ParameterizedTest
@@ -84,9 +84,9 @@ public class MapNestedOptionalsTest {
         h.execute("insert into something(intValue) values(1)");
         h.execute("insert into something(intValue) values(null)");
 
-        var resultList = (h.createQuery("select * from something order by id")
+        var resultList = h.createQuery("select * from something order by id")
             .map(factory.createRowMapper(OptionalBeanWithNestedWithPropagateNullPrimitiveField.class))
-            .list());
+            .list();
         assertThat(resultList).hasSize(2);
         var first = resultList.get(0);
         assertThat(first.bean).isPresent();
