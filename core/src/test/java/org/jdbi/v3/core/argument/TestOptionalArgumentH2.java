@@ -107,7 +107,7 @@ public class TestOptionalArgumentH2 {
         }
     }
 
-    private class IdValue {
+    private static class IdValue {
         private long id;
         private String val;
 

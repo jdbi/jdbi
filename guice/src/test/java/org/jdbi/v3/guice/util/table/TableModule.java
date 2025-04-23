@@ -33,6 +33,7 @@ public class TableModule extends AbstractJdbiDefinitionModule {
         this.tableName = tableName;
     }
 
+    @Override
     public void configureJdbi() {
         exposeBinding(TableDao.class);
     }

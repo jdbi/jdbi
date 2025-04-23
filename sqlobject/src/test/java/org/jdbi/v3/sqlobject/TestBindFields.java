@@ -43,7 +43,7 @@ public class TestBindFields {
         handle.execute("CREATE TABLE the_table (id IDENTITY PRIMARY KEY, name varchar)");
     }
 
-    public class TestObject {
+    public static class TestObject {
         public final int id;
         public final String name;
 

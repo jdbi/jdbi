@@ -129,7 +129,7 @@ public class JoinRowMapperTest {
         public boolean equals(Object obj) {
             if (obj instanceof User) {
                 User that = (User) obj;
-                return Objects.equals(uid, that.uid) && Objects.equals(name, that.name);
+                return uid == that.uid && Objects.equals(name, that.name);
             }
             return false;
         }
@@ -153,7 +153,7 @@ public class JoinRowMapperTest {
         public boolean equals(Object obj) {
             if (obj instanceof Article) {
                 Article that = (Article) obj;
-                return Objects.equals(aid, that.aid) && Objects.equals(title, that.title);
+                return aid == that.aid && Objects.equals(title, that.title);
             }
             return false;
         }

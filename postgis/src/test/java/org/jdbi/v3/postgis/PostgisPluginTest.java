@@ -119,9 +119,9 @@ final class PostgisPluginTest {
             .mapToBean(PostgisRecord.class)
             .first();
 
-        assertThat(record.getPoint()).isNull();
-        assertThat(record.getLineString()).isNull();
-        assertThat(record.getPolygon()).isNull();
+        assertThat(result.getPoint()).isNull();
+        assertThat(result.getLineString()).isNull();
+        assertThat(result.getPolygon()).isNull();
     }
 
     public static final class PostgisRecord {

@@ -18,7 +18,6 @@ import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.extension.InstanceExtensionHandlerFactory.INSTANCE;
 
 class TestInstanceExtensionHandlerFactory {
 
@@ -29,8 +28,8 @@ class TestInstanceExtensionHandlerFactory {
         Method concreteTestClassMethod = AbstractTestClass.class.getMethod("concreteMethod");
 
         // accept methods from an abstract class...
-        assertThat(INSTANCE.accepts(AbstractTestClass.class, abstractTestClassMethod)).isTrue();
-        assertThat(INSTANCE.accepts(AbstractTestClass.class, concreteTestClassMethod)).isTrue();
+        assertThat(InstanceExtensionHandlerFactory.INSTANCE.accepts(AbstractTestClass.class, abstractTestClassMethod)).isTrue();
+        assertThat(InstanceExtensionHandlerFactory.INSTANCE.accepts(AbstractTestClass.class, concreteTestClassMethod)).isTrue();
     }
 
     @Test
@@ -38,7 +37,7 @@ class TestInstanceExtensionHandlerFactory {
 
         // do not accept methods declared by Object
         Method objectMethod = Object.class.getMethod("toString");
-        assertThat(INSTANCE.accepts(AbstractTestClass.class, objectMethod)).isFalse();
+        assertThat(InstanceExtensionHandlerFactory.INSTANCE.accepts(AbstractTestClass.class, objectMethod)).isFalse();
     }
 
     @Test
@@ -48,9 +47,9 @@ class TestInstanceExtensionHandlerFactory {
         Method defaultTestInterfaceMethod = TestInterface.class.getMethod("defaultMethod");
 
         // accept methods from the interface...
-        assertThat(INSTANCE.accepts(TestInterface.class, testInterfaceMethod)).isTrue();
+        assertThat(InstanceExtensionHandlerFactory.INSTANCE.accepts(TestInterface.class, testInterfaceMethod)).isTrue();
         // ... but not default methods
-        assertThat(INSTANCE.accepts(TestInterface.class, defaultTestInterfaceMethod)).isFalse();
+        assertThat(InstanceExtensionHandlerFactory.INSTANCE.accepts(TestInterface.class, defaultTestInterfaceMethod)).isFalse();
     }
 
     interface TestInterface {

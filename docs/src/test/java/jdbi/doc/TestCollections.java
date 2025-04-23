@@ -15,7 +15,6 @@ package jdbi.doc;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -91,7 +90,7 @@ public class TestCollections {
     public void test() {
         // tag::into-list[]
         List<String> names = handle
-                .registerCollector(List.class, Collectors.toCollection(LinkedList::new))
+                .registerCollector(List.class, Collectors.toCollection(ArrayList::new))
                 .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
                 .bind("genre", "Action")
                 .mapTo(String.class)

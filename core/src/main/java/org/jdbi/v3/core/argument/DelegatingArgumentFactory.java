@@ -48,7 +48,7 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory.Preparable {
      * @deprecated no longer used
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "3.39.0", forRemoval = true)
     public Collection<? extends Type> prePreparedTypes() {
         return builders.keySet();
     }

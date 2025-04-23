@@ -13,7 +13,8 @@
  */
 package org.jdbi.v3.core.internal.exceptions;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.internal.exceptions.Unchecked.CheckedRunnable;
@@ -25,7 +26,7 @@ import static org.jdbi.v3.core.internal.exceptions.Sneaky.throwAnyway;
  */
 public final class ThrowableSuppressor {
 
-    private final LinkedList<Throwable> throwables = new LinkedList<>();
+    private final Deque<Throwable> throwables = new ArrayDeque<>();
 
     /**
      * Run a piece of code and record any thrown exception at the end of the exception chain.

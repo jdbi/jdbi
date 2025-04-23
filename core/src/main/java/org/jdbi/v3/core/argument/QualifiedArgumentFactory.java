@@ -92,7 +92,7 @@ public interface QualifiedArgumentFactory {
         /**
          * @deprecated no longer used
          */
-        @Deprecated
+        @Deprecated(since = "3.15.0", forRemoval = true)
         default Collection<QualifiedType<?>> prePreparedTypes() {
             return Collections.emptyList();
         }
@@ -132,7 +132,7 @@ public interface QualifiedArgumentFactory {
                 /**
                  * @deprecated no longer used
                  */
-                @Deprecated
+                @Deprecated(since = "3.39.0", forRemoval = true)
                 @Override
                 public Collection<QualifiedType<?>> prePreparedTypes() {
                     return prePreparedTypes;

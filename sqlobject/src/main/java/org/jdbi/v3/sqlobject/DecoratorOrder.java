@@ -31,7 +31,7 @@ import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 public @interface DecoratorOrder {
     /**
      * The order that decorator annotations will be applied, from outermost to innermost. Decorator order is undefined

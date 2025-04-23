@@ -89,7 +89,7 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
     /**
      * @deprecated no longer used
      */
-    @Deprecated
+    @Deprecated(since = "3.39.0", forRemoval = true)
     @Override
     public final Collection<QualifiedType<?>> prePreparedTypes() {
         return codecMap.keySet();

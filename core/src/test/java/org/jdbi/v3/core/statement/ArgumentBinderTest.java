@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class ArgumentBinderTest {
-    private static final Argument NOP = (position, statement, ctx) -> {};
+    private static final Argument NOP = (position, statement, statementContext) -> {};
 
     @Mock
     private PreparedStatement stmt;

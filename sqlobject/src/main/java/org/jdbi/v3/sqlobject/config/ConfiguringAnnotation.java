@@ -27,7 +27,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 public @interface ConfiguringAnnotation {
     /**
      * A {@link Configurer} type, which will be used to configure {@link ConfigRegistry} instances.

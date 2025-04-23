@@ -31,7 +31,7 @@ public class DateTimeTest {
         Handle h = h2Extension.getSharedHandle();
         h.execute("create table stuff(ts timestamp)");
 
-        DateTime dt = new DateTime();
+        DateTime dt = DateTime.now();
         h.execute("insert into stuff(ts) values (?)", dt);
 
         assertThat(h.createQuery("select ts from stuff").mapTo(DateTime.class).one()).isEqualTo(dt);

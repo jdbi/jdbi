@@ -81,17 +81,17 @@ public class CaseInsensitiveStringEqualsBenchmark {
 
     @Benchmark
     public boolean toLowerCaseEqualsCopy() {
-        return original.toLowerCase().equalsIgnoreCase(copy);
+        return original.toLowerCase(Locale.getDefault()).equalsIgnoreCase(copy);
     }
 
     @Benchmark
     public boolean toLowerCaseEqualsRandomCase() {
-        return original.toLowerCase().equalsIgnoreCase(copy);
+        return original.toLowerCase(Locale.getDefault()).equalsIgnoreCase(copy);
     }
 
     @Benchmark
     public boolean toLowerCaseEqualsOther() {
-        return original.toLowerCase().equalsIgnoreCase(other);
+        return original.toLowerCase(Locale.getDefault()).equalsIgnoreCase(other);
     }
 
     @Benchmark

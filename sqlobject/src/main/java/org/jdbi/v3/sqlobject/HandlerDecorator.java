@@ -26,7 +26,7 @@ import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
  *
  * @deprecated Use {@link ExtensionHandlerCustomizer} directly.
  */
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 @FunctionalInterface
 public interface HandlerDecorator extends ExtensionHandlerCustomizer {
     /**

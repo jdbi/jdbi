@@ -25,7 +25,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * Delegating mapper that implements the &#0064;PropagateNull semantics to check a specific column in the result set for null first. If that column is null,
  * return null as the value, otherwise executed the delegated mapper.
  *
- * @param <T>
+ * @param <T> The generic type for the row mapper.
  */
 public final class NullDelegatingMapper<T> implements RowMapper<T> {
 

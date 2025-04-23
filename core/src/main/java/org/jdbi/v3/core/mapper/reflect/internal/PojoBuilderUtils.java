@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,12 +61,12 @@ public class PojoBuilderUtils {
     }
 
     public static String chopPrefix(final String name, int off) {
-        return name.substring(off, off + 1).toLowerCase() + name.substring(off + 1);
+        return name.substring(off, off + 1).toLowerCase(Locale.ROOT) + name.substring(off + 1);
     }
 
     private static Set<String> setterNames(String name) {
         final Set<String> names = new LinkedHashSet<>();
-        final String rest = name.substring(0, 1).toUpperCase() + name.substring(1);
+        final String rest = name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
 
         names.add("set" + rest);
         names.add("is" + rest);

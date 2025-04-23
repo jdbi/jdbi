@@ -113,6 +113,8 @@ public class StatementContext implements Closeable {
     }
 
     /**
+     * Returns the type of the statement that owns this statement context as a descriptive string.
+     *
      * @return the type of the statement that owns this statement context as a descriptive string
      */
     @Beta
@@ -692,15 +694,5 @@ public class StatementContext implements Closeable {
     private void notifyCleanableAdded(Cleanable cleanable) {
         Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.cleanableAdded(this, cleanable));
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        return this == o;
-    }
-
-    @Override
-    public final int hashCode() {
-        return super.hashCode() * 11;
     }
 }

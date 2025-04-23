@@ -152,7 +152,7 @@ class ArgumentBinder {
     /**
      * @deprecated prepare the argument by type instead
      */
-    @Deprecated
+    @Deprecated(since = "3.11.0", forRemoval = true)
     Argument toArgument(Object found) {
         return argumentFactoryForType(typeOf(found))
                 .apply(unwrap(found));

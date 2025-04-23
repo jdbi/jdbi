@@ -64,7 +64,7 @@ public class TestUseCustomExtensionHandlerFactory {
 
             private Optional<Method> getImplementation(Class<?> type, Method method) {
                 return Stream.of(type.getClasses())
-                        .filter(c -> c.getSimpleName().equals("DefaultImpls"))
+                        .filter(SomethingDao.DefaultImpls.class::isAssignableFrom)
                         .flatMap(c -> Stream.of(c.getMethods()).filter(m -> m.getName().equals(method.getName())))
                         .findAny();
             }
@@ -110,7 +110,7 @@ public class TestUseCustomExtensionHandlerFactory {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.METHOD})
+    @Target({ ElementType.METHOD })
     @UseExtensionHandler(id = "test", value = Insert.Impl.class)
     public @interface Insert {
 
@@ -127,7 +127,7 @@ public class TestUseCustomExtensionHandlerFactory {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.METHOD})
+    @Target({ ElementType.METHOD })
     @UseExtensionHandler(id = "test", value = Retrieve.Impl.class)
     public @interface Retrieve {
 

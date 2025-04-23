@@ -13,8 +13,8 @@
  */
 package org.jdbi.v3.core;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -25,7 +25,7 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 abstract class AbstractHandleSupplier implements HandleSupplier {
 
     private final AtomicBoolean closed = new AtomicBoolean();
-    private final Deque<ExtensionContext> extensionContexts = new LinkedList<>();
+    private final Deque<ExtensionContext> extensionContexts = new ArrayDeque<>();
 
     protected AbstractHandleSupplier() {}
 

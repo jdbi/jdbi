@@ -48,7 +48,7 @@ public class FreemarkerSqlLocator {
     /**
      * @deprecated this static method does not respect configuration, use {@link FreemarkerConfig#createLocator()}
      */
-    @Deprecated
+    @Deprecated(since = "3.10.0", forRemoval = true)
     public static Template findTemplate(Class<?> type, String templateName) {
         return findTemplate(CONFIGURATION, type, templateName);
     }

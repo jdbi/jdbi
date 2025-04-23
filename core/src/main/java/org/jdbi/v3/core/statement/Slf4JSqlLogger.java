@@ -64,7 +64,7 @@ public class Slf4JSqlLogger implements SqlLogger {
     }
 
     private static String format(Duration duration) {
-        final long totalSeconds = duration.getSeconds();
+        final long totalSeconds = duration.toSeconds();
         final long h = totalSeconds / 3600;
         final long m = (totalSeconds % 3600) / 60;
         final long s = totalSeconds % 60;

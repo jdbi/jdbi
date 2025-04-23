@@ -77,7 +77,7 @@ public @interface BindList {
          *
          * @deprecated vaguely named in light of new additions, use {@link EmptyHandling#NULL_STRING} instead
          */
-        @Deprecated
+        @Deprecated(since = "3.6.0", forRemoval = true)
         NULL(NULL_KEYWORD),
         /**
          * <p>Define "null", useful e.g. in postgresql where "in ()" is invalid syntax.</p>
@@ -105,7 +105,7 @@ public @interface BindList {
         /**
          * @deprecated legacy internal API
          */
-        @Deprecated
+        @Deprecated(since = "3.10.0", forRemoval = true)
         public void define(SqlStatement stmt, String name) {
             coreImpl.accept(stmt, name);
         }

@@ -207,6 +207,7 @@ public class TestMixinInterfaces {
     private interface WithGetHandle extends SqlObject {}
 
     private interface ExplicitUseHandle extends SqlObject {
+        @Override
         void useHandle(HandleConsumer consumer);
     }
 

@@ -294,6 +294,7 @@ class TestStream {
             return query.attachToHandleForCleanup().mapTo(Something.class).stream();
         }
 
+        @Override
         public void stream(Consumer<Stream<Something>> consumer) {
             Handle handle = handleSupplier.getHandle();
             try (Query query = handle.createQuery("SELECT id, name FROM something ORDER BY id DESC")) {

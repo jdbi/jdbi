@@ -105,7 +105,7 @@ public abstract class JdbiRule extends ExternalResource {
      * @deprecated use {@link #withMigration(Migration)}
      * @return this
      */
-    @Deprecated
+    @Deprecated(since = "3.5.0", forRemoval = true)
     public JdbiRule migrateWithFlyway() {
         return migrateWithFlyway("db/migration");
     }
@@ -115,7 +115,7 @@ public abstract class JdbiRule extends ExternalResource {
      * @deprecated use {@link #withMigration(Migration)}
      * @return this
      */
-    @Deprecated
+    @Deprecated(since = "3.5.0", forRemoval = true)
     @SuppressWarnings("InlineMeSuggester")
     public JdbiRule migrateWithFlyway(String... locations) {
         return withMigration(Migration.before().withPaths(locations));

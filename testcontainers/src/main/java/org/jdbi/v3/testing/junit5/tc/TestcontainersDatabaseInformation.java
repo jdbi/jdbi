@@ -144,6 +144,8 @@ public final class TestcontainersDatabaseInformation {
     }
 
     /**
+     * Returns a {@link TestcontainersDatabaseInformation} object. It describes the credentials, schema and catalog to create a test databases.
+     *
      * @param user            Specify a user that can create a new schema or database. If this parameter is null, the testcontainer specific default user,
      *                        returned by {@link JdbcDatabaseContainer#getUsername()} is used.
      * @param catalog         Specify a catalog that should be used. This is for databases that do not support creating a new catalog or require a fixed catalog

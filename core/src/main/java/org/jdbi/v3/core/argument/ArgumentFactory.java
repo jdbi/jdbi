@@ -60,7 +60,7 @@ public interface ArgumentFactory {
         /**
          * @deprecated no longer used
          */
-        @Deprecated
+        @Deprecated(since = "3.15.0", forRemoval = true)
         default Collection<? extends Type> prePreparedTypes() {
             return Collections.emptyList();
         }

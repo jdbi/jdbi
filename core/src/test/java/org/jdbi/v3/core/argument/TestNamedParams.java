@@ -203,7 +203,7 @@ public class TestNamedParams {
             .isEqualTo(new Something(0, null));
     }
 
-    public class FunctionsNestedBinding {
+    public static class FunctionsNestedBinding {
 
         public NoArgFunctions nested() {
             return new NoArgFunctions(0, "Keith");

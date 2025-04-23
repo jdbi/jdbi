@@ -61,25 +61,14 @@ public class ConstructorMapperTest {
         }
     }
 
-    @Test
-    public void testSimple() {
-        ConstructorBean bean = selectOne("SELECT s, i FROM bean", ConstructorBean.class);
-
-        assertThat(bean.s).isEqualTo("3");
-        assertThat(bean.i).isEqualTo(2);
-    }
-
-    @Test
-    public void testReversed() {
-        ConstructorBean bean = selectOne("SELECT i, s FROM bean", ConstructorBean.class);
-
-        assertThat(bean.s).isEqualTo("3");
-        assertThat(bean.i).isEqualTo(2);
-    }
-
-    @Test
-    public void testExtra() {
-        ConstructorBean bean = selectOne("SELECT 1 as ignored, i, s FROM bean", ConstructorBean.class);
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "SELECT s, i FROM bean",
+        "SELECT i, s FROM bean",
+        "SELECT 1 as ignored, i, s FROM bean"
+    })
+    public void testParameterizedQueries(String query) {
+        ConstructorBean bean = selectOne(query, ConstructorBean.class);
 
         assertThat(bean.s).isEqualTo("3");
         assertThat(bean.i).isEqualTo(2);

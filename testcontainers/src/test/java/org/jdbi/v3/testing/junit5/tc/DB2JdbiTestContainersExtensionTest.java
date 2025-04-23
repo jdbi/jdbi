@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.testing.junit5.tc;
 
+import java.nio.charset.Charset;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -42,8 +44,8 @@ public class DB2JdbiTestContainersExtensionTest extends AbstractJdbiTestcontaine
 
     @Test
     public void testByteaArrayMultiRows() {
-        assertThat(getUserNameAsBlobById(1)).isEqualTo("Alice".getBytes());
-        assertThat(getUserNameAsBlobById(2)).isEqualTo("Bob".getBytes());
+        assertThat(getUserNameAsBlobById(1)).isEqualTo("Alice".getBytes(Charset.defaultCharset()));
+        assertThat(getUserNameAsBlobById(2)).isEqualTo("Bob".getBytes(Charset.defaultCharset()));
     }
 
     private byte[] getUserNameAsBlobById(Integer id) {

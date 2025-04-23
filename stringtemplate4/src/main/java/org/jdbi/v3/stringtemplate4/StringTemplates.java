@@ -28,6 +28,8 @@ public class StringTemplates implements JdbiConfig<StringTemplates> {
     }
 
     /**
+     * Returns whether missing attributes in a StringTemplate are a rendering error.
+     *
      * @return whether missing attributes in a StringTemplate are a rendering error
      */
     public boolean isFailOnMissingAttribute() {

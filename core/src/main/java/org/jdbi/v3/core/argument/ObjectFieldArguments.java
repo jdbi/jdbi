@@ -36,7 +36,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  * Inspect an object and binds parameters based on each of its public fields.
  * @deprecated this functionality will remain supported, but this class should not be API
  */
-@Deprecated
+@Deprecated(since = "3.11.0")
 public class ObjectFieldArguments extends ObjectPropertyNamedArgumentFinder {
     private static final ConfigCache<Class<?>, Map<String, Function<Object, TypedValue>>> FIELD_CACHE =
             ConfigCaches.declare((config, beanClazz) ->

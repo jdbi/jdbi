@@ -49,7 +49,7 @@ public class MockClock extends Clock {
     }
 
     public static MockClock now() {
-        return at(ZonedDateTime.now());
+        return at(ZonedDateTime.now(ZoneId.systemDefault()));
     }
 
     public static MockClock at(final ZonedDateTime now) {

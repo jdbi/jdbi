@@ -57,7 +57,7 @@ public class TestRegisteredGenericReturnAndParam {
         R getRestriction();
     }
 
-    public class GyroProvider implements FoodProvider<String, String, Gyro> {
+    public static class GyroProvider implements FoodProvider<String, String, Gyro> {
         @Override
         public Class<Gyro> getDao() {
             return Gyro.class;
@@ -74,7 +74,7 @@ public class TestRegisteredGenericReturnAndParam {
         }
     }
 
-    public class BurritoProvider implements FoodProvider<String, Integer, Burrito> {
+    public static class BurritoProvider implements FoodProvider<String, Integer, Burrito> {
         @Override
         public Class<Burrito> getDao() {
             return Burrito.class;

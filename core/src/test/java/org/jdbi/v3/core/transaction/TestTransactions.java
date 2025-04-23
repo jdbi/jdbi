@@ -112,10 +112,10 @@ public class TestTransactions {
             return connection;
         });
 
-        jdbi.useTransaction(h -> {
-            assertThat(h.getConnection().getAutoCommit()).isFalse();
-            h.execute("INSERT INTO something (id, name ) VALUES (1, 'foo')");
-            h.commit();
+        jdbi.useTransaction(handle -> {
+            assertThat(handle.getConnection().getAutoCommit()).isFalse();
+            handle.execute("INSERT INTO something (id, name ) VALUES (1, 'foo')");
+            handle.commit();
         });
 
         int result = h.createQuery("SELECT count(1) from something")

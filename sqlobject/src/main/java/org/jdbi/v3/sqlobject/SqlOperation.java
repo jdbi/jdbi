@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-@Deprecated
+@Deprecated(since = "3.38.0", forRemoval = true)
 public @interface SqlOperation {
     /**
      * Handler class for methods annotated with the associated annotation.

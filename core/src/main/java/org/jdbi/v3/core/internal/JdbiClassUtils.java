@@ -17,8 +17,9 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -221,7 +222,7 @@ public final class JdbiClassUtils {
     }
 
     private static MethodHandle findCtorMethodHandleForParameters(Class<?> type, Class<?>... types) {
-        var suppressedThrowables = new LinkedList<Throwable>();
+        Deque<Throwable> suppressedThrowables = new ArrayDeque<>();
 
         var constructors = type.getConstructors();
 
@@ -229,7 +230,7 @@ public final class JdbiClassUtils {
             tryNextConstructor:
             for (var constructor : constructors) {
                 if (constructor.getParameterCount() != argCount) {
-                    continue; // tryNextConstructor;
+                    continue;
                 }
 
                 for (int i = 0; i < argCount; i++) {

@@ -40,7 +40,7 @@ import java.util.Set;
  *
  * @deprecated {@link MessageFormat} formats integers with decimal separators, e.g. <code>1000</code> &rarr; <code>"1,000"</code>. This hindsight realization has led us to discourage its use.
  */
-@Deprecated
+@Deprecated(since = "3.6.0", forRemoval = true)
 public class MessageFormatTemplateEngine implements TemplateEngine {
     public MessageFormatTemplateEngine() {}
 

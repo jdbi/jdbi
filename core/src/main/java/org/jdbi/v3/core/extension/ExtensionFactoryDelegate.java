@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionMetadata.Builder;
 import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
 import org.jdbi.v3.core.internal.JdbiClassUtils.MethodKey;
 
@@ -73,7 +72,7 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
     }
 
     @Override
-    public void buildExtensionMetadata(Builder builder) {
+    public void buildExtensionMetadata(ExtensionMetadata.Builder builder) {
         delegatedFactory.buildExtensionMetadata(builder);
     }
 

@@ -49,14 +49,14 @@ public class TestSqlObjectFactory {
         assertThat(factory.accepts(ExtendsSqlObject.class)).isTrue();
     }
 
-    abstract class NotASqlObject {
+    abstract static class NotASqlObject {
 
         abstract String foo(String id);
     }
 
     interface NonPublicSqlObject extends SqlObject {}
 
-    public abstract class SqlObjectClass implements SqlObject {}
+    public abstract static class SqlObjectClass implements SqlObject {}
 
     public interface HasAnnotatedMethod {
 

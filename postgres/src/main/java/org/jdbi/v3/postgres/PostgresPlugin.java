@@ -96,9 +96,8 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
     private final boolean installLegacy;
 
     /**
-     * Do not install the legacy (unqualified) bindings for {@link HStoreArgumentFactory} and {@link HStoreColumnMapper}. When
-     * using the plugin returned by this factory method, any lookup for HStore specific arguments and column mappers must be qualified
-     * with the {@link HStore} annotation.
+     * Do not install the legacy (unqualified) bindings for {@link HStoreArgumentFactory} and {@link HStoreColumnMapper}. When using the plugin returned by this
+     * factory method, any lookup for HStore specific arguments and column mappers must be qualified with the {@link HStore} annotation.
      */
     public static PostgresPlugin noUnqualifiedHstoreBindings() {
         return new PostgresPlugin(false);
@@ -151,6 +150,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
 
         if (installLegacy) {
             // legacy unqualified HSTORE
+            // Do *NOT* replace with `new HStoreArgumentFactory()`, the AI/Intellij whatever hint is wrong.
             jdbi.registerArgument((ArgumentFactory) new HStoreArgumentFactory()::build);
             jdbi.registerColumnMapper(new GenericType<>() {}, new HStoreColumnMapper());
         }

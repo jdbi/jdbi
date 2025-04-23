@@ -211,7 +211,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @return the object mapped from the singular row in the results
      * @deprecated use {@link #one()} or {@link #findOne()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.8.0", forRemoval = true)
     default T findOnly() {
         return one();
     }

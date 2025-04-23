@@ -18,6 +18,7 @@ import java.sql.Types;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.core.statement.Call;
 import org.jdbi.v3.core.statement.OutParameters;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 
 public class CallTest {
 
@@ -39,7 +39,7 @@ public class CallTest {
     public void testCall() {
         Handle handle = pgExtension.getSharedHandle();
 
-        handle.execute(findSqlOnClasspath("create_stored_proc_add"));
+        handle.execute(ClasspathSqlLocator.removingComments().locate("create_stored_proc_add"));
 
         // tag::invokeProcedure[]
         try (Call call = handle.createCall("{:sum = call add(:a, :b)}")) { // <1>

@@ -15,6 +15,7 @@ package org.jdbi.v3.stringtemplate4;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -55,6 +56,6 @@ public class TestDefineNull {
                        .mapTo(boolean.class)
                        .one())
             .isTrue();
-        assertThat(err.toString()).isEmpty();
+        assertThat(err.toString(Charset.defaultCharset())).isEmpty();
     }
 }

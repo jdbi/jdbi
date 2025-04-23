@@ -34,20 +34,20 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test1Bean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean1 nestedBean1;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean1 getNestedBean() {
+            return nestedBean1;
         }
 
         @Nested
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean1 nestedBean1) {
+            this.nestedBean1 = nestedBean1;
         }
 
         @PropagateNull("nestedid")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean1 implements TestBean.NestedBean {
 
             private String id;
 
@@ -74,20 +74,20 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test1FKBean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean1FK nestedBean1FK;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean1FK getNestedBean() {
+            return nestedBean1FK;
         }
 
         @Nested
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean1FK nestedBean1FK) {
+            this.nestedBean1FK = nestedBean1FK;
         }
 
         @PropagateNull("nestedfk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean1FK implements TestBean.NestedBean {
 
             private String id;
 
@@ -123,20 +123,20 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test2Bean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean2 nestedBean2;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean2 getNestedBean() {
+            return nestedBean2;
         }
 
         @Nested("bean")
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean2 nestedBean2) {
+            this.nestedBean2 = nestedBean2;
         }
 
         @PropagateNull("id")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean2 implements TestBean.NestedBean {
 
             private String id;
 
@@ -171,20 +171,20 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test2FKBean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean2FK nestedBean2FK;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean2FK getNestedBean() {
+            return nestedBean2FK;
         }
 
         @Nested("bean")
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean2FK nestedBean2FK) {
+            this.nestedBean2FK = nestedBean2FK;
         }
 
         @PropagateNull("fk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean2FK implements TestBean.NestedBean {
 
             private String id;
 
@@ -209,19 +209,19 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test3Bean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean3 nestedBean3;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean3 getNestedBean() {
+            return nestedBean3;
         }
 
         @Nested("bean")
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean3 nestedBean3) {
+            this.nestedBean3 = nestedBean3;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean3 implements TestBean.NestedBean {
 
             private String id;
 
@@ -248,20 +248,20 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test4Bean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean4 nestedBean4;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean4 getNestedBean() {
+            return nestedBean4;
         }
 
         @Nested("n")
         @PropagateNull
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean4 nestedBean4) {
+            this.nestedBean4 = nestedBean4;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean4 implements TestBean.NestedBean {
 
             private String id;
 
@@ -288,21 +288,21 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test4FKBean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean4FK nestedBean4FK;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean4FK getNestedBean() {
+            return nestedBean4FK;
         }
 
         @Nested("n")
         @PropagateNull
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean4FK nestedBean4FK) {
+            this.nestedBean4FK = nestedBean4FK;
         }
 
         @PropagateNull("fk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean4FK implements TestBean.NestedBean {
 
             private String id;
 
@@ -328,20 +328,20 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test5Bean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean5 nestedBean5;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean5 getNestedBean() {
+            return nestedBean5;
         }
 
         @Nested
         @PropagateNull
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean5 nestedBean5) {
+            this.nestedBean5 = nestedBean5;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean5 implements TestBean.NestedBean {
 
             private String id;
 
@@ -369,21 +369,21 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test5FKBean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean5FK nestedBean5FK;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean5FK getNestedBean() {
+            return nestedBean5FK;
         }
 
         @Nested
         @PropagateNull
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean5FK nestedBean5FK) {
+            this.nestedBean5FK = nestedBean5FK;
         }
 
         @PropagateNull("nfk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean5FK implements TestBean.NestedBean {
 
             private String id;
 
@@ -409,20 +409,20 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test6Bean implements TestBean {
 
-        private NestedBean nestedBean;
+        private NestedBean6 nestedBean6;
 
         @Nested("bean")
         @PropagateNull("id")
-        public void setNestedBean(NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public void setNestedBean(NestedBean6 nestedBean6) {
+            this.nestedBean6 = nestedBean6;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean6 getNestedBean() {
+            return nestedBean6;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean6 implements TestBean.NestedBean {
 
             private String id;
 
@@ -448,23 +448,23 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test11Bean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean11 nestedBean11;
 
-        public Test11Bean(@Nested NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test11Bean(@Nested NestedBean11 nestedBean11) {
+            this.nestedBean11 = nestedBean11;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean11 getNestedBean() {
+            return nestedBean11;
         }
 
         @PropagateNull("nestedid")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean11 implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(@ColumnName("nestedid") String id) {
+            public NestedBean11(@ColumnName("nestedid") String id) {
                 this.id = id;
             }
 
@@ -486,23 +486,23 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test11FKBean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean11FK nestedBean11FK;
 
-        public Test11FKBean(@Nested NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test11FKBean(@Nested NestedBean11FK nestedBean11FK) {
+            this.nestedBean11FK = nestedBean11FK;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean11FK getNestedBean() {
+            return nestedBean11FK;
         }
 
         @PropagateNull("nestedfk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean11FK implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(@ColumnName("nestedid") String id) {
+            public NestedBean11FK(@ColumnName("nestedid") String id) {
                 this.id = id;
             }
 
@@ -533,23 +533,23 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test12Bean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean12 nestedBean12;
 
-        public Test12Bean(@Nested("bean") NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test12Bean(@Nested("bean") NestedBean12 nestedBean12) {
+            this.nestedBean12 = nestedBean12;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean12 getNestedBean() {
+            return nestedBean12;
         }
 
         @PropagateNull("id")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean12 implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(String id) {
+            public NestedBean12(String id) {
                 this.id = id;
             }
 
@@ -580,23 +580,23 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test12FKBean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean12FK nestedBean12FK;
 
-        public Test12FKBean(@Nested("bean") NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test12FKBean(@Nested("bean") NestedBean12FK nestedBean12FK) {
+            this.nestedBean12FK = nestedBean12FK;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean12FK getNestedBean() {
+            return nestedBean12FK;
         }
 
         @PropagateNull("fk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean12FK implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(String id) {
+            public NestedBean12FK(String id) {
                 this.id = id;
             }
 
@@ -617,22 +617,22 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test13Bean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean13 nestedBean13;
 
-        public Test13Bean(@Nested("bean") NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test13Bean(@Nested("bean") NestedBean13 nestedBean13) {
+            this.nestedBean13 = nestedBean13;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean13 getNestedBean() {
+            return nestedBean13;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean13 implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(@PropagateNull String id) {
+            public NestedBean13(@PropagateNull String id) {
                 this.id = id;
             }
 
@@ -654,22 +654,22 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test14Bean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean14 nestedBean14;
 
-        public Test14Bean(@Nested("n") @PropagateNull NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test14Bean(@Nested("n") @PropagateNull NestedBean14 nestedBean14) {
+            this.nestedBean14 = nestedBean14;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean14 getNestedBean() {
+            return nestedBean14;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean14 implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(@PropagateNull String id) {
+            public NestedBean14(@PropagateNull String id) {
                 this.id = id;
             }
 
@@ -691,23 +691,23 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test14FKBean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean14FK nestedBean14FK;
 
-        public Test14FKBean(@Nested("n") @PropagateNull NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test14FKBean(@Nested("n") @PropagateNull NestedBean14FK nestedBean14FK) {
+            this.nestedBean14FK = nestedBean14FK;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean14FK getNestedBean() {
+            return nestedBean14FK;
         }
 
         @PropagateNull("fk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean14FK implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(String id) {
+            public NestedBean14FK(String id) {
                 this.id = id;
             }
 
@@ -729,22 +729,22 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test15Bean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean15 nestedBean15;
 
-        public Test15Bean(@Nested @PropagateNull NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test15Bean(@Nested @PropagateNull NestedBean15 nestedBean15) {
+            this.nestedBean15 = nestedBean15;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean15 getNestedBean() {
+            return nestedBean15;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean15 implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(@PropagateNull @ColumnName("nid") String id) {
+            public NestedBean15(@PropagateNull @ColumnName("nid") String id) {
                 this.id = id;
             }
 
@@ -766,23 +766,23 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
     public static class Test15FKBean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean15FK nestedBean15FK;
 
-        public Test15FKBean(@Nested @PropagateNull NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test15FKBean(@Nested @PropagateNull NestedBean15FK nestedBean15FK) {
+            this.nestedBean15FK = nestedBean15FK;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean15FK getNestedBean() {
+            return nestedBean15FK;
         }
 
         @PropagateNull("nfk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean15FK implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(@ColumnName("nid") String id) {
+            public NestedBean15FK(@ColumnName("nid") String id) {
                 this.id = id;
             }
 
@@ -798,27 +798,27 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
         assertThatThrownBy(() -> testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(ConstructorMapper.of(Test16Bean.class))))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("@PropagateNull does not support a value (id)")
-                .hasMessageContaining("(nestedBean)");
+                .hasMessageContaining("(nestedBean16)");
     }
 
     public static class Test16Bean implements TestBean {
 
-        private final NestedBean nestedBean;
+        private final NestedBean16 nestedBean16;
 
-        public Test16Bean(@Nested("bean") @PropagateNull("id") NestedBean nestedBean) {
-            this.nestedBean = nestedBean;
+        public Test16Bean(@Nested("bean") @PropagateNull("id") NestedBean16 nestedBean16) {
+            this.nestedBean16 = nestedBean16;
         }
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean16 getNestedBean() {
+            return nestedBean16;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean16 implements TestBean.NestedBean {
 
             private final String id;
 
-            public NestedBean(String id) {
+            public NestedBean16(String id) {
                 this.id = id;
             }
 
@@ -841,15 +841,15 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
     public static class Test21Bean implements TestBean {
 
         @Nested
-        public NestedBean nestedBean;
+        public NestedBean21 nestedBean21;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean21 getNestedBean() {
+            return nestedBean21;
         }
 
         @PropagateNull("nestedid")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean21 implements TestBean.NestedBean {
 
             @ColumnName("nestedid")
             private String id;
@@ -873,15 +873,15 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
     public static class Test21FKBean implements TestBean {
 
         @Nested
-        public NestedBean nestedBean;
+        public NestedBean21FK nestedBean21FK;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean21FK getNestedBean() {
+            return nestedBean21FK;
         }
 
         @PropagateNull("nestedfk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean21FK implements TestBean.NestedBean {
 
             @ColumnName("nestedid")
             private String id;
@@ -914,15 +914,15 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
     public static class Test22Bean implements TestBean {
 
         @Nested("bean")
-        public NestedBean nestedBean;
+        public NestedBean22 nestedBean22;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean22 getNestedBean() {
+            return nestedBean22;
         }
 
         @PropagateNull("id")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean22 implements TestBean.NestedBean {
 
             public String id;
 
@@ -954,15 +954,15 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
     public static class Test22FKBean implements TestBean {
 
         @Nested("bean")
-        public NestedBean nestedBean;
+        public NestedBean22FK nestedBean22FK;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean22FK getNestedBean() {
+            return nestedBean22FK;
         }
 
         @PropagateNull("fk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean22FK implements TestBean.NestedBean {
 
             public String id;
 
@@ -984,14 +984,14 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
     public static class Test23Bean implements TestBean {
 
         @Nested("bean")
-        public NestedBean nestedBean;
+        public NestedBean23 nestedBean23;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean23 getNestedBean() {
+            return nestedBean23;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean23 implements TestBean.NestedBean {
 
             @PropagateNull
             public String id;
@@ -1016,14 +1016,14 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
         @Nested("n")
         @PropagateNull
-        public NestedBean nestedBean;
+        public NestedBean24 nestedBean24;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean24 getNestedBean() {
+            return nestedBean24;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean24 implements TestBean.NestedBean {
 
             @PropagateNull
             public String id;
@@ -1049,15 +1049,15 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
         @Nested("n")
         @PropagateNull
-        public NestedBean nestedBean;
+        public NestedBean24FK nestedBean24FK;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean24FK getNestedBean() {
+            return nestedBean24FK;
         }
 
         @PropagateNull("fk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean24FK implements TestBean.NestedBean {
 
             public String id;
 
@@ -1082,14 +1082,14 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
         @Nested
         @PropagateNull
-        public NestedBean nestedBean;
+        public NestedBean25 nestedBean25;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean25 getNestedBean() {
+            return nestedBean25;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean25 implements TestBean.NestedBean {
 
             @PropagateNull
             @ColumnName("nid")
@@ -1115,15 +1115,15 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
 
         @Nested
         @PropagateNull
-        public NestedBean nestedBean;
+        public NestedBean25FK nestedBean25FK;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean25FK getNestedBean() {
+            return nestedBean25FK;
         }
 
         @PropagateNull("nfk")
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean25FK implements TestBean.NestedBean {
 
             @ColumnName("nid")
             public String id;
@@ -1140,21 +1140,21 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
         assertThatThrownBy(() -> testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(FieldMapper.of(Test26Bean.class))))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("@PropagateNull does not support a value (id)")
-                .hasMessageContaining("(nestedBean)");
+                .hasMessageContaining("(nestedBean26)");
     }
 
     public static class Test26Bean implements TestBean {
 
         @Nested("bean")
         @PropagateNull("id")
-        public NestedBean nestedBean;
+        public NestedBean26 nestedBean26;
 
         @Override
-        public NestedBean getNestedBean() {
-            return nestedBean;
+        public NestedBean26 getNestedBean() {
+            return nestedBean26;
         }
 
-        public static class NestedBean implements TestBean.NestedBean {
+        public static class NestedBean26 implements TestBean.NestedBean {
 
             public String id;
 

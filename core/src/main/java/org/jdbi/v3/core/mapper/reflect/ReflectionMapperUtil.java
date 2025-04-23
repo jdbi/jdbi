@@ -47,7 +47,7 @@ public final class ReflectionMapperUtil {
      * @see #getColumnNames(ResultSet, UnaryOperator)
      * @deprecated Use {@link #getColumnNames(ResultSet, UnaryOperator)} and {@link CaseStrategy} to control name capitalization
      */
-    @Deprecated
+    @Deprecated(since = "3.34.0", forRemoval = true)
     public static List<String> getColumnNames(ResultSet rs) throws SQLException {
         return getColumnNames(rs, CaseStrategy.LOCALE_LOWER);
     }

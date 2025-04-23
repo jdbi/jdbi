@@ -20,8 +20,6 @@ import java.util.Optional;
 import io.leangen.geantyref.TypeFactory;
 import org.junit.jupiter.api.Test;
 
-import static java.util.Optional.empty;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericTypesTest {
@@ -32,7 +30,7 @@ public class GenericTypesTest {
 
     @Test
     public void findGenericParameterOfRaw() throws NoSuchMethodException {
-        assertThat(GenericTypes.findGenericParameter(methodReturnType(Foo.class, "raw"), Foo.class)).isEqualTo(empty());
+        assertThat(GenericTypes.findGenericParameter(methodReturnType(Foo.class, "raw"), Foo.class)).isEmpty();
     }
 
     @Test

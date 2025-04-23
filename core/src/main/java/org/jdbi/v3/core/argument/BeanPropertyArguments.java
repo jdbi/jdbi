@@ -24,7 +24,7 @@ import org.jdbi.v3.core.mapper.reflect.internal.BeanPropertiesFactory;
  *
  * @deprecated this should never have been public API
  */
-@Deprecated
+@Deprecated(since = "3.6.0")
 public class BeanPropertyArguments extends PojoPropertyArguments {
     /**
      * @param prefix an optional prefix (we insert a '.' as a separator)

@@ -45,7 +45,8 @@ public interface JdbiCache<K, V> {
      * Return implementation specific statistics for the cache object. This can be used to expose
      * statistic information about the underlying implementation.
      *
-     * @return An implementation specific object.
+     * @param <T> The type of the statistics object
+     * @return An implementation specific object
      */
     <T> T getStats();
 }

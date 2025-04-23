@@ -13,7 +13,10 @@
  */
 package org.jdbi.v3.java21;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -39,29 +42,33 @@ class TestVirtualThreads {
             .withInitializer(TestingInitializers.usersWithData());
 
     @Test
-    void virtualThreads() {
+    void virtualThreads() throws Exception {
         final var dao = h2Extension.getJdbi().onDemand(UserDao.class);
         final var inserts = IntStream.range(100, 200)
                 .mapToObj(id -> new User(id, "User " + id))
                 .toList();
         try (var exec = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Future<?>> futures = new ArrayList<>();
             inserts.forEach(insert ->
-                    exec.submit(() -> {
-                        dao.useTransaction(txn -> {
-                            txn.insertUser(insert);
-                            try {
-                                Thread.sleep((long) (Math.random() * 100));
-                            } catch (final InterruptedException e) {
-                                throw new AssertionError(e);
-                            }
-                        });
-                    }));
+                    futures.add(exec.submit(() ->
+                            dao.useTransaction(txn -> {
+                                txn.insertUser(insert);
+                                try {
+                                    Thread.sleep((long) (Math.random() * 100));
+                                } catch (final InterruptedException e) {
+                                    throw new AssertionError(e);
+                                }
+                            }))));
+
+            for (Future<?> future : futures) {
+                future.get();
+            }
         }
         assertThat(dao.countUsers()).isEqualTo(102);
     }
 
     @Test
-    void virtualThreadsAndLimitedPool() {
+    void virtualThreadsAndLimitedPool() throws Exception {
         final var hikariCfg = new HikariConfig();
         hikariCfg.setMaximumPoolSize(10);
         hikariCfg.setJdbcUrl(h2Extension.getUrl());
@@ -71,19 +78,24 @@ class TestVirtualThreads {
                     .mapToObj(id -> new User(id, "User " + id))
                     .toList();
             try (var exec = Executors.newVirtualThreadPerTaskExecutor()) {
+                List<Future<?>> futures = new ArrayList<>();
                 inserts.forEach(insert ->
-                        exec.submit(() -> {
-                            dao.useTransaction(txn -> {
-                                txn.insertUser(insert);
-                                try {
-                                    Thread.sleep((long) (Math.random() * 100));
-                                } catch (final InterruptedException e) {
-                                    throw new AssertionError(e);
-                                }
-                            });
-                        }));
+                        futures.add(exec.submit(() ->
+                                dao.useTransaction(txn -> {
+                                    txn.insertUser(insert);
+                                    try {
+                                        Thread.sleep((long) (Math.random() * 100));
+                                    } catch (final InterruptedException e) {
+                                        throw new AssertionError(e);
+                                    }
+                                }))));
+
+                for (Future<?> future : futures) {
+                    future.get();
+                }
+
+                assertThat(dao.countUsers()).isEqualTo(102);
             }
-            assertThat(dao.countUsers()).isEqualTo(102);
         }
     }
 
