@@ -60,7 +60,6 @@
         <module>oracle12</module>
         <module>postgis</module>
         <module>postgres</module>
-        <module>spring5</module>
         <module>sqlite</module>
         <module>sqlobject</module>
         <module>stringtemplate4</module>

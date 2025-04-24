@@ -54,7 +54,7 @@ public class TestSqlLoggerToString {
             @Override
             public void logBeforeExecution(StatementContext context) {
                 context.getBinding().findForPosition(0).ifPresent(value -> positional = Objects.toString(value));
-                context.getBinding().findForName(NAME, context).ifPresent(value -> named = Objects.toString(value));
+                context.getBinding().findForName(NAME).ifPresent(value -> named = Objects.toString(value));
             }
         });
     }

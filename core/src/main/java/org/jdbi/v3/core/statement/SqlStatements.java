@@ -15,7 +15,6 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -137,8 +136,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Provides a means for custom statement modification. Common customizations
-     * have their own methods, such as {@link Query#setMaxRows(int)}
+     * Provides a means for custom statement modification. Common customizations have their own methods, such as {@link Query#setMaxRows(int)}
      *
      * @param customizer instance to be used to customize a statement
      * @return this
@@ -156,19 +154,15 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     /**
      * Returns the {@link TemplateEngine} which renders the SQL template.
      *
-     * @return the template engine which renders the SQL template prior to
-     * parsing parameters.
+     * @return the template engine which renders the SQL template prior to parsing parameters.
      */
     public TemplateEngine getTemplateEngine() {
         return templateEngine;
     }
 
     /**
-     * Sets the {@link TemplateEngine} used to render SQL for all
-     * {@link SqlStatement SQL statements} executed by Jdbi. The default
-     * engine replaces <code>&lt;name&gt;</code>-style tokens
-     * with attributes {@link StatementContext#define(String, Object) defined}
-     * on the statement context.
+     * Sets the {@link TemplateEngine} used to render SQL for all {@link SqlStatement SQL statements} executed by Jdbi. The default engine replaces
+     * <code>&lt;name&gt;</code>-style tokens with attributes {@link StatementContext#define(String, Object) defined} on the statement context.
      *
      * @param templateEngine the new template engine.
      * @return this
@@ -195,9 +189,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Sets the {@link SqlParser} used to parse parameters in SQL statements
-     * executed by Jdbi. The default parses colon-prefixed named parameter
-     * tokens, e.g. <code>:name</code>.
+     * Sets the {@link SqlParser} used to parse parameters in SQL statements executed by Jdbi. The default parses colon-prefixed named parameter tokens, e.g.
+     * <code>:name</code>.
      *
      * @param sqlParser the new SQL parser.
      * @return this
@@ -208,35 +201,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * @return the timing collector
-     * @deprecated use {@link #getSqlLogger} instead
-     */
-    @Deprecated(since = "3.2.0", forRemoval = true)
-    public TimingCollector getTimingCollector() {
-        return (elapsed, ctx) -> sqlLogger.logAfterExecution(ctx);
-    }
-
-    /**
-     * Sets the {@link TimingCollector} used to collect timing about the {@link SqlStatement SQL statements} executed
-     * by Jdbi. The default collector does nothing.
-     *
-     * @param timingCollector the new timing collector
-     * @return this
-     * @deprecated use {@link #setSqlLogger} instead
-     */
-    @Deprecated(since = "3.2.0", forRemoval = true)
-    public SqlStatements setTimingCollector(TimingCollector timingCollector) {
-        this.sqlLogger = timingCollector == null ? SqlLogger.NOP_SQL_LOGGER : new SqlLogger() {
-            @Override
-            public void logAfterExecution(StatementContext context) {
-                timingCollector.collect(context.getElapsedTime(ChronoUnit.NANOS), context);
-            }
-        };
-        return this;
-    }
-
-    /**
      * Returns the current logger.
+     *
      * @return A {@link SqlLogger} instance
      */
     public SqlLogger getSqlLogger() {
@@ -245,6 +211,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     /**
      * Sets a {@link SqlLogger} instance to log all SQL operations.
+     *
      * @param sqlLogger The logger. Using <code>null</code> turns off all logging
      * @return this
      */
@@ -280,9 +247,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it.
-     * Unused bindings tend to be bugs or oversights, but are not always.
-     * Defaults to false: unused bindings are not allowed.
+     * Sets whether or not an exception should be thrown when any arguments are given to a query but not actually used in it. Unused bindings tend to be bugs or
+     * oversights, but are not always. Defaults to false: unused bindings are not allowed.
      *
      * @param unusedBindingAllowed the new setting
      * @return this
@@ -294,11 +260,10 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * If true, all statements created within {@link Jdbi#withHandle}, {@link Jdbi#useHandle}, {@link Jdbi#inTransaction} and {@link Jdbi#useTransaction}
-     * are attached to the {@link Handle} object for cleanup.
+     * If true, all statements created within {@link Jdbi#withHandle}, {@link Jdbi#useHandle}, {@link Jdbi#inTransaction} and {@link Jdbi#useTransaction} are
+     * attached to the {@link Handle} object for cleanup.
      *
      * @return True if statements are attached to their handle for cleanup
-     *
      * @since 3.38.0
      */
     public boolean isAttachAllStatementsForCleanup() {
@@ -306,12 +271,10 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Sets whether all statements created will automatically attached to the corresponding {@link Handle} object automatically.
-     * This can be useful when mostly short-lived handles are used because closing the handle will now clean up all outstanding resources from
-     * any statement. The default is false.
+     * Sets whether all statements created will automatically attached to the corresponding {@link Handle} object automatically. This can be useful when mostly
+     * short-lived handles are used because closing the handle will now clean up all outstanding resources from any statement. The default is false.
      *
      * @param attachAllStatementsForCleanup If true, all statements are automatically attached to the Handle
-     *
      * @since 3.38.0
      */
     @Beta
@@ -320,11 +283,10 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * If true, statements created within {@link Jdbi#withHandle}, {@link Jdbi#useHandle}, {@link Jdbi#inTransaction} and {@link Jdbi#useTransaction}
-     * will be attached to the {@link Handle} object in the callback for cleanup.
+     * If true, statements created within {@link Jdbi#withHandle}, {@link Jdbi#useHandle}, {@link Jdbi#inTransaction} and {@link Jdbi#useTransaction} will be
+     * attached to the {@link Handle} object in the callback for cleanup.
      *
      * @return True if statements are attached to their handle within Jdbi callbacks
-     *
      * @since 3.38.0
      */
     public boolean isAttachCallbackStatementsForCleanup() {
@@ -332,15 +294,13 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * If true, script statements parsed by a {@link Script} object will have a trailing semicolon. Some
-     * databases (e.g. Oracle) require that trailing semicolon while others (e.g. MySQL) do not and may consider
-     * it a syntax error. If executing a script against the database results in syntax errors that point at semicolons,
-     * change the value of this setting.
+     * If true, script statements parsed by a {@link Script} object will have a trailing semicolon. Some databases (e.g. Oracle) require that trailing semicolon
+     * while others (e.g. MySQL) do not and may consider it a syntax error. If executing a script against the database results in syntax errors that point at
+     * semicolons, change the value of this setting.
      * <br>
      * The default setting is {@code true} for historical reasons.
      *
      * @param scriptStatementsNeedSemicolon If true, parsed statements will have a trailing semicolon.
-     *
      * @since 3.43.0
      */
     public void setScriptStatementsNeedSemicolon(boolean scriptStatementsNeedSemicolon) {
@@ -348,13 +308,11 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * If true, script statements parsed by a {@link Script} object will have a trailing semicolon. Some
-     * databases (e.g. Oracle) require that trailing semicolon while others (e.g. MySQL) do not and may consider
-     * it a syntax error. If executing a script against the database results in syntax errors that point at semicolons,
-     * change the value of this setting.
+     * If true, script statements parsed by a {@link Script} object will have a trailing semicolon. Some databases (e.g. Oracle) require that trailing semicolon
+     * while others (e.g. MySQL) do not and may consider it a syntax error. If executing a script against the database results in syntax errors that point at
+     * semicolons, change the value of this setting.
      *
      * @return True if parsed statements will have a trailing semicolon.
-     *
      * @since 3.43.0
      */
     public boolean isScriptStatementsNeedSemicolon() {
@@ -364,9 +322,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     /**
      * Sets whether statements created within the {@link Jdbi#withHandle}, {@link Jdbi#useHandle}, {@link Jdbi#inTransaction} and {@link Jdbi#useTransaction}
      * callback methods will automatically attached to the {@link Handle} object and therefore cleaned up when the callback ends. The default is true.
-
-     * @param attachCallbackStatementsForCleanup If true, statements created within the Jdbi callbacks are attached to the handle
      *
+     * @param attachCallbackStatementsForCleanup If true, statements created within the Jdbi callbacks are attached to the handle
      * @since 3.38.0
      */
     public void setAttachCallbackStatementsForCleanup(boolean attachCallbackStatementsForCleanup) {
@@ -408,8 +365,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Returns cache statistics for the internal template cache. This returns a cache specific object,
-     * so the user needs to know what caching library is in use.
+     * Returns cache statistics for the internal template cache. This returns a cache specific object, so the user needs to know what caching library is in
+     * use.
      *
      * @param <T> the type of the cache statistics object
      */

@@ -14,8 +14,6 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -27,9 +25,9 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.generic.GenericTypes.isSuperType;
 
 /**
- * An {@link ArgumentFactory} base class for arguments of type {@code T}. For values of type {@code T}, factories
- * produces arguments from the {@link #build(Object, ConfigRegistry)} method. For null values with a known expected type
- * of {@code T}, produces null arguments for the {@code sqlType} passed to the constructor.
+ * An {@link ArgumentFactory} base class for arguments of type {@code T}. For values of type {@code T}, factories produces arguments from the
+ * {@link #build(Object, ConfigRegistry)} method. For null values with a known expected type of {@code T}, produces null arguments for the {@code sqlType}
+ * passed to the constructor.
  * <pre>
  * class ValueType {
  *     String value;
@@ -46,8 +44,9 @@ import static org.jdbi.v3.core.generic.GenericTypes.isSuperType;
  *     }
  * }
  * </pre>
- *
- * Don't forget to override {@link Object#toString} in your {@link Argument} instances if you want to be able to log their values with an {@link org.jdbi.v3.core.statement.SqlLogger}.
+ * <p>
+ * Don't forget to override {@link Object#toString} in your {@link Argument} instances if you want to be able to log their values with an
+ * {@link org.jdbi.v3.core.statement.SqlLogger}.
  *
  * @param <T> the type of argument supported by this factory.
  */
@@ -65,7 +64,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
         this.sqlType = sqlType;
         argumentType = findGenericParameter(getClass(), AbstractArgumentFactory.class)
                 .orElseThrow(() -> new IllegalStateException(getClass().getSimpleName()
-                    + " must extend AbstractArgumentFactory with a concrete T parameter"));
+                        + " must extend AbstractArgumentFactory with a concrete T parameter"));
 
         if (argumentType instanceof Class) {
             Class<?> argumentClass = (Class<?>) argumentType;
@@ -73,7 +72,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
                     argumentClass.isAssignableFrom(getErasedType(type)) || argumentClass.isInstance(value);
         } else {
             this.isInstance = (type, value) ->
-                argumentType.equals(type) || isSuperType(argumentType, type);
+                    argumentType.equals(type) || isSuperType(argumentType, type);
         }
     }
 
@@ -82,15 +81,6 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
         return isInstance.test(type, null)
                 ? Optional.of(value -> innerBuild(type, value, config))
                 : Optional.empty();
-    }
-
-    /**
-     * @deprecated no longer used
-     */
-    @Override
-    @Deprecated(since = "3.39.0", forRemoval = true)
-    public Collection<Type> prePreparedTypes() {
-        return Collections.singletonList(argumentType);
     }
 
     @Override
@@ -116,8 +106,8 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
     }
 
     /**
-     * Produce an argument object for the given value. When the implementation class has accepted a given
-     * type, it must then produce an argument instance or throw an exception.
+     * Produce an argument object for the given value. When the implementation class has accepted a given type, it must then produce an argument instance or
+     * throw an exception.
      *
      * @param value  the value to convert to an argument
      * @param config the config registry

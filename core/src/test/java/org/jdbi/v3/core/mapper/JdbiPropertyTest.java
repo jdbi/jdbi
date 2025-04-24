@@ -23,6 +23,7 @@ import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
+import org.jdbi.v3.core.statement.BindingAccess;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.junit.jupiter.api.BeforeEach;
@@ -197,11 +198,10 @@ public class JdbiPropertyTest {
     }
 
     static final class UnboundDetector implements StatementCustomizer {
-        @SuppressWarnings("deprecation")
         @Override
         public void beforeExecution(PreparedStatement stmt, StatementContext ctx) throws SQLException {
-            assertThat(ctx.getBinding().findForName("unbound", ctx)).isEmpty();
-            assertThat(ctx.getBinding().getNames()).doesNotContain("unbound");
+            assertThat(BindingAccess.findForName(ctx.getBinding(), "unbound")).isEmpty();
+            assertThat(BindingAccess.getNames(ctx.getBinding())).doesNotContain("unbound");
         }
     }
 

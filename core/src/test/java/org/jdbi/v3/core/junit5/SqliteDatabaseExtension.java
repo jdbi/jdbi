@@ -54,11 +54,6 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
         return new SqliteDatabaseExtension(true);
     }
 
-    @Deprecated
-    public static SqliteDatabaseExtension withSomething() {
-        return instance().withInitializer(SOMETHING_INITIALIZER);
-    }
-
     private SqliteDatabaseExtension(boolean installPlugins) {
         this.installPlugins = installPlugins;
     }

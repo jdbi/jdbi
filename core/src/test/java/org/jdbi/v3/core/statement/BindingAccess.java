@@ -11,26 +11,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.core.statement;
 
-import java.net.InetAddress;
-import java.sql.Types;
+import java.util.Collection;
+import java.util.Optional;
 
-import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
- * Postgres version of argument factory for {@code InetAddress}.
+ * Provide test access to binding methods that were declared non-public in 4.0.0.
  */
-public class InetArgumentFactory extends AbstractArgumentFactory<InetAddress> {
-    public InetArgumentFactory() {
-        super(Types.OTHER);
+public final class BindingAccess {
+
+    private BindingAccess() {
+        throw new AssertionError("BindingAccess can not be instantiated");
     }
 
-    @Override
-    protected Argument build(InetAddress value, ConfigRegistry config) {
-        return ObjectArgument.of(value.getHostAddress(), Types.OTHER);
+    public static Optional<Argument> findForName(Binding binding, String name) {
+        return binding.findForName(name);
+    }
+
+    public static Collection<String> getNames(Binding binding) {
+        return binding.getNames();
     }
 }

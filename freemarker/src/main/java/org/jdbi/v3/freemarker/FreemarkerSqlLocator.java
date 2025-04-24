@@ -25,8 +25,6 @@ import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
  */
 public class FreemarkerSqlLocator {
 
-    private static final Configuration CONFIGURATION;
-
     private final FreemarkerConfig config;
 
     FreemarkerSqlLocator(FreemarkerConfig config) {
@@ -37,28 +35,19 @@ public class FreemarkerSqlLocator {
         Configuration c = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
         c.setTemplateLoader(new ClassTemplateLoader(selectClassLoader(), "/"));
         c.setNumberFormat("computer");
-        CONFIGURATION = c;
     }
 
     private static ClassLoader selectClassLoader() {
         return Optional.ofNullable(Thread.currentThread().getContextClassLoader())
-            .orElseGet(FreemarkerSqlLocator.class::getClassLoader);
-    }
-
-    /**
-     * @deprecated this static method does not respect configuration, use {@link FreemarkerConfig#createLocator()}
-     */
-    @Deprecated(since = "3.10.0", forRemoval = true)
-    public static Template findTemplate(Class<?> type, String templateName) {
-        return findTemplate(CONFIGURATION, type, templateName);
+                .orElseGet(FreemarkerSqlLocator.class::getClassLoader);
     }
 
     public static Template findTemplate(Configuration config, Class<?> type, String templateName) {
         String path = new ClasspathBuilder()
-            .appendFullyQualifiedClassName(type)
-            .appendVerbatim(templateName)
-            .setExtension("sql.ftl")
-            .build();
+                .appendFullyQualifiedClassName(type)
+                .appendVerbatim(templateName)
+                .setExtension("sql.ftl")
+                .build();
 
         try {
             return config.getTemplate(path);
@@ -69,10 +58,10 @@ public class FreemarkerSqlLocator {
 
     public Template locate(Class<?> type, String templateName) {
         String path = new ClasspathBuilder()
-            .appendFullyQualifiedClassName(type)
-            .appendVerbatim(templateName)
-            .setExtension("sql.ftl")
-            .build();
+                .appendFullyQualifiedClassName(type)
+                .appendVerbatim(templateName)
+                .setExtension("sql.ftl")
+                .build();
 
         try {
             return config.getFreemarkerConfiguration().getTemplate(path);

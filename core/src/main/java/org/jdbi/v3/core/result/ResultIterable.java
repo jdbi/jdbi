@@ -206,17 +206,6 @@ public interface ResultIterable<T> extends Iterable<T> {
     }
 
     /**
-     * Get the only row in the result set.
-     * @throws IllegalStateException if zero or multiple rows are returned
-     * @return the object mapped from the singular row in the results
-     * @deprecated use {@link #one()} or {@link #findOne()} instead.
-     */
-    @Deprecated(since = "3.8.0", forRemoval = true)
-    default T findOnly() {
-        return one();
-    }
-
-    /**
      * Returns the first row in the result set. Returns {@code null} if the row itself is
      * {@code null}.
      * @throws IllegalStateException if zero rows are returned

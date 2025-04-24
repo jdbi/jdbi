@@ -183,7 +183,7 @@ public class TestPreparedBatch {
             fail("expected exception");
         } catch (UnableToExecuteStatementException e) {
             final StatementContext ctx = e.getStatementContext();
-            assertThat(ctx.getBinding().findForName("name", ctx).toString()).contains("bob");
+            assertThat(ctx.getBinding().findForName("name").toString()).contains("bob");
         }
     }
 

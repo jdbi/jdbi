@@ -47,15 +47,6 @@ public class Call extends SqlStatement<Call> {
         super(handle, sql);
     }
 
-    /**
-     * Backwards compatible constructor that takes an explicit string argument.
-     *
-     * @see Call#Call(Handle, CharSequence)
-     */
-    public Call(Handle handle, String sql) {
-        super(handle, sql);
-    }
-
     @Override
     PreparedStatement createStatement(String parsedSql) throws SQLException {
         return getHandle().getStatementBuilder().createCall(getHandle().getConnection(), parsedSql, getContext());

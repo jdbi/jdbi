@@ -14,8 +14,6 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -24,20 +22,19 @@ import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.meta.Beta;
 
 /**
- * Inspect a value with optional static type information and produce
- * an {@link Argument} that binds the value to a prepared statement.
- *
- * Make sure to override {@link Object#toString} in your {@link Argument} instances if you want to be able to log their values with an {@link org.jdbi.v3.core.statement.SqlLogger}.
+ * Inspect a value with optional static type information and produce an {@link Argument} that binds the value to a prepared statement.
+ * <p>
+ * Make sure to override {@link Object#toString} in your {@link Argument} instances if you want to be able to log their values with an
+ * {@link org.jdbi.v3.core.statement.SqlLogger}.
  */
 @FunctionalInterface
 public interface ArgumentFactory {
     /**
      * Returns an {@link Argument} for the given value if the factory supports it; empty otherwise.
      *
-     * @param type  the known type of value. Depending on the situation this may be a full generic signature e.g.
-     *              {@link java.lang.reflect.ParameterizedType}, a {@link Class}, or Object.class if no type information
-     *              is known.
-     * @param value the value to convert into an {@link Argument}
+     * @param type   the known type of value. Depending on the situation this may be a full generic signature e.g. {@link java.lang.reflect.ParameterizedType},
+     *               a {@link Class}, or Object.class if no type information is known.
+     * @param value  the value to convert into an {@link Argument}
      * @param config the config registry, for composition
      * @return an argument for the given value if this factory supports it, or <code>Optional.empty()</code> otherwise.
      * @see StatementContext#findArgumentFor(Type, Object)
@@ -57,13 +54,5 @@ public interface ArgumentFactory {
         }
 
         Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config);
-
-        /**
-         * @deprecated no longer used
-         */
-        @Deprecated(since = "3.15.0", forRemoval = true)
-        default Collection<? extends Type> prePreparedTypes() {
-            return Collections.emptyList();
-        }
     }
 }

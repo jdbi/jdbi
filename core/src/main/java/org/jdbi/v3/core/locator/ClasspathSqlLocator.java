@@ -33,10 +33,8 @@ import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
 
 /**
- * Locates SQL in {@code .sql} files on the classpath.  Given a class and
- * method name, for example {@code com.foo.Bar#query}, load a
- * classpath resource name like {@code com/foo/Bar/query.sql}.
- * The contents are then parsed, cached, and returned for use by a statement.
+ * Locates SQL in {@code .sql} files on the classpath.  Given a class and method name, for example {@code com.foo.Bar#query}, load a classpath resource name
+ * like {@code com/foo/Bar/query.sql}. The contents are then parsed, cached, and returned for use by a statement.
  */
 public final class ClasspathSqlLocator {
     private static final String SQL_EXTENSION = "sql";
@@ -48,65 +46,6 @@ public final class ClasspathSqlLocator {
 
     private ClasspathSqlLocator(CheckedFunction<InputStream, String> parser) {
         this.parser = Unchecked.function(parser);
-    }
-
-    /**
-     * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of
-     * <code>baz</code>, looks for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its
-     * contents as a String.
-     *
-     * @param type the type that "owns" the given SQL. Dictates the directory path to the SQL resource file on the
-     *             classpath.
-     * @param methodName the SQL statement name (usually a method or field name from the type).
-     * @return the located SQL.
-     * @deprecated {@link #create()} an instance instead of using static methods
-     */
-    @Deprecated(since = "3.10.0", forRemoval = true)
-    public static String findSqlOnClasspath(Class<?> type, String methodName) {
-        return Holder.INSTANCE.locate(type, methodName);
-    }
-
-    /**
-     * Locates SQL for the given fully-qualified name. Example: Given the name <code>com.foo.Bar.baz</code>, looks for
-     * a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
-     *
-     * @param name fully qualified name.
-     * @return the located SQL.
-     * @deprecated {@link #create()} an instance instead of using static methods
-     */
-    @Deprecated(since = "3.10.0", forRemoval = true)
-    public static String findSqlOnClasspath(String name) {
-        return Holder.INSTANCE.locate(name);
-    }
-
-    /**
-     * Returns resource's contents as a string at the specified path. The path should point directly
-     * to the resource at the classpath. The resource is loaded by the current thread's classloader.
-     *
-     * @param path the resource path
-     * @return the resource's contents
-     * @see ClassLoader#getResource(String)
-     * @deprecated {@link #create()} an instance instead of using static methods
-     */
-    @Deprecated(since = "3.10.0", forRemoval = true)
-    public static String getResourceOnClasspath(String path) {
-        return Holder.INSTANCE.getResource(path);
-    }
-
-    /**
-     * Returns resource's contents as a string at the specified path by the specified classloader.
-     * The path should point directly to the resource at the classpath. The classloader should have
-     * access to the resource.
-     *
-     * @param classLoader the classloader which loads the resource
-     * @param path the resource path
-     * @return the resource's contents
-     * @see ClassLoader#getResource(String)
-     * @deprecated {@link #create()} an instance instead of using static methods
-     */
-    @Deprecated(since = "3.10.0", forRemoval = true)
-    public static String getResourceOnClasspath(ClassLoader classLoader, String path) {
-        return Holder.INSTANCE.getResource(classLoader, path);
     }
 
     /**
@@ -133,8 +72,7 @@ public final class ClasspathSqlLocator {
      * <code>baz</code>, looks for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its
      * contents as a String.
      *
-     * @param type the type that "owns" the given SQL. Dictates the directory path to the SQL resource file on the
-     *             classpath.
+     * @param type       the type that "owns" the given SQL. Dictates the directory path to the SQL resource file on the classpath.
      * @param methodName the SQL statement name (usually a method or field name from the type).
      * @return the located SQL.
      */
@@ -142,15 +80,15 @@ public final class ClasspathSqlLocator {
         return getResource(
                 type.getClassLoader(),
                 new ClasspathBuilder()
-                    .appendFullyQualifiedClassName(type)
-                    .appendVerbatim(methodName)
-                    .setExtension(SQL_EXTENSION)
-                    .build());
+                        .appendFullyQualifiedClassName(type)
+                        .appendVerbatim(methodName)
+                        .setExtension(SQL_EXTENSION)
+                        .build());
     }
 
     /**
-     * Locates SQL for the given fully-qualified name. Example: Given the name <code>com.foo.Bar.baz</code>, looks for
-     * a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
+     * Locates SQL for the given fully-qualified name. Example: Given the name <code>com.foo.Bar.baz</code>, looks for a resource named
+     * <code>com/foo/Bar/baz.sql</code> on the classpath and returns its contents as a String.
      *
      * @param name fully qualified name.
      * @return the located SQL.
@@ -159,14 +97,14 @@ public final class ClasspathSqlLocator {
         return getResource(
                 selectClassLoader(),
                 new ClasspathBuilder()
-                    .appendDotPath(name)
-                    .setExtension(SQL_EXTENSION)
-                    .build());
+                        .appendDotPath(name)
+                        .setExtension(SQL_EXTENSION)
+                        .build());
     }
 
     /**
-     * Returns resource's contents as a string at the specified path. The path should point directly
-     * to the resource at the classpath. The resource is loaded by the current thread's classloader.
+     * Returns resource's contents as a string at the specified path. The path should point directly to the resource at the classpath. The resource is loaded by
+     * the current thread's classloader.
      *
      * @param path the resource path
      * @return the resource's contents
@@ -177,18 +115,17 @@ public final class ClasspathSqlLocator {
     }
 
     /**
-     * Returns resource's contents as a string at the specified path by the specified classloader.
-     * The path should point directly to the resource at the classpath. The classloader should have
-     * access to the resource.
+     * Returns resource's contents as a string at the specified path by the specified classloader. The path should point directly to the resource at the
+     * classpath. The classloader should have access to the resource.
      *
      * @param classLoader the classloader which loads the resource
-     * @param path the resource path
+     * @param path        the resource path
      * @return the resource's contents
      * @see ClassLoader#getResource(String)
      */
     public String getResource(ClassLoader classLoader, String path) {
         return cache.computeIfAbsent(classLoader, x -> new ConcurrentHashMap<>())
-                    .computeIfAbsent(path, x -> readResource(classLoader, path));
+                .computeIfAbsent(path, x -> readResource(classLoader, path));
     }
 
     private String readResource(ClassLoader classLoader, String path) {
@@ -222,9 +159,5 @@ public final class ClasspathSqlLocator {
     private static ClassLoader selectClassLoader() {
         return Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElseGet(ClasspathSqlLocator.class::getClassLoader);
-    }
-
-    static class Holder {
-        static final ClasspathSqlLocator INSTANCE = removingComments();
     }
 }

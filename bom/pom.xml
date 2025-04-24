@@ -160,11 +160,6 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring5</artifactId>
-                <version>${dep.jdbi3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-sqlite</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>

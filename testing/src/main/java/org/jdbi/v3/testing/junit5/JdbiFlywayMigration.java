@@ -112,18 +112,6 @@ public final class JdbiFlywayMigration implements JdbiExtensionInitializer {
     }
 
     /**
-     * Will drop all objects in the configured schemas using Flyway after the test finishes.
-     *
-     * @return The instance itself for chaining method calls.
-     * @deprecated The default changed to <tt>true</tt> so this call actually does nothing.
-     */
-    @Deprecated(since = "3.35.0", forRemoval = true)
-    public JdbiFlywayMigration cleanAfter() {
-        this.cleanAfter = true;
-        return this;
-    }
-
-    /**
      * Drop all objects in the configured schemas using Flyway after the test finishes.
      *
      * @param cleanAfter Set to <tt>false</tt> to avoid cleaning of the schema.

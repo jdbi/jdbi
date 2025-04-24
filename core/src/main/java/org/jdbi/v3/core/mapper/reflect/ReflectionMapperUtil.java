@@ -36,23 +36,6 @@ public final class ReflectionMapperUtil {
     }
 
     /**
-     * Returns the name of all the columns present in the specified {@link ResultSet}. All column names are lowercased using the system locale.
-     *
-     * <br/>
-     * For new code, use the {@link ReflectionMapperUtil#getColumnNames(ResultSet, UnaryOperator)} method, which allows configuring the case modification strategy.
-     *
-     * @param rs the {@link ResultSet} to get the column names of
-     * @return list of all the column names in {@code rs} (will contain duplicates if multiple columns have the same name)
-     * @throws SQLException See {@link ResultSet#getMetaData()}, {@link ResultSetMetaData#getColumnCount()}, and {@link ResultSetMetaData#getColumnLabel(int)}
-     * @see #getColumnNames(ResultSet, UnaryOperator)
-     * @deprecated Use {@link #getColumnNames(ResultSet, UnaryOperator)} and {@link CaseStrategy} to control name capitalization
-     */
-    @Deprecated(since = "3.34.0", forRemoval = true)
-    public static List<String> getColumnNames(ResultSet rs) throws SQLException {
-        return getColumnNames(rs, CaseStrategy.LOCALE_LOWER);
-    }
-
-    /**
      * Returns the name of all the columns present in the specified {@link ResultSet}. The caseStrategy operator is applied to all column names to
      * align upper/lower case etc.
      *

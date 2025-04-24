@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -46,18 +45,9 @@ public class SetObjectArgumentFactory implements ArgumentFactory.Preparable {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return Optional.of(type)
-            .filter(Class.class::isInstance)
-            .map(Class.class::cast)
-            .map(supportedTypes::get)
-            .map(sqlType -> value -> ObjectArgument.of(value, sqlType));
-    }
-
-    /**
-     * @deprecated no longer used
-     */
-    @Override
-    @Deprecated(since = "3.39.0", forRemoval = true)
-    public Collection<? extends Type> prePreparedTypes() {
-        return supportedTypes.keySet();
+                .filter(Class.class::isInstance)
+                .map(Class.class::cast)
+                .map(supportedTypes::get)
+                .map(sqlType -> value -> ObjectArgument.of(value, sqlType));
     }
 }

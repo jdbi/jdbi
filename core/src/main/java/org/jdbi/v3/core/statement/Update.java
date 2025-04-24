@@ -33,15 +33,6 @@ public class Update extends SqlStatement<Update> {
         super(handle, sql);
     }
 
-    /**
-     * Backwards compatible constructor that takes an explicit string argument.
-     *
-     * @see Update#Update(Handle, CharSequence)
-     */
-    public Update(Handle handle, String sql) {
-        super(handle, sql);
-    }
-
     public void one() {
         int count = execute();
         if (count != 1) {

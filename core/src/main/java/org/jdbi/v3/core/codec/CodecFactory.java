@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.codec;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,14 +48,15 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
     /**
      * Map of all known codecs in this factory.
      * <p>
-     * ALPHA: the fact that this is a Map from type to Codec makes it hard to implement Codecs that target wildcard
-     * or varying types e.g. mapping both {@code Sub<T>} and {@code Super<T>} with one codec.
-     * It might be nice to re-imagine this as itself a JdbiPlugin and have it do all registration through the existing flows.
+     * ALPHA: the fact that this is a Map from type to Codec makes it hard to implement Codecs that target wildcard or varying types e.g. mapping both
+     * {@code Sub<T>} and {@code Super<T>} with one codec. It might be nice to re-imagine this as itself a JdbiPlugin and have it do all registration through
+     * the existing flows.
      */
     protected final ConcurrentMap<QualifiedType<?>, Codec<?>> codecMap = new ConcurrentHashMap<>();
 
     /**
      * Returns a builder for fluent API.
+     *
      * @return A {@link CodecFactory.Builder} instance.
      */
     public static Builder builder() {
@@ -65,7 +65,8 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
 
     /**
      * Creates a {@link CodecFactory} for a single type.
-     * @param type The type for which the factory is created.
+     *
+     * @param type  The type for which the factory is created.
      * @param codec The {@link Codec} to use.
      * @return A new {@link CodecFactory} that will be used if the given type is requested.
      */
@@ -85,15 +86,6 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
     @SuppressWarnings("unchecked")
     public final Optional<Function<Object, Argument>> prepare(final QualifiedType<?> type, final ConfigRegistry config) {
         return Optional.of(type).map(this::resolveType).map(key -> (Function<Object, Argument>) key.getArgumentFunction(config));
-    }
-
-    /**
-     * @deprecated no longer used
-     */
-    @Deprecated(since = "3.39.0", forRemoval = true)
-    @Override
-    public final Collection<QualifiedType<?>> prePreparedTypes() {
-        return codecMap.keySet();
     }
 
     @Override

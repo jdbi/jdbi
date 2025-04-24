@@ -68,15 +68,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         getContext().setBinding(new PreparedBinding(getContext()));
     }
 
-    /**
-     * Backwards compatible constructor that takes an explicit string argument.
-     *
-     * @see PreparedBatch#PreparedBatch(Handle, CharSequence)
-     */
-    public PreparedBatch(Handle handle, String sql) {
-        this(handle, (CharSequence) sql);
-    }
-
     @Override
     PreparedBatch bindNamedArgumentFinder(NamedArgumentFinderFactory factory, String prefix, Object value, Type type, Supplier<NamedArgumentFinder> backupArgumentFinder) {
         PreparedBinding binding = getBinding();
@@ -160,18 +151,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 ctx.close();
             }
         };
-    }
-
-    /**
-     * Execute the batch and give access to any generated keys returned by the operation.
-     *
-     * @param columnNames The column names for generated keys.
-     * @return A {@link ResultBearing} object that can be used to access the results of the batch.
-     * @deprecated Use {@link #executePreparedBatch(String...)} which has the same functionality but also returns the per-batch modified row counts.
-     */
-    @Deprecated(since = "3.32.0", forRemoval = true)
-    public ResultBearing executeAndReturnGeneratedKeys(String... columnNames) {
-        return execute(returningGeneratedKeys(columnNames));
     }
 
     /**

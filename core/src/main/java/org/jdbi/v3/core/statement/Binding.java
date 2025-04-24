@@ -109,29 +109,24 @@ public class Binding {
      * Look up an argument by name.
      *
      * @param name the key to lookup the value of
-     * @param ctx2 the statement context
      *
-     * @deprecated don't inspect a Binding: keep your own state!
      * @return the bound Argument
      */
-    @Deprecated(since = "3.11.0", forRemoval = true)
-    public Optional<Argument> findForName(String name, StatementContext ctx2) {
+    Optional<Argument> findForName(String name) {
         final Object found = named.get(name);
         if (found != null || named.containsKey(name)) {
-            return Optional.of(new ArgumentBinder(null, ctx2, ParsedParameters.NONE).toArgument(found));
+            return Optional.of(new ArgumentBinder(null, ctx, ParsedParameters.NONE).toArgument(found));
         }
 
         return namedArgumentFinder.stream()
-                .flatMap(arguments -> arguments.find(name, ctx2).stream())
+                .flatMap(arguments -> arguments.find(name, ctx).stream())
                 .findFirst();
     }
 
     /**
      * @return the set of known binding names
-     * @deprecated this is expensive to compute, and it's bad practice to inspect a Binding: keep track of your own state!
      */
-    @Deprecated(since = "3.11.0", forRemoval = true)
-    public Collection<String> getNames() {
+    Collection<String> getNames() {
         final Set<String> names = new HashSet<>(named.keySet());
         namedArgumentFinder.forEach(args -> names.addAll(args.getNames()));
         return Collections.unmodifiableSet(names);
@@ -141,11 +136,9 @@ public class Binding {
      * Look up an argument by position.
      *
      * @param position starts at 0, not 1
-     * @deprecated don't inspect a Binding: keep your own state!
      * @return argument bound to that position
      */
-    @Deprecated(since = "3.11.0", forRemoval = true)
-    public Optional<Argument> findForPosition(int position) {
+    Optional<Argument> findForPosition(int position) {
         return Optional.ofNullable(new ArgumentBinder(null, ctx, ParsedParameters.NONE).toArgument(positionals.get(position)));
     }
 

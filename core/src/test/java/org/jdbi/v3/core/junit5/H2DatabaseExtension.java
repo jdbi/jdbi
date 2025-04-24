@@ -65,11 +65,6 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
         return new H2DatabaseExtension(true);
     }
 
-    @Deprecated
-    public static H2DatabaseExtension withSomething() {
-        return instance().withInitializer(SOMETHING_INITIALIZER);
-    }
-
     private H2DatabaseExtension(boolean installPlugins) {
         this.installPlugins = installPlugins;
     }

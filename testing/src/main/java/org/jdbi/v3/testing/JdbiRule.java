@@ -101,27 +101,6 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     /**
-     * Run database migration scripts from {@code db/migration} on the classpath, using Flyway.
-     * @deprecated use {@link #withMigration(Migration)}
-     * @return this
-     */
-    @Deprecated(since = "3.5.0", forRemoval = true)
-    public JdbiRule migrateWithFlyway() {
-        return migrateWithFlyway("db/migration");
-    }
-
-    /**
-     * Run database migration scripts from the given locations on the classpath, using Flyway.
-     * @deprecated use {@link #withMigration(Migration)}
-     * @return this
-     */
-    @Deprecated(since = "3.5.0", forRemoval = true)
-    @SuppressWarnings("InlineMeSuggester")
-    public JdbiRule migrateWithFlyway(String... locations) {
-        return withMigration(Migration.before().withPaths(locations));
-    }
-
-    /**
      * Run database migration.
      */
     public JdbiRule withMigration(final Migration newMigration) {

@@ -149,10 +149,6 @@ class ArgumentBinder {
                         Optional.ofNullable(value).<Class<?>>map(Object::getClass).orElse(Object.class));
     }
 
-    /**
-     * @deprecated prepare the argument by type instead
-     */
-    @Deprecated(since = "3.11.0", forRemoval = true)
     Argument toArgument(Object found) {
         return argumentFactoryForType(typeOf(found))
                 .apply(unwrap(found));

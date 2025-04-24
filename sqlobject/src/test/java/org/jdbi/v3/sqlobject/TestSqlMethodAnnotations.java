@@ -13,11 +13,7 @@
  */
 package org.jdbi.v3.sqlobject;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -25,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestSqlMethodAnnotations {
@@ -49,28 +44,5 @@ public class TestSqlMethodAnnotations {
         @SqlQuery
         @SqlUpdate
         void bogus();
-    }
-
-    @Test
-    public void testCustomAnnotation() {
-        Dao dao = handle.attach(Dao.class);
-
-        assertThat(dao.foo()).isEqualTo("foo");
-    }
-
-    public interface Dao {
-        @Foo
-        String foo();
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @SqlOperation(Foo.Impl.class)
-    public @interface Foo {
-        class Impl implements Handler {
-            @Override
-            public Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) {
-                return "foo";
-            }
-        }
     }
 }
