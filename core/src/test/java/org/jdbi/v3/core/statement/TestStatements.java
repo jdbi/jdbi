@@ -70,6 +70,15 @@ public class TestStatements {
     }
 
     @Test
+    public void testLargeResult() {
+        Handle h = h2Extension.getSharedHandle();
+
+        assertThat(h.createUpdate("insert into something (id, name) values (1, 'eric')")
+                .executeLarge())
+            .isOne();
+    }
+
+    @Test
     public void testStatementWithRequiredResults() {
         Handle h = h2Extension.getSharedHandle();
 

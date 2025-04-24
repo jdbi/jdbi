@@ -42,12 +42,26 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      * @return update count
      * @see PreparedStatement#getUpdateCount()
      */
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public static ResultProducer<Integer> returningUpdateCount() {
         return (statementSupplier, ctx) -> {
             // suppress exception if ctx.close method raises
-            try (StatementContext context = ctx) {
+            try (StatementContext unused = ctx) {
                 return statementSupplier.get().getUpdateCount();
+            }
+        };
+    }
+
+    /**
+     * Result producer that eagerly executes the statement, returning the large update count
+     *
+     * @return long update count
+     * @see PreparedStatement#getLargeUpdateCount()
+     */
+    public static ResultProducer<Long> returningLargeUpdateCount() {
+        return (statementSupplier, ctx) -> {
+            // suppress exception if ctx.close method raises
+            try (StatementContext unused = ctx) {
+                return statementSupplier.get().getLargeUpdateCount();
             }
         };
     }

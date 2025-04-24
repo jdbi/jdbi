@@ -64,6 +64,9 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
                 return resultReturner.mappedResult(iterable, update.getContext());
             };
+        } else if (isLong(method.getReturnType())) {
+            this.resultTransformer = Update::executeLarge;
+            this.resultReturner = null;
         } else if (isNumeric(method.getReturnType())) {
             this.resultTransformer = Update::execute;
             this.resultReturner = null;
@@ -72,7 +75,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
             this.resultReturner = null;
         } else {
             throw new UnableToCreateSqlObjectException(format(
-                    "%s.%s method is annotated with @SqlUpdate so should return void, boolean, or Number but is returning: %s",
+                    "%s.%s method is annotated with @SqlUpdate so should return void, boolean, int, or long but is returning: %s",
                     method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
         }
     }
@@ -96,13 +99,17 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     }
 
     private boolean isNumeric(Class<?> type) {
-        return Number.class.isAssignableFrom(type)
+        return type.equals(Integer.class)
                 || type.equals(int.class)
-                || type.equals(long.class)
-                || type.equals(void.class);
+                || type.equals(void.class)
+                || type.equals(Void.class);
     }
 
     private boolean isBoolean(Class<?> type) {
         return type.equals(boolean.class) || type.equals(Boolean.class);
+    }
+
+    private boolean isLong(Class<?> type) {
+        return type.equals(long.class) || type.equals(Long.class);
     }
 }
