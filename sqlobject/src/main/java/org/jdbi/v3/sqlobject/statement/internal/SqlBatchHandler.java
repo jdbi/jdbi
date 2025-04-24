@@ -80,11 +80,11 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
 
             if (method.isAnnotationPresent(UseRowMapper.class)) {
                 RowMapper<?> mapper = rowMapperFor(method.getAnnotation(UseRowMapper.class));
-                batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
+                batchIntermediate = batch -> batch.executePreparedBatch(columnNames)
                         .map(mapper)
                         .iterator();
             } else {
-                batchIntermediate = batch -> batch.executeAndReturnGeneratedKeys(columnNames)
+                batchIntermediate = batch -> batch.executePreparedBatch(columnNames)
                         .mapTo(resultReturner.elementType(batch.getConfig()))
                         .iterator();
             }

@@ -47,7 +47,7 @@ public class ConstructorMapperPgTest {
                 .prepareBatch("INSERT INTO bean(s, i) VALUES(:s, :i) ON CONFLICT (s) DO NOTHING")
                 .bind("s", "3")
                 .bind("i", 2)
-                .executeAndReturnGeneratedKeys("s", "i")
+                .executePreparedBatch("s", "i")
                 .mapTo(ConstructorBean.class)
                 .list())
             .isEmpty();

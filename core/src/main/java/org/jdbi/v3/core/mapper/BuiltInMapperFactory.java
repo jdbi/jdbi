@@ -23,7 +23,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 /**
  * @deprecated will be replaced by an opt-out plugin to give the core no hardwired behavior
  */
-@Deprecated(since = "3.6.0", forRemoval = true)
+@Deprecated(since = "3.6.0")
 // TODO remove this entire class
 public class BuiltInMapperFactory implements ColumnMapperFactory {
     private static final List<ColumnMapperFactory> FACTORIES = Arrays.asList(
