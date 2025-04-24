@@ -64,6 +64,7 @@ public class TypeResolvingCodecFactory extends CodecFactory {
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected Codec<?> resolveType(QualifiedType<?> qualifiedType) {
 
         // memoize any successful lookup to avoid paying the cost for looking up

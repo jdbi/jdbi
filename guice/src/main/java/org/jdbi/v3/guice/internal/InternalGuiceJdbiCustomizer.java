@@ -67,7 +67,7 @@ public class InternalGuiceJdbiCustomizer implements GuiceJdbiCustomizer {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void customize(Jdbi jdbi) {
         rowMappers.forEach(jdbi::registerRowMapper);
         qualifiedRowMappers.forEach(jdbi::registerRowMapper);

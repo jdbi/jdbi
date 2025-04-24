@@ -33,6 +33,7 @@ public class SqlCallHandler extends CustomizingStatementHandler<Call> {
         resultTransformer = createResultTransformer(sqlObjectType, method);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private BiFunction<OutParameters, Call, ?> createResultTransformer(Class<?> sqlObjectType, Method method) {
         Type returnType = GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType);
         Class<?> returnClass = GenericTypes.getErasedType(returnType);

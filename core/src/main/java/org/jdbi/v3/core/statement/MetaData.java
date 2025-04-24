@@ -40,7 +40,7 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
         return ResultBearing.of(ResultSetSupplier.closingContext(this::execute, getContext()), getContext()).scanResultSet(resultSetScanner);
     }
 
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     public <R> R execute() {
         try {
             Connection connection = getHandle().getConnection();

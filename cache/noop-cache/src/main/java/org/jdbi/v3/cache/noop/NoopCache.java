@@ -57,6 +57,7 @@ public final class NoopCache<K, V> implements JdbiCache<K, V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object getStats() {
         return NOOP_CACHE_STATS;
     }

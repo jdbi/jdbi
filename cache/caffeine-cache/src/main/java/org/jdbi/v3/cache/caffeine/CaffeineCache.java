@@ -44,6 +44,7 @@ public final class CaffeineCache<K, V> implements JdbiCache<K, V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public CacheStats getStats() {
         return cache.stats();
     }

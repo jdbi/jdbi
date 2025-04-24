@@ -55,6 +55,7 @@ public class ResultSetResultIterable<T> implements ResultIterable<T> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <R extends Collection<? super T>> R collectInto(Type containerType) {
 
         Type type = containerType;

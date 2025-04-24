@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 
 /**
  * A TransactionHandler that automatically retries transactions that fail due to
@@ -49,31 +50,29 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         final Configuration config = handle.getConfig(Configuration.class);
         int attempts = 1 + config.maxRetries;
 
-        Deque<X> failures = new ArrayDeque<>();
+        Deque<Exception> failures = new ArrayDeque<>();
         while (true) {
             try {
                 R result = getDelegate().inTransaction(handle, callback);
                 config.onSuccess.accept(new ArrayList<>(failures));
                 return result;
             } catch (Exception last) {
-                X x = (X) last;
-
                 // throw immediately if the exception is unexpected
-                if (!isSqlState(config.serializationFailureSqlState, x)) {
+                if (!isSqlState(config.serializationFailureSqlState, last)) {
                     throw last;
                 }
 
-                failures.addLast(x);
+                failures.addLast(last);
                 config.onFailure.accept(new ArrayList<>(failures));
 
                 // no more attempts left? Throw ALL the exceptions! \o/
                 attempts -= 1;
                 if (attempts <= 0) {
-                    X toThrow = failures.removeLast();
+                    Exception toThrow = failures.removeLast();
                     while (!failures.isEmpty()) {
                         toThrow.addSuppressed(failures.removeLast());
                     }
-                    throw toThrow;
+                    throw Sneaky.throwAnyway(toThrow);
                 }
             }
         }

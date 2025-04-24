@@ -22,6 +22,7 @@ import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class BitStringEnumSetMapperFactory implements ColumnMapperFactory {
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
