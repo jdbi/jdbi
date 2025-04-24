@@ -42,6 +42,15 @@ public class TestStatements {
     }
 
     @Test
+    public void testLongInsert() {
+        h2Extension.getJdbi().useExtension(Inserter.class, i -> {
+            // this is what is under test here
+            long rowsAffected = i.insert(2, "Popeye");
+            assertThat(rowsAffected).isOne();
+        });
+    }
+
+    @Test
     public void testInsertWithVoidReturn() {
         h2Extension.getJdbi().useExtension(Inserter.class, i -> {
             // this is what is under test here
@@ -61,6 +70,9 @@ public class TestStatements {
     public interface Inserter {
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         int insert(@Bind("id") long id, @Bind("name") String name);
+
+        @SqlUpdate("insert into something (id, name) values (:id, :name)")
+        long longInsert(@Bind("id") long id, @Bind("name") String name);
 
         @SqlUpdate("insert into something (id, name) values (:id, :name)")
         void insertWithVoidReturn(@Bind("id") long id, @Bind("name") String name);

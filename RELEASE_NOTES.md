@@ -1,5 +1,7 @@
 # Unreleased
 
+- Fix returning `long` update count from update statements (#2778)
+
 # 3.49.1
 
 - Fix onDemand extension handling of method invocations from a subtype (#2769, thanks @djsstarburst!)

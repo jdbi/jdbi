@@ -22,6 +22,7 @@ import org.jdbi.v3.core.result.ResultProducer;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 
 import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
+import static org.jdbi.v3.core.result.ResultProducers.returningLargeUpdateCount;
 import static org.jdbi.v3.core.result.ResultProducers.returningUpdateCount;
 
 /**
@@ -55,6 +56,15 @@ public class Update extends SqlStatement<Update> {
      */
     public int execute() {
         return execute(returningUpdateCount());
+    }
+
+    /**
+     * Executes the statement, returning the large update count.
+     *
+     * @return the number of rows modified as a long
+     */
+    public long executeLarge() {
+        return execute(returningLargeUpdateCount());
     }
 
     /**
