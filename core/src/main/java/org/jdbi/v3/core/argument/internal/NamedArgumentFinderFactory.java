@@ -61,6 +61,7 @@ public interface NamedArgumentFinderFactory {
             return forPojoProps(argumentFactoryLookup, new PojoPropertyArguments(prefix, example, type, config));
         }
 
+        @SuppressWarnings("unchecked")
         Function<String, Optional<Function<Object, Argument>>> forPojoProps(
                 Function<QualifiedType<?>, Function<Object, Argument>> argumentFactoryLookup,
                 PojoPropertyArguments ppa) {

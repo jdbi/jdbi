@@ -82,6 +82,7 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public final Optional<Function<Object, Argument>> prepare(final QualifiedType<?> type, final ConfigRegistry config) {
         return Optional.of(type).map(this::resolveType).map(key -> (Function<Object, Argument>) key.getArgumentFunction(config));
     }

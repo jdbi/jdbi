@@ -72,7 +72,7 @@ public class TestTelemetry {
 
     @BeforeEach
     void setupOpenTelemetry() throws InvocationTargetException, IllegalAccessException {
-        assertThat(setupOpenTelemetryMethod.invoke(instance)).isNull();
+        setupOpenTelemetryMethod.invoke(instance);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class TestTelemetry {
 
     @Test
     void truncate() throws InvocationTargetException, IllegalAccessException {
-        truncateMethod.invoke(instance);
+        assertThat(truncateMethod.invoke(instance)).isNull();
     }
 
     public final class TestCode {

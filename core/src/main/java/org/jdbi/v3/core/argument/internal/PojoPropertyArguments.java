@@ -59,6 +59,7 @@ public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected Optional<TypedValue> getValue(String name, StatementContext ctx) {
         return Optional.ofNullable(properties.getProperties().get(name))
                 .map(PojoProperty.class::cast)

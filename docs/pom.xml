@@ -32,7 +32,7 @@
         <basepom.check.skip-dependency>true</basepom.check.skip-dependency>
         <basepom.check.skip-license>true</basepom.check.skip-license>
 
-        <!-- workaround because spring5 needs an exclusion. -->
+        <!-- workaround because spring needs an exclusion. -->
         <basepom.dependency-management.allow-exclusions>true</basepom.dependency-management.allow-exclusions>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.site.scm.branch>master</basepom.site.scm.branch>

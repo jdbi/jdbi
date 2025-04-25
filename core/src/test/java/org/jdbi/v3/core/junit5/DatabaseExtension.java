@@ -43,6 +43,7 @@ public interface DatabaseExtension<T extends DatabaseExtension<T>> {
         return withPlugin(ConfiguringPlugin.of(configClass, configurer));
     }
 
+    @SuppressWarnings("unchecked")
     default void installTestPlugins(Jdbi jdbi) throws Exception {
         // cache plugin tests
         String cachePluginName = System.getProperty("jdbi.test.cache-plugin");

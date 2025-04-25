@@ -64,6 +64,7 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public DefaultJdbiCacheStats getStats() {
         synchronized (expungeQueue) {
             return new DefaultJdbiCacheStats(expungeQueue.size, maxSize);

@@ -45,6 +45,7 @@ public final class CaffeineLoadingCache<K, V> implements JdbiCache<K, V> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public CacheStats getStats() {
         return loadingCache.stats();
     }

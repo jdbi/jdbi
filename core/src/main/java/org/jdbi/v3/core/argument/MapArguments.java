@@ -26,7 +26,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * @deprecated use {@link SqlStatement#bindMap(Map)} instead
  */
-@Deprecated(since = "3.11.0", forRemoval = true)
+@Deprecated(since = "3.11.0")
 public class MapArguments implements NamedArgumentFinder {
     private final Map<String, ?> args;
 

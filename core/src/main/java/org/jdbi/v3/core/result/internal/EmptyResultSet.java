@@ -99,6 +99,7 @@ public final class EmptyResultSet implements ResultSet {
     }
 
     @Override
+    @Deprecated
     public BigDecimal getBigDecimal(int columnIndex, int scale) {
         throw new UnsupportedOperationException();
     }
@@ -129,6 +130,7 @@ public final class EmptyResultSet implements ResultSet {
     }
 
     @Override
+    @Deprecated
     public InputStream getUnicodeStream(int columnIndex) {
         throw new UnsupportedOperationException();
     }
@@ -179,6 +181,7 @@ public final class EmptyResultSet implements ResultSet {
     }
 
     @Override
+    @Deprecated
     public BigDecimal getBigDecimal(String columnLabel, int scale) {
         throw new UnsupportedOperationException();
     }
@@ -209,6 +212,7 @@ public final class EmptyResultSet implements ResultSet {
     }
 
     @Override
+    @Deprecated
     public InputStream getUnicodeStream(String columnLabel) {
         throw new UnsupportedOperationException();
     }

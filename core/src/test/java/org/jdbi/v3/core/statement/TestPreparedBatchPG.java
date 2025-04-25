@@ -53,7 +53,7 @@ public class TestPreparedBatchPG {
     @Test
     public void emptyBatchGeneratedKeys() {
         try (PreparedBatch batch = handle.prepareBatch("insert into something (id, name) values (:id, :name)")) {
-            assertThat(batch.executeAndReturnGeneratedKeys("id").mapTo(int.class).list()).isEmpty();
+            assertThat(batch.executePreparedBatch("id").mapTo(int.class).list()).isEmpty();
         }
     }
 

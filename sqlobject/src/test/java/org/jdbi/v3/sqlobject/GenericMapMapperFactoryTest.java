@@ -137,7 +137,7 @@ public class GenericMapMapperFactoryTest {
             try (Query query = h.createQuery(QUERY.replace("two", "one"))) {
                 ResultIterable<Map<String, BigDecimal>> iterable = query.mapToMap(BigDecimal.class);
 
-                assertThatThrownBy(iterable::findOnly)
+                assertThatThrownBy(iterable::one)
                     .hasMessageContaining("map key \"one\" (from column \"one\") appears twice");
             }
         });
@@ -152,7 +152,7 @@ public class GenericMapMapperFactoryTest {
                 // one and ONE
                 ResultIterable<Map<String, BigDecimal>> iterable = query.mapToMap(BigDecimal.class);
 
-                assertThatThrownBy(iterable::findOnly)
+                assertThatThrownBy(iterable::one)
                     .hasMessageContaining("map key \"one\" (from column \"ONE\") appears twice");
             }
         });

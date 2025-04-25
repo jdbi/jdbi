@@ -26,6 +26,7 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 
 public class EnumMapperFactory implements QualifiedColumnMapperFactory {
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Optional<ColumnMapper<?>> build(QualifiedType<?> givenType, ConfigRegistry config) {
         return Optional.of(givenType.getType())
             .map(GenericTypes::getErasedType)

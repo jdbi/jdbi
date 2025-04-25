@@ -33,6 +33,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 @FunctionalInterface
 public interface ColumnMapper<T> {
 
+    @SuppressWarnings("unchecked")
     static <U> ColumnMapper<U> getDefaultColumnMapper() {
         return (r, n, c) -> (U) r.getObject(n);
     }
