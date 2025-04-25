@@ -28,6 +28,8 @@
     <description>Jdbi code examples.</description>
 
     <properties>
+        <!-- not an API module -->
+        <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
         <moduleName>org.jdbi.v3.examples</moduleName>
     </properties>
 
@@ -69,5 +71,10 @@
             <scope>runtime</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
