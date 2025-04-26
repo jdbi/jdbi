@@ -67,7 +67,7 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
      * Creates a {@link CodecFactory} for a single type.
      * @param type The type for which the factory is created.
      * @param codec The {@link Codec} to use.
-     * @return A new {@link} CodecFactory that will be used if the given type is requested.
+     * @return A new {@link CodecFactory} that will be used if the given type is requested.
      */
     public static CodecFactory forSingleCodec(QualifiedType<?> type, Codec<?> codec) {
         return new CodecFactory(Collections.singletonMap(type, codec));

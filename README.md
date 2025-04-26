@@ -34,9 +34,38 @@ We run CI tests against Java 11, 17 and 21.
 
 Java 8, 9 and 10 are supported by any Jdbi version before **3.40.0**.
 
+Java 11 is supported by any Jdbi version up to **3.50.0**.
+
+Java 17 or better is required for Jdbi **3.51.0** or newer.
+
+### Library compatibility
+
+Jdbi has a very small footprint for its core but supports a huge number of other projects for mapping data, supporting data types. etc.
+
+We run our test suite against a number of library versions for backwards compatibility tests. Currently, we test
+
+Libraries:
+
+- Google Guava
+- Immutables
+- Jackson
+- JodaTime
+- vavr
+- Google Guice
+- Kotlin
+- Spring Framework
+
+Jdbi will use the latest, stable release of a library. We update these dependencies for releases. For the libraries listed above, we will also test the two previous, stable versions of a library.
+
+Databases:
+
+Jdbi uses PostgreSQL for most of its non-in-memory tests. We test with the latest Postgres release that is supported by our testing libraries and the two previous released versions.
+
+We also run tests inside testcontainers against a large set of databases.
+
 ## Building
 
-Jdbi requires a JDK version 17 or better to build. We enforce the latest LTS (currently Java 21) for releases.
+Jdbi requires the latest LTS JDK version (Currently Java 21) or better to build. All release builds are done with the latest LTS version.
 
 Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.9 or later is required. Using the `make` targets requires GNU make.
 
@@ -56,10 +85,10 @@ To add command line parameters to the maven executions from the Makefile, set th
 % MAVEN_ARGS="-B -fae" make install
 ```
 
-
 ## Testing
 
-Running `make tests` runs all unit and integration tests.
+* `make tests` builds the code and runs all unit and integration tests.
+* `make run-tests` only runs the tests.
 
 Some tests use Postgres and H2 databases (the tests will spin up temporary database servers as needed). Most modern OS (Windows, MacOS, Linux) and host architecture (x86_64, aarch64) should work.
 
@@ -111,7 +140,14 @@ This project is licensed under the
 * **Brian McCallister (@brianm)** - Project Founder
 * **Steven Schlansker (@stevenschlansker)**
 * **Henning Schmiedehausen (@hgschmie)**
+
+
+## Alumni
+
 * **Artem Prigoda (@arteam)**
+* **Matthew Hall (@qualidafial)**
+* **Markus Spann (@spannm)**
+* **Marnick L'Eau**
 
 
 ## Special Thanks

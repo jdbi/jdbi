@@ -1,6 +1,7 @@
 # Unreleased
 
 - Fix returning `long` update count from update statements (#2778)
+- Fix JFR usage on GraalVM (#2736)
 
 # 3.49.1
 

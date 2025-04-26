@@ -32,7 +32,7 @@ clean::
 install::
 	${MAVEN} clean install
 
-tests: install-fast run-tests
+tests: install-notests run-tests
 
 install-notests:: MAVEN_ARGS += -Dbasepom.test.skip=true
 install-notests:: install
