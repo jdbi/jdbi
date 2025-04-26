@@ -1300,7 +1300,7 @@
             <properties>
                 <basepom.check.skip-all>true</basepom.check.skip-all>
                 <basepom.check.skip-enforcer>false</basepom.check.skip-enforcer>
-                <basepom.check.skip-sbom>false</basepom.check.skip-sbom>
+                <jdbi.check.skip-sbom>false</jdbi.check.skip-sbom>
             </properties>
 
             <build>
