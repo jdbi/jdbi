@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 33.4.6-jre, 33.3.1-jre, 33.2.1-jre, 33.1.0-jre, 33.0.0-jre, 32.1.3-jre, 32.0.1-jre, 31.1-jre ]
+        test-version: [ 33.3.1-jre, 33.2.1-jre ]
 
     steps:
       - uses: actions/checkout@v4
@@ -81,7 +81,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.10.1, 2.9.3 ]
+        test-version: [ 2.11.0-beta2, 2.9.3 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -142,7 +142,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.18.3, 2.17.3, 2.16.1, 2.15.3, 2.14.3, 2.13.5, 2.12.7.20240502 ]
+        test-version: [ 2.19.0, 2.17.3, 2.16.2 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -203,7 +203,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.14.0, 2.13.1, 2.12.7, 2.11.2, 2.10.14, 2.9.9 ]
+        test-version: [ 2.13.1, 2.12.7 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -264,7 +264,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 0.10.4 ]
+        test-version: [ 0.9.3 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -325,7 +325,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 5.1.0, 6.0.0, 7.0.0 ]
+        test-version: [ 6.0.0, 7.0.0 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -386,7 +386,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 1.9.22, 2.0.21, 2.1.20 ]
+        test-version: [ 2.2.0-Beta1, 2.0.21, 1.9.25 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -447,7 +447,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 6.1.19, 6.2.6 ]
+        test-version: [ 6.1.19 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -502,13 +502,13 @@ jobs:
           path: |
             **/target/**/*.jar
 
-  oracle:
-    name: Test Oracle versions
+  slf4j:
+    name: Test slf4j versions
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        test-version: [ '21-slim-faststart', '18-slim-faststart' ]
+        test-version: [ 2.1.0-alpha1, 1.7.36 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -535,10 +535,10 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi3-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -Ddep.slf4j.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
-          make run-slow-tests
+          make run-tests
 
       - uses: actions/upload-artifact@v4
         name: upload build logs

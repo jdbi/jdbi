@@ -14,13 +14,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  slow-tests:
-    name: Run slow tests
+  testcontainer:
+    name: Run testcontainer tests
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        testcontainer-version: [ 1.19.8, 1.20.6 ]
+        testcontainer-version: [ 1.20.6, 1.19.8 ]
         mysql-version: [ "mysql:lts" ]
 
     steps:
@@ -47,7 +47,7 @@ jobs:
 
       - id: run_slow_tests
         env:
-          MAVEN_ARGS: "-B -ff -Ddep.testcontainers.version=${{ matrix.testcontainer-version }} -Djdbi.test.mysql-version=${{ matrix.mysql-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-testcontainers,:jdbi3-e2e -Ddep.testcontainers.version=${{ matrix.testcontainer-version }} -Djdbi.test.mysql-version=${{ matrix.mysql-version }}"
         run: |
           ./mvnw --version
           make run-slow-tests
@@ -71,6 +71,62 @@ jobs:
         continue-on-error: true
         with:
           name: build artifacts (${{ github.job }}, ${{ matrix.testcontainer-version }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
+
+  slow-tests:
+    name: Run slow tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: build code
+        id: install_fast
+        env:
+          MAVEN_ARGS: "-B -ff"
+        run: |
+          ./mvnw --version
+          make install-fast
+
+      - id: run_slow_tests
+        env:
+          MAVEN_ARGS: "-B -ff"
+        run: |
+          ./mvnw --version
+          make run-slow-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        continue-on-error: true
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        continue-on-error: true
+        with:
+          name: build artifacts (${{ github.job }})
           retention-days: 1
           path: |
             **/target/**/*.jar
@@ -127,6 +183,67 @@ jobs:
         continue-on-error: true
         with:
           name: build artifacts (${{ github.job }})
+          retention-days: 1
+          path: |
+            **/target/**/*.jar
+
+  oracle:
+    name: Test Oracle versions
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test-version: [ '21-slim-faststart', '18-slim-faststart' ]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        name: setup build jdk
+        id: build_jdk
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: build code
+        id: install_fast
+        env:
+          MAVEN_ARGS: "-B -ff"
+        run: |
+          ./mvnw --version
+          make install-fast
+
+      - name: run tests
+        id: run_tests
+        env:
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
+        run: |
+          ./mvnw --version
+          make run-slow-tests
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        continue-on-error: true
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        continue-on-error: true
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
           retention-days: 1
           path: |
             **/target/**/*.jar

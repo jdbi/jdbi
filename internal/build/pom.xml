@@ -83,7 +83,8 @@
         <dep.derby.version>10.16.1.1</dep.derby.version>
         <dep.detekt.version>1.23.8</dep.detekt.version>
         <dep.errorprone.version>2.38.0</dep.errorprone.version>
-        <dep.flyway.version>11.8.0</dep.flyway.version>
+        <!-- last flyway version to support java 11 -->
+        <dep.flyway.version>9.22.3</dep.flyway.version>
         <dep.freebuilder.version>2.8.0</dep.freebuilder.version>
         <dep.freemarker.version>2.3.34</dep.freemarker.version>
         <dep.geantyref.version>2.0.1</dep.geantyref.version>
@@ -314,12 +315,6 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>${dep.flyway.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-database-postgresql</artifactId>
                 <version>${dep.flyway.version}</version>
             </dependency>
 
@@ -1305,6 +1300,7 @@
             <properties>
                 <basepom.check.skip-all>true</basepom.check.skip-all>
                 <basepom.check.skip-enforcer>false</basepom.check.skip-enforcer>
+                <basepom.check.skip-sbom>false</basepom.check.skip-sbom>
             </properties>
 
             <build>
