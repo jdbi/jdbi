@@ -62,11 +62,11 @@ public class TestPostgresRefcursorProc {
             assertThat(op.getRowSet("head")
                      .mapTo(int.class)
                      .list())
-                .containsExactly(1, 2);
+                .contains(1, 2);
             assertThat(op.getRowSet("tail")
                     .mapTo(int.class)
                     .list())
-                .containsExactly(3, 4);
+                .contains(3, 4);
             return true;
         })).isTrue();
     }

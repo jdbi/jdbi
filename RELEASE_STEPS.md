@@ -160,6 +160,9 @@ $ make release-docs
 - Please make sure that the `Set as the latest release` and `Create a discussion for the release` checkboxes are selected
 - Click "Publish release"
 
+- Add a release announcement to the Discussions and pin it to the front page.
+- Unpin the previous release announcement.
+
 ## Release additional Modules
 
 A small number of JDBI3 modules is maintained outside the main build. Consider releasing those as well:

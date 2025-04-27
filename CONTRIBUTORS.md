@@ -4,10 +4,14 @@
 
 - Brian McCallister
 - Steven Schlansker
-- Matthew Hall
-- Artem Prigoda
-- Marnick L'Eau
 - Henning Schmiedehausen
+
+## Alumni
+
+- Artem Prigoda
+- Matthew Hall
+- Markus Spann, lots of improvements (char sequence support, SqlScript lexer/parser, ResultIterable etc)
+- Marnick L'Eau
 
 ## Contributors
 
@@ -21,7 +25,6 @@
 - Thomas Risberg, for the Spring `DataAccessException` wrapping code
 - Simone Gianni, for finding and solving a nasty `setNull` bug
 - Fred Deschenes
-- Markus Spann, lots of improvements (char sequence support, SqlScript lexer/parser, ResultIterable etc)
 - Ali Shakiba (@shakiba), jdbi JPA
 - Jayson Minard (@apatrida)
 - Alex Harin

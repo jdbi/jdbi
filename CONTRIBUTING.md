@@ -26,7 +26,7 @@ If you plan to make a larger change or contribution, please discuss this first i
 
 We strive for a healthy balance between subjective perfection and practical considerations, but we are firmly against doing a quick and incomplete job that will require more follow-up work later.
 
-* Use a modern JDK. At least the latest LTS (Java 21 right now) or newer.
+* Use the latest LTS (Java 21 right now) or newer.
 * whenever possible, use "speaking" names. `handle`, not `h`.
 * make minimal changes to the code. If you can hide an internal class, do so. If you can make an internal class final, do so.
 * Jdbi is a library and any dependency that we use, we also force upon our users. Minimize the footprint of external dependencies; when in doubt we are more comfortable with copying a single class under Apache license into the code base with proper attribution over pulling in another dependency.
@@ -34,7 +34,7 @@ We strive for a healthy balance between subjective perfection and practical cons
 * We like both constructors and factory methods/builders, but require that they are used appropriately. Constructors are great for dumb classes, factories are better in case any defensive logic is involved.
 * Some fundamental classes (`Jdbi`, anything config related) must be thread-safe. Others (such as `Handle` and the statement classes) don't need to. Clearly attribute if a class must be single-threaded (can only be used by one thread), is thread-safe (can be used by multiple threads at the same time) or in between (e.g. can be used by multiple threads but must be one thread at a time). If a class is not safe for multiple threads, clearly state so.
 
-*Please run `make clean install` locally before opening a PR. We run lots of code and style checkers on the full build and failing those on a PR means we will not look at it before you fixed those. Your local build run from the command line should pass.*
+*Please run `make install` locally before opening a PR. We run lots of code and style checkers on the full build and failing those on a PR means we will not look at it before you fixed those. Your local build run from the command line should pass.*
 
 ### Backward compatibility
 
@@ -42,7 +42,7 @@ Jdbi places serious emphasis on not breaking compatibility. Remember these simpl
 
 1) what comes into the API, stays in the API (or: no is temporary, but yes is forever);
 2) if a piece of API must be discouraged after public release, mark it `@Deprecated` and keep it functionally intact;
-3) breaking cleanup work can be done when Jdbi is gearing up for a major version number increment (see [SemVer](https://semver.org/));
+3) breaking cleanup work can be done when Jdbi is gearing up for a major version number increment (see [SemVer](https://semver.org/)). We also reserve the right to make backwards compatible changes when we change the minimally supported JDK version.
 4) bug fixes that **absolutely require** an API change are the only exception.
 
 If you must make some internal code `public` to access it from other packages, put the class in a package named `internal`. Packages named so are not considered API.
@@ -61,13 +61,15 @@ Jdbi should be useful for as many projects as possible with as little work as po
 * Our tests describe and verify `Jdbi` behavior, changes to their behavior needs to be discussed and we will reject unnecessary test changes.
 * Spin up a database using either the core testing framework (`H2DatabaseExtension` and `PgDatabaseExtension`) if you contribute to the core repository or the `testing` extensions (`JdbiExtension`) for all other modules.
 * Focus on functionality and clarity for tests first, worry about performance afterwards. (A full build executing ~1,650 tests against hundreds of started and stopped Postgres and H2 instances takes about 200 seconds using JDK 19, `mvnd` on a 2021 Macbook Pro. And we run the tests on the CI anyway).
-* do not use mocks or any mocking frameworks in the tests. We use Mockito in a few places and every single one is a problem and hard to maintain.
+* do not use mocks or any mocking frameworks in the tests. We use Mockito in a few places and every single one is a problem and a pain to maintain.
 
-The use of mocks and mocking framework is generally discouraged. There are a number of existing tests that use Mockito and they are a pain to maintain.
+The use of mocks and mocking framework is generally discouraged. There are a number of existing tests that use Mockito and we do not want to add more.
 
 ## Development Setup
 
 Most modern IDEs configure themselves correctly by importing the Jdbi repository as an Apache Maven project. If necessary, install support for Apache Maven first.
+
+Jdbi is mostly Java but has a few Kotlin modules. Therefore the IDE must also support Kotlin (either natively or by executing the maven build).
 
 ### Code Style / Formatting Rules
 
@@ -80,16 +82,17 @@ We do not review or merge PRs that do not pass our pre-merge checks. Run the bui
 There is a Makefile at the root of the project to drive the various builds. Run `make` or `make help` to display all available goals. Some goals are privileged (you need to be a member of the Jdbi development team). Generally available goals are:
 
 ```
-* clean               - clean local build tree
-* install             - build, run static analysis and unit tests, then install in the local repository
-* install-notests     - same as 'install', but skip unit tests
-* install-nodocker    - same as 'install', but skip unit tests that require a local docker installation
-* install-fast        - same as 'install', but skip unit tests and static analysis
-* tests               - build code and run unit and integration tests except really slow tests
-* docs                - build up-to-date documentation in docs/target/generated-docs/
-* run-tests           - run all unit and integration tests except really slow tests
-* run-tests-nodocker  - same as 'run-tests', but skip all tests that require a local docker installation
-* run-tests-container - run the full multi-database container test suite
+ * clean                - clean local build tree
+ * install              - build, run static analysis and unit tests, then install in the local repository
+ * install-notests      - same as 'install', but skip unit tests
+ * install-nodocker     - same as 'install', but skip unit tests that require a local docker installation
+ * install-fast         - same as 'install', but skip unit tests and static analysis
+ * compare-reproducible - compare against installed jars to ensure reproducible build
+ * tests                - build code and run unit and integration tests except really slow tests
+ * docs                 - build up-to-date documentation in docs/target/generated-docs/
+ * run-tests            - run all unit and integration tests except really slow tests
+ * run-slow-tests       - run all unit and integration tests
+ * run-tests-nodocker   - same as 'run-tests', but skip all tests that require a local docker installation
 ```
 
 - If you make changes to the Jdbi code, please run `make tests` before opening a PR.
@@ -97,18 +100,19 @@ There is a Makefile at the root of the project to drive the various builds. Run 
 
 If you do not have a local docker installation (required for some tests), use the equivalent `-nodocker` goals.
 
-| Make command          | function                                      | equivalent Apache Maven command                                                                                                             |
-|-----------------------|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| `clean`               | clean local build tree                        | `mvn clean`                                                                                                                                 |
-| `install`             | standard build command                        | `mvn clean install`                                                                                                                         |
-| `install-notests`     | build without unit tests                      | `mvn -Dbasepom.test.skip=true clean install`                                                                                                |
-| `install-nodocker`    | build without docker                          | `mvn -Dno-docker=true clean install`                                                                                                        |
-| `install-fast`        | build without tests and checkers              | `mvn -Pfast clean install`                                                                                                                  |
-| `tests`               | install and run tests                         | combination of `mvn -Dbasepom.test.skip=true clean install` and `mvn surefire:test invoker:install invoker:integration-test invoker:verify` |
-| `docs`                | build jdbi docs                               | `mvn -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false clean install`                                                                      |
-| `run-tests`           | run unit and integration tests                | `mvn surefire:test invoker:install invoker:integration-test invoker:verify`                                                                 |
-| `run-tests-nodocker`  | run unit and integration tests without docker | `mvn -Dno-docker=true surefire:test invoker:install invoker:integration-test invoker:verify`                                                |
-| `run-tests-container` | run testcontainer based tests                 | `mvn -Dbasepom.test.skip=false surefire:test -pl :jdbi3-testcontainers`                                                                     |
+| Make command           | function                                      | equivalent Apache Maven command                                                                                   |
+|------------------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| `clean`                | clean local build tree                        | `mvn clean`                                                                                                       |
+| `install`              | standard build command                        | `mvn clean install`                                                                                               |
+| `install-notests`      | build without unit tests                      | `mvn -Dbasepom.test.skip=true clean install`                                                                      |
+| `install-nodocker`     | build without docker                          | `mvn -Dno-docker=true clean install`                                                                              |
+| `install-fast`         | build without tests and checkers              | `mvn -Pfast clean install`                                                                                        |
+| `compare-reproducible` | compare a build against local install         | `mvn -Dbasepom.test.skip=true -Djdbi.check.skip-japicmp=true clean verify artifact:compare`                       |
+| `tests`                | install and run tests                         | combination of `install-notests` and `run-tests`                                                                  |
+| `docs`                 | build jdbi docs                               | `mvn -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false clean install`                                            |
+| `run-tests`            | run unit and integration tests                | `mvn -Dbasepom.it.skip=false surefire:test invoker:install invoker:integration-test invoker:verify`               |
+| `run-slow-tests`       | run testcontainer based tests                 | `mvn -Pslow-tests -Dbasepom.it.skip=false surefire:test invoker:install invoker:integration-test invoker:verify`  |
+| `run-tests-nodocker `  | run unit and integration tests without docker | `mvn -Dno-docker=true surefire:test invoker:install invoker:integration-test invoker:verify`                      |
 
 #### IntelliJ IDEA
 

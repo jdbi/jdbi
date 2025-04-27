@@ -1,6 +1,8 @@
-# Unreleased
+# 3.49.2
 
 - Fix returning `long` update count from update statements (#2778)
+- Fix JFR usage on GraalVM (#2736)
+- Fix SBOM creation
 
 # 3.49.1
 
