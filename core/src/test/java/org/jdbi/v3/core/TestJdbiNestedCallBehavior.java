@@ -34,7 +34,7 @@ import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMM
 public class TestJdbiNestedCallBehavior {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething().withPlugin(new TestPlugin());
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER).withPlugin(new TestPlugin());
 
     static class TestPlugin implements JdbiPlugin {
 

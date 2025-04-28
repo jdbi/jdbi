@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.tuple;
 public class TestPreparedBatch {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
 
     @Test
     public void emptyBatch() {

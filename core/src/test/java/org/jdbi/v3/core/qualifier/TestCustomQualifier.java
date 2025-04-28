@@ -40,7 +40,7 @@ import static org.jdbi.v3.core.qualifier.Reverser.reverse;
 public class TestCustomQualifier {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
 
     @Test
     public void registerArgumentFactory() {
