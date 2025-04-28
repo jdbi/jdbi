@@ -32,6 +32,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.locator.ClasspathSqlLocator;
 import org.jdbi.v3.core.result.NoResultsException;
 import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
@@ -44,7 +45,6 @@ import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
-import static org.jdbi.v3.core.locator.ClasspathSqlLocator.findSqlOnClasspath;
 
 public class TestQueries {
 
@@ -336,7 +336,7 @@ public class TestQueries {
     public void testFetchSize() {
         try (Handle h = h2Extension.getSharedHandle()) {
 
-            try (Script script = h.createScript(findSqlOnClasspath("default-data"))) {
+            try (Script script = h.createScript(ClasspathSqlLocator.create().locate("default-data"))) {
                 script.execute();
             }
 
