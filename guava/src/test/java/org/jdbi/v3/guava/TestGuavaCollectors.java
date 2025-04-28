@@ -70,23 +70,23 @@ public class TestGuavaCollectors {
 
     @Test
     public void immutableList() {
-        ImmutableList<Integer> list = h2Extension.getSharedHandle().createQuery("select intValue from something")
+        var list = h2Extension.getSharedHandle().createQuery("select intValue from something")
             .collectInto(new GenericType<ImmutableList<Integer>>() {});
 
-        assertThat(list).containsOnlyElementsOf(expected);
+        assertThat(list).hasSameElementsAs(expected);
     }
 
     @Test
     public void immutableSet() {
-        ImmutableSet<Integer> set = h2Extension.getSharedHandle().createQuery("select intValue from something")
+        var set = h2Extension.getSharedHandle().createQuery("select intValue from something")
             .collectInto(new GenericType<ImmutableSet<Integer>>() {});
 
-        assertThat(set).containsOnlyElementsOf(expected);
+        assertThat(set).hasSameElementsAs(expected);
     }
 
     @Test
     public void immutableSortedSet() {
-        ImmutableSortedSet<Integer> set = h2Extension.getSharedHandle().createQuery("select intValue from something")
+        var set = h2Extension.getSharedHandle().createQuery("select intValue from something")
             .collectInto(new GenericType<ImmutableSortedSet<Integer>>() {});
 
         assertThat(set).containsExactlyElementsOf(expected);
@@ -106,14 +106,14 @@ public class TestGuavaCollectors {
 
     @Test
     public void optionalPresent() {
-        Optional<Integer> shouldBePresent = h2Extension.getSharedHandle().createQuery("select intValue from something where intValue = 1")
+        var shouldBePresent = h2Extension.getSharedHandle().createQuery("select intValue from something where intValue = 1")
             .collectInto(new GenericType<Optional<Integer>>() {});
         assertThat(shouldBePresent).contains(1);
     }
 
     @Test
     public void optionalAbsent() {
-        Optional<Integer> shouldBeAbsent = h2Extension.getSharedHandle().createQuery("select intValue from something where intValue = 100")
+        var shouldBeAbsent = h2Extension.getSharedHandle().createQuery("select intValue from something where intValue = 100")
             .collectInto(new GenericType<Optional<Integer>>() {});
         assertThat(shouldBeAbsent).isAbsent();
     }

@@ -62,21 +62,21 @@ public class TestVavrTupleMapperWithDB {
     @Test
     public void testTuple1CollectorWithSingleSelectShouldSucceed() {
         List<Tuple1<String>> expectedTuples = expected.map(i -> new Tuple1<>("t2" + i));
-        List<Tuple1<String>> tupleProjection = h2Extension.getSharedHandle()
+        var tupleProjection = h2Extension.getSharedHandle()
             .createQuery("select t2 from tuples")
             .collectInto(new GenericType<List<Tuple1<String>>>() {});
 
-        assertThat(tupleProjection).containsOnlyElementsOf(expectedTuples);
+        assertThat(tupleProjection).hasSameElementsAs(expectedTuples);
     }
 
     @Test
     public void testTuple1CollectorWithMultiSelectShouldSucceed() {
         List<Tuple1<Integer>> firstColumnTuples = expected.map(Tuple1::new);
-        List<Tuple1<Integer>> tupleProjection = h2Extension.getSharedHandle()
+        var tupleProjection = h2Extension.getSharedHandle()
             .createQuery("select * from tuples")
             .collectInto(new GenericType<List<Tuple1<Integer>>>() {});
 
-        assertThat(tupleProjection).containsOnlyElementsOf(firstColumnTuples);
+        assertThat(tupleProjection).hasSameElementsAs(firstColumnTuples);
     }
 
     @Test
@@ -94,17 +94,17 @@ public class TestVavrTupleMapperWithDB {
             .createQuery("select t1, t2 from tuples")
             .mapTo(new GenericType<Tuple2<Integer, String>>() {}).list();
 
-        assertThat(tupleProjection).containsOnlyElementsOf(expectedTuples);
+        assertThat(tupleProjection).hasSameElementsAs(expectedTuples);
     }
 
     @Test
     public void testTuple3CollectorWithSelectedKeyValueShouldSucceed() {
         List<Tuple3<Integer, String, String>> expectedTuples = expected.map(i -> new Tuple3<>(i, "t2" + i, "t3" + (i + 1)));
-        List<Tuple3<Integer, String, String>> tupleProjection = h2Extension.getSharedHandle()
+        var tupleProjection = h2Extension.getSharedHandle()
             .createQuery("select t1, t2, t3 from tuples")
             .collectInto(new GenericType<List<Tuple3<Integer, String, String>>>() {});
 
-        assertThat(tupleProjection).containsOnlyElementsOf(expectedTuples);
+        assertThat(tupleProjection).hasSameElementsAs(expectedTuples);
     }
 
 }

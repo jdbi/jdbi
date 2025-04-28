@@ -68,7 +68,7 @@ public class TestVavrMapCollectorWithDB {
         Boolean executed = jdbiWithKeyColAndValCol.withHandle(h -> {
             Map<String, String> valueMap = h.createQuery("select val_c, key_c from keyval")
                 .collectInto(new GenericType<Map<String, String>>() {});
-            assertThat(valueMap).containsOnlyElementsOf(expectedMap);
+            assertThat(valueMap).hasSameElementsAs(expectedMap);
             return true;
         });
 
@@ -82,17 +82,17 @@ public class TestVavrMapCollectorWithDB {
             .createQuery("select val_c, key_c from keyval")
             .collectInto(new GenericType<Map<String, String>>() {});
 
-        assertThat(valueMap).containsOnlyElementsOf(expectedMap);
+        assertThat(valueMap).hasSameElementsAs(expectedMap);
     }
 
     @Test
     public void testMapCollectorWithCorrespondingTupleColsShouldSucceed() {
-        Map<String, String> valueMap = h2Extension.getSharedHandle()
+        var valueMap = h2Extension.getSharedHandle()
             .configure(TupleMappers.class, c -> c.setColumn(1, "key_c").setColumn(2, "val_c"))
             .createQuery("select val_c, key_c from keyval")
             .collectInto(new GenericType<Map<String, String>>() {});
 
-        assertThat(valueMap).containsOnlyElementsOf(expectedMap);
+        assertThat(valueMap).hasSameElementsAs(expectedMap);
     }
 
     @Test
@@ -133,6 +133,7 @@ public class TestVavrMapCollectorWithDB {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testNonUniqueIndexWithMultimap() {
         Handle h = h2Extension.getSharedHandle();
         h.execute("create table \"user\" (id int, name varchar)");

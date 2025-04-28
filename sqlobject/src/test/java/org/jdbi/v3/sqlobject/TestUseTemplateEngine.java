@@ -53,6 +53,7 @@ public class TestUseTemplateEngine {
         assertThat(selected).isEqualTo("foo");
     }
 
+    @SuppressWarnings("deprecation")
     public interface QueriesForMessageFormatTE {
         @UseTemplateEngine(MessageFormatTemplateEngine.class)
         @SqlQuery("select * from (values(''{0}''))")

@@ -970,6 +970,14 @@
                             </compilerArgs>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <configuration>
+                            <compilerArgs combine.children="append">
+                                <arg>-Xlint:deprecation</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

@@ -20,6 +20,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jdbi.v3.core.async.JdbiExecutor;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -71,7 +72,7 @@ public class AsyncTest {
 
         assertThat(futureResult)
             .succeedsWithin(Duration.ofSeconds(10))
-            .asList()
+            .asInstanceOf(InstanceOfAssertFactories.LIST)
             .contains("Alice");
         // end::withHandle[]
     }
