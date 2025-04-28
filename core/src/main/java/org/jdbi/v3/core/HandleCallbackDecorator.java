@@ -20,6 +20,7 @@ import org.jdbi.v3.meta.Alpha;
  * {@link Jdbi#inTransaction(HandleCallback)} and {@link Jdbi#useTransaction(HandleConsumer)}.
  */
 @Alpha
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface HandleCallbackDecorator {
     HandleCallbackDecorator STANDARD_HANDLE_CALLBACK_DECORATOR = new HandleCallbackDecorator() {
         @Override

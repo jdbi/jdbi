@@ -21,6 +21,7 @@ import org.jdbi.v3.meta.Alpha;
  * @param <T> Type of the transformation result.
  */
 @Alpha
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface JdbiInterceptionChain<T> {
 
     /**

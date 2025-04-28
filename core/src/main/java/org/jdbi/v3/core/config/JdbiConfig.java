@@ -22,6 +22,7 @@ package org.jdbi.v3.core.config;
  *
  * @param <This> A "This" type. Should always be the configuration class.
  */
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface JdbiConfig<This extends JdbiConfig<This>> {
     /**
      * Returns a copy of this configuration object.

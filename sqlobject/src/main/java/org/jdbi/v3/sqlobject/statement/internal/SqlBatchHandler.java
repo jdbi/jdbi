@@ -379,6 +379,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                 + method.getReturnType();
     }
 
+    @SuppressWarnings("PMD.ImplicitFunctionalInterface")
     private interface ChunkSizeFunction {
         int call(Object[] args);
     }

@@ -28,6 +28,7 @@ import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ModifiablePojoPropertiesFactory extends PojoPropertiesFactory {
     ConfigCache<ModifiableSpec<?, ?>, ModifiablePojoProperties<?, ?>> MODIFIABLE_CACHE =
             ConfigCaches.declare(s -> s.type, ModifiablePojoProperties::new);

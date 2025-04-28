@@ -49,6 +49,7 @@ public interface ArgumentFactory {
      * ArgumentFactory extension interface that allows preparing arguments for efficient batch binding.
      */
     @Beta
+    @SuppressWarnings("PMD.ImplicitFunctionalInterface")
     interface Preparable extends ArgumentFactory {
         @Override
         default Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
