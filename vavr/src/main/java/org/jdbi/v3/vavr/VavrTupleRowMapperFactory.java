@@ -172,6 +172,7 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
                 .getColumn(tupleIndex));
     }
 
+    @FunctionalInterface
     private interface MapperValueResolver extends CheckedFunction1<Integer, Object> {
         /**
          * @param tupleIndex the 1-based tuple index

@@ -83,6 +83,7 @@ public class SqlScriptParser {
         return sb.toString();
     }
 
+    @FunctionalInterface
     public interface TokenHandler {
         void handle(Token t, StringBuilder sb);
     }

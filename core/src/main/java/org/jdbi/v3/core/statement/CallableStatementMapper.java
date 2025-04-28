@@ -19,6 +19,7 @@ import java.sql.SQLException;
 /**
  * Map an {@code OUT} parameter in a callable statement to a result type.
  */
+@FunctionalInterface
 public interface CallableStatementMapper {
     Object map(int position, CallableStatement stmt) throws SQLException;
 }

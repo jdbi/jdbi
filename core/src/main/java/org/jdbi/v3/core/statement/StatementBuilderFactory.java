@@ -20,6 +20,7 @@ import java.sql.Connection;
  * whenever the Jdbi instance is used to create a Handle the factory will be used to create a
  * StatementBuilder for that specific handle.
  */
+@FunctionalInterface
 public interface StatementBuilderFactory {
     /**
      * Creates a new {@link StatementBuilder} from a {@link Connection} object.

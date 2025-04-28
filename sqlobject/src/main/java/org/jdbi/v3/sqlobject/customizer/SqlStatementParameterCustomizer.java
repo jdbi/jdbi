@@ -21,6 +21,7 @@ import org.jdbi.v3.core.statement.SqlStatement;
 /**
  * Customize a {@link SqlStatement} according to the value of an annotated parameter.
  */
+@FunctionalInterface
 public interface SqlStatementParameterCustomizer {
 
     /**

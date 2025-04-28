@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 
+@FunctionalInterface
 public interface PojoPropertiesFactory {
     PojoProperties<?> create(Type type, ConfigRegistry config);
 }

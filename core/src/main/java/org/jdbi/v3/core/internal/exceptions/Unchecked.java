@@ -100,11 +100,13 @@ public class Unchecked {
         };
     }
 
+    @FunctionalInterface
     public interface SneakyCallable<T> extends Callable<T> {
         @Override
         T call(); // no 'throws Exception'
     }
 
+    @FunctionalInterface
     public interface CheckedRunnable {
         void run() throws Exception;
     }
