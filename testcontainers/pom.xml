@@ -33,14 +33,13 @@
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
         <dep.clickhouse.version>0.9.0</dep.clickhouse.version>
-        <dep.clickhouse.version>0.6.0</dep.clickhouse.version>
         <dep.db2.version>12.1.2.0</dep.db2.version>
         <dep.trino.version>476</dep.trino.version>
         <dep.yugabyte.version>42.7.3-yb-4</dep.yugabyte.version>
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
     </properties>
 
-    <!-- we need tons of additional JDBC drivers in this one module. So we keep them all here. -->
+    <!-- We need tons of additional JDBC drivers in this one module. So we keep them all here. -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -120,12 +119,17 @@
 
         <!-- test deps -->
 
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JDBC drivers -->
 
         <dependency>
             <groupId>com.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
-            <classifier>all</classifier>
             <scope>test</scope>
         </dependency>
 
@@ -238,4 +242,63 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
+                <configuration>
+                    <exceptions combine.children="append">
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.clickhouse</groupId>
+                                    <artifactId>clickhouse-client</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.clickhouse</groupId>
+                                    <artifactId>clickhouse-data</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.clickhouse</groupId>
+                                    <artifactId>clickhouse-http-client</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.clickhouse</groupId>
+                                    <artifactId>clickhouse-jdbc</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.clickhouse</groupId>
+                                    <artifactId>client-v2</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.clickhouse</groupId>
+                                    <artifactId>jdbc-v2</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <packages>
+                                <package>com.clickhouse</package>
+                            </packages>
+                        </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.ibm.db2</groupId>
+                                    <artifactId>jcc</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.lz4</groupId>
+                                    <artifactId>lz4-java</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <packages>
+                                <package>net.jpountz</package>
+                            </packages>
+                        </exception>
+                    </exceptions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

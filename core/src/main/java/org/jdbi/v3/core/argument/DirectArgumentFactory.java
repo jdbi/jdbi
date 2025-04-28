@@ -21,8 +21,8 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 public class DirectArgumentFactory implements ArgumentFactory {
     @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        return value instanceof Argument
-                ? Optional.of((Argument) value)
+        return value instanceof Argument argument
+                ? Optional.of(argument)
                 : Optional.empty();
     }
 }

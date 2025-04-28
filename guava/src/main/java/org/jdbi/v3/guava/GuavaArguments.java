@@ -51,8 +51,8 @@ public class GuavaArguments {
 
         @Override
         public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-            if (value instanceof com.google.common.base.Optional) {
-                Object nestedValue = ((com.google.common.base.Optional<?>) value).orNull();
+            if (value instanceof com.google.common.base.Optional<?> maybeValue) {
+                Object nestedValue = maybeValue.orNull();
                 Type nestedType = findOptionalType(expectedType, nestedValue);
                 return config.get(Arguments.class).findFor(nestedType, nestedValue);
             }

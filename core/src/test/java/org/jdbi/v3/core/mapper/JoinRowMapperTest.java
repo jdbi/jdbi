@@ -127,8 +127,7 @@ public class JoinRowMapperTest {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof User) {
-                User that = (User) obj;
+            if (obj instanceof User that) {
                 return uid == that.uid && Objects.equals(name, that.name);
             }
             return false;
@@ -151,8 +150,7 @@ public class JoinRowMapperTest {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Article) {
-                Article that = (Article) obj;
+            if (obj instanceof Article that) {
                 return aid == that.aid && Objects.equals(title, that.title);
             }
             return false;

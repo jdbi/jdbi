@@ -42,10 +42,9 @@ public class DurationColumnMapperFactory implements ColumnMapperFactory {
             if (obj == null) {
                 return null;
             }
-            if (!(obj instanceof PGInterval)) {
+            if (!(obj instanceof PGInterval interval)) {
                 throw new IllegalArgumentException(String.format("got non-pginterval %s", obj));
             }
-            final PGInterval interval = (PGInterval) obj;
             if (interval.getYears() != 0 || interval.getMonths() != 0) {
                 throw new IllegalArgumentException(
                         String.format("pginterval \"%s\" not representable as duration", interval.getValue()));

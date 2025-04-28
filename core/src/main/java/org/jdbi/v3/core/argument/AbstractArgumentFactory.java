@@ -66,8 +66,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
                 .orElseThrow(() -> new IllegalStateException(getClass().getSimpleName()
                         + " must extend AbstractArgumentFactory with a concrete T parameter"));
 
-        if (argumentType instanceof Class) {
-            Class<?> argumentClass = (Class<?>) argumentType;
+        if (argumentType instanceof Class<?> argumentClass) {
             this.isInstance = (type, value) ->
                     argumentClass.isAssignableFrom(getErasedType(type)) || argumentClass.isInstance(value);
         } else {

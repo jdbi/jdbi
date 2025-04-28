@@ -292,10 +292,9 @@ public class TestOptional {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof Name)) {
+            if (!(obj instanceof Name that)) {
                 return false;
             }
-            Name that = (Name) obj;
             return this.value.equals(that.value);
         }
     }

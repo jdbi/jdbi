@@ -58,7 +58,7 @@
         <dep.detekt.version>1.23.8</dep.detekt.version>
         <dep.errorprone.version>2.39.0</dep.errorprone.version>
         <!-- last flyway version to support java 11 -->
-        <dep.flyway.version>9.22.3</dep.flyway.version>
+        <dep.flyway.version>11.8.0</dep.flyway.version>
         <dep.freemarker.version>2.3.34</dep.freemarker.version>
         <dep.geantyref.version>2.0.1</dep.geantyref.version>
         <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
@@ -129,7 +129,7 @@
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>2.1</kotlin.compiler.languageVersion>
         <no-docker>false</no-docker>
-        <project.build.targetJdk>11</project.build.targetJdk>
+        <project.build.targetJdk>17</project.build.targetJdk>
     </properties>
 
     <dependencyManagement>
@@ -295,6 +295,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
+                <version>${dep.flyway.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-database-postgresql</artifactId>
                 <version>${dep.flyway.version}</version>
             </dependency>
 
@@ -1075,9 +1081,9 @@
                                     <searchTransitive>false</searchTransitive>
                                 </bannedDependencies>
 
-                                <!--  we now require java 17 for building -->
+                                <!--  we now require the current LTS for building -->
                                 <requireJavaVersion>
-                                    <version>[17,)</version>
+                                    <version>[21,)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.java21.telemetry;
+package org.jdbi.v3.opentelemetry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,10 +27,10 @@ import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
 import jdk.jfr.consumer.RecordedEvent;
+import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.JdbiStatementEvent;
 import org.jdbi.v3.core.statement.SqlStatements;
-import org.jdbi.v3.opentelemetry.JdbiOpenTelemetryPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,7 +106,7 @@ public class TestTelemetry {
             final var span = otelSdk.getTracer("test")
                 .spanBuilder("testSpan")
                 .startSpan();
-            assertThat(span.getSpanContext().isValid()).isTrue();
+            Assertions.assertThat(span.getSpanContext().isValid()).isTrue();
 
             final var traceId = span.getSpanContext().getTraceId();
             final var create = "create table something(id identity primary key, name varchar(50))";
@@ -119,7 +119,7 @@ public class TestTelemetry {
                 h.execute(create);
                 insertSomething(h, insert, 1, "Zebra");
                 insertSomething(h, insert, 2, "Bananas");
-                assertThat(h.createQuery(select)
+                Assertions.assertThat(h.createQuery(select)
                     .mapToMap()
                     .list())
                     .hasSize(2);

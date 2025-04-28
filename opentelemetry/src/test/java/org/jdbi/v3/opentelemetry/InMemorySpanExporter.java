@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.java21.telemetry;
+package org.jdbi.v3.opentelemetry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,9 +23,6 @@ import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 
-import static io.opentelemetry.sdk.common.CompletableResultCode.ofFailure;
-import static io.opentelemetry.sdk.common.CompletableResultCode.ofSuccess;
-
 final class InMemorySpanExporter implements SpanExporter {
     private final List<SpanData> exported = new ArrayList<>();
     private boolean shutdown;
@@ -33,21 +30,21 @@ final class InMemorySpanExporter implements SpanExporter {
     @Override
     public synchronized CompletableResultCode export(final Collection<SpanData> spans) {
         if (shutdown) {
-            return ofFailure();
+            return CompletableResultCode.ofFailure();
         }
         exported.addAll(spans);
-        return ofSuccess();
+        return CompletableResultCode.ofSuccess();
     }
 
     @Override
     public CompletableResultCode flush() {
-        return ofSuccess();
+        return CompletableResultCode.ofSuccess();
     }
 
     @Override
     public synchronized CompletableResultCode shutdown() {
         shutdown = true;
-        return ofSuccess();
+        return CompletableResultCode.ofSuccess();
     }
 
     public void clearExported() {

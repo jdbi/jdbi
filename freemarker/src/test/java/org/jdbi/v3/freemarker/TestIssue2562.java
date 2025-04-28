@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.e2e;
+package org.jdbi.v3.freemarker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +20,6 @@ import java.util.StringJoiner;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.freemarker.UseFreemarkerEngine;
-import org.jdbi.v3.freemarker.UseFreemarkerSqlLocator;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
