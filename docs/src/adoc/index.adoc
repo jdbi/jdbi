@@ -64,6 +64,7 @@ This is the documentation for the current development state of Jdbi. All informa
 
 === Release documentation
 
+* https://jdbi.org/releases/3.49.3[Release 3.49.3 - 2025-05-01^]
 * https://jdbi.org/releases/3.49.2[Release 3.49.2 - 2025-04-27^]
 * https://jdbi.org/releases/3.49.1[Release 3.49.1 - 2025-04-22^]
 * https://jdbi.org/releases/3.49.0[Release 3.49.0 - 2025-03-26^]

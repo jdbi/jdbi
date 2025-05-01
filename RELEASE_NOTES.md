@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.49.3
+
 - Only use JFR if the flight recorder was registered (#2736)
 
 # 3.49.2
