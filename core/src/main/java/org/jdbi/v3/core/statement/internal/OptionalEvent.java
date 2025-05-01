@@ -14,6 +14,12 @@
 package org.jdbi.v3.core.statement.internal;
 
 public interface OptionalEvent {
+    /**
+     * @see jdk.jfr.Event#begin()
+     */
     void begin();
+    /**
+     * @see jdk.jfr.Event#shouldCommit()
+     */
     boolean shouldCommit();
 }

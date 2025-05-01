@@ -53,7 +53,7 @@ public final class JfrSupport {
     }
 
     public static OptionalEvent newStatementEvent() {
-        if (isJfrAvailable()) {
+        if (isFlightRecorderAvailable()) {
             return Holder.newEvent();
         } else {
             return new NoStatementEvent();

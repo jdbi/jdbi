@@ -1,3 +1,7 @@
+# Unreleased
+
+- Only use JFR if the flight recorder was registered (#2736)
+
 # 3.49.2
 
 - Fix returning `long` update count from update statements (#2778)
