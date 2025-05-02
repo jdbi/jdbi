@@ -960,6 +960,24 @@
                         <arguments>-Dno-docker=${no-docker}</arguments>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>${dep.plugin.native.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <metadataRepository>
+                            <enabled>true</enabled>
+                        </metadataRepository>
+                        <agent>
+                            <enabled>true</enabled>
+                            <!-- XXX Temporary -->
+                            <options>
+                                <enableExperimentalPredefinedClasses>true</enableExperimentalPredefinedClasses>
+                            </options>
+                        </agent>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -1366,42 +1384,20 @@
                 </file>
             </activation>
             <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.graalvm.buildtools</groupId>
-                            <artifactId>native-maven-plugin</artifactId>
-                            <version>${dep.plugin.native.version}</version>
-                            <extensions>true</extensions>
-                            <configuration>
-                                <metadataRepository>
-                                    <enabled>true</enabled>
-                                </metadataRepository>
-                                <agent>
-                                    <enabled>true</enabled>
-                                    <!-- XXX Temporary -->
-                                    <options>
-                                        <enableExperimentalPredefinedClasses>true</enableExperimentalPredefinedClasses>
-                                    </options>
-                                </agent>
-                            </configuration>
-                            <executions>
-                                <execution>
-                                    <id>test-native</id>
-                                    <goals>
-                                        <goal>test</goal>
-                                    </goals>
-                                    <phase>test</phase>
-                                </execution>
-                            </executions>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
                 <plugins>
                     <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
                         <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>test-native</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <phase>test</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
