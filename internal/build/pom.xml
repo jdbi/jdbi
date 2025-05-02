@@ -979,6 +979,9 @@
                                 <enableExperimentalPredefinedClasses>true</enableExperimentalPredefinedClasses>
                             </options>
                         </agent>
+                        <buildArgs>
+                            <buildArg>--trace-class-initialization=org.junit.platform.launcher.core.DiscoveryIssueNotifier,org.junit.platform.launcher.core.HierarchicalOutputDirectoryProvider,org.junit.platform.engine.support.store.NamespacedHierarchicalStore$EvaluatedValue</buildArg>
+                        </buildArgs>
                     </configuration>
                 </plugin>
             </plugins>
