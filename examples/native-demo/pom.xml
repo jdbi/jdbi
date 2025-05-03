@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+~   Licensed under the Apache License, Version 2.0 (the "License");
+~   you may not use this file except in compliance with the License.
+~   You may obtain a copy of the License at
+~
+~   http://www.apache.org/licenses/LICENSE-2.0
+~
+~   Unless required by applicable law or agreed to in writing, software
+~   distributed under the License is distributed on an "AS IS" BASIS,
+~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~   See the License for the specific language governing permissions and
+~   limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.basepom</groupId>
+        <artifactId>basepom-oss</artifactId>
+        <version>62</version>
+    </parent>
+
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-graalvm-demo</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>jdbi3-graalvm-demo</name>
+    <description>Demo code for using Jdbi 3 with GraalVM and native compilation</description>
+
+    <url>https://jdbi.org/</url>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>jdbi</id>
+            <name>The Jdbi Team</name>
+            <url>https://github.com/jdbi/jdbi/blob/master/CONTRIBUTORS.md</url>
+        </developer>
+    </developers>
+
+    <properties>
+        <basepom.check.fail-all>true</basepom.check.fail-all>
+        <dep.h2.version>2.3.232</dep.h2.version>
+        <dep.jdbi3.version>3.49.3</dep.jdbi3.version>
+        <dep.slf4j.version>2.0.17</dep.slf4j.version>
+        <dep.plugin.native.version>0.10.6</dep.plugin.native.version>
+        <jdbi.skip-native>false</jdbi.skip-native>
+        <project.build.targetJdk>21</project.build.targetJdk>
+        <basepom.main-class>org.jdbi.nativedemo.NativeMain</basepom.main-class>
+        <basepom.executable.name>jdbi3-graalvm-jit-executable</basepom.executable.name>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-bom</artifactId>
+                <version>${dep.jdbi3.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${dep.h2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${dep.slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${dep.slf4j.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <defaultGoal>clean verify</defaultGoal>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <proc>full</proc>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>${dep.plugin.native.version}</version>
+                    <configuration>
+                        <mainClass>org.jdbi.nativedemo.NativeMain</mainClass>
+                        <imageName>jdbi3-graalvm-aot-executable</imageName>
+                        <buildArgs>
+                            <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                        </buildArgs>
+                        <metadataRepository>
+                            <enabled>true</enabled>
+                        </metadataRepository>
+                        <agent>
+                            <enabled>true</enabled>
+                            <options>
+                                <enableExperimentalPredefinedClasses>true</enableExperimentalPredefinedClasses>
+                            </options>
+                        </agent>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>native</id>
+                        <goals>
+                            <goal>add-reachability-metadata</goal>
+                            <goal>compile-no-fork</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <mainClass>org.jdbi.nativedemo.NativeMain</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>flight-recorder</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <configuration>
+                            <buildArgs>
+                                <buildArg>--enable-monitoring=jfr</buildArg>
+                            </buildArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

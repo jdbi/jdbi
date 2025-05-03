@@ -1,0 +1,8 @@
+[
+  {
+    "interfaces":["org.jdbi.nativedemo.NativeMain$CreateDao"]
+  },
+  {
+    "interfaces":["org.jdbi.nativedemo.NativeMain$QueryDao"]
+  }
+]
