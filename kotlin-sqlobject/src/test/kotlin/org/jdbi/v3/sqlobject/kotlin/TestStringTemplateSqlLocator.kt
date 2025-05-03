@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.kotlin
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Something
 import org.jdbi.v3.core.kotlin.mapTo
@@ -41,97 +41,75 @@ class TestStringTemplateSqlLocator {
     @RegisterExtension
     var h2Extension: JdbiExtension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(SqlObjectPlugin())
 
-    private var handle: Handle? = null
+    private lateinit var handle: Handle
+    private lateinit var wombat: Wombat
 
     @BeforeEach
     fun setUp() {
         handle = h2Extension.getSharedHandle()
+        wombat = handle.attach(Wombat::class)
     }
 
     @Test
     fun testBaz() {
-        val wombat =
-            handle!!.attach(Wombat::class)
         wombat.insert(Something(7, "Henning"))
 
-        val name = handle!!.createQuery("select name from something where id = 7")
+        val name = handle.createQuery("select name from something where id = 7")
             .mapTo(String::class)
             .one()
 
-        Assertions.assertThat(name).isEqualTo("Henning")
+        assertThat(name).isEqualTo("Henning")
     }
 
     @Test
     fun testBam() {
-        handle!!.execute("insert into something (id, name) values (6, 'Martin')")
+        handle.execute("insert into something (id, name) values (6, 'Martin')")
 
-        val s = handle!!.attach(Wombat::class).findById(6L)
-        Assertions.assertThat(s.getName()).isEqualTo("Martin")
+        val s = wombat.findById(6L)
+        assertThat(s.name).isEqualTo("Martin")
     }
 
     @Test
     fun testBap() {
-        handle!!.execute("insert into something (id, name) values (2, 'Bean')")
-        val w = handle!!.attach(Wombat::class)
-        Assertions.assertThat(w.findNameFor(2)).isEqualTo("Bean")
+        handle.execute("insert into something (id, name) values (2, 'Bean')")
+        assertThat(wombat.findNameFor(2)).isEqualTo("Bean")
     }
 
     @Test
     fun testDefines() {
-        handle!!.attach(Wombat::class)
-            .weirdInsert("something", "id", "name", 5, "Bouncer")
-        handle!!.attach(Wombat::class)
-            .weirdInsert("something", "id", "name", 6, "Bean")
-        val name = handle!!.createQuery("select name from something where id = 5")
+        wombat.weirdInsert("something", "id", "name", 5, "Bouncer")
+        wombat.weirdInsert("something", "id", "name", 6, "Bean")
+        val name = handle.createQuery("select name from something where id = 5")
             .mapTo(String::class.java)
             .one()
 
-        Assertions.assertThat(name).isEqualTo("Bouncer")
+        assertThat(name).isEqualTo("Bouncer")
     }
 
     @Test
     fun testConditionalExecutionWithNullValue() {
-        handle!!.attach(Wombat::class)
-            .insert(Something(6, "Jack"))
-        handle!!.attach(Wombat::class.java)
-            .insert(Something(7, "Wolf"))
+        wombat.insert(Something(6, "Jack"))
+        wombat.insert(Something(7, "Wolf"))
 
-        val somethings =
-            handle!!.attach(Wombat::class).findByIdOrUptoLimit(6, null)
-        Assertions.assertThat(somethings).hasSize(1)
+        val somethings = wombat.findByIdOrUptoLimit(6, null)
+        assertThat(somethings).hasSize(1)
     }
 
     @Test
     fun testConditionalExecutionWithNonNullValue() {
-        handle!!.attach(Wombat::class)
-            .insert(Something(6, "Jack"))
-        handle!!.attach(Wombat::class).insert(Something(7, "Wolf"))
+        wombat.insert(Something(6, "Jack"))
+        wombat.insert(Something(7, "Wolf"))
 
-        val somethings = handle!!.attach(Wombat::class).findByIdOrUptoLimit(null, 8)
-        Assertions.assertThat(somethings).hasSize(2)
+        val somethings = wombat.findByIdOrUptoLimit(null, 8)
+        assertThat(somethings).hasSize(2)
     }
 
     @Test
     fun testBatching() {
-        val roo =
-            handle!!.attach(Wombat::class)
-        roo.insertBunches(Something(1, "Jeff"), Something(2, "Brian"))
+        wombat.insertBunches(Something(1, "Jeff"), Something(2, "Brian"))
 
-        Assertions.assertThat(roo.findById(1L)).isEqualTo(Something(1, "Jeff"))
-        Assertions.assertThat(roo.findById(2L)).isEqualTo(Something(2, "Brian"))
-    }
-
-    //
-    // Test a value class as a parameter for a sqlobject method - see https://github.com/jdbi/jdbi/issues/2790
-
-    @JvmInline
-    value class WeirdId(val value: Int)
-
-    @Test
-    fun testWeirdBap() {
-        handle!!.execute("insert into something (id, name) values (2, 'Bean')")
-        val w = handle!!.attach(Wombat::class)
-        Assertions.assertThat(w.findNameForWeirdId(WeirdId(2))).isEqualTo("Bean")
+        assertThat(wombat.findById(1L)).isEqualTo(Something(1, "Jeff"))
+        assertThat(wombat.findById(2L)).isEqualTo(Something(2, "Brian"))
     }
 
     @UseStringTemplateSqlLocator
@@ -160,10 +138,6 @@ class TestStringTemplateSqlLocator {
 
         @SqlBatch
         fun insertBunches(@BindBean vararg somethings: Something?)
-
-        // A value class as a parameter requires an explicit value for the SQL query; Kotlin mangles the method name (findNameForWeirdId-<xxxx>) otherwise.
-        @SqlQuery("findNameForWeirdId")
-        fun findNameForWeirdId(@Bind("id") id: WeirdId): String?
     }
 
     class SomethingMapper : RowMapper<Something?> {

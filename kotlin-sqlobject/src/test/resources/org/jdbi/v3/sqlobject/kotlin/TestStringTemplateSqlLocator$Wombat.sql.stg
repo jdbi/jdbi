@@ -20,6 +20,7 @@ findById() ::= << select id, name from something where id = :id >>
 findByIdOrUptoLimit(idLimit) ::= << select id, name from something <if(idLimit)> where id \< :idLimit <else> where id = :id <endif> >>
 findNameFor() ::= << select name from something where id = :id >>
 findNameForWeirdId() ::= << select name from something where id = :id >>
+findByName(name) ::= << select id from something where name = :name >>
 weirdInsert(table, id_column, value_column) ::= <<
     insert into <table> (<id_column>, <value_column>) values (:id, :value)
 >>
