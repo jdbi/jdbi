@@ -43,20 +43,21 @@ public class TestStringTemplateSqlLocator {
     public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
+    private Wombat wombat;
 
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
+        wombat = handle.attach(Wombat.class);
     }
 
     @Test
     public void testBaz() {
-        Wombat wombat = handle.attach(Wombat.class);
         wombat.insert(new Something(7, "Henning"));
 
         String name = handle.createQuery("select name from something where id = 7")
-                            .mapTo(String.class)
-                            .one();
+                .mapTo(String.class)
+                .one();
 
         assertThat(name).isEqualTo("Henning");
     }
@@ -65,53 +66,51 @@ public class TestStringTemplateSqlLocator {
     public void testBam() {
         handle.execute("insert into something (id, name) values (6, 'Martin')");
 
-        Something s = handle.attach(Wombat.class).findById(6L);
+        Something s = wombat.findById(6L);
         assertThat(s.getName()).isEqualTo("Martin");
     }
 
     @Test
     public void testBap() {
         handle.execute("insert into something (id, name) values (2, 'Bean')");
-        Wombat w = handle.attach(Wombat.class);
-        assertThat(w.findNameFor(2)).isEqualTo("Bean");
+        assertThat(wombat.findNameFor(2)).isEqualTo("Bean");
     }
 
     @Test
     public void testDefines() {
-        handle.attach(Wombat.class).weirdInsert("something", "id", "name", 5, "Bouncer");
-        handle.attach(Wombat.class).weirdInsert("something", "id", "name", 6, "Bean");
+        wombat.weirdInsert("something", "id", "name", 5, "Bouncer");
+        wombat.weirdInsert("something", "id", "name", 6, "Bean");
         String name = handle.createQuery("select name from something where id = 5")
-                            .mapTo(String.class)
-                            .one();
+                .mapTo(String.class)
+                .one();
 
         assertThat(name).isEqualTo("Bouncer");
     }
 
     @Test
     public void testConditionalExecutionWithNullValue() {
-        handle.attach(Wombat.class).insert(new Something(6, "Jack"));
-        handle.attach(Wombat.class).insert(new Something(7, "Wolf"));
+        wombat.insert(new Something(6, "Jack"));
+        wombat.insert(new Something(7, "Wolf"));
 
-        List<Something> somethings = handle.attach(Wombat.class).findByIdOrUptoLimit(6, null);
+        List<Something> somethings = wombat.findByIdOrUptoLimit(6, null);
         assertThat(somethings).hasSize(1);
     }
 
     @Test
     public void testConditionalExecutionWithNonNullValue() {
-        handle.attach(Wombat.class).insert(new Something(6, "Jack"));
-        handle.attach(Wombat.class).insert(new Something(7, "Wolf"));
+        wombat.insert(new Something(6, "Jack"));
+        wombat.insert(new Something(7, "Wolf"));
 
-        List<Something> somethings = handle.attach(Wombat.class).findByIdOrUptoLimit(null, 8);
+        List<Something> somethings = wombat.findByIdOrUptoLimit(null, 8);
         assertThat(somethings).hasSize(2);
     }
 
     @Test
     public void testBatching() {
-        Wombat roo = handle.attach(Wombat.class);
-        roo.insertBunches(new Something(1, "Jeff"), new Something(2, "Brian"));
+        wombat.insertBunches(new Something(1, "Jeff"), new Something(2, "Brian"));
 
-        assertThat(roo.findById(1L)).isEqualTo(new Something(1, "Jeff"));
-        assertThat(roo.findById(2L)).isEqualTo(new Something(2, "Brian"));
+        assertThat(wombat.findById(1L)).isEqualTo(new Something(1, "Jeff"));
+        assertThat(wombat.findById(2L)).isEqualTo(new Something(2, "Brian"));
     }
 
     @UseStringTemplateSqlLocator
@@ -131,10 +130,10 @@ public class TestStringTemplateSqlLocator {
 
         @SqlUpdate
         void weirdInsert(@Define("table") String table,
-                         @Define("id_column") String idColumn,
-                         @Define("value_column") String valueColumn,
-                         @Bind("id") int id,
-                         @Bind("value") String name);
+                @Define("id_column") String idColumn,
+                @Define("value_column") String valueColumn,
+                @Bind("id") int id,
+                @Bind("value") String name);
 
         @SqlBatch
         void insertBunches(@BindBean Something... somethings);
