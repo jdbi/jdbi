@@ -79,7 +79,7 @@ public class TestVavrCollectorFactoryWithDB {
     private <T extends Iterable<Integer>> void testType(GenericType<T> containerType) {
         T values = h2Extension.getSharedHandle().createQuery("select intValue from something")
             .collectInto(containerType);
-        assertThat(values).containsOnlyElementsOf(expected);
+        assertThat(values).hasSameElementsAs(expected);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class TestVavrCollectorFactoryWithDB {
     private <T extends Traversable<Tuple2<Integer, String>>> void testMapType(GenericType<T> containerType) {
         T values = h2Extension.getSharedHandle().createQuery("select intValue, name from something")
             .collectInto(containerType);
-        assertThat(values).containsOnlyElementsOf(expectedMap);
+        assertThat(values).hasSameElementsAs(expectedMap);
     }
 
     @Test
@@ -118,6 +118,7 @@ public class TestVavrCollectorFactoryWithDB {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testMultimapValuesAddAnotherDataSetShouldHave2ValuesForEachKey() {
         final int offset = 10;
         for (Integer i : expected) {
@@ -129,6 +130,6 @@ public class TestVavrCollectorFactoryWithDB {
 
         assertThat(result).hasSize(expected.size() * 2);
         expected.forEach(i -> assertThat(result.apply(i))
-                .containsOnlyElementsOf(List.of(i + "asString", (i + 10) + "asString")));
+                .hasSameElementsAs(List.of(i + "asString", (i + 10) + "asString")));
     }
 }

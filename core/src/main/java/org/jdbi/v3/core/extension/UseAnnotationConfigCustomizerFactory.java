@@ -70,6 +70,7 @@ final class UseAnnotationConfigCustomizerFactory implements ConfigCustomizerFact
                 .collect(Collectors.toList());
     }
 
+    @FunctionalInterface
     private interface ConfigurerMethod {
 
         void configure(ExtensionConfigurer configurer, ConfigRegistry config, Annotation annotation);

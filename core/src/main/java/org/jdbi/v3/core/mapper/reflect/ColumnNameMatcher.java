@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper.reflect;
 /**
  * Strategy for matching SQL column names to Java property, field, or parameter names.
  */
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ColumnNameMatcher {
     /**
      * Returns whether the column name fits the given Java identifier name.

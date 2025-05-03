@@ -21,6 +21,7 @@ import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.StatementException;
 import org.jdbi.v3.core.statement.StatementExceptions;
 import org.jdbi.v3.core.statement.StatementExceptions.MessageRendering;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -30,33 +31,40 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestClasspathSqlLocator {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
+
+    private ClasspathSqlLocator locator;
+
+    @BeforeEach
+    public void setUp() {
+        this.locator = ClasspathSqlLocator.removingComments();
+    }
 
     @Test
     public void testLocateNamed() {
         Handle h = h2Extension.getSharedHandle();
-        h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-keith"));
+        h.execute(locator.locate("insert-keith"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testCommentsInExternalSql() {
         Handle h = h2Extension.getSharedHandle();
-        h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-eric-with-comments"));
+        h.execute(locator.locate("insert-eric-with-comments"));
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testPositionalParamsInPrepared() {
         Handle h = h2Extension.getSharedHandle();
-        h.execute(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name-positional"), 3, "Tip");
+        h.execute(locator.locate("insert-id-name-positional"), 3, "Tip");
         assertThat(h.select("select name from something").mapTo(String.class).list()).hasSize(1);
     }
 
     @Test
     public void testNamedParamsInExternal() {
         Handle h = h2Extension.getSharedHandle();
-        h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
+        h.createUpdate(locator.locate("insert-id-name"))
                 .bind("id", 1)
                 .bind("name", "Tip")
                 .execute();
@@ -67,7 +75,7 @@ public class TestClasspathSqlLocator {
     public void testUsefulExceptionForBackTracing() {
         Handle h = h2Extension.getSharedHandle();
 
-        assertThatThrownBy(() -> h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
+        assertThatThrownBy(() -> h.createUpdate(locator.locate("insert-id-name"))
                 .bind("id", 1)
                 .execute())
             .isInstanceOf(StatementException.class)
@@ -80,7 +88,7 @@ public class TestClasspathSqlLocator {
         Handle h = h2Extension.getSharedHandle();
         h.getConfig(StatementExceptions.class).setMessageRendering(MessageRendering.DETAIL);
 
-        assertThatThrownBy(() -> h.createUpdate(ClasspathSqlLocator.findSqlOnClasspath("insert-id-name"))
+        assertThatThrownBy(() -> h.createUpdate(locator.locate("insert-id-name"))
                 .bind("id", 1)
                 .execute())
             .isInstanceOf(StatementException.class)
@@ -91,7 +99,7 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testNonExistentResource() {
-        assertThatThrownBy(() -> ClasspathSqlLocator.findSqlOnClasspath("this-does-not-exist"))
+        assertThatThrownBy(() -> locator.locate("this-does-not-exist"))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -108,10 +116,10 @@ public class TestClasspathSqlLocator {
             }
         });
 
-        ClasspathSqlLocator.findSqlOnClasspath("caches-result-after-first-lookup");
+        locator.locate("caches-result-after-first-lookup");
         assertThat(loadCount.get()).isOne();
 
-        ClasspathSqlLocator.findSqlOnClasspath("caches-result-after-first-lookup");
+        locator.locate("caches-result-after-first-lookup");
         assertThat(loadCount.get()).isOne(); // has not increased since previous
 
         Thread.currentThread().setContextClassLoader(classLoader);
@@ -119,13 +127,13 @@ public class TestClasspathSqlLocator {
 
     @Test
     public void testLocateByMethodName() {
-        assertThat(ClasspathSqlLocator.findSqlOnClasspath(getClass(), "testLocateByMethodName"))
+        assertThat(locator.locate(getClass(), "testLocateByMethodName"))
                 .contains("select 1");
     }
 
     @Test
     public void testSelectByExtensionMethodName() {
-        assertThat(ClasspathSqlLocator.findSqlOnClasspath(getClass(), "test-locate-by-custom-name"))
+        assertThat(locator.locate(getClass(), "test-locate-by-custom-name"))
                 .contains("select 1");
     }
 
@@ -133,7 +141,7 @@ public class TestClasspathSqlLocator {
     public void testColonInComment() {
         // Used to throw exception in SQL statement lexer
         // see https://github.com/jdbi/jdbi/issues/748
-        assertThat(ClasspathSqlLocator.findSqlOnClasspath(getClass(), "test-colon-in-comment"))
+        assertThat(locator.locate(getClass(), "test-colon-in-comment"))
             .contains("SELECT 1.007 AS column_name");
     }
 }

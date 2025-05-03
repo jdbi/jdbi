@@ -42,6 +42,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 /**
  * Provides access to the contents of a {@link ResultSet} by mapping to Java types.
  */
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ResultBearing {
     /**
      * Returns a ResultBearing backed by the given result set supplier and context.

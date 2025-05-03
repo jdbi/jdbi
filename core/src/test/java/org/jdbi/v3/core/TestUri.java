@@ -25,7 +25,7 @@ public class TestUri {
     private static final URI TEST_URI = URI.create("http://example.invalid/wat.jpg");
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
 
     @Test
     public void testUri() {

@@ -15,6 +15,7 @@ package org.jdbi.v3.core.kotlin
 
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -158,7 +159,7 @@ class CoroutineContextTest {
     }
 
     @Test
-    @OptIn(DelicateCoroutinesApi::class)
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
     fun testSingleThreadedCoroutines() {
         with(h2Extension.sharedHandle) {
             execute("INSERT INTO something(id, name) VALUES(1, 'first name')")

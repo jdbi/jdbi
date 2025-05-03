@@ -24,6 +24,7 @@ import org.jdbi.v3.meta.Alpha;
  * @since 3.38.0
  */
 @Alpha
+@FunctionalInterface
 public interface ExtensionHandlerCustomizer {
 
     /**

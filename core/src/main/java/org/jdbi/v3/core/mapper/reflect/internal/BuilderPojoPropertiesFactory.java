@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 import org.jdbi.v3.core.config.internal.ConfigCache;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface BuilderPojoPropertiesFactory extends PojoPropertiesFactory {
     ConfigCache<BuilderSpec<?, ?>, BuilderPojoProperties<?, ?>> BUILDER_CACHE =
         ConfigCaches.declare(s -> s.type, BuilderPojoProperties::new);

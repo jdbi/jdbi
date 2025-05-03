@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class JdbiOpenLeakTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
 
     @Test
     void cleanupCustomizeThrows() throws Exception {

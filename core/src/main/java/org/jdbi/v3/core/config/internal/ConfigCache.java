@@ -22,6 +22,7 @@ import org.jdbi.v3.core.statement.StatementContext;
  *
  * @see ConfigCaches
  */
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ConfigCache<K, V> {
 
     V get(K key, ConfigRegistry config);

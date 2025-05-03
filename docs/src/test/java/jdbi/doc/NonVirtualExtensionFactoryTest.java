@@ -37,6 +37,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 
+@SuppressWarnings("unchecked")
 class NonVirtualExtensionFactoryTest {
 
     @RegisterExtension

@@ -24,6 +24,7 @@ public class TestMessageFormatTemplateEngine {
     private StatementContext ctx;
 
     @BeforeEach
+    @SuppressWarnings("deprecation")
     public void setUp() {
         templateEngine = new MessageFormatTemplateEngine();
         ctx = StatementContextAccess.createContext();

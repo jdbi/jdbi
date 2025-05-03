@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
 
+@FunctionalInterface
 public interface ParameterCustomizerFactory {
     /**
      * Creates parameter customizer used to bind sql statement parameters

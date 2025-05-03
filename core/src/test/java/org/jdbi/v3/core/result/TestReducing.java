@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestReducing {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withSomething();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
 
     @BeforeEach
     public void setUp() {

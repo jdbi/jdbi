@@ -102,10 +102,12 @@ public class JpaMember {
                 .orElse(memberName);
     }
 
+    @FunctionalInterface
     interface Getter {
         Object get(Object obj) throws IllegalAccessException, InvocationTargetException;
     }
 
+    @FunctionalInterface
     interface Setter {
         void set(Object obj, Object value) throws IllegalAccessException, InvocationTargetException;
     }
