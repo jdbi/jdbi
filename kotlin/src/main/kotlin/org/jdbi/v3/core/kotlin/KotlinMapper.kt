@@ -192,7 +192,16 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
             val parameterName = addPropertyNamePrefix(prefix, parameter.paramName())
             val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers) { parameter.name }
             if (columnIndex.isPresent) {
-                val type = QualifiedType.of(parameter.type.javaType)
+                val parameterType = parameter.type
+                // value types have a classifier that is different from the javaType. See a classifier is
+                // present and if yes, use that java type.
+                val javaType = if (parameterType.classifier != null && parameterType.classifier is KClass<*>) {
+                    (parameterType.classifier!! as KClass<*>).java
+                } else {
+                    parameterType.javaType
+                }
+
+                val type = QualifiedType.of(javaType)
                     .withAnnotations(getQualifiers(parameter))
 
                 return ctx.findColumnMapperFor(type)

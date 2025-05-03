@@ -16,16 +16,24 @@ package org.jdbi.v3.core.kotlin
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.jdbi.v3.core.Handle
+import org.jdbi.v3.core.argument.AbstractArgumentFactory
+import org.jdbi.v3.core.argument.Argument
+import org.jdbi.v3.core.config.ConfigRegistry
+import org.jdbi.v3.core.mapper.ColumnMapper
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.PropagateNull
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor
+import org.jdbi.v3.core.statement.StatementContext
 import org.jdbi.v3.testing.junit5.JdbiExtension
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.mockito.junit.jupiter.MockitoExtension
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.Types
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -640,5 +648,64 @@ class KotlinMapperTest {
                 .one()
         )
             .isEqualTo(ConstructorWithDefaultParameter(1, "default"))
+    }
+
+    @JvmInline
+    value class MagicType(val value: String)
+
+    class MagicTypeArgumentFactory : AbstractArgumentFactory<MagicType>(Types.VARCHAR) {
+        override fun build(value: MagicType?, config: ConfigRegistry): Argument? =
+            Argument { position: Int, statement: PreparedStatement, ctx: StatementContext ->
+                if (value != null) {
+                    statement.setString(position, value.value)
+                } else {
+                    statement.setNull(position, Types.VARCHAR)
+                }
+            }
+    }
+
+    class MagicTypeColumnMapper : ColumnMapper<MagicType?> {
+        override fun map(rs: ResultSet, columnNumber: Int, ctx: StatementContext): MagicType? {
+            val value = rs.getString(columnNumber)
+            return if (rs.wasNull()) null else MagicType(value)
+        }
+    }
+
+    @Test
+    fun testValueClass() {
+        handle.registerArgument(MagicTypeArgumentFactory())
+        handle.registerColumnMapper(MagicTypeColumnMapper())
+        val expected = MagicType("does this work?")
+
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
+            .bind("id", 1)
+            .bind("first", expected)
+            .execute()
+
+        val result = handle.createQuery("SELECT first AS \"value\" from the_things")
+            .mapTo<MagicType>()
+            .single()
+
+        assertThat(result).isEqualTo(expected)
+    }
+
+    data class TheThings(val id: Int, val first: MagicType)
+
+    @Test
+    fun testValueBean() {
+        handle.registerArgument(MagicTypeArgumentFactory())
+        handle.registerColumnMapper(MagicTypeColumnMapper())
+        val expected = MagicType("does this work?")
+
+        handle.createUpdate("INSERT INTO the_things(id, first) VALUES(:id, :first)")
+            .bind("id", 1)
+            .bind("first", expected)
+            .execute()
+
+        val result = handle.createQuery("SELECT id, first from the_things")
+            .mapTo<TheThings>()
+            .single()
+
+        assertThat(result).isEqualTo(TheThings(1, expected))
     }
 }
