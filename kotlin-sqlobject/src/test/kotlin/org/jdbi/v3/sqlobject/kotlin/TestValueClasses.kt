@@ -25,18 +25,21 @@ import org.jdbi.v3.core.statement.StatementContext
 import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.statement.SqlQuery
+import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import org.jdbi.v3.stringtemplate4.UseStringTemplateSqlLocator
 import org.jdbi.v3.testing.junit5.JdbiExtension
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Types
+import java.util.stream.Stream
 
 /**
  * Test a value class as a parameter for a sqlobject method - see https://github.com/jdbi/jdbi/issues/2790
@@ -66,13 +69,19 @@ class TestValueClasses {
 
     @Test
     fun testValueClassParameters() {
-        handle.execute("insert into something (id, name) values (2, 'Bean')")
+        dao.insert(ValueId(2), "Bean")
         assertThat(dao.findNameById(ValueId(2))).isEqualTo("Bean")
     }
 
-    @Test
-    fun testValueClassBean() {
-        handle.registerRowMapper(Something::class.java, SomethingMapper())
+    companion object {
+        @JvmStatic
+        fun mapperProvider(): Stream<RowMapper<*>> = Stream.of(SomethingMapper(), KotlinMapper(Something::class))
+    }
+
+    @ParameterizedTest
+    @MethodSource("mapperProvider")
+    fun testMapper(mapper: RowMapper<*>) {
+        handle.registerRowMapper(Something::class.java, mapper)
         handle.execute("insert into something (id, name) values (6, 'Martin')")
         // can't use the dao; it does not have the row mapper registered
         val dao2 = handle.attach(Dao::class)
@@ -80,20 +89,48 @@ class TestValueClasses {
         assertThat(s.name).isEqualTo("Martin")
     }
 
-    @Test
-    @Disabled("Sadly the Kotlin Mapper does not work with Value types")
-    fun testValueClassKotlinMapper() {
-        handle.registerRowMapper(Something::class.java, KotlinMapper(Something::class))
-        handle.execute("insert into something (id, name) values (6, 'Martin')")
+    @ParameterizedTest
+    @MethodSource("mapperProvider")
+    fun testListMapper(mapper: RowMapper<*>) {
+        handle.registerRowMapper(Something::class.java, mapper)
+        dao.insert(ValueId(2), "Bean")
+        dao.insert(ValueId(6), "Martin")
         // can't use the dao; it does not have the row mapper registered
         val dao2 = handle.attach(Dao::class)
-        val s = dao2.retrieveById(ValueId(6))
-        assertThat(s.name).isEqualTo("Martin")
+        val s = dao2.loadAll()
+        assertThat(s).hasSize(2)
+        assertThat(s).containsExactly(Something(ValueId(2), "Bean"), Something(ValueId(6), "Martin"))
+    }
+
+    @ParameterizedTest
+    @MethodSource("mapperProvider")
+    fun testValueClassListMapper(mapper: RowMapper<*>) {
+        handle.registerRowMapper(Something::class.java, mapper)
+        dao.insert(ValueId(2), "Bean")
+        dao.insert(ValueId(6), "Martin")
+        // can't use the dao; it does not have the row mapper registered
+        val dao2 = handle.attach(Dao::class)
+        val s = dao2.loadAllIds()
+        assertThat(s).hasSize(2)
+        assertThat(s).containsExactly(ValueId(2), ValueId(6))
+    }
+
+    @ParameterizedTest
+    @MethodSource("mapperProvider")
+    fun testRegularListMapper(mapper: RowMapper<*>) {
+        handle.registerRowMapper(Something::class.java, mapper)
+        dao.insert(ValueId(2), "Bean")
+        dao.insert(ValueId(6), "Martin")
+        // can't use the dao; it does not have the row mapper registered
+        val dao2 = handle.attach(Dao::class)
+        val s = dao2.loadAllNames()
+        assertThat(s).hasSize(2)
+        assertThat(s).containsExactly("Bean", "Martin")
     }
 
     @Test
     fun testValueClassColumn() {
-        handle.execute("insert into something (id, name) values (6, 'Martin')")
+        dao.insert(ValueId(6), "Martin")
 
         val s = dao.findIdByName("Martin")
         assertThat(s).isEqualTo(ValueId(6))
@@ -104,6 +141,9 @@ class TestValueClasses {
 
     @UseStringTemplateSqlLocator
     interface Dao {
+        @SqlUpdate("insert")
+        fun insert(@Bind("id") id: ValueId, @Bind("name") name: String): Int
+
         // A value class as a parameter requires an explicit value for the SQL query; Kotlin mangles the method name (findNameById-<xxxx>) otherwise.
         @SqlQuery("findNameById")
         fun findNameById(@Bind("id") id: ValueId): String?
@@ -113,6 +153,15 @@ class TestValueClasses {
 
         @SqlQuery("findIdByName")
         fun findIdByName(@Bind("name") name: String?): ValueId?
+
+        @SqlQuery("loadAll")
+        fun loadAll(): List<Something>
+
+        @SqlQuery("loadAllIds")
+        fun loadAllIds(): List<ValueId>
+
+        @SqlQuery("loadAllNames")
+        fun loadAllNames(): List<String>
     }
 
     class SomethingMapper : RowMapper<Something> {

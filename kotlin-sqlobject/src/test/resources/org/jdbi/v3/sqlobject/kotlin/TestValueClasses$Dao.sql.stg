@@ -14,6 +14,10 @@
 
 group Dao;
 
+insert(id, name) ::= <<INSERT INTO something (id, name) VALUES (:id, :name)>>
 findNameById(id) ::= << select name from something where id = :id >>
 retrieveById(id) ::= << select id, name from something where id = :id >>
 findIdByName(name) ::= << select id from something where name = :name >>
+loadAll() ::= << SELECT * FROM something >>
+loadAllIds() ::= << SELECT id FROM something >>
+loadAllNames() ::= << SELECT name FROM something >>
