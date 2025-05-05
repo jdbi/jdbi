@@ -1,0 +1,200 @@
+[
+{
+  "name":"com.ibm.icu.text.Collator"
+},
+{
+  "name":"java.lang.Object",
+  "methods":[{"name":"equals","parameterTypes":["java.lang.Object"] }, {"name":"hashCode","parameterTypes":[] }, {"name":"toString","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Runtime",
+  "methods":[{"name":"version","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Runtime$Version",
+  "methods":[{"name":"major","parameterTypes":[] }]
+},
+{
+  "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.sql.SQLException",
+  "fields":[{"name":"next"}]
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicBoolean",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicReference",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"java.util.stream.Collectors",
+  "methods":[{"name":"toUnmodifiableSet","parameterTypes":[] }]
+},
+{
+  "name":"jdk.jfr.FlightRecorder",
+  "methods":[{"name":"isAvailable","parameterTypes":[] }, {"name":"register","parameterTypes":["java.lang.Class"] }]
+},
+{
+  "name":"org.h2.Driver"
+},
+{
+  "name":"org.h2.mvstore.MVStore$TxCounter",
+  "fields":[{"name":"counter"}]
+},
+{
+  "name":"org.h2.mvstore.Page",
+  "fields":[{"name":"pos"}]
+},
+{
+  "name":"org.jdbi.nativedemo.NativeMain",
+  "methods":[{"name":"main","parameterTypes":["java.lang.String[]"] }]
+},
+{
+  "name":"org.jdbi.nativedemo.NativeMain$CreateDao",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "methods":[{"name":"finalize","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.nativedemo.NativeMain$Demo",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["int","java.lang.String","int"] }]
+},
+{
+  "name":"org.jdbi.nativedemo.NativeMain$QueryDao",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "methods":[{"name":"finalize","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.Handles",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.argument.Arguments",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["org.jdbi.v3.core.config.ConfigRegistry"] }]
+},
+{
+  "name":"org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument",
+  "methods":[{"name":"toString","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.array.SqlArrayTypes",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.collector.JdbiCollectors",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.config.internal.ConfigCaches",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.extension.Extensions",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.internal.CopyOnWriteHashMap",
+  "fields":[{"name":"m"}]
+},
+{
+  "name":"org.jdbi.v3.core.internal.OnDemandExtensions",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.mapper.ColumnMappers",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.mapper.Mappers",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.mapper.RowMappers",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.mapper.reflect.ReflectionMappers",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.mapper.reflect.internal.PojoTypes",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.qualifier.Qualifiers",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.core.statement.SqlStatements",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.sqlobject.HandlerDecorators",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.sqlobject.Handlers",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.sqlobject.SqlObject",
+  "methods":[{"name":"getHandle","parameterTypes":[] }, {"name":"withHandle","parameterTypes":["org.jdbi.v3.core.HandleCallback"] }]
+},
+{
+  "name":"org.jdbi.v3.sqlobject.SqlObjects",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.sqlobject.statement.internal.SqlObjectStatementConfiguration",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.jdbi.v3.sqlobject.statement.internal.SqlQueryHandler",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Class","java.lang.reflect.Method"] }]
+},
+{
+  "name":"org.jdbi.v3.sqlobject.statement.internal.SqlUpdateHandler",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Class","java.lang.reflect.Method"] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG$Blocking",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]
