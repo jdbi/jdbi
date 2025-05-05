@@ -105,7 +105,7 @@
         <dep.jfrunit.version>1.0.0.Alpha2</dep.jfrunit.version>
         <dep.joda-time.version>2.14.0</dep.joda-time.version>
         <dep.jts.version>1.20.0</dep.jts.version>
-        <dep.junit5.version>5.13.0-M2</dep.junit5.version>
+        <dep.junit5.version>5.13.0-M3</dep.junit5.version>
         <dep.kotlin.version>2.1.20</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.10.2</dep.kotlinx-coroutines.version>
         <dep.lombok.version>1.18.38</dep.lombok.version>
