@@ -792,6 +792,12 @@ The statement is executed repeatedly, once for each batch of arguments that is *
 
 The result is again a `int[]` of modified row count.
 
+Please note that the first set of arguments is used to determine the data types of all subsequent batches.
+In particular, if an argument in the first batch is `null` then Jdbi may guess an "unknown" type which
+is not appropriate for a future non-`null` argument. Consider using
+link:{jdbidocs}/core/statement/SqlStatement.html#bindByType(int,java.lang.Object,java.lang.reflect.Type)[SqlStatement.bindByType()^]
+to ensure Jdbi knows the types of your arguments, even if they may be `null`.
+
 [source,java,indent=0]
 ----
 include::{exampledir}/StatementsTest.java[tags=batch]
