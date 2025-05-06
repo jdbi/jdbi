@@ -1282,7 +1282,7 @@ Optional<User> user = stream.findFirst(); <3>
 <2> leaving the callback closes the handle and releases all resources including the result set
 <3> throws an exception because the result set has already been closed
 
-This can be avoided by using one of the callback methods that ResultIterable offers: link:{jdbidocs}/core/result/ResultIterable.html#withIterator(org.jdbi.v3.core.result.IteratorCallback)[withIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.v3.core.result.IteratorConsumer)[useIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^], link:{jdbidocs}/core/result/ResultIterable.htmll#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^]. Each of these methods manages the iterator / stream through Jdbi and allow consumption of its contents within a callback:
+This can be avoided by using one of the callback methods that ResultIterable offers: link:{jdbidocs}/core/result/ResultIterable.html#withIterator(org.jdbi.v3.core.result.IteratorCallback)[withIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.v3.core.result.IteratorConsumer)[useIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^], link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^]. Each of these methods manages the iterator / stream through Jdbi and allow consumption of its contents within a callback:
 
 [source,java,indent=0]
 ----
@@ -3018,7 +3018,7 @@ handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
     });
 ----
 
-These methods handle closing the stream for the caller. The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^] method allows passing a result back to the caller, link:{jdbidocs}/core/result/ResultIterable.htmll#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^] only executed the code in the callback.
+These methods handle closing the stream for the caller. The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^] method allows passing a result back to the caller, link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^] only executed the code in the callback.
 
 
 ==== List
@@ -7816,7 +7816,7 @@ public interface Lobject {
 ----
 
 Please refer to
-https://jdbc.postgresql.org/documentation/head/binary-data/[Pg-JDBC docs^]
+https://jdbc.postgresql.org/documentation/binary-data/[Pg-JDBC docs^]
 for upstream driver documentation.
 
 
