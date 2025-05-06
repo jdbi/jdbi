@@ -601,7 +601,7 @@ Any database operation within Jdbi uses a statement. Multiple types of statement
 * link:{jdbidocs}/core/statement/Batch.html[Batch^] - a set of operations that are executed as a batch. See link:{jdbidocs}/core/Handle.html#createBatch()[createBatch^]
 * link:{jdbidocs}/core/statement/Call.html[Call^] - execute a stored procedure. See link:{jdbidocs}/core/Handle.html#createCall(java.lang.CharSequence)[createCall^]
 * link:{jdbidocs}/core/statement/Script.html[Script^] - a SQL script containing multiple statements separated by `;` that is executed as a batch. See also link:{jdbidocs}/core/Handle.html#createScript(java.lang.CharSequence)[createScript^]
-* link:{jdbidocs}/core/statement/Metadata.html[Metadata^] - SQL Metadata access.
+* link:{jdbidocs}/core/statement/MetaData.html[MetaData^] - SQL Metadata access.
 
 
 ==== Queries
@@ -2862,7 +2862,8 @@ include::{exampledir}/CodecSqlObjectTest.java[tags=dao;register;load;store]
 
 === Resolving Types
 
-By using the `TypeResolvingCodecFactory` from the link:{jdbidocs}/guava/package-summary.html[guava^] module, it is possible to use codecs that are registered for subclasses or interface types for concrete classes. This is necessary to e.g. map https://github.com/google/auto/blob/master/value/userguide/index.md[Auto Value^] generated classes to database columns.
+By using the `TypeResolvingCodecFactory` from the link:{jdbidocs}/guava/package-summary.html[guava^] module, it is possible to use codecs that are registered for subclasses or interface types for concrete classes. This is necessary to e.g. map https://github.com/google/auto/blob/main/value/userguide/index.md[Auto Value^] generated classes to database columns.
+
 
 In the following example, there is only a codec for `Value<String>` registered, but the code uses beans and classes that are concrete implementations (`StringBean` contains a `StringValue` and `StringValue` implements the `Value<String>` interface). The `TypeResolvingCodecFactory` will inspect the types to find a codec for an interface or superclass if no perfect match can be found.
 
@@ -3002,7 +3003,7 @@ any.
 
 The link:{jdbidocs}/core/result/ResultIterable.html#stream()[stream()^] method returns a link:{jdkdocs}/java.base/java/util/stream/Stream.html[Stream<T>^]. This is not a terminal operation and the stream must be closed to release any database resources held. See <<Resources with Streams and Iterators>> for more details.
 
-The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^] and link:{jdbidocs}/core/result/ResultIterable.htmll#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^] methods pass the Stream into a callback.
+The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^] and link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^] methods pass the Stream into a callback.
 
 [source,java,indent=0]
 ----
@@ -3580,7 +3581,7 @@ If this setting is `true`, then statements are attached by default.
 
 | scriptStatementsNeedSemicolon
 ^| boolean ^| `true`
-<| Controls whether the statements parsed in a link:{jdbidocs}/core/statements/Script.html[Script^] object have trailing semicolons or not. This fixes some issues with specific JDBC drivers (e.g. MySQL when using `rewriteBatchedStatements=true`).
+<| Controls whether the statements parsed in a link:{jdbidocs}/core/statement/Script.html[Script^] object have trailing semicolons or not. This fixes some issues with specific JDBC drivers (e.g. MySQL when using `rewriteBatchedStatements=true`).
 
 
 <| sqlParser
@@ -3601,7 +3602,7 @@ Custom implementations must implement link:{jdbidocs}/core/statement/SqlParser.h
 ^| link:{jdbidocs}/core/statement/SqlLogger.html[SqlLogger^] ^| <unset>
 <| Controls logging around statement execution. A SqlLogger instance receives the statement context before and after query execution and the context and an exception in case of an execution problem.
 
-Jdbi provides link:{jdbidocs}/core/statement/Slf4jSqlLogger.html[Slf4jSqlLogger^] for the popular https://slf4j.org/[slf4j^] logging framework.
+Jdbi provides link:{jdbidocs}/core/statement/Slf4JSqlLogger.html[Slf4JSqlLogger^] for the popular https://slf4j.org/[slf4j^] logging framework.
 
 | templateEngine
 ^| link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^] ^| link:{jdbidocs}/core/statement/DefinedAttributeTemplateEngine.html[DefineAttributeTemplateEngine^]
@@ -3651,20 +3652,20 @@ Controls how error messages from a Statement are displayed (e.g. for logging).
 | Object | Property | Type | Default | Description
 
 | link:{jdbidocs}/sqlobject/SqlObjects.html[SqlObjects^] | sqlLocator
-     | link:{jdbidocs}/sqlobject/SqlLocator.html[SqlLocator^] | link:{jdbidocs}/sqlobject/AnnotationSqlLocator.html[AnnotationSqlLocator^]
+     | link:{jdbidocs}/sqlobject/locator/SqlLocator.html[SqlLocator^] | link:{jdbidocs}/sqlobject/locator/AnnotationSqlLocator.html[AnnotationSqlLocator^]
      | Sets the locator for finding SQL statements. Default is to look for SQL operation annotations.
 
 Jdbi provides two implementations of the `SqlLocator` interface:
 
 [cols="1,3"]
 !===
-! link:{jdbidocs}/sqlobject/AnnotationSqlLocator.html[AnnotationSqlLocator^] ! Use annotations (
+! link:{jdbidocs}/sqlobject/locator/AnnotationSqlLocator.html[AnnotationSqlLocator^] ! Use annotations (
 link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^],
 link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^],
 link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^],
 link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^] and
 link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^]) to locate SQL statements
-! link:{jdbidocs}/sqlobject/SqlObjectClasspathSqlLocator.html[SqlObjectClasspathSqlLocator^] ! Associates a class or interface with a file located on the classpath (`com.foo.Bar#query()` becomes `com/foo/Bar/query.sql`) and loads the SQL from that file. The file may contain comments which are stripped.
+! link:{jdbidocs}/sqlobject/locator/SqlObjectClasspathSqlLocator.html[SqlObjectClasspathSqlLocator^] ! Associates a class or interface with a file located on the classpath (`com.foo.Bar#query()` becomes `com/foo/Bar/query.sql`) and loads the SQL from that file. The file may contain comments which are stripped.
 !===
 
 | link:{jdbidocs}/sqlobject/customizer/TimestampedConfig.html[TimestampedConfig^] | timezone
@@ -4181,7 +4182,7 @@ long bobId = dao.insertFullContact(bob); // <1>
 
 The performance of on-demand objects depends on the database and database connection pooling. For performance critical operations, it may be better to manage the handle manually and use attached objects.
 
-On-demand instances open and close the underlying link:{jdkdocs}/java.sql/java/sql/PreparedStatement.html[PreparedStatement^] objects for every call to an extension method. They are incompatible with any object or operation that relies on an open statement to retrieve data from the database (e.g. link:{jdkdocs}/java/util/stream/Stream.html[Stream^] and link:{jdkdocs}/java/util/Iterator.html[Iterator^] for query operations or link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] for call operations). It is possible to use <<consumer-and-function-arguments, consumer or function arguments>> to process these values as the callback is executed while the statement is still open.
+On-demand instances open and close the underlying link:{jdkdocs}/java.sql/java/sql/PreparedStatement.html[PreparedStatement^] objects for every call to an extension method. They are incompatible with any object or operation that relies on an open statement to retrieve data from the database (e.g. link:{jdkdocs}/java.base/java/util/stream/Stream.html[Stream^] and link:{jdkdocs}/java.base/java/util/Iterator.html[Iterator^] for query operations or link:{jdbidocs}/core/statement/OutParameters.html[OutParameters^] for call operations). It is possible to use <<consumer-and-function-arguments, consumer or function arguments>> to process these values as the callback is executed while the statement is still open.
 
 
 ==== Interface default methods
@@ -4612,7 +4613,7 @@ include::{exampledir}/LiveObjectsTest.java[tag=extension-default]
 
 Using the method return value either directly or through an _interface default method_ has the drawback that the user code to process the cursor-type object must be written within the SQL Object type as it must be executed before closing the link:{jdbidocs}/core/Handle.html[Handle^] object.
 
-An elegant way to sidestep this problem is using a <<Consumer arguments, consumer argument>> or a <<Function, function argument>> to provide a callback:
+An elegant way to sidestep this problem is using a <<Consumer arguments, consumer argument>> or a <<Function arguments, function argument>> to provide a callback:
 
 [source,java,indent=0]
 ----
@@ -6036,7 +6037,7 @@ When setting the caches explicitly, no cache plugin needs to be installed.
 
 
 [TIP]
-If the underlying cache library exposes per-cache statistics, these can be accessed through the link:{jdbidocs}//core/statement/SqlStatements.html#cacheStats()[SqlStatements#cacheStats()^] and https://{jdbidocs}/core/statement/CachingSqlParser.html#cacheStats()[CachingSqlParser#cacheStats()^] methods.
+If the underlying cache library exposes per-cache statistics, these can be accessed through the link:{jdbidocs}//core/statement/SqlStatements.html#cacheStats()[SqlStatements#cacheStats()^] and link:{jdbidocs}/core/statement/CachingSqlParser.html#cacheStats()[CachingSqlParser#cacheStats()^] methods.
 
 
 == Testing
@@ -7815,7 +7816,7 @@ public interface Lobject {
 ----
 
 Please refer to
-https://jdbc.postgresql.org/documentation/head/binary-data.html[Pg-JDBC docs^]
+https://jdbc.postgresql.org/documentation/head/binary-data/[Pg-JDBC docs^]
 for upstream driver documentation.
 
 
@@ -8674,7 +8675,7 @@ method on the extension type:
 
 - Which link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] to invoke for each method
 - All link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] instances that change the behavior of the extension handler
-- Per extension type and per extension type method specific link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^] instances to apply when an extension handler is invoked
+- Per extension type and per extension type method specific link:{jdbidocs}/core/config/ConfigCustomizer.html[ConfigCustomizer^] instances to apply when an extension handler is invoked
 
 Extension metadata is created once for each extension type and then reused.
 
@@ -8721,14 +8722,14 @@ User code --> [registers ExtensionFactory with Jdbi] --> | Extensions Config obj
 
 link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^],
 link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] and
-link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^] are the three main extension framework objects to implement:
+link:{jdbidocs}/core/config/ConfigCustomizer.html[ConfigCustomizer^] are the three main extension framework objects to implement:
 
 - An link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] object is created by an
   link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html[ExtensionHandlerFactory^], which can be registered either globally (with the
   link:{jdbidocs}/core/extension/Extensions.html[Extensions configuration^]) and then applied to all extensions types, or directly with an extension factory. It is also possible to specify extension handlers through annotations.
 - link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] objects can modify the behavior of an extension handler. They are
   registered globally or provided by an extension factory. They can also be specified through annotations.
-- link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^] objects are created by a
+- link:{jdbidocs}/core/config/ConfigCustomizer.html[ConfigCustomizer^] objects are created by a
   link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html[ConfigCustomizerFactory^] and modify the configuration that is used when an extension handler is
   executed. Factory instances are registered globally or with an extension factory. Config customization
   can also be specified through annotations.
@@ -8868,7 +8869,7 @@ immediately.
 if needed. Unlike a non-virtual factory, this instance is returned _as-is_ to the caller. Neither proxy object nor extension handlers are created.
 
 Jdbi provides link:{jdbidocs}/generator/GenerateSqlObjectProcessor.html[an annotation processor^] that creates java implementations of extension types. In addition, it
-provides link:{jdbidocs}/sqlobject/GeneratorSqlObjectFactory.html[an extension factory^] which does not use proxy objects and returns these as extension type implementations. Calling a method on the extension type will invoke the methods on the generated classes directly.
+provides an extension factory which does not use proxy objects and returns these as extension type implementations. Calling a method on the extension type will invoke the methods on the generated classes directly.
 
 
 ==== Extension handlers and their factories
@@ -8967,7 +8968,7 @@ method.
 
 ==== Config customizers and their factories
 
-link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^] instances modify the link:{jdbidocs}/core/config/ConfigRegistry.html[configuration
+link:{jdbidocs}/core/config/ConfigCustomizer.html[ConfigCustomizer^] instances modify the link:{jdbidocs}/core/config/ConfigRegistry.html[configuration
 registry^] object which is used when an extension type method is invoked. This configuration object is passed to all extension handler customizers and the
 extension handler itself.
 
@@ -9001,7 +9002,7 @@ functionality directly as annotation related objects without having to provide e
 The extension framework offers _meta-annotations_ to configure link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] and
 link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] instances directly and another _meta-annotation_ to define
 link:{jdbidocs}/core/extension/ExtensionConfigurer.html[ExtensionConfigurer^] instances which allows configuration modification similar to
-link:{jdbidocs}/core/extension/ConfigCustomizer.html[ConfigCustomizer^]).
+link:{jdbidocs}/core/config/ConfigCustomizer.html[ConfigCustomizer^]).
 
 Meta-annotations are used to annotate other annotation classes for processing by the extension framework.
 

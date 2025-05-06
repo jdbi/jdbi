@@ -47,8 +47,8 @@ compare-reproducible:: MAVEN_ARGS += -Dbasepom.test.skip=true -Djdbi.check.skip-
 compare-reproducible::
 	${MAVEN} clean verify artifact:compare
 
-docs: MAVEN_ARGS += -Ppublish-docs -Pfast -Dbasepom.javadoc.skip=false
-docs: install
+docs:: MAVEN_ARGS += -Ppublish-docs -Dbasepom.javadoc.skip=false
+docs:: install-fast
 
 run-tests:: MAVEN_ARGS += -Dbasepom.it.skip=false
 run-tests::
