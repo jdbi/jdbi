@@ -558,6 +558,15 @@
             </dependency>
 
             <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${dep.jakarta-annotation-api.version}</version>
+                <!-- XXX https://github.com/graalvm/native-build-tools/issues/562 -->
+                <!-- <scope>provided</scope> -->
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-annotations</artifactId>
                 <version>${dep.spotbugs.version}</version>
@@ -585,15 +594,6 @@
                 <artifactId>error_prone_annotations</artifactId>
                 <version>${dep.errorprone.version}</version>
                 <scope>provided</scope>
-                <optional>true</optional>
-            </dependency>
-
-            <dependency>
-                <groupId>jakarta.annotation</groupId>
-                <artifactId>jakarta.annotation-api</artifactId>
-                <version>${dep.jakarta-annotation-api.version}</version>
-                <!-- XXX https://github.com/graalvm/native-build-tools/issues/562 -->
-                <!-- <scope>provided</scope> -->
                 <optional>true</optional>
             </dependency>
 
@@ -980,7 +980,11 @@
                             </options>
                         </agent>
                         <buildArgs>
-                            <buildArg>--trace-class-initialization=org.junit.platform.launcher.core.DiscoveryIssueNotifier,org.junit.platform.launcher.core.HierarchicalOutputDirectoryProvider,org.junit.platform.engine.support.store.NamespacedHierarchicalStore$EvaluatedValue</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.HierarchicalOutputDirectoryProvider</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.LauncherDiscoveryResult$EngineResultInfo</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.DiscoveryIssueNotifier</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.engine.DefaultDiscoveryIssue</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.engine.DiscoveryIssue$Severity</buildArg>
                         </buildArgs>
                     </configuration>
                 </plugin>
