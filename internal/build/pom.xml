@@ -984,6 +984,8 @@
                             </options>
                         </agent>
                         <buildArgs>
+                            <buildArg>-Ob</buildArg>
+                            <buildArg>-march=native</buildArg>
                             <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.HierarchicalOutputDirectoryProvider</buildArg>
                             <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.LauncherDiscoveryResult$EngineResultInfo</buildArg>
                             <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.DiscoveryIssueNotifier</buildArg>
