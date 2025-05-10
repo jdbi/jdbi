@@ -984,7 +984,11 @@
                             </options>
                         </agent>
                         <buildArgs>
-                            <buildArg>--trace-class-initialization=org.junit.platform.launcher.core.DiscoveryIssueNotifier,org.junit.platform.launcher.core.HierarchicalOutputDirectoryProvider,org.junit.platform.engine.support.store.NamespacedHierarchicalStore$EvaluatedValue</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.HierarchicalOutputDirectoryProvider</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.LauncherDiscoveryResult$EngineResultInfo</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.launcher.core.DiscoveryIssueNotifier</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.engine.DefaultDiscoveryIssue</buildArg>
+                            <buildArg>--initialize-at-build-time=org.junit.platform.engine.DiscoveryIssue$Severity</buildArg>
                         </buildArgs>
                     </configuration>
                 </plugin>
