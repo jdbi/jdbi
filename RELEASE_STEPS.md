@@ -2,21 +2,22 @@
 
 ## Prerequisites
 
-* You have followed the steps on https://central.sonatype.org/pages/ossrh-guide.html
-to set up your Sonatype account. This account is required to push the release onto oss.sonatype.org and from there to Maven Central.
+* You have followed the steps on https://central.sonatype.org/register/central-portal/ to set up your Sonatype account. This account is required to push the release to Maven Central.
 * You have created and uploaded a GNUPG key to the key server  at http://pool.sks-keyservers.net/. Maven Central requires all releases to be signed with a GnuPG key.
 * You have created a Personal Access Token (PAT) on github that has `repo` permissions. This token is required to deploy the documentation site. With fine-grained Personal Access Tokens, this token can be scoped to allow access only to specific repositories, in this case use `jdbi/jdbi.github.io` as the repository.
 
 ### Setting up Maven `settings.xml`
+
+Generate a user token for central as described here: https://central.sonatype.org/publish/generate-portal-token/
 
 Create the following entries in the `~/.m2/settings.xml` file (or the specific location for the Maven settings file on your system):
 
 ```xml
  <servers>
   <server>
-    <id>sonatype-nexus-staging</id>
-    <username>... Your Sonatype OSS user name ...</username>
-    <password>... Your Sonatype OSS password ...</password>
+    <id>central</id>
+    <username>... Your central username ...</username>
+    <password>... Your central password ...</password>
   </server>
   <server>
     <id>github</id>
@@ -26,17 +27,15 @@ Create the following entries in the `~/.m2/settings.xml` file (or the specific l
 </servers>
 ```
 
-These two entries are required to create releases for the Jdbi project. If you want to be able to also push snapshots to Sonatype, please add
+These two entries are required to create releases and push snapshots for the Jdbi project.
 
-```xml
- <servers>
-  <server>
-    <id>sonatype-nexus-snapshots</id>
-    <username>... Your Sonatype OSS user name ...</username>
-    <password>... Your Sonatype OSS password ...</password>
-  </server>
-</servers>
-```
+
+### Release namespace
+
+Central organizes uploads for releases into namespaces. For Jdbi, the
+namespace is `org.jdbi`. You must have been added as a user to the
+namespace.
+
 
 ## Before you begin
 
@@ -111,24 +110,17 @@ unsupported and a workaround in very specific situations and may break
 at any point.
 
 
-## Publish the release to Maven Central
+## Publish the release to Central
 
 *THIS IS NOT THE LAST RELEASE STEP!* After pushing the code out, please wrap up
 by pushing the code changes below and also publish the documentation web site!
 
-- Open oss.sonatype.org and log in
-- Click Staging Repositories
-- Search for jdbi (top right corner)
-- Select the repository and click Close
-  - Closing the repository means closing it for further modification
-  - Nexus will check that all files uploaded to the staging repository
-    meet Maven Central publishing requirements
-- Click Refresh until the repository status changes to "closed"
-  - If this fails, find out what rule was not satisfied, and start over! Yay!
-- Click Release to submit the release to Maven Central.
-  - Type in something to the description like "Jdbi release v\<version\>"
-- Click Refresh until the repository status changes again, which will make
-  it disappear from the search.
+- Open central.sonatype.com and log in
+- Click 'Publish' (top right)
+- Select 'Deployments'
+- The new deployment should be visible in `validated` status.
+- Click 'publish'.
+- Wait till the status changed from `publishing` to `published`.
 
 
 ## Release the code changes to github
@@ -155,7 +147,7 @@ $ make release-docs
 
 - open https://github.com/jdbi/jdbi, click on "Releases"
 - "Draft a new Release"
-- Select the just pushed Tag, use Release title *JDBI <version>*
+- Select the just pushed Tag, use Release title *Jdbi3 <version>*
 - paste the line items from the Release notes into the "Describe this release" text box
 - Please make sure that the `Set as the latest release` and `Create a discussion for the release` checkboxes are selected
 - Click "Publish release"
@@ -165,6 +157,6 @@ $ make release-docs
 
 ## Release additional Modules
 
-A small number of JDBI3 modules is maintained outside the main build. Consider releasing those as well:
+A small number of Jdbi3 modules is maintained outside the main build. Consider releasing those as well:
 
-* [JDBI3 Guava cache module](https://github.com/jdbi/jdbi3-guava-cache)
+* [Jdbi3 Guava cache module](https://github.com/jdbi/jdbi3-guava-cache)

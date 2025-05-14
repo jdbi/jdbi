@@ -27,14 +27,14 @@ jobs:
           java-version: 21
           distribution: temurin
           cache: maven
-          server-id: sonatype-nexus-snapshots
-          server-username: NEXUS_REPO_USER
-          server-password: NEXUS_REPO_PASSWORD
+          server-id: central
+          server-username: CENTRAL_REPO_USER
+          server-password: CENTRAL_REPO_PASSWORD
 
       - name: deploy code
         env:
-          NEXUS_REPO_USER: ${{ secrets.NEXUS_REPO_USER }}
-          NEXUS_REPO_PASSWORD: ${{ secrets.NEXUS_REPO_PASSWORD }}
+          CENTRAL_REPO_USER: ${{ secrets.CENTRAL_REPO_USER }}
+          CENTRAL_REPO_PASSWORD: ${{ secrets.CENTRAL_REPO_PASSWORD }}
           MAVEN_ARGS: "-B -ff"
         run: |
           make deploy
