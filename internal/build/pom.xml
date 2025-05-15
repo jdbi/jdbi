@@ -641,9 +641,9 @@
                 <updatePolicy>always</updatePolicy>
                 <checksumPolicy>fail</checksumPolicy>
             </snapshots>
-            <id>snapshots-repo</id>
-            <name>Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>central-snapshots</id>
+            <name>Central Repository, Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <layout>default</layout>
         </repository>
     </repositories>
@@ -657,9 +657,9 @@
                 <updatePolicy>always</updatePolicy>
                 <checksumPolicy>fail</checksumPolicy>
             </snapshots>
-            <id>snapshots-repo</id>
-            <name>Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>central-snapshots</id>
+            <name>Central Repository, Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <layout>default</layout>
         </pluginRepository>
     </pluginRepositories>
