@@ -11,16 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.sqlobject.kotlin
+package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.HandleCallback
 import org.jdbi.v3.core.Jdbi
-import org.jdbi.v3.core.kotlin.KotlinMapper
-import org.jdbi.v3.core.kotlin.KotlinPlugin
-import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.mapper.JoinRow
 import org.jdbi.v3.core.mapper.JoinRowMapper
-import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.testing.junit5.JdbiExtension
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -31,7 +27,7 @@ class Issue1944Test {
     @JvmField
     @RegisterExtension
     var h2Extension: JdbiExtension = JdbiExtension.h2()
-        .withPlugins(SqlObjectPlugin(), KotlinSqlObjectPlugin())
+        .withPlugin(KotlinPlugin())
         .withInitializer { _, handle ->
             handle.inTransaction(
                 HandleCallback<Any?, RuntimeException> { h ->

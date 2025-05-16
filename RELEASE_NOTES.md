@@ -1,6 +1,6 @@
 # Unreleased
 
-- Add experimental support for Kotlin Value types as columns in the KotlinMapper.
+- Add experimental support for Kotlin Value types as arguments and columns (#2790, suggested and aided by @SpyMachine)
 
 # 3.49.3
 

@@ -18,7 +18,6 @@ import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.useExtension
-import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindBean
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys
@@ -39,7 +38,7 @@ class TestGetGeneratedKeys {
     @RegisterExtension
     @JvmField
     val pgExtension: JdbiExtension = JdbiExtension.postgres(pg)
-        .withPlugins(SqlObjectPlugin(), KotlinSqlObjectPlugin())
+        .withPlugin(KotlinSqlObjectPlugin())
         .withInitializer { _, h: Handle ->
             h.execute("create table something (id serial primary key, name varchar(50), integerValue integer, intValue integer)")
         }

@@ -7410,6 +7410,108 @@ qryAll.mapTo<Thing>.useSequence {
 }
 ----
 
+
+==== Kotlin Value classes
+
+Jdbi supports Kotlin value classes as long as an appropriate mapper for the underlying data type has been registered. For value types that wrap standard data types such as `int`, `String` or `UUID`, this is normally the case.
+
+[source,kotlin]
+----
+@JvmInline
+value class MagicType(val first: String)
+
+val valueType = MagicType("does this work?")
+
+// bind a value type as an argument
+handle.createUpdate("INSERT INTO something(id, first) VALUES(:id, :first)")
+    .bind("id", 1)
+    .bind("first", valueType)
+    .execute()
+
+// retrieve a column value as a value type
+val result = handle.createQuery("SELECT first FROM something")
+    .mapTo<MagicType>()
+    .single()
+----
+
+Jdbi will find the appropriate Column mapper and unwrap/wrap the value into the Kotlin value type.
+
+This also works with data classes:
+
+[source, kotlin]
+----
+@JvmInline
+value class PlanetType(val value: String)
+
+@JvmInline
+value class MoonType(val value: String)
+
+data class MoonOrbit(val id: Int, val planet: PlanetType, val moon: MoonType)
+
+value orbit = MoonOrbit(1, PlanetType("Saturn"), MoonType("Titan"))
+
+// create a new moon orbiting a planet
+handle.createUpdate("INSERT INTO orbits(id, planet, moon) VALUES(:id, :planet, :moon)")
+    .bindKotlin(orbit)
+    .execute()
+
+// retrieve all moon orbits as a List<MoonOrbit>
+val result = handle.createQuery("SELECT id, planet, moon FROM orbits")
+    .mapTo<MoonOrbit>()
+    .list()
+----
+
+
+==== SqlObject
+
+The *jdbi3-kotlin-sqlobject* plugin adds automatic parameter binding by name
+for Kotlin methods in SqlObjects as well as support for Kotlin default methods.
+
+To use it, add a dependency:
+
+For Apache Maven:
+
+[source,xml,indent=0,subs="attributes,specialchars"]
+----
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-kotlin-sqlobject</artifactId>
+    <version>{project_version}</version>
+</dependency>
+----
+
+For Gradle:
+
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    implementation("org.jdbi:jdbi3-kotlin-sqlobject:{project_version}")
+}
+----
+
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
+
+[source,kotlin]
+----
+jdbi.installPlugin(KotlinSqlObjectPlugin());
+----
+
+Parameter binding supports individual primitive types as well as Kotlin or
+JavaBean style objects as a parameter (referenced in binding as
+`:paramName.propertyName`). No annotations are needed.
+
+If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be
+discovered and registered automatically. Otherwise, you can attach the plugin
+via: `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
+
+An example from the test class:
+
+[source,kotlin,indent=0]
+----
+include::{kotlinexampledir}/KotlinPluginTest.kt[tags=sqlObject;setUp;testDao]
+----
+
+
 ==== Coroutine support
 
 [NOTE]
@@ -7501,56 +7603,6 @@ private suspend fun insertSomething(dao: SomethingDao): Unit = coroutineScope {
 private suspend fun selectSomething(dao: SomethingDao, id: Int): Something = coroutineScope {
     dao.findById(id)
 }
-----
-
-
-==== SqlObject
-
-The *jdbi3-kotlin-sqlobject* plugin adds automatic parameter binding by name
-for Kotlin methods in SqlObjects as well as support for Kotlin default methods.
-
-To use it, add a dependency:
-
-For Apache Maven:
-
-[source,xml,indent=0,subs="attributes,specialchars"]
-----
-<dependency>
-    <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-kotlin-sqlobject</artifactId>
-    <version>{project_version}</version>
-</dependency>
-----
-
-For Gradle:
-
-[source,groovy,subs="attributes,specialchars"]
-----
-dependencies {
-    implementation("org.jdbi:jdbi3-kotlin-sqlobject:{project_version}")
-}
-----
-
-Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
-
-[source,kotlin]
-----
-jdbi.installPlugin(KotlinSqlObjectPlugin());
-----
-
-Parameter binding supports individual primitive types as well as Kotlin or
-JavaBean style objects as a parameter (referenced in binding as
-`:paramName.propertyName`). No annotations are needed.
-
-If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be
-discovered and registered automatically. Otherwise, you can attach the plugin
-via: `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
-
-An example from the test class:
-
-[source,kotlin,indent=0]
-----
-include::{kotlinexampledir}/KotlinPluginTest.kt[tags=sqlObject;setUp;testDao]
 ----
 
 

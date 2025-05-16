@@ -19,7 +19,6 @@ import org.jdbi.v3.core.Something
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
-import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindBean
@@ -39,7 +38,9 @@ import java.sql.SQLException
 // port from the stringtemplate4 class to kotlin
 class TestStringTemplateSqlLocator {
     @RegisterExtension
-    var h2Extension: JdbiExtension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(SqlObjectPlugin())
+    var h2Extension: JdbiExtension = JdbiExtension.h2()
+        .withPlugin(KotlinSqlObjectPlugin())
+        .withInitializer(TestingInitializers.something())
 
     private lateinit var handle: Handle
     private lateinit var wombat: Wombat

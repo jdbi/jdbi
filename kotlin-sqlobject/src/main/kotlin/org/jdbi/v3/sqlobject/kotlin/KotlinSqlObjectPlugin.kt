@@ -21,9 +21,16 @@ import org.jdbi.v3.core.spi.JdbiPlugin
 import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.SqlObjects
 
-class KotlinSqlObjectPlugin : JdbiPlugin.Singleton() {
+/**
+ * Installs Kotlin and SQLObject specific functionality.
+ *
+ *   @property installKotlinMapperFactory If true, install support for data and value classes. The default is `true`.
+ *   @property enableCoroutineSupport If true, enable support for Kotlin Coroutines. The default is `false`.
+ */
+class KotlinSqlObjectPlugin(private val installKotlinMapperFactory: Boolean = true, private val enableCoroutineSupport: Boolean = false) :
+    JdbiPlugin.Singleton() {
     override fun customizeJdbi(jdbi: Jdbi) {
-        jdbi.installPlugin(KotlinPlugin())
+        jdbi.installPlugin(KotlinPlugin(installKotlinMapperFactory = installKotlinMapperFactory, enableCoroutineSupport = enableCoroutineSupport))
         jdbi.installPlugin(SqlObjectPlugin())
         jdbi.configure(SqlObjects::class) { c -> c.defaultParameterCustomizerFactory = KotlinSqlStatementCustomizerFactory() }
         jdbi.configure(Extensions::class) { c -> c.registerHandlerFactory(KotlinDefaultMethodHandlerFactory()) }
