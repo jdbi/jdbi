@@ -319,7 +319,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
 
     private data class ParamData(val type: ParamResolution, val mapper: RowMapper<*>?, val propagateNull: Boolean)
 
-    override fun toString() = "KotlinMapper(kClass=$kClass, prefix='$prefix')"
+    override fun toString() = "KotlinMapper(kClass=${kClass.qualifiedName}, prefix=$prefix)"
 
     private inner class BoundKotlinMapper(
         private val resolvedConstructorParameters: Map<KParameter, ParamData>,
@@ -363,6 +363,8 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
                 }
             }
         }
+
+        override fun toString() = "BoundKotlinMapper(kClass=${kClass.qualifiedName}, prefix=$prefix)"
     }
 }
 

@@ -55,5 +55,5 @@ class KotlinPropertyArguments(obj: Any, prefix: String = "") : ObjectPropertyNam
 
     override fun getNestedArgumentFinder(obj: TypedValue): NamedArgumentFinder = KotlinPropertyArguments(obj.value)
 
-    override fun toString() = obj.toString()
+    override fun toString() = "KotlinPropertyArguments(obj=${kClass.qualifiedName}, prefix=$prefix)"
 }
