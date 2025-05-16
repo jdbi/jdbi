@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.annotation.internal.JdbiAnnotations
+import org.jdbi.v3.core.kotlin.internal.toJavaType
 import org.jdbi.v3.core.mapper.Nested
 import org.jdbi.v3.core.mapper.PropagateNull
 import org.jdbi.v3.core.mapper.RowMapper
@@ -192,16 +193,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
             val parameterName = addPropertyNamePrefix(prefix, parameter.paramName())
             val columnIndex = findColumnIndex(parameterName, columnNames, columnNameMatchers) { parameter.name }
             if (columnIndex.isPresent) {
-                val parameterType = parameter.type
-                // value types have a classifier that is different from the javaType. See a classifier is
-                // present and if yes, use that java type.
-                val javaType = if (parameterType.classifier != null && parameterType.classifier is KClass<*>) {
-                    (parameterType.classifier!! as KClass<*>).java
-                } else {
-                    parameterType.javaType
-                }
-
-                val type = QualifiedType.of(javaType)
+                val type = QualifiedType.of(toJavaType(parameter.type))
                     .withAnnotations(getQualifiers(parameter))
 
                 return ctx.findColumnMapperFor(type)

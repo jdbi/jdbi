@@ -20,7 +20,6 @@ import org.jdbi.v3.core.config.ConfigRegistry
 import org.jdbi.v3.meta.Alpha
 import java.lang.reflect.Type
 import java.util.Optional
-import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
 /**
@@ -36,10 +35,10 @@ class KotlinValueClassArgumentFactory : ArgumentFactory {
         val property = clazz.memberProperties.singleOrNull()
         if (property == null) return Optional.empty()
 
-        val valueParameterJavaType = (property.returnType.classifier as? KClass<*>)?.java
+        val valueParameterJavaType = toJavaType(property.returnType)
         val value = property.call(value)
 
-        return config[Arguments::class.java].findFor(valueParameterJavaType!!, value)
+        return config[Arguments::class.java].findFor(valueParameterJavaType, value)
     }
 
     override fun toString(): String = "KotlinValueClassArgumentFactory"

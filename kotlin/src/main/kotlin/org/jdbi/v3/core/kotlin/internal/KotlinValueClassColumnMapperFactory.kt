@@ -23,7 +23,6 @@ import org.jdbi.v3.meta.Alpha
 import java.lang.reflect.Type
 import java.sql.ResultSet
 import java.util.Optional
-import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 /**
@@ -38,9 +37,9 @@ class KotlinValueClassColumnMapperFactory : ColumnMapperFactory {
 
         val constructor = clazz.primaryConstructor ?: return Optional.empty()
         val valueParameterType = clazz.primaryConstructor?.parameters?.singleOrNull()?.type ?: return Optional.empty()
-        val valueParameterJavaType = (valueParameterType.classifier as? KClass<*>)?.java
+        val valueParameterJavaType = toJavaType(valueParameterType)
 
-        val innerMapper = config[ColumnMappers::class.java].findFor(valueParameterJavaType!!).orElseThrow {
+        val innerMapper = config[ColumnMappers::class.java].findFor(valueParameterJavaType).orElseThrow {
             NoSuchMapperException("No column mapper registered for parameter (kotlin: $valueParameterType, java: $valueParameterJavaType) of type $type")
         }
 
