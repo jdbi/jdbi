@@ -14,6 +14,8 @@
 package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.Jdbi
+import org.jdbi.v3.core.kotlin.internal.KotlinValueClassArgumentFactory
+import org.jdbi.v3.core.kotlin.internal.KotlinValueClassColumnMapperFactory
 import org.jdbi.v3.core.mapper.RowMappers
 import org.jdbi.v3.core.spi.JdbiPlugin
 
@@ -38,6 +40,8 @@ class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true, priva
 
         if (installKotlinMapperFactory) {
             jdbi.registerRowMapper(KotlinMapperFactory())
+            jdbi.registerColumnMapper(KotlinValueClassColumnMapperFactory())
+            jdbi.registerArgument(KotlinValueClassArgumentFactory())
         }
 
         // install a special handle scope that can deal with coroutines.
