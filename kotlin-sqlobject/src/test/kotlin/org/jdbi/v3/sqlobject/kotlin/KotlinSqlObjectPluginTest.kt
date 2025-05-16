@@ -37,7 +37,9 @@ import kotlin.test.assertFails
 class KotlinSqlObjectPluginTest {
     @RegisterExtension
     @JvmField
-    val h2Extension: JdbiExtension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something())
+    val h2Extension: JdbiExtension = JdbiExtension.h2()
+        .withPlugin(KotlinSqlObjectPlugin())
+        .withInitializer(TestingInitializers.something())
 
     data class Thing(
         val id: Int,

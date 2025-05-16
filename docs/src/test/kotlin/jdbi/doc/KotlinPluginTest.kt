@@ -13,11 +13,9 @@
  */
 package jdbi.doc
 
-import org.jdbi.v3.core.kotlin.KotlinPlugin
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.core.kotlin.useSequence
 import org.jdbi.v3.core.mapper.Nested
-import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
@@ -34,8 +32,6 @@ class KotlinPluginTest {
     @JvmField
     val h2Extension: JdbiExtension = JdbiExtension.h2()
         .withInitializer(TestingInitializers.something())
-        .withPlugin(SqlObjectPlugin())
-        .withPlugin(KotlinPlugin())
         .withPlugin(KotlinSqlObjectPlugin())
 
     // tag::dataClass[]

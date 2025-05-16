@@ -20,10 +20,8 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
-import org.jdbi.v3.core.kotlin.KotlinPlugin
 import org.jdbi.v3.core.kotlin.withExtensionUnchecked
 import org.jdbi.v3.sqlobject.SqlObject
-import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
@@ -40,8 +38,7 @@ class CoroutineSqlObjectTest {
     @RegisterExtension
     @JvmField
     val h2Extension: JdbiExtension = JdbiExtension.h2()
-        .withPlugin(KotlinPlugin(enableCoroutineSupport = true))
-        .withPlugin(SqlObjectPlugin())
+        .withPlugin(KotlinSqlObjectPlugin(enableCoroutineSupport = true))
         .withInitializer(TestingInitializers.something())
 
     private lateinit var jdbi: Jdbi

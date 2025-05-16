@@ -17,8 +17,6 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.kotlin.KotlinMapper
-import org.jdbi.v3.core.kotlin.KotlinPlugin
-import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.testing.junit5.JdbiExtension
@@ -42,7 +40,7 @@ class TestIssue1577 {
             handle.execute("CREATE TABLE data (id serial primary key, comma varchar(50))")
             handle.execute("INSERT INTO data (comma) VALUES ('one,two,three,four')")
         }
-        .withPlugins(SqlObjectPlugin(), KotlinPlugin())
+        .withPlugin(KotlinSqlObjectPlugin())
 
     @BeforeEach
     fun setup() {
