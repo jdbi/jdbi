@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.49.4
+
 - Add experimental support for Kotlin Value types as arguments and columns (#2790, suggested and aided by @SpyMachine)
 
 # 3.49.3
