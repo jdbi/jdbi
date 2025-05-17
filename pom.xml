@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-build-parent</artifactId>
-        <version>3.49.4</version>
+        <version>3.49.5-SNAPSHOT</version>
         <relativePath>internal/build</relativePath>
     </parent>
 
@@ -86,7 +86,7 @@
     <scm>
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
-        <tag>v3.49.4</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/jdbi/jdbi/</url>
     </scm>
 
