@@ -1,0 +1,28 @@
+---
+name: CI Build in GraalVM native-image with tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: 24
+          cache: maven
+
+      - name: build
+        env:
+          MAVEN_ARGS: "-Dbasepom.check.skip-enforcer=false -B -Djdbi.native=true -Djdbi.check.skip-japicmp=true"
+        run: |
+          make install
