@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.transaction;
 
+import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.function.Consumer;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -89,6 +91,38 @@ public class TestSerializableTransactionRunner {
                     return null;
                 }
                 throw new SQLException("serialization", "40001");
+            });
+        }
+
+        assertThat(remaining.get()).isZero();
+    }
+
+    @Test
+    public void testEventuallySucceedsWrappexException() throws Exception {
+        final AtomicInteger remaining = new AtomicInteger(MAX_RETRIES / 2);
+        try (Handle handle = h2Extension.openHandle()) {
+            handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
+                if (remaining.decrementAndGet() == 0) {
+                    return null;
+                }
+                throw new UnableToExecuteStatementException("serialization", new SQLException("serialization", "40001"), null);
+            });
+        }
+
+        assertThat(remaining.get()).isZero();
+    }
+
+    @Test
+    public void testBatchSucceeds() throws Exception {
+        final AtomicInteger remaining = new AtomicInteger(MAX_RETRIES / 2);
+        try (Handle handle = h2Extension.openHandle()) {
+            handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
+                if (remaining.decrementAndGet() == 0) {
+                    return null;
+                }
+                var batch = new BatchUpdateException("badness", new int[0]);
+                batch.setNextException(new SQLException("serialization", "40001"));
+                throw batch;
             });
         }
 
