@@ -104,17 +104,25 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
      * @return True if Throwable or one of its causes is an SQLException whose SQLState begins with the given state.
      */
     protected boolean isSqlState(String expectedSqlState, Throwable throwable) {
-        Throwable t = throwable;
-
-        do {
-            if (t instanceof SQLException) {
-                String sqlState = ((SQLException) t).getSQLState();
+        Deque<Throwable> exceptions = new ArrayDeque<>();
+        exceptions.add(throwable);
+        while (!exceptions.isEmpty()) {
+            Throwable next = exceptions.pollFirst();
+            if (next instanceof SQLException) {
+                SQLException sqlExn = (SQLException) next;
+                String sqlState = sqlExn.getSQLState();
 
                 if (sqlState != null && sqlState.startsWith(expectedSqlState)) {
                     return true;
                 }
+                if (sqlExn.getNextException() != null) {
+                    exceptions.add(sqlExn.getNextException());
+                }
             }
-        } while ((t = t.getCause()) != null);
+            if (next.getCause() != null) {
+                exceptions.add(next.getCause());
+            }
+        }
 
         return false;
     }
