@@ -1,5 +1,7 @@
 # Unreleased
 
+- Fix SerializableTransactionRunner retry with failures wrapped in batch exceptions
+
 # 3.49.4
 
 - Add experimental support for Kotlin Value types as arguments and columns (#2790, suggested and aided by @SpyMachine)

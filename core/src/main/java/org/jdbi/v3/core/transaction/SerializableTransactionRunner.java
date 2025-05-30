@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -103,18 +104,26 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
      * @param throwable The Throwable to test.
      * @return True if Throwable or one of its causes is an SQLException whose SQLState begins with the given state.
      */
+    @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
     protected boolean isSqlState(String expectedSqlState, Throwable throwable) {
         Throwable t = throwable;
-
-        do {
+        while (t != null) {
             if (t instanceof SQLException) {
-                String sqlState = ((SQLException) t).getSQLState();
-
-                if (sqlState != null && sqlState.startsWith(expectedSqlState)) {
-                    return true;
+                Iterator<Throwable> unnestIterator = ((SQLException) t).iterator();
+                while (unnestIterator.hasNext()) {
+                    Throwable next = unnestIterator.next();
+                    if (next instanceof SQLException) {
+                        SQLException s = (SQLException) next;
+                        String sqlState = s.getSQLState();
+                        if (sqlState != null && sqlState.startsWith(expectedSqlState)) {
+                            return true;
+                        }
+                    }
                 }
+                return false;
             }
-        } while ((t = t.getCause()) != null);
+            t = t.getCause();
+        }
 
         return false;
     }
