@@ -314,13 +314,20 @@ The guava caching module is considered experimental.
 
 Jdbi can be used from any language and technology running on the JVM that can use Java code (Kotlin, Scala, Clojure, JRuby etc).
 
-While Java is a first class citizen (and will be for the foreseeable future), we provide modules for some languages that allow more idiomatic access to Jdbi functionality.
+While Java is the primary target for Jdbi, we provide modules for some languages that allow more idiomatic access to Jdbi functionality.
 
 [glossary]
 jdbi3-kotlin::
     Automatically map Kotlin data classes.
 jdbi3-kotlin-sqlobject::
     Kotlin support for the SQL Object extension.
+
+[CAUTION]
+Other languages don't always emit equivalent idiomatic Java code in the way you expect.
+Especially, by default annotations on Kotlin or Lombok properties may not be copied to the Java property.
+This means you may need to configure Lombok annotation copying like
+`lombok.copyableAnnotations += org.jdbi.v3.json.Json`
+or make sure Kotlin attaches annotations to generated Java properties like `@get:Json`.
 
 ==== External modules
 
