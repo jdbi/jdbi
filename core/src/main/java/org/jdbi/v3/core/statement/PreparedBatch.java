@@ -240,25 +240,19 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
             beforeBinding();
 
-            int[] totalModifiedRows = new int[0];
+            List<int[]> totalModifiedRows = new ArrayList<>();
             for (int chunkStart = 0; chunkStart < bindings.size(); chunkStart += batchChunkSize) {
                 int chunkEnd = Math.min(chunkStart + batchChunkSize, bindings.size());
 
                 beforeExecution();
                 int[] chunkModifiedRows = executeChunk(parsedParameters, chunkStart, chunkEnd);
-                int originalLength = totalModifiedRows.length;
-                int newLength = originalLength + chunkModifiedRows.length;
-                int[] newTotalModifiedRows = new int[newLength];
-                System.arraycopy(totalModifiedRows, 0, newTotalModifiedRows, 0, originalLength);
-                System.arraycopy(chunkModifiedRows, 0, newTotalModifiedRows, originalLength, chunkModifiedRows.length);
-                totalModifiedRows = newTotalModifiedRows;
+                totalModifiedRows.add(chunkModifiedRows);
             }
-
             afterExecution();
 
             ctx.setBinding(new PreparedBinding(ctx));
 
-            return new ExecutedBatch(stmt, totalModifiedRows);
+            return new ExecutedBatch(stmt, totalModifiedRows.stream().flatMapToInt(Arrays::stream).toArray());
         } finally {
             bindings.clear();
         }
