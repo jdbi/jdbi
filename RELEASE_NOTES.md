@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.49.5
+
 - Fix SerializableTransactionRunner retry with failures wrapped in batch exceptions
 
 # 3.49.4
