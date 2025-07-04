@@ -922,6 +922,7 @@
                     <version>${dep.plugin.cyclonedx.version}</version>
                     <configuration>
                         <skip>${jdbi.check.skip-sbom}</skip>
+                        <skipNotDeployed>false</skipNotDeployed>
                         <includeTestScope>false</includeTestScope>
                         <includeLicenseText>false</includeLicenseText>
                         <outputReactorProjects>true</outputReactorProjects>
