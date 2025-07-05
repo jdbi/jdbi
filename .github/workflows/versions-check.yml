@@ -81,7 +81,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.11.0-beta2, 2.9.3 ]
+        test-version: [ 2.10.1, 2.9.3 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -142,7 +142,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.19.0, 2.17.3, 2.16.2 ]
+        test-version: [ 2.19.1, 2.17.3, 2.16.2 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -386,7 +386,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.2.0-Beta1, 2.0.21, 1.9.25 ]
+        test-version: [ 2.1.21, 2.0.21, 1.9.25 ]
 
     steps:
       - uses: actions/checkout@v4
