@@ -25,11 +25,10 @@ import org.jdbi.v3.testing.junit5.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.oracle.OracleContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jdbi.v3.oracle12.OracleReturning.returnParameters;
@@ -40,10 +39,9 @@ import static org.jdbi.v3.oracle12.OracleReturning.returningDml;
  */
 @Tag("slow")
 @Testcontainers
-@EnabledOnOs(architectures = {"x86_64", "amd64"})
 public class TestOracleReturning {
 
-    static final String CONTAINER_VERSION = "gvenzl/oracle-xe:" + System.getProperty("oracle.container.version", "slim-faststart");
+    static final String CONTAINER_VERSION = "gvenzl/oracle-free:" + System.getProperty("oracle.container.version", "slim-faststart");
 
     @Container
     static OracleContainer oc = new OracleContainer(CONTAINER_VERSION);

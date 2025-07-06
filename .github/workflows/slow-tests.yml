@@ -193,7 +193,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ '21-slim-faststart', '18-slim-faststart' ]
+        test-version: [ 'latest', 'latest-faststart', 'full-faststart' ]
 
     steps:
       - uses: actions/checkout@v4
