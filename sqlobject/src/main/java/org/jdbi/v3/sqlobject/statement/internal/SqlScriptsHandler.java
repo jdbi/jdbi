@@ -16,6 +16,7 @@ package org.jdbi.v3.sqlobject.statement.internal;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.Script;
 
 public class SqlScriptsHandler extends CustomizingStatementHandler<Script> {

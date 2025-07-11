@@ -32,13 +32,15 @@ class KotlinDefaultMethodHandlerFactory : ExtensionHandlerFactory {
         val implementation = getImplementation(sqlObjectType, method) ?: return Optional.empty()
 
         return Optional.of(
-            ExtensionHandler { _, t, a ->
-                @Suppress("SwallowedException")
-                try {
-                    @Suppress("SpreadOperator")
-                    implementation.invoke(null, t, *a)
-                } catch (e: InvocationTargetException) {
-                    throw e.targetException
+            ExtensionHandler { t ->
+                ExtensionHandler.Invoker { _, a ->
+                    @Suppress("SwallowedException")
+                    try {
+                        @Suppress("SpreadOperator")
+                        implementation.invoke(null, t, *a)
+                    } catch (e: InvocationTargetException) {
+                        throw e.targetException
+                    }
                 }
             }
         )
