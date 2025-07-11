@@ -128,4 +128,20 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <!-- XXX (scs) Temporary! Remove after 3.51 -->
+            <plugin>
+                <groupId>com.github.siom79.japicmp</groupId>
+                <artifactId>japicmp-maven-plugin</artifactId>
+                <configuration>
+                    <parameter>
+                        <excludes combine.children="append">
+                            <exclude>org.jdbi.v3.sqlobject.Handler#invoke(org.jdbi.v3.core.extension.HandleSupplier, java.lang.Object,java.lang.Object[])</exclude>
+                        </excludes>
+                    </parameter>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

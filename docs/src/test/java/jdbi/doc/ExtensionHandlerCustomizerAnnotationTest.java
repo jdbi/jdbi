@@ -28,7 +28,6 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
 import org.jdbi.v3.core.extension.Extensions;
-import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -152,13 +151,16 @@ class ExtensionHandlerCustomizerAnnotationTest {
 
         @Override
         public ExtensionHandler customize(ExtensionHandler handler, Class<?> extensionType, Method method) {
-            return (handleSupplier, target, args) -> {
-                LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
-                try {
-                    return handler.invoke(handleSupplier, target, args);
-                } finally {
-                    LOG.info(format("Leaving %s on %s", method, extensionType.getSimpleName()));
-                }
+            return target -> {
+                ExtensionHandler.Invoker delegate = handler.createInvoker(target);
+                return (handleSupplier, args) -> {
+                    LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
+                    try {
+                        return delegate.invoke(handleSupplier, args);
+                    } finally {
+                        LOG.info(format("Leaving %s on %s", method, extensionType.getSimpleName()));
+                    }
+                };
             };
         }
     }
@@ -167,8 +169,9 @@ class ExtensionHandlerCustomizerAnnotationTest {
     public static class SomethingExtensionHandler implements ExtensionHandler {
 
         @Override
-        public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
-            return new Something((int) args[0], (String) args[1]);
+        public Invoker createInvoker(Object target) {
+            return (handleSupplier, args) ->
+                    new Something((int) args[0], (String) args[1]);
         }
     }
 

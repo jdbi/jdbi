@@ -74,35 +74,36 @@ public class AuthenticationExample {
     public static class AuthenticationHandler implements ExtensionHandlerCustomizer {
         @Override
         public ExtensionHandler customize(ExtensionHandler handler, Class<?> extensionType, Method method) {
-            return (handleSupplier, target, args) -> {
+            return target -> {
+                ExtensionHandler.Invoker delegate = handler.createInvoker(target);
+                return (handleSupplier, args) -> {
+                    // Start of the authentication code
 
-                // Start of the authentication code
-
-                // check whether a context was passed as the first argument. Bail out if not.
-                if (args == null || args.length == 0 || !(args[0] instanceof AuthContext)) {
-                    throw new IllegalArgumentException("First argument must be an AuthContext");
-                }
-
-
-                // Authentication "check". This sample code does an inline check against the database.
-                // This is not secure code or intended to be used in any real scenario. This is intended
-                // to show how to make database calls from inside the extension handler customizer.
-
-                AuthContext authContext = (AuthContext) args[0];
-
-                try (Query query = handleSupplier.getHandle().createQuery("SELECT 1 FROM users WHERE name = :username AND password = :password")) {
-                    var valid = query
-                            .bind("username", authContext.getUsername())
-                            .bind("password", authContext.getPassword())
-                            .mapTo(Integer.class).findOne();
-                    if (valid.isEmpty()) {
-                        throw new IllegalStateException("Invalid credentials");
+                    // check whether a context was passed as the first argument. Bail out if not.
+                    if (args == null || args.length == 0 || !(args[0] instanceof AuthContext)) {
+                        throw new IllegalArgumentException("First argument must be an AuthContext");
                     }
-                }
 
-                // when successful, call the delegated handler.
+                    // Authentication "check". This sample code does an inline check against the database.
+                    // This is not secure code or intended to be used in any real scenario. This is intended
+                    // to show how to make database calls from inside the extension handler customizer.
 
-                return handler.invoke(handleSupplier, target, args);
+                    AuthContext authContext = (AuthContext) args[0];
+
+                    try (Query query = handleSupplier.getHandle().createQuery("SELECT 1 FROM users WHERE name = :username AND password = :password")) {
+                        var valid = query
+                                .bind("username", authContext.getUsername())
+                                .bind("password", authContext.getPassword())
+                                .mapTo(Integer.class).findOne();
+                        if (valid.isEmpty()) {
+                            throw new IllegalStateException("Invalid credentials");
+                        }
+                    }
+
+                    // when successful, call the delegated handler.
+
+                    return delegate.invoke(handleSupplier, args);
+                };
             };
         }
     }

@@ -126,7 +126,7 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
         // those will only be added if they don't already exist in the method handler map.
 
         // If these methods are added, they are special because they operate on the proxy object itself, not the underlying object
-        final ExtensionHandler toStringHandler = (h, target, args) ->
+        final ExtensionHandler toStringHandler = target -> (h, args) ->
                 "Jdbi extension proxy for " + extensionType.getName() + "@" + Integer.toHexString(proxy.hashCode());
         handlers.put(methodKey(TOSTRING_METHOD), extensionMetaData.new ExtensionHandlerInvoker(proxy, TOSTRING_METHOD, toStringHandler, handleSupplier, instanceConfig));
 

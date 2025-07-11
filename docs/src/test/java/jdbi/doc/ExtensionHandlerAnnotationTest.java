@@ -23,7 +23,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.Extensions;
-import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -81,10 +80,9 @@ class ExtensionHandlerAnnotationTest {
     @interface SomethingAnnotation {}
 
     public static class SomethingExtensionHandler implements ExtensionHandler {
-
         @Override
-        public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
-            return new Something((int) args[0], (String) args[1]);
+        public Invoker createInvoker(Object target) {
+            return (handleSupplier, args) -> new Something((int) args[0], (String) args[1]);
         }
     }
     // end::annotation-code[]
