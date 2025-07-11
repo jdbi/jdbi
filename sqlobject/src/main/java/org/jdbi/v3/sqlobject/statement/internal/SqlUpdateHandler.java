@@ -18,6 +18,7 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -81,8 +82,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     }
 
     @Override
-    public void warm(ConfigRegistry config) {
-        super.warm(config);
+    protected void warm(ConfigRegistry config) {
         if (resultReturner != null) {
             resultReturner.warm(config);
         }

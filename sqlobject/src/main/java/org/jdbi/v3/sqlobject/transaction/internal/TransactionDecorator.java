@@ -36,28 +36,31 @@ public class TransactionDecorator implements ExtensionHandlerCustomizer {
         final TransactionIsolationLevel isolation = txnAnnotation.value();
         final boolean readOnly = txnAnnotation.readOnly();
 
-        return (handleSupplier, target, args) -> {
-            Handle handle = handleSupplier.getHandle();
+        return target -> {
+            ExtensionHandler.Invoker boundDelegate = delegate.createInvoker(target);
+            return (handleSupplier, args) -> {
+                Handle handle = handleSupplier.getHandle();
 
-            if (handle.isInTransaction() && handle.isReadOnly() && !readOnly) {
-                throw new TransactionException("Tried to execute a nested @Transaction(readOnly=false) "
-                        + "inside a readOnly transaction");
-            }
-
-            HandleCallback<Object, Exception> callback = transactionHandle -> delegate.invoke(handleSupplier, target, args);
-
-            final boolean flipReadOnly = readOnly != handle.isReadOnly();
-            if (flipReadOnly) {
-                handle.setReadOnly(readOnly);
-            }
-
-            try {
-                return handle.inTransaction(isolation, callback);
-            } finally {
-                if (flipReadOnly) {
-                    handle.setReadOnly(!readOnly);
+                if (handle.isInTransaction() && handle.isReadOnly() && !readOnly) {
+                    throw new TransactionException("Tried to execute a nested @Transaction(readOnly=false) "
+                            + "inside a readOnly transaction");
                 }
-            }
+
+                HandleCallback<Object, Exception> callback = transactionHandle -> boundDelegate.invoke(handleSupplier, args);
+
+                final boolean flipReadOnly = readOnly != handle.isReadOnly();
+                if (flipReadOnly) {
+                    handle.setReadOnly(readOnly);
+                }
+
+                try {
+                    return handle.inTransaction(isolation, callback);
+                } finally {
+                    if (flipReadOnly) {
+                        handle.setReadOnly(!readOnly);
+                    }
+                }
+            };
         };
     }
 }

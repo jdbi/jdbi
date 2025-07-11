@@ -111,13 +111,16 @@ class ExtensionHandlerCustomizerTest {
 
         @Override
         public ExtensionHandler customize(ExtensionHandler handler, Class<?> extensionType, Method method) {
-            return (handleSupplier, target, args) -> {
-                LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
-                try {
-                    return handler.invoke(handleSupplier, target, args);
-                } finally {
-                    LOG.info(format("Leaving %s on %s", method, extensionType.getSimpleName()));
-                }
+            return target -> {
+                ExtensionHandler.Invoker delegate = handler.createInvoker(target);
+                return (handleSupplier, args) -> {
+                    LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
+                    try {
+                        return delegate.invoke(handleSupplier, args);
+                    } finally {
+                        LOG.info(format("Leaving %s on %s", method, extensionType.getSimpleName()));
+                    }
+                };
             };
         }
     }
