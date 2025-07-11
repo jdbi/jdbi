@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.extension.AttachedExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
 import org.jdbi.v3.core.extension.Extensions;
@@ -152,22 +153,24 @@ class ExtensionHandlerCustomizerAnnotationTest {
 
         @Override
         public ExtensionHandler customize(ExtensionHandler handler, Class<?> extensionType, Method method) {
-            return (handleSupplier, target, args) -> {
-                LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
-                try {
-                    return handler.invoke(handleSupplier, target, args);
-                } finally {
-                    LOG.info(format("Leaving %s on %s", method, extensionType.getSimpleName()));
-                }
+            return (config, target) -> {
+                AttachedExtensionHandler delegate = handler.attachTo(config, target);
+                return (handleSupplier, args) -> {
+                    LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
+                    try {
+                        return delegate.invoke(handleSupplier, args);
+                    } finally {
+                        LOG.info(format("Leaving %s on %s", method, extensionType.getSimpleName()));
+                    }
+                };
             };
         }
     }
     // end::extension-handler-customizer[]
 
-    public static class SomethingExtensionHandler implements ExtensionHandler {
-
+    public static class SomethingExtensionHandler implements ExtensionHandler.Simple {
         @Override
-        public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
+        public Object invoke(HandleSupplier handleSupplier, Object... args) {
             return new Something((int) args[0], (String) args[1]);
         }
     }
@@ -182,5 +185,4 @@ class ExtensionHandlerCustomizerAnnotationTest {
             );
         }
     }
-
 }

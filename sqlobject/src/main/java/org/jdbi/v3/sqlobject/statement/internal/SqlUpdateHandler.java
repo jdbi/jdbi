@@ -81,8 +81,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     }
 
     @Override
-    public void warm(ConfigRegistry config) {
-        super.warm(config);
+    protected void warm(ConfigRegistry config) {
         if (resultReturner != null) {
             resultReturner.warm(config);
         }

@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.core.extension.AttachedExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
 import org.jdbi.v3.core.extension.Extensions;
@@ -111,13 +112,16 @@ class ExtensionHandlerCustomizerTest {
 
         @Override
         public ExtensionHandler customize(ExtensionHandler handler, Class<?> extensionType, Method method) {
-            return (handleSupplier, target, args) -> {
-                LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
-                try {
-                    return handler.invoke(handleSupplier, target, args);
-                } finally {
-                    LOG.info(format("Leaving %s on %s", method, extensionType.getSimpleName()));
-                }
+            return (config, target) -> {
+                AttachedExtensionHandler delegate = handler.attachTo(config, target);
+                return (handleSupplier, args) -> {
+                    LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
+                    try {
+                        return delegate.invoke(handleSupplier, args);
+                    } finally {
+                        LOG.info("Leaving {} on {}", method, extensionType.getSimpleName());
+                    }
+                };
             };
         }
     }

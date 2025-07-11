@@ -32,9 +32,10 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
 abstract class AbstractSqlObjectFactory implements ExtensionFactory {
 
     @SuppressWarnings("unchecked")
-    private static final ExtensionHandler WITH_HANDLE_HANDLER = (handleSupplier, target, args) ->
+    private static final ExtensionHandler WITH_HANDLE_HANDLER = (ExtensionHandler.Simple) (handleSupplier, args) ->
             ((HandleCallback<?, RuntimeException>) args[0]).withHandle(handleSupplier.getHandle());
-    private static final ExtensionHandler GET_HANDLE_HANDLER = (handleSupplier, target, args) -> handleSupplier.getHandle();
+    private static final ExtensionHandler GET_HANDLE_HANDLER = (ExtensionHandler.Simple) (handleSupplier, args) ->
+            handleSupplier.getHandle();
     private static final Method GET_HANDLE_METHOD = JdbiClassUtils.methodLookup(SqlObject.class, "getHandle");
     private static final Method WITH_HANDLE_METHOD = JdbiClassUtils.methodLookup(SqlObject.class, "withHandle", HandleCallback.class);
 
@@ -42,7 +43,7 @@ abstract class AbstractSqlObjectFactory implements ExtensionFactory {
     public void buildExtensionMetadata(ExtensionMetadata.Builder builder) {
         final Class<?> extensionType = builder.getExtensionType();
 
-        ExtensionHandler toStringHandler = (handlerSupplier, target, args) ->
+        ExtensionHandler toStringHandler = (config, target) -> (handlerSupplier, args) ->
                 "Jdbi sqlobject proxy for " + extensionType.getName() + "@" + Integer.toHexString(target.hashCode());
         builder.addMethodHandler(JdbiClassUtils.TOSTRING_METHOD, toStringHandler);
         builder.addMethodHandler(GET_HANDLE_METHOD, GET_HANDLE_HANDLER);

@@ -109,9 +109,9 @@ public class TestExtensionCustomizers {
     public void testRegisteredDecorator() {
         testHandle.getConfig(Extensions.class).registerHandlerCustomizer(
                 (base, sqlObjectType, method) ->
-                        (handleSupplier, target, args) -> {
+                        (config, target) -> (handleSupplier, args) -> {
                             invoked("custom");
-                            return base.invoke(handleSupplier, target, args);
+                            return base.attachTo(config, target).invoke(handleSupplier, args);
                         });
 
         testHandle.attach(Dao.class).orderedFooBar();
@@ -190,9 +190,9 @@ public class TestExtensionCustomizers {
 
             @Override
             public ExtensionHandler customize(ExtensionHandler base, Class<?> sqlObjectType, Method method) {
-                return (handleSupplier, target, args) -> {
+                return (config, target) -> (handleSupplier, args) -> {
                     invoked("foo");
-                    return base.invoke(handleSupplier, target, args);
+                    return base.attachTo(config, target).invoke(handleSupplier, args);
                 };
             }
         }
@@ -206,9 +206,9 @@ public class TestExtensionCustomizers {
 
             @Override
             public ExtensionHandler customize(ExtensionHandler base, Class<?> sqlObjectType, Method method) {
-                return (handleSupplier, target, args) -> {
+                return (config, target) -> (handleSupplier, args) -> {
                     invoked("bar");
-                    return base.invoke(handleSupplier, target, args);
+                    return base.attachTo(config, target).invoke(handleSupplier, args);
                 };
             }
         }
@@ -221,8 +221,8 @@ public class TestExtensionCustomizers {
         class Factory implements ExtensionHandlerCustomizer {
 
             @Override
-            public ExtensionHandler customize(ExtensionHandler base, Class<?> sqlObjectType, Method method) {
-                return (handleSupplier, target, args) -> {
+            public ExtensionHandler.Simple customize(ExtensionHandler base, Class<?> sqlObjectType, Method method) {
+                return (handleSupplier, args) -> {
                     invoked("abort");
                     return null;
                 };
@@ -234,10 +234,9 @@ public class TestExtensionCustomizers {
     @UseExtensionHandler(id = "test", value = CustomExtensionHandler.Impl.class)
     public @interface CustomExtensionHandler {
 
-        class Impl implements ExtensionHandler {
-
+        class Impl implements ExtensionHandler.Simple {
             @Override
-            public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
+            public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
                 invoked("method");
                 return null;
             }

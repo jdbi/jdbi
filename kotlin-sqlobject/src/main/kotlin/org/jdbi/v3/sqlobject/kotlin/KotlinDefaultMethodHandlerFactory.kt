@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.sqlobject.kotlin
 
+import org.jdbi.v3.core.extension.AttachedExtensionHandler
 import org.jdbi.v3.core.extension.ExtensionHandler
 import org.jdbi.v3.core.extension.ExtensionHandlerFactory
 import org.jdbi.v3.core.kotlin.isKotlinClass
@@ -32,13 +33,15 @@ class KotlinDefaultMethodHandlerFactory : ExtensionHandlerFactory {
         val implementation = getImplementation(sqlObjectType, method) ?: return Optional.empty()
 
         return Optional.of(
-            ExtensionHandler { _, t, a ->
-                @Suppress("SwallowedException")
-                try {
-                    @Suppress("SpreadOperator")
-                    implementation.invoke(null, t, *a)
-                } catch (e: InvocationTargetException) {
-                    throw e.targetException
+            ExtensionHandler { _, t ->
+                AttachedExtensionHandler { _, a ->
+                    @Suppress("SwallowedException")
+                    try {
+                        @Suppress("SpreadOperator")
+                        implementation.invoke(null, t, *a)
+                    } catch (e: InvocationTargetException) {
+                        throw e.targetException
+                    }
                 }
             }
         )
