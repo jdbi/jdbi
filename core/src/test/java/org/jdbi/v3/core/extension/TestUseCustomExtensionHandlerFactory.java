@@ -58,7 +58,7 @@ public class TestUseCustomExtensionHandlerFactory {
             @Override
             public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
                 return getImplementation(extensionType, method).map(m ->
-                        (handleSupplier, target, args) -> m.invoke(null, Stream.concat(Stream.of(target), Stream.of(args)).toArray())
+                        (config, target) -> (handleSupplier, args) -> m.invoke(null, Stream.concat(Stream.of(target), Stream.of(args)).toArray())
                 );
             }
 
@@ -113,11 +113,9 @@ public class TestUseCustomExtensionHandlerFactory {
     @Target({ ElementType.METHOD })
     @UseExtensionHandler(id = "test", value = Insert.Impl.class)
     public @interface Insert {
-
-        class Impl implements ExtensionHandler {
-
+        class Impl implements ExtensionHandler.Simple {
             @Override
-            public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
+            public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
                 Handle handle = handleSupplier.getHandle();
                 try (Update update = handle.createUpdate("insert into something (id, name) values (:id, :name)")) {
                     return update.bindBean(args[0]).execute();
@@ -130,11 +128,9 @@ public class TestUseCustomExtensionHandlerFactory {
     @Target({ ElementType.METHOD })
     @UseExtensionHandler(id = "test", value = Retrieve.Impl.class)
     public @interface Retrieve {
-
-        class Impl implements ExtensionHandler {
-
+        class Impl implements ExtensionHandler.Simple {
             @Override
-            public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
+            public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
                 Handle handle = handleSupplier.getHandle();
                 try (Query query = handle.createQuery("select id, name from something where id = :id")) {
                     return query.bind("id", args[0])

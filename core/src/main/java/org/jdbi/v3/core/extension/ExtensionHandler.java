@@ -18,9 +18,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.internal.exceptions.Unchecked;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.meta.Alpha;
-import org.jdbi.v3.meta.Beta;
 
 import static java.lang.String.format;
 
@@ -35,34 +34,12 @@ import static java.lang.String.format;
 @Alpha
 public interface ExtensionHandler {
 
-    /** Implementation for the {@link Object#equals(Object)} method. Each object using this handler is only equal to itself. */
-    @SuppressWarnings("PMD.CompareObjectsWithEquals")
-    ExtensionHandler EQUALS_HANDLER = (handleSupplier, target, args) -> target == args[0];
-
-    /** Implementation for the {@link Object#hashCode()} method. */
-    ExtensionHandler HASHCODE_HANDLER = (handleSupplier, target, args) -> System.identityHashCode(target);
-
-    /** Handler that only returns null independent of any input parameters. */
-    ExtensionHandler NULL_HANDLER = (handleSupplier, target, args) -> null;
-
     /**
-     * Gets invoked to return a value for the method that this handler was bound to.
-     * @param handleSupplier A {@link HandleSupplier} instance for accessing the handle and its related objects
-     * @param target The target object on which the handler should operate
-     * @param args Optional arguments for the handler
-     * @return The return value for the method that was bound to the extension handler. Can be null
-     * @throws Exception Any exception from the underlying code
+     * Attach this extension handler to a target instance.
+     * @param config the configuration at time of attach
+     * @param target the target object on which the handler should operate
      */
-    Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception;
-
-    /**
-     * Called after the method handler is constructed to pre-initialize any important
-     * configuration data structures.
-     *
-     * @param config the method configuration to use for warming up
-     */
-    @Beta
-    default void warm(ConfigRegistry config) {}
+    AttachedExtensionHandler attachTo(ConfigRegistry config, Object target);
 
     /**
      * Returns a default handler for missing functionality. The handler will throw an exception when invoked.
@@ -70,7 +47,7 @@ public interface ExtensionHandler {
      * @return An {@link ExtensionHandler} instance
      */
     static ExtensionHandler missingExtensionHandler(Method method) {
-        return (target, args, handleSupplier) -> {
+        return (ExtensionHandler.Simple) (handleSupplier, args) -> {
             throw new IllegalStateException(format(
                     "Method %s.%s has no registered extension handler!",
                     method.getDeclaringClass().getSimpleName(),
@@ -110,11 +87,32 @@ public interface ExtensionHandler {
      * @return An {@link ExtensionHandler}
      */
     static ExtensionHandler createForMethodHandle(MethodHandle methodHandle) {
-        return (handleSupplier, target, args) -> {
-            if (target == null) {
-                throw new IllegalStateException("no target object present, called from a proxy factory?");
+        return new ExtensionHandler() {
+            @Override
+            public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
+                if (target == null) {
+                    throw new IllegalStateException("no target object present, called from a proxy factory?");
+                }
+                return new AttachedExtensionHandler() {
+                    final MethodHandle boundMh = methodHandle.bindTo(target);
+                    @Override
+                    public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
+                        try {
+                            return boundMh.invokeWithArguments(args);
+                        } catch (Throwable e) {
+                            throw Sneaky.throwAnyway(e);
+                        }
+                    }
+                };
             }
-            return Unchecked.<Object[], Object>function(methodHandle.bindTo(target)::invokeWithArguments).apply(args);
         };
+    }
+
+    @FunctionalInterface
+    interface Simple extends ExtensionHandler, AttachedExtensionHandler {
+        @Override
+        default AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
+            return this;
+        }
     }
 }

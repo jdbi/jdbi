@@ -29,7 +29,6 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
     private final UseRowMapper useRowMapper;
     private final UseRowReducer useRowReducer;
 
-
     public SqlQueryHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
         this.resultReturner = ResultReturner.forMethod(sqlObjectType, method);
@@ -43,8 +42,7 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
     }
 
     @Override
-    public void warm(ConfigRegistry config) {
-        super.warm(config);
+    protected void warm(ConfigRegistry config) {
         resultReturner.warm(config);
     }
 

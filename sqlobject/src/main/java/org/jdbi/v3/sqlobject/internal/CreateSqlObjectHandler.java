@@ -14,8 +14,11 @@
 package org.jdbi.v3.sqlobject.internal;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.AttachedExtensionHandler;
+import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.extension.HandleSupplier;
@@ -32,15 +35,19 @@ public class CreateSqlObjectHandler implements ExtensionHandler {
     }
 
     @Override
-    public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
-        ConfigRegistry config = handleSupplier.getConfig();
-
-        if (handleSupplier instanceof OnDemandHandleSupplier) {
-            return config.get(OnDemandExtensions.class).create(handleSupplier.getJdbi(), method.getReturnType(), SqlObject.class);
-        }
-        return config.get(Extensions.class)
-                .findFactory(SqlObjectFactory.class)
-                .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
-                .attach(method.getReturnType(), handleSupplier);
+    public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
+        OnDemandExtensions onDemand = config.get(OnDemandExtensions.class);
+        Optional<ExtensionFactory> sqlObjectFactory = config.get(Extensions.class).findFactory(SqlObjectFactory.class);
+        return new AttachedExtensionHandler() {
+            @Override
+            public Object invoke(HandleSupplier handleSupplier, Object... args) {
+                if (handleSupplier instanceof OnDemandHandleSupplier) {
+                    return onDemand.create(handleSupplier.getJdbi(), method.getReturnType(), SqlObject.class);
+                }
+                return sqlObjectFactory
+                        .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
+                        .attach(method.getReturnType(), handleSupplier);
+            }
+        };
     }
 }

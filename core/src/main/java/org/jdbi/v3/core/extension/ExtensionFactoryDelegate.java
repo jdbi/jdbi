@@ -27,11 +27,11 @@ import org.jdbi.v3.core.internal.JdbiClassUtils.MethodKey;
 
 import static java.lang.String.format;
 
+import static org.jdbi.v3.core.extension.BuiltInExtensionHandler.EQUALS_HANDLER;
+import static org.jdbi.v3.core.extension.BuiltInExtensionHandler.HASHCODE_HANDLER;
+import static org.jdbi.v3.core.extension.BuiltInExtensionHandler.NULL_HANDLER;
 import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_PROXY;
 import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
-import static org.jdbi.v3.core.extension.ExtensionHandler.EQUALS_HANDLER;
-import static org.jdbi.v3.core.extension.ExtensionHandler.HASHCODE_HANDLER;
-import static org.jdbi.v3.core.extension.ExtensionHandler.NULL_HANDLER;
 import static org.jdbi.v3.core.internal.JdbiClassUtils.EQUALS_METHOD;
 import static org.jdbi.v3.core.internal.JdbiClassUtils.HASHCODE_METHOD;
 import static org.jdbi.v3.core.internal.JdbiClassUtils.MethodKey.methodKey;
@@ -126,7 +126,7 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
         // those will only be added if they don't already exist in the method handler map.
 
         // If these methods are added, they are special because they operate on the proxy object itself, not the underlying object
-        final ExtensionHandler toStringHandler = (h, target, args) ->
+        final ExtensionHandler toStringHandler = (methodConfig, target) -> (h, args) ->
                 "Jdbi extension proxy for " + extensionType.getName() + "@" + Integer.toHexString(proxy.hashCode());
         handlers.put(methodKey(TOSTRING_METHOD), extensionMetaData.new ExtensionHandlerInvoker(proxy, TOSTRING_METHOD, toStringHandler, handleSupplier, instanceConfig));
 

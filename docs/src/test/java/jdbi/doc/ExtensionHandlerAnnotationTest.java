@@ -80,10 +80,9 @@ class ExtensionHandlerAnnotationTest {
             value = SomethingExtensionHandler.class) // <7>
     @interface SomethingAnnotation {}
 
-    public static class SomethingExtensionHandler implements ExtensionHandler {
-
+    public static class SomethingExtensionHandler implements ExtensionHandler.Simple {
         @Override
-        public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
+        public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
             return new Something((int) args[0], (String) args[1]);
         }
     }

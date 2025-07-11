@@ -113,7 +113,8 @@ class ExtensionMetadataTest {
 
         @Override
         public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
-            return Optional.of((handleSupplier, target, args) -> new Something((int) args[0], (String) args[1]));
+            return Optional.of((ExtensionHandler.Simple)
+                    (handleSupplier, args) -> new Something((int) args[0], (String) args[1]));
         }
     }
 

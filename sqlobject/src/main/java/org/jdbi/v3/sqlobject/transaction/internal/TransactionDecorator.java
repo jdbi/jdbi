@@ -19,8 +19,10 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
+import org.jdbi.v3.core.extension.AttachedExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
+import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
@@ -33,10 +35,26 @@ public class TransactionDecorator implements ExtensionHandlerCustomizer {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new TransactionException("No @Transaction annotation found"));
-        final TransactionIsolationLevel isolation = txnAnnotation.value();
-        final boolean readOnly = txnAnnotation.readOnly();
 
-        return (handleSupplier, target, args) -> {
+        return (config, target) -> {
+            AttachedExtensionHandler boundDelegate = delegate.attachTo(config, target);
+            return new InTransaction(txnAnnotation, boundDelegate);
+        };
+    }
+
+    static class InTransaction implements AttachedExtensionHandler {
+        private final AttachedExtensionHandler boundDelegate;
+        private final boolean readOnly;
+        private final TransactionIsolationLevel isolation;
+
+        InTransaction(Transaction txnAnnotation, AttachedExtensionHandler boundDelegate) {
+            this.boundDelegate = boundDelegate;
+            isolation = txnAnnotation.value();
+            readOnly = txnAnnotation.readOnly();
+        }
+
+        @Override
+        public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
             Handle handle = handleSupplier.getHandle();
 
             if (handle.isInTransaction() && handle.isReadOnly() && !readOnly) {
@@ -44,9 +62,14 @@ public class TransactionDecorator implements ExtensionHandlerCustomizer {
                         + "inside a readOnly transaction");
             }
 
-            HandleCallback<Object, Exception> callback = transactionHandle -> delegate.invoke(handleSupplier, target, args);
+            var callback = new HandleCallback<Object, Exception>() {
+                @Override
+                public Object withHandle(Handle handle) throws Exception {
+                    return boundDelegate.invoke(handleSupplier, args);
+                }
+            };
 
-            final boolean flipReadOnly = readOnly != handle.isReadOnly();
+            boolean flipReadOnly = readOnly != handle.isReadOnly();
             if (flipReadOnly) {
                 handle.setReadOnly(readOnly);
             }
@@ -58,6 +81,6 @@ public class TransactionDecorator implements ExtensionHandlerCustomizer {
                     handle.setReadOnly(!readOnly);
                 }
             }
-        };
+        }
     }
 }
