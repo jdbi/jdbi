@@ -1,5 +1,7 @@
 # Unreleased
 
+- ExtensionHandler interface pulls out handling of target object into new ExtensionHandler.Invoker interface (#2828)
+
 # 3.49.5
 
 - Fix SerializableTransactionRunner retry with failures wrapped in batch exceptions

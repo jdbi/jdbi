@@ -82,11 +82,6 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         parameterCustomizers().forEach(statementCustomizers::add);
     }
 
-    @Override
-    public void warm(ConfigRegistry config) {
-        statementCustomizers.forEach(s -> s.warm(config));
-    }
-
     private static Stream<Annotation> annotationsFor(AnnotatedElement... elements) {
         return Stream.of(elements)
                 .map(AnnotatedElement::getAnnotations)
@@ -181,19 +176,33 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     @Override
-    public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
-        final Handle h = handleSupplier.getHandle();
-        final String locatedSql = locateSql(h);
-        final StatementType stmt = createStatement(h, locatedSql);
+    public Invoker createInvoker(Object target) {
+        return new Invoker() {
+            @Override
+            public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
+                final Handle h = handleSupplier.getHandle();
+                final String locatedSql = locateSql(h);
+                final StatementType stmt = createStatement(h, locatedSql);
 
-        // clean the statement when the handle closes
-        stmt.attachToHandleForCleanup();
+                // clean the statement when the handle closes
+                stmt.attachToHandleForCleanup();
 
-        final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
-        cfg.setArgs(args);
-        configureReturner(stmt, cfg);
-        applyCustomizers(stmt, safeVarargs(args));
-        return cfg.getReturner().get();
+                final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
+                cfg.setArgs(args);
+                configureReturner(stmt, cfg);
+                applyCustomizers(stmt, safeVarargs(args));
+                return cfg.getReturner().get();
+            }
+
+            @Override
+            public void warm(ConfigRegistry config) {
+                statementCustomizers.forEach(s -> s.warm(config));
+                CustomizingStatementHandler.this.warm(config);
+            }
+        };
+    }
+
+    protected void warm(ConfigRegistry config) {
     }
 
     void applyCustomizers(final StatementType stmt, Object[] args) {

@@ -38,7 +38,8 @@ public interface Handler extends ExtensionHandler {
     Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) throws Exception;
 
     @Override
-    default Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
-        return invoke(target, JdbiClassUtils.safeVarargs(args), handleSupplier);
+    default Invoker createInvoker(Object target) {
+        return (handleSupplier, args) ->
+                invoke(target, JdbiClassUtils.safeVarargs(args), handleSupplier);
     }
 }
