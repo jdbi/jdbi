@@ -86,7 +86,6 @@
         <dep.errorprone.version>2.39.0</dep.errorprone.version>
         <!-- last flyway version to support java 11 -->
         <dep.flyway.version>9.22.3</dep.flyway.version>
-        <dep.freebuilder.version>2.8.0</dep.freebuilder.version>
         <dep.freemarker.version>2.3.34</dep.freemarker.version>
         <dep.geantyref.version>2.0.1</dep.geantyref.version>
         <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
@@ -251,12 +250,6 @@
                 <groupId>org.immutables</groupId>
                 <artifactId>value</artifactId>
                 <version>${dep.immutables.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.inferred</groupId>
-                <artifactId>freebuilder</artifactId>
-                <version>${dep.freebuilder.version}</version>
             </dependency>
 
             <dependency>
