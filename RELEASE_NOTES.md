@@ -1,5 +1,7 @@
 # Unreleased
 
+- Add support for PGvector types (#2830)
+
 # 3.49.5
 
 - Fix SerializableTransactionRunner retry with failures wrapped in batch exceptions

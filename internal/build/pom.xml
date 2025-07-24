@@ -118,14 +118,13 @@
         <dep.oracle-xe.version>23.8.0.25.04</dep.oracle-xe.version>
         <dep.otj-pg-embedded.version>1.1.1</dep.otj-pg-embedded.version>
         <dep.pg-embedded.version>5.3.0</dep.pg-embedded.version>
+        <dep.pgvector.version>0.1.6</dep.pgvector.version>
         <dep.plugin.asciidoctor.version>3.2.0</dep.plugin.asciidoctor.version>
         <dep.plugin.cyclonedx.version>2.9.1</dep.plugin.cyclonedx.version>
         <dep.plugin.detekt.version>1.23.8</dep.plugin.detekt.version>
         <dep.plugin.dokka.version>2.0.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.7.1</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.5.1</dep.plugin.inline.version>
-        <!-- remove after next basepom release (63) -->
-        <dep.plugin.jacoco.version>0.8.13</dep.plugin.jacoco.version>
         <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
@@ -335,6 +334,12 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${dep.postgresql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.pgvector</groupId>
+                <artifactId>pgvector</artifactId>
+                <version>${dep.pgvector.version}</version>
             </dependency>
 
             <dependency>
