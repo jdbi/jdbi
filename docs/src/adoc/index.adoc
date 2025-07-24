@@ -7694,6 +7694,9 @@ link:{jdkdocs}/java.base/java/time/Instant.html[Instant^] or link:{jdkdocs}/java
 It also configures SQL array type support for `int`, `long`, `float`, `double`,
 `String`, and `UUID`.
 
+If link:https://github.com/pgvector/pgvector-java[PGvector-java^] is available, Jdbi will register bindings
+and mappers for `PGvector`, `PGhalfvec`, `PGsparsevec`, and `PGbit`.
+
 See the link:{jdbidocs}/postgres/package-summary.html[javadoc^] for an exhaustive list.
 
 TIP: Some Postgres operators, for example the `?` query operator, collide with Jdbi or JDBC specific special characters.
