@@ -48,12 +48,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.inferred</groupId>
-            <artifactId>freebuilder</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- all the test dependencies as the -tests jar does not provide deps -->
         <dependency>
             <groupId>org.mockito</groupId>
