@@ -78,7 +78,7 @@
         <dep.caffeine.version>3.2.1</dep.caffeine.version>
         <dep.checkerframework.version>3.49.5</dep.checkerframework.version>
         <dep.commons-compress.version>1.27.1</dep.commons-compress.version>
-        <dep.commons-lang.version>3.17.0</dep.commons-lang.version>
+        <dep.commons-lang.version>3.18.0</dep.commons-lang.version>
         <dep.commons-text.version>1.13.1</dep.commons-text.version>
         <!-- derby 10.17 is JDK 21 only, keep it on 10.16 for now -->
         <dep.derby.version>10.16.1.1</dep.derby.version>
