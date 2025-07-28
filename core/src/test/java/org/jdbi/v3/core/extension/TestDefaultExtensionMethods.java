@@ -99,12 +99,10 @@ public class TestDefaultExtensionMethods {
     @Retention(RetentionPolicy.RUNTIME)
     @UseExtensionHandler(id = "test", value = TestExtensionAnnotations.Foo.Impl.class)
     public @interface ForTest {
-
         class Impl implements ExtensionHandler {
-
             @Override
-            public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
-                return "foo";
+            public Invoker createInvoker(Object target) {
+                return (handleSupplier, args) -> "foo";
             }
         }
     }

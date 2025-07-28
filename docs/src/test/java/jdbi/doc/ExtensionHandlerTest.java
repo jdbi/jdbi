@@ -25,7 +25,6 @@ import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
 import org.jdbi.v3.core.extension.Extensions;
-import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
@@ -95,8 +94,9 @@ class ExtensionHandlerTest {
     // tag::extension-handler[]
     public static class TestExtensionHandler implements ExtensionHandler {
         @Override
-        public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
-            return new Something((int) args[0], (String) args[1]); // <1>
+        public Invoker createInvoker(Object target) {
+            return (handleSupplier, args) ->
+                    new Something((int) args[0], (String) args[1]); // <1>
         }
     }
     // end::extension-handler[]
