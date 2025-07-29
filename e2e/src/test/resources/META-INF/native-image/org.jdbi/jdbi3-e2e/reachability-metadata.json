@@ -1,0 +1,6 @@
+{
+  "resources": [
+    {"glob":"**/*.sql"},
+    {"glob":"**/*.ftl"}
+  ]
+}
