@@ -27,33 +27,16 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @EnabledForJreRange(min = JRE.JAVA_17)
-public class JdbiGenericExtensionTest {
+@DisabledInNativeImage // Derby does not support native-image
+public class JdbiDerbyExtensionTest {
 
     @RegisterExtension
     public JdbiExtension derbyExtension = new JdbiGenericExtension("jdbc:derby:memory:" + UUID.randomUUID().toString() + ";create=true")
             .withInitializer(TestingInitializers.usersWithData());
 
-    @RegisterExtension
-    public JdbiExtension hsqldbExtension = new JdbiGenericExtension("jdbc:hsqldb:mem:" + UUID.randomUUID())
-            .withCredentials("username", "password")
-            .withInitializer(TestingInitializers.usersWithData());
-
     @Test
-    @DisabledInNativeImage // Derby does not support native-image
     public void testApacheDerby() {
         List<String> userNames = derbyExtension.getJdbi().withHandle(h -> {
-            try (Query query = h.createQuery("SELECT name FROM users ORDER BY id")) {
-                return query.mapTo(String.class).list();
-            }
-        });
-
-        assertThat(userNames).hasSize(2);
-        assertThat(userNames).containsExactly("Alice", "Bob");
-    }
-
-    @Test
-    public void testHsqldb() {
-        List<String> userNames = hsqldbExtension.getJdbi().withHandle(h -> {
             try (Query query = h.createQuery("SELECT name FROM users ORDER BY id")) {
                 return query.mapTo(String.class).list();
             }
