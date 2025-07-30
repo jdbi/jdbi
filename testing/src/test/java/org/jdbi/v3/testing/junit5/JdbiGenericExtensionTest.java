@@ -19,6 +19,7 @@ import java.util.UUID;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -38,6 +39,7 @@ public class JdbiGenericExtensionTest {
             .withInitializer(TestingInitializers.usersWithData());
 
     @Test
+    @DisabledInNativeImage // Derby does not support native-image
     public void testApacheDerby() {
         List<String> userNames = derbyExtension.getJdbi().withHandle(h -> {
             try (Query query = h.createQuery("SELECT name FROM users ORDER BY id")) {
