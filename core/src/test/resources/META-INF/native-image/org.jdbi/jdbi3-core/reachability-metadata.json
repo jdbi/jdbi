@@ -1,0 +1,18 @@
+{
+  "reflection": [
+    {"type":"org.jdbi.v3.core.Something","allPublicConstructors": true,"allPublicMethods": true},
+    {"type":"org.jdbi.v3.core.mapper.ImmutableTrain","allPublicConstructors": true,"allPublicMethods": true,"allDeclaredFields":true},
+    {"type":"org.jdbi.v3.core.mapper.ImmutableTrain$Builder","methods":[{"name":"build"}]},
+    {"type":"org.jdbi.v3.core.mapper.JoinRowMapperTest$Article","allPublicConstructors": true,"allPublicMethods": true},
+    {"type":"org.jdbi.v3.core.mapper.JoinRowMapperTest$User","allPublicConstructors": true,"allPublicMethods": true},
+    {"type":"org.jdbi.v3.core.mapper.SomethingMapper","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.core.mapper.ValueTypeMapper","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.core.mapper.ValueTypeMapper$Factory","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.core.qualifier.ReversedStringMapper","methods":[{"name":"<init>"}]}
+  ],
+  "resources": [
+    {"glob":"**/*.sql"}
+  ]
+}
+
