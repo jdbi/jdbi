@@ -32,15 +32,20 @@ public class CreateSqlObjectHandler implements ExtensionHandler {
     }
 
     @Override
-    public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
-        ConfigRegistry config = handleSupplier.getConfig();
+    public Bound bindTo(Object target) {
+        return new Bound() {
+            @Override
+            public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
+                ConfigRegistry config = handleSupplier.getConfig();
 
-        if (handleSupplier instanceof OnDemandHandleSupplier) {
-            return config.get(OnDemandExtensions.class).create(handleSupplier.getJdbi(), method.getReturnType(), SqlObject.class);
-        }
-        return config.get(Extensions.class)
-                .findFactory(SqlObjectFactory.class)
-                .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
-                .attach(method.getReturnType(), handleSupplier);
+                if (handleSupplier instanceof OnDemandHandleSupplier) {
+                    return config.get(OnDemandExtensions.class).create(handleSupplier.getJdbi(), method.getReturnType(), SqlObject.class);
+                }
+                return config.get(Extensions.class)
+                        .findFactory(SqlObjectFactory.class)
+                        .orElseThrow(() -> new IllegalStateException("Can't locate SqlObject factory"))
+                        .attach(method.getReturnType(), handleSupplier);
+            }
+        };
     }
 }

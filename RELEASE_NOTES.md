@@ -1,6 +1,7 @@
 # Unreleased
 
 - Add support for PGvector types (#2830)
+- ExtensionHandler interface pulls out handling of target object into new ExtensionHandler.Bound interface (#2828)
 
 # 3.49.5
 
