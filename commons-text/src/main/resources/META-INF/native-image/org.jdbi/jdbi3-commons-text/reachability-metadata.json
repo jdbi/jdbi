@@ -1,0 +1,10 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.v3.commonstext.TestUseStringSubstitutorTemplateEngine$Queries1"]}},
+    {"type":{"proxy":["org.jdbi.v3.commonstext.TestUseStringSubstitutorTemplateEngine$Queries2"]}},
+    {"type":"org.jdbi.v3.commonstext.StringSubstitutorTemplateEngine","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.commonstext.TestUseStringSubstitutorTemplateEngine","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.commonstext.internal.UseStringSubstitutorTemplateEngineImpl","methods":[{"name":"<init>"}]}
+  ]
+}
+

@@ -18,12 +18,14 @@ import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("HideUtilityClassConstructor")
 @RequirePostgresVersion(atLeast = "10")
+@DisabledInNativeImage // XXX https://github.com/flyway/flyway/issues/2927#issuecomment-2065790934
 public class JdbiExtensionTest {
 
     @RegisterExtension
