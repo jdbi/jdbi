@@ -959,6 +959,13 @@
                         <arguments>-Dno-docker=${no-docker}</arguments>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-invoker-plugin</artifactId>
+                    <configuration>
+                        <scope>test</scope>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
