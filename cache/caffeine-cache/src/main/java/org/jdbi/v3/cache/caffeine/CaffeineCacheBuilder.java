@@ -19,7 +19,7 @@ import org.jdbi.v3.core.cache.JdbiCacheBuilder;
 import org.jdbi.v3.core.cache.JdbiCacheLoader;
 
 /**
- * Cache builder using the caffeine caching library.
+ * Cache builder using the Caffeine caching library.
  */
 public final class CaffeineCacheBuilder implements JdbiCacheBuilder {
 
@@ -49,12 +49,12 @@ public final class CaffeineCacheBuilder implements JdbiCacheBuilder {
 
     @Override
     public <K, V> JdbiCache<K, V> build() {
-        return new CaffeineCache<>(caffeine);
+        return new JdbiCaffeineCache<>(caffeine, null);
     }
 
     @Override
     public <K, V> JdbiCache<K, V> buildWithLoader(JdbiCacheLoader<K, V> cacheLoader) {
-        return new CaffeineLoadingCache<>(caffeine, cacheLoader);
+        return new JdbiCaffeineCache<>(caffeine, cacheLoader);
     }
 
     @Override

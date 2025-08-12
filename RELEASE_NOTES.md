@@ -1,6 +1,7 @@
 # Unreleased
 
 - Add support for PGvector types (#2830)
+- Improve concurrency of statement cache loading (#2834)
 
 # 3.49.5
 
