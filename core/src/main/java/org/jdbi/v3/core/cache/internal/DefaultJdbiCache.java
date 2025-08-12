@@ -15,6 +15,7 @@ package org.jdbi.v3.core.cache.internal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -24,19 +25,19 @@ import org.jdbi.v3.core.cache.JdbiCacheLoader;
 
 final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
 
-    private final ConcurrentMap<K, DoubleLinkedList.Node<K, V>> cache;
+    private final ConcurrentMap<K, DoubleLinkedList.Node<K, CompletableFuture<V>>> cache;
 
     @GuardedBy("expungeQueue")
-    private final DoubleLinkedList<K, V> expungeQueue;
+    private final DoubleLinkedList<K, CompletableFuture<V>> expungeQueue;
 
-    private final JdbiCacheLoader<K, DoubleLinkedList.Node<K, V>> cacheLoader;
+    private final JdbiCacheLoader<K, V> cacheLoader;
 
     private final int maxSize;
 
     DefaultJdbiCache(DefaultJdbiCacheBuilder builder, JdbiCacheLoader<K, V> cacheLoader) {
         this.cache = new ConcurrentHashMap<>();
         this.expungeQueue = new DoubleLinkedList<>();
-        this.cacheLoader = wrapLoader(cacheLoader);
+        this.cacheLoader = cacheLoader;
 
         this.maxSize = builder.getMaxSize();
     }
@@ -44,9 +45,7 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
     @Override
     public V get(K key) {
         try {
-            DoubleLinkedList.Node<K, V> node = cache.computeIfAbsent(key, cacheLoader::create);
-            refresh(node);
-            return node.value;
+            return doGet(key, cacheLoader);
         } finally {
             expunge();
         }
@@ -55,11 +54,37 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
     @Override
     public V getWithLoader(K key, JdbiCacheLoader<K, V> loader) {
         try {
-            DoubleLinkedList.Node<K, V> node = cache.computeIfAbsent(key, wrapLoader(loader)::create);
-            refresh(node);
-            return node.value;
+            return doGet(key, loader);
         } finally {
             expunge();
+        }
+    }
+
+    private V doGet(final K key, final JdbiCacheLoader<K, V> loader) {
+        var node = cache.computeIfAbsent(key, k ->
+                DoubleLinkedList.createNode(key, new CompletableFuture<>()));
+        if (node.value.isDone()) {
+            if (!node.value.isCompletedExceptionally()) {
+                refresh(node);
+            }
+            return node.value.join();
+        }
+
+        // Node with Future atomically loaded into cache, but needs a value still
+        // CHM and friends use a striped lock which can lead to surprising exclusions
+        // https://github.com/jdbi/jdbi/issues/2834
+        // so take a more specific lock instead
+        synchronized (node) {
+            // Double-check in case of race
+            if (!node.value.isDone()) {
+                if (maxSize > 0) {
+                    synchronized (expungeQueue) {
+                        expungeQueue.addHead(node);
+                    }
+                }
+                node.value.complete(loader == null ? null : loader.create(key));
+            }
+            return node.value.join();
         }
     }
 
@@ -71,28 +96,10 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
         }
     }
 
-    private JdbiCacheLoader<K, DoubleLinkedList.Node<K, V>> wrapLoader(JdbiCacheLoader<K, V> delegate) {
-
-        if (delegate == null) {
-            return k -> DoubleLinkedList.createNode(k, null);
-        }
-
-        return key -> {
-            V value = delegate.create(key);
-            DoubleLinkedList.Node<K, V> node = DoubleLinkedList.createNode(key, value);
-            if (maxSize > 0) {
-                synchronized (expungeQueue) {
-                    expungeQueue.addHead(node);
-                }
-            }
-            return node;
-        };
-    }
-
-    private void refresh(DoubleLinkedList.Node<K, V> node) {
+    private void refresh(DoubleLinkedList.Node<K, CompletableFuture<V>> node) {
         if (maxSize > 0) {
             synchronized (expungeQueue) {
-                DoubleLinkedList.Node<K, V> cacheNode = expungeQueue.removeNode(node);
+                DoubleLinkedList.Node<K, CompletableFuture<V>> cacheNode = expungeQueue.removeNode(node);
                 // this can happen if the node that should be refreshed has been
                 // expunged between the call to computeIfAbsent and refresh (which is not
                 // done under the lock) above, so by the time the node gets passed here
@@ -129,7 +136,7 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
             }
 
             while (expungeQueue.size > maxSize) {
-                DoubleLinkedList.Node<K, V> node = expungeQueue.removeTail();
+                DoubleLinkedList.Node<K, ?> node = expungeQueue.removeTail();
                 if (node != null) {
                     purgeList.add(node.key);
                 }

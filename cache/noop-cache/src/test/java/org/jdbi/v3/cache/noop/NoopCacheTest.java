@@ -16,16 +16,16 @@ package org.jdbi.v3.cache.noop;
 import java.util.UUID;
 
 import org.jdbi.v3.core.cache.JdbiCache;
+import org.jdbi.v3.core.cache.JdbiCacheBuilder;
 import org.jdbi.v3.core.cache.internal.JdbiCacheTest;
-import org.junit.jupiter.api.BeforeEach;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NoopCacheTest extends JdbiCacheTest {
 
-    @BeforeEach
-    void beforeEach() {
-        this.builder = NoopCache.builder();
+    @Override
+    protected JdbiCacheBuilder setupBuilder() {
+        return NoopCache.builder();
     }
 
     @Override

@@ -13,39 +13,18 @@
  */
 package org.jdbi.v3.cache.caffeine;
 
-import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.stats.CacheStats;
-import org.jdbi.v3.core.cache.JdbiCache;
-import org.jdbi.v3.core.cache.JdbiCacheLoader;
 
 /**
  * Cache implementation using the caffeine cache library.
  *
  * @param <K> The key type.
  * @param <V> The value type.
+ * @deprecated should not be public API
  */
-public final class CaffeineCache<K, V> implements JdbiCache<K, V> {
-
-    private final Cache<K, V> cache;
-
+@Deprecated(forRemoval = true, since = "3.50")
+public final class CaffeineCache<K, V> extends JdbiCaffeineCache<K, V> {
     CaffeineCache(Caffeine<Object, Object> caffeine) {
-        this.cache = caffeine.build();
-    }
-
-    @Override
-    public V get(K key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public V getWithLoader(K key, JdbiCacheLoader<K, V> loader) {
-        return cache.get(key, loader::create);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public CacheStats getStats() {
-        return cache.stats();
+        super(caffeine, null);
     }
 }

@@ -24,7 +24,9 @@ import org.jdbi.v3.core.cache.JdbiCacheLoader;
  *
  * @param <K> The key type.
  * @param <V> The value type.
+ * @deprecated should not be public API
  */
+@Deprecated(forRemoval = true, since = "3.50")
 public final class CaffeineLoadingCache<K, V> implements JdbiCache<K, V> {
 
     private final LoadingCache<K, V> loadingCache;

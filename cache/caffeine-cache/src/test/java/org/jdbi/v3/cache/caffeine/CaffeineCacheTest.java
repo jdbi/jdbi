@@ -16,26 +16,13 @@ package org.jdbi.v3.cache.caffeine;
 import java.time.Duration;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import org.jdbi.v3.core.cache.JdbiCacheBuilder;
 import org.jdbi.v3.core.cache.internal.JdbiCacheTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 class CaffeineCacheTest extends JdbiCacheTest {
-
-    @BeforeEach
-    void beforeEach() {
-        this.builder = CaffeineCacheBuilder.instance();
-    }
-
-    @Test
-    void testCaffeineWithGlobalLoader() {
+    @Override
+    protected JdbiCacheBuilder setupBuilder() {
         Caffeine<Object, Object> caffeine = Caffeine.newBuilder().expireAfterAccess(Duration.ofSeconds(5)).initialCapacity(10);
-        doTestWithGlobalLoader(new CaffeineCacheBuilder(caffeine).buildWithLoader(cacheLoader));
-    }
-
-    @Test
-    void testCaffeineWithDirectLoader() {
-        Caffeine<Object, Object> caffeine = Caffeine.newBuilder().expireAfterAccess(Duration.ofSeconds(5)).initialCapacity(10);
-        doTestWithLoader(new CaffeineCacheBuilder(caffeine).build());
+        return new CaffeineCacheBuilder(caffeine);
     }
 }

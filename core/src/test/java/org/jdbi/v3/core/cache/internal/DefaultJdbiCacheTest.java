@@ -17,24 +17,24 @@ import java.util.UUID;
 
 import org.jdbi.v3.core.cache.JdbiCache;
 import org.jdbi.v3.core.cache.JdbiCacheBuilder;
-import org.jdbi.v3.core.cache.internal.JdbiCacheTest.TestingCacheLoader;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultJdbiCacheTest {
+public class DefaultJdbiCacheTest extends JdbiCacheTest {
 
-    private final JdbiCacheBuilder builder = DefaultJdbiCacheBuilder.builder();
-
-    private final TestingCacheLoader cacheLoader = new TestingCacheLoader();
+    @Override
+    protected JdbiCacheBuilder setupBuilder() {
+        return DefaultJdbiCacheBuilder.builder();
+    }
 
     @Test
     void testUntouchedCacheExpunge() {
         int keyCount = 0;
 
         int size = 10;
-        JdbiCache<String, String> cache = builder.maxSize(size).buildWithLoader(cacheLoader);
+        JdbiCache<String, String> cache = setupBuilder().maxSize(size).buildWithLoader(cacheLoader);
 
         // tests specific DefaultJdbiCache LRU behavior. Skip for all other cache types.
         Assumptions.assumeTrue(cache instanceof DefaultJdbiCache);
@@ -78,7 +78,7 @@ public class DefaultJdbiCacheTest {
         int keyCount = 0;
 
         int size = 10;
-        JdbiCache<String, String> cache = builder.maxSize(size).buildWithLoader(cacheLoader);
+        JdbiCache<String, String> cache = setupBuilder().maxSize(size).buildWithLoader(cacheLoader);
 
         // tests specific DefaultJdbiCache LRU behavior. Skip for all other cache types.
         Assumptions.assumeTrue(cache instanceof DefaultJdbiCache);
