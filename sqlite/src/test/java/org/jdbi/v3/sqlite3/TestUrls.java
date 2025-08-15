@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@SuppressWarnings("deprecation")
 public class TestUrls {
 
     Handle handle;
@@ -45,15 +46,15 @@ public class TestUrls {
 
     @Test
     public void testInsertUrlSuccessful() throws MalformedURLException {
-        String googleString = "http://www.google.com";
-        URL googleUrl = new URL(googleString);
+        String urlString = "file:/my-url";
+        URL url = new URL(urlString);
 
         handle.createUpdate("INSERT INTO foo VALUES (:url)")
-                .bind("url", googleUrl)
+                .bind("url", url)
                 .execute();
 
         URL actualUrl = handle.createQuery("SELECT url FROM foo").mapTo(URL.class).one();
-        Assertions.assertThat(actualUrl).hasToString(googleUrl.toString());
+        Assertions.assertThat(actualUrl).hasToString(urlString);
     }
 
     @Test
@@ -68,14 +69,14 @@ public class TestUrls {
 
     @Test
     public void testInsertUrlUsingBindByType() throws MalformedURLException {
-        URL githubUrl = new URL("http://www.github.com");
+        URL url = new URL("file:/my-file");
 
         handle.createUpdate("INSERT INTO foo VALUES (:url)")
-                .bindByType("url", githubUrl, URL.class)
+                .bindByType("url", url, URL.class)
                 .execute();
 
         URL dbUrl = handle.createQuery("SELECT * FROM foo").mapTo(URL.class).one();
-        Assertions.assertThat(dbUrl).hasToString(githubUrl.toString());
+        Assertions.assertThat(dbUrl).hasToString(url.toString());
     }
 
     @Test
