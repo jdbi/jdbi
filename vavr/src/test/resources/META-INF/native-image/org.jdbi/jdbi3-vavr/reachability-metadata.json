@@ -1,12 +1,7 @@
 {
   "reflection": [
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2497$SuluDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2508$Dao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2562$UserSearchDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2623$Dao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2669$ValueDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.java17.TestRecord$UserDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.java17.TestTextBlock$UserDao"]}},
+    {"type":{"proxy":["java.util.stream.Collector"]}},
+    {"type":{"proxy":["org.jdbi.v3.vavr.TestVavrSqlObject$Dao"]}},
     {"type":"de.softwareforge.testing.maven.org.apache.maven.repository.internal.$DefaultArtifactDescriptorReader","methods":[{"name":"<init>"}]},
     {"type":"de.softwareforge.testing.maven.org.apache.maven.repository.internal.$DefaultModelCacheFactory","methods":[{"name":"<init>"}]},
     {"type":"de.softwareforge.testing.maven.org.apache.maven.repository.internal.$DefaultVersionRangeResolver","methods":[{"name":"<init>"}]},
@@ -42,10 +37,5 @@
     {"type":"de.softwareforge.testing.maven.org.eclipse.aether.internal.impl.synccontext.named.$NamedLockFactoryAdapterFactoryImpl","methods":[{"name":"<init>"}]},
     {"type":"de.softwareforge.testing.maven.org.eclipse.aether.transport.file.$FileTransporterFactory","methods":[{"name":"<init>"}]},
     {"type":"de.softwareforge.testing.maven.org.eclipse.aether.transport.http.$HttpTransporterFactory","methods":[{"name":"<init>"}]}
-  ],
-  "resources": [
-    {"glob":"**/*.sql"},
-    {"glob":"**/*.ftl"},
-    {"glob":"mysql-default-conf"}
   ]
 }
