@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlite3;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import org.assertj.core.api.Assertions;
@@ -45,15 +46,15 @@ public class TestUrls {
 
     @Test
     public void testInsertUrlSuccessful() throws MalformedURLException {
-        String googleString = "http://www.google.com";
-        URL googleUrl = new URL(googleString);
+        String urlString = "file:/my-url";
+        URL url = URI.create(urlString).toURL();
 
         handle.createUpdate("INSERT INTO foo VALUES (:url)")
-                .bind("url", googleUrl)
+                .bind("url", url)
                 .execute();
 
         URL actualUrl = handle.createQuery("SELECT url FROM foo").mapTo(URL.class).one();
-        Assertions.assertThat(actualUrl).hasToString(googleUrl.toString());
+        Assertions.assertThat(actualUrl).hasToString(urlString);
     }
 
     @Test
@@ -68,14 +69,14 @@ public class TestUrls {
 
     @Test
     public void testInsertUrlUsingBindByType() throws MalformedURLException {
-        URL githubUrl = new URL("http://www.github.com");
+        URL url = URI.create("file:/my-file").toURL();
 
         handle.createUpdate("INSERT INTO foo VALUES (:url)")
-                .bindByType("url", githubUrl, URL.class)
+                .bindByType("url", url, URL.class)
                 .execute();
 
         URL dbUrl = handle.createQuery("SELECT * FROM foo").mapTo(URL.class).one();
-        Assertions.assertThat(dbUrl).hasToString(githubUrl.toString());
+        Assertions.assertThat(dbUrl).hasToString(url.toString());
     }
 
     @Test
