@@ -1,21 +1,11 @@
 {
   "reflection": [
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestByteaArrays$ByteaDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestEnumSets$VideoDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestHStore$CampaignDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestImmutablesHStore$MappyDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestLobStream$Lobject"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestMacAddr$MacAddrDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestPostgresTypes$PostgresCustomTypeDAO"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestQualifiedHStore$CampaignDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestSqlArrays$ArrayObject"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestSqlArrays$WhereInDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.postgres.TestUuid$UuidObject"]}},
-    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestBatchGeneratedKeys$UsesBatching"]}},
-    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestJsonOperator$KeyValueStore"]}},
-    {"type":"org.jdbi.v3.postgres.FooBarPGType","methods":[{"name":"<init>"}]},
-    {"type":"org.jdbi.v3.postgres.ImmutableMappy"},
-    {"type":"org.postgresql.util.PGmoney","methods":[{"name":"<init>"}]},
+    {"type":{"proxy":["org.jdbi.v3.jackson2.TestJackson2Plugin$ContainerDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.jackson2.TestJackson2Plugin$ExtendingDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.json.AbstractIssue2395Test$BeanDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.json.AbstractIssue2395Test$CtorDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.json.AbstractIssue2395Test$FieldDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.json.AbstractJsonMapperTest$JsonDao"]}},
     {"type":"de.softwareforge.testing.maven.org.apache.maven.repository.internal.$DefaultArtifactDescriptorReader","methods":[{"name":"<init>"}]},
     {"type":"de.softwareforge.testing.maven.org.apache.maven.repository.internal.$DefaultModelCacheFactory","methods":[{"name":"<init>"}]},
     {"type":"de.softwareforge.testing.maven.org.apache.maven.repository.internal.$DefaultVersionRangeResolver","methods":[{"name":"<init>"}]},
@@ -51,8 +41,5 @@
     {"type":"de.softwareforge.testing.maven.org.eclipse.aether.internal.impl.synccontext.named.$NamedLockFactoryAdapterFactoryImpl","methods":[{"name":"<init>"}]},
     {"type":"de.softwareforge.testing.maven.org.eclipse.aether.transport.file.$FileTransporterFactory","methods":[{"name":"<init>"}]},
     {"type":"de.softwareforge.testing.maven.org.eclipse.aether.transport.http.$HttpTransporterFactory","methods":[{"name":"<init>"}]}
-  ],
-  "resources": [
-    {"glob":"**/*.sql.stg"}
   ]
 }
