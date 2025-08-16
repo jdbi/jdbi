@@ -29,10 +29,11 @@ Makefile:: ;
 clean::
 	${MAVEN} clean
 
+install:: MAVEN_ARGS += -Djdbi.it.skip-install=false
 install::
 	${MAVEN} clean install
 
-tests: install-notests run-tests
+tests:: install-notests run-tests
 
 install-notests:: MAVEN_ARGS += -Dbasepom.test.skip=true
 install-notests:: install
@@ -52,7 +53,7 @@ docs:: install-fast
 
 run-tests:: MAVEN_ARGS += -Dbasepom.it.skip=false
 run-tests::
-	${MAVEN} surefire:test invoker:install invoker:integration-test invoker:verify
+	${MAVEN} surefire:test invoker:integration-test invoker:verify
 
 run-slow-tests:: MAVEN_ARGS += -Pslow-tests
 run-slow-tests:: run-tests
