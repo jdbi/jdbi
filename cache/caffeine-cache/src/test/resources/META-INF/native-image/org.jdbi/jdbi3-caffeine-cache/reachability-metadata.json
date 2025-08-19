@@ -1,0 +1,5 @@
+{
+  "reflection": [
+    {"type":"com.github.benmanes.caffeine.cache.SSA","methods":[{"name":"<init>"}],"allDeclaredFields":true}
+  ]
+}
