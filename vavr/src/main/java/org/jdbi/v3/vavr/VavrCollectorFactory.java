@@ -53,7 +53,6 @@ import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 import static org.jdbi.v3.core.generic.GenericTypes.parameterizeClass;
 
-@SuppressWarnings("PMD.ReplaceVectorWithList")
 class VavrCollectorFactory implements CollectorFactory {
 
     private final Map<Class<?>, Class<?>> defaultImplementations = HashMap.of(

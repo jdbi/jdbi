@@ -69,7 +69,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.parameterizeClass;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-@SuppressWarnings({"deprecation", "PMD.ExcessiveClassLength", "PMD.ConfusingArgumentToVarargsMethod"})
+@SuppressWarnings({"deprecation", "PMD.ConfusingArgumentToVarargsMethod"})
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> {
     private final String sql;
     PreparedStatement stmt;

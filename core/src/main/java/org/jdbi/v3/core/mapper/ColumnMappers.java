@@ -202,7 +202,6 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param type the qualified target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes", "PMD.UnnecessaryCast" })
     public <T> Optional<ColumnMapper<T>> findFor(QualifiedType<T> type) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.

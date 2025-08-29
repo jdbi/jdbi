@@ -168,7 +168,6 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
     }
 
     @Override
-    @SuppressWarnings("PMD.CloseResource")
     public Handle customizeHandle(Handle handle) throws SQLException {
         Connection conn = handle.getConnection();
         if (PGVECTOR_AVAILABLE) {

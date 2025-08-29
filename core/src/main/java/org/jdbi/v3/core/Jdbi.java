@@ -362,7 +362,6 @@ public class Jdbi implements Configurable<Jdbi> {
     public Handle open() {
         try {
             final long start = System.nanoTime();
-            @SuppressWarnings("PMD.CloseResource")
             Connection conn = Objects.requireNonNull(connectionFactory.openConnection(),
                     () -> "Connection factory " + connectionFactory + " returned a null connection");
             final long stop = System.nanoTime();
