@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
@@ -26,11 +27,12 @@ import org.jdbi.v3.core.Handle;
 /**
  * Use {@link Flyway} to create a database schema and/or preload a database instance.
  */
+@NotThreadSafe
 public final class JdbiFlywayMigration implements JdbiExtensionInitializer {
 
     private final List<String> schemas = new ArrayList<>();
     private final List<String> paths = new ArrayList<>();
-    private volatile boolean cleanAfter = true;
+    private boolean cleanAfter = true;
 
     private volatile Flyway flyway;
 

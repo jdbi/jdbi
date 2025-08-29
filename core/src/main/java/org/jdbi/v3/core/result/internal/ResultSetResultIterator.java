@@ -16,8 +16,9 @@ package org.jdbi.v3.core.result.internal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -25,6 +26,7 @@ import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.result.ResultSetException;
 import org.jdbi.v3.core.statement.StatementContext;
 
+@NotThreadSafe
 class ResultSetResultIterator<T> implements ResultIterator<T> {
     private final ResultSet resultSet;
     private final RowMapper<T> rowMapper;
@@ -32,7 +34,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
     private final ResultSetSupplier resultSetSupplier;
     private final StatementContext context;
 
-    private final AtomicLong mappedRows = new AtomicLong();
+    private long mappedRows = 0;
 
     private volatile boolean alreadyAdvanced = false;
     private volatile boolean hasNext = false;
@@ -64,7 +66,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
     @Override
     public void close() {
         closed = true;
-        context.setMappedRows(mappedRows.get());
+        context.setMappedRows(mappedRows);
         try {
             resultSetSupplier.close();
         } catch (SQLException e) {
@@ -100,7 +102,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
             throw new NoSuchElementException("No element to advance to");
         }
 
-        mappedRows.incrementAndGet();
+        mappedRows++;
 
         try {
             return rowMapper.map(resultSet, context);
