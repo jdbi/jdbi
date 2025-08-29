@@ -267,7 +267,6 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
     /**
      * Creates a {@link Key} object for a {@link TypeLiteral} that uses the annotation or annotation class used to construct this module.
      */
-    @SuppressWarnings("PMD.ConfusingTernary")
     public final <T> Key<T> createKey(TypeLiteral<T> type) {
         checkNotNull(type, "type is null");
 
@@ -294,7 +293,6 @@ public abstract class AbstractJdbiDefinitionModule extends PrivateModule impleme
      * Exposes a binding that is in module scope (without annotations) and binds it using either the annotation or annotation class and then exposes it outside
      * the module.
      */
-    @SuppressWarnings("PMD.ConfusingTernary")
     public final <T> void exposeBinding(TypeLiteral<T> type) {
         checkNotNull(type, "type is null");
 

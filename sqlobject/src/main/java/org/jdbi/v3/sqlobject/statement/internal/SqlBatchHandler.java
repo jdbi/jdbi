@@ -188,7 +188,6 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         final Supplier<String> sqlSupplier = locateSql(config);
         return new AttachedExtensionHandler() {
             @Override
-            @SuppressWarnings("PMD.ExcessiveMethodLength")
             public Object invoke(HandleSupplier handleSupplier, Object... args) {
                 final String sql = sqlSupplier.get();
                 final Object[] safeArgs = JdbiClassUtils.safeVarargs(args);

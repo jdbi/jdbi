@@ -120,7 +120,7 @@ public class LocalTransactionHandler implements TransactionHandler {
         public void begin(Handle handle) {
             try {
                 if (handlerState == State.OUTSIDE_TRANSACTION) {
-                    Connection conn = handle.getConnection(); // NOPMD
+                    Connection conn = handle.getConnection();
                     initialAutocommit = conn.getAutoCommit();
                     savepoints.clear();
                     conn.setAutoCommit(false);
@@ -166,7 +166,6 @@ public class LocalTransactionHandler implements TransactionHandler {
 
         @Override
         public void savepoint(Handle handle, String name) {
-            @SuppressWarnings("PMD.CloseResource")
             final Connection conn = handle.getConnection();
             try {
                 final Savepoint savepoint = conn.setSavepoint(name);
@@ -178,7 +177,6 @@ public class LocalTransactionHandler implements TransactionHandler {
 
         @Override
         public void releaseSavepoint(Handle handle, String name) {
-            @SuppressWarnings("PMD.CloseResource")
             final Connection conn = handle.getConnection();
             try {
                 final Savepoint savepoint = savepoints.remove(name);
@@ -194,7 +192,6 @@ public class LocalTransactionHandler implements TransactionHandler {
 
         @Override
         public void rollbackToSavepoint(Handle handle, String name) {
-            @SuppressWarnings("PMD.CloseResource")
             final Connection conn = handle.getConnection();
             try {
                 final Savepoint savepoint = savepoints.remove(name);

@@ -44,7 +44,7 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
     public Optional<Function<StatementContext, String>> parse(String template, ConfigRegistry config) {
         StringBuilder buf = new StringBuilder();
         List<BiConsumer<StatementContext, StringBuilder>> preparation = new ArrayList<>();
-        Runnable pushBuf = () -> { // NOPMD
+        Runnable pushBuf = () -> {
             if (buf.length() > 0) {
                 String bit = buf.toString();
                 buf.setLength(0);

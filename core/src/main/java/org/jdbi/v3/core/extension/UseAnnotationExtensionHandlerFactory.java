@@ -52,7 +52,6 @@ final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFact
 
 
     @Override
-    @SuppressWarnings("PMD.UnnecessaryCast")
     public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
 
         List<Class<?>> extensionAnnotations = findAnnotations(method);

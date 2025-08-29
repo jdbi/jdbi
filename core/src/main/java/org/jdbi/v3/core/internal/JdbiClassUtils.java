@@ -163,7 +163,6 @@ public final class JdbiClassUtils {
      * @param values     Type values for the constructor. The number of values must match the number of type parameters.
      * @return An instance of the type.
      */
-    @SuppressWarnings({"unchecked", "PMD.PreserveStackTrace"})
     public static <T> T checkedCreateInstance(Class<T> type,
             Class<?>[] parameters,
             Object... values) {

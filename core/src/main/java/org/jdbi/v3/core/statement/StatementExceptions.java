@@ -144,7 +144,6 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
         protected abstract String render(StatementException exc, StatementContext ctx);
     }
 
-    @SuppressWarnings("PMD.UseStringBufferForStringAppends")
     protected static String limit(String s, int len) {
         if (s == null) {
             return null;
