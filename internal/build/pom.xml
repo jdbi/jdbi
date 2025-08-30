@@ -561,6 +561,7 @@
                 <artifactId>spotbugs-annotations</artifactId>
                 <version>${dep.spotbugs.version}</version>
                 <scope>provided</scope>
+                <optional>true</optional>
             </dependency>
 
             <dependency>
@@ -605,6 +606,29 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- annotation jars available everywhere -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- test dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -866,11 +890,13 @@
                     <version>${dep.plugin.flatten.version}</version>
                     <configuration>
                         <flattenMode>bom</flattenMode>
+                        <flattenDependencyMode>direct</flattenDependencyMode>
                         <pomElements>
                             <properties>remove</properties>
                             <distributionManagement>remove</distributionManagement>
                             <repositories>remove</repositories>
                             <dependencyManagement>interpolate</dependencyManagement>
+                            <dependencies>remove</dependencies>
                         </pomElements>
                     </configuration>
                 </plugin>
