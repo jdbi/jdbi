@@ -51,13 +51,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
+            <groupId>io.leangen.geantyref</groupId>
+            <artifactId>geantyref</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>io.leangen.geantyref</groupId>
-            <artifactId>geantyref</artifactId>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
