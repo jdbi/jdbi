@@ -1,0 +1,5 @@
+{
+  "reflection": [
+    {"type":"org.jdbi.v3.moshi.MoshiConfig","methods":[{"name":"<init>"}]}
+  ]
+}
