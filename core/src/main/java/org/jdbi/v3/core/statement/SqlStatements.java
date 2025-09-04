@@ -27,6 +27,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import jakarta.annotation.Nullable;
 
 import org.jdbi.v3.core.Handle;
@@ -41,6 +43,7 @@ import org.jdbi.v3.meta.Beta;
 /**
  * Configuration holder for {@link SqlStatement}s.
  */
+@NotThreadSafe
 public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     /** The default size of the SQL template cache. */
@@ -52,17 +55,17 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
-    private volatile boolean allowUnusedBindings;
-    private volatile boolean attachAllStatementsForCleanup;
-    private volatile boolean attachCallbackStatementsForCleanup = true;
-    private volatile boolean scriptStatementsNeedSemicolon = true;
+    private boolean allowUnusedBindings;
+    private boolean attachAllStatementsForCleanup;
+    private boolean attachCallbackStatementsForCleanup = true;
+    private boolean scriptStatementsNeedSemicolon = true;
     private final Collection<StatementCustomizer> customizers;
 
     private final Collection<StatementContextListener> contextListeners;
 
     // Don't emit unlimited amounts of data via telemetry
-    private volatile int jfrSqlMaxLength = 512;
-    private volatile int jfrParamMaxLength = 512;
+    private int jfrSqlMaxLength = 512;
+    private int jfrParamMaxLength = 512;
 
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());

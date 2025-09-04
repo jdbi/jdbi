@@ -103,7 +103,11 @@
         <exclude name="ReturnEmptyCollectionRatherThanNull"/>
         <!-- exclude b/c TestingInitializers -->
         <exclude name="TestClassWithoutTestCases"/>
+        <!-- see https://github.com/pmd/pmd/issues/6025 -->
+        <exclude name="ReplaceJavaUtilCalendar"/>
+        <exclude name="ReplaceJavaUtilDate"/>
     </rule>
+
     <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
         <properties>
             <property name="allowCommentedBlocks" value="true"/>
