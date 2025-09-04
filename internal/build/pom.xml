@@ -59,6 +59,7 @@
         <basepom.at-end.deploy>true</basepom.at-end.deploy>
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <basepom.it.skip>true</basepom.it.skip>
+        <basepom.it.skip-install>true</basepom.it.skip-install>
         <basepom.it.timeout>600</basepom.it.timeout>
         <basepom.javadoc.exclude-package-names>*.internal.*:*.internal</basepom.javadoc.exclude-package-names>
         <basepom.javadoc.legacy-mode>true</basepom.javadoc.legacy-mode>
@@ -146,7 +147,6 @@
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sbom>${basepom.check.skip-extended}</jdbi.check.skip-sbom>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
-        <jdbi.it.skip-install>true</jdbi.it.skip-install>
         <jdbi.test.language>en</jdbi.test.language>
         <jdbi.test.mysql-version>mysql:lts</jdbi.test.mysql-version>
         <jdbi.test.pg-version>17</jdbi.test.pg-version>
@@ -990,8 +990,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
                     <configuration>
-                        <scope>test</scope>
-                        <skipInstallation>${jdbi.it.skip-install}</skipInstallation>
                         <extraArtifacts>
                             <extraArtifact>org.jdbi:jdbi3-bom:${project.version}:pom</extraArtifact>
                         </extraArtifacts>
