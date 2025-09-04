@@ -126,6 +126,8 @@
         <dep.plugin.flatten.version>1.7.1</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.5.1</dep.plugin.inline.version>
         <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
+        <!-- workaround for https://github.com/apache/maven-javadoc-plugin/issues/1242, should be fixed in 3.11.4 -->
+        <dep.plugin.javadoc.version>3.11.2</dep.plugin.javadoc.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
