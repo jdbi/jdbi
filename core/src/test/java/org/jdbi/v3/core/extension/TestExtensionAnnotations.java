@@ -48,7 +48,6 @@ public class TestExtensionAnnotations {
     }
 
     public interface Broken {
-
         @ExtensionOne
         @ExtensionTwo
         void bogus();
@@ -62,7 +61,6 @@ public class TestExtensionAnnotations {
     }
 
     public interface Dao {
-
         @Foo
         String foo();
     }
@@ -70,11 +68,9 @@ public class TestExtensionAnnotations {
     @Retention(RetentionPolicy.RUNTIME)
     @UseExtensionHandler(id = "test", value = Foo.Impl.class)
     public @interface Foo {
-
-        class Impl implements ExtensionHandler {
-
+        class Impl implements ExtensionHandler.Simple {
             @Override
-            public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
+            public Object invoke(HandleSupplier handleSupplier, Object... args) {
                 return "foo";
             }
         }
@@ -84,11 +80,9 @@ public class TestExtensionAnnotations {
     @Target({ElementType.METHOD})
     @UseExtensionHandler(id = "test", value = Impl.class)
     public @interface ExtensionOne {
-
-        class Impl implements ExtensionHandler {
-
+        class Impl implements ExtensionHandler.Simple {
             @Override
-            public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
+            public Object invoke(HandleSupplier handleSupplier, Object... args) {
                 return null;
             }
         }
@@ -98,11 +92,9 @@ public class TestExtensionAnnotations {
     @Target({ElementType.METHOD})
     @UseExtensionHandler(id = "test", value = ExtensionTwo.Impl.class)
     public @interface ExtensionTwo {
-
-        class Impl implements ExtensionHandler {
-
+        class Impl implements ExtensionHandler.Simple {
             @Override
-            public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
+            public Object invoke(HandleSupplier handleSupplier, Object... args) {
                 return null;
             }
         }

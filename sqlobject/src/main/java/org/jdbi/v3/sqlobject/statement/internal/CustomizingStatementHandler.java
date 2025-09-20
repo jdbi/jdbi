@@ -23,12 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.AttachedExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.generic.GenericTypes;
@@ -80,11 +82,6 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
         // parameter customizers
         parameterCustomizers().forEach(statementCustomizers::add);
-    }
-
-    @Override
-    public void warm(ConfigRegistry config) {
-        statementCustomizers.forEach(s -> s.warm(config));
     }
 
     private static Stream<Annotation> annotationsFor(AnnotatedElement... elements) {
@@ -181,20 +178,33 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     @Override
-    public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
-        final Handle h = handleSupplier.getHandle();
-        final String locatedSql = locateSql(h);
-        final StatementType stmt = createStatement(h, locatedSql);
+    public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
+        final Supplier<String> locatedSql = locateSql(config);
+        return new AttachedExtensionHandler() {
+            @Override
+            public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
+                final Handle h = handleSupplier.getHandle();
+                final StatementType stmt = createStatement(h, locatedSql.get());
 
-        // clean the statement when the handle closes
-        stmt.attachToHandleForCleanup();
+                // clean the statement when the handle closes
+                stmt.attachToHandleForCleanup();
 
-        final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
-        cfg.setArgs(args);
-        configureReturner(stmt, cfg);
-        applyCustomizers(stmt, safeVarargs(args));
-        return cfg.getReturner().get();
+                final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
+                cfg.setArgs(args);
+                configureReturner(stmt, cfg);
+                applyCustomizers(stmt, safeVarargs(args));
+                return cfg.getReturner().get();
+            }
+
+            @Override
+            public void warm(ConfigRegistry config) {
+                statementCustomizers.forEach(s -> s.warm(config));
+                CustomizingStatementHandler.this.warm(config);
+            }
+        };
     }
+
+    protected void warm(ConfigRegistry config) {}
 
     void applyCustomizers(final StatementType stmt, Object[] args) {
         statementCustomizers.forEach(b -> {
@@ -210,8 +220,15 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
     abstract StatementType createStatement(Handle handle, String locatedSql);
 
-    String locateSql(final Handle h) {
-        return h.getConfig(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method, h.getConfig());
+    Supplier<String> locateSql(final ConfigRegistry config) {
+        try {
+            final String sql = config.get(SqlObjects.class).getSqlLocator().locate(sqlObjectType, method, config);
+            return () -> sql;
+        } catch (final RuntimeException e) {
+            return () -> {
+                throw e;
+            };
+        }
     }
 
     Method getMethod() {

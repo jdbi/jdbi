@@ -1,6 +1,13 @@
 # Unreleased
 
+- Add support for PGvector types (#2830)
+- Improve concurrency of statement cache loading (#2834)
+- ExtensionHandler interface pulls out handling of target object into new AttachedExtensionHandler interface (#2828)
+
+# 3.49.5
+
 - Fix SerializableTransactionRunner retry with failures wrapped in batch exceptions
+- Add Oracle-Free tests
 
 # 3.49.4
 

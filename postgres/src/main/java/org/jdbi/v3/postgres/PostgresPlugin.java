@@ -14,13 +14,17 @@
 package org.jdbi.v3.postgres;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 
+import com.pgvector.PGbit;
+import com.pgvector.PGvector;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.postgres.internal.BitStringEnumSetArgumentFactory;
@@ -93,6 +97,8 @@ import org.postgresql.util.PGmoney;
  */
 public class PostgresPlugin extends JdbiPlugin.Singleton {
 
+    private static final boolean PGVECTOR_AVAILABLE = JdbiClassUtils.isPresent("com.pgvector.PGvector");
+
     private final boolean installLegacy;
 
     /**
@@ -162,13 +168,25 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
     }
 
     @Override
-    @SuppressWarnings("PMD.CloseResource")
-    public Handle customizeHandle(Handle handle) {
+    public Handle customizeHandle(Handle handle) throws SQLException {
         Connection conn = handle.getConnection();
+        if (PGVECTOR_AVAILABLE) {
+            VectorEnabler.enable(conn);
+        }
         PGConnection pgConnection = Unchecked.supplier(() -> conn.unwrap(PGConnection.class)).get();
         return handle.configure(PostgresTypes.class, pt -> {
             pt.addTypesToConnection(pgConnection);
             pt.setLobApi(new PgLobApiImpl(conn));
         });
+    }
+
+    static final class VectorEnabler {
+        private VectorEnabler() {
+            throw new UtilityClassException();
+        }
+        static void enable(Connection conn) throws SQLException {
+            PGvector.registerTypes(conn);
+            PGbit.registerType(conn);
+        }
     }
 }

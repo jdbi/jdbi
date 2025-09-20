@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.extension.AttachedExtensionHandler;
 import org.jdbi.v3.core.extension.ExtensionHandler;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
@@ -38,7 +40,7 @@ public interface Handler extends ExtensionHandler {
     Object invoke(Object target, Object[] args, HandleSupplier handleSupplier) throws Exception;
 
     @Override
-    default Object invoke(HandleSupplier handleSupplier, Object target, Object... args) throws Exception {
-        return invoke(target, JdbiClassUtils.safeVarargs(args), handleSupplier);
+    default AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
+        return (handleSupplier, args) -> invoke(target, JdbiClassUtils.safeVarargs(args), handleSupplier);
     }
 }

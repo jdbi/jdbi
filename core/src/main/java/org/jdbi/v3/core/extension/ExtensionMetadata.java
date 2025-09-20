@@ -308,21 +308,19 @@ public final class ExtensionMetadata {
      */
     public final class ExtensionHandlerInvoker {
 
-        private final Object target;
         private final HandleSupplier handleSupplier;
         private final ExtensionContext extensionContext;
-        private final ExtensionHandler extensionHandler;
+        private final AttachedExtensionHandler extensionInvoker;
 
         ExtensionHandlerInvoker(Object target, Method method, ExtensionHandler extensionHandler, HandleSupplier handleSupplier, ConfigRegistry config) {
-            this.target = target;
             this.handleSupplier = handleSupplier;
             ConfigRegistry methodConfig = createMethodConfiguration(method, config);
             this.extensionContext = ExtensionContext.forExtensionMethod(methodConfig, extensionType, method);
 
-            this.extensionHandler = extensionHandler;
+            this.extensionInvoker = extensionHandler.attachTo(methodConfig, target);
 
             try {
-                this.extensionHandler.warm(methodConfig);
+                this.extensionInvoker.warm(methodConfig);
             } catch (Exception e) {
                 // if fail fast is requested, fail right at warmup time.
                 if (config.get(Extensions.class).isFailFast()) {
@@ -343,7 +341,7 @@ public final class ExtensionMetadata {
          */
         public Object invoke(Object... args) {
             final Object[] handlerArgs = JdbiClassUtils.safeVarargs(args);
-            final Callable<Object> callable = () -> extensionHandler.invoke(handleSupplier, target, handlerArgs);
+            final Callable<Object> callable = () -> extensionInvoker.invoke(handleSupplier, handlerArgs);
             return call(callable);
         }
 

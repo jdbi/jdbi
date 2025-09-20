@@ -20,30 +20,25 @@ import java.util.UUID;
 import org.jdbi.v3.core.cache.JdbiCache;
 import org.jdbi.v3.core.cache.JdbiCacheBuilder;
 import org.jdbi.v3.core.cache.JdbiCacheLoader;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class JdbiCacheTest {
-
-    protected JdbiCacheBuilder builder;
+public abstract class JdbiCacheTest {
 
     protected TestingCacheLoader cacheLoader = new TestingCacheLoader();
 
-    @BeforeEach
-    void beforeEach() {
-        this.builder = DefaultJdbiCacheBuilder.builder();
-    }
+    protected abstract JdbiCacheBuilder setupBuilder();
 
     @Test
     void testWithGlobalLoader() {
-        doTestWithGlobalLoader(builder.buildWithLoader(cacheLoader));
+        doTestWithGlobalLoader(setupBuilder().buildWithLoader(cacheLoader));
     }
 
     @Test
     void testWithDirectLoader() {
-        doTestWithLoader(builder.build());
+        doTestWithLoader(setupBuilder().build());
     }
 
     protected void doTestWithGlobalLoader(JdbiCache<String, String> cache) {
@@ -90,6 +85,17 @@ public class JdbiCacheTest {
         String value2 = cache.getWithLoader(key2, cacheLoader);
         assertThat(cacheLoader.created()).isEqualTo(2);
         assertThat(value2).isEqualTo(cacheLoader.checkKey(key2));
+
+        String key3 = UUID.randomUUID().toString();
+
+        for (int i = 0; i < 10; i++) {
+            assertThatThrownBy(() ->
+                        cache.getWithLoader(key3, k3 -> {
+                            throw new RuntimeException(key3);
+                        }))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage(key3);
+        }
     }
 
     public static final class TestingCacheLoader implements JdbiCacheLoader<String, String> {

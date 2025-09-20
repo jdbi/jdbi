@@ -39,7 +39,6 @@ public class Unchecked {
         };
     }
 
-    @SuppressWarnings("PMD.DoNotUseThreads")
     public static Runnable runnable(CheckedRunnable checkedRunnable) {
         return () -> {
             try {

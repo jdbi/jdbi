@@ -93,9 +93,9 @@ class ExtensionHandlerTest {
     // end::extension-handler-factory[]
 
     // tag::extension-handler[]
-    public static class TestExtensionHandler implements ExtensionHandler {
+    public static class TestExtensionHandler implements ExtensionHandler.Simple {
         @Override
-        public Object invoke(HandleSupplier handleSupplier, Object target, Object... args) {
+        public Object invoke(HandleSupplier handleSupplier, Object... args) {
             return new Something((int) args[0], (String) args[1]); // <1>
         }
     }

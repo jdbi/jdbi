@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.49.5-SNAPSHOT</version>
+        <version>3.50.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -32,10 +32,11 @@
         <basepom.test.fork-count>1</basepom.test.fork-count>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
+        <dep.clickhouse.version>0.9.0</dep.clickhouse.version>
         <dep.clickhouse.version>0.6.0</dep.clickhouse.version>
-        <dep.db2.version>11.5.9.0</dep.db2.version>
-        <dep.trino.version>437</dep.trino.version>
-        <dep.yugabyte.version>42.3.5-yb-4</dep.yugabyte.version>
+        <dep.db2.version>12.1.2.0</dep.db2.version>
+        <dep.trino.version>476</dep.trino.version>
+        <dep.yugabyte.version>42.7.3-yb-4</dep.yugabyte.version>
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
     </properties>
 
@@ -47,6 +48,13 @@
                 <artifactId>clickhouse-jdbc</artifactId>
                 <version>${dep.clickhouse.version}</version>
                 <classifier>all</classifier>
+                <!-- -all is supposed to bring all dependencies -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -185,6 +193,12 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>oracle-xe</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>oracle-free</artifactId>
             <scope>test</scope>
         </dependency>
 
