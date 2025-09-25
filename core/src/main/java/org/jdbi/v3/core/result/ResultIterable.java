@@ -376,7 +376,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @since 3.38.0
      */
     @Alpha
-    default <R extends Collection<? super T>> R collectInto(Type containerType) {
+    default <R> R collectInto(Type containerType) {
         throw new UnsupportedOperationException();
     }
 
@@ -389,7 +389,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * @since 3.38.0
      */
     @Alpha
-    default <R extends Collection<? super T>> R collectInto(GenericType<R> containerType) {
+    default <R> R collectInto(GenericType<R> containerType) {
         return collectInto(containerType.getType());
     }
 
