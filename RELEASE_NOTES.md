@@ -3,6 +3,7 @@
 - Add support for PGvector types (#2830)
 - Improve concurrency of statement cache loading (#2834)
 - ExtensionHandler interface pulls out handling of target object into new AttachedExtensionHandler interface (#2828)
+- collectInto supports types that do not implement Collection ( #2849, thanks @mattbertolini !)
 
 # 3.49.5
 
