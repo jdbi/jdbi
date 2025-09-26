@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.sql.DataSource;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
@@ -30,6 +31,7 @@ import org.junit.rules.ExternalResource;
 /**
  * JUnit {@code @Rule} to manage a Jdbi instance pointed to a managed database.
  */
+@NotThreadSafe
 public abstract class JdbiRule extends ExternalResource {
 
     private final List<JdbiPlugin> plugins = new ArrayList<>();
@@ -38,7 +40,7 @@ public abstract class JdbiRule extends ExternalResource {
     private Jdbi jdbi;
     private Handle handle;
     private Flyway flyway;
-    private volatile boolean installPlugins;
+    private boolean installPlugins;
     private Migration migration;
 
     protected abstract DataSource createDataSource();

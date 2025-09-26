@@ -29,7 +29,7 @@ Makefile:: ;
 clean::
 	${MAVEN} clean
 
-install:: MAVEN_ARGS += -Djdbi.it.skip-install=false
+install:: MAVEN_ARGS += -Dbasepom.it.skip-install=false
 install::
 	${MAVEN} clean install
 
