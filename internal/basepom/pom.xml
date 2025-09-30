@@ -332,7 +332,7 @@
 
         <!-- reporting -->
         <dep.plugin.checkstyle.version>3.6.0</dep.plugin.checkstyle.version>
-        <dep.plugin.javadoc.version>3.11.3</dep.plugin.javadoc.version>
+        <dep.plugin.javadoc.version>3.12.0</dep.plugin.javadoc.version>
         <dep.plugin.pmd.version>3.27.0</dep.plugin.pmd.version>
 
         <!-- tools -->
