@@ -60,6 +60,7 @@
         <exclude name="UnnecessaryConstructor"/>
         <exclude name="UselessParentheses"/>
         <exclude name="UseExplicitTypes" />
+        <exclude name="TypeParameterNamingConventions" />
     </rule>
 
     <rule ref="category/java/design.xml">
@@ -103,11 +104,21 @@
         <exclude name="ReturnEmptyCollectionRatherThanNull"/>
         <!-- exclude b/c TestingInitializers -->
         <exclude name="TestClassWithoutTestCases"/>
+        <!-- see https://github.com/pmd/pmd/issues/6025 -->
+        <exclude name="ReplaceJavaUtilCalendar"/>
+        <exclude name="ReplaceJavaUtilDate"/>
     </rule>
+
     <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
         <properties>
             <property name="allowCommentedBlocks" value="true"/>
             <property name="allowExceptionNameRegex" value="^(ignored?|expected)$"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/errorprone.xml/AssignmentInOperand">
+        <properties>
+            <property name="allowIncrementDecrement" value="true" />
         </properties>
     </rule>
 

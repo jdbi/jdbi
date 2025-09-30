@@ -195,7 +195,8 @@ public final class QualifiedType<T> {
     public int hashCode() {
         int h = hashCode;
         if (h == 0) {
-            hashCode = h = Objects.hash(type, qualifiers);
+            h = Objects.hash(type, qualifiers);
+            hashCode = h;
         }
         return h;
     }
