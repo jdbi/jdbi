@@ -138,6 +138,7 @@
                     <parameter>
                         <excludes combine.children="append">
                             <exclude>org.jdbi.v3.sqlobject.Handler#invoke(org.jdbi.v3.core.extension.HandleSupplier, java.lang.Object,java.lang.Object[])</exclude>
+                            <exclude>org.jdbi.v3.sqlobject.Handler#attachTo(org.jdbi.v3.core.config.ConfigRegistry,java.lang.Object)</exclude>
                         </excludes>
                     </parameter>
                 </configuration>
