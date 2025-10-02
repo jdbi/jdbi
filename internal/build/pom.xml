@@ -115,7 +115,7 @@
         <dep.opentelemetry.version>1.51.0</dep.opentelemetry.version>
         <dep.oracle-xe.version>23.8.0.25.04</dep.oracle-xe.version>
         <dep.otj-pg-embedded.version>1.1.1</dep.otj-pg-embedded.version>
-        <dep.pg-embedded.version>5.3.0</dep.pg-embedded.version>
+        <dep.pg-embedded.version>5.3.1-SNAPSHOT</dep.pg-embedded.version>
         <dep.pgvector.version>0.1.6</dep.pgvector.version>
         <dep.plugin.asciidoctor.version>3.2.0</dep.plugin.asciidoctor.version>
         <dep.plugin.cyclonedx.version>2.9.1</dep.plugin.cyclonedx.version>
@@ -126,10 +126,12 @@
         <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
+        <dep.plugin.native.version>0.11.0</dep.plugin.native.version>
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.7.7</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
-        <dep.spring.version>6.2.8</dep.spring.version>
+        <dep.spring.boot.version>3.5.4</dep.spring.boot.version>
+        <dep.spring.version>6.2.9</dep.spring.version>
         <dep.sqlite.version>3.50.2.0</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
         <dep.testcontainers.version>1.21.3</dep.testcontainers.version>
@@ -253,6 +255,12 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${dep.spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${dep.spring.version}</version>
             </dependency>
@@ -285,6 +293,12 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${dep.spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-test</artifactId>
+                <version>${dep.spring.boot.version}</version>
             </dependency>
 
             <dependency>
@@ -640,11 +654,24 @@
             <scope>test</scope>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+            <!-- <optional>true</optional> XXX https://github.com/graalvm/native-build-tools/issues/756 -->
         </dependency>
 
         <dependency>
@@ -996,8 +1023,29 @@
                         </extraArtifacts>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>${dep.plugin.native.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <metadataRepository>
+                            <enabled>true</enabled>
+                        </metadataRepository>
+                        <buildArgs>
+                            <buildArg>-Ob</buildArg>
+                            <buildArg>-march=native</buildArg>
+                        </buildArgs>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${dep.spring.boot.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1391,7 +1439,35 @@
                 </plugins>
             </build>
         </profile>
-
+        <profile>
+            <id>native</id>
+            <activation>
+                <property>
+                    <name>jdbi.native</name>
+                </property>
+                <file>
+                    <missing>.skip-native</missing>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>test-native</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <phase>test</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <!-- Profile to skip time-consuming steps. -->
             <id>fast</id>
