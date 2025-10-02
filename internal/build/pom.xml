@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-root</artifactId>
-        <version>3.50.0-SNAPSHOT</version>
+        <version>3.49.6-SNAPSHOT</version>
         <relativePath>../root</relativePath>
     </parent>
 
@@ -63,7 +63,6 @@
         <basepom.javadoc.exclude-package-names>*.internal.*:*.internal</basepom.javadoc.exclude-package-names>
         <basepom.javadoc.legacy-mode>true</basepom.javadoc.legacy-mode>
         <basepom.maven.version>3.9.0</basepom.maven.version>
-        <basepom.nexus-staging.staging-url>https://oss.sonatype.org/</basepom.nexus-staging.staging-url>
         <basepom.release.preparation-goals>clean verify</basepom.release.preparation-goals>
         <basepom.release.profiles>basepom.central-release,jdbi-release</basepom.release.profiles>
         <basepom.release.tag-name-format>v@{project.version}</basepom.release.tag-name-format>
@@ -100,7 +99,7 @@
         <dep.jakarta-annotation-api.version>3.0.0</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
-        <dep.jdbi-policy.version>3.50.0-SNAPSHOT</dep.jdbi-policy.version>
+        <dep.jdbi-policy.version>3.49.6-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>26.0.2</dep.jetbrainsAnnotations.version>
         <dep.jfrunit.version>1.0.0.Alpha2</dep.jfrunit.version>
         <dep.joda-time.version>2.14.0</dep.joda-time.version>

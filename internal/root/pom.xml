@@ -16,16 +16,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.basepom</groupId>
-        <artifactId>basepom-oss</artifactId>
-        <version>63</version>
-        <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
-        <relativePath />
+        <groupId>org.jdbi.internal.basepom</groupId>
+        <artifactId>jdbi-basepom</artifactId>
+        <version>3.49.6-SNAPSHOT</version>
+        <relativePath>../basepom</relativePath>
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-root</artifactId>
-    <version>3.50.0-SNAPSHOT</version>
+    <version>3.49.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jdbi3 - internal - root</name>

@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.50.0-SNAPSHOT</version>
+        <version>3.49.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-internal-parent</artifactId>
@@ -28,6 +28,7 @@
     <description>This is a Jdbi internal module and not part of the public API.</description>
 
     <modules>
+        <module>basepom</module>
         <module>root</module>
         <module>policy</module>
         <module>build</module>
