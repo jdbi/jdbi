@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import javax.sql.DataSource;
 
 import jakarta.annotation.Nonnull;
@@ -61,6 +62,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
  * @see JdbiExternalPostgresExtension
  * @see JdbiOtjPostgresExtension
  */
+@NotThreadSafe
 public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
@@ -68,8 +70,8 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
 
     private Optional<JdbiExtensionInitializer> initializerMaybe = Optional.empty();
 
-    private volatile boolean installPlugins = false;
-    private volatile boolean enableLeakchecker = true;
+    private boolean installPlugins = false;
+    private boolean enableLeakchecker = true;
 
     private volatile Jdbi jdbi;
     private volatile Handle sharedHandle;

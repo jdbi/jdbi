@@ -32,6 +32,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import jakarta.annotation.Nullable;
 
 import org.jdbi.v3.core.CloseException;
@@ -67,6 +69,7 @@ import static java.util.Objects.requireNonNull;
  * DISCLAIMER: The class is not intended to be extended. The final modifier is absent to allow
  * mock tools to create a mock object of this class in the user code.
  */
+@NotThreadSafe
 public class StatementContext implements Closeable {
 
     private final ConfigRegistry config;
@@ -82,14 +85,14 @@ public class StatementContext implements Closeable {
     private Connection connection;
     private Binding binding = new Binding(this);
 
-    private volatile boolean returningGeneratedKeys = false;
+    private boolean returningGeneratedKeys = false;
     private String[] generatedKeysColumnNames = new String[0];
-    private volatile boolean concurrentUpdatable = false;
+    private boolean concurrentUpdatable = false;
 
     private Instant executionMoment;
     private Instant completionMoment;
     private Instant exceptionMoment;
-    private volatile long mappedRows;
+    private long mappedRows;
     private String traceId;
 
     static StatementContext create(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType) {
