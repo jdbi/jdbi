@@ -702,7 +702,7 @@
                         <links>
                             <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
-                            <link>https://junit.org/junit5/docs/${dep.junit5.version}/api/</link>
+                            <link>https://docs.junit.org/${dep.junit5.version}/api/</link>
                             <link>https://javadoc.io/doc/org.testcontainers/jdbc/${dep.testcontainers.version}/</link>
                         </links>
                         <detectOfflineLinks>false</detectOfflineLinks>
