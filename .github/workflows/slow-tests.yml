@@ -24,6 +24,15 @@ jobs:
         mysql-version: [ "mysql:lts" ]
 
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 35000
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
       - uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -80,6 +89,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 35000
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
       - uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -136,6 +155,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 35000
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
       - uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -193,9 +222,19 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 'latest', 'latest-faststart', 'full-faststart' ]
+        test-version: [ 'latest', 'latest-faststart', 'full', 'full-faststart', 'slim', 'slim-faststart' ]
 
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 35000
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
       - uses: actions/checkout@v4
         with:
           fetch-tags: true
