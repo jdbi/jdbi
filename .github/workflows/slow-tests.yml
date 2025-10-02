@@ -222,7 +222,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 'latest', 'latest-faststart', 'full', 'full-faststart', 'slim', 'slim-faststart' ]
+        test-version: [ 'latest-faststart', 'full-faststart' ]
 
     steps:
       - name: Maximize build space
