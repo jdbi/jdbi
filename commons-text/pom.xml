@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.49.6</version>
+        <version>3.49.7-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
