@@ -1,5 +1,13 @@
 # Unreleased
 
+# 3.49.6
+
+We have some problems with our upstream parent POM. There are changes
+to Maven Central that require us to roll the parent POM into the Jdbi
+project. This is a temporary thing and will go away as soon as
+uploading parent poms to Central has been reenabled.
+
+
 - Add support for PGvector types (#2830)
 - Improve concurrency of statement cache loading (#2834)
 - ExtensionHandler interface pulls out handling of target object into new AttachedExtensionHandler interface (#2828)
