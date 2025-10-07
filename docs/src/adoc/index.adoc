@@ -157,7 +157,6 @@ Please see our https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribu
 === Acknowledgements and Funding
 
 * image:spotify_logo.svg[Spotify logo,30,30] https://engineering.atspotify.com/2023/10/announcing-the-recipients-of-the-2023-spotify-foss-fund/[Jdbi is a recipient of the Spotify FOSS 2023 Fund^]
-* image:tidelift_logo.png[Tidelift logo,30,30]https://tidelift.com/funding/github/maven/org.jdbi:jdbi3-core[Jdbi is supported by Tidelift^]
 
 == Using Jdbi in your projects
 
