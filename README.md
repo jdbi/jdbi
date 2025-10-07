@@ -21,7 +21,6 @@ Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/
 ## Acknowledgements and Funding
 
 * <img src="docs/src/adoc/images/spotify_logo.svg" alt="spotify logo" title="spotify logo" width="30" height="30" style="vertical-align: middle; padding: 2px;"> <a href="https://engineering.atspotify.com/2023/10/announcing-the-recipients-of-the-2023-spotify-foss-fund/">Jdbi is a recipient of the Spotify FOSS 2023 Fund</a>
-* <img src="docs/src/adoc/images/tidelift_logo.png" alt="tidelift logo" title="tidelift logo" width="30" height="30" style="vertical-align: middle; padding: 2px;"><a href="https://tidelift.com/funding/github/maven/org.jdbi:jdbi3-core">Jdbi is supported by Tidelift</a>
 
 ## Prerequisites
 
