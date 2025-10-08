@@ -28,7 +28,6 @@
     <description>This is a Jdbi internal module and not part of the public API.</description>
 
     <modules>
-        <module>basepom</module>
         <module>root</module>
         <module>policy</module>
         <module>build</module>
