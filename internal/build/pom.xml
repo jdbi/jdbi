@@ -697,7 +697,6 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
                         <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
-                        <release>${project.build.targetJdk}</release>
                         <links>
                             <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
