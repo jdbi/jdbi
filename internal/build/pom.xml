@@ -145,7 +145,6 @@
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sbom>${basepom.check.skip-extended}</jdbi.check.skip-sbom>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
-        <jdbi.it.skip-install>true</jdbi.it.skip-install>
         <jdbi.test.language>en</jdbi.test.language>
         <jdbi.test.mysql-version>mysql:lts</jdbi.test.mysql-version>
         <jdbi.test.pg-version>17</jdbi.test.pg-version>
@@ -990,7 +989,6 @@
                     <artifactId>maven-invoker-plugin</artifactId>
                     <configuration>
                         <scope>test</scope>
-                        <skipInstallation>${jdbi.it.skip-install}</skipInstallation>
                         <extraArtifacts>
                             <extraArtifact>org.jdbi:jdbi3-bom:${project.version}:pom</extraArtifact>
                         </extraArtifacts>
