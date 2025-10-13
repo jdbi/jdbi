@@ -115,7 +115,7 @@
         <dep.opentelemetry.version>1.51.0</dep.opentelemetry.version>
         <dep.oracle-xe.version>23.8.0.25.04</dep.oracle-xe.version>
         <dep.otj-pg-embedded.version>1.1.1</dep.otj-pg-embedded.version>
-        <dep.pg-embedded.version>5.3.0</dep.pg-embedded.version>
+        <dep.pg-embedded.version>5.4.1</dep.pg-embedded.version>
         <dep.pgvector.version>0.1.6</dep.pgvector.version>
         <dep.plugin.asciidoctor.version>3.2.0</dep.plugin.asciidoctor.version>
         <dep.plugin.cyclonedx.version>2.9.1</dep.plugin.cyclonedx.version>
@@ -127,7 +127,7 @@
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
-        <dep.postgresql.version>42.7.7</dep.postgresql.version>
+        <dep.postgresql.version>42.7.8</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
         <dep.spring.version>6.2.8</dep.spring.version>
         <dep.sqlite.version>3.50.2.0</dep.sqlite.version>
