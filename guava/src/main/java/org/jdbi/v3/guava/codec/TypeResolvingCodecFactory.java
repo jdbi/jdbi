@@ -49,7 +49,7 @@ public class TypeResolvingCodecFactory extends CodecFactory {
      * Creates a {@link CodecFactory} for a single type.
      * @param type The type for which the factory is created.
      * @param codec The {@link Codec} to use.
-     * @return A new {@link} CodecFactory that will be used if the given type is requested.
+     * @return A new {@link CodecFactory} that will be used if the given type is requested.
      */
     @SuppressFBWarnings("HSM_HIDING_METHOD")
     public static CodecFactory forSingleCodec(QualifiedType<?> type, Codec<?> codec) {

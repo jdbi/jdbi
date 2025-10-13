@@ -387,6 +387,9 @@
             <properties>
                 <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
                 <basepom.check.skip-pmd>true</basepom.check.skip-pmd>
+
+                <!-- javadoc title -->
+                <basepom.javadoc.title>Jdbi3 ${project.version} API</basepom.javadoc.title>
             </properties>
             <build>
                 <plugins>
@@ -418,8 +421,6 @@
                                         <dependencySourceExclude>org.jdbi:jdbi3-kotlin</dependencySourceExclude>
                                         <dependencySourceExclude>org.jdbi:jdbi3-kotlin-sqlobject</dependencySourceExclude>
                                     </dependencySourceExcludes>
-                                    <doctitle>Jdbi3 ${project.version} API</doctitle>
-                                    <windowtitle>Jdbi3 ${project.version} API</windowtitle>
                                 </configuration>
                             </execution>
                         </executions>
