@@ -29,32 +29,6 @@
     <name>jdbi3 - internal - build parent</name>
     <description>Jdbi3 build settings. This is a Jdbi internal module and not part of the public API.</description>
 
-    <!-- do not remove URL and SCM, otherwise OSS refuses to accept the release -->
-    <url>https://jdbi.org/</url>
-
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <id>jdbi</id>
-            <name>The Jdbi Team</name>
-            <url>https://github.com/jdbi/jdbi/blob/master/CONTRIBUTORS.md</url>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
-        <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/jdbi/jdbi/</url>
-    </scm>
-
     <properties>
         <basepom.at-end.deploy>true</basepom.at-end.deploy>
         <basepom.check.fail-all>true</basepom.check.fail-all>
