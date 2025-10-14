@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-build-parent</artifactId>
-        <version>3.49.7-SNAPSHOT</version>
+        <version>3.50.0-SNAPSHOT</version>
         <relativePath>../internal/build</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
     <description>Jdbi Bill of Materials (BOM). Import this module into a project to get a list of all public modules with a specific version.</description>
 
     <properties>
-        <dep.jdbi3.version>3.49.7-SNAPSHOT</dep.jdbi3.version>
+        <dep.jdbi3.version>3.50.0-SNAPSHOT</dep.jdbi3.version>
         <moduleName>org.jdbi.v3.bom</moduleName>
     </properties>
 
