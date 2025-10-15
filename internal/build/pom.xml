@@ -1004,6 +1004,7 @@
                             <enabled>true</enabled>
                         </metadataRepository>
                         <buildArgs>
+                            <buildArg>-J-Xmx10g</buildArg>
                             <buildArg>-march=native</buildArg>
                         </buildArgs>
                         <quickBuild>true</quickBuild>
