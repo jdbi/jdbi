@@ -1,5 +1,8 @@
 # Unreleased
 
+*JDK Baseline Update*
+- Jdbi 3.50.0 and greater move JDK baseline to Java 17. Thank you Java 11 for your service!
+
 - CI verifies Jdbi runs well in GraalVM native-image (#2476, thanks @Eng-Fouad !)
 
 # 3.49.6
