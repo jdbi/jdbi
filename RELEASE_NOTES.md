@@ -1,5 +1,7 @@
 # Unreleased
 
+- CI verifies Jdbi runs well in GraalVM native-image (#2476, thanks @Eng-Fouad !)
+
 # 3.49.6
 
 We have some problems with our upstream parent POM. There are changes
