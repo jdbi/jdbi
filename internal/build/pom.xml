@@ -46,7 +46,7 @@
         <dep.asciidoctorj-diagram-ditaamini.version>1.0.3</dep.asciidoctorj-diagram-ditaamini.version>
         <dep.asciidoctorj-diagram.version>3.0.1</dep.asciidoctorj-diagram.version>
         <dep.asciidoctorj.version>3.0.0</dep.asciidoctorj.version>
-        <!-- leave at 3.x for now, 4.0.0 needs Java 17 -->
+        <!-- formerly stuck at 3.x since 4.0.0 needs Java 17 -->
         <dep.assertj.version>3.27.3</dep.assertj.version>
         <dep.caffeine.version>3.2.1</dep.caffeine.version>
         <dep.checkerframework.version>3.49.5</dep.checkerframework.version>
@@ -129,7 +129,7 @@
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>2.1</kotlin.compiler.languageVersion>
         <no-docker>false</no-docker>
-        <project.build.targetJdk>11</project.build.targetJdk>
+        <project.build.targetJdk>17</project.build.targetJdk>
     </properties>
 
     <dependencyManagement>

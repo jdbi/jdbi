@@ -17,7 +17,7 @@
 :jdbidocs: ./apidocs/org/jdbi/v3
 :kotlindocs: ./apidocs-kotlin/jdbi3-kotlin/jdbi3-kotlin/org.jdbi.v3.
 :kotlinsqldocs: ./apidocs-kotlin/jdbi3-kotlin-sqlobject/jdbi3-kotlin-sqlobject/org.jdbi.v3.
-:jdkdocs: https://docs.oracle.com/en/java/javase/11/docs/api
+:jdkdocs: https://docs.oracle.com/en/java/javase/17/docs/api
 :jakartadocs: https://jakarta.ee/specifications/platform/10/apidocs
 
 :projecthome: https://github.com/jdbi/jdbi
@@ -171,15 +171,16 @@ Jdbi also offers a BOM (Bill of materials) module for easy dependency management
 
 === JVM version compatibility
 
-Jdbi runs on all Java versions 11 or later.
-All releases are built with the latest LTS version of Java using Java 11 bytecode compatibility.
+Jdbi runs on all Java versions 17 or later.
+All releases are built with the latest LTS version of Java using Java 17 bytecode compatibility.
 
 [IMPORTANT]
-Jdbi ended support for Java 8 with version 3.39. There are occasional backports of security relevant things or major bugs but as of version 3.40.0, JDK 11+ is required.
+Jdbi ended support for Java 11 with version 3.50, and Java 8 with version 3.39.
+There may be occasional backports of security relevant things or major bugs, if necessary.
 
 ==== Virtual Threads
 
-Jdbi has experimental support for virtual threads.
+Jdbi supports virtual threads.
 Basic use cases are verified to work, and we welcome reports of any issues.
 As virtual thread support is still evolving, please make sure to verify against the latest JDK before reporting any issues.
 
@@ -7273,11 +7274,11 @@ dependencies {
 }
 ----
 
-Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version^] is set to at least 11:
+Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version^] is set to at least 17:
 
 [source,xml,indent=0,subs="specialchars"]
 ----
-<kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
+<kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
 ----
 
 Then install the link:{kotlindocs}core.kotlin/-kotlin-plugin/[Kotlin Plugin^] into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:

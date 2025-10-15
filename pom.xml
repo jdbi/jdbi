@@ -60,6 +60,7 @@
         <module>oracle12</module>
         <module>postgis</module>
         <module>postgres</module>
+        <module>spring</module>
         <module>spring5</module>
         <module>sqlite</module>
         <module>sqlobject</module>
@@ -103,16 +104,6 @@
     </dependencyManagement>
 
     <profiles>
-        <!-- skip spring when testing with java 11, spring 6+ only supports 17+ -->
-        <profile>
-            <id>java17</id>
-            <activation>
-                <jdk>[17,)</jdk>
-            </activation>
-            <modules>
-                <module>spring</module>
-            </modules>
-        </profile>
         <profile>
             <id>java21</id>
             <activation>
