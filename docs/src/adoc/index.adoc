@@ -8625,8 +8625,7 @@ include::{exampledir}/OnDemandExtensionTest.java[tags=with]
 
 [NOTE]
 The link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] uses a link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] object to provide the on-demand handle object.
-Java proxies only support Java interface classes as extension types and may not be compatible with
-https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[GraalVM^] when creating native code.
+Java proxies only support Java interface classes as extension types.
 
 [#extension-handle-lifecycle]
 ==== Handle lifecycle for extensions
@@ -8825,8 +8824,7 @@ Methods on the instance will be wrapped in extension handlers and a proxy object
 
 ===== Extensions without Java proxy objects
 
-A drawback of the standard extension factories is that returning a link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] object limits factory functionality and is incompatible with some use cases (e.g. https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[using GraalVM
-for native compilation^]).
+A drawback of the standard extension factories is that returning a link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] object limits factory functionality.
 
 A factory can return the link:{jdbidocs}/core/extension/ExtensionFactory.FactoryFlag.html#DONT_USE_PROXY[`DONT_USE_PROXY`^] flag on the
 link:{jdbidocs}/core/extension/ExtensionFactory.html#getFactoryFlags()[ExtensionFactory#getFactoryFlags()^] method to signal that the extension framework should return the backing object _as-is_.
@@ -9208,7 +9206,7 @@ The main use case is within an extension type implementation class as it require
 instance, which is only available through the
 link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method.
 By creating extension handler invokers and metadata manually, an implementation can sidestep all the proxy logic and directly wire up method invocation or redirect invocations between methods.
-The <<generator,jdbi SQL object generator>> uses this mechanism to create implementation classes that do not need the java proxy logic (which is problematic with https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[GraalVM^]).
+The <<generator,jdbi SQL object generator>> uses this mechanism to create implementation classes that do not need the java proxy logic.
 
 This is an example of creating and calling an extension handler invoker directly:
 
@@ -9318,6 +9316,23 @@ Configure the `maven-compiler-plugin` in your POM:
 * Window -> Preferences
 * Java -> Compiler
 * Under "Classfile Generation," check the option "Store information about method parameters (usable via reflection)."
+
+=== GraalVM Native Image
+
+Jdbi supports building as part of a `native-image` application. If you use SqlObject to implement DAO interfaces,
+you'll have to inform Graal ahead of time. For example, you would fill in `META-INF/native-image/<groupId>/<artifactId>/reachability-metadata.json`
+
+[source,json]
+----
+{
+  "reflection": [
+    {"type":{"proxy":["com.foo.FooDao"]}},
+    {"type":{"proxy":["com.bar.BarDao"]}}
+  ]
+}
+----
+
+Learn more about https://www.graalvm.org/reference-manual/native-image/[GraalVM Native Image^] and https://graalvm.github.io/native-build-tools/latest/[Native Build Tools^] on their respective websites.
 
 === Working with Generic Types
 
@@ -9671,7 +9686,6 @@ Most users will not need to implement the *ResultProducer* interface.
 Jdbi includes an experimental SqlObject code generator.
 If you include the `jdbi3-generator` artifact as an annotation processor and annotate your SqlObject definitions with `@GenerateSqlObject`, the generator will produce an implementing class and avoids using
 link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] instances.
-This may be useful for `graal-native` compilation.
 
 === HandleCallbackDecorator
 
