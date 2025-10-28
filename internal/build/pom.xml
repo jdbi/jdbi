@@ -100,7 +100,7 @@
         <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
-        <dep.plugin.native.version>0.11.1</dep.plugin.native.version>
+        <dep.plugin.native.version>0.11.2</dep.plugin.native.version>
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.7.8</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
