@@ -1416,9 +1416,6 @@
                 <property>
                     <name>jdbi.native</name>
                 </property>
-                <file>
-                    <missing>.skip-native</missing>
-                </file>
             </activation>
             <build>
                 <plugins>

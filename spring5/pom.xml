@@ -79,4 +79,16 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <configuration>
+                    <skipNativeTests>true</skipNativeTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
