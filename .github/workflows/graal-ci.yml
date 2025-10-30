@@ -23,6 +23,6 @@ jobs:
 
       - name: build
         env:
-          MAVEN_ARGS: "-B -Dbasepom.check.skip-enforcer=false -Dbasepom.check.skip-all=true -Djdbi.native=true"
+          MAVEN_ARGS: "-B -T2 -Dbasepom.check.skip-enforcer=false -Dbasepom.check.skip-all=true -Djdbi.native=true"
         run: |
           make install
