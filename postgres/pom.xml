@@ -127,20 +127,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.github.siom79.japicmp</groupId>
-                <artifactId>japicmp-maven-plugin</artifactId>
-                <configuration>
-                    <parameter>
-                        <excludes combine.children="append">
-                            <exclude>org.jdbi.v3.postgres.PostgresPlugin#customizeHandle(org.jdbi.v3.core.Handle)</exclude>
-                        </excludes>
-                    </parameter>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
