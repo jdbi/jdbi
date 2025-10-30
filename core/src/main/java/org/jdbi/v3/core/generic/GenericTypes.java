@@ -100,7 +100,6 @@ public class GenericTypes {
      * @return the parameter on the supertype, if it is concretely defined.
      * @throws ArrayIndexOutOfBoundsException if n &gt; the number of type variables the type has
      */
-    @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype, int n) {
         if (type instanceof Class<?> clazz) {
             Type genericSuper = clazz.getGenericSuperclass();

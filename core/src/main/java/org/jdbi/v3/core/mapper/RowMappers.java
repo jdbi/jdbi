@@ -158,27 +158,23 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public Optional<RowMapper<?>> findFor(Type type) {
-        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
-        // Since row mappers can decorate other row mappers, we have to populate the cache the old fashioned way.
-        // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        Optional<RowMapper<?>> cached = cache.get(type);
 
-        if (cached != null) {
-            return cached;
-        }
+        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls, so this code can not use computeIfAbsent.
+        var mapper = cache.get(type);
 
-        for (RowMapperFactory factory : factories) {
-            Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
-            RowMapper<?> mapper = maybeMapper.orElse(null);
-            if (mapper != null) {
-                mapper.init(registry);
-                cache.put(type, maybeMapper);
-                return maybeMapper;
+        if (mapper == null) {
+            mapper = Optional.empty();
+            for (RowMapperFactory factory : factories) {
+                mapper = factory.build(type, registry);
+                if (mapper.isPresent()) {
+                    mapper.get().init(registry);
+                    break; // for
+                }
             }
+            cache.put(type, mapper);
         }
 
-        cache.put(type, Optional.empty());
-        return Optional.empty();
+        return mapper;
     }
 
     @Override

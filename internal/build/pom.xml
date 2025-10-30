@@ -96,7 +96,7 @@
         <dep.plugin.dokka.version>2.0.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.7.1</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.5.1</dep.plugin.inline.version>
-        <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
+        <dep.plugin.japicmp.version>0.24.2</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
         <dep.plugin.native.version>0.11.1</dep.plugin.native.version>
@@ -922,6 +922,8 @@
                         <skip>${jdbi.check.skip-japicmp}</skip>
                         <parameter>
                             <onlyModified>true</onlyModified>
+                            <noAnnotations>true</noAnnotations>
+                            <onlyBinaryIncompatible>true</onlyBinaryIncompatible>
                             <skipPomModules>true</skipPomModules>
                             <ignoreNonResolvableArtifacts>true</ignoreNonResolvableArtifacts>
                             <ignoreMissingOldVersion>true</ignoreMissingOldVersion>

@@ -61,12 +61,13 @@ public class GetObjectColumnMapperFactory implements ColumnMapperFactory {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
         return Optional.of(type)
             .filter(Class.class::isInstance)
             .map(Class.class::cast)
             .filter(supportedTypes::contains)
-            .map(GetObjectColumnMapper<Object>::new);
+            .map(GetObjectColumnMapper::new);
     }
 
     private static class GetObjectColumnMapper<T> implements ColumnMapper<T> {
