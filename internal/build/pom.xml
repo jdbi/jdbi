@@ -57,7 +57,6 @@
         <dep.derby.version>10.16.1.1</dep.derby.version>
         <dep.detekt.version>1.23.8</dep.detekt.version>
         <dep.errorprone.version>2.39.0</dep.errorprone.version>
-        <!-- last flyway version to support java 11 -->
         <dep.flyway.version>11.8.0</dep.flyway.version>
         <dep.freemarker.version>2.3.34</dep.freemarker.version>
         <dep.geantyref.version>2.0.1</dep.geantyref.version>

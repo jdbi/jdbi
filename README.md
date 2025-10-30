@@ -24,9 +24,9 @@ Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/
 
 ## Prerequisites
 
-Jdbi requires Java 11 or better to run.
+Jdbi requires Java 17 or better to run.
 
-We run CI tests against Java 11, 17 and 21.
+We run CI tests against Java 17, 21 and 25.
 
 
 ### Compatibility with older Java versions
@@ -35,7 +35,7 @@ Java 8, 9 and 10 are supported by any Jdbi version before **3.40.0**.
 
 Java 11 is supported by any Jdbi version up to **3.50.0**.
 
-Java 17 or better is required for Jdbi **3.51.0** or newer.
+Java 17 or better is required for Jdbi **4.0.0** or newer.
 
 ### Library compatibility
 
