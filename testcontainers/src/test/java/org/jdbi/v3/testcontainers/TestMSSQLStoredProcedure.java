@@ -117,13 +117,14 @@ class TestMSSQLStoredProcedure {
     @Test
     void testMsSqlDocExample() {
         Handle h = extension.getSharedHandle();
-        h.execute("CREATE PROCEDURE mssql_add\n"
-            + "@a INT,\n"
-            + "@b INT\n"
-            + "AS\n"
-            + "BEGIN\n"
-            + "SELECT @a + @b;\n"
-            + "END");
+        h.execute("""
+            CREATE PROCEDURE mssql_add
+            @a INT,
+            @b INT
+            AS
+            BEGIN
+            SELECT @a + @b;
+            END;""");
 
         try (Call call = h.createCall("{ call mssql_add(:a, :b)}")) {
             call.bind("a", 13)
