@@ -14,18 +14,10 @@
 package org.jdbi.v3.sqlobject;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import org.jdbi.v3.core.HandleCallback;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ConfigCustomizerFactory;
 import org.jdbi.v3.core.extension.ExtensionFactory;
 import org.jdbi.v3.core.extension.ExtensionHandler;
-import org.jdbi.v3.core.extension.ExtensionHandlerCustomizer;
-import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
 import org.jdbi.v3.core.extension.ExtensionMetadata;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 
@@ -50,27 +42,6 @@ abstract class AbstractSqlObjectFactory implements ExtensionFactory {
         builder.addMethodHandler(WITH_HANDLE_METHOD, WITH_HANDLE_HANDLER);
 
         DefinitionsFactory.configureDefinitions(extensionType, builder);
-    }
-
-    @Override
-    public Collection<ExtensionHandlerCustomizer> getExtensionHandlerCustomizers(ConfigRegistry config) {
-        final HandlerDecorators handlerDecorators = config.get(HandlerDecorators.class);
-        return Collections.singleton(handlerDecorators::customize);
-    }
-
-    @Override
-    public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigRegistry config) {
-        final Handlers handlers = config.get(Handlers.class);
-        List<ExtensionHandlerFactory> factories = new ArrayList<>();
-
-        factories.add(new SqlMethodHandlerFactory());
-        factories.addAll(handlers.getFactories());
-        return Collections.unmodifiableList(factories);
-    }
-
-    @Override
-    public Collection<ConfigCustomizerFactory> getConfigCustomizerFactories(ConfigRegistry config) {
-        return Collections.singleton(SqlObjectCustomizerFactory.FACTORY);
     }
 
     static boolean isConcrete(Class<?> extensionTypeClass) {

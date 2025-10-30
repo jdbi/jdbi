@@ -35,11 +35,8 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
 
     @SuppressWarnings("unchecked")
     static <E extends Enum<E>> Optional<Class<E>> ifEnum(Type type) {
-        if (type instanceof Class<?>) {
-            final Class<?> cast = (Class<?>) type;
-            if (Enum.class.isAssignableFrom(cast)) {
-                return Optional.of((Class<E>) cast);
-            }
+        if (type instanceof Class<?> clazz && Enum.class.isAssignableFrom(clazz)) {
+            return Optional.of((Class<E>) clazz);
         }
         return Optional.empty();
     }

@@ -202,28 +202,25 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param type the qualified target type to map to
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
+    @SuppressWarnings("unchecked")
     public <T> Optional<ColumnMapper<T>> findFor(QualifiedType<T> type) {
-        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
-        // Since column mappers can decorate other column mappers, we have to populate the cache the old fashioned way.
-        // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        Optional<ColumnMapper<T>> cached = (Optional) cache.get(type);
 
-        if (cached != null) {
-            return cached;
-        }
+        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls, so this code can not use computeIfAbsent.
+        var mapper = cache.get(type);
 
-        for (QualifiedColumnMapperFactory factory : factories) {
-            Optional<ColumnMapper<T>> maybeMapper = (Optional) factory.build(type, registry);
-            ColumnMapper<T> mapper = maybeMapper.orElse(null);
-            if (mapper != null) {
-                mapper.init(registry);
-                cache.put(type, maybeMapper);
-                return maybeMapper;
+        if (mapper == null) {
+            mapper = Optional.empty();
+            for (QualifiedColumnMapperFactory factory : factories) {
+                mapper = factory.build(type, registry);
+                if (mapper.isPresent()) {
+                    mapper.get().init(registry);
+                    break; // for
+                }
             }
+            cache.put(type, mapper);
         }
 
-        cache.put(type, Optional.empty());
-        return Optional.empty();
+        return (Optional<ColumnMapper<T>>) mapper;
     }
 
     /**

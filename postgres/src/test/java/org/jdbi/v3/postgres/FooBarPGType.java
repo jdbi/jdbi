@@ -83,10 +83,9 @@ public class FooBarPGType extends PGobject {
         if (this == x) {
             return true;
         }
-        if (!(x instanceof FooBarPGType)) {
+        if (!(x instanceof FooBarPGType other)) {
             return false;
         }
-        FooBarPGType other = (FooBarPGType) x;
         return Objects.equals(id, other.id)
             && Objects.equals(foo, other.foo)
             && Objects.equals(bar, other.bar);

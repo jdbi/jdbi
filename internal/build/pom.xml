@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-root</artifactId>
-        <version>3.50.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
         <relativePath>../root</relativePath>
     </parent>
 
@@ -57,8 +57,7 @@
         <dep.derby.version>10.16.1.1</dep.derby.version>
         <dep.detekt.version>1.23.8</dep.detekt.version>
         <dep.errorprone.version>2.39.0</dep.errorprone.version>
-        <!-- last flyway version to support java 11 -->
-        <dep.flyway.version>9.22.3</dep.flyway.version>
+        <dep.flyway.version>11.8.0</dep.flyway.version>
         <dep.freemarker.version>2.3.34</dep.freemarker.version>
         <dep.geantyref.version>2.0.1</dep.geantyref.version>
         <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
@@ -73,7 +72,7 @@
         <dep.jakarta-annotation-api.version>3.0.0</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
-        <dep.jdbi-policy.version>3.50.0-SNAPSHOT</dep.jdbi-policy.version>
+        <dep.jdbi-policy.version>4.0.0-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>26.0.2</dep.jetbrainsAnnotations.version>
         <dep.jfrunit.version>1.0.0.Alpha2</dep.jfrunit.version>
         <dep.joda-time.version>2.14.0</dep.joda-time.version>
@@ -97,7 +96,7 @@
         <dep.plugin.dokka.version>2.0.0</dep.plugin.dokka.version>
         <dep.plugin.flatten.version>1.7.1</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.5.1</dep.plugin.inline.version>
-        <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
+        <dep.plugin.japicmp.version>0.24.2</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
         <dep.plugin.native.version>0.11.1</dep.plugin.native.version>
@@ -129,7 +128,7 @@
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>2.1</kotlin.compiler.languageVersion>
         <no-docker>false</no-docker>
-        <project.build.targetJdk>11</project.build.targetJdk>
+        <project.build.targetJdk>17</project.build.targetJdk>
     </properties>
 
     <dependencyManagement>
@@ -295,6 +294,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
+                <version>${dep.flyway.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-database-postgresql</artifactId>
                 <version>${dep.flyway.version}</version>
             </dependency>
 
@@ -917,6 +922,8 @@
                         <skip>${jdbi.check.skip-japicmp}</skip>
                         <parameter>
                             <onlyModified>true</onlyModified>
+                            <noAnnotations>true</noAnnotations>
+                            <onlyBinaryIncompatible>true</onlyBinaryIncompatible>
                             <skipPomModules>true</skipPomModules>
                             <ignoreNonResolvableArtifacts>true</ignoreNonResolvableArtifacts>
                             <ignoreMissingOldVersion>true</ignoreMissingOldVersion>
@@ -1075,9 +1082,9 @@
                                     <searchTransitive>false</searchTransitive>
                                 </bannedDependencies>
 
-                                <!--  we now require java 17 for building -->
+                                <!--  we now require the current LTS for building -->
                                 <requireJavaVersion>
-                                    <version>[17,)</version>
+                                    <version>[21,)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>

@@ -26,6 +26,7 @@ import java.util.Objects;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.BindingAccess;
 import org.jdbi.v3.core.statement.SqlLogger;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.MockClock;
@@ -74,8 +75,7 @@ public class TestTimestamped {
             public void logBeforeExecution(StatementContext ctx) {
                 String name = logNext.get();
                 if (name != null) {
-                    String toString = ctx.getBinding()
-                        .findForName(name, ctx)
+                    String toString = BindingAccess.findForName(ctx.getBinding(), name)
                         .orElseThrow(AssertionError::new)
                         .toString();
                     insertedTimestamp.set(OffsetDateTime.parse(toString));

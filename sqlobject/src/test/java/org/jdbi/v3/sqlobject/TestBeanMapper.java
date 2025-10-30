@@ -139,10 +139,9 @@ public class TestBeanMapper {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof Document)) {
+            if (!(obj instanceof Document that)) {
                 return false;
             }
-            Document that = (Document) obj;
             return this.id == that.id
                 && Objects.equals(this.name, that.name)
                 && Objects.equals(this.contents, that.contents);
@@ -202,10 +201,9 @@ public class TestBeanMapper {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof Folder)) {
+            if (!(obj instanceof Folder that)) {
                 return false;
             }
-            Folder that = (Folder) obj;
             return this.id == that.id
                 && Objects.equals(this.name, that.name)
                 && Objects.equals(this.documents, that.documents);

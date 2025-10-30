@@ -34,10 +34,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *     &#064;UseClasspathSqlLocator
  *     interface Viccini {
  *         &#064;SqlUpdate
- *         void doTheThing(long id);     // =&gt; ClasspathSqlLocator.findSqlOnClasspath(Viccini.class, "doTheThing")
+ *         void doTheThing(long id);     // =&gt; ClasspathSqlLocator.create().locate(Viccini.class, "doTheThing")
  *
  *         &#064;SqlUpdate("thatOtherThing")
- *         void doTheThing(String name); // =&gt; ClasspathSqlLocator.findSqlOnClasspath(Viccini.class, "thatOtherThing")
+ *         void doTheThing(String name); // =&gt; ClasspathSqlLocator.create().locate(Viccini.class, "thatOtherThing")
  *     }
  * </pre>
  */

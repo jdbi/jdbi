@@ -37,7 +37,7 @@ class DefineNamedBindingsStatementCustomizer implements StatementCustomizer {
         final SetNullHandler handler = new SetNullHandler(ctx);
         binding.getNames().stream()
             .filter(name -> !alreadyDefined.contains(name))
-            .forEach(name -> binding.findForName(name, ctx).ifPresent(
+            .forEach(name -> binding.findForName(name).ifPresent(
                     a -> handler.define(name, a)));
     }
 

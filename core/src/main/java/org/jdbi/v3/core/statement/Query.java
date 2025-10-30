@@ -32,15 +32,6 @@ public class Query extends SqlStatement<Query> implements ResultBearing {
     }
 
     /**
-     * Backwards compatible constructor that takes an explicit string argument.
-     *
-     * @see Query#Query(Handle, CharSequence)
-     */
-    public Query(Handle handle, String sql) {
-        super(handle, sql);
-    }
-
-    /**
      * Executes the query, returning the result obtained from the given {@link ResultProducer}.
      *
      * @param <R> the type of the result

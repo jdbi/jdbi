@@ -163,6 +163,7 @@ public final class JdbiClassUtils {
      * @param values     Type values for the constructor. The number of values must match the number of type parameters.
      * @return An instance of the type.
      */
+    @SuppressWarnings("unchecked")
     public static <T> T checkedCreateInstance(Class<T> type,
             Class<?>[] parameters,
             Object... values) {
@@ -299,11 +300,11 @@ public final class JdbiClassUtils {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof MethodKey)) {
+            if (obj instanceof MethodKey other) {
+                return name.equals(other.name) && type.equals(other.type);
+            } else {
                 return false;
             }
-            MethodKey castObj = (MethodKey) obj;
-            return name.equals(castObj.name) && type.equals(castObj.type);
         }
 
         @Override

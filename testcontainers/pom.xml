@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.50.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -32,15 +32,14 @@
         <basepom.test.fork-count>1</basepom.test.fork-count>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
-        <dep.clickhouse.version>0.9.0</dep.clickhouse.version>
-        <dep.clickhouse.version>0.6.0</dep.clickhouse.version>
+        <dep.clickhouse.version>0.9.2</dep.clickhouse.version>
         <dep.db2.version>12.1.2.0</dep.db2.version>
-        <dep.trino.version>476</dep.trino.version>
+        <dep.trino.version>478</dep.trino.version>
         <dep.yugabyte.version>42.7.3-yb-4</dep.yugabyte.version>
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
     </properties>
 
-    <!-- we need tons of additional JDBC drivers in this one module. So we keep them all here. -->
+    <!-- We need tons of additional JDBC drivers in this one module. So we keep them all here. -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -119,6 +118,12 @@
         </dependency>
 
         <!-- test deps -->
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- JDBC drivers -->
 

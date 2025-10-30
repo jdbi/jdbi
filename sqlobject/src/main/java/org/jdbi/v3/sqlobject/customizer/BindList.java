@@ -18,7 +18,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.core.statement.SqlStatement;
 import org.jdbi.v3.sqlobject.customizer.internal.BindListFactory;
 
 import static org.jdbi.v3.core.statement.EmptyHandling.BLANK;
@@ -26,8 +25,8 @@ import static org.jdbi.v3.core.statement.EmptyHandling.DEFINE_NULL;
 import static org.jdbi.v3.core.statement.EmptyHandling.NULL_KEYWORD;
 
 /**
- * Binds each value in the annotated {@link Iterable} or array/varargs argument, and defines a named attribute as a
- * comma-separated list of each bound parameter name. Common use cases:
+ * Binds each value in the annotated {@link Iterable} or array/varargs argument, and defines a named attribute as a comma-separated list of each bound parameter
+ * name. Common use cases:
  * <pre>
  * &#64;SqlQuery("select * from things where id in (&lt;ids&gt;)")
  * List&lt;Thing&gt; getThings(@BindList int... ids)
@@ -36,15 +35,16 @@ import static org.jdbi.v3.core.statement.EmptyHandling.NULL_KEYWORD;
  * void insertThings(@DefineList List&lt;String&gt; columnNames, @BindList List&lt;Object&gt; values)
  * </pre>
  * <p>
- * Throws IllegalArgumentException if the argument is not an array or Iterable. How null and empty collections are handled can be configured with onEmpty:EmptyHandling - throws IllegalArgumentException by default.
+ * Throws IllegalArgumentException if the argument is not an array or Iterable. How null and empty collections are handled can be configured with
+ * onEmpty:EmptyHandling - throws IllegalArgumentException by default.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER})
+@Target({ ElementType.PARAMETER })
 @SqlStatementCustomizingAnnotation(BindListFactory.class)
 public @interface BindList {
     /**
-     * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit
-     * the name when there is no parameter naming information in your class files.
+     * The attribute name to define. If omitted, the name of the annotated parameter is used. It is an error to omit the name when there is no parameter naming
+     * information in your class files.
      *
      * @return the attribute name.
      */
@@ -54,41 +54,33 @@ public @interface BindList {
      * What to do when the argument is null or empty.
      *
      * @return The strategy for handling an empty list. By default, throw an {@link IllegalArgumentException}.
-     *
      * @see EmptyHandling
      */
     EmptyHandling onEmpty() default BindList.EmptyHandling.THROW;
 
     // TODO jdbi4 remove this duplicate of `core` EmptyHandling
+
     /**
      * describes what needs to be done if the passed argument is null or empty
      */
     enum EmptyHandling {
         /**
          * <p>Define "".</p>
-         *
+         * <p>
          * {@code select * from things where x in ()}
          */
         VOID(BLANK),
         /**
          * <p>Define "null", useful e.g. in postgresql where "in ()" is invalid syntax.</p>
-         *
-         * {@code select * from things where x in (null)}
-         *
-         * @deprecated vaguely named in light of new additions, use {@link EmptyHandling#NULL_STRING} instead
-         */
-        @Deprecated(since = "3.6.0", forRemoval = true)
-        NULL(NULL_KEYWORD),
-        /**
-         * <p>Define "null", useful e.g. in postgresql where "in ()" is invalid syntax.</p>
-         *
+         * <p>
          * {@code select * from things where x in (null)}
          */
         NULL_STRING(NULL_KEYWORD),
         /**
          * <p>Define {@code null}, leaving the result up to the {@link org.jdbi.v3.core.statement.TemplateEngine} to decide.</p>
-         *
-         * This value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with <code>StringTemplate</code></a>.
+         * <p>
+         * This value was specifically added to <a href="https://github.com/jdbi/jdbi/issues/1377">make conditionals work better with
+         * <code>StringTemplate</code></a>.
          */
         NULL_VALUE(DEFINE_NULL),
         /**
@@ -100,14 +92,6 @@ public @interface BindList {
 
         EmptyHandling(org.jdbi.v3.core.statement.EmptyHandling coreImpl) {
             this.coreImpl = coreImpl;
-        }
-
-        /**
-         * @deprecated legacy internal API
-         */
-        @Deprecated(since = "3.10.0", forRemoval = true)
-        public void define(SqlStatement stmt, String name) {
-            coreImpl.accept(stmt, name);
         }
 
         public org.jdbi.v3.core.statement.EmptyHandling getCoreImpl() {

@@ -327,18 +327,6 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Convenience method which creates a query with the given positional arguments. Takes a string argument for backwards compatibility reasons.
-     *
-     * @param sql  SQL or named statement
-     * @param args arguments to bind positionally
-     * @return query object
-     * @see Handle#select(CharSequence, Object...)
-     */
-    public Query select(String sql, Object... args) {
-        return select((CharSequence) sql, args);
-    }
-
-    /**
      * Execute a SQL statement, and return the number of rows affected by the statement.
      *
      * @param sql  the SQL statement to execute, using positional parameters (if any).
@@ -353,18 +341,6 @@ public class Handle implements Closeable, Configurable<Handle> {
             }
             return stmt.execute();
         }
-    }
-
-    /**
-     * Execute a SQL statement, and return the number of rows affected by the statement. Takes a string argument for backwards compatibility reasons.
-     *
-     * @param sql  the SQL statement to execute, using positional parameters (if any).
-     * @param args positional arguments.
-     * @return the number of rows affected.
-     * @see Handle#execute(CharSequence, Object...)
-     */
-    public int execute(String sql, Object... args) {
-        return execute((CharSequence) sql, args);
     }
 
     /**
@@ -389,18 +365,6 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Prepare a batch to execute. This is for efficiently executing more than one
-     * of the same statements with different parameters bound. Takes a string argument for backwards compatibility reasons.
-     *
-     * @param sql the batch SQL.
-     * @return a batch which can have "statements" added.
-     * @see Handle#prepareBatch(CharSequence)
-     */
-    public PreparedBatch prepareBatch(String sql) {
-        return prepareBatch((CharSequence) sql);
-    }
-
-    /**
      * Create a call to a stored procedure.
      *
      * @param sql the stored procedure sql.
@@ -408,17 +372,6 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public Call createCall(CharSequence sql) {
         return new Call(this, sql);
-    }
-
-    /**
-     * Create a call to a stored procedure. Takes a string argument for backwards compatibility reasons.
-     *
-     * @param sql the stored procedure sql.
-     * @return the Call.
-     * @see Handle#createCall(CharSequence)
-     */
-    public Call createCall(String sql) {
-        return createCall((CharSequence) sql);
     }
 
     /**
@@ -433,18 +386,6 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Return a Query instance that executes a statement
-     * with bound parameters and maps the result set into Java types. Takes a string argument for backwards compatibility reasons.
-     *
-     * @param sql SQL that may return results.
-     * @return a Query builder.
-     * @see Handle#createQuery(CharSequence)
-     */
-    public Query createQuery(String sql) {
-        return createQuery((CharSequence) sql);
-    }
-
-    /**
      * Creates a Script from the given SQL script.
      *
      * @param sql the SQL script.
@@ -455,17 +396,6 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Create an Insert or Update statement which returns the number of rows modified. Takes a string argument for backwards compatibility reasons.
-     *
-     * @param sql the statement sql.
-     * @return the Update builder.
-     * @see Handle#createScript(CharSequence)
-     */
-    public Script createScript(String sql) {
-        return createScript((CharSequence) sql);
-    }
-
-    /**
      * Create an Insert or Update statement which returns the number of rows modified.
      *
      * @param sql the statement sql.
@@ -473,17 +403,6 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public Update createUpdate(CharSequence sql) {
         return new Update(this, sql);
-    }
-
-    /**
-     * Create an Insert or Update statement which returns the number of rows modified. Takes a string argument for backwards compatibility reasons.
-     *
-     * @param sql the statement sql.
-     * @return the Update builder.
-     * @see Handle#createUpdate(CharSequence)
-     */
-    public Update createUpdate(String sql) {
-        return createUpdate((CharSequence) sql);
     }
 
     /**
@@ -653,18 +572,6 @@ public class Handle implements Closeable, Configurable<Handle> {
      *
      * @param savepointName the name of the savepoint to release.
      * @return the same handle.
-     * @deprecated Use {@link Handle#releaseSavepoint(String)}
-     */
-    @Deprecated(since = "3.35.0", forRemoval = true)
-    public Handle release(String savepointName) {
-        return releaseSavepoint(savepointName);
-    }
-
-    /**
-     * Release a previously created savepoint.
-     *
-     * @param savepointName the name of the savepoint to release.
-     * @return the same handle.
      */
     public Handle releaseSavepoint(String savepointName) {
         transactionHandler.releaseSavepoint(this, savepointName);
@@ -784,40 +691,11 @@ public class Handle implements Closeable, Configurable<Handle> {
      *
      * @param level the {@link TransactionIsolationLevel} to use.
      * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver.
-     * @deprecated Use {@link Handle#setTransactionIsolationLevel(int)}
-     */
-    @Deprecated(since = "3.35.0", forRemoval = true)
-    public void setTransactionIsolation(TransactionIsolationLevel level) {
-        setTransactionIsolationLevel(level);
-    }
-
-    /**
-     * Set the transaction isolation level on the underlying connection if it is different from the current isolation level.
-     *
-     * @param level the {@link TransactionIsolationLevel} to use.
-     * @throws UnableToManipulateTransactionIsolationLevelException if isolation level is not supported by the underlying connection or JDBC driver.
      */
     public void setTransactionIsolationLevel(TransactionIsolationLevel level) {
         if (level != TransactionIsolationLevel.UNKNOWN) {
             setTransactionIsolationLevel(level.intValue());
         }
-    }
-
-    /**
-     * Set the transaction isolation level on the underlying connection if it is different from the current isolation level.
-     *
-     * @param level the isolation level to use.
-     * @see Handle#setTransactionIsolationLevel(TransactionIsolationLevel)
-     * @see Connection#TRANSACTION_NONE
-     * @see Connection#TRANSACTION_READ_UNCOMMITTED
-     * @see Connection#TRANSACTION_READ_COMMITTED
-     * @see Connection#TRANSACTION_REPEATABLE_READ
-     * @see Connection#TRANSACTION_SERIALIZABLE
-     * @deprecated Use {@link Handle#setTransactionIsolationLevel(TransactionIsolationLevel)}
-     */
-    @Deprecated(since = "3.35.0", forRemoval = true)
-    public void setTransactionIsolation(int level) {
-        setTransactionIsolationLevel(level);
     }
 
     /**

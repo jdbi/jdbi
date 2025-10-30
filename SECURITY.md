@@ -8,7 +8,7 @@ Only the latest released version of Jdbi is actively supported. When reporting b
 
 We patch bugs and security relevant issues in the latest version and recommend upgrading. Jdbi goes to great length to ensure backwards compatibility so upgrading is almost always painless.
 
-The current version of Jdbi requires Java 11 or better.
+The current version of Jdbi requires Java 17 or better.
 
 We will backport security fixes if needed to the [last version that supports Java 8](https://github.com/jdbi/jdbi/releases/tag/v3.39.1).
 
@@ -16,6 +16,7 @@ We will backport security fixes if needed to the [last version that supports Jav
 | ------- | ------------------ |
 | [current latest version](https://github.com/jdbi/jdbi/releases) | :white_check_mark: |
 | [latest version that supports Java 8](https://github.com/jdbi/jdbi/releases/tag/v3.39.1) | :white_check_mark: |
+| [latest version that supports Java 11](https://github.com/jdbi/jdbi/releases/tag/v3.50.0) | :white_check_mark: |
 | Jdbi 2.x   | :x:                |
 
 ## Release cadence

@@ -45,16 +45,6 @@ public class MapMapper implements RowMapper<Map<String, Object>> {
         caseStrategy = ctx -> ctx.getConfig(MapMappers.class).getCaseChange();
     }
 
-    /**
-     * Constructs a new MapMapper
-     * @param toLowerCase if true, column names are converted to lowercase in the mapped {@link Map}. If false, nothing is done. Use the other constructor to delegate case control to MapMappers instead.
-     * @deprecated use {@link MapMappers#setCaseChange(UnaryOperator)} instead.
-     */
-    @Deprecated(since = "3.38.0", forRemoval = true)
-    public MapMapper(boolean toLowerCase) {
-        caseStrategy = toLowerCase ? ctx -> CaseStrategy.LOCALE_LOWER : ctx -> CaseStrategy.NOP;
-    }
-
     @Override
     public Map<String, Object> map(ResultSet rs, StatementContext ctx) throws SQLException {
         return specialize(rs, ctx).map(rs, ctx);

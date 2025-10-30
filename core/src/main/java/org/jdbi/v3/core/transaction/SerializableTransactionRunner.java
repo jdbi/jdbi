@@ -107,12 +107,11 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
     protected boolean isSqlState(String expectedSqlState, Throwable throwable) {
         Throwable t = throwable;
         while (t != null) {
-            if (t instanceof SQLException) {
-                Iterator<Throwable> unnestIterator = ((SQLException) t).iterator();
+            if (t instanceof SQLException e) {
+                Iterator<Throwable> unnestIterator = e.iterator();
                 while (unnestIterator.hasNext()) {
                     Throwable next = unnestIterator.next();
-                    if (next instanceof SQLException) {
-                        SQLException s = (SQLException) next;
+                    if (next instanceof SQLException s) {
                         String sqlState = s.getSQLState();
                         if (sqlState != null && sqlState.startsWith(expectedSqlState)) {
                             return true;

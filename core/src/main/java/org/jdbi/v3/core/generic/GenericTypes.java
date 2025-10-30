@@ -100,15 +100,11 @@ public class GenericTypes {
      * @return the parameter on the supertype, if it is concretely defined.
      * @throws ArrayIndexOutOfBoundsException if n &gt; the number of type variables the type has
      */
-    @SuppressWarnings("PMD.AvoidDeeplyNestedIfStmts")
     public static Optional<Type> findGenericParameter(Type type, Class<?> parameterizedSupertype, int n) {
-        if (type instanceof Class) {
-            Type genericSuper = ((Class<?>) type).getGenericSuperclass();
-            if (genericSuper instanceof ParameterizedType) {
-                ParameterizedType pt = (ParameterizedType) genericSuper;
-                if (pt.getRawType() == parameterizedSupertype) {
-                    return Optional.ofNullable(pt.getActualTypeArguments()[n]);
-                }
+        if (type instanceof Class<?> clazz) {
+            Type genericSuper = clazz.getGenericSuperclass();
+            if (genericSuper instanceof ParameterizedType pt && pt.getRawType() == parameterizedSupertype) {
+                return Optional.of(pt.getActualTypeArguments()[n]);
             }
         }
 
@@ -135,7 +131,7 @@ public class GenericTypes {
      * @return whether the given {@link Type} is an Array type.
      */
     public static boolean isArray(Type type) {
-        return type instanceof Class<?> && ((Class<?>) type).isArray();
+        return type instanceof Class<?> clazz && clazz.isArray();
     }
 
     /**

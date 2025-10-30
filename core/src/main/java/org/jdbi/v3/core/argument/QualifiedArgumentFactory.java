@@ -14,12 +14,9 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -62,8 +59,8 @@ public interface QualifiedArgumentFactory {
      * @param factory the factory to adapt
      */
     static QualifiedArgumentFactory adapt(ConfigRegistry config, ArgumentFactory factory) {
-        if (factory instanceof ArgumentFactory.Preparable) {
-            return adapt(config, (ArgumentFactory.Preparable) factory);
+        if (factory instanceof ArgumentFactory.Preparable preparable) {
+            return adapt(config, preparable);
         }
         Set<Annotation> qualifiers = config.get(Qualifiers.class).findFor(factory.getClass());
         return (type, value, cfg) ->
@@ -90,14 +87,6 @@ public interface QualifiedArgumentFactory {
         Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config);
 
         /**
-         * @deprecated no longer used
-         */
-        @Deprecated(since = "3.15.0", forRemoval = true)
-        default Collection<QualifiedType<?>> prePreparedTypes() {
-            return Collections.emptyList();
-        }
-
-        /**
          * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable
          * The returned factory only matches qualified types with zero qualifiers.
          *
@@ -108,12 +97,6 @@ public interface QualifiedArgumentFactory {
                 final Set<Annotation> qualifiers =
                         config.get(Qualifiers.class)
                         .findFor(factory.getClass());
-
-                final Collection<QualifiedType<?>> prePreparedTypes = Collections.unmodifiableList(
-                        factory.prePreparedTypes().stream()
-                            .map(QualifiedType::of)
-                            .map(qt -> qt.withAnnotations(qualifiers))
-                            .collect(Collectors.toList()));
 
                 @Override
                 public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {
@@ -127,15 +110,6 @@ public interface QualifiedArgumentFactory {
                     return type.getQualifiers().equals(qualifiers)
                             ? factory.prepare(type.getType(), cfg)
                             : Optional.empty();
-                }
-
-                /**
-                 * @deprecated no longer used
-                 */
-                @Deprecated(since = "3.39.0", forRemoval = true)
-                @Override
-                public Collection<QualifiedType<?>> prePreparedTypes() {
-                    return prePreparedTypes;
                 }
 
                 @Override

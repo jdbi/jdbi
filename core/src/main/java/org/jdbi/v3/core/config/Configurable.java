@@ -45,7 +45,6 @@ import org.jdbi.v3.core.statement.SqlParser;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementCustomizer;
 import org.jdbi.v3.core.statement.TemplateEngine;
-import org.jdbi.v3.core.statement.TimingCollector;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -106,18 +105,6 @@ public interface Configurable<This> {
      */
     default This setSqlParser(SqlParser parser) {
         return configure(SqlStatements.class, c -> c.setSqlParser(parser));
-    }
-
-    /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setTimingCollector(collector)}
-     *
-     * @param collector timing collector
-     * @return this
-     * @deprecated use {@link #setSqlLogger} instead
-     */
-    @Deprecated(since = "3.2.0", forRemoval = true)
-    default This setTimingCollector(TimingCollector collector) {
-        return configure(SqlStatements.class, c -> c.setTimingCollector(collector));
     }
 
     default This setSqlLogger(SqlLogger sqlLogger) {

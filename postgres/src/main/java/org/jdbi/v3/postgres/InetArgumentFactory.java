@@ -13,13 +13,8 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.lang.reflect.Type;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.sql.Types;
-import java.util.Arrays;
-import java.util.Collection;
 
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
@@ -37,14 +32,5 @@ public class InetArgumentFactory extends AbstractArgumentFactory<InetAddress> {
     @Override
     protected Argument build(InetAddress value, ConfigRegistry config) {
         return ObjectArgument.of(value.getHostAddress(), Types.OTHER);
-    }
-
-    /**
-     * @deprecated no longer used
-     */
-    @Override
-    @Deprecated(since = "3.39.0", forRemoval = true)
-    public Collection<Type> prePreparedTypes() {
-        return Arrays.asList(InetAddress.class, Inet4Address.class, Inet6Address.class);
     }
 }

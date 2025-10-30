@@ -32,16 +32,6 @@ public class Script extends SqlStatement<Script> {
     }
 
     /**
-     * Backwards compatible constructor that takes an explicit string argument.
-     *
-     * @see Script#Script(Handle, CharSequence)
-     */
-    public Script(Handle handle, String sql) {
-        super(handle, sql);
-        this.requireSemicolon = handle.getConfig(SqlStatements.class).isScriptStatementsNeedSemicolon();
-    }
-
-    /**
      * Execute this script in a batch statement
      *
      * @return an array of ints which are the results of each statement in the script

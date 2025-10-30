@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-build-parent</artifactId>
-        <version>3.50.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
         <relativePath>internal/build</relativePath>
     </parent>
 
@@ -60,7 +60,7 @@
         <module>oracle12</module>
         <module>postgis</module>
         <module>postgres</module>
-        <module>spring5</module>
+        <module>spring</module>
         <module>sqlite</module>
         <module>sqlobject</module>
         <module>stringtemplate4</module>
@@ -103,16 +103,6 @@
     </dependencyManagement>
 
     <profiles>
-        <!-- skip spring when testing with java 11, spring 6+ only supports 17+ -->
-        <profile>
-            <id>java17</id>
-            <activation>
-                <jdk>[17,)</jdk>
-            </activation>
-            <modules>
-                <module>spring</module>
-            </modules>
-        </profile>
         <profile>
             <id>java21</id>
             <activation>

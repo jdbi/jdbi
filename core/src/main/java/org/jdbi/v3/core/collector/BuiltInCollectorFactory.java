@@ -16,9 +16,7 @@ package org.jdbi.v3.core.collector;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 /**
@@ -54,10 +52,10 @@ import java.util.stream.Collector;
 @Deprecated(since = "3.6.0")
 public class BuiltInCollectorFactory implements CollectorFactory {
     private static final List<CollectorFactory> FACTORIES = Arrays.asList(
-        new MapCollectorFactory(),
-        new OptionalCollectorFactory(),
-        new ListCollectorFactory(),
-        new SetCollectorFactory()
+            new MapCollectorFactory(),
+            new OptionalCollectorFactory(),
+            new ListCollectorFactory(),
+            new SetCollectorFactory()
     );
 
     @Override
@@ -68,74 +66,19 @@ public class BuiltInCollectorFactory implements CollectorFactory {
     @Override
     public Optional<Type> elementType(Type containerType) {
         return FACTORIES.stream()
-            .map(factory -> factory.elementType(containerType))
-            .filter(Optional::isPresent)
-            .findFirst()
-            .map(Optional::get);
+                .map(factory -> factory.elementType(containerType))
+                .filter(Optional::isPresent)
+                .findFirst()
+                .map(Optional::get);
     }
 
     @Override
     public Collector<?, ?, ?> build(Type containerType) {
         return FACTORIES.stream()
-            .filter(factory -> factory.accepts(containerType))
-            .map(factory -> factory.build(containerType))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Unprovidable collector was requested. This is an internal jdbi bug; please report it to the jdbi developers."));
-    }
-
-    /**
-     * Returns a {@code Collector} that accumulates 0 or 1 input elements into an {@code Optional<T>}.
-     * The returned collector will throw {@code IllegalStateException} whenever 2 or more elements
-     * are present in a stream.
-     *
-     * @param <T> the collected type
-     * @return a {@code Collector} which collects 0 or 1 input elements into an {@code Optional<T>}.
-     * @deprecated Use {@link OptionalCollectors#toOptional()} instead.
-     */
-    @Deprecated(since = "3.0.1", forRemoval = true)
-    @SuppressWarnings("InlineMeSuggester")
-    public static <T> Collector<T, ?, Optional<T>> toOptional() {
-        return OptionalCollectors.toOptional();
-    }
-
-    /**
-     * Returns a {@code Collector} that accumulates {@code Map.Entry<K, V>} input elements into a
-     * map of the supplied type. The returned collector will throw {@code IllegalStateException}
-     * whenever a set of input elements contains multiple entries with the same key.
-     *
-     * @param <K>        the type of map keys
-     * @param <V>        the type of map values
-     * @param <M>        the type of the resulting {@code Map}
-     * @param mapFactory a {@code Supplier} which returns a new, empty {@code Map} of the appropriate type.
-     * @return a {@code Collector} which collects map entry elements into a {@code Map}, in encounter order.
-     *
-     * @deprecated Use {@link MapCollectors#toMap(Supplier)} instead.
-     */
-    @Deprecated(since = "3.0.1", forRemoval = true)
-    public static <K, V, M extends Map<K, V>> Collector<Map.Entry<K, V>, ?, M> toMap(Supplier<M> mapFactory) {
-        return Collector.of(
-                mapFactory,
-                BuiltInCollectorFactory::putEntry,
-                BuiltInCollectorFactory::combine);
-    }
-
-    private static <K, V, M extends Map<K, V>> void putEntry(M map, Map.Entry<K, V> entry) {
-        putEntry(map, entry.getKey(), entry.getValue());
-    }
-
-    private static <K, V, M extends Map<K, V>> void putEntry(M map, K key, V value) {
-        V oldValue = map.put(key, value);
-        if (oldValue != null) {
-            throw new IllegalStateException(String.format(
-                    "Multiple values for Map key '%s': ['%s','%s',...]",
-                    key,
-                    oldValue,
-                    value));
-        }
-    }
-
-    private static <K, V, M extends Map<K, V>> M combine(M a, M b) {
-        b.forEach((k, v) -> putEntry(a, k, v));
-        return a;
+                .filter(factory -> factory.accepts(containerType))
+                .map(factory -> factory.build(containerType))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(
+                        "Unprovidable collector was requested. This is an internal jdbi bug; please report it to the jdbi developers."));
     }
 }

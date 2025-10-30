@@ -64,8 +64,7 @@ public class PluginTest {
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof Thing) {
-                Thing thing = (Thing) o;
+            if (o instanceof Thing thing) {
                 return id == thing.id && Objects.equals(name, thing.name);
             }
             return false;

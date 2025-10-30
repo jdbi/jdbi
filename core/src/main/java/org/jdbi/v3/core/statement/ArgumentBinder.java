@@ -114,8 +114,8 @@ class ArgumentBinder {
                         throw missingNamedParameter(name, binding);
                     }
                 } else {
-                    if (value instanceof Argument) {
-                        ((Argument) value).apply(i + 1, stmt, ctx);
+                    if (value instanceof Argument argument) {
+                        argument.apply(i + 1, stmt, ctx);
                     } else {
                         // value set, find an argument factory and assign the value
                         argumentFactoryForType(typeOf(value))
@@ -143,16 +143,12 @@ class ArgumentBinder {
 
     @Nonnull
     QualifiedType<?> typeOf(@Nullable Object value) {
-        return value instanceof TypedValue
-                ? ((TypedValue) value).getType()
+        return (value instanceof TypedValue t)
+                ? t.getType()
                 : ctx.getConfig(Qualifiers.class).qualifiedTypeOf(
                         Optional.ofNullable(value).<Class<?>>map(Object::getClass).orElse(Object.class));
     }
 
-    /**
-     * @deprecated prepare the argument by type instead
-     */
-    @Deprecated(since = "3.11.0", forRemoval = true)
     Argument toArgument(Object found) {
         return argumentFactoryForType(typeOf(found))
                 .apply(unwrap(found));
@@ -189,8 +185,8 @@ class ArgumentBinder {
 
     private UnableToCreateStatementException factoryNotFound(QualifiedType<?> qualifiedType, Object value) {
         Type type = qualifiedType.getType();
-        if (type instanceof Class<?>) { // not a ParameterizedType
-            final TypeVariable<?>[] typeVars = ((Class<?>) type).getTypeParameters();
+        if (type instanceof Class<?> clazz) { // not a ParameterizedType
+            final TypeVariable<?>[] typeVars = clazz.getTypeParameters();
             if (typeVars.length > 0) {
                 return new UnableToCreateStatementException("No type parameters found for erased type '" + type + Arrays.toString(typeVars)
                     + "' with qualifiers '" + qualifiedType.getQualifiers()
@@ -202,7 +198,7 @@ class ArgumentBinder {
 
     @CheckReturnValue
     static Object unwrap(@Nullable Object maybeTypedValue) {
-        return maybeTypedValue instanceof TypedValue ? ((TypedValue) maybeTypedValue).getValue() : maybeTypedValue;
+        return maybeTypedValue instanceof TypedValue t ? t.getValue() : maybeTypedValue;
     }
 
     static class Prepared extends ArgumentBinder {

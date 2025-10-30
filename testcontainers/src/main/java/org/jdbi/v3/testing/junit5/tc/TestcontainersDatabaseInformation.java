@@ -53,7 +53,9 @@ import static java.lang.String.format;
 public final class TestcontainersDatabaseInformation {
 
     private static final TestcontainersDatabaseInformation CLICKHOUSE =
-        of(null, null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s Engine = Memory", catalogName));
+            // clickhouse pre-0.8 uses the catalog name.
+            // clickhouse post-0.8 uses the schema name.
+        of(null, null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s Engine = Memory", schemaName));
 
     private static final TestcontainersDatabaseInformation MYSQL =
         of("root", null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s", catalogName));
