@@ -9,20 +9,35 @@ on:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ci:
+    id: native-build
+    name: GraalVM native build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ 25 ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
 
       - uses: graalvm/setup-graalvm@v1
+        name: setup build jdk
+        id: build_jdk
         with:
-          java-version: 25
+          java-version: ${{ matrix.java-version }}
           cache: maven
 
-      - name: build
+      - name: build code
+        id: install
         env:
-          MAVEN_ARGS: "-B -Dbasepom.check.skip-enforcer=false -Dbasepom.check.skip-all=true -Djdbi.native=true"
+          MAVEN_ARGS: "-B -ff -Djdbi.native=true"
         run: |
           make install
