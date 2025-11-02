@@ -48,46 +48,45 @@
         <dep.asciidoctorj.version>3.0.0</dep.asciidoctorj.version>
         <!-- formerly stuck at 3.x since 4.0.0 needs Java 17 -->
         <dep.assertj.version>3.27.3</dep.assertj.version>
-        <dep.caffeine.version>3.2.1</dep.caffeine.version>
-        <dep.checkerframework.version>3.49.5</dep.checkerframework.version>
-        <dep.commons-compress.version>1.27.1</dep.commons-compress.version>
-        <dep.commons-lang.version>3.18.0</dep.commons-lang.version>
-        <dep.commons-text.version>1.13.1</dep.commons-text.version>
+        <dep.caffeine.version>3.2.3</dep.caffeine.version>
+        <dep.checkerframework.version>3.51.1</dep.checkerframework.version>
+        <dep.commons-compress.version>1.28.0</dep.commons-compress.version>
+        <dep.commons-lang.version>3.19.0</dep.commons-lang.version>
+        <dep.commons-text.version>1.14.0</dep.commons-text.version>
         <!-- derby 10.17 is JDK 21 only, keep it on 10.16 for now -->
         <dep.derby.version>10.16.1.1</dep.derby.version>
         <dep.detekt.version>1.23.8</dep.detekt.version>
-        <dep.errorprone.version>2.39.0</dep.errorprone.version>
-        <!-- last flyway version to support java 11 -->
-        <dep.flyway.version>9.22.3</dep.flyway.version>
+        <dep.errorprone.version>2.43.0</dep.errorprone.version>
+        <dep.flyway.version>11.15.0</dep.flyway.version>
         <dep.freemarker.version>2.3.34</dep.freemarker.version>
         <dep.geantyref.version>2.0.1</dep.geantyref.version>
         <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
-        <dep.gson.version>2.13.1</dep.gson.version>
-        <dep.guava.version>33.4.8-jre</dep.guava.version>
+        <dep.gson.version>2.13.2</dep.gson.version>
+        <dep.guava.version>33.5.0-jre</dep.guava.version>
         <dep.guice.version>5.1.0</dep.guice.version>
-        <dep.h2.version>2.3.232</dep.h2.version>
-        <dep.hikari-cp.version>6.3.0</dep.hikari-cp.version>
+        <dep.h2.version>2.4.240</dep.h2.version>
+        <dep.hikari-cp.version>7.0.2</dep.hikari-cp.version>
         <dep.hsqldb.version>2.7.4</dep.hsqldb.version>
-        <dep.immutables.version>2.11.0</dep.immutables.version>
-        <dep.jackson2.version>2.18.4</dep.jackson2.version>
+        <dep.immutables.version>2.11.6</dep.immutables.version>
+        <dep.jackson2.version>2.18.5</dep.jackson2.version>
         <dep.jakarta-annotation-api.version>3.0.0</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
         <dep.jdbi-policy.version>3.50.0-SNAPSHOT</dep.jdbi-policy.version>
-        <dep.jetbrainsAnnotations.version>26.0.2</dep.jetbrainsAnnotations.version>
+        <dep.jetbrainsAnnotations.version>26.0.2-1</dep.jetbrainsAnnotations.version>
         <dep.jfrunit.version>1.0.0.Alpha2</dep.jfrunit.version>
         <dep.joda-time.version>2.14.0</dep.joda-time.version>
         <dep.jts.version>1.20.0</dep.jts.version>
-        <dep.junit5.version>5.13.3</dep.junit5.version>
+        <dep.junit5.version>5.14.1</dep.junit5.version>
         <dep.kotlin.version>2.2.21</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.10.2</dep.kotlinx-coroutines.version>
-        <dep.lombok.version>1.18.38</dep.lombok.version>
-        <dep.mockito.version>5.18.0</dep.mockito.version>
+        <dep.lombok.version>1.18.42</dep.lombok.version>
+        <dep.mockito.version>5.20.0</dep.mockito.version>
         <dep.moshi.version>1.15.2</dep.moshi.version>
-        <dep.mssql.version>12.10.1.jre11</dep.mssql.version>
-        <dep.mysql.version>9.3.0</dep.mysql.version>
-        <dep.opentelemetry.version>1.51.0</dep.opentelemetry.version>
-        <dep.oracle-xe.version>23.8.0.25.04</dep.oracle-xe.version>
+        <dep.mssql.version>13.2.1.jre11</dep.mssql.version>
+        <dep.mysql.version>9.5.0</dep.mysql.version>
+        <dep.opentelemetry.version>1.55.0</dep.opentelemetry.version>
+        <dep.oracle-xe.version>23.26.0.0.0</dep.oracle-xe.version>
         <dep.otj-pg-embedded.version>1.1.1</dep.otj-pg-embedded.version>
         <dep.pg-embedded.version>5.4.1</dep.pg-embedded.version>
         <dep.pgvector.version>0.1.6</dep.pgvector.version>
@@ -105,8 +104,8 @@
         <dep.postgresql.version>42.7.8</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
         <dep.spring.boot.version>3.5.7</dep.spring.boot.version>
-        <dep.spring.version>6.2.9</dep.spring.version>
-        <dep.sqlite.version>3.50.2.0</dep.sqlite.version>
+        <dep.spring.version>6.2.12</dep.spring.version>
+        <dep.sqlite.version>3.50.3.0</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
         <dep.testcontainers.version>1.21.3</dep.testcontainers.version>
         <dep.vavr.version>0.10.6</dep.vavr.version>
@@ -295,6 +294,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
+                <version>${dep.flyway.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-database-postgresql</artifactId>
                 <version>${dep.flyway.version}</version>
             </dependency>
 
