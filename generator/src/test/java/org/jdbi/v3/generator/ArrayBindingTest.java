@@ -93,7 +93,7 @@ public class ArrayBindingTest {
 
         @Override
         public boolean equals(final Object obj) {
-            return obj instanceof Baz && Objects.equals(((Baz) obj).baz, baz);
+            return obj instanceof Baz other && Objects.equals(other.baz, baz);
         }
     }
 }

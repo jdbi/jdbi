@@ -121,16 +121,16 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
         @Override
         public JsonAdapter<?> create(Type type, Set<? extends Annotation> annotations, Moshi moshi) {
             Class<?> rawType = Types.getRawType(type);
-            if (rawType == Optional.class && type instanceof ParameterizedType) {
+            if (rawType == Optional.class && type instanceof ParameterizedType pt) {
 
-                JsonAdapter<Object> delegate = moshi.adapter(((ParameterizedType) type).getActualTypeArguments()[0]);
+                JsonAdapter<Object> delegate = moshi.adapter(pt.getActualTypeArguments()[0]);
                 return new JsonAdapter<Optional<Object>>() {
                     @Override
                     public Optional<Object> fromJson(JsonReader reader) throws IOException {
                         if (reader.peek() == JsonReader.Token.NULL) {
                             return Optional.ofNullable(reader.nextNull());
                         } else {
-                            return Optional.of(delegate.fromJson(reader));
+                            return Optional.ofNullable(delegate.fromJson(reader));
                         }
                     }
 

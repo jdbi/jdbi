@@ -155,10 +155,9 @@ public class TestReducing {
 
         @Override
         public boolean equals(Object other) {
-            if (!(other instanceof SomethingWithLocations)) {
+            if (!(other instanceof SomethingWithLocations o)) {
                 return false;
             }
-            SomethingWithLocations o = (SomethingWithLocations) other;
             return o.something.equals(something) && o.locations.equals(locations);
         }
 

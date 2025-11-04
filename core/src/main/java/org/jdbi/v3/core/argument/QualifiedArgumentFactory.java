@@ -62,8 +62,8 @@ public interface QualifiedArgumentFactory {
      * @param factory the factory to adapt
      */
     static QualifiedArgumentFactory adapt(ConfigRegistry config, ArgumentFactory factory) {
-        if (factory instanceof ArgumentFactory.Preparable) {
-            return adapt(config, (ArgumentFactory.Preparable) factory);
+        if (factory instanceof ArgumentFactory.Preparable preparable) {
+            return adapt(config, preparable);
         }
         Set<Annotation> qualifiers = config.get(Qualifiers.class).findFor(factory.getClass());
         return (type, value, cfg) ->

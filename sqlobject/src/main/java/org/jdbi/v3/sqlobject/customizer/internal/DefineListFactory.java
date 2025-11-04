@@ -43,10 +43,10 @@ public final class DefineListFactory implements SqlStatementCustomizerFactory {
 
         return (stmt, arg) -> {
             List<?> argsList;
-            if (arg instanceof List) {
-                argsList = (List<?>) arg;
-            } else if (arg instanceof Object[]) {
-                argsList = Arrays.asList((Object[]) arg);
+            if (arg instanceof List<?> list) {
+                argsList = list;
+            } else if (arg instanceof Object[] list) {
+                argsList = Arrays.asList(list);
             } else if (arg == null) {
                 throw new IllegalArgumentException("A null object was passed as a @DefineList parameter. "
                         + "@DefineList is only supported on List and array arguments");

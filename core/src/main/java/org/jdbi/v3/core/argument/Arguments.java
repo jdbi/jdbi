@@ -131,9 +131,9 @@ public class Arguments implements JdbiConfig<Arguments> {
         for (final QualifiedArgumentFactory factory : factories) {
             final Optional<Argument> maybeBuilt = factory.build(type, value, registry);
             if (maybeBuilt.isPresent()) {
-                if (factory instanceof QualifiedArgumentFactory.Preparable && didPrepare.add(type)) {
-                    ((QualifiedArgumentFactory.Preparable) factory).prepare(type, registry)
-                            .ifPresent(argumentFactory -> preparedFactories.putIfAbsent(type, argumentFactory));
+                if (factory instanceof QualifiedArgumentFactory.Preparable p && didPrepare.add(type)) {
+                    p.prepare(type, registry).ifPresent(argumentFactory ->
+                            preparedFactories.putIfAbsent(type, argumentFactory));
                 }
                 return maybeBuilt;
             }
@@ -167,9 +167,8 @@ public class Arguments implements JdbiConfig<Arguments> {
             return Optional.of(prepared);
         }
         for (final QualifiedArgumentFactory factory : factories) {
-            if (factory instanceof QualifiedArgumentFactory.Preparable) {
-                final Optional<Function<Object, Argument>> argumentFactory =
-                        ((QualifiedArgumentFactory.Preparable) factory).prepare(type, registry);
+            if (factory instanceof QualifiedArgumentFactory.Preparable preparable) {
+                final Optional<Function<Object, Argument>> argumentFactory = preparable.prepare(type, registry);
                 if (argumentFactory.isPresent()) {
                     preparedFactories.putIfAbsent(type, argumentFactory.get());
                     return argumentFactory;

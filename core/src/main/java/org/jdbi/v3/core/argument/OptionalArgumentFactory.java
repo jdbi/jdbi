@@ -53,8 +53,8 @@ class OptionalArgumentFactory extends DelegatingArgumentFactory {
 
     @Override
     public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
-        if (value instanceof Optional) {
-            Object nestedValue = ((Optional<?>) value).orElse(null);
+        if (value instanceof Optional<?> maybeValue) {
+            Object nestedValue = maybeValue.orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
             return config.get(Arguments.class).findFor(nestedType, nestedValue);
         } else {

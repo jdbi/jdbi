@@ -81,8 +81,7 @@ public class TestBatchingSingleValue {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof BatchingRow) {
-                BatchingRow other = (BatchingRow) obj;
+            if (obj instanceof BatchingRow other) {
                 return id == other.id && Arrays.equals(vals, other.vals);
             }
             return false;
