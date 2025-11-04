@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 import jakarta.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 abstract class InstanceFactory<T> {
     private final Executable executable;
@@ -49,7 +48,7 @@ abstract class InstanceFactory<T> {
     List<Type> getTypes() {
         return Arrays.stream(getParameters())
             .map(Parameter::getParameterizedType)
-            .collect(toUnmodifiableList());
+            .toList();
     }
 
     @Nullable

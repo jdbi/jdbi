@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -113,7 +112,7 @@ public interface QualifiedArgumentFactory {
                         factory.prePreparedTypes().stream()
                             .map(QualifiedType::of)
                             .map(qt -> qt.withAnnotations(qualifiers))
-                            .collect(Collectors.toList()));
+                            .toList());
 
                 @Override
                 public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {

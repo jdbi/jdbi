@@ -18,7 +18,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.config.ConfigCustomizer;
@@ -67,7 +66,7 @@ final class UseAnnotationConfigCustomizerFactory implements ConfigCustomizerFact
                     return (ConfigCustomizer) config -> consumer.configure(configurer, config, a);
 
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @FunctionalInterface

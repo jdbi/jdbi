@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.enums.EnumByName;
@@ -75,7 +74,7 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
         return FACTORIES.stream()
                 .map(ArgumentFactory.Preparable::prePreparedTypes)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory.Preparable {

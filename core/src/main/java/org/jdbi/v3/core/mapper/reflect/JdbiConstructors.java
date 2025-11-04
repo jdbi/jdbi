@@ -17,7 +17,6 @@ import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.internal.UtilityClassException;
@@ -46,11 +45,11 @@ public class JdbiConstructors {
         List<Constructor<T>> explicitConstructors = Stream.of(constructors)
             .filter(constructor -> constructor.isAnnotationPresent(JdbiConstructor.class))
             .filter(constructor -> !constructor.isSynthetic())
-            .collect(Collectors.toList());
+            .toList();
 
         List<Method> explicitFactoryMethods = Stream.of(type.getDeclaredMethods())
             .filter(method -> method.isAnnotationPresent(JdbiConstructor.class))
-            .collect(Collectors.toList());
+            .toList();
 
         if (explicitConstructors.size() + explicitFactoryMethods.size() > 1) {
             throw new IllegalArgumentException(type + " may have at most one constructor or static factory method annotated @JdbiConstructor");
@@ -77,10 +76,10 @@ public class JdbiConstructors {
     static <T> InstanceFactory<T> findFactoryFor(Class<T> factoryReturnType, Class<?> factoryMethodClass) {
         List<Method> allFactoryMethods = Stream.of(factoryMethodClass.getDeclaredMethods())
             .filter(method -> method.getReturnType().equals(factoryReturnType))
-            .collect(Collectors.toList());
+            .toList();
         List<Method> explicitFactoryMethods = allFactoryMethods.stream()
             .filter(method -> method.isAnnotationPresent(JdbiConstructor.class))
-            .collect(Collectors.toList());
+            .toList();
 
         if (explicitFactoryMethods.size() == 1) {
             return new StaticMethodInstanceFactory<>(factoryReturnType, explicitFactoryMethods.get(0));
@@ -107,7 +106,7 @@ public class JdbiConstructors {
 
         List<Constructor<T>> annotatedConstructors = Stream.of(constructors)
                 .filter(c -> c.isAnnotationPresent(JdbiConstructor.class))
-                .collect(Collectors.toList());
+                .toList();
 
         if (annotatedConstructors.size() > 1) {
             throw new IllegalArgumentException(type + " may have at most one constructor annotated @JdbiConstructor");
@@ -124,7 +123,7 @@ public class JdbiConstructors {
 
         List<Constructor<T>> annotatedConstructors = Stream.of(constructors)
                 .filter(c -> c.isAnnotationPresent(ConstructorProperties.class))
-                .collect(Collectors.toList());
+                .toList();
 
         if (annotatedConstructors.size() > 1) {
             throw new IllegalArgumentException(type + " may have at most one constructor annotated @ConstructorProperties");

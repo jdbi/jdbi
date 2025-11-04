@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.Define;
@@ -52,7 +51,7 @@ public class TestIssue2508 {
 
         List<String> names = data.stream()
             .map(Something::getName)
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(result).containsAll(names);
     }

@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.NamedArgumentFinderFactory;
@@ -37,7 +36,7 @@ public class PreparedBinding extends Binding {
     public final Supplier<List<NamedArgumentFinder>> realizedBackupArgumentFinders =
             MemoizingSupplier.of(() -> backupArgumentFinders.stream()
                 .map(Supplier::get)
-                .collect(Collectors.toList()));
+                .toList());
 
     @Override
     public boolean isEmpty() {
