@@ -23,6 +23,9 @@ import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 
+import static io.opentelemetry.sdk.common.CompletableResultCode.ofFailure;
+import static io.opentelemetry.sdk.common.CompletableResultCode.ofSuccess;
+
 final class InMemorySpanExporter implements SpanExporter {
     private final List<SpanData> exported = new ArrayList<>();
     private boolean shutdown;
@@ -30,21 +33,21 @@ final class InMemorySpanExporter implements SpanExporter {
     @Override
     public synchronized CompletableResultCode export(final Collection<SpanData> spans) {
         if (shutdown) {
-            return CompletableResultCode.ofFailure();
+            return ofFailure();
         }
         exported.addAll(spans);
-        return CompletableResultCode.ofSuccess();
+        return ofSuccess();
     }
 
     @Override
     public CompletableResultCode flush() {
-        return CompletableResultCode.ofSuccess();
+        return ofSuccess();
     }
 
     @Override
     public synchronized CompletableResultCode shutdown() {
         shutdown = true;
-        return CompletableResultCode.ofSuccess();
+        return ofSuccess();
     }
 
     public void clearExported() {
