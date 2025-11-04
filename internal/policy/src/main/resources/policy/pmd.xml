@@ -64,7 +64,6 @@
     </rule>
 
     <rule ref="category/java/design.xml">
-        <exclude name="AvoidCatchingGenericException"/>
         <exclude name="AvoidThrowingRawExceptionTypes"/>
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
         <exclude name="CognitiveComplexity"/>
@@ -90,6 +89,8 @@
     </rule>
 
     <rule ref="category/java/errorprone.xml">
+        <exclude name="AvoidCatchingGenericException"/>
+        <exclude name="AvoidCatchingNPE"/>
         <exclude name="AvoidCatchingThrowable"/>
         <exclude name="AvoidDuplicateLiterals"/>
         <exclude name="AvoidFieldNameMatchingMethodName"/>
