@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
@@ -58,7 +57,7 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
     public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigRegistry config) {
         return Collections.unmodifiableCollection(delegatedFactory.getExtensionHandlerFactories(config).stream()
                 .map(FilteringExtensionHandlerFactory::forDelegate)
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     @Override

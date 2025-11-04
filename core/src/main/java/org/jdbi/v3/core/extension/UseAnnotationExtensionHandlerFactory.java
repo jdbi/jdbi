@@ -17,7 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
@@ -43,18 +42,18 @@ final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFact
         return a.annotationType().isAnnotationPresent(UseExtensionHandler.class);
     }
 
-    static List<Class<?>> findAnnotations(Method method) {
+    static List<? extends Class<?>> findAnnotations(Method method) {
         return Stream.of(method.getAnnotations())
                 .filter(UseAnnotationExtensionHandlerFactory::matchAnnotation)
                 .map(Annotation::annotationType)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
     @Override
     public Optional<ExtensionHandler> createExtensionHandler(Class<?> extensionType, Method method) {
 
-        List<Class<?>> extensionAnnotations = findAnnotations(method);
+        List<? extends Class<?>> extensionAnnotations = findAnnotations(method);
 
         if (extensionAnnotations.size() > 1) {
             throw new IllegalStateException(

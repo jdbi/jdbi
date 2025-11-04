@@ -119,8 +119,8 @@ public class StatementContext implements Closeable {
      */
     @Beta
     public String describeJdbiStatementType() {
-        if (jdbiStatementType instanceof Class<?>) {
-            return ((Class<?>) jdbiStatementType).getSimpleName();
+        if (jdbiStatementType instanceof Class<?> clazz) {
+            return clazz.getSimpleName();
         }
         return jdbiStatementType.getTypeName();
     }

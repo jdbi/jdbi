@@ -299,11 +299,11 @@ public final class JdbiClassUtils {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof MethodKey)) {
+            if (obj instanceof MethodKey other) {
+                return name.equals(other.name) && type.equals(other.type);
+            } else {
                 return false;
             }
-            MethodKey castObj = (MethodKey) obj;
-            return name.equals(castObj.name) && type.equals(castObj.type);
         }
 
         @Override

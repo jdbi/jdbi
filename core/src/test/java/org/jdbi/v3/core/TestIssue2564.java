@@ -11,17 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.e2e;
+package org.jdbi.v3.core;
 
 import java.util.Arrays;
 import java.util.List;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.result.BatchResultBearing;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -34,8 +33,8 @@ public class TestIssue2564 {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withInitializer(
-        (ds, h) -> h.execute("create table something (id serial, name varchar(50), create_time timestamp default now())")
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(
+        h -> h.execute("create table something (id serial, name varchar(50), create_time timestamp default now())")
     );
 
     Handle handle;

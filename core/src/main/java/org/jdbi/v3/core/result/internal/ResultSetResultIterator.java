@@ -44,8 +44,8 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
 
         this.context = context;
 
-        if (resultSetSupplier instanceof ResultSetSupplier) {
-            this.resultSetSupplier = (ResultSetSupplier) resultSetSupplier;
+        if (resultSetSupplier instanceof ResultSetSupplier rss) {
+            this.resultSetSupplier = rss;
         } else {
             this.resultSetSupplier = ResultSetSupplier.closingContext(resultSetSupplier, context);
         }

@@ -3094,7 +3094,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
         })
     .values() // <6>
     .stream()
-    .collect(toList()); // <7>
+    .toList(); // <7>
 ----
 
 <1> Register row mappers for `Contact` and `Phone`.
@@ -3139,7 +3139,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
         }
         // <2>
     })
-    .collect(toList()); // <3>
+    .toList(); // <3>
 ----
 
 <1> The lambda receives a map where result objects will be stored, and a
@@ -3212,7 +3212,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
         })
     .values()
     .stream()
-    .collect(toList());
+    .toList();
 ----
 
 ==== JoinRowMapper

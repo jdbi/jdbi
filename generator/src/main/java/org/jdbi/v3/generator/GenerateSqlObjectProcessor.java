@@ -188,7 +188,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                     .filter(element -> element.getKind() == ElementKind.METHOD)
                     .map(ExecutableElement.class::cast)
                     .filter(element -> !element.getModifiers().contains(Modifier.PRIVATE))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         private void addSupertypes(TypeSpec.Builder builder) {

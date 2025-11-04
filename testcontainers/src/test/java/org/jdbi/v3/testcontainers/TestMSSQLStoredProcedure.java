@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.e2e.testcontainer;
+package org.jdbi.v3.testcontainers;
 
 import java.sql.Types;
 import java.util.List;
@@ -117,13 +117,14 @@ class TestMSSQLStoredProcedure {
     @Test
     void testMsSqlDocExample() {
         Handle h = extension.getSharedHandle();
-        h.execute("CREATE PROCEDURE mssql_add\n"
-            + "@a INT,\n"
-            + "@b INT\n"
-            + "AS\n"
-            + "BEGIN\n"
-            + "SELECT @a + @b;\n"
-            + "END");
+        h.execute("""
+                CREATE PROCEDURE mssql_add
+                @a INT,
+                @b INT
+                AS
+                BEGIN
+                SELECT @a + @b;
+                END;""");
 
         try (Call call = h.createCall("{ call mssql_add(:a, :b)}")) {
             call.bind("a", 13)

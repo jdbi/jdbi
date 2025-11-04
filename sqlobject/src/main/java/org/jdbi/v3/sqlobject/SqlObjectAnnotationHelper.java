@@ -25,8 +25,6 @@ import java.util.stream.Stream;
 import org.jdbi.v3.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.v3.core.internal.UtilityClassException;
 
-import static java.util.stream.Collectors.toList;
-
 import static org.jdbi.v3.sqlobject.SqlObjectFactory.EXTENSION_ID;
 
 final class SqlObjectAnnotationHelper {
@@ -41,7 +39,7 @@ final class SqlObjectAnnotationHelper {
 
     static List<Class<?>> findSqlMethodAnnotations(Method method) {
         return findOldAnnotations(method)
-                .collect(toList());
+                .toList();
     }
 
     private static boolean matchNewAnnotation(Annotation a) {

@@ -11,13 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.java21.telemetry;
+package org.jdbi.v3.opentelemetry;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -62,7 +61,7 @@ final class InMemorySpanExporter implements SpanExporter {
         synchronized (this) {
             return exported.stream()
                     .sorted(Comparator.comparing(SpanData::getStartEpochNanos))
-                    .collect(Collectors.toList());
+                    .toList();
         }
     }
 }
