@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        flyway-version: [ 7.15.0, 8.5.13 ]
+        flyway-version: [ 11.0.0, 10.22.0 ]
 
     steps:
       - uses: actions/checkout@v4
