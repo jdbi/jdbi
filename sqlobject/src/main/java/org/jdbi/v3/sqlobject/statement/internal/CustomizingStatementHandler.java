@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -114,7 +113,7 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
                         c.apply(stmt, args[i]);
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         if (!customizers.isEmpty()) {
             return customizers.stream();
