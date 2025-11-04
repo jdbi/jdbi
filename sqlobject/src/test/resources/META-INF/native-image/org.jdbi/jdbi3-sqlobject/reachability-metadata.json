@@ -231,7 +231,13 @@
     {"type":"org.jdbi.v3.sqlobject.subpackage.PrivateImplementationFactory$PrivateImplementation","methods":[{"name":"getValue"}]},
     {"type":"org.mockito.internal.matchers.Any","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]},
     {"type":"org.mockito.internal.matchers.Equals","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]},
-    {"type":"org.mockito.internal.matchers.InstanceOf","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]}
+    {"type":"org.mockito.internal.matchers.InstanceOf","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestIssue2497$SuluDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestIssue2508$Dao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestIssue2623$Dao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestIssue2669$ValueDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestRecord$UserDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestTextBlock$UserDao"]}}
   ],
   "resources": [
     {"glob":"**/*.sql"}

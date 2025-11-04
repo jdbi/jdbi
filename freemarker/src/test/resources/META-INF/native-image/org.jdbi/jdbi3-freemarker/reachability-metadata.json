@@ -15,7 +15,8 @@
     {"type":{"proxy":["org.jdbi.v3.freemarker.FreemarkerEngineTest$Wombat"]}},
     {"type":{"proxy":["org.jdbi.v3.freemarker.FreemarkerSqlLocatorTest$Koala"]}},
     {"type":{"proxy":["org.jdbi.v3.freemarker.FreemarkerSqlLocatorTest$Wombat"]}},
-    {"type":{"proxy":["org.jdbi.v3.freemarker.TestConditionalFreemarkerLocator$Dao"]}}
+    {"type":{"proxy":["org.jdbi.v3.freemarker.TestConditionalFreemarkerLocator$Dao"]}},
+    {"type":{"proxy":["org.jdbi.v3.freemarker.TestIssue2562$UserSearchDao"]}}
   ],
   "resources": [
     {"glob":"**/*.ftl"}

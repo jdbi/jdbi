@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.e2e.testcontainer;
+package org.jdbi.v3.testcontainers;
 
 import java.sql.Types;
 import java.util.List;

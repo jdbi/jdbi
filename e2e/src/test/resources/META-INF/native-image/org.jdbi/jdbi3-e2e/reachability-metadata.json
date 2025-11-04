@@ -1,16 +1,2 @@
 {
-  "reflection": [
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2497$SuluDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2508$Dao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2562$UserSearchDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2623$Dao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.TestIssue2669$ValueDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.java17.TestRecord$UserDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.e2e.java17.TestTextBlock$UserDao"]}}
-  ],
-  "resources": [
-    {"glob":"**/*.sql"},
-    {"glob":"**/*.ftl"},
-    {"glob":"mysql-default-conf"}
-  ]
 }
