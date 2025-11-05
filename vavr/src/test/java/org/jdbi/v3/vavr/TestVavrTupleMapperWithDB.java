@@ -20,6 +20,7 @@ import io.vavr.Tuple3;
 import io.vavr.collection.List;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.result.ResultSetException;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestVavrTupleMapperWithDB {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins();
+    public JdbiExtension h2Extension = JdbiExtension.h2()
+            .withPlugins(new SqlObjectPlugin(), new VavrPlugin());
 
     private List<Integer> expected = List.range(0, 9);
 

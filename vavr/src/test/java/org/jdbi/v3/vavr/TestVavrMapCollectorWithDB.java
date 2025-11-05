@@ -27,6 +27,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.MapEntryMappers;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,8 @@ public class TestVavrMapCollectorWithDB {
     private static final String KEY_PREFIX = "keyCol";
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins();
+    public JdbiExtension h2Extension = JdbiExtension.h2()
+            .withPlugins(new SqlObjectPlugin(), new VavrPlugin());
 
     private Seq<Integer> expected = List.range(0, 9);
     private Map<String, String> expectedMap = expected.toMap(i -> new Tuple2<>("keyCol" + i, "valCol" + (i + 1)));

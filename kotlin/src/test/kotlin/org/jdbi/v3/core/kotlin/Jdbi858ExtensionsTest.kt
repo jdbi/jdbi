@@ -16,6 +16,7 @@ package org.jdbi.v3.core.kotlin
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel
+import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.testing.junit5.JdbiExtension
 import org.junit.jupiter.api.BeforeEach
@@ -32,7 +33,7 @@ class Jdbi858ExtensionsTest {
 
     @RegisterExtension
     @JvmField
-    val h2Extension: JdbiExtension = JdbiExtension.h2().installPlugins()
+    val h2Extension: JdbiExtension = JdbiExtension.h2().withPlugin(SqlObjectPlugin())
 
     lateinit var jdbi: Jdbi
 
