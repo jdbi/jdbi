@@ -41,7 +41,7 @@ install-notests:: install
 install-nodocker:: MAVEN_ARGS += -Dno-docker=true
 install-nodocker:: install
 
-install-fast:: MAVEN_ARGS += -Pfast
+install-fast:: MAVEN_ARGS += -Pfast -T2C
 install-fast:: install
 
 compare-reproducible:: MAVEN_ARGS += -Dbasepom.test.skip=true -Djdbi.check.skip-japicmp=true
