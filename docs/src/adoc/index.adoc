@@ -58,7 +58,7 @@ All information in here reflects the current state of development on the `master
 
 === Release documentation
 
-* https://jdbi.org/releases/3.49.6[Release 3.5.0. - 2025-11-04^]
+* https://jdbi.org/releases/3.50.0[Release 3.50.0 - 2025-11-04^]
 * https://jdbi.org/releases/3.49.6[Release 3.49.6 - 2025-10-02^] - *This is the last release of Jdbi to support Java 11!*
 * https://jdbi.org/releases/3.49.5[Release 3.49.5 - 2025-06-13^]
 * https://jdbi.org/releases/3.49.4[Release 3.49.4 - 2025-05-16^]
