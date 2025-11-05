@@ -15,6 +15,7 @@ package org.jdbi.v3.core.kotlin
 
 import org.jdbi.v3.core.extension.ExtensionCallback
 import org.jdbi.v3.core.extension.ExtensionConsumer
+import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.testing.junit5.JdbiExtension
@@ -27,7 +28,7 @@ import kotlin.test.assertEquals
 class KotlinPluginTest {
     @RegisterExtension
     @JvmField
-    val h2Extension: JdbiExtension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something())
+    val h2Extension: JdbiExtension = JdbiExtension.h2().withPlugins(KotlinPlugin(), SqlObjectPlugin()).withInitializer(TestingInitializers.something())
 
     data class Thing(
         val id: Int,

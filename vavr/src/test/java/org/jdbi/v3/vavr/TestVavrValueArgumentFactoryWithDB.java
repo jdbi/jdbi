@@ -22,6 +22,7 @@ import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,8 @@ public class TestVavrValueArgumentFactoryWithDB {
     private static final Something BRIANSOMETHING = new Something(2, "brian");
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).installPlugins();
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something())
+            .withPlugins(new SqlObjectPlugin(), new VavrPlugin());
 
     @BeforeEach
     public void createTestData() {

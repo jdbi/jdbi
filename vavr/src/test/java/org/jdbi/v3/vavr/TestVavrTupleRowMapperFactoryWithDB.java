@@ -22,6 +22,7 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.SomethingMapper;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +35,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestVavrTupleRowMapperFactoryWithDB {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).installPlugins();
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something())
+            .withPlugins(new SqlObjectPlugin(), new VavrPlugin());
 
     @BeforeEach
     public void addData() {

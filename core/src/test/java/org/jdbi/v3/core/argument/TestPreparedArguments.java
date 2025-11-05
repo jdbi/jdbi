@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestPreparedArguments {
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.withPlugins();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
     @Test
     public void disablePreparedArguments() {
