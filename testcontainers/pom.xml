@@ -32,10 +32,15 @@
         <basepom.test.fork-count>1</basepom.test.fork-count>
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
+
         <dep.clickhouse.version>0.9.3</dep.clickhouse.version>
         <dep.db2.version>12.1.2.0</dep.db2.version>
         <dep.trino.version>478</dep.trino.version>
         <dep.yugabyte.version>42.7.3-yb-4</dep.yugabyte.version>
+
+        <!-- no native tests here -->
+        <jdbi.native.fail-no-tests>false</jdbi.native.fail-no-tests>
+
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
     </properties>
 

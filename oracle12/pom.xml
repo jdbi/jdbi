@@ -29,6 +29,10 @@
 
     <properties>
         <basepom.test.fork-count>1</basepom.test.fork-count>
+
+        <!-- no native tests here -->
+        <jdbi.native.fail-no-tests>false</jdbi.native.fail-no-tests>
+
         <moduleName>org.jdbi.v3.oracle12</moduleName>
     </properties>
 
