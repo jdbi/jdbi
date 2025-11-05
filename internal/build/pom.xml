@@ -120,6 +120,7 @@
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sbom>${basepom.check.skip-extended}</jdbi.check.skip-sbom>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
+        <jdbi.native.fail-no-tests>true</jdbi.native.fail-no-tests>
         <jdbi.test.language>en</jdbi.test.language>
         <jdbi.test.mysql-version>mysql:lts</jdbi.test.mysql-version>
         <jdbi.test.pg-version>17</jdbi.test.pg-version>
@@ -1005,6 +1006,7 @@
                     <version>${dep.plugin.native.version}</version>
                     <extensions>true</extensions>
                     <configuration>
+                        <failNoTests>${jdbi.native.fail-no-tests}</failNoTests>
                         <metadataRepository>
                             <enabled>true</enabled>
                         </metadataRepository>

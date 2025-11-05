@@ -28,6 +28,9 @@
     <description>Support for PostgreSQL PostGIS data types.</description>
 
     <properties>
+        <!-- no native tests here -->
+        <jdbi.native.fail-no-tests>false</jdbi.native.fail-no-tests>
+
         <moduleName>org.jdbi.v3.postgis</moduleName>
     </properties>
 

@@ -61,6 +61,9 @@ run-slow-tests:: run-tests
 run-tests-nodocker:: MAVEN_ARGS += -Dno-docker=true
 run-tests-nodocker:: run-tests
 
+native-tests:: MAVEN_ARGS += -Pslow-tests,native
+native-tests:: install
+
 publish-docs:: MAVEN_ARGS += -Dbasepom.javadoc.skip=false
 publish-docs:: install-fast
 	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
@@ -86,6 +89,7 @@ help::
 	@echo " * docs                 - build up-to-date documentation in docs/target/generated-docs/"
 	@echo " * run-tests            - run all unit and integration tests except really slow tests"
 	@echo " * run-slow-tests       - run all unit and integration tests"
+	@echo " * run-native-tests     - run native unit tests"
 	@echo " * run-tests-nodocker   - same as 'run-tests', but skip all tests that require a local docker installation"
 	@echo " *"
 	@echo " ***********************************************************************"
