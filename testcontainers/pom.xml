@@ -38,9 +38,6 @@
         <dep.trino.version>478</dep.trino.version>
         <dep.yugabyte.version>42.7.3-yb-4</dep.yugabyte.version>
 
-        <!-- no native tests here -->
-        <jdbi.native.fail-no-tests>false</jdbi.native.fail-no-tests>
-
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
     </properties>
 

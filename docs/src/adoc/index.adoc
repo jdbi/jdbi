@@ -9682,7 +9682,8 @@ link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] instances.
 === GraalVM Native Image
 
 [WARNING]
-Java native is still very much under development. The current Jdbi support is only for GraalVM 25 or newer as the metadata format has changed between the last LTS (Java 21) and the current LTS (Java 25). Jdbi only supports Java 25+.
+Java native is still very much under development. Jdbi provides reflection metadata only for GraalVM 25 or newer as the
+metadata format has changed between the last LTS (Java 21) and the current LTS (Java 25).
 
 
 Jdbi supports building as part of a `native-image` application. If you use SqlObject to implement DAO interfaces,

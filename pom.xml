@@ -114,5 +114,16 @@
                 <module>java21</module>
             </modules>
         </profile>
+        <profile>
+            <id>native</id>
+            <activation>
+                <property>
+                    <name>jdbi.native</name>
+                </property>
+            </activation>
+            <modules>
+                <module>native-tests</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
