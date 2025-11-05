@@ -16,7 +16,7 @@
 SHELL = /bin/sh
 .SUFFIXES:
 
-MAVEN = ./mvnw
+MAVEN ?= ./mvnw
 
 export MAVEN_OPTS
 export MAVEN_ARGS
