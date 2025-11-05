@@ -9318,23 +9318,6 @@ Configure the `maven-compiler-plugin` in your POM:
 * Java -> Compiler
 * Under "Classfile Generation," check the option "Store information about method parameters (usable via reflection)."
 
-=== GraalVM Native Image
-
-Jdbi supports building as part of a `native-image` application. If you use SqlObject to implement DAO interfaces,
-you'll have to inform Graal ahead of time. For example, you would fill in `META-INF/native-image/<groupId>/<artifactId>/reachability-metadata.json`
-
-[source,json]
-----
-{
-  "reflection": [
-    {"type":{"proxy":["com.foo.FooDao"]}},
-    {"type":{"proxy":["com.bar.BarDao"]}}
-  ]
-}
-----
-
-Learn more about https://www.graalvm.org/reference-manual/native-image/[GraalVM Native Image^] and https://graalvm.github.io/native-build-tools/latest/[Native Build Tools^] on their respective websites.
-
 === Working with Generic Types
 
 Jdbi provides utility classes to make it easier to work with Java generic types.
@@ -9687,6 +9670,29 @@ Most users will not need to implement the *ResultProducer* interface.
 Jdbi includes an experimental SqlObject code generator.
 If you include the `jdbi3-generator` artifact as an annotation processor and annotate your SqlObject definitions with `@GenerateSqlObject`, the generator will produce an implementing class and avoids using
 link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] instances.
+
+=== GraalVM Native Image
+
+[WARNING]
+Java native is still very much under development. The current Jdbi support is only for GraalVM 25 or newer as the metadata format has changed between the last LTS (Java 21) and the current LTS (Java 25). Jdbi only supports Java 25+.
+
+
+Jdbi supports building as part of a `native-image` application. If you use SqlObject to implement DAO interfaces,
+you'll have to inform the Graal VM ahead of time (during the image build process).
+
+For example, you would fill in `META-INF/native-image/<groupId>/<artifactId>/reachability-metadata.json`
+
+[source,json]
+----
+{
+  "reflection": [
+    {"type":{"proxy":["com.foo.FooDao"]}},
+    {"type":{"proxy":["com.bar.BarDao"]}}
+  ]
+}
+----
+
+Learn more about https://www.graalvm.org/reference-manual/native-image/[GraalVM Native Image^] and https://graalvm.github.io/native-build-tools/latest/[Native Build Tools^] on their respective websites.
 
 === HandleCallbackDecorator
 
