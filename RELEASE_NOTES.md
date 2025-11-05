@@ -1,9 +1,21 @@
 # Unreleased
 
+# 3.50.0
+
 *JDK Baseline Update*
-- Jdbi 3.50.0 and greater move JDK baseline to Java 17. Thank you Java 11 for your service!
+
+  *3.50.0 is the first release of Jdbi to require Java 17. Thank you Java 11 for your service!
+  We intend to do occasional bug patches for significant bugs or security issues but there
+  will be no further active development work.*
+
+*Experimental Java Native support*
+  *3.50.0 is the first release to support using Jdbi directly in native compilation. We only
+  support using the Java 25+ GraalVM toolchain and fully expect that there are bugs, breakages
+  and things that are not working well. If you use Jdbi in a native environment and find any
+  problems, we would be thrilled to get bug reports!*
 
 - CI verifies Jdbi runs well in GraalVM native-image (#2476, thanks @Eng-Fouad !)
+- 3.50.0 contains no bug fixes, user visible code or API changes compared to 3.49.6.
 
 # 3.49.6
 
