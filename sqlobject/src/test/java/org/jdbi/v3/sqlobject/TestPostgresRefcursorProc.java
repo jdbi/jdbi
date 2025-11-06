@@ -37,7 +37,7 @@ public class TestPostgresRefcursorProc {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).installPlugins();
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
 

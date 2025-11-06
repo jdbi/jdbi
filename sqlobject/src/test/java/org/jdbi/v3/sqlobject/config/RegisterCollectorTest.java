@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.collector.CollectorFactory;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RegisterCollectorTest {
 
     @RegisterExtension
-    H2DatabaseExtension h2 = H2DatabaseExtension.withPlugins();
+    H2DatabaseExtension h2 = H2DatabaseExtension.instance().withPlugin(new SqlObjectPlugin());
     Handle h;
 
     @BeforeEach
