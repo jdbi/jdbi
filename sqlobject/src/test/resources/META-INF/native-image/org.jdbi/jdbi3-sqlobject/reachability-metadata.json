@@ -244,8 +244,8 @@
   ],
   "serialization": [
     {"type":"java.lang.String"},
-    {"type":"org.jdbi.v3.core.CloseException","customTargetConstructorClass": "java.lang.Object"},
-    {"type":"org.jdbi.v3.core.transaction.TransactionException","customTargetConstructorClass":"java.lang.Object"},
+    {"type":"org.jdbi.v3.core.CloseException"},
+    {"type":"org.jdbi.v3.core.transaction.TransactionException"},
     {"type":"org.jdbi.v3.sqlobject.config.LongValue"},
     {"type":"org.jdbi.v3.sqlobject.config.StringValue"}
   ],
