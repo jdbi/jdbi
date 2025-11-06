@@ -7299,8 +7299,7 @@ for qualifiers on constrictor parameters, getter, setters, and setter parameters
 The link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation only applies while mapping SQL data into Java objects.
 When binding object properties (e.g. with link:{jdbidocs}/core/statement/SqlStatement.html#bindBean(java.lang.Object)[bindBean()^]), bind the property name (`:id`) rather than the column name (`:user_id`).
 
-If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
-Otherwise, you can attach it using
+You can install Kotlin support like:
 `Jdbi.installPlugin(KotlinPlugin())`.
 
 An example from the test class:
@@ -7452,8 +7451,7 @@ Parameter binding supports individual primitive types as well as Kotlin or JavaB
 `:paramName.propertyName`).
 No annotations are needed.
 
-If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
-Otherwise, you can attach the plugin via: `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
+You can install this plugin via: `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
 
 An example from the test class:
 
@@ -7912,18 +7910,7 @@ Alternatively, use standard JSR-330 `@Inject` annotations on the target class in
 
 ===== Installing Plugins
 
-Plugins may be automatically installed by scanning the classpath for
-link:{jdkdocs}/java.base/java/util/ServiceLoader.html[ServiceLoader^] manifests.
-
-[source,xml,indent=0]
-----
-<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
-  ...
-  <property name="autoInstallPlugins" value="true"/>
-</bean>
-----
-
-Plugins may also be installed explicitly:
+Plugins may be installed:
 
 [source,xml,indent=0]
 ----
@@ -7933,22 +7920,6 @@ Plugins may also be installed explicitly:
     <list>
       <bean class="org.jdbi.v3.sqlobject.SqlObjectPlugin"/>
       <bean class="org.jdbi.v3.guava.GuavaPlugin"/>
-    </list>
-  </property>
-</bean>
-----
-
-Not all plugins are automatically installable.
-In these situations, you can auto-install some plugins and manually install the rest:
-
-[source,xml,indent=0]
-----
-<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
-  ...
-  <property name="autoInstallPlugins" value="true"/>
-  <property name="plugins">
-    <list>
-      <bean class="org.jdbi.v3.core.h2.H2DatabasePlugin"/>
     </list>
   </property>
 </bean>
@@ -9486,7 +9457,7 @@ E.g. RowMappers registry delegates to ColumnMappers registry, if it does not hav
 === JdbiPlugin
 
 JdbiPlugin can be used to bundle bulk configuration.
-Plugins may be installed explicitly via `Jdbi.installPlugin(JdbiPlugin)`, or may be installed automagically from the classpath using the ServiceLoader mechanism via `installPlugins()`.
+Plugins should be installed via `Jdbi.installPlugin(JdbiPlugin)`.
 
 Jars may provide a file in `META-INF/services/org.jdbi.v3.core.spi.JdbiPlugin`
 containing the fully qualified class name of your plugin.

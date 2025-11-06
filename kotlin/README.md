@@ -15,9 +15,7 @@ that allows mapping nested Kotlin objects.
 
 ### Usage:
 
-If you load all Jdbi plugins via
-`Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
-Otherwise, you can attach the plugin using `Jdbi.installPlugin(KotlinPlugin())`.
+Install the plugin using `Jdbi.installPlugin(KotlinPlugin())`.
 
 An example from the test class:
 

@@ -133,7 +133,9 @@ public abstract class JdbiRule extends ExternalResource {
      * Discover and install plugins from the classpath.
      *
      * @see JdbiRule#withPlugin(JdbiPlugin) we recommend installing plugins explicitly instead
+     * @deprecated Registering plugins implicitly is less reliable. Please register plugins explicitly.
      */
+    @Deprecated(forRemoval = true)
     public JdbiRule withPlugins() {
         installPlugins = true;
         return this;

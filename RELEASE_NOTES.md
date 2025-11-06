@@ -1,5 +1,7 @@
 # Unreleased
 
+- Deprecate for removal installPlugins plugin discovery. It's too easy to get yourself into trouble.
+
 # 3.50.0
 
 *JDK Baseline Update*
