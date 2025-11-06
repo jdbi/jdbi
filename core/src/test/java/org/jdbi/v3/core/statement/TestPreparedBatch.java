@@ -275,6 +275,130 @@ public class TestPreparedBatch {
             .execute()).containsExactly(1, 1, 1);
     }
 
+    @Test
+    public void testDefaultBatchChunkSize() {
+        Handle h = h2Extension.getSharedHandle();
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        assertThat(batch.getBatchChunkSize()).isEqualTo(Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void testSetBatchChunkSize() {
+        Handle h = h2Extension.getSharedHandle();
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        batch.setBatchChunkSize(100);
+        assertThat(batch.getBatchChunkSize()).isEqualTo(100);
+        batch.setBatchChunkSize(5000);
+        assertThat(batch.getBatchChunkSize()).isEqualTo(5000);
+    }
+
+    @Test
+    public void testInvalidBatchChunkSize() {
+        Handle h = h2Extension.getSharedHandle();
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        try {
+            batch.setBatchChunkSize(0);
+            fail("Expected IllegalArgumentException for chunk size 0");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Batch chunk size must be greater than zero");
+        }
+        try {
+            batch.setBatchChunkSize(-1);
+            fail("Expected IllegalArgumentException for negative chunk size");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).contains("Batch chunk size must be greater than zero");
+        }
+    }
+
+    @Test
+    public void testBatchChunkSizeExecution() {
+        Handle h = h2Extension.getSharedHandle();
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        // Set chunk size to 3
+        batch.setBatchChunkSize(3);
+        // Add 7 items (will require 3 chunks: 3, 3, 1)
+        for (int i = 0; i < 7; i++) {
+            batch.bind("id", i).bind("name", "Name" + i).add();
+        }
+        int[] results = batch.execute();
+        // Should get 7 update counts (one for each row)
+        assertThat(results).hasSize(7);
+        // All should be successful inserts
+        assertThat(results).containsOnly(1);
+        // Verify all data was inserted
+        List<Something> records = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
+        assertThat(records).hasSize(7);
+        assertThat(records).extracting(Something::getName)
+            .containsExactly("Name0", "Name1", "Name2", "Name3", "Name4", "Name5", "Name6");
+    }
+
+    @Test
+    public void testBatchChunkSizeWithSingleChunk() {
+        Handle h = h2Extension.getSharedHandle();
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        // Set chunk size larger than number of items
+        batch.setBatchChunkSize(10);
+        // Add only 3 items
+        for (int i = 0; i < 3; i++) {
+            batch.bind("id", i).bind("name", "SingleChunk" + i).add();
+        }
+        int[] results = batch.execute();
+        assertThat(results).hasSize(3);
+        assertThat(results).containsOnly(1);
+        // Verify all data was inserted
+        List<Something> records = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
+        assertThat(records).hasSize(3);
+        assertThat(records).extracting(Something::getName)
+            .containsExactly("SingleChunk0", "SingleChunk1", "SingleChunk2");
+    }
+
+    @Test
+    public void testBatchChunkSizeWithLargeBatch() {
+        Handle h = h2Extension.getSharedHandle();
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        // Set small chunk size
+        batch.setBatchChunkSize(5);
+        int totalItems = 23; // Will require 5 chunks: 5, 5, 5, 5, 3
+        for (int i = 0; i < totalItems; i++) {
+            batch.bind("id", i).bind("name", "Large" + i).add();
+        }
+        int[] results = batch.execute();
+        assertThat(results).hasSize(totalItems);
+        assertThat(results).containsOnly(1);
+        // Verify all data was inserted
+        int recordCount = h.createQuery("select count(*) from something").mapTo(int.class).one();
+        assertThat(recordCount).isEqualTo(totalItems);
+    }
+
+    @Test
+    public void testBatchChunkSizeFluentInterface() {
+        Handle h = h2Extension.getSharedHandle();
+        // Test that setBatchChunkSize returns this for method chaining
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)")
+            .setBatchChunkSize(2)
+            .bind("id", 1).bind("name", "Fluent1").add()
+            .bind("id", 2).bind("name", "Fluent2").add()
+            .bind("id", 3).bind("name", "Fluent3").add();
+        assertThat(batch.getBatchChunkSize()).isEqualTo(2);
+        int[] results = batch.execute();
+        assertThat(results).hasSize(3);
+        assertThat(results).containsOnly(1);
+        // Verify data
+        List<Something> records = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
+        assertThat(records).hasSize(3);
+        assertThat(records).extracting(Something::getName)
+            .containsExactly("Fluent1", "Fluent2", "Fluent3");
+    }
+
+    @Test
+    public void testBatchChunkSizeWithEmptyBatch() {
+        Handle h = h2Extension.getSharedHandle();
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        batch.setBatchChunkSize(5);
+        int[] results = batch.execute();
+        assertThat(results).isEmpty();
+        assertThat(batch.getBatchChunkSize()).isEqualTo(5);
+    }
     public static class PublicSomething {
         public int id;
         public String name;
