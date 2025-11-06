@@ -25,7 +25,6 @@ import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.UtilityClassException;
-import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.postgres.internal.BitStringEnumSetArgumentFactory;
 import org.jdbi.v3.postgres.internal.BitStringEnumSetMapperFactory;
@@ -173,7 +172,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         if (PGVECTOR_AVAILABLE) {
             VectorEnabler.enable(conn);
         }
-        PGConnection pgConnection = Unchecked.supplier(() -> conn.unwrap(PGConnection.class)).get();
+        PGConnection pgConnection = conn.unwrap(PGConnection.class);
         return handle.configure(PostgresTypes.class, pt -> {
             pt.addTypesToConnection(pgConnection);
             pt.setLobApi(new PgLobApiImpl(conn));
