@@ -1392,15 +1392,15 @@
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>enforce-java21</id>
+                                <id>enforce-java25</id>
                                 <goals>
                                     <goal>enforce</goal>
                                 </goals>
                                 <configuration>
                                     <rules>
-                                        <!-- releases must be built with Java 21 or better -->
+                                        <!-- releases must be built with Java 25 or better -->
                                         <requireJavaVersion>
-                                            <version>[21,)</version>
+                                            <version>[25,)</version>
                                         </requireJavaVersion>
                                     </rules>
                                 </configuration>

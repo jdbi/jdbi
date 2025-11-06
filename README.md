@@ -64,7 +64,7 @@ We also run tests inside testcontainers against a large set of databases.
 
 ## Building
 
-Jdbi requires the latest LTS JDK version (Currently Java 21) or better to build. All release builds are done with the latest LTS version.
+Jdbi requires the latest LTS JDK version (Currently Java 25) or better to build. All release builds are done with the latest LTS version.
 
 Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.9 or later is required. Using the `make` targets requires GNU make.
 

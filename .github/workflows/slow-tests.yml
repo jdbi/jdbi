@@ -42,7 +42,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -108,7 +108,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -174,7 +174,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -244,7 +244,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
