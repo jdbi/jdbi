@@ -26,7 +26,7 @@ If you plan to make a larger change or contribution, please discuss this first i
 
 We strive for a healthy balance between subjective perfection and practical considerations, but we are firmly against doing a quick and incomplete job that will require more follow-up work later.
 
-* Use the latest LTS (Java 21 right now) or newer.
+* Use the latest LTS (Java 25 right now) or newer.
 * whenever possible, use "speaking" names. `handle`, not `h`.
 * make minimal changes to the code. If you can hide an internal class, do so. If you can make an internal class final, do so.
 * Jdbi is a library and any dependency that we use, we also force upon our users. Minimize the footprint of external dependencies; when in doubt we are more comfortable with copying a single class under Apache license into the code base with proper attribution over pulling in another dependency.
