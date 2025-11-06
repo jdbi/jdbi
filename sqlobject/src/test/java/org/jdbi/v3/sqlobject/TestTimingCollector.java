@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestTimingCollector {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withInitializer(TestingInitializers.something());
 
     private final CustomTimingCollector timingCollector = new CustomTimingCollector();
     private DAO dao;
