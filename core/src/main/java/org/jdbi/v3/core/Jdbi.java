@@ -226,8 +226,10 @@ public class Jdbi implements Configurable<Jdbi> {
      * Use the {@link ServiceLoader} API to detect and install plugins automagically.
      * Some people consider this feature dangerous; some consider it essential --
      * use at your own risk.
+     * @deprecated Registering plugins implicitly is less reliable. Please register plugins explicitly.
      * @return this
      */
+    @Deprecated(forRemoval = true)
     public Jdbi installPlugins() {
         ServiceLoader.load(JdbiPlugin.class).forEach(this::installPlugin);
         LOG.debug("Automatically installed plugins {}", plugins);
