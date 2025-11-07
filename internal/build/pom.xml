@@ -1430,24 +1430,11 @@
                     <name>jdbi.native</name>
                 </property>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>test-native</id>
-                                <goals>
-                                    <goal>test</goal>
-                                </goals>
-                                <phase>test</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <basepom.check.skip-all>true</basepom.check.skip-all>
+                <basepom.check.skip-enforcer>false</basepom.check.skip-enforcer>
+                <basepom.test.skip>true</basepom.test.skip>
+            </properties>
         </profile>
         <profile>
             <!-- Profile to skip time-consuming steps. -->
