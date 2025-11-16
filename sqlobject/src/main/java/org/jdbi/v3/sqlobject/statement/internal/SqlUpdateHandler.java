@@ -52,11 +52,11 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
             this.updateReturner = update -> update.execute() > 0;
         } else {
             QualifiedType<?> returnType = QualifiedType.of(
-                    GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
-                .withAnnotations(new Qualifiers().findFor(method));
+                            GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
+                    .withAnnotations(new Qualifiers().findFor(method));
             throw new UnableToCreateSqlObjectException(format(
-                "%s.%s method is annotated with @SqlUpdate so should return void, boolean, int, or long but is returning: %s",
-                method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
+                    "%s.%s method is annotated with @SqlUpdate so should return void, boolean, int, or long but is returning: %s",
+                    method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
         }
     }
 
@@ -77,9 +77,9 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
     private boolean isNumeric(Class<?> type) {
         return type.equals(Integer.class)
-            || type.equals(int.class)
-            || type.equals(void.class)
-            || type.equals(Void.class);
+                || type.equals(int.class)
+                || type.equals(void.class)
+                || type.equals(Void.class);
     }
 
     private boolean isBoolean(Class<?> type) {
@@ -119,8 +119,8 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
             ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(getGeneratedKeys.value());
 
             ResultIterable<?> iterable = useRowMapper == null
-                ? resultBearing.mapTo(elementType)
-                : resultBearing.map(rowMapperFor(useRowMapper));
+                    ? resultBearing.mapTo(elementType)
+                    : resultBearing.map(rowMapperFor(useRowMapper));
 
             return resultReturner.mappedResult(iterable, update.getContext());
         }
