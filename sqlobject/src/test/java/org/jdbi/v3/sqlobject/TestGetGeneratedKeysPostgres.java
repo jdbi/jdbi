@@ -146,10 +146,6 @@ public class TestGetGeneratedKeysPostgres {
         @GetGeneratedKeys("id")
         long insert(@Bind("name") String name);
 
-        @SqlUpdate("update something SET name = 'xxx'")
-        @GetGeneratedKeys("id")
-        int[] update();
-
         @SqlBatch("insert into something (name) values (:name)")
         @GetGeneratedKeys("id")
         int[] insert(@Bind("name") List<String> names);
