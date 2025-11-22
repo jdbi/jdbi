@@ -358,7 +358,9 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
 
     private boolean isNullable(Parameter parameter) {
         // Any annotation named @Nullable is honored. We're nice that way.
-        return Stream.of(parameter.getAnnotations())
+        // Check both parameter annotations and type-use annotations (e.g., jspecify @Nullable)
+        return Stream.of(parameter.getAnnotations(), parameter.getAnnotatedType().getAnnotations())
+            .flatMap(Stream::of)
             .map(Annotation::annotationType)
             .map(Class::getSimpleName)
             .anyMatch("Nullable"::equals);
