@@ -605,4 +605,45 @@ public class ConstructorMapperTest {
             .hasMessageContaining("or specify it with @JdbiConstructor");
     }
 
+    // Test TYPE_USE @Nullable annotations (e.g., jspecify)
+    @Test
+    public void testTypeUseNullableParameterPresent() {
+        TypeUseNullableParameterBean bean = handle
+            .registerRowMapper(ConstructorMapper.factory(TypeUseNullableParameterBean.class))
+            .select("select s, i from bean")
+            .mapTo(TypeUseNullableParameterBean.class)
+            .one();
+        assertThat(bean.s).isEqualTo("3");
+        assertThat(bean.i).isEqualTo(2);
+    }
+
+    @Test
+    public void testTypeUseNullableParameterAbsent() {
+        TypeUseNullableParameterBean bean = handle
+            .registerRowMapper(ConstructorMapper.factory(TypeUseNullableParameterBean.class))
+            .select("select i from bean")
+            .mapTo(TypeUseNullableParameterBean.class)
+            .one();
+        assertThat(bean.s).isNull();
+        assertThat(bean.i).isEqualTo(2);
+    }
+
+    @Test
+    public void testTypeUseNonNullableAbsent() {
+        handle.registerRowMapper(ConstructorMapper.factory(TypeUseNullableParameterBean.class));
+        assertThatThrownBy(() -> selectOne("select s from bean", TypeUseNullableParameterBean.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("parameter '[i]' has no matching columns in the result set");
+    }
+
+    static class TypeUseNullableParameterBean {
+        private final String s;
+        private final int i;
+
+        TypeUseNullableParameterBean(@org.jdbi.v3.core.mapper.reflect.typeuse.Nullable String s, int i) {
+            this.s = s;
+            this.i = i;
+        }
+    }
+
 }
