@@ -1,5 +1,6 @@
 # Unreleased
 
+- Remove support for slf4j 1.x, which is no longer maintained (#2902)
 - Deprecate for removal installPlugins plugin discovery. It's too easy to get yourself into trouble.
 - Support TYPE_USE `@Nullable` annotations like JSpecify ( #2899, thanks @protocol7 ! )
 
