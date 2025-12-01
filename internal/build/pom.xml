@@ -68,7 +68,9 @@
         <dep.hikari-cp.version>7.0.2</dep.hikari-cp.version>
         <dep.hsqldb.version>2.7.4</dep.hsqldb.version>
         <dep.immutables.version>2.11.6</dep.immutables.version>
+        <dep.jackson-annotations.version>2.20</dep.jackson-annotations.version>
         <dep.jackson2.version>2.18.5</dep.jackson2.version>
+        <dep.jackson3.version>3.0.3</dep.jackson3.version>
         <dep.jakarta-annotation-api.version>3.0.0</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
@@ -143,6 +145,14 @@
             </dependency>
 
             <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${dep.jackson3.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${dep.junit5.version}</version>
@@ -164,6 +174,12 @@
                 <version>${dep.opentelemetry.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${dep.jackson-annotations.version}</version>
             </dependency>
 
             <dependency>

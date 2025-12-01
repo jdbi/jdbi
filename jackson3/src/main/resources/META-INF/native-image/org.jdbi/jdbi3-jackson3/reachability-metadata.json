@@ -1,0 +1,5 @@
+{
+  "reflection": [
+    {"type":"org.jdbi.v3.jackson3.Jackson3Config","methods":[{"name":"<init>"}]}
+  ]
+}

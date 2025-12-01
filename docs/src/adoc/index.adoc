@@ -248,6 +248,8 @@ Support for various JSON libraries to map data from the database onto JSON types
 [glossary]
 jdbi3-jackson2::
 Support for https://github.com/FasterXML/jackson[Jackson v2^].
+jdbi3-jackson3::
+Support for https://github.com/FasterXML/jackson[Jackson v3^].
 jdbi3-gson::
 Support for https://github.com/google/gson[Google Gson^].
 jdbi3-moshi::
@@ -3594,7 +3596,7 @@ link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^]) to locate SQL s
 
 | link:{jdbidocs}/json/JsonConfig.html[JsonConfig^] | jsonMapper
 | link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] | see description
-| Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi3-gson2`, `jdbi3-jackson2` or `jdbi3-moshi` plugin, this is automatically set to the provided implementation.
+| Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi3-gson2`, `jdbi3-jackson2`, `jdbi3-jackson3`, or `jdbi3-moshi` plugin, this is automatically set to the provided implementation.
 
 If none of these modules is loaded, it defaults to an implementation that throws an exception whenever serialization or deserialization is attempted.
 
@@ -6326,6 +6328,40 @@ jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
 
 // now with simple support for Json Views if you want to filter properties:
 jdbi.getConfig(Jackson2Config.class).setView(ApiProperty.class);
+----
+
+==== Jackson 3
+
+This plugin provides JSON backing through Jackson 3. To use it, add a dependency:
+
+For Apache Maven:
+
+[source,xml,indent=0,subs="attributes,specialchars"]
+----
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-jackson3</artifactId>
+    <version>{project_version}</version>
+</dependency>
+----
+
+For Gradle:
+
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    implementation("org.jdbi:jdbi3-jackson3:{project_version}")
+}
+----
+
+[source,java,indent=0]
+----
+jdbi.installPlugin(new Jackson3Plugin());
+// optionally configure your ObjectMapper (recommended)
+jdbi.getConfig(Jackson3Config.class).setMapper(myObjectMapper);
+
+// now with simple support for Json Views if you want to filter properties:
+jdbi.getConfig(Jackson3Config.class).setView(ApiProperty.class);
 ----
 
 ==== Gson 2
