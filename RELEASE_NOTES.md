@@ -1,6 +1,7 @@
 # Unreleased
 
 - Deprecate for removal installPlugins plugin discovery. It's too easy to get yourself into trouble.
+- Support TYPE_USE `@Nullable` annotations like JSpecify ( #2899, thanks @protocol7 ! )
 
 # 3.50.0
 
