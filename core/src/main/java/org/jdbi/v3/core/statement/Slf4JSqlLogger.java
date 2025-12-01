@@ -27,19 +27,18 @@ import org.slf4j.event.Level;
  */
 public class Slf4JSqlLogger implements SqlLogger {
     private final Logger log;
-    private Level level = Level.DEBUG;
+    private final Level level;
 
     public Slf4JSqlLogger() {
-        this(LoggerFactory.getLogger("org.jdbi.sql"));
+        this(LoggerFactory.getLogger("org.jdbi.sql"), Level.DEBUG);
     }
 
     public Slf4JSqlLogger(Logger log) {
-        this.log = log;
+        this(log, Level.DEBUG);
     }
 
     public Slf4JSqlLogger(Level level) {
-        this();
-        this.level = level;
+        this(LoggerFactory.getLogger("org.jdbi.sql"), level);
     }
 
     public Slf4JSqlLogger(Logger log, Level level) {
