@@ -50,6 +50,7 @@
         <module>guava</module>
         <module>guice</module>
         <module>jackson2</module>
+        <module>jackson3</module>
         <module>jodatime2</module>
         <module>jpa</module>
         <module>json</module>

@@ -88,6 +88,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-jackson3</artifactId>
+                <version>${dep.jdbi3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jodatime2</artifactId>
                 <version>${dep.jdbi3.version}</version>
             </dependency>
