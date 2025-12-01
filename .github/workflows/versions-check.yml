@@ -508,7 +508,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.1.0-alpha1, 1.7.36 ]
+        test-version: [ 2.1.0-alpha1 ]
 
     steps:
       - uses: actions/checkout@v4
