@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,10 +33,11 @@ class TestSlf4JSqlLogger {
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
+    private Logger logger;
+
     @BeforeEach
     public void before() {
         String oldLevel = null;
-        Logger logger;
         try {
             oldLevel = System.getProperty(LOGGER_PROPERTY);
             System.setProperty(LOGGER_PROPERTY, "debug");
@@ -51,6 +53,19 @@ class TestSlf4JSqlLogger {
 
     @Test
     void testLogAfterExecutionForBatch() {
+        try (Handle handle = h2Extension.openHandle()) {
+            handle.execute(CREATE);
+
+            try (Batch batch = handle.createBatch()) {
+                batch.add(INSERT);
+                assertThatCode(batch::execute).doesNotThrowAnyException();
+            }
+        }
+    }
+
+    @Test
+    void testLogWithInfoLevelAfterExecutionForBatch() {
+        h2Extension.getJdbi().getConfig(SqlStatements.class).setSqlLogger(new Slf4JSqlLogger(logger, Level.INFO));
         try (Handle handle = h2Extension.openHandle()) {
             handle.execute(CREATE);
 
