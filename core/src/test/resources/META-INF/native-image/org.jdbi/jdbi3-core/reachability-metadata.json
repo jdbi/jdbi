@@ -22,6 +22,7 @@
     {"type":{"proxy":["org.jdbi.v3.meta.Beta"]}},
     {"type":"java.lang.Math","methods":[{"name":"toDegrees"}]},
     {"type":"java.lang.Integer","methods":[{"name":"parseInt","parameterTypes":["java.lang.String"]}]},
+    {"type":"java.util.HashMap","methods":[{"name":"clone"}]},
     {"type":"org.h2.jdbc.JdbcSQLNonTransientException","allPublicConstructors": true,"allPublicMethods": true,"allDeclaredFields": true},
     {"type":"org.jdbi.v3.core.Something","allPublicConstructors": true,"allPublicMethods": true},
     {"type":"org.jdbi.v3.core.argument.TestNamedParams$1","allPublicConstructors": true,"allPublicMethods": true,"allDeclaredFields": true},
