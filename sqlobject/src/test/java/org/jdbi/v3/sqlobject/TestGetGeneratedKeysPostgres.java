@@ -109,6 +109,21 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
+    public void testUseRowMapperUpdateMultiple() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            dao.insert("bar");
+
+            List<IdCreateTime> result = dao.update();
+
+            assertThat(result).hasSize(2);
+        });
+    }
+
+
+    @Test
     public void testRegisterRowMapperBatch() {
         pgExtension.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
             dao.createTable();
@@ -162,6 +177,11 @@ public class TestGetGeneratedKeysPostgres {
         @GetGeneratedKeys({"id", "created_on"})
         @RegisterRowMapper(IdCreateTimeMapper.class)
         IdCreateTime insert(String name);
+
+        @SqlUpdate("update something SET created_on = now()")
+        @GetGeneratedKeys({"id", "created_on"})
+        @RegisterRowMapper(IdCreateTimeMapper.class)
+        List<IdCreateTime> update();
 
         @SqlBatch("insert into something(name) values (:name)")
         @GetGeneratedKeys({"id", "created_on"})
