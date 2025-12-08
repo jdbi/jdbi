@@ -1,6 +1,7 @@
 # Unreleased
 
 - Add new `jackson3` artifact for Jackson 3 ( #2878 )
+- Support configuring log level for SqlLogger (#2901, thanks @phinjensen! )
 - Update to SLF4J 2, to allow for configurable log levels in SqlLogger (#2902)
 
 - Deprecate for removal installPlugins plugin discovery. It's too easy to get yourself into trouble.
