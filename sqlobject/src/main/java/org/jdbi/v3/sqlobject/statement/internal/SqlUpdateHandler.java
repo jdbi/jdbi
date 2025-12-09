@@ -33,8 +33,7 @@ import static java.lang.String.format;
 
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
-    private final Function<Update, Object> resultTransformer;
-    private final ResultReturner resultReturner;
+    private final WarmableResultTransformer resultTransformer;
 
     public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -50,41 +49,45 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
                 .withAnnotations(new Qualifiers().findFor(method));
 
         if (getGeneratedKeys != null) {
-            this.resultReturner = ResultReturner.forMethod(sqlObjectType, method);
-
             String[] columnNames = getGeneratedKeys.value();
+            var resultReturner = ResultReturner.forMethod(sqlObjectType, method);
 
-            this.resultTransformer = update -> {
-                ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(columnNames);
+            this.resultTransformer = new WarmableResultTransformer() {
+                @Override
+                public Object apply(Update update) {
+                    var ctx = update.getContext();
+                    var elementType = resultReturner.elementType(ctx.getConfig());
+                    ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(columnNames);
 
-                UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
-                ResultIterable<?> iterable = useRowMapper == null
-                        ? resultBearing.mapTo(returnType)
+                    UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
+                    ResultIterable<?> iterable = useRowMapper == null
+                        ? resultBearing.mapTo(elementType)
                         : resultBearing.map(rowMapperFor(useRowMapper));
 
-                return resultReturner.mappedResult(iterable, update.getContext());
+                    return resultReturner.mappedResult(iterable, update.getContext());
+                }
+
+                @Override
+                public void warm(ConfigRegistry config) {
+                    resultReturner.warm(config);
+                }
             };
         } else if (isLong(method.getReturnType())) {
             this.resultTransformer = Update::executeLarge;
-            this.resultReturner = null;
         } else if (isNumeric(method.getReturnType())) {
             this.resultTransformer = Update::execute;
-            this.resultReturner = null;
         } else if (isBoolean(method.getReturnType())) {
             this.resultTransformer = update -> update.execute() > 0;
-            this.resultReturner = null;
         } else {
             throw new UnableToCreateSqlObjectException(format(
-                    "%s.%s method is annotated with @SqlUpdate so should return void, boolean, int, or long but is returning: %s",
+                    "%s.%s method is annotated with @SqlUpdate and should return void, boolean, int, long, or have a @GetGeneratedKeys annotation, but is returning: %s",
                     method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
         }
     }
 
     @Override
     protected void warm(ConfigRegistry config) {
-        if (resultReturner != null) {
-            resultReturner.warm(config);
-        }
+        this.resultTransformer.warm(config);
     }
 
     @Override
@@ -110,5 +113,9 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
     private boolean isLong(Class<?> type) {
         return type.equals(long.class) || type.equals(Long.class);
+    }
+
+    private interface WarmableResultTransformer extends Function<Update, Object> {
+        default void warm(ConfigRegistry config) {}
     }
 }

@@ -73,7 +73,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testUseRowMapperUpdate() {
+    public void testUseRowMapperInsert() {
         pgExtension.getJdbi().useExtension(UseRowMapperDao.class, dao -> {
             dao.createTable();
 
@@ -81,6 +81,48 @@ public class TestGetGeneratedKeysPostgres {
 
             assertThat(result.id).isOne();
             assertThat(result.createdOn).isNotNull();
+        });
+    }
+
+    @Test
+    public void testUseRowMapperUpdateAsList() {
+        pgExtension.getJdbi().useExtension(UseRowMapperDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            dao.insert("bar");
+
+            List<IdCreateTime> result = dao.updateAsList();
+
+            assertThat(result).hasSize(2);
+        });
+    }
+
+    @Test
+    public void testUseRowMapperUpdateAsArray() {
+        pgExtension.getJdbi().useExtension(UseRowMapperDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            dao.insert("bar");
+
+            IdCreateTime[] result = dao.updateAsArray();
+
+            assertThat(result).hasSize(2);
+        });
+    }
+
+    @Test
+    public void testUseRowMapperUpdateSingle() {
+        pgExtension.getJdbi().useExtension(UseRowMapperDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            var idCreateTime = dao.insert("bar");
+
+            IdCreateTime result = dao.updateSingle(idCreateTime.id);
+
+            assertThat(result.id).isEqualTo(2);
         });
     }
 
@@ -97,7 +139,7 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
-    public void testRegisterRowMapperUpdate() {
+    public void testRegisterRowMapperInsert() {
         pgExtension.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
             dao.createTable();
 
@@ -109,8 +151,116 @@ public class TestGetGeneratedKeysPostgres {
     }
 
     @Test
+    public void testRegisterRowMapperUpdateAsList() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            dao.insert("bar");
+
+            List<IdCreateTime> result = dao.updateAsList();
+
+            assertThat(result).hasSize(2);
+        });
+    }
+
+    @Test
+    public void testRegisterRowMapperUpdateAsArray() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            dao.insert("bar");
+
+            IdCreateTime[] result = dao.updateAsArray();
+
+            assertThat(result).hasSize(2);
+        });
+    }
+
+    @Test
+    public void testRegisterRowMapperUpdateSingle() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            var idCreateTime = dao.insert("bar");
+
+            IdCreateTime result = dao.updateSingle(idCreateTime.id);
+
+            assertThat(result.id).isEqualTo(2);
+        });
+    }
+
+    @Test
     public void testRegisterRowMapperBatch() {
         pgExtension.getJdbi().useExtension(RegisterRowMapperDao.class, dao -> {
+            dao.createTable();
+
+            List<IdCreateTime> results = dao.insertBatch("foo", "bar");
+
+            assertThat(results).extracting(ic -> ic.id).containsExactly(1L, 2L);
+            assertThat(results).extracting(ic -> ic.createdOn).hasSize(2).doesNotContainNull();
+        });
+    }
+
+    @Test
+    public void testRegisterRowMapperInterfaceInsert() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperInterfaceDao.class, dao -> {
+            dao.createTable();
+
+            IdCreateTime result = dao.insert("foo");
+
+            assertThat(result.id).isOne();
+            assertThat(result.createdOn).isNotNull();
+        });
+    }
+
+    @Test
+    public void testRegisterRowMapperInterfaceUpdateAsList() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperInterfaceDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            dao.insert("bar");
+
+            List<IdCreateTime> result = dao.updateAsList();
+
+            assertThat(result).hasSize(2);
+        });
+    }
+
+    @Test
+    public void testRegisterRowMapperInterfaceUpdateAsArray() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperInterfaceDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            dao.insert("bar");
+
+            IdCreateTime[] result = dao.updateAsArray();
+
+            assertThat(result).hasSize(2);
+        });
+    }
+
+    @Test
+    public void testRegisterRowMapperInterfaceUpdateSingle() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperInterfaceDao.class, dao -> {
+            dao.createTable();
+
+            dao.insert("foo");
+            var idCreateTime = dao.insert("bar");
+
+            IdCreateTime result = dao.updateSingle(idCreateTime.id);
+
+            assertThat(result.id).isEqualTo(2);
+        });
+    }
+
+    @Test
+    public void testRegisterRowMapperInterfaceBatch() {
+        pgExtension.getJdbi().useExtension(RegisterRowMapperInterfaceDao.class, dao -> {
             dao.createTable();
 
             List<IdCreateTime> results = dao.insertBatch("foo", "bar");
@@ -152,6 +302,21 @@ public class TestGetGeneratedKeysPostgres {
         @GetGeneratedKeys({"id", "created_on"})
         @UseRowMapper(IdCreateTimeMapper.class)
         List<IdCreateTime> insertBatch(String... name);
+
+        @SqlUpdate("update something SET created_on = now()")
+        @GetGeneratedKeys({"id", "created_on"})
+        @UseRowMapper(IdCreateTimeMapper.class)
+        List<IdCreateTime> updateAsList();
+
+        @SqlUpdate("update something SET created_on = now()")
+        @GetGeneratedKeys({"id", "created_on"})
+        @UseRowMapper(IdCreateTimeMapper.class)
+        IdCreateTime[] updateAsArray();
+
+        @SqlUpdate("update something SET created_on = now() WHERE id = :id")
+        @GetGeneratedKeys({"id", "created_on"})
+        @UseRowMapper(IdCreateTimeMapper.class)
+        IdCreateTime updateSingle(long id);
     }
 
     public interface RegisterRowMapperDao {
@@ -167,6 +332,47 @@ public class TestGetGeneratedKeysPostgres {
         @GetGeneratedKeys({"id", "created_on"})
         @RegisterRowMapper(IdCreateTimeMapper.class)
         List<IdCreateTime> insertBatch(String... name);
+
+        @SqlUpdate("update something SET created_on = now()")
+        @GetGeneratedKeys({"id", "created_on"})
+        @RegisterRowMapper(IdCreateTimeMapper.class)
+        List<IdCreateTime> updateAsList();
+
+        @SqlUpdate("update something SET created_on = now()")
+        @GetGeneratedKeys({"id", "created_on"})
+        @RegisterRowMapper(IdCreateTimeMapper.class)
+        IdCreateTime[] updateAsArray();
+
+        @SqlUpdate("update something SET created_on = now() WHERE id = :id")
+        @GetGeneratedKeys({"id", "created_on"})
+        @RegisterRowMapper(IdCreateTimeMapper.class)
+        IdCreateTime updateSingle(long id);
+    }
+
+    @RegisterRowMapper(IdCreateTimeMapper.class)
+    public interface RegisterRowMapperInterfaceDao {
+        @SqlUpdate("create table something (id serial, name varchar(50), created_on timestamp default now())")
+        void createTable();
+
+        @SqlUpdate("insert into something(name) values (:name)")
+        @GetGeneratedKeys({"id", "created_on"})
+        IdCreateTime insert(String name);
+
+        @SqlBatch("insert into something(name) values (:name)")
+        @GetGeneratedKeys({"id", "created_on"})
+        List<IdCreateTime> insertBatch(String... name);
+
+        @SqlUpdate("update something SET created_on = now()")
+        @GetGeneratedKeys({"id", "created_on"})
+        List<IdCreateTime> updateAsList();
+
+        @SqlUpdate("update something SET created_on = now()")
+        @GetGeneratedKeys({"id", "created_on"})
+        IdCreateTime[] updateAsArray();
+
+        @SqlUpdate("update something SET created_on = now() WHERE id = :id")
+        @GetGeneratedKeys({"id", "created_on"})
+        IdCreateTime updateSingle(long id);
     }
 
     public static class IdCreateTimeMapper implements RowMapper<IdCreateTime> {

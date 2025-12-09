@@ -6,6 +6,7 @@
 
 - Deprecate for removal installPlugins plugin discovery. It's too easy to get yourself into trouble.
 - Support TYPE_USE `@Nullable` annotations like JSpecify ( #2899, thanks @protocol7 ! )
+- Allow `@GetGeneratedKeys` on `@SqlUpdate` methods to return multiple results as Lists or arrays (#2897, original PR by @aharin, thank you!)
 
 # 3.50.0
 

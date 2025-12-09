@@ -68,6 +68,7 @@
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestGetGeneratedKeysHsqlDb$DAO"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestGetGeneratedKeysPostgres$DAO"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestGetGeneratedKeysPostgres$RegisterRowMapperDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestGetGeneratedKeysPostgres$RegisterRowMapperInterfaceDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestGetGeneratedKeysPostgres$UseRowMapperDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestGuavaCollectors$UserDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestInClauseExpansion$DAO"]}},
