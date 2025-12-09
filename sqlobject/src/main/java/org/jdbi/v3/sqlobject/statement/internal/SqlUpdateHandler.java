@@ -14,6 +14,7 @@
 package org.jdbi.v3.sqlobject.statement.internal;
 
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -22,7 +23,6 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.ResultIterable;
-import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.sqlobject.UnableToCreateSqlObjectException;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
@@ -33,7 +33,7 @@ import static java.lang.String.format;
 
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
-    private final UpdateReturner updateReturner;
+    private final WarmableResultTransformer resultTransformer;
 
     public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -42,27 +42,52 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
             throw new UnsupportedOperationException("Cannot declare @UseRowReducer on a @SqlUpdate method.");
         }
 
-        if (method.isAnnotationPresent(GetGeneratedKeys.class)) {
-            this.updateReturner = new GetGeneratedKeysUpdateReturner(sqlObjectType, method);
+        GetGeneratedKeys getGeneratedKeys = method.getAnnotation(GetGeneratedKeys.class);
+
+        QualifiedType<?> returnType = QualifiedType.of(
+                        GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
+                .withAnnotations(new Qualifiers().findFor(method));
+
+        if (getGeneratedKeys != null) {
+            String[] columnNames = getGeneratedKeys.value();
+            var resultReturner = ResultReturner.forMethod(sqlObjectType, method);
+
+            this.resultTransformer = new WarmableResultTransformer() {
+                @Override
+                public Object apply(Update update) {
+                    var ctx = update.getContext();
+                    var elementType = resultReturner.elementType(ctx.getConfig());
+                    ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(columnNames);
+
+                    UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
+                    ResultIterable<?> iterable = useRowMapper == null
+                        ? resultBearing.mapTo(elementType)
+                        : resultBearing.map(rowMapperFor(useRowMapper));
+
+                    return resultReturner.mappedResult(iterable, update.getContext());
+                }
+
+                @Override
+                public void warm(ConfigRegistry config) {
+                    resultReturner.warm(config);
+                }
+            };
         } else if (isLong(method.getReturnType())) {
-            this.updateReturner = Update::executeLarge;
+            this.resultTransformer = Update::executeLarge;
         } else if (isNumeric(method.getReturnType())) {
-            this.updateReturner = Update::execute;
+            this.resultTransformer = Update::execute;
         } else if (isBoolean(method.getReturnType())) {
-            this.updateReturner = update -> update.execute() > 0;
+            this.resultTransformer = update -> update.execute() > 0;
         } else {
-            QualifiedType<?> returnType = QualifiedType.of(
-                            GenericTypes.resolveType(method.getGenericReturnType(), sqlObjectType))
-                    .withAnnotations(new Qualifiers().findFor(method));
             throw new UnableToCreateSqlObjectException(format(
-                    "%s.%s method is annotated with @SqlUpdate so should return void, boolean, int, or long but is returning: %s",
+                    "%s.%s method is annotated with @SqlUpdate and should return void, boolean, int, long, or have a @GetGeneratedKeys annotation, but is returning: %s",
                     method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
         }
     }
 
     @Override
     protected void warm(ConfigRegistry config) {
-        updateReturner.warm(config);
+        this.resultTransformer.warm(config);
     }
 
     @Override
@@ -72,7 +97,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
     @Override
     void configureReturner(Update u, SqlObjectStatementConfiguration cfg) {
-        cfg.setReturner(() -> updateReturner.result(u));
+        cfg.setReturner(() -> resultTransformer.apply(u));
     }
 
     private boolean isNumeric(Class<?> type) {
@@ -90,45 +115,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
         return type.equals(long.class) || type.equals(Long.class);
     }
 
-
-    @FunctionalInterface
-    interface UpdateReturner {
-
-        Object result(Update update);
-
+    private interface WarmableResultTransformer extends Function<Update, Object> {
         default void warm(ConfigRegistry config) {}
-    }
-
-    static class GetGeneratedKeysUpdateReturner implements UpdateReturner {
-        private final ResultReturner resultReturner;
-
-        private final GetGeneratedKeys getGeneratedKeys;
-        private final UseRowMapper useRowMapper;
-
-        GetGeneratedKeysUpdateReturner(Class<?> sqlObjectType, Method method) {
-            this.resultReturner = ResultReturner.forMethod(sqlObjectType, method);
-            this.getGeneratedKeys = method.getAnnotation(GetGeneratedKeys.class);
-            this.useRowMapper = method.getAnnotation(UseRowMapper.class);
-        }
-
-        @Override
-        public Object result(Update update) {
-            StatementContext ctx = update.getContext();
-            QualifiedType<?> elementType = resultReturner.elementType(ctx.getConfig());
-
-            ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(getGeneratedKeys.value());
-
-            ResultIterable<?> iterable = useRowMapper == null
-                    ? resultBearing.mapTo(elementType)
-                    : resultBearing.map(rowMapperFor(useRowMapper));
-
-            return resultReturner.mappedResult(iterable, update.getContext());
-        }
-
-        @Override
-        public void warm(ConfigRegistry config) {
-            resultReturner.warm(config);
-        }
-
     }
 }
