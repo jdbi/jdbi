@@ -11,15 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Ensure test execution
+ */
 package org.jdbi.v3.nativetests;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-// native-maven-plugin skips all tests if none are in source dirs
-class StubTest {
-    @Test
-    void stub() {
-        Assertions.assertThat(true).isTrue();
-    }
-}
