@@ -1,5 +1,7 @@
 # Unreleased
 
+- Retire Apache Derby integration (#2866)
+
 # 3.51.0
 
 - Add new `jackson3` artifact for Jackson 3 ( #2878 )
