@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.51.0-SNAPSHOT</version>
+        <version>3.51.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-native-tests</artifactId>
@@ -27,31 +27,14 @@
     <description>Tests for the full Jdbi code base in GraalVM native image</description>
 
     <properties>
-        <basepom.check.skip-all>false</basepom.check.skip-all>
+        <basepom.check.skip-all>${jdbi.skip.native}</basepom.check.skip-all>
+        <basepom.check.skip-dependency-management>true</basepom.check.skip-dependency-management>
         <basepom.check.skip-extended>true</basepom.check.skip-extended>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.install.skip>true</basepom.install.skip>
-        <basepom.test.skip>false</basepom.test.skip>
-        <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
+        <basepom.test.skip>${jdbi.skip.native}</basepom.test.skip>
         <moduleName>org.jdbi.v3.nativetests</moduleName>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-guice</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>aopalliance</groupId>
-                        <artifactId>aopalliance</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -88,6 +71,12 @@
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-guice</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>aopalliance</groupId>
+                    <artifactId>aopalliance</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
