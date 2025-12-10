@@ -77,6 +77,9 @@
         -->
         <module>e2e</module>
 
+        <!-- native tests. Need to be explicitly enabled -->
+        <module>native-tests</module>
+
         <!-- support pieces, examples, benchmark, tests etc. -->
         <!-- none of those ship actual end-user code -->
         <module>benchmark</module>
@@ -112,17 +115,6 @@
             </activation>
             <modules>
                 <module>java21</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>native</id>
-            <activation>
-                <property>
-                    <name>jdbi.native</name>
-                </property>
-            </activation>
-            <modules>
-                <module>native-tests</module>
             </modules>
         </profile>
     </profiles>

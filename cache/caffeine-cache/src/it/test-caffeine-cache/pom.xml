@@ -125,9 +125,9 @@
                     <dependenciesToScan>
                         <dependency>org.jdbi:jdbi3-core:*:tests</dependency>
                     </dependenciesToScan>
-                    <systemProperties combine.children="append">
+                    <systemPropertyVariables combine.children="append">
                         <jdbi.test.cache-plugin>org.jdbi.v3.cache.caffeine.CaffeineCachePlugin</jdbi.test.cache-plugin>
-                    </systemProperties>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
