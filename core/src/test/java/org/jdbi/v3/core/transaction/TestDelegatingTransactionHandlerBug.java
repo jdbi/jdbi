@@ -55,34 +55,19 @@ public class TestDelegatingTransactionHandlerBug {
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
-    /**
-     * Test that demonstrates the bug: when calling inTransaction with a TransactionIsolationLevel (as @Transaction annotation does), the custom 2-arg
-     * inTransaction override is NOT called.
-     *
-     * <p><b>THIS TEST IS EXPECTED TO FAIL</b> - it demonstrates the bug described in the issue.</p>
-     * <p>
-     * When this test fails, it proves that the 3-arg inTransaction method bypasses the custom 2-arg override. The test will pass once the bug is fixed by
-     * making DelegatingTransactionHandler's 3-arg version delegate to the 2-arg version (after setting the isolation level).
-     * </p>
-     */
     @Test
-    public void testThreeArgInTransactionBypassesCustomTwoArgOverride() {
+    public void testCustomHandler() {
         var transactionHandler = new CustomTransactionHandler(LocalTransactionHandler.binding());
         h2Extension.getJdbi().setTransactionHandler(transactionHandler);
 
         try (Handle handle = h2Extension.openHandle()) {
-            // When calling the 2-arg version directly, custom logic is invoked
+            // Custom code gets called if two args version is used
             handle.inTransaction(h -> "result1");
             assertThat(transactionHandler.getCustomCallCount()).isEqualTo(1);
 
-            // When calling the 3-arg version (as @Transaction annotation does),
-            // custom logic is BYPASSED because DelegatingTransactionHandler's 3-arg version
-            // directly delegates to the wrapped handler instead of calling the 2-arg version
+            // Custom code gets called if three args version is used
             handle.inTransaction(TransactionIsolationLevel.READ_COMMITTED, h -> "result2");
 
-            // BUG: This assertion will fail because the 2-arg method was not called
-            // Expected: 2 (both calls should go through the custom handler)
-            // Actual: 1 (only the first call went through the custom handler)
             assertThat(transactionHandler.getCustomCallCount())
                 .as("Both 2-arg and 3-arg inTransaction calls should go through the custom 2-arg override")
                 .isEqualTo(2);
@@ -105,30 +90,15 @@ public class TestDelegatingTransactionHandlerBug {
         }
     }
 
-    /**
-     * Test showing that if a user overrides BOTH methods, they can work around the issue, but this is not obvious and should not be necessary.
-     */
     @Test
-    public void testWorkaroundByOverridingBothMethods() {
-        var transactionHandler = new WorkaroundTransactionHandler(LocalTransactionHandler.binding());
-        h2Extension.getJdbi().setTransactionHandler(transactionHandler);
+    public void testThreeArgInTransactionCallsCustomLogic() {
+        var customHandler = new CustomTransactionHandler(LocalTransactionHandler.binding());
+        h2Extension.getJdbi().setTransactionHandler(customHandler);
 
         try (Handle handle = h2Extension.openHandle()) {
-            // When calling the 2-arg version directly, custom logic is invoked
-            handle.inTransaction(h -> "result1");
-            assertThat(transactionHandler.getCustomCallCount()).isEqualTo(1);
-
-            // When calling the 3-arg version (as @Transaction annotation does),
-            // custom logic is BYPASSED because DelegatingTransactionHandler's 3-arg version
-            // directly delegates to the wrapped handler instead of calling the 2-arg version
-            handle.inTransaction(TransactionIsolationLevel.READ_COMMITTED, h -> "result2");
-
-            // BUG: This assertion will fail because the 2-arg method was not called
-            // Expected: 2 (both calls should go through the custom handler)
-            // Actual: 1 (only the first call went through the custom handler)
-            assertThat(transactionHandler.getCustomCallCount())
-                .as("Both 2-arg and 3-arg inTransaction calls should go through the custom 2-arg override")
-                .isEqualTo(2);
+            // Direct call to 3-arg version works as expected
+            handle.inTransaction(TransactionIsolationLevel.READ_COMMITTED, h -> "result");
+            assertThat(customHandler.getCustomCallCount()).isEqualTo(1);
         }
     }
 
@@ -137,7 +107,7 @@ public class TestDelegatingTransactionHandlerBug {
      * housekeeping.
      */
     private static class CustomTransactionHandler extends DelegatingTransactionHandler {
-        private final AtomicInteger twoArgCallCount = new AtomicInteger(0);
+        private final AtomicInteger customCallCount = new AtomicInteger(0);
 
         private CustomTransactionHandler(TransactionHandler delegate) {
             super(delegate);
@@ -147,7 +117,7 @@ public class TestDelegatingTransactionHandlerBug {
         public <R, X extends Exception> R inTransaction(Handle handle,
             HandleCallback<R, X> callback) throws X {
             // Custom housekeeping code that users expect to run on every transaction
-            twoArgCallCount.incrementAndGet();
+            customCallCount.incrementAndGet();
             return super.inTransaction(handle, callback);
         }
 
@@ -157,29 +127,7 @@ public class TestDelegatingTransactionHandlerBug {
         // which directly delegates to the wrapped handler, bypassing our custom logic.
 
         public int getCustomCallCount() {
-            return twoArgCallCount.get();
-        }
-    }
-
-    private static class WorkaroundTransactionHandler extends CustomTransactionHandler {
-
-        private WorkaroundTransactionHandler(TransactionHandler delegate) {
-            super(delegate);
-        }
-
-        @Override
-        public <R, X extends Exception> R inTransaction(Handle handle,
-            TransactionIsolationLevel level,
-            HandleCallback<R, X> callback) throws X {
-            // WORKAROUND: Delegate to the 2-arg version to ensure custom logic is called
-            final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
-
-            try {
-                handle.setTransactionIsolationLevel(level);
-                return inTransaction(handle, callback);
-            } finally {
-                handle.setTransactionIsolationLevel(initial);
-            }
+            return customCallCount.get();
         }
     }
 }

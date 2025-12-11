@@ -67,14 +67,23 @@ public class DelegatingTransactionHandler implements TransactionHandler {
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    HandleCallback<R, X> callback) throws X {
+        HandleCallback<R, X> callback) throws X {
         return delegate.inTransaction(handle, callback);
     }
 
     @Override
-    public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X {
-        return delegate.inTransaction(handle, level, callback);
+    public final <R, X extends Exception> R inTransaction(Handle handle,
+        TransactionIsolationLevel level,
+        HandleCallback<R, X> callback) throws X {
+
+        final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
+        try {
+            handle.setTransactionIsolationLevel(level);
+            return inTransaction(handle, callback);
+        } finally {
+            if (level != TransactionIsolationLevel.UNKNOWN) {
+                handle.setTransactionIsolationLevel(initial);
+            }
+        }
     }
 }

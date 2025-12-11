@@ -259,7 +259,9 @@ public class LocalTransactionHandler implements TransactionHandler {
                 handle.setTransactionIsolationLevel(level);
                 return inTransaction(handle, callback);
             } finally {
-                handle.setTransactionIsolationLevel(initial);
+                if (level != TransactionIsolationLevel.UNKNOWN) {
+                    handle.setTransactionIsolationLevel(initial);
+                }
             }
         }
 
