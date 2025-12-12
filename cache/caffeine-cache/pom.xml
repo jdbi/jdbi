@@ -60,28 +60,5 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-invoker-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.github.siom79.japicmp</groupId>
-                <artifactId>japicmp-maven-plugin</artifactId>
-                <configuration>
-                    <parameter>
-                        <excludes>
-                            <exclude>org.jdbi.v3.cache.caffeine.CaffeineCache</exclude>
-                            <exclude>org.jdbi.v3.cache.caffeine.CaffeineLoadingCache</exclude>
-                        </excludes>
-                    </parameter>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>
