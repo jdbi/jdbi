@@ -7988,7 +7988,7 @@ For annotation based configurations you can add the following method in a
 @Configuration
 public class JdbiConfiguration {
     @Bean
-    public Jdbi jdbi(DataSource ds) {
+    public Jdbi jdbi(DataSource dataSource) {
         ConnectionFactory cf = new SpringConnectionFactory(dataSource); // <1>
         final Jdbi jdbi = Jdbi.create(cf);
         /* additional configuration goes here */
