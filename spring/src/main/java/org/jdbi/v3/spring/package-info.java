@@ -32,13 +32,13 @@
  * http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd"&gt;
  * &lt;tx:annotation-driven transaction-manager="transactionManager"/&gt;
  * &lt;bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"&gt;
- * &lt;property name="dataSource" ref="derby"/&gt;
+ * &lt;property name="dataSource" ref="myDataSource"/&gt;
  * &lt;/bean&gt;
- * &lt;bean id="derby" class="org.apache.derby.jdbc.EmbeddedDataSource" destroy-method="close"&gt;
+ * &lt;bean id="myDataSource" class="org.myvendor.jdbc.MyVendorDataSource" destroy-method="close"&gt;
  * &lt;property name="databaseName" value="testing"/&gt;
  * &lt;/bean&gt;
  * &lt;bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean"&gt;
- * &lt;property name="dataSource" ref="derby"/&gt;
+ * &lt;property name="dataSource" ref="myDataSource"/&gt;
  * &lt;/bean&gt;
  * &lt;bean id="service" class="org.jdbi.v3.spring.DummyService"&gt;
  * &lt;constructor-arg ref="jdbi"/&gt;

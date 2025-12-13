@@ -53,8 +53,6 @@
         <dep.commons-compress.version>1.28.0</dep.commons-compress.version>
         <dep.commons-lang.version>3.19.0</dep.commons-lang.version>
         <dep.commons-text.version>1.14.0</dep.commons-text.version>
-        <!-- derby 10.17 is JDK 21 only, keep it on 10.16 for now -->
-        <dep.derby.version>10.16.1.1</dep.derby.version>
         <dep.detekt.version>1.23.8</dep.detekt.version>
         <dep.errorprone.version>2.43.0</dep.errorprone.version>
         <dep.flyway.version>11.15.0</dep.flyway.version>
@@ -355,12 +353,6 @@
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc8</artifactId>
                 <version>${dep.oracle-xe.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>${dep.derby.version}</version>
             </dependency>
 
             <dependency>
