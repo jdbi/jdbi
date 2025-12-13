@@ -21,22 +21,21 @@ Also check out the code examples in the [Examples](https://github.com/jdbi/jdbi/
 ## Acknowledgements and Funding
 
 * <img src="docs/src/adoc/images/spotify_logo.svg" alt="spotify logo" title="spotify logo" width="30" height="30" style="vertical-align: middle; padding: 2px;"> <a href="https://engineering.atspotify.com/2023/10/announcing-the-recipients-of-the-2023-spotify-foss-fund/">Jdbi is a recipient of the Spotify FOSS 2023 Fund</a>
-* <img src="docs/src/adoc/images/tidelift_logo.png" alt="tidelift logo" title="tidelift logo" width="30" height="30" style="vertical-align: middle; padding: 2px;"><a href="https://tidelift.com/funding/github/maven/org.jdbi:jdbi3-core">Jdbi is supported by Tidelift</a>
 
 ## Prerequisites
 
-Jdbi requires Java 11 or better to run.
+Jdbi requires Java 17 or better to run.
 
-We run CI tests against Java 11, 17 and 21.
+We run CI tests against Java 17, 21, and 25.
 
 
 ### Compatibility with older Java versions
 
 Java 8, 9 and 10 are supported by any Jdbi version before **3.40.0**.
 
-Java 11 is supported by any Jdbi version up to **3.50.0**.
+Java 11 is supported by any Jdbi version before **3.50.0**.
 
-Java 17 or better is required for Jdbi **3.51.0** or newer.
+Java 17 or better is required starting with Jdbi **3.50.0** or newer.
 
 ### Library compatibility
 
@@ -65,7 +64,7 @@ We also run tests inside testcontainers against a large set of databases.
 
 ## Building
 
-Jdbi requires the latest LTS JDK version (Currently Java 21) or better to build. All release builds are done with the latest LTS version.
+Jdbi requires the latest LTS JDK version (Currently Java 25) or better to build. All release builds are done with the latest LTS version.
 
 Jdbi is "batteries included" and uses the [Apache Maven Wrapper](https://maven.apache.org/wrapper/). If an external Maven installation is used, Apache Maven 3.9 or later is required. Using the `make` targets requires GNU make.
 

@@ -40,7 +40,7 @@ class SampleQualifiers {
 
             @Override
             public boolean equals(Object obj) {
-                return obj instanceof Foo && ((Foo) obj).value() == value();
+                return obj instanceof Foo foo && foo.value() == value();
             }
 
             @Override
@@ -75,7 +75,7 @@ class SampleQualifiers {
 
             @Override
             public boolean equals(Object obj) {
-                return obj instanceof Bar && ((Bar) obj).value().equals(value());
+                return obj instanceof Bar bar && bar.value().equals(value());
             }
 
             @Override

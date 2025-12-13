@@ -17,7 +17,7 @@
 :jdbidocs: ./apidocs/org/jdbi/v3
 :kotlindocs: ./apidocs-kotlin/jdbi3-kotlin/jdbi3-kotlin/org.jdbi.v3.
 :kotlinsqldocs: ./apidocs-kotlin/jdbi3-kotlin-sqlobject/jdbi3-kotlin-sqlobject/org.jdbi.v3.
-:jdkdocs: https://docs.oracle.com/en/java/javase/11/docs/api
+:jdkdocs: https://docs.oracle.com/en/java/javase/17/docs/api
 :jakartadocs: https://jakarta.ee/specifications/platform/10/apidocs
 
 :projecthome: https://github.com/jdbi/jdbi
@@ -58,6 +58,9 @@ All information in here reflects the current state of development on the `master
 
 === Release documentation
 
+* https://jdbi.org/releases/3.51.0[Release 3.51.0 - 2025-12-09^]
+* https://jdbi.org/releases/3.50.0[Release 3.50.0 - 2025-11-04^]
+* https://jdbi.org/releases/3.49.6[Release 3.49.6 - 2025-10-02^] - *This is the last release of Jdbi to support Java 11!*
 * https://jdbi.org/releases/3.49.5[Release 3.49.5 - 2025-06-13^]
 * https://jdbi.org/releases/3.49.4[Release 3.49.4 - 2025-05-16^]
 * https://jdbi.org/releases/3.49.3[Release 3.49.3 - 2025-05-01^]
@@ -156,7 +159,6 @@ Please see our https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md[Contribu
 === Acknowledgements and Funding
 
 * image:spotify_logo.svg[Spotify logo,30,30] https://engineering.atspotify.com/2023/10/announcing-the-recipients-of-the-2023-spotify-foss-fund/[Jdbi is a recipient of the Spotify FOSS 2023 Fund^]
-* image:tidelift_logo.png[Tidelift logo,30,30]https://tidelift.com/funding/github/maven/org.jdbi:jdbi3-core[Jdbi is supported by Tidelift^]
 
 == Using Jdbi in your projects
 
@@ -171,15 +173,16 @@ Jdbi also offers a BOM (Bill of materials) module for easy dependency management
 
 === JVM version compatibility
 
-Jdbi runs on all Java versions 11 or later.
-All releases are built with the latest LTS version of Java using Java 11 bytecode compatibility.
+Jdbi runs on all Java versions 17 or later.
+All releases are built with the latest LTS version of Java using Java 17 bytecode compatibility.
 
 [IMPORTANT]
-Jdbi ended support for Java 8 with version 3.39. There are occasional backports of security relevant things or major bugs but as of version 3.40.0, JDK 11+ is required.
+Jdbi ended support for Java 11 with version 3.50, and Java 8 with version 3.39.
+There may be occasional backports of security relevant things or major bugs, if necessary.
 
 ==== Virtual Threads
 
-Jdbi has experimental support for virtual threads.
+Jdbi supports virtual threads.
 Basic use cases are verified to work, and we welcome reports of any issues.
 As virtual thread support is still evolving, please make sure to verify against the latest JDK before reporting any issues.
 
@@ -246,6 +249,8 @@ Support for various JSON libraries to map data from the database onto JSON types
 [glossary]
 jdbi3-jackson2::
 Support for https://github.com/FasterXML/jackson[Jackson v2^].
+jdbi3-jackson3::
+Support for https://github.com/FasterXML/jackson[Jackson v3^].
 jdbi3-gson::
 Support for https://github.com/google/gson[Google Gson^].
 jdbi3-moshi::
@@ -3093,7 +3098,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
         })
     .values() // <6>
     .stream()
-    .collect(toList()); // <7>
+    .toList(); // <7>
 ----
 
 <1> Register row mappers for `Contact` and `Phone`.
@@ -3138,7 +3143,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
         }
         // <2>
     })
-    .collect(toList()); // <3>
+    .toList(); // <3>
 ----
 
 <1> The lambda receives a map where result objects will be stored, and a
@@ -3211,7 +3216,7 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
         })
     .values()
     .stream()
-    .collect(toList());
+    .toList();
 ----
 
 ==== JoinRowMapper
@@ -3592,7 +3597,7 @@ link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^]) to locate SQL s
 
 | link:{jdbidocs}/json/JsonConfig.html[JsonConfig^] | jsonMapper
 | link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] | see description
-| Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi3-gson2`, `jdbi3-jackson2` or `jdbi3-moshi` plugin, this is automatically set to the provided implementation.
+| Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi3-gson2`, `jdbi3-jackson2`, `jdbi3-jackson3`, or `jdbi3-moshi` plugin, this is automatically set to the provided implementation.
 
 If none of these modules is loaded, it defaults to an implementation that throws an exception whenever serialization or deserialization is attempted.
 
@@ -6326,6 +6331,40 @@ jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
 jdbi.getConfig(Jackson2Config.class).setView(ApiProperty.class);
 ----
 
+==== Jackson 3
+
+This plugin provides JSON backing through Jackson 3. To use it, add a dependency:
+
+For Apache Maven:
+
+[source,xml,indent=0,subs="attributes,specialchars"]
+----
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-jackson3</artifactId>
+    <version>{project_version}</version>
+</dependency>
+----
+
+For Gradle:
+
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    implementation("org.jdbi:jdbi3-jackson3:{project_version}")
+}
+----
+
+[source,java,indent=0]
+----
+jdbi.installPlugin(new Jackson3Plugin());
+// optionally configure your ObjectMapper (recommended)
+jdbi.getConfig(Jackson3Config.class).setMapper(myObjectMapper);
+
+// now with simple support for Json Views if you want to filter properties:
+jdbi.getConfig(Jackson3Config.class).setView(ApiProperty.class);
+----
+
 ==== Gson 2
 
 This plugin provides JSON backing through Gson 2. To use it, add a dependency:
@@ -7273,11 +7312,11 @@ dependencies {
 }
 ----
 
-Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version^] is set to at least 11:
+Ensure the Kotlin compiler's https://kotlinlang.org/docs/reference/using-maven.html#attributes-specific-for-jvm[JVM target version^] is set to at least 17:
 
 [source,xml,indent=0,subs="specialchars"]
 ----
-<kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
+<kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
 ----
 
 Then install the link:{kotlindocs}core.kotlin/-kotlin-plugin/[Kotlin Plugin^] into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
@@ -7297,8 +7336,7 @@ for qualifiers on constrictor parameters, getter, setters, and setter parameters
 The link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation only applies while mapping SQL data into Java objects.
 When binding object properties (e.g. with link:{jdbidocs}/core/statement/SqlStatement.html#bindBean(java.lang.Object)[bindBean()^]), bind the property name (`:id`) rather than the column name (`:user_id`).
 
-If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
-Otherwise, you can attach it using
+You can install Kotlin support like:
 `Jdbi.installPlugin(KotlinPlugin())`.
 
 An example from the test class:
@@ -7450,8 +7488,7 @@ Parameter binding supports individual primitive types as well as Kotlin or JavaB
 `:paramName.propertyName`).
 No annotations are needed.
 
-If you load all Jdbi plugins via `Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
-Otherwise, you can attach the plugin via: `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
+You can install this plugin via: `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
 
 An example from the test class:
 
@@ -7910,18 +7947,7 @@ Alternatively, use standard JSR-330 `@Inject` annotations on the target class in
 
 ===== Installing Plugins
 
-Plugins may be automatically installed by scanning the classpath for
-link:{jdkdocs}/java.base/java/util/ServiceLoader.html[ServiceLoader^] manifests.
-
-[source,xml,indent=0]
-----
-<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
-  ...
-  <property name="autoInstallPlugins" value="true"/>
-</bean>
-----
-
-Plugins may also be installed explicitly:
+Plugins may be installed:
 
 [source,xml,indent=0]
 ----
@@ -7931,22 +7957,6 @@ Plugins may also be installed explicitly:
     <list>
       <bean class="org.jdbi.v3.sqlobject.SqlObjectPlugin"/>
       <bean class="org.jdbi.v3.guava.GuavaPlugin"/>
-    </list>
-  </property>
-</bean>
-----
-
-Not all plugins are automatically installable.
-In these situations, you can auto-install some plugins and manually install the rest:
-
-[source,xml,indent=0]
-----
-<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
-  ...
-  <property name="autoInstallPlugins" value="true"/>
-  <property name="plugins">
-    <list>
-      <bean class="org.jdbi.v3.core.h2.H2DatabasePlugin"/>
     </list>
   </property>
 </bean>
@@ -7978,7 +7988,7 @@ For annotation based configurations you can add the following method in a
 @Configuration
 public class JdbiConfiguration {
     @Bean
-    public Jdbi jdbi(DataSource ds) {
+    public Jdbi jdbi(DataSource dataSource) {
         ConnectionFactory cf = new SpringConnectionFactory(dataSource); // <1>
         final Jdbi jdbi = Jdbi.create(cf);
         /* additional configuration goes here */
@@ -8625,8 +8635,7 @@ include::{exampledir}/OnDemandExtensionTest.java[tags=with]
 
 [NOTE]
 The link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] uses a link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] object to provide the on-demand handle object.
-Java proxies only support Java interface classes as extension types and may not be compatible with
-https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[GraalVM^] when creating native code.
+Java proxies only support Java interface classes as extension types.
 
 [#extension-handle-lifecycle]
 ==== Handle lifecycle for extensions
@@ -8825,8 +8834,7 @@ Methods on the instance will be wrapped in extension handlers and a proxy object
 
 ===== Extensions without Java proxy objects
 
-A drawback of the standard extension factories is that returning a link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] object limits factory functionality and is incompatible with some use cases (e.g. https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[using GraalVM
-for native compilation^]).
+A drawback of the standard extension factories is that returning a link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] object limits factory functionality.
 
 A factory can return the link:{jdbidocs}/core/extension/ExtensionFactory.FactoryFlag.html#DONT_USE_PROXY[`DONT_USE_PROXY`^] flag on the
 link:{jdbidocs}/core/extension/ExtensionFactory.html#getFactoryFlags()[ExtensionFactory#getFactoryFlags()^] method to signal that the extension framework should return the backing object _as-is_.
@@ -9208,7 +9216,7 @@ The main use case is within an extension type implementation class as it require
 instance, which is only available through the
 link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method.
 By creating extension handler invokers and metadata manually, an implementation can sidestep all the proxy logic and directly wire up method invocation or redirect invocations between methods.
-The <<generator,jdbi SQL object generator>> uses this mechanism to create implementation classes that do not need the java proxy logic (which is problematic with https://docs.oracle.com/en/graalvm/enterprise/21/docs/reference-manual/native-image/DynamicProxy/[GraalVM^]).
+The <<generator,jdbi SQL object generator>> uses this mechanism to create implementation classes that do not need the java proxy logic.
 
 This is an example of creating and calling an extension handler invoker directly:
 
@@ -9486,7 +9494,7 @@ E.g. RowMappers registry delegates to ColumnMappers registry, if it does not hav
 === JdbiPlugin
 
 JdbiPlugin can be used to bundle bulk configuration.
-Plugins may be installed explicitly via `Jdbi.installPlugin(JdbiPlugin)`, or may be installed automagically from the classpath using the ServiceLoader mechanism via `installPlugins()`.
+Plugins should be installed via `Jdbi.installPlugin(JdbiPlugin)`.
 
 Jars may provide a file in `META-INF/services/org.jdbi.v3.core.spi.JdbiPlugin`
 containing the fully qualified class name of your plugin.
@@ -9671,7 +9679,30 @@ Most users will not need to implement the *ResultProducer* interface.
 Jdbi includes an experimental SqlObject code generator.
 If you include the `jdbi3-generator` artifact as an annotation processor and annotate your SqlObject definitions with `@GenerateSqlObject`, the generator will produce an implementing class and avoids using
 link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] instances.
-This may be useful for `graal-native` compilation.
+
+=== GraalVM Native Image
+
+[WARNING]
+Java native is still very much under development. Jdbi provides reflection metadata only for GraalVM 25 or newer as the
+metadata format has changed between the last LTS (Java 21) and the current LTS (Java 25).
+
+
+Jdbi supports building as part of a `native-image` application. If you use SqlObject to implement DAO interfaces,
+you'll have to inform the Graal VM ahead of time (during the image build process).
+
+For example, you would fill in `META-INF/native-image/<groupId>/<artifactId>/reachability-metadata.json`
+
+[source,json]
+----
+{
+  "reflection": [
+    {"type":{"proxy":["com.foo.FooDao"]}},
+    {"type":{"proxy":["com.bar.BarDao"]}}
+  ]
+}
+----
+
+Learn more about https://www.graalvm.org/reference-manual/native-image/[GraalVM Native Image^] and https://graalvm.github.io/native-build-tools/latest/[Native Build Tools^] on their respective websites.
 
 === HandleCallbackDecorator
 

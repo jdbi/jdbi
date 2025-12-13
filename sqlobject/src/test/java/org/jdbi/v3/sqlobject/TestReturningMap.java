@@ -19,6 +19,7 @@ import java.util.Objects;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.sqlobject.config.KeyColumn;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.config.ValueColumn;
@@ -37,7 +38,7 @@ import static org.assertj.core.api.Assertions.entry;
 public class TestReturningMap {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins();
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugins(new SqlObjectPlugin(), new GuavaPlugin());
 
     private Handle h;
 

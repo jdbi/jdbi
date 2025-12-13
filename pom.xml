@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi3-build-parent</artifactId>
-        <version>3.50.0-SNAPSHOT</version>
+        <version>3.51.1-SNAPSHOT</version>
         <relativePath>internal/build</relativePath>
     </parent>
 
@@ -50,6 +50,7 @@
         <module>guava</module>
         <module>guice</module>
         <module>jackson2</module>
+        <module>jackson3</module>
         <module>jodatime2</module>
         <module>jpa</module>
         <module>json</module>
@@ -60,6 +61,7 @@
         <module>oracle12</module>
         <module>postgis</module>
         <module>postgres</module>
+        <module>spring</module>
         <module>spring5</module>
         <module>sqlite</module>
         <module>sqlobject</module>
@@ -74,6 +76,9 @@
              every module listed above as needed.
         -->
         <module>e2e</module>
+
+        <!-- native tests. Need to be explicitly enabled -->
+        <module>native-tests</module>
 
         <!-- support pieces, examples, benchmark, tests etc. -->
         <!-- none of those ship actual end-user code -->
@@ -103,16 +108,6 @@
     </dependencyManagement>
 
     <profiles>
-        <!-- skip spring when testing with java 11, spring 6+ only supports 17+ -->
-        <profile>
-            <id>java17</id>
-            <activation>
-                <jdk>[17,)</jdk>
-            </activation>
-            <modules>
-                <module>spring</module>
-            </modules>
-        </profile>
         <profile>
             <id>java21</id>
             <activation>

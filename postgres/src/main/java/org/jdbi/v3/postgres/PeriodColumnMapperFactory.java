@@ -40,10 +40,9 @@ public class PeriodColumnMapperFactory implements ColumnMapperFactory {
             if (obj == null) {
                 return null;
             }
-            if (!(obj instanceof PGInterval)) {
+            if (!(obj instanceof PGInterval interval)) {
                 throw new IllegalArgumentException(String.format("got non-pginterval %s", obj));
             }
-            final PGInterval interval = (PGInterval) obj;
             if (interval.getHours() != 0 || interval.getMinutes() != 0 || interval.getSeconds() != 0) {
                 throw new IllegalArgumentException(
                         String.format("pginterval \"%s\" is too granular to be represented as period",

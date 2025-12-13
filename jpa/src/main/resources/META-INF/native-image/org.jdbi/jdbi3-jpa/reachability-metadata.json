@@ -1,0 +1,6 @@
+{
+  "reflection": [
+    {"type":"org.jdbi.v3.jpa.JpaMapperFactory","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.jpa.internal.BindJpaFactory","methods":[{"name":"<init>"}]}
+  ]
+}

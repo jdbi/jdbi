@@ -39,7 +39,6 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
     private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
 
-    private final boolean installPlugins;
     private Optional<DatabaseInitializer> initializerMaybe = Optional.empty();
 
     private Jdbi jdbi = null;
@@ -47,11 +46,7 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
     private boolean enableLeakchecker = true;
 
     public static SqliteDatabaseExtension instance() {
-        return new SqliteDatabaseExtension(false);
-    }
-
-    public static SqliteDatabaseExtension withPlugins() {
-        return new SqliteDatabaseExtension(true);
+        return new SqliteDatabaseExtension();
     }
 
     @Deprecated
@@ -59,9 +54,7 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
         return instance().withInitializer(SOMETHING_INITIALIZER);
     }
 
-    private SqliteDatabaseExtension(boolean installPlugins) {
-        this.installPlugins = installPlugins;
-    }
+    private SqliteDatabaseExtension() {}
 
     @Override
     public Jdbi getJdbi() {
@@ -119,10 +112,6 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
         if (enableLeakchecker) {
             jdbi.getConfig(Handles.class).addListener(leakChecker);
             jdbi.getConfig(SqlStatements.class).addContextListener(leakChecker);
-        }
-
-        if (installPlugins) {
-            jdbi.installPlugins();
         }
 
         plugins.forEach(jdbi::installPlugin);

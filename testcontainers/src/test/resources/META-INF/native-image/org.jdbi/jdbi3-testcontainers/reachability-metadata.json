@@ -1,0 +1,5 @@
+{
+  "resources": [
+    {"glob":"mysql-default-conf"}
+  ]
+}

@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-root</artifactId>
-        <version>3.50.0-SNAPSHOT</version>
+        <version>3.51.1-SNAPSHOT</version>
         <relativePath>../root</relativePath>
     </parent>
 
@@ -29,32 +29,6 @@
     <name>jdbi3 - internal - build parent</name>
     <description>Jdbi3 build settings. This is a Jdbi internal module and not part of the public API.</description>
 
-    <!-- do not remove URL and SCM, otherwise OSS refuses to accept the release -->
-    <url>https://jdbi.org/</url>
-
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <id>jdbi</id>
-            <name>The Jdbi Team</name>
-            <url>https://github.com/jdbi/jdbi/blob/master/CONTRIBUTORS.md</url>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
-        <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/jdbi/jdbi/</url>
-    </scm>
-
     <properties>
         <basepom.at-end.deploy>true</basepom.at-end.deploy>
         <basepom.check.fail-all>true</basepom.check.fail-all>
@@ -63,7 +37,6 @@
         <basepom.javadoc.exclude-package-names>*.internal.*:*.internal</basepom.javadoc.exclude-package-names>
         <basepom.javadoc.legacy-mode>true</basepom.javadoc.legacy-mode>
         <basepom.maven.version>3.9.0</basepom.maven.version>
-        <basepom.nexus-staging.staging-url>https://oss.sonatype.org/</basepom.nexus-staging.staging-url>
         <basepom.release.preparation-goals>clean verify</basepom.release.preparation-goals>
         <basepom.release.profiles>basepom.central-release,jdbi-release</basepom.release.profiles>
         <basepom.release.tag-name-format>v@{project.version}</basepom.release.tag-name-format>
@@ -73,65 +46,68 @@
         <dep.asciidoctorj-diagram-ditaamini.version>1.0.3</dep.asciidoctorj-diagram-ditaamini.version>
         <dep.asciidoctorj-diagram.version>3.0.1</dep.asciidoctorj-diagram.version>
         <dep.asciidoctorj.version>3.0.0</dep.asciidoctorj.version>
-        <!-- leave at 3.x for now, 4.0.0 needs Java 17 -->
+        <!-- formerly stuck at 3.x since 4.0.0 needs Java 17 -->
         <dep.assertj.version>3.27.3</dep.assertj.version>
-        <dep.caffeine.version>3.2.1</dep.caffeine.version>
-        <dep.checkerframework.version>3.49.5</dep.checkerframework.version>
-        <dep.commons-compress.version>1.27.1</dep.commons-compress.version>
-        <dep.commons-lang.version>3.18.0</dep.commons-lang.version>
-        <dep.commons-text.version>1.13.1</dep.commons-text.version>
+        <dep.caffeine.version>3.2.3</dep.caffeine.version>
+        <dep.checkerframework.version>3.51.1</dep.checkerframework.version>
+        <dep.commons-compress.version>1.28.0</dep.commons-compress.version>
+        <dep.commons-lang.version>3.19.0</dep.commons-lang.version>
+        <dep.commons-text.version>1.14.0</dep.commons-text.version>
         <!-- derby 10.17 is JDK 21 only, keep it on 10.16 for now -->
         <dep.derby.version>10.16.1.1</dep.derby.version>
         <dep.detekt.version>1.23.8</dep.detekt.version>
-        <dep.errorprone.version>2.39.0</dep.errorprone.version>
-        <!-- last flyway version to support java 11 -->
-        <dep.flyway.version>9.22.3</dep.flyway.version>
+        <dep.errorprone.version>2.43.0</dep.errorprone.version>
+        <dep.flyway.version>11.15.0</dep.flyway.version>
         <dep.freemarker.version>2.3.34</dep.freemarker.version>
         <dep.geantyref.version>2.0.1</dep.geantyref.version>
         <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
-        <dep.gson.version>2.13.1</dep.gson.version>
-        <dep.guava.version>33.4.8-jre</dep.guava.version>
+        <dep.gson.version>2.13.2</dep.gson.version>
+        <dep.guava.version>33.5.0-jre</dep.guava.version>
         <dep.guice.version>5.1.0</dep.guice.version>
-        <dep.h2.version>2.3.232</dep.h2.version>
-        <dep.hikari-cp.version>6.3.0</dep.hikari-cp.version>
+        <dep.h2.version>2.4.240</dep.h2.version>
+        <dep.hikari-cp.version>7.0.2</dep.hikari-cp.version>
         <dep.hsqldb.version>2.7.4</dep.hsqldb.version>
-        <dep.immutables.version>2.11.0</dep.immutables.version>
-        <dep.jackson2.version>2.18.4</dep.jackson2.version>
+        <dep.immutables.version>2.11.6</dep.immutables.version>
+        <dep.jackson-annotations.version>2.20</dep.jackson-annotations.version>
+        <dep.jackson2.version>2.18.5</dep.jackson2.version>
+        <dep.jackson3.version>3.0.3</dep.jackson3.version>
         <dep.jakarta-annotation-api.version>3.0.0</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
-        <dep.jdbi-policy.version>3.50.0-SNAPSHOT</dep.jdbi-policy.version>
-        <dep.jetbrainsAnnotations.version>26.0.2</dep.jetbrainsAnnotations.version>
+        <dep.jdbi-policy.version>3.51.1-SNAPSHOT</dep.jdbi-policy.version>
+        <dep.jetbrainsAnnotations.version>26.0.2-1</dep.jetbrainsAnnotations.version>
         <dep.jfrunit.version>1.0.0.Alpha2</dep.jfrunit.version>
         <dep.joda-time.version>2.14.0</dep.joda-time.version>
         <dep.jts.version>1.20.0</dep.jts.version>
-        <dep.junit5.version>5.13.3</dep.junit5.version>
-        <dep.kotlin.version>2.2.0</dep.kotlin.version>
+        <dep.junit5.version>5.14.1</dep.junit5.version>
+        <dep.kotlin.version>2.2.21</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.10.2</dep.kotlinx-coroutines.version>
-        <dep.lombok.version>1.18.38</dep.lombok.version>
-        <dep.mockito.version>5.18.0</dep.mockito.version>
+        <dep.lombok.version>1.18.42</dep.lombok.version>
+        <dep.mockito.version>5.20.0</dep.mockito.version>
         <dep.moshi.version>1.15.2</dep.moshi.version>
-        <dep.mssql.version>12.10.1.jre11</dep.mssql.version>
-        <dep.mysql.version>9.3.0</dep.mysql.version>
-        <dep.opentelemetry.version>1.51.0</dep.opentelemetry.version>
-        <dep.oracle-xe.version>23.8.0.25.04</dep.oracle-xe.version>
+        <dep.mssql.version>13.2.1.jre11</dep.mssql.version>
+        <dep.mysql.version>9.5.0</dep.mysql.version>
+        <dep.opentelemetry.version>1.55.0</dep.opentelemetry.version>
+        <dep.oracle-xe.version>23.26.0.0.0</dep.oracle-xe.version>
         <dep.otj-pg-embedded.version>1.1.1</dep.otj-pg-embedded.version>
-        <dep.pg-embedded.version>5.3.0</dep.pg-embedded.version>
+        <dep.pg-embedded.version>5.4.1</dep.pg-embedded.version>
         <dep.pgvector.version>0.1.6</dep.pgvector.version>
         <dep.plugin.asciidoctor.version>3.2.0</dep.plugin.asciidoctor.version>
         <dep.plugin.cyclonedx.version>2.9.1</dep.plugin.cyclonedx.version>
         <dep.plugin.detekt.version>1.23.8</dep.plugin.detekt.version>
-        <dep.plugin.dokka.version>2.0.0</dep.plugin.dokka.version>
-        <dep.plugin.flatten.version>1.7.1</dep.plugin.flatten.version>
+        <dep.plugin.dokka.version>2.1.0</dep.plugin.dokka.version>
+        <dep.plugin.flatten.version>1.7.3</dep.plugin.flatten.version>
         <dep.plugin.inline.version>1.5.1</dep.plugin.inline.version>
-        <dep.plugin.japicmp.version>0.23.1</dep.plugin.japicmp.version>
+        <dep.plugin.japicmp.version>0.24.2</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
+        <dep.plugin.native.version>0.11.2</dep.plugin.native.version>
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
-        <dep.postgresql.version>42.7.7</dep.postgresql.version>
+        <dep.postgresql.version>42.7.8</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
-        <dep.spring.version>6.2.8</dep.spring.version>
-        <dep.sqlite.version>3.50.2.0</dep.sqlite.version>
+        <dep.spring.boot.version>3.5.7</dep.spring.boot.version>
+        <dep.spring.version>6.2.12</dep.spring.version>
+        <dep.sqlite.version>3.50.3.0</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
         <dep.testcontainers.version>1.21.3</dep.testcontainers.version>
         <dep.vavr.version>0.10.6</dep.vavr.version>
@@ -146,7 +122,8 @@
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sbom>${basepom.check.skip-extended}</jdbi.check.skip-sbom>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
-        <jdbi.it.skip-install>true</jdbi.it.skip-install>
+        <jdbi.native.fail-no-tests>true</jdbi.native.fail-no-tests>
+        <jdbi.skip.native>true</jdbi.skip.native>
         <jdbi.test.language>en</jdbi.test.language>
         <jdbi.test.mysql-version>mysql:lts</jdbi.test.mysql-version>
         <jdbi.test.pg-version>17</jdbi.test.pg-version>
@@ -155,7 +132,7 @@
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>2.1</kotlin.compiler.languageVersion>
         <no-docker>false</no-docker>
-        <project.build.targetJdk>11</project.build.targetJdk>
+        <project.build.targetJdk>17</project.build.targetJdk>
     </properties>
 
     <dependencyManagement>
@@ -164,6 +141,14 @@
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
                 <version>${dep.jackson2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${dep.jackson3.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -190,6 +175,12 @@
                 <version>${dep.opentelemetry.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${dep.jackson-annotations.version}</version>
             </dependency>
 
             <dependency>
@@ -254,8 +245,20 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${dep.spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${dep.spring.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-jcl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -289,6 +292,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-test</artifactId>
+                <version>${dep.spring.boot.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${dep.gson.version}</version>
@@ -309,6 +318,12 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
+                <version>${dep.flyway.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-database-postgresql</artifactId>
                 <version>${dep.flyway.version}</version>
             </dependency>
 
@@ -641,11 +656,24 @@
             <scope>test</scope>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+            <!-- <optional>true</optional> XXX https://github.com/graalvm/native-build-tools/issues/756 -->
         </dependency>
 
         <dependency>
@@ -699,11 +727,10 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <configuration>
                         <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
-                        <release>${project.build.targetJdk}</release>
                         <links>
                             <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
-                            <link>https://junit.org/junit5/docs/${dep.junit5.version}/api/</link>
+                            <link>https://docs.junit.org/${dep.junit5.version}/api/</link>
                             <link>https://javadoc.io/doc/org.testcontainers/jdbc/${dep.testcontainers.version}/</link>
                         </links>
                         <detectOfflineLinks>false</detectOfflineLinks>
@@ -991,14 +1018,36 @@
                     <artifactId>maven-invoker-plugin</artifactId>
                     <configuration>
                         <scope>test</scope>
-                        <skipInstallation>${jdbi.it.skip-install}</skipInstallation>
                         <extraArtifacts>
                             <extraArtifact>org.jdbi:jdbi3-bom:${project.version}:pom</extraArtifact>
                         </extraArtifacts>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>${dep.plugin.native.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <skipNativeTests>${jdbi.skip.native}</skipNativeTests>
+                        <failNoTests>${jdbi.native.fail-no-tests}</failNoTests>
+                        <metadataRepository>
+                            <enabled>true</enabled>
+                        </metadataRepository>
+                        <buildArgs>
+                            <buildArg>-march=native</buildArg>
+                        </buildArgs>
+                        <quickBuild>true</quickBuild>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${dep.spring.boot.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1361,15 +1410,15 @@
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>enforce-java21</id>
+                                <id>enforce-java25</id>
                                 <goals>
                                     <goal>enforce</goal>
                                 </goals>
                                 <configuration>
                                     <rules>
-                                        <!-- releases must be built with Java 21 or better -->
+                                        <!-- releases must be built with Java 25 or better -->
                                         <requireJavaVersion>
-                                            <version>[21,)</version>
+                                            <version>[25,)</version>
                                         </requireJavaVersion>
                                     </rules>
                                 </configuration>
@@ -1392,7 +1441,20 @@
                 </plugins>
             </build>
         </profile>
-
+        <profile>
+            <id>native</id>
+            <activation>
+                <property>
+                    <name>jdbi.native</name>
+                </property>
+            </activation>
+            <properties>
+                <basepom.check.skip-all>true</basepom.check.skip-all>
+                <basepom.check.skip-enforcer>false</basepom.check.skip-enforcer>
+                <basepom.test.skip>true</basepom.test.skip>
+                <jdbi.skip.native>false</jdbi.skip.native>
+            </properties>
+        </profile>
         <profile>
             <!-- Profile to skip time-consuming steps. -->
             <id>fast</id>

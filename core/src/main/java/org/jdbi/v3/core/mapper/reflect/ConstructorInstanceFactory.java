@@ -31,7 +31,6 @@ import org.jdbi.v3.core.internal.exceptions.Sneaky;
 
 import static java.util.Collections.synchronizedMap;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 class ConstructorInstanceFactory<T> extends InstanceFactory<T> {
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
@@ -102,7 +101,7 @@ class ConstructorInstanceFactory<T> extends InstanceFactory<T> {
         if (isGenericInformationLost(constructor)) {
             return new ConstructorHandleAndTypes(constructorMethodHandle, getFields(constructor)
                 .map(Field::getGenericType)
-                .collect(toUnmodifiableList()));
+                .toList());
         }
         return new ConstructorHandleAndTypes(constructorMethodHandle, defaultSupplier.get());
     }

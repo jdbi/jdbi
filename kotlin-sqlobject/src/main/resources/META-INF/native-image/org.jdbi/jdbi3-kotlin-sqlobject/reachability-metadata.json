@@ -1,0 +1,7 @@
+{
+  "reflection": [
+    {"type":"org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMapperImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation"]}]},
+    {"type":"org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMappersImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation"]}]},
+    {"type":"org.jdbi.v3.sqlobject.kotlin.internal.BindKotlinFactory","methods":[{"name":"<init>"}]}
+  ]
+}

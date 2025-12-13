@@ -30,8 +30,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static java.util.stream.Collectors.toList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestReducing {
@@ -98,7 +96,7 @@ public class TestReducing {
                                         id -> new SomethingWithLocations(rv.getRow(Something.class)))
                                 .locations
                                 .add(rv.getColumn("location", String.class)))) {
-            List<SomethingWithLocations> result = stream.collect(toList());
+            List<SomethingWithLocations> result = stream.toList();
             assertThat(result).containsExactly(
                     new SomethingWithLocations(new Something(1, "tree")).at("outside"),
                     new SomethingWithLocations(new Something(2, "apple")).at("tree").at("pie"));
@@ -114,7 +112,7 @@ public class TestReducing {
                                             id -> new SomethingWithLocations(rv.getRow(Something.class)))
                                     .locations
                                     .add(rv.getColumn("location", String.class)))
-                    .collect(toList());
+                    .toList();
 
             assertThat(result).containsExactly(
                     new SomethingWithLocations(new Something(1, "tree")).at("outside"),
@@ -155,10 +153,9 @@ public class TestReducing {
 
         @Override
         public boolean equals(Object other) {
-            if (!(other instanceof SomethingWithLocations)) {
+            if (!(other instanceof SomethingWithLocations o)) {
                 return false;
             }
-            SomethingWithLocations o = (SomethingWithLocations) other;
             return o.something.equals(something) && o.locations.equals(locations);
         }
 

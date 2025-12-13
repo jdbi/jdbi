@@ -15,7 +15,6 @@ package org.jdbi.v3.generator;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.jdbi.v3.core.Handle;
@@ -81,7 +80,7 @@ public class ArrayBindingTest {
         public Baz(final int... baz) {
             this.baz = IntStream.of(baz)
                     .boxed()
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         public final List<Integer> baz;
@@ -93,7 +92,7 @@ public class ArrayBindingTest {
 
         @Override
         public boolean equals(final Object obj) {
-            return obj instanceof Baz && Objects.equals(((Baz) obj).baz, baz);
+            return obj instanceof Baz other && Objects.equals(other.baz, baz);
         }
     }
 }

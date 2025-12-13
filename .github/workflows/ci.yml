@@ -19,10 +19,10 @@ jobs:
     strategy:
       matrix:
         distribution: [ temurin ]
-        java-version: [ 11, 17, 21, 24 ]
+        java-version: [ 17, 21, 25 ]
         include:
           - distribution: semeru
-            java-version: 21
+            java-version: 25
 
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -98,7 +98,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 

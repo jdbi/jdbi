@@ -16,7 +16,6 @@ package org.jdbi.v3.core.result.internal;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -56,12 +55,12 @@ public class ResultSetResultIterable<T> implements ResultIterable<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <R extends Collection<? super T>> R collectInto(Type containerType) {
+    public <R> R collectInto(Type containerType) {
 
         Type type = containerType;
-        if (containerType instanceof Class) {
+        if (containerType instanceof Class<?> clazz) {
             // a raw class is a collection that needs to be parameterized with Object
-            type = GenericTypes.parameterizeClass((Class) containerType, Object.class);
+            type = GenericTypes.parameterizeClass(clazz, Object.class);
         }
 
         Collector<? super T, ?, R> collector = (Collector<? super T, ?, R>) ctx.findCollectorFor(type)

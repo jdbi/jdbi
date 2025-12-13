@@ -58,8 +58,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static java.util.stream.Collectors.toList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -353,7 +351,7 @@ public class TestQualifiers {
                 .splitToList(r.getString(columnNumber))
                 .stream()
                 .map(Reverser::reverse)
-                .collect(toList());
+                .toList();
         }
     }
 

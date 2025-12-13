@@ -17,6 +17,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableSet;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -32,7 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestInClauseExpansion {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something()); // Guava
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugins(new SqlObjectPlugin(), new GuavaPlugin())
+            .withInitializer(TestingInitializers.something());
 
     private Handle handle;
 

@@ -37,12 +37,12 @@ public class Sneaky {
     @Nonnull
     public static DummyException throwAnyway(Throwable t) {
 
-        if (t instanceof Error) {
-            throw (Error) t;
-        } else if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
-        } else if (t instanceof IOException) {
-            throw new UncheckedIOException((IOException) t);
+        if (t instanceof Error e) {
+            throw e;
+        } else if (t instanceof RuntimeException re) {
+            throw re;
+        } else if (t instanceof IOException ioe) {
+            throw new UncheckedIOException(ioe);
         } else if (t instanceof InterruptedException) {
             Thread.currentThread().interrupt();
         } else if (t instanceof InvocationTargetException) {

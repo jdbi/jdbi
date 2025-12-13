@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 33.3.1-jre, 33.2.1-jre ]
+        test-version: [ 33.4.8-jre, 33.3.1-jre, 33.2.1-jre ]
 
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -93,7 +93,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -142,7 +142,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.19.1, 2.17.3, 2.16.2 ]
+        test-version: [ 2.20.1, 2.19.4, 2.17.3, 2.16.2 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -154,7 +154,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -215,7 +215,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -276,7 +276,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -337,7 +337,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -398,7 +398,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -447,7 +447,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 6.1.19 ]
+        test-version: [ 6.1.21 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -459,7 +459,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 
@@ -508,7 +508,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.1.0-alpha1, 1.7.36 ]
+        test-version: [ 2.1.0-alpha1 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -520,7 +520,7 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: 21
+          java-version: 25
           distribution: temurin
           cache: maven
 

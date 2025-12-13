@@ -1,8 +1,44 @@
 # Unreleased
 
+# 3.51.0
+
+- Add new `jackson3` artifact for Jackson 3 ( #2878 )
+- Support configuring log level for SqlLogger (#2901, thanks @phinjensen! )
+- Update to SLF4J 2, to allow for configurable log levels in SqlLogger (#2902)
+
+- Deprecate for removal installPlugins plugin discovery. It's too easy to get yourself into trouble.
+- Support TYPE_USE `@Nullable` annotations like JSpecify ( #2899, thanks @protocol7 ! )
+- Allow `@GetGeneratedKeys` on `@SqlUpdate` methods to return multiple results as Lists or arrays (#2897, original PR by @aharin, thank you!)
+
+# 3.50.0
+
+*JDK Baseline Update*
+
+  *3.50.0 is the first release of Jdbi to require Java 17. Thank you Java 11 for your service!
+  We intend to do occasional bug patches for significant bugs or security issues but there
+  will be no further active development work.*
+
+*Experimental Java Native support*
+  *3.50.0 is the first release to support using Jdbi directly in native compilation. We only
+  support using the Java 25+ GraalVM toolchain and fully expect that there are bugs, breakages
+  and things that are not working well. If you use Jdbi in a native environment and find any
+  problems, we would be thrilled to get bug reports!*
+
+- CI verifies Jdbi runs well in GraalVM native-image (#2476, thanks @Eng-Fouad !)
+- 3.50.0 contains no bug fixes, user visible code or API changes compared to 3.49.6.
+
+# 3.49.6
+
+We have some problems with our upstream parent POM. There are changes
+to Maven Central that require us to roll the parent POM into the Jdbi
+project. This is a temporary thing and will go away as soon as
+uploading parent poms to Central has been reenabled.
+
+
 - Add support for PGvector types (#2830)
 - Improve concurrency of statement cache loading (#2834)
 - ExtensionHandler interface pulls out handling of target object into new AttachedExtensionHandler interface (#2828)
+- collectInto supports types that do not implement Collection ( #2849, thanks @mattbertolini !)
 
 # 3.49.5
 

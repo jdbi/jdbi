@@ -113,7 +113,7 @@ public class TestCreateSqlObjectAnnotation {
         assertThatThrownBy(() -> h2Extension.getSharedHandle().attach(BogusSqlUpdateDao.class))
                 .isInstanceOf(UnableToCreateSqlObjectException.class)
                 .hasMessage("BogusSqlUpdateDao.getNames method is annotated with @SqlUpdate "
-                          + "so should return void, boolean, int, or long but is returning: java.util.List<java.lang.String>");
+                          + "and should return void, boolean, int, long, or have a @GetGeneratedKeys annotation, but is returning: java.util.List<java.lang.String>");
     }
 
     public interface BogusSqlUpdateDao {

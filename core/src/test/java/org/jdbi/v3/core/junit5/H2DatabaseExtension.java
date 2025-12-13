@@ -48,7 +48,6 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
     private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
 
-    private final boolean installPlugins;
     private Optional<DatabaseInitializer> initializerMaybe = Optional.empty();
 
     private volatile Connection lastConnection = null;
@@ -58,11 +57,7 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
     private boolean enableLeakchecker = true;
 
     public static H2DatabaseExtension instance() {
-        return new H2DatabaseExtension(false);
-    }
-
-    public static H2DatabaseExtension withPlugins() {
-        return new H2DatabaseExtension(true);
+        return new H2DatabaseExtension();
     }
 
     @Deprecated
@@ -70,9 +65,7 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
         return instance().withInitializer(SOMETHING_INITIALIZER);
     }
 
-    private H2DatabaseExtension(boolean installPlugins) {
-        this.installPlugins = installPlugins;
-    }
+    private H2DatabaseExtension() {}
 
     @Override
     public Jdbi getJdbi() {
@@ -154,10 +147,6 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
         if (enableLeakchecker) {
             jdbi.getConfig(Handles.class).addListener(leakChecker);
             jdbi.getConfig(SqlStatements.class).addContextListener(leakChecker);
-        }
-
-        if (installPlugins) {
-            jdbi.installPlugins();
         }
 
         plugins.forEach(jdbi::installPlugin);

@@ -9,10 +9,8 @@ Parameter binding supports individual primitive types, and also Kotlin or JavaBe
 
 ### Usage:
 
-If you load all Jdbi plugins via 
-`Jdbi.installPlugins()` this plugin will be discovered and registered automatically.
-Otherwise, you can attach the plugin via:  `Jdbi.installPlugin(KotlinSqlObjectPlugin())`. 
-This plugin works together with core jDbi Kotlin plugin, `KotlinPlugin`, that adds ResultSet mapping to Kotlin classes.
+Install the plugin via:  `Jdbi.installPlugin(KotlinSqlObjectPlugin())`.
+This plugin works together with core jdbi Kotlin plugin, `KotlinPlugin`, that adds ResultSet mapping to Kotlin classes.
 
 An example from the test class:
 

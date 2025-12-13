@@ -86,11 +86,11 @@ public class AnnotationFactory {
             if ("equals".equals(name) && method.getParameterCount() == 1
                 && Object.class.equals(method.getParameterTypes()[0])) {
                 Object arg = args[0];
-                if (!(arg instanceof Annotation)) {
+                if (arg instanceof Annotation that) {
+                    return annotationType.equals(that.annotationType()) && valuesEqual(annotationType, proxy, that);
+                } else {
                     return false;
                 }
-                Annotation that = (Annotation) arg;
-                return annotationType.equals(that.annotationType()) && valuesEqual(annotationType, proxy, that);
             }
 
             if ("hashCode".equals(name) && method.getParameterCount() == 0) {

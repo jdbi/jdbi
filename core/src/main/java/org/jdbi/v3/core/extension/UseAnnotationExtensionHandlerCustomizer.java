@@ -28,7 +28,6 @@ import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Applies decorations to method handlers, according to any {@link UseExtensionHandlerCustomizer} decorating annotations
@@ -58,12 +57,12 @@ final class UseAnnotationExtensionHandlerCustomizer implements ExtensionHandlerC
                 .findFirst()
                 .ifPresent(order -> annotationTypes.sort(createComparator(order).reversed()));
 
-        List<ExtensionHandlerCustomizer> customizers = annotationTypes.stream()
+        List<? extends ExtensionHandlerCustomizer> customizers = annotationTypes.stream()
                 .map(type -> type.getAnnotation(UseExtensionHandlerCustomizer.class))
                 .map(UseExtensionHandlerCustomizer::value)
                 .map(klass -> JdbiClassUtils.findConstructorAndCreateInstance(klass, EXTENSION_HANDLER_CUSTOMIZER_TYPES,
                         handle -> handle.invokeExact(extensionType, method)))
-                .collect(toList());
+                .toList();
 
         for (ExtensionHandlerCustomizer customizer : customizers) {
             extensionHandler = customizer.customize(extensionHandler, extensionType, method);

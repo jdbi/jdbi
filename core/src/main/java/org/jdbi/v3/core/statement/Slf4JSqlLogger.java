@@ -18,6 +18,7 @@ import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Simple {@link SqlLogger} that emits some diagnostic information about
@@ -26,19 +27,29 @@ import org.slf4j.LoggerFactory;
  */
 public class Slf4JSqlLogger implements SqlLogger {
     private final Logger log;
+    private final Level level;
 
     public Slf4JSqlLogger() {
-        this(LoggerFactory.getLogger("org.jdbi.sql"));
+        this(LoggerFactory.getLogger("org.jdbi.sql"), Level.DEBUG);
     }
 
     public Slf4JSqlLogger(Logger log) {
+        this(log, Level.DEBUG);
+    }
+
+    public Slf4JSqlLogger(Level level) {
+        this(LoggerFactory.getLogger("org.jdbi.sql"), level);
+    }
+
+    public Slf4JSqlLogger(Logger log, Level level) {
         this.log = log;
+        this.level = level;
     }
 
     @Override
     public void logAfterExecution(StatementContext context) {
-        if (log.isDebugEnabled()) {
-            log.debug("Executed in {} '{}' with parameters '{}'",
+        if (log.isEnabledForLevel(this.level)) {
+            log.atLevel(this.level).log("Executed in {} '{}' with parameters '{}'",
                     format(Duration.between(context.getExecutionMoment(), context.getCompletionMoment())),
                     getSql(context),
                     context.getBinding());

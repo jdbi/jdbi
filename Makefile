@@ -16,7 +16,7 @@
 SHELL = /bin/sh
 .SUFFIXES:
 
-MAVEN = ./mvnw
+MAVEN ?= ./mvnw
 
 export MAVEN_OPTS
 export MAVEN_ARGS
@@ -29,7 +29,7 @@ Makefile:: ;
 clean::
 	${MAVEN} clean
 
-install:: MAVEN_ARGS += -Djdbi.it.skip-install=false
+install:: MAVEN_ARGS += -Dbasepom.it.skip-install=false
 install::
 	${MAVEN} clean install
 
@@ -61,6 +61,9 @@ run-slow-tests:: run-tests
 run-tests-nodocker:: MAVEN_ARGS += -Dno-docker=true
 run-tests-nodocker:: run-tests
 
+native-tests:: MAVEN_ARGS += -Pslow-tests,native
+native-tests:: install
+
 publish-docs:: MAVEN_ARGS += -Dbasepom.javadoc.skip=false
 publish-docs:: install-fast
 	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
@@ -83,6 +86,7 @@ help::
 	@echo " * install-fast         - same as 'install', but skip unit tests and static analysis"
 	@echo " * compare-reproducible - compare against installed jars to ensure reproducible build"
 	@echo " * tests                - build code and run unit and integration tests except really slow tests"
+	@echo " * native-tests         - build code and run native unit tests"
 	@echo " * docs                 - build up-to-date documentation in docs/target/generated-docs/"
 	@echo " * run-tests            - run all unit and integration tests except really slow tests"
 	@echo " * run-slow-tests       - run all unit and integration tests"

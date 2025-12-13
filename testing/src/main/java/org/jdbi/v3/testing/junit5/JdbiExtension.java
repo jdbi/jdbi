@@ -223,7 +223,9 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
      * {@link java.util.ServiceLoader} API.
      *
      * @return The extension itself for chaining method calls.
+     * @deprecated Registering plugins implicitly is less reliable. Please register plugins explicitly.
      */
+    @Deprecated(forRemoval = true)
     public final JdbiExtension installPlugins() {
         this.installPlugins = true;
 

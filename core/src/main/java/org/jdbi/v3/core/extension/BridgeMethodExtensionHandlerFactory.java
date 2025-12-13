@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -46,7 +45,7 @@ final class BridgeMethodExtensionHandlerFactory implements ExtensionHandlerFacto
                     return IntStream.range(0, method.getParameterCount())
                             .allMatch(i -> methodParamTypes[i].isAssignableFrom(candidateParamTypes[i]));
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         for (Method candidate : candidates) {
             try {

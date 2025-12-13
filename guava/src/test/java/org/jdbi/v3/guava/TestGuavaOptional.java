@@ -44,7 +44,8 @@ public class TestGuavaOptional {
         + "order by id";
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new GuavaPlugin())
+            .withInitializer(TestingInitializers.something());
 
     Handle handle;
 
@@ -155,10 +156,9 @@ public class TestGuavaOptional {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof Name)) {
+            if (!(obj instanceof Name that)) {
                 return false;
             }
-            Name that = (Name) obj;
             return this.value.equals(that.value);
         }
     }

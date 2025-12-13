@@ -1,0 +1,67 @@
+---
+name: CI Build in GraalVM native-image with tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-build:
+    runs-on: ubuntu-latest
+    name: GraalVM native build
+    strategy:
+      matrix:
+        java-version: [ 25 ]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - uses: graalvm/setup-graalvm@v1
+        name: setup build jdk
+        id: build_jdk
+        with:
+          java-version: ${{ matrix.java-version }}
+          cache: maven
+
+      - name: build code
+        id: install
+        env:
+          MAVEN_ARGS: "-B -ff -Djdbi.native=true"
+        run: |
+          ./mvnw --version
+          make install
+
+      - uses: actions/upload-artifact@v4
+        name: upload build logs
+        id: upload_build_logs
+        continue-on-error: true
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.java-version }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class
+
+      - uses: actions/upload-artifact@v4
+        name: upload build artifacts
+        id: upload_build_artifacts
+        continue-on-error: true
+        with:
+          name: build artifacts (${{ github.job }}, ${{ matrix.java-version }})
+          retention-days: 1
+          path: |
+            **/target/native-tests
+            **/target/native-test-reports/*

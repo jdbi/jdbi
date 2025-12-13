@@ -35,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseExtension>, BeforeEachCallback, AfterEachCallback {
 
     private final EmbeddedPgExtension pg;
-    private final boolean installPlugins;
 
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
     private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
@@ -48,16 +47,11 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
     private boolean enableLeakchecker = true;
 
     public static PgDatabaseExtension instance(EmbeddedPgExtension pg) {
-        return new PgDatabaseExtension(pg, false);
+        return new PgDatabaseExtension(pg);
     }
 
-    public static PgDatabaseExtension withPlugins(EmbeddedPgExtension pg) {
-        return new PgDatabaseExtension(pg, true);
-    }
-
-    private PgDatabaseExtension(EmbeddedPgExtension pg, boolean installPlugins) {
+    private PgDatabaseExtension(EmbeddedPgExtension pg) {
         this.pg = pg;
-        this.installPlugins = installPlugins;
     }
 
     @Override
@@ -119,10 +113,6 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
         if (enableLeakchecker) {
             jdbi.getConfig(Handles.class).addListener(leakChecker);
             jdbi.getConfig(SqlStatements.class).addContextListener(leakChecker);
-        }
-
-        if (installPlugins) {
-            jdbi.installPlugins();
         }
 
         plugins.forEach(jdbi::installPlugin);

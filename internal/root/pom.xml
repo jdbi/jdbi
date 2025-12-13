@@ -12,20 +12,20 @@
 ~   See the License for the specific language governing permissions and
 ~   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" child.project.url.inherit.append.path="false">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-oss</artifactId>
-        <version>63</version>
+        <version>66</version>
         <!-- null out the relative path, otherwise maven complains that the referenced POM is not in the parent directory -->
         <relativePath />
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
     <artifactId>jdbi3-root</artifactId>
-    <version>3.50.0-SNAPSHOT</version>
+    <version>3.51.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jdbi3 - internal - root</name>
@@ -34,7 +34,7 @@
     <properties>
         <!-- make the build reproducible. These settings are applied to all poms in the project -->
         <basepom.git-id.skip-pom-projects>false</basepom.git-id.skip-pom-projects>
-        <project.build.outputTimestamp>2025-07-28T21:14:25Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2025-12-09T22:42:02Z</project.build.outputTimestamp>
     </properties>
 
     <licenses>
@@ -56,7 +56,7 @@
     <!-- do not remove URL and SCM, otherwise OSS refuses to accept the release -->
     <url>https://jdbi.org/</url>
 
-    <scm>
+    <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
         <connection>scm:git:git://github.com/jdbi/jdbi.git</connection>
         <developerConnection>scm:git:git@github.com:jdbi/jdbi.git</developerConnection>
         <tag>HEAD</tag>

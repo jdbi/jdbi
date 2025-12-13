@@ -39,6 +39,7 @@ import io.vavr.collection.TreeSet;
 import io.vavr.collection.Vector;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.result.ResultSetException;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +52,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestVavrCollectorFactoryWithDB {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).installPlugins();
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something())
+            .withPlugins(new SqlObjectPlugin(), new VavrPlugin());
 
     private Seq<Integer> expected = List.range(0, 10);
     private Map<Integer, String> expectedMap = expected.toMap(i -> new Tuple2<>(i, i + "asString"));

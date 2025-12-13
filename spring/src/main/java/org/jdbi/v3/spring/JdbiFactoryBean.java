@@ -96,8 +96,10 @@ public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
      * @param autoInstallPlugins whether to install plugins automatically from
      *                           the classpath.
      * @return this
+     * @deprecated Registering plugins implicitly is less reliable. Please register plugins explicitly.
      * @see Jdbi#installPlugins() for detail
      */
+    @Deprecated(forRemoval = true)
     public JdbiFactoryBean setAutoInstallPlugins(boolean autoInstallPlugins) {
         this.autoInstallPlugins = autoInstallPlugins;
         return this;

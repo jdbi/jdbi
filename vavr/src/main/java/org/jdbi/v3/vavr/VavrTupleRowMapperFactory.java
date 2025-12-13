@@ -45,7 +45,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.resolveType;
 class VavrTupleRowMapperFactory implements RowMapperFactory {
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "PMD.AvoidDeeplyNestedIfStmts"})
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
         Class<?> erasedType = getErasedType(type);
 

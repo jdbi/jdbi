@@ -46,8 +46,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static java.util.stream.Collectors.toList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -56,7 +54,7 @@ import static org.assertj.guava.api.Assertions.entry;
 public class TestGuavaCollectors {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().installPlugins().withInitializer(TestingInitializers.something());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new GuavaPlugin()).withInitializer(TestingInitializers.something());
 
     private Collection<Integer> expected;
 
@@ -65,7 +63,7 @@ public class TestGuavaCollectors {
         expected = IntStream.range(0, 10)
             .peek(i -> h2Extension.getSharedHandle().execute("insert into something(name, intValue) values (?, ?)", Integer.toString(i), i))
             .boxed()
-            .collect(toList());
+            .toList();
     }
 
     @Test
@@ -101,7 +99,7 @@ public class TestGuavaCollectors {
 
         assertThat(set).containsExactlyElementsOf(expected.stream()
                 .sorted(comparator)
-                .collect(toList()));
+                .toList());
     }
 
     @Test

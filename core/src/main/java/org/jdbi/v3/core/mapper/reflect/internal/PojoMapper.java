@@ -127,7 +127,7 @@ public class PojoMapper<T> implements RowMapper<T> {
 
                     Optional<? extends RowMapper<?>> nestedMapper;
                     Type propertyType = property.getQualifiedType().getType();
-                    if (propertyType instanceof ParameterizedType && ((ParameterizedType) propertyType).getRawType().equals(Optional.class)) {
+                    if (propertyType instanceof ParameterizedType pt && pt.getRawType().equals(Optional.class)) {
                         Class<?> rawType = GenericTypes.findGenericParameter(propertyType, Optional.class)
                             .map(GenericTypes::getErasedType)
                             .orElseThrow(() -> new IllegalArgumentException(

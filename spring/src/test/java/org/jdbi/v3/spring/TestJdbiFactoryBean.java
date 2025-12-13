@@ -79,12 +79,6 @@ public class TestJdbiFactoryBean {
     }
 
     @Test
-    public void testAutoInstalledPlugin() {
-        assertThat(jdbi.getConfig(SqlStatements.class).getAttribute(AutoPlugin.KEY))
-                .isEqualTo(AutoPlugin.VALUE);
-    }
-
-    @Test
     public void testManualInstalledPlugin() {
         assertThat(jdbi.getConfig(SqlStatements.class).getAttribute(ManualPlugin.KEY))
                 .isEqualTo(ManualPlugin.VALUE);
