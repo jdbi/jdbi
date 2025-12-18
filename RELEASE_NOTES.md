@@ -1,6 +1,8 @@
 # Unreleased
 
 - Retire Apache Derby integration (#2866)
+- Deprecate DelegatedTransactionHandler, add new AbstractDelegatedTransactionHandler to address consistency issues
+  when writing custom transaction handlers (#2907, raised by @Randgalt, thank you!)
 
 # 3.51.0
 
