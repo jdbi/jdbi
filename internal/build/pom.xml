@@ -78,7 +78,7 @@
         <dep.joda-time.version>2.14.0</dep.joda-time.version>
         <dep.jts.version>1.20.0</dep.jts.version>
         <dep.junit5.version>5.14.1</dep.junit5.version>
-        <dep.kotlin.version>2.2.21</dep.kotlin.version>
+        <dep.kotlin.version>2.3.0</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.10.2</dep.kotlinx-coroutines.version>
         <dep.lombok.version>1.18.42</dep.lombok.version>
         <dep.mockito.version>5.20.0</dep.mockito.version>
