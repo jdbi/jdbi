@@ -44,18 +44,18 @@
         <basepom.test.timeout>240</basepom.test.timeout>
         <dep.antlr.version>4.13.2</dep.antlr.version>
         <dep.asciidoctorj-diagram-ditaamini.version>1.0.3</dep.asciidoctorj-diagram-ditaamini.version>
-        <dep.asciidoctorj-diagram.version>3.0.1</dep.asciidoctorj-diagram.version>
-        <dep.asciidoctorj.version>3.0.0</dep.asciidoctorj.version>
+        <dep.asciidoctorj-diagram.version>3.1.0</dep.asciidoctorj-diagram.version>
+        <dep.asciidoctorj.version>3.0.1</dep.asciidoctorj.version>
         <!-- formerly stuck at 3.x since 4.0.0 needs Java 17 -->
         <dep.assertj.version>3.27.3</dep.assertj.version>
         <dep.caffeine.version>3.2.3</dep.caffeine.version>
-        <dep.checkerframework.version>3.51.1</dep.checkerframework.version>
+        <dep.checkerframework.version>3.52.1</dep.checkerframework.version>
         <dep.commons-compress.version>1.28.0</dep.commons-compress.version>
-        <dep.commons-lang.version>3.19.0</dep.commons-lang.version>
-        <dep.commons-text.version>1.14.0</dep.commons-text.version>
+        <dep.commons-lang.version>3.20.0</dep.commons-lang.version>
+        <dep.commons-text.version>1.15.0</dep.commons-text.version>
         <dep.detekt.version>1.23.8</dep.detekt.version>
-        <dep.errorprone.version>2.43.0</dep.errorprone.version>
-        <dep.flyway.version>11.15.0</dep.flyway.version>
+        <dep.errorprone.version>2.45.0</dep.errorprone.version>
+        <dep.flyway.version>11.19.1</dep.flyway.version>
         <dep.freemarker.version>2.3.34</dep.freemarker.version>
         <dep.geantyref.version>2.0.1</dep.geantyref.version>
         <dep.gson-java8-datatype.version>1.1.0</dep.gson-java8-datatype.version>
@@ -65,9 +65,9 @@
         <dep.h2.version>2.4.240</dep.h2.version>
         <dep.hikari-cp.version>7.0.2</dep.hikari-cp.version>
         <dep.hsqldb.version>2.7.4</dep.hsqldb.version>
-        <dep.immutables.version>2.11.6</dep.immutables.version>
+        <dep.immutables.version>2.12.0</dep.immutables.version>
         <dep.jackson-annotations.version>2.20</dep.jackson-annotations.version>
-        <dep.jackson2.version>2.18.5</dep.jackson2.version>
+        <dep.jackson2.version>2.20.1</dep.jackson2.version>
         <dep.jackson3.version>3.0.3</dep.jackson3.version>
         <dep.jakarta-annotation-api.version>3.0.0</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
@@ -81,11 +81,11 @@
         <dep.kotlin.version>2.3.0</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.10.2</dep.kotlinx-coroutines.version>
         <dep.lombok.version>1.18.42</dep.lombok.version>
-        <dep.mockito.version>5.20.0</dep.mockito.version>
+        <dep.mockito.version>5.21.0</dep.mockito.version>
         <dep.moshi.version>1.15.2</dep.moshi.version>
         <dep.mssql.version>13.2.1.jre11</dep.mssql.version>
         <dep.mysql.version>9.5.0</dep.mysql.version>
-        <dep.opentelemetry.version>1.55.0</dep.opentelemetry.version>
+        <dep.opentelemetry.version>1.57.0</dep.opentelemetry.version>
         <dep.oracle-xe.version>23.26.0.0.0</dep.oracle-xe.version>
         <dep.otj-pg-embedded.version>1.1.1</dep.otj-pg-embedded.version>
         <dep.pg-embedded.version>5.4.1</dep.pg-embedded.version>
@@ -103,13 +103,13 @@
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.7.8</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
-        <dep.spring.boot.version>3.5.7</dep.spring.boot.version>
-        <dep.spring.version>6.2.12</dep.spring.version>
-        <dep.sqlite.version>3.50.3.0</dep.sqlite.version>
+        <dep.spring.boot.version>3.5.9</dep.spring.boot.version>
+        <dep.spring.version>6.2.15</dep.spring.version>
+        <dep.sqlite.version>3.51.1.0</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
-        <dep.testcontainers.version>1.21.3</dep.testcontainers.version>
-        <dep.vavr.version>0.10.6</dep.vavr.version>
-        <dep.xz.version>1.10</dep.xz.version>
+        <dep.testcontainers.version>1.21.4</dep.testcontainers.version>
+        <dep.vavr.version>0.11.0</dep.vavr.version>
+        <dep.xz.version>1.11</dep.xz.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
         <jdbi.check.fail-japicmp>${basepom.check.fail-extended}</jdbi.check.fail-japicmp>
         <jdbi.check.fail-kotlin>${basepom.check.fail-extended}</jdbi.check.fail-kotlin>
