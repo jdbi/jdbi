@@ -32,7 +32,7 @@ import org.jdbi.v3.core.internal.exceptions.Sneaky;
  * retrying the transaction.  Any HandleCallback used under this runner
  * should be aware that it may be invoked multiple times and should be idempotent.
  */
-public class SerializableTransactionRunner extends DelegatingTransactionHandler implements TransactionHandler {
+public class SerializableTransactionRunner extends AbstractDelegatingTransactionHandler {
     /* http://www.postgresql.org/docs/9.1/static/errcodes-appendix.html */
     private static final String SQLSTATE_TXN_SERIALIZATION_FAILED = "40001";
 
@@ -75,19 +75,6 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
                     throw Sneaky.throwAnyway(toThrow);
                 }
             }
-        }
-    }
-
-    @Override
-    public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X {
-        final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
-        try {
-            handle.setTransactionIsolationLevel(level);
-            return inTransaction(handle, callback);
-        } finally {
-            handle.setTransactionIsolationLevel(initial);
         }
     }
 

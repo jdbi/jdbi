@@ -19,7 +19,7 @@ import org.jdbi.v3.core.Handle;
  * A transaction handler that always calls {@link #rollback(org.jdbi.v3.core.Handle)} instead
  * of {@link #commit(org.jdbi.v3.core.Handle)}.
  */
-public class RollbackOnlyTransactionHandler extends DelegatingTransactionHandler {
+public class RollbackOnlyTransactionHandler extends AbstractDelegatingTransactionHandler {
     public RollbackOnlyTransactionHandler() {
         this(new LocalTransactionHandler());
     }

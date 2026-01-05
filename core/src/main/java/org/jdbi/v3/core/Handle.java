@@ -947,16 +947,20 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     class SetTransactionIsolation implements AutoCloseable {
-        private final TransactionIsolationLevel prevLevel;
+        private final TransactionIsolationLevel initial;
+        private final TransactionIsolationLevel level;
 
-        SetTransactionIsolation(TransactionIsolationLevel setLevel) {
-            prevLevel = getTransactionIsolationLevel();
-            setTransactionIsolationLevel(setLevel);
+        SetTransactionIsolation(TransactionIsolationLevel level) {
+            this.level = level;
+            this.initial = getTransactionIsolationLevel();
+            setTransactionIsolationLevel(level);
         }
 
         @Override
         public void close() {
-            setTransactionIsolationLevel(prevLevel);
+            if (this.level != TransactionIsolationLevel.UNKNOWN) {
+                setTransactionIsolationLevel(this.initial);
+            }
         }
     }
 }

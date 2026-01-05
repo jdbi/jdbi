@@ -17,17 +17,12 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.HandleCallback;
 
 /**
- * Simple delegating subclass that just invokes its delegate.
- *
- * @deprecated Should not be used for subclassing outside the main code base. Use {@link AbstractDelegatingTransactionHandler} instead, which ensures that both
- * {@link TransactionHandler#inTransaction(Handle, HandleCallback)} and
- * {@link TransactionHandler#inTransaction(Handle, TransactionIsolationLevel, HandleCallback)} will call custom transaction logic.
+ * Delegating {@link TransactionHandler} subclass intended for extension.
  */
-@Deprecated(forRemoval = true)
-public class DelegatingTransactionHandler implements TransactionHandler {
+public class AbstractDelegatingTransactionHandler implements TransactionHandler {
     private final TransactionHandler delegate;
 
-    public DelegatingTransactionHandler(TransactionHandler delegate) {
+    protected AbstractDelegatingTransactionHandler(TransactionHandler delegate) {
         this.delegate = delegate;
     }
 
@@ -72,14 +67,23 @@ public class DelegatingTransactionHandler implements TransactionHandler {
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    HandleCallback<R, X> callback) throws X {
+        HandleCallback<R, X> callback) throws X {
         return delegate.inTransaction(handle, callback);
     }
 
     @Override
-    public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X {
-        return delegate.inTransaction(handle, level, callback);
+    public final <R, X extends Exception> R inTransaction(Handle handle,
+        TransactionIsolationLevel level,
+        HandleCallback<R, X> callback) throws X {
+
+        final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
+        try {
+            handle.setTransactionIsolationLevel(level);
+            return inTransaction(handle, callback);
+        } finally {
+            if (level != TransactionIsolationLevel.UNKNOWN) {
+                handle.setTransactionIsolationLevel(initial);
+            }
+        }
     }
 }

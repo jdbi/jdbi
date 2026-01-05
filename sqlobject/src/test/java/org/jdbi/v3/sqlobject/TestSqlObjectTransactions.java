@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.core.transaction.DelegatingTransactionHandler;
+import org.jdbi.v3.core.transaction.AbstractDelegatingTransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
@@ -222,7 +222,7 @@ public class TestSqlObjectTransactions {
         }
     }
 
-    public static class CountingTransactionHandler extends DelegatingTransactionHandler {
+    public static class CountingTransactionHandler extends AbstractDelegatingTransactionHandler {
 
         private final AtomicInteger beginTransactions = new AtomicInteger();
         private final AtomicInteger commitTransactions = new AtomicInteger();
