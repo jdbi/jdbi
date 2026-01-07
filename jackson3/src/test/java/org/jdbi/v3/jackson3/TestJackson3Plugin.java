@@ -228,4 +228,21 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
                     .one())
             .isEqualTo(Collections.singletonMap("val", "testing"));
     }
+
+    public interface PolyBase {}
+    public static class PolySub implements PolyBase {
+        public int getA() {
+            return 42;
+        }
+    }
+
+    @Test
+    public void dynamicType() {
+        assertThat(h.createQuery("select :val::varchar")
+                .configure(Jackson3Config.class, jc -> jc.setUseStaticType(false))
+                .bindByType("val", new PolySub(), QualifiedType.of(PolyBase.class).with(Json.class))
+                .mapTo(String.class)
+                .one())
+            .isEqualTo("{\"a\":42}");
+    }
 }

@@ -1,5 +1,6 @@
 # Unreleased
 
+- Add configuration for Jackson serialization of types with custom polymorphic handling (#2915)
 - Update to JUnit 6.0.2
 - Retire Apache Derby integration (#2866)
 - Run test suite against Spring Framework 7 (#2919)

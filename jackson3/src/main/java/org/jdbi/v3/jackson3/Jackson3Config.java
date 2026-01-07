@@ -23,6 +23,7 @@ public class Jackson3Config implements JdbiConfig<Jackson3Config> {
     private ObjectMapper mapper;
     private Class<?> serializationView;
     private Class<?> deserializationView;
+    private boolean useStaticType = true;
 
     public Jackson3Config() {
         this.mapper = new ObjectMapper();
@@ -32,6 +33,7 @@ public class Jackson3Config implements JdbiConfig<Jackson3Config> {
         this.mapper = other.mapper;
         this.serializationView = other.serializationView;
         this.deserializationView = other.deserializationView;
+        this.useStaticType = other.useStaticType;
     }
 
     /**
@@ -98,6 +100,24 @@ public class Jackson3Config implements JdbiConfig<Jackson3Config> {
      */
     public Class<?> getDeserializationView() {
         return deserializationView;
+    }
+
+    /**
+     * Use static type provided for serialization. Better performance and supports generic container types,
+     * but inhibits discovery of custom polymorphic types.
+     * @param useStaticType whether to prefer using static type information
+     * @return this
+     */
+    public Jackson3Config setUseStaticType(final boolean useStaticType) {
+        this.useStaticType = useStaticType;
+        return this;
+    }
+
+    /**
+     * @return whether Jackson prefers to use the static type instaed of dynamic type
+     */
+    public boolean isUseStaticType() {
+        return useStaticType;
     }
 
     @Override
