@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.PrefixedRowMapper;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
@@ -60,7 +61,7 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
  * Constructor parameters annotated as {@code @Nullable} may be omitted from the result set without error. Any annotation named "Nullable" can be used, no
  * matter which package it is from.
  */
-public final class ConstructorMapper<T> implements RowMapper<T> {
+public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
     private static final String DEFAULT_PREFIX = "";
 
     @SuppressWarnings("InlineFormatString")
@@ -229,6 +230,11 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
     public T map(ResultSet rs, StatementContext ctx) throws SQLException {
         return specialize(rs, ctx).map(rs, ctx);
     }
+
+	@Override
+	public String getPrefix() {
+        return this.prefix;
+	}
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {

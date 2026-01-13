@@ -24,6 +24,7 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
+import org.jdbi.v3.core.internal.PrefixedMapperKey;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.meta.Alpha;
@@ -36,7 +37,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors;
 
     private final List<RowMapperFactory> factories;
-    private final Map<Type, Optional<RowMapper<?>>> cache;
+    private final Map<PrefixedMapperKey, Optional<RowMapper<?>>> cache;
 
     private ConfigRegistry registry;
 
@@ -134,7 +135,20 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      */
     @SuppressWarnings("unchecked")
     public <T> Optional<RowMapper<T>> findFor(Class<T> type) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type).orElse(null);
+        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type, null).orElse(null);
+        return Optional.ofNullable(mapper);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in the given context.
+     *
+     * @param <T> the type of the mapper to find
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Optional<RowMapper<T>> findFor(Class<T> type, String prefix) {
+        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type, prefix).orElse(null);
         return Optional.ofNullable(mapper);
     }
 
@@ -147,7 +161,20 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      */
     @SuppressWarnings("unchecked")
     public <T> Optional<RowMapper<T>> findFor(GenericType<T> type) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType()).orElse(null);
+        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType(), null).orElse(null);
+        return Optional.ofNullable(mapper);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in the given context.
+     *
+     * @param <T> the type of the mapper to find
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Optional<RowMapper<T>> findFor(GenericType<T> type, String prefix) {
+        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType(), prefix).orElse(null);
         return Optional.ofNullable(mapper);
     }
 
@@ -158,10 +185,21 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public Optional<RowMapper<?>> findFor(Type type) {
+        return findFor(type, null);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in the given context.
+     *
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    public Optional<RowMapper<?>> findFor(Type type, String prefix) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since row mappers can decorate other row mappers, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        Optional<RowMapper<?>> cached = cache.get(type);
+        var key = new PrefixedMapperKey(type, prefix);
+        Optional<RowMapper<?>> cached = cache.get(key);
 
         if (cached != null) {
             return cached;
@@ -170,14 +208,19 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         for (RowMapperFactory factory : factories) {
             Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
             RowMapper<?> mapper = maybeMapper.orElse(null);
+            if (mapper instanceof PrefixedRowMapper prefixedRowMapper) {
+                if (prefix != null && !prefix.equals(prefixedRowMapper.getPrefix())) {
+                    mapper = null;
+                }
+            }
             if (mapper != null) {
                 mapper.init(registry);
-                cache.put(type, maybeMapper);
+                cache.put(key, maybeMapper);
                 return maybeMapper;
             }
         }
 
-        cache.put(type, Optional.empty());
+        cache.put(key, Optional.empty());
         return Optional.empty();
     }
 
