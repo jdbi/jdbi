@@ -33,6 +33,7 @@ import org.jdbi.v3.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.v3.core.generic.GenericTypes;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.core.mapper.PrefixedRowMapper;
 import org.jdbi.v3.core.mapper.PropagateNull;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
@@ -57,7 +58,7 @@ import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.getColumnName
  *
  * The mapped class must have a default constructor.
  */
-public final class FieldMapper<T> implements RowMapper<T> {
+public final class FieldMapper<T> implements PrefixedRowMapper<T> {
     private static final String DEFAULT_PREFIX = "";
 
     /**
@@ -136,6 +137,11 @@ public final class FieldMapper<T> implements RowMapper<T> {
 
         return mapper;
     }
+
+	@Override
+	public String getPrefix() {
+        return this.prefix;
+	}
 
     private <R> Optional<RowMapper<R>> createSpecializedRowMapper(StatementContext ctx,
                                                List<String> columnNames,

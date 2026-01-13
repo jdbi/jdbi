@@ -32,7 +32,17 @@ public abstract class RowView {
      * @return the materialized T
      */
     public <T> T getRow(Class<T> rowType) {
-        return rowType.cast(getRow((Type) rowType));
+        return rowType.cast(getRow((Type) rowType, null));
+    }
+
+    /**
+     * Use a row mapper to extract a type from the current ResultSet row.
+     * @param <T> the type to map
+     * @param rowType the Class of the type
+     * @return the materialized T
+     */
+    public <T> T getRow(Class<T> rowType, String prefix) {
+        return rowType.cast(getRow((Type) rowType, prefix));
     }
 
     /**
@@ -43,7 +53,18 @@ public abstract class RowView {
      */
     @SuppressWarnings("unchecked")
     public <T> T getRow(GenericType<T> rowType) {
-        return (T) getRow(rowType.getType());
+        return (T) getRow(rowType.getType(), null);
+    }
+
+    /**
+     * Use a row mapper to extract a type from the current ResultSet row.
+     * @param <T> the type to map
+     * @param rowType the GenericType of the type
+     * @return the materialized T
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getRow(GenericType<T> rowType, String prefix) {
+        return (T) getRow(rowType.getType(), prefix);
     }
 
     /**
@@ -51,7 +72,16 @@ public abstract class RowView {
      * @param type the type to map
      * @return the materialized object
      */
-    public abstract Object getRow(Type type);
+    public Object getRow(Type type) {
+        return getRow(type, null);
+    };
+
+    /**
+     * Use a row mapper to extract a type from the current ResultSet row.
+     * @param type the type to map
+     * @return the materialized object
+     */
+    public abstract Object getRow(Type type, String prefix);
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.

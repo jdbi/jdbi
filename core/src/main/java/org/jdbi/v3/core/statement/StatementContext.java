@@ -310,7 +310,17 @@ public class StatementContext implements Closeable {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public Optional<RowMapper<?>> findRowMapperFor(Type type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return getConfig(RowMappers.class).findFor(type, null);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in this context.
+     *
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    public Optional<RowMapper<?>> findRowMapperFor(Type type, String prefix) {
+        return getConfig(RowMappers.class).findFor(type, prefix);
     }
 
     /**
@@ -321,7 +331,18 @@ public class StatementContext implements Closeable {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public <T> Optional<RowMapper<T>> findRowMapperFor(Class<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return getConfig(RowMappers.class).findFor(type, null);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in this context.
+     *
+     * @param <T> the type to map
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    public <T> Optional<RowMapper<T>> findRowMapperFor(Class<T> type, String prefix) {
+        return getConfig(RowMappers.class).findFor(type, prefix);
     }
 
     /**
@@ -332,7 +353,18 @@ public class StatementContext implements Closeable {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public <T> Optional<RowMapper<T>> findRowMapperFor(GenericType<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return getConfig(RowMappers.class).findFor(type, null);
+    }
+
+    /**
+     * Obtain a row mapper for the given type in this context.
+     *
+     * @param <T> the type to map
+     * @param type the target type to map to
+     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     */
+    public <T> Optional<RowMapper<T>> findRowMapperFor(GenericType<T> type, String prefix) {
+        return getConfig(RowMappers.class).findFor(type, prefix);
     }
 
     /**
