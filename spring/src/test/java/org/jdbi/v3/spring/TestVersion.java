@@ -21,8 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestVersion {
     @Test
     public void thisIsSpring6OrBetter() {
-        assertThat(SpringVersion.getVersion())
-            .isNotNull()
-            .startsWith("6");
+        final String version = SpringVersion.getVersion();
+        assertThat(version)
+                .isNotNull();
+        assertThat(Integer.parseInt(version.substring(0, version.indexOf('.'))))
+                .isGreaterThanOrEqualTo(6);
     }
 }

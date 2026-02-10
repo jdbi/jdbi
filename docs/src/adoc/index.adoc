@@ -7883,7 +7883,7 @@ dependencies {
 
 ==== Supported versions
 
-The `spring` module supports Spring 6.1 (Spring Boot 3.2.x) and newer.
+The `spring` module supports Spring 6.1 (Spring Boot 3.2.x) and newer (including Spring 7).
 All versions of Spring framework that are under OSS support are supported.
 Other versions may work but are not tested and bug reports for older versions will not be addressed.
 

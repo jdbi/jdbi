@@ -2,6 +2,7 @@
 
 - Update to JUnit 6.0.2
 - Retire Apache Derby integration (#2866)
+- Run test suite against Spring Framework 7 (#2919)
 
 # 3.51.0
 

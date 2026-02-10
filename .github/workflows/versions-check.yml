@@ -447,7 +447,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 6.1.21 ]
+        test-version: [ 6.1.21, 7.0.3 ]
 
     steps:
       - uses: actions/checkout@v4
