@@ -245,4 +245,35 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
+                <configuration>
+                    <exceptions>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.clickhouse</groupId>
+                                    <artifactId>clickhouse-jdbc</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.jspecify</groupId>
+                                    <artifactId>jspecify</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <classes>
+                                <class>org.jspecify.annotations.NonNull</class>
+                                <class>org.jspecify.annotations.NullMarked</class>
+                                <class>org.jspecify.annotations.NullUnmarked</class>
+                                <class>org.jspecify.annotations.Nullable</class>
+                            </classes>
+                        </exception>
+                    </exceptions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
