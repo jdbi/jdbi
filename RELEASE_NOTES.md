@@ -1,5 +1,6 @@
 # Unreleased
 
+- Update to JUnit 6.0.2
 - Retire Apache Derby integration (#2866)
 
 # 3.51.0

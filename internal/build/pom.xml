@@ -77,7 +77,7 @@
         <dep.jfrunit.version>1.0.0.Alpha2</dep.jfrunit.version>
         <dep.joda-time.version>2.14.0</dep.joda-time.version>
         <dep.jts.version>1.20.0</dep.jts.version>
-        <dep.junit5.version>5.14.1</dep.junit5.version>
+        <dep.junit.version>6.0.2</dep.junit.version>
         <dep.kotlin.version>2.3.0</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.10.2</dep.kotlinx-coroutines.version>
         <dep.lombok.version>1.18.42</dep.lombok.version>
@@ -154,7 +154,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>${dep.junit5.version}</version>
+                <version>${dep.junit.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -722,7 +722,7 @@
                         <links>
                             <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
-                            <link>https://docs.junit.org/${dep.junit5.version}/api/</link>
+                            <link>https://docs.junit.org/${dep.junit.version}/api/</link>
                             <link>https://javadoc.io/doc/org.testcontainers/jdbc/${dep.testcontainers.version}/</link>
                         </links>
                         <detectOfflineLinks>false</detectOfflineLinks>
