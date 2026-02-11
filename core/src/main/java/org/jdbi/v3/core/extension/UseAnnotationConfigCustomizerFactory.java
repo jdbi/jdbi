@@ -50,7 +50,6 @@ final class UseAnnotationConfigCustomizerFactory implements ConfigCustomizerFact
         return buildConfigCustomizer(extensionType, method, Stream.of(method), forMethod);
     }
 
-    @SuppressWarnings("PMD.UnnecessaryCast")
     private static Collection<ConfigCustomizer> buildConfigCustomizer(Class<?> extensionType,
             Method method,
             Stream<AnnotatedElement> elements,
