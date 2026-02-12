@@ -24,3 +24,4 @@ test-output
 travis-settings*.xml
 .build-oracle
 .factorypath
+.claude
