@@ -7269,6 +7269,43 @@ Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 jdbi.installPlugin(new JpaPlugin());
 ----
 
+Annotate your entity with JPA annotations:
+
+[source,java,indent=0]
+----
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
+@Entity
+public class Something {
+    @Column private int id;
+    @Column private String name;
+}
+----
+
+The entity type will be automatically mapped when querying:
+
+[source,java,indent=0]
+----
+Something result = handle.select("select * from Something where id = ?", id)
+    .mapTo(Something.class)
+    .one();
+----
+
+Use link:{jdbidocs}/jpa/BindJpa.html[@BindJpa^] instead of `@BindBean` to bind annotated classes in SQL Object interfaces:
+
+[source,java,indent=0]
+----
+public interface SomethingDAO {
+
+    @SqlQuery("select * from Something where id = :id")
+    Something get(@Bind("id") long id);
+
+    @SqlUpdate("update something set name = :s.name where id = :s.id")
+    void update(@BindJpa("s") Something something);
+}
+----
+
 Honestly though... just tear off the bandage and switch to Jdbi proper.
 
 === Kotlin
