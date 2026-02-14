@@ -4,6 +4,7 @@
 - Update to JUnit 6.0.2
 - Retire Apache Derby integration (#2866)
 - Run test suite against Spring Framework 7 (#2919)
+- Support lowercase binding names for bean properties with leading acronyms, e.g. `getPCode()` can be bound as `:pCode` (#897)
 
 # 3.51.0
 
