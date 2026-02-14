@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestJsr310 {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> h.execute("create table stuff (ts timestamp, d date)"));
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(h -> h.execute("create table stuff (ts timestamp, d date, tstz timestamp with time zone)"));
 
     // Don't use nanoseconds - they'll get truncated off
     Clock fixed = Clock.fixed(Instant.ofEpochSecond(123456789), ZoneOffset.UTC);
@@ -98,6 +98,28 @@ public class TestJsr310 {
         ZonedDateTime dt = ZonedDateTime.now(fixed).withZoneSameInstant(ZoneId.of("America/Denver"));
         h.execute("insert into stuff(ts) values (?)", dt);
         assertThat(h.createQuery("select ts from stuff").mapTo(ZonedDateTime.class).one().isEqual(dt)).isTrue();
+    }
+
+    @Test
+    public void offsetDateTimePreservesOffset() {
+        Handle h = h2Extension.getSharedHandle();
+
+        OffsetDateTime dt = OffsetDateTime.now(fixed).withOffsetSameInstant(ZoneOffset.ofHours(-7));
+        h.execute("insert into stuff(tstz) values (?)", dt);
+        OffsetDateTime result = h.createQuery("select tstz from stuff").mapTo(OffsetDateTime.class).one();
+        assertThat(result).isEqualTo(dt);
+    }
+
+    @Test
+    public void zonedDateTimePreservesInstant() {
+        Handle h = h2Extension.getSharedHandle();
+
+        ZonedDateTime dt = ZonedDateTime.now(fixed).withZoneSameInstant(ZoneId.of("America/Denver"));
+        h.execute("insert into stuff(tstz) values (?)", dt);
+        ZonedDateTime result = h.createQuery("select tstz from stuff").mapTo(ZonedDateTime.class).one();
+        // instant and offset are preserved; named zone is a SQL limitation
+        assertThat(result.toInstant()).isEqualTo(dt.toInstant());
+        assertThat(result.getOffset()).isEqualTo(dt.getOffset());
     }
 
     @Test

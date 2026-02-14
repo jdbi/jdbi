@@ -4,6 +4,7 @@
 - Update to JUnit 6.0.2
 - Retire Apache Derby integration (#2866)
 - Run test suite against Spring Framework 7 (#2919)
+- Preserve timezone/offset for OffsetDateTime and ZonedDateTime using JDBC 4.2 getObject/setObject (#988)
 
 # 3.51.0
 

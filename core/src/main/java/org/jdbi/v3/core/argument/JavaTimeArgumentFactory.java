@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.argument;
 
+import java.sql.PreparedStatement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -29,7 +30,7 @@ class JavaTimeArgumentFactory extends DelegatingArgumentFactory {
         register(LocalDate.class, Types.DATE, (p, i, v) -> p.setDate(i, java.sql.Date.valueOf(v)));
         register(LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
         register(LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
-        register(OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
-        register(ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
+        register(OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE, PreparedStatement::setObject);
+        register(ZonedDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE, (p, i, v) -> p.setObject(i, v.toOffsetDateTime()));
     }
 }
