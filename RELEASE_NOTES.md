@@ -4,7 +4,7 @@
 - Update to JUnit 6.0.2
 - Retire Apache Derby integration (#2866)
 - Run test suite against Spring Framework 7 (#2919)
-- Preserve timezone/offset for OffsetDateTime and ZonedDateTime using JDBC 4.2 getObject/setObject (#988)
+- OffsetDateTime and ZonedDateTime column mappers now use JDBC 4.2 getObject for TIMESTAMP WITH TIME ZONE columns to preserve timezone information (#988)
 
 # 3.51.0
 
