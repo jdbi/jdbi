@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -199,10 +200,27 @@ public class BeanPropertiesFactory {
             PropertiesHolder(Type type) {
                 this.clazz = GenericTypes.getErasedType(type);
                 try {
-                    properties = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
+                    Map<String, BeanPojoProperty<?>> props = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                             .filter(BeanPropertiesFactory::shouldSeeProperty)
                             .map(p -> new BeanPojoProperty<>(p, addMissingWildcards(type)))
                             .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
+
+                    // Introspector.decapitalize() does not lowercase the first character when the
+                    // second character is also uppercase (e.g. getPCode() -> "PCode", not "pCode").
+                    // Register an additional entry with the first character lowercased so that
+                    // users can bind using the intuitive :pCode style. See GitHub issue #897.
+                    Map<String, BeanPojoProperty<?>> altNames = new HashMap<>();
+                    for (Map.Entry<String, BeanPojoProperty<?>> entry : props.entrySet()) {
+                        String name = entry.getKey();
+                        if (name.length() > 1 && Character.isUpperCase(name.charAt(0))) {
+                            String altName = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                            if (!props.containsKey(altName)) {
+                                altNames.put(altName, entry.getValue());
+                            }
+                        }
+                    }
+                    props.putAll(altNames);
+                    properties = props;
                 } catch (IntrospectionException e) {
                     throw new IllegalArgumentException("Failed to inspect bean " + clazz, e);
                 }
