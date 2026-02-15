@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -80,11 +81,18 @@ class JavaTimeMapperFactory implements ColumnMapperFactory {
     }
 
     private static OffsetDateTime getOffsetDateTime(ResultSet r, int i) throws SQLException {
+        if (r.getMetaData().getColumnType(i) == Types.TIMESTAMP_WITH_TIMEZONE) {
+            return r.getObject(i, OffsetDateTime.class);
+        }
         Timestamp ts = r.getTimestamp(i);
         return ts == null ? null : OffsetDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
     }
 
     private static ZonedDateTime getZonedDateTime(ResultSet r, int i) throws SQLException {
+        if (r.getMetaData().getColumnType(i) == Types.TIMESTAMP_WITH_TIMEZONE) {
+            OffsetDateTime odt = r.getObject(i, OffsetDateTime.class);
+            return odt == null ? null : odt.toZonedDateTime();
+        }
         Timestamp ts = r.getTimestamp(i);
         return ts == null ? null : ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
     }
