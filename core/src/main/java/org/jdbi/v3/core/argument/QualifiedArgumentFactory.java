@@ -55,7 +55,7 @@ public interface QualifiedArgumentFactory {
 
     /**
      * Adapts an {@link ArgumentFactory} into a QualifiedArgumentFactory. The returned factory only
-     * matches qualified types with zero qualifiers.
+     * matches qualified types with exactly the same qualifiers as annotated on the factory itself.
      *
      * @param config the ConfigRegistry
      * @param factory the factory to adapt
@@ -73,7 +73,7 @@ public interface QualifiedArgumentFactory {
 
     /**
      * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable.
-     * The returned factory only matches qualified types with zero qualifiers.
+     * The returned factory only matches qualified types with exactly the same qualifiers as annotated on the factory itself.
      *
      * @param factory the factory to adapt
      */
