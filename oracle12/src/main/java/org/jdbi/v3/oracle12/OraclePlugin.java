@@ -34,7 +34,9 @@ public class OraclePlugin extends JdbiPlugin.Singleton {
 
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        jdbi.configure(Arguments.class, arguments ->
-                arguments.setUntypedNullArgument(new NullArgument(Types.NULL)));
+        jdbi.configure(Arguments.class, arguments -> arguments.setUntypedNullArgument(new NullArgument(Types.NULL)));
+        jdbi.registerArgument(new JavaTimeArgumentFactory());
+
+        jdbi.registerColumnMapper(new JavaTimeColumnMapperFactory());
     }
 }

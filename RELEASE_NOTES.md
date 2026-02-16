@@ -8,6 +8,8 @@
 - Run test suite against Spring Framework 7 (#2919)
 - Add OraclePlugin that sets untyped null argument to Types.NULL for Oracle compatibility (#1003)
 - Support INOUT parameters for stored procedure Call statements (#1606)
+- Map java.time types according to JDBC 4.2 spec (using setObject) (#988)
+- Add `@Legacy` annotation to restore old timestamp mapping behavior
 
 # 3.51.0
 

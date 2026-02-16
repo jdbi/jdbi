@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.oracle12;
 
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
@@ -29,11 +29,11 @@ import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
- * Postgres specific argument factory for Java Time types.
+ * Oracle specific argument factory for Java Time types.
  * <br>
- * {@link Instant} must be mapped to {@link Types#TIMESTAMP}, as the Postgres driver does not support them with {@link PreparedStatement#setObject}.
+ * {@link Instant} must be explicitly mapped to {@link Types#TIMESTAMP} as the Oracle driver does not support it with {@link PreparedStatement#setObject}.
  */
-public class JavaTimeArgumentFactory implements ArgumentFactory.Preparable {
+final class JavaTimeArgumentFactory implements ArgumentFactory.Preparable {
 
     private static final Map<Class<?>, Function<Object, Argument>> TYPES = Map.of(
         Instant.class, value -> value == null

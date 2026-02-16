@@ -73,6 +73,12 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-testing</artifactId>
             <scope>test</scope>
         </dependency>
@@ -127,4 +133,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.siom79.japicmp</groupId>
+                <artifactId>japicmp-maven-plugin</artifactId>
+                <configuration>
+                    <parameter combine.children="append">
+                        <excludes>
+                            <exclude>org.jdbi.v3.postgres.JavaTimeMapperFactory</exclude>
+                            <exclude>org.jdbi.v3.postgres.JavaTimeArgumentFactory</exclude>
+                        </excludes>
+                    </parameter>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

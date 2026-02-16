@@ -63,8 +63,8 @@ public class TestPreparedBatchGenerateKeysPostgres {
         Handle h = pgExtension.getSharedHandle();
 
         PreparedBatch batch = h.prepareBatch("insert into something (name, create_time) values (?, ?)");
-        batch.add("Brian", Instant.ofEpochSecond(1));
-        batch.add("Thom", Instant.ofEpochSecond(2));
+        batch.add("Brian", Instant.ofEpochSecond(1).atOffset(ZoneOffset.UTC));
+        batch.add("Thom", Instant.ofEpochSecond(2).atOffset(ZoneOffset.UTC));
 
         List<IdCreateTime> ids = batch.executePreparedBatch("id", "create_time")
             .map((r, ctx) -> new IdCreateTime(r.getInt("id"), r.getObject("create_time", OffsetDateTime.class)))

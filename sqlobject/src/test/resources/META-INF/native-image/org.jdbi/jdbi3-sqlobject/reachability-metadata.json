@@ -2,6 +2,8 @@
   "reflection": [
     {"type":{"proxy":["java.util.function.Consumer"]}},
     {"type":{"proxy":["org.jdbi.v3.core.mapper.ColumnMapper"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.AbstractSqlObjectJavaTimeTests$LegacyTimeDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.AbstractSqlObjectJavaTimeTests$TimeDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.AttachedHandleLeakTest$UserDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.GenericDaoUsageTest$UserDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.GenericDaoUsageTest$UserDao","org.jdbi.v3.sqlobject.GenericDaoUsageTest$Dao"]}},
@@ -194,6 +196,7 @@
     {"type":{"proxy":["org.jdbi.v3.sqlobject.customizer.TestMaxRows$FooMethodRight"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.customizer.TestMaxRows$FooParamRight"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.customizer.TestMaxRows$NoMaxRows"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.customizer.internal.TestTimestamped$CreateDAO"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.customizer.internal.TestTimestamped$PersonDAO"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.locator.TestSqlLocator$TestDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.subpackage.BrokenDao"]}},

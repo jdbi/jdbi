@@ -16,8 +16,6 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,12 +23,10 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
-
-import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
  * Column mapper factory which knows how to map JavaTime objects:
@@ -44,58 +40,39 @@ import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
  *     <li>{@link ZoneId}</li>
  * </ul>
  */
-class JavaTimeMapperFactory implements ColumnMapperFactory {
-    private final IdentityHashMap<Class<?>, ColumnMapper<?>> mappers = new IdentityHashMap<>();
+class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
+
+    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = Map.of(
+        ZoneId.class, (r, i, ctx) -> getZoneId(r, i),
+        ZonedDateTime.class, (r, i, ctx) -> getZonedDateTime(r, i)
+    );
 
     JavaTimeMapperFactory() {
-        mappers.put(Instant.class, new GetterMapper<>(JavaTimeMapperFactory::getInstant));
-        mappers.put(LocalDate.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalDate));
-        mappers.put(LocalTime.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalTime));
-        mappers.put(LocalDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getLocalDateTime));
-        mappers.put(OffsetDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getOffsetDateTime));
-        mappers.put(ZonedDateTime.class, new GetterMapper<>(JavaTimeMapperFactory::getZonedDateTime));
-        mappers.put(ZoneId.class, new GetterMapper<>(JavaTimeMapperFactory::getZoneId));
+        super(Instant.class, LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class);
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        Class<?> rawType = getErasedType(type);
 
-        return Optional.ofNullable(mappers.get(rawType));
+        Optional<ColumnMapper<?>> res = Optional.of(type)
+            .filter(Class.class::isInstance)
+            .map(Class.class::cast)
+            .map(MAPPERS::get);
+
+        if (res.isEmpty()) {
+            res = super.build(type, config);
+        }
+
+        return res;
     }
 
-    private static Instant getInstant(ResultSet r, int i) throws SQLException {
-        Timestamp ts = r.getTimestamp(i);
-        return ts == null ? null : ts.toInstant();
+    private static ZoneId getZoneId(ResultSet rs, int columnNumber) throws SQLException {
+        var zoneId = rs.getString(columnNumber);
+        return zoneId == null ? null : ZoneId.of(zoneId);
     }
 
-    private static LocalDate getLocalDate(ResultSet r, int i) throws SQLException {
-        Timestamp ts = r.getTimestamp(i);
-        return ts == null ? null : ts.toLocalDateTime().toLocalDate();
-    }
-
-    private static LocalDateTime getLocalDateTime(ResultSet r, int i) throws SQLException {
-        Timestamp ts = r.getTimestamp(i);
-        return ts == null ? null : ts.toLocalDateTime();
-    }
-
-    private static OffsetDateTime getOffsetDateTime(ResultSet r, int i) throws SQLException {
-        Timestamp ts = r.getTimestamp(i);
-        return ts == null ? null : OffsetDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
-    }
-
-    private static ZonedDateTime getZonedDateTime(ResultSet r, int i) throws SQLException {
-        Timestamp ts = r.getTimestamp(i);
-        return ts == null ? null : ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
-    }
-
-    private static LocalTime getLocalTime(ResultSet r, int i) throws SQLException {
-        Time time = r.getTime(i);
-        return time == null ? null : time.toLocalTime();
-    }
-
-    private static ZoneId getZoneId(ResultSet r, int i) throws SQLException {
-        String id = r.getString(i);
-        return id == null ? null : ZoneId.of(id);
+    private static ZonedDateTime getZonedDateTime(ResultSet rs, int columnNumber) throws SQLException {
+        var offsetDateTime = rs.getObject(columnNumber, OffsetDateTime.class);
+        return offsetDateTime == null ? null : offsetDateTime.toZonedDateTime();
     }
 }

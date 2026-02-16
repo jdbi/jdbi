@@ -79,6 +79,12 @@ public class ObjectArgument implements Argument {
         }
     }
 
+    // for testing only. Do not use in any other code. Exposes the
+    // value in this argument for verification / checking.
+    final <T> T getValue(Class<T> type) {
+        return type.cast(value);
+    }
+
     @Override
     public String toString() {
         return (value == null ? "NULL" : String.valueOf(value))

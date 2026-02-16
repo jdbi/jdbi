@@ -5804,6 +5804,42 @@ include::{coreexamples}/org/jdbi/v3/core/qualifier/TestCustomQualifier.java[tags
 <1> Bind the value using `bindByType` with the qualified type so the `@Reversed` factory is selected.
 <2> Map the result using the qualified type so the `@Reversed` mapper is selected.
 
+=== Mapping Java Time (JSR 310) objects
+
+The link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] API provides date and time related types since JDK 8. At the same time, Java released JDBC 4.2 which defines mapping of these types to SQL.
+
+Starting with release 3.52.0, Jdbi supports all recent JDBC drivers natively by using the official link:{jdkdocs}/java.sql/java/sql/PreparedStatement.html#setObject(int,java.lang.Object)[PreparedStatement#setObject^] and link:{jdkdocs}/java.sql/java/sql/ResultSet.html#getObject(int)[ResultSet#getObject^] APIs. This affects all relevant types such as link:{jdkdocs}/java.base/java/time/LocalDate.html[LocalDate^],
+link:{jdkdocs}/java.base/java/time/LocalTime.html[LocalTime^],
+link:{jdkdocs}/java.base/java/time/LocalDateTime.html[LocalDateTime^],
+link:{jdkdocs}/java.base/java/time/OffsetDateTime.html[OffsetDateTime^] and
+link:{jdkdocs}/java.base/java/time/ZonedDateTime.html[ZonedDateTime^].
+
+JDBC drivers are unreliable when it comes to mapping Zone offsets and Zone names. Jdbi used to map these types explicitly to the legacy (pre-JDBC 4.2) types such as link:{jdkdocs}/java.sql/java/sql/Timestamp.html[Timestamp^], link:{jdkdocs}/java.sql/java/sql/Date.html[Date^] and link:{jdkdocs}/java.sql/java/sql/Time.html[Time^].
+
+If the pre-3.52.0 behavior is wanted, it is possible to qualify the mapping type with the link:{jdbidocs}/meta/Legacy.html[@Legacy^] annotation:
+
+[source,java,indent=0]
+----
+var legacyType = QualifiedType.of(OffsetDateTime.class).with(Legacy.class);
+try (Update u = h.createUpdate("INSERT INTO time_table (time_col) VALUES (?)")) {
+    u.bindByType(0, OffsetDateTime.now(), legacyType);
+    u.execute();
+}
+
+var result = h.createQuery("SELECT time_col FROM time_table").mapTo(legacyType).list();
+----
+
+[source,java,indent=0]
+----
+interface LegacyDao {
+    @SqlUpdate("INSERT INTO time_table (time_col) VALUES (:now)")
+    void update(@Legacy OffsetDateTime now);
+
+    @SqlQuery("SELECT time_col FROM time_table")
+    @Legacy List<OffsetDateTime> query();
+}
+----
+
 [#query-templating]
 === Query Templating
 

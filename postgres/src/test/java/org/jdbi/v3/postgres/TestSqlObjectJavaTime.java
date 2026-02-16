@@ -13,7 +13,6 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -21,37 +20,38 @@ import java.time.ZonedDateTime;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
-import org.jdbi.v3.core.AbstractJavaTimeTests;
-import org.jdbi.v3.core.statement.Update;
+import org.jdbi.v3.sqlobject.AbstractSqlObjectJavaTimeTests;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestJavaTime extends AbstractJavaTimeTests {
+public class TestSqlObjectJavaTime extends AbstractSqlObjectJavaTimeTests {
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
-        .withPlugin(new PostgresPlugin());
+        .withPlugins(new PostgresPlugin(), new SqlObjectPlugin());
 
     @BeforeEach
     public void setUp() {
-        h = pgExtension.openHandle();
-        h.useTransaction(th -> {
+        handle = pgExtension.getSharedHandle();
+        handle.useTransaction(th -> {
             th.execute("drop table if exists stuff");
             th.execute("create table stuff (ts timestamp, d date, t time, z text, tstz timestamptz)");
         });
+
+        dao = handle.attach(TimeDao.class);
     }
 
     @AfterEach
     public void tearDown() {
-        h.close();
+        handle.close();
     }
 
     /**
@@ -98,33 +98,5 @@ public class TestJavaTime extends AbstractJavaTimeTests {
         assertThat(result.getZone()).isEqualTo(ZoneOffset.UTC);
         assertThat(result.getZone()).isNotEqualTo(defaultZoneId);
         assertThat(result.getZone()).isNotEqualTo(testZoneId);
-    }
-
-    @Test
-    public void instantLeap() {
-        var type = getTestType(Instant.class);
-        var i = Instant.ofEpochMilli(-14159025000L);
-
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
-            u.bindByType(0, i, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-        assertThat(result).isCloseTo(i, getAllowableOffset());
-    }
-
-    @Test
-    public void instantLeapTSTZ() {
-        var type = getTestType(Instant.class);
-        var i = Instant.ofEpochMilli(-14159025000L);
-
-        try (Update u = h.createUpdate("insert into stuff(tstz) values (?)")) {
-            u.bindByType(0, i, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select tstz from stuff").mapTo(type).one();
-        assertThat(result).isCloseTo(i, getAllowableOffset());
     }
 }
