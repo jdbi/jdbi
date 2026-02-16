@@ -57,6 +57,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
         register(new OptionalColumnMapperFactory());
         register(new EnumMapperFactory());
         register(new NVarcharMapper());
+        register(new LegacyColumnMapperFactory());
     }
 
     private ColumnMappers(ColumnMappers that) {

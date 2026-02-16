@@ -80,13 +80,12 @@ class JavaTimeMapperFactory implements ColumnMapperFactory {
     }
 
     private static OffsetDateTime getOffsetDateTime(ResultSet r, int i) throws SQLException {
-        Timestamp ts = r.getTimestamp(i);
-        return ts == null ? null : OffsetDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
+        return r.getObject(i, OffsetDateTime.class);
     }
 
     private static ZonedDateTime getZonedDateTime(ResultSet r, int i) throws SQLException {
-        Timestamp ts = r.getTimestamp(i);
-        return ts == null ? null : ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
+        OffsetDateTime odt = r.getObject(i, OffsetDateTime.class);
+        return odt == null ? null : odt.toZonedDateTime();
     }
 
     private static LocalTime getLocalTime(ResultSet r, int i) throws SQLException {

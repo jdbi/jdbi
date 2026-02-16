@@ -7,6 +7,7 @@
 - Run test suite against Spring Framework 7 (#2919)
 - Add OraclePlugin that sets untyped null argument to Types.NULL for Oracle compatibility (#1003)
 - Support INOUT parameters for stored procedure Call statements (#1606)
+- OffsetDateTime and ZonedDateTime column mappers now use JDBC 4.2 getObject for TIMESTAMP WITH TIME ZONE columns to preserve timezone information (#988)
 
 # 3.51.0
 

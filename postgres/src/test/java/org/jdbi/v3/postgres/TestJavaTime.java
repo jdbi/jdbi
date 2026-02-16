@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
@@ -50,7 +51,7 @@ public class TestJavaTime {
         h = pgExtension.openHandle();
         h.useTransaction(th -> {
             th.execute("drop table if exists stuff");
-            th.execute("create table stuff (ts timestamp, d date, z text)");
+            th.execute("create table stuff (ts timestamp, d date, z text, tstz timestamptz)");
         });
     }
 
@@ -114,5 +115,28 @@ public class TestJavaTime {
         final ZoneId zone = ZoneId.systemDefault();
         h.execute("insert into stuff(z) values (?)", zone);
         assertThat(h.createQuery("select z from stuff").mapTo(ZoneId.class).one()).isEqualTo(zone);
+    }
+
+    @Test
+    public void offsetDateTimeWithTimestamptz() {
+        OffsetDateTime dt = OffsetDateTime.now(ZoneId.systemDefault()).withOffsetSameInstant(ZoneOffset.ofHours(-7));
+        h.execute("insert into stuff(tstz) values (?)", dt);
+        OffsetDateTime result = h.createQuery("select tstz from stuff").mapTo(OffsetDateTime.class).one();
+        assertThat(result).isCloseTo(dt, getAllowableOffset());
+    }
+
+    @Test
+    public void zonedDateTimeWithTimestamptz() {
+        ZonedDateTime dt = ZonedDateTime.now(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("America/Denver"));
+        h.execute("insert into stuff(tstz) values (?)", dt);
+        ZonedDateTime result = h.createQuery("select tstz from stuff").mapTo(ZonedDateTime.class).one();
+        assertThat(result.toInstant()).isCloseTo(dt.toInstant(), getAllowableOffset());
+    }
+
+    @Test
+    public void nullOffsetDateTimeWithTimestamptz() {
+        h.execute("insert into stuff(tstz) values (?)", (OffsetDateTime) null);
+        OffsetDateTime result = h.createQuery("select tstz from stuff").mapTo(OffsetDateTime.class).one();
+        assertThat(result).isNull();
     }
 }
