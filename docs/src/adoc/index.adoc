@@ -8248,6 +8248,12 @@ In this example, the SQL template will still be loaded from the template group f
 `com/foo/AccountDao.sql.stg` on the classpath, however the `listSorted`
 template will be used, regardless of the method name.
 
+[NOTE]
+When `@UseStringTemplateSqlLocator` is applied at the type level, it applies to every SQL method on that type, even if that method does not itself declare `@UseStringTemplateSqlLocator`.
+In that case, the value of any SQL method annotation (e.g. `@SqlQuery("...")`) is always interpreted as a template name to locate in the template group file, never as inline SQL -- even if the string looks like a SQL statement.
+If any method in the type should use inline SQL, do not apply `@UseStringTemplateSqlLocator` at the type level; instead, apply it only to those methods that are backed by templates.
+To process inline SQL strings with StringTemplate, use the link:{jdbidocs}/stringtemplate4/UseStringTemplateEngine.html[@UseStringTemplateEngine^] annotation.
+
 There are some options for StringTemplateEngine on the
 link:{jdbidocs}/stringtemplate4/StringTemplates.html[StringTemplates^] configuration class, like whether missing attributes are considered an error or not.
 
