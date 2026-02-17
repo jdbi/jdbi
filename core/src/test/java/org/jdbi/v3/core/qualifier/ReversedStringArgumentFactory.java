@@ -19,7 +19,8 @@ import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
-@Reversed
+// tag::argumentfactory[]
+@Reversed // <1>
 public class ReversedStringArgumentFactory extends AbstractArgumentFactory<String> {
     public ReversedStringArgumentFactory() {
         super(Types.VARCHAR);
@@ -30,3 +31,4 @@ public class ReversedStringArgumentFactory extends AbstractArgumentFactory<Strin
         return (pos, stmt, ctx) -> stmt.setString(pos, Reverser.reverse(value));
     }
 }
+// end::argumentfactory[]
