@@ -13,15 +13,15 @@
  */
 package org.jdbi.benchmark;
 
+import java.security.SecureRandom;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.enums.EnumByOrdinal;
 import org.jdbi.core.qualifier.QualifiedType;
-import org.jdbi.testing.JdbiRule;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -31,7 +31,6 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 @State(Scope.Benchmark)
@@ -42,15 +41,12 @@ import org.openjdk.jmh.annotations.Warmup;
 @Fork(1)
 public class EnumMapperBenchmark {
 
-    private ThreadLocalRandom random = ThreadLocalRandom.current();
-    private JdbiRule db;
+    private final SecureRandom random = new SecureRandom();
     private Jdbi jdbi;
 
     @Setup
     public void setup() throws Throwable {
-        db = JdbiRule.h2();
-        db.before();
-        jdbi = db.getJdbi();
+        jdbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
 
         jdbi.useHandle(handle -> {
             handle.execute("create table exact_name (name varchar)");
@@ -67,11 +63,6 @@ public class EnumMapperBenchmark {
                 handle.execute("insert into ordinals (ordinal) values (?)", ordinal < 0 ? null : ordinal);
             }
         });
-    }
-
-    @TearDown
-    public void close() {
-        db.after();
     }
 
     @Benchmark
@@ -119,11 +110,11 @@ public class EnumMapperBenchmark {
         FLOB
     }
 
-    private String randomizeCase(String s) {
+    private String randomizeCase(final String s) {
         StringBuilder b = new StringBuilder(s.length());
 
         for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
+            final char ch = s.charAt(i);
             b.append(random.nextBoolean() ? Character.toUpperCase(ch) : Character.toLowerCase(ch));
         }
 

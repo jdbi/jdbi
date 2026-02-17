@@ -26,7 +26,7 @@ import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.TemplateEngine;
 import org.jdbi.stringtemplate4.StringTemplateSqlLocator;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;

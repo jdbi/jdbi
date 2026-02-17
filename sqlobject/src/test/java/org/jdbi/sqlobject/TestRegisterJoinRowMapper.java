@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.JoinRow;
 import org.jdbi.core.mapper.JoinRowMapperTest;
 import org.jdbi.core.mapper.JoinRowMapperTest.Article;

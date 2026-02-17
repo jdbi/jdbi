@@ -19,8 +19,8 @@ import org.jdbi.core.config.ConfigRegistry
 import org.jdbi.sqlobject.SqlObject
 import org.jdbi.sqlobject.statement.SqlQuery
 import org.jdbi.sqlobject.statement.SqlUpdate
-import org.jdbi.testing.junit5.JdbiExtension
-import org.jdbi.testing.junit5.internal.TestingInitializers
+import org.jdbi.testing.junit.JdbiExtension
+import org.jdbi.testing.junit.internal.TestingInitializers
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

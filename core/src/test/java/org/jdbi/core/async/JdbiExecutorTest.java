@@ -28,7 +28,7 @@ import org.jdbi.core.HandleConsumer;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.extension.ExtensionFactory;
 import org.jdbi.core.extension.HandleSupplier;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.transaction.TransactionIsolationLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

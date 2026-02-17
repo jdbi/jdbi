@@ -16,7 +16,7 @@ package org.jdbi.stringtemplate4;
 import org.jdbi.core.Handle;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

@@ -25,7 +25,7 @@ import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericType;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.reflect.BeanMapper;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.UnableToCreateStatementException;

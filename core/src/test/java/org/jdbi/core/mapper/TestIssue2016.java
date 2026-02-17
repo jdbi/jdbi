@@ -20,7 +20,7 @@ import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.reflect.BeanMapper;
 import org.jdbi.core.statement.StatementContext;
 import org.junit.jupiter.api.BeforeEach;

@@ -564,6 +564,22 @@
             </dependency>
 
             <dependency>
+                <groupId>org.moditect.jfrunit</groupId>
+                <artifactId>jfrunit-core</artifactId>
+                <version>${dep.jfrunit.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-annotations</artifactId>
                 <version>${dep.spotbugs.version}</version>
@@ -601,13 +617,6 @@
                 <version>${dep.jakarta-annotation-api.version}</version>
                 <scope>provided</scope>
                 <optional>true</optional>
-            </dependency>
-
-            <dependency>
-                <groupId>org.moditect.jfrunit</groupId>
-                <artifactId>jfrunit-core</artifactId>
-                <version>${dep.jfrunit.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

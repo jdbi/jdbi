@@ -16,7 +16,7 @@ package org.jdbi.core.mapper;
 import java.util.Map;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.SqliteDatabaseExtension;
+import org.jdbi.core.internal.testing.SqliteDatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

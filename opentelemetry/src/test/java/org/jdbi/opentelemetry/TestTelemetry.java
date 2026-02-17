@@ -31,7 +31,7 @@ import org.assertj.core.api.Assertions;
 import org.jdbi.core.Handle;
 import org.jdbi.core.statement.JdbiStatementEvent;
 import org.jdbi.core.statement.SqlStatements;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;

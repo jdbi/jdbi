@@ -15,6 +15,7 @@ package org.jdbi.benchmark;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.jdbi.core.Jdbi;
@@ -24,7 +25,6 @@ import org.jdbi.core.qualifier.NVarchar;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifier;
 import org.jdbi.core.qualifier.Qualifiers;
-import org.jdbi.testing.JdbiRule;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -34,7 +34,6 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 @State(Scope.Benchmark)
@@ -45,15 +44,12 @@ import org.openjdk.jmh.annotations.Warmup;
 @Fork(4)
 public class QualifiersBenchmark {
 
-    private JdbiRule db;
     private Jdbi jdbi;
     private Qualifiers qualifiers;
 
     @Setup
     public void setup() throws Throwable {
-        db = JdbiRule.h2();
-        db.before();
-        jdbi = db.getJdbi();
+        jdbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
         jdbi.registerRowMapper(BeanMapper.factory(UnqualifiedBean.class));
         jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean1.class));
         jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean2.class));
@@ -61,11 +57,6 @@ public class QualifiersBenchmark {
         jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean4.class));
         qualifiers = new Qualifiers();
         qualifiers.setRegistry(new ConfigRegistry());
-    }
-
-    @TearDown
-    public void close() {
-        db.after();
     }
 
     @Benchmark

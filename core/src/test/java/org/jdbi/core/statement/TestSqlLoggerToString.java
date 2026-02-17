@@ -23,7 +23,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.junit5.SqliteDatabaseExtension;
+import org.jdbi.core.internal.testing.SqliteDatabaseExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

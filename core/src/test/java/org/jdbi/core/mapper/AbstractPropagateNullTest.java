@@ -16,7 +16,7 @@ package org.jdbi.core.mapper;
 import java.util.function.Function;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.statement.Query;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER;
+import static org.jdbi.core.internal.testing.H2DatabaseExtension.SOMETHING_INITIALIZER;
 
 public abstract class AbstractPropagateNullTest {
 

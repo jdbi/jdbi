@@ -16,7 +16,7 @@ package org.jdbi.testing.junit5.tc;
 import java.util.List;
 
 import org.jdbi.core.statement.Query;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.containers.JdbcDatabaseContainer;

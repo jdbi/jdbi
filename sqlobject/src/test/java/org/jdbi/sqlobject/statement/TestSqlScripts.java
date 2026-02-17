@@ -16,7 +16,7 @@ package org.jdbi.sqlobject.statement;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.customizer.Define;
 import org.jdbi.sqlobject.locator.UseClasspathSqlLocator;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

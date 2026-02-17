@@ -17,7 +17,7 @@ import jakarta.annotation.Nullable;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.SampleBean;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.Nested;
 import org.jdbi.core.mapper.PropagateNull;
 import org.jdbi.core.mapper.RowMapper;

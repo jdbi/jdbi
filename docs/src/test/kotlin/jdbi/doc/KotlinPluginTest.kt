@@ -20,8 +20,8 @@ import org.jdbi.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.sqlobject.kotlin.onDemand
 import org.jdbi.sqlobject.statement.SqlQuery
 import org.jdbi.sqlobject.statement.SqlUpdate
-import org.jdbi.testing.junit5.JdbiExtension
-import org.jdbi.testing.junit5.internal.TestingInitializers
+import org.jdbi.testing.junit.JdbiExtension
+import org.jdbi.testing.junit.internal.TestingInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

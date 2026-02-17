@@ -20,7 +20,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.statement.Call;
 import org.jdbi.core.statement.OutParameters;
 import org.jdbi.sqlobject.SqlObjectPlugin;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

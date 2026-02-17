@@ -24,7 +24,7 @@ import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.Script;
 import org.jdbi.core.statement.StatementContext;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

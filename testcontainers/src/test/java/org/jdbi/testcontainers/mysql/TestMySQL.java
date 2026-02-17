@@ -22,7 +22,7 @@ import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.customizer.Bind;
 import org.jdbi.sqlobject.customizer.Define;
 import org.jdbi.sqlobject.statement.SqlQuery;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

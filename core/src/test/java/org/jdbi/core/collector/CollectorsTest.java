@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import org.jdbi.core.Handle;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.generic.GenericTypes;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.statement.Query;
 import org.junit.jupiter.api.Assertions;

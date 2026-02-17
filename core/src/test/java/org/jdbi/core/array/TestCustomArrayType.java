@@ -20,7 +20,7 @@ import java.util.List;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.generic.GenericType;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.statement.StatementContext;
 import org.junit.jupiter.api.BeforeEach;
