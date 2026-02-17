@@ -263,8 +263,6 @@ jdbi3-guice::
 Support dependency injection and modules with https://github.com/google/guice[Google Guice^].
 jdbi3-spring::
 Provides support for all https://spring.io/[Spring Framework^] versions that are under OSS support.
-jdbi3-spring5::
-Provides a https://spring.io/[Spring Framework^] version 5 compatible factory bean to set up Jdbi singleton. _This module is deprecated, please migrate to the `spring` module._
 jdbi3-jpa::
 Some support for https://www.oracle.com/java/technologies/persistence-jsp.html[JPA^] annotations.
 
@@ -7924,16 +7922,10 @@ The `spring` module supports Spring 6.1 (Spring Boot 3.2.x) and newer (including
 All versions of Spring framework that are under OSS support are supported.
 Other versions may work but are not tested and bug reports for older versions will not be addressed.
 
-The deprecated `spring5` module supports Spring Framework version 5.x and 6.0. These versions are no longer under OSS support and updates are no longer publicly available.
-
-[NOTE]
-The spring5 module will be removed in a future version of Jdbi!
-Please migrate to the `spring` module.
-
 ==== XML-based configuration
 
-For XML-based configurations the class link:{jdbidocs}/spring5/JdbiFactoryBean.html[JdbiFactoryBean^] is made available to set up a
-link:{jdbidocs}/core/Jdbi.html[Jdbi^] singleton in a Spring 5 (or Spring Boot) application context.
+For XML-based configurations the class link:{jdbidocs}/spring/JdbiFactoryBean.html[JdbiFactoryBean^] is made available to set up a
+link:{jdbidocs}/core/Jdbi.html[Jdbi^] singleton in a Spring (or Spring Boot) application context.
 
 Then configure the Jdbi factory bean in your Spring container, e.g.:
 

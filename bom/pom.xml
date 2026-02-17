@@ -165,11 +165,6 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi-spring5</artifactId>
-                <version>${dep.jdbi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi-sqlite</artifactId>
                 <version>${dep.jdbi.version}</version>
             </dependency>

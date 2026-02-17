@@ -62,7 +62,6 @@
         <module>postgis</module>
         <module>postgres</module>
         <module>spring</module>
-        <module>spring5</module>
         <module>sqlite</module>
         <module>sqlobject</module>
         <module>stringtemplate4</module>
