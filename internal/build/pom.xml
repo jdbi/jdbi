@@ -12,7 +12,7 @@
 ~   See the License for the specific language governing permissions and
 ~   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvn="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -888,10 +888,10 @@
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <configuration>
-                        <includeFilterFiles combine.children="override">
+                        <includeFilterFiles mvn:combine.children="override">
                             <includeFilterFile>policy/spotbugs-include.xml</includeFilterFile>
                         </includeFilterFiles>
-                        <excludeFilterFiles combine.children="override">
+                        <excludeFilterFiles mvn:combine.children="override">
                             <excludeFilterFile>policy/spotbugs-exclude.xml</excludeFilterFile>
                         </excludeFilterFiles>
                     </configuration>
@@ -989,7 +989,7 @@
                         <groups />
                         <!-- junit 4 and 5 -->
                         <excludedGroups>slow,org.jdbi.testing.SlowTests</excludedGroups>
-                        <systemPropertyVariables combine.children="override">
+                        <systemPropertyVariables mvn:combine.children="override">
                             <pg-embedded.postgres-version>${jdbi.test.pg-version}</pg-embedded.postgres-version>
                             <jdbi.test.mysql-version>${jdbi.test.mysql-version}</jdbi.test.mysql-version>
                             <user.timezone>${jdbi.test.timezone}</user.timezone>
@@ -1048,7 +1048,7 @@
                     <execution>
                         <id>default-compile</id>
                         <configuration>
-                            <compilerArgs combine.children="append">
+                            <compilerArgs mvn:combine.children="append">
                                 <arg>-Xlint:deprecation</arg>
                                 <arg>-Xlint:unchecked</arg>
                             </compilerArgs>
@@ -1057,7 +1057,7 @@
                     <execution>
                         <id>default-testCompile</id>
                         <configuration>
-                            <compilerArgs combine.children="append">
+                            <compilerArgs mvn:combine.children="append">
                                 <arg>-Xlint:deprecation</arg>
                             </compilerArgs>
                         </configuration>
@@ -1210,7 +1210,7 @@
                                 <!-- add module name to main artifact -->
                                 <configuration>
                                     <archive>
-                                        <manifestEntries combine.children="append">
+                                        <manifestEntries mvn:combine.children="append">
                                             <Automatic-Module-Name>${moduleName}</Automatic-Module-Name>
                                         </manifestEntries>
                                     </archive>
@@ -1221,7 +1221,7 @@
                                 <!-- add module name with "test" appended to tests artifact -->
                                 <configuration>
                                     <archive>
-                                        <manifestEntries combine.children="append">
+                                        <manifestEntries mvn:combine.children="append">
                                             <Automatic-Module-Name>${moduleName}.tests</Automatic-Module-Name>
                                         </manifestEntries>
                                     </archive>
