@@ -49,7 +49,7 @@ If you must make some internal code `public` to access it from other packages, p
 
 ### Forward compatibility
 
-Completely new APIs should be marked with [@Alpha](https://jdbi.org/apidocs/org/jdbi/v3/meta/Alpha.html) or [@Beta](https://jdbi.org/apidocs/org/jdbi/v3/meta/Beta.html). This lets users know not to rely too much on your changes yet, as the public release might reveal that more work needs to be done.
+Completely new APIs should be marked with [@Alpha](https://jdbi.org/apidocs/org/jdbi/meta/Alpha.html) or [@Beta](https://jdbi.org/apidocs/org/jdbi/meta/Beta.html). This lets users know not to rely too much on your changes yet, as the public release might reveal that more work needs to be done.
 
 ### Functionality
 

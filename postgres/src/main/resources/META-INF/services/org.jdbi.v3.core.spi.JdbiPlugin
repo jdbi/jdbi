@@ -1,1 +1,1 @@
-org.jdbi.v3.postgres.PostgresPlugin
+org.jdbi.postgres.PostgresPlugin

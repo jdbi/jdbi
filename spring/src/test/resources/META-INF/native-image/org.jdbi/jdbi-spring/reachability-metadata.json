@@ -1,0 +1,9 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.spring.jta.SomethingDao"]}},
+    {"type":{"proxy":["org.jdbi.spring.jta.SomethingDao","org.jdbi.sqlobject.SqlObject"]}}
+  ],
+  "resources": [
+    {"glob":"**/*.xml"}
+  ]
+}

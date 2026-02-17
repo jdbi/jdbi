@@ -23,7 +23,7 @@
     {"type":{"proxy":["jdbi.doc.LiveObjectsTest$NestedDao"]}},
     {"type":{"proxy":["jdbi.doc.LiveObjectsTest$TestDao"]}},
     {"type":{"proxy":["jdbi.doc.LiveObjectsTest$UserDao"]}},
-    {"type":{"proxy":["jdbi.doc.LiveObjectsTest$UserDao","org.jdbi.v3.sqlobject.SqlObject"]}},
+    {"type":{"proxy":["jdbi.doc.LiveObjectsTest$UserDao","org.jdbi.sqlobject.SqlObject"]}},
     {"type":{"proxy":["jdbi.doc.NonVirtualExtensionFactoryTest$NonVirtualDao"]}},
     {"type":{"proxy":["jdbi.doc.OnDemandExtensionTest$SomethingDao"]}},
     {"type":{"proxy":["jdbi.doc.SqlObjectTest$SomethingDao"]}},

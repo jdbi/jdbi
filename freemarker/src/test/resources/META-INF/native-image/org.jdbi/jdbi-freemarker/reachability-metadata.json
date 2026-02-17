@@ -1,0 +1,24 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.freemarker.BindBeanListTest$SomethingByArray"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindBeanListTest$SomethingByIterable"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindBeanListTest$SomethingByVarargs"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindBeanListTest$SomethingWithExplicitAttributeName"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindListNullPostgresTest$SomethingByIterableHandleNull"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindListTest$SomethingByArrayHandleThrow"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindListTest$SomethingByArrayHandleVoid"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindListTest$SomethingByIterableHandleDefault"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindListTest$SomethingByIterableHandleThrow"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindListTest$SomethingByIteratorHandleDefault"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindListTest$SomethingByVarargsHandleDefault"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.BindListTest$SomethingWithExplicitAttributeName"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.FreemarkerEngineTest$Wombat"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.FreemarkerSqlLocatorTest$Koala"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.FreemarkerSqlLocatorTest$Wombat"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.TestConditionalFreemarkerLocator$Dao"]}},
+    {"type":{"proxy":["org.jdbi.freemarker.TestIssue2562$UserSearchDao"]}}
+  ],
+  "resources": [
+    {"glob":"**/*.ftl"}
+  ]
+}

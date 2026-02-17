@@ -1,0 +1,6 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.json.EncodedJson"]}},
+    {"type":"org.jdbi.json.JsonConfig","methods":[{"name":"<init>"}]}
+  ]
+}

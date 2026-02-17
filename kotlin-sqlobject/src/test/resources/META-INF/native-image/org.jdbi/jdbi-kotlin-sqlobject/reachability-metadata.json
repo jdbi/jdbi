@@ -1,0 +1,24 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.CoroutineSqlObjectTest$SomethingDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.KotlinSqlObjectPluginTest$QualifiedDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.KotlinSqlObjectPluginTest$TestDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.KotlinSqlObjectPluginTest$ThingDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.KotlinSqlObjectPluginTest$ThingDao","org.jdbi.sqlobject.SqlObject"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.KotlinSqlObjectPluginTest$YetAnotherThingDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.KotlinSqlObjectPluginTest$YetAnotherThingDao","org.jdbi.sqlobject.SqlObject"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestBatch$SomethingDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestBatch$SomethingDao","org.jdbi.sqlobject.SqlObject"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestGetGeneratedKeys$SomethingDAO"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestGetGeneratedKeys$StringDAO"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestGetGeneratedKeys$StringSomethingDAO"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestIssue1577$DataDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestIssue1577$DataDao","org.jdbi.sqlobject.kotlin.TestIssue1577$BaseDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestListArgument$SomethingDao"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestStringTemplateSqlLocator$Wombat"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestValueClasses$Dao"]}}
+  ],
+  "resources": [
+    {"glob":"**/*.sql.stg"}
+  ]
+}

@@ -14,9 +14,9 @@
 :imagesdir: images
 :docinfo: private
 
-:jdbidocs: ./apidocs/org/jdbi/v3
-:kotlindocs: ./apidocs-kotlin/jdbi3-kotlin/jdbi3-kotlin/org.jdbi.v3.
-:kotlinsqldocs: ./apidocs-kotlin/jdbi3-kotlin-sqlobject/jdbi3-kotlin-sqlobject/org.jdbi.v3.
+:jdbidocs: ./apidocs/org/jdbi
+:kotlindocs: ./apidocs-kotlin/jdbi-kotlin/jdbi-kotlin/org.jdbi.
+:kotlinsqldocs: ./apidocs-kotlin/jdbi-kotlin-sqlobject/jdbi-kotlin-sqlobject/org.jdbi.
 :jdkdocs: https://docs.oracle.com/en/java/javase/17/docs/api
 :jakartadocs: https://jakarta.ee/specifications/platform/10/apidocs
 
@@ -24,9 +24,9 @@
 :exampledir: ../test/java/jdbi/doc
 :kotlinexampledir: ../test/kotlin/jdbi/doc
 :exampleresourcedir: ../test/resources
-:coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
-:guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
-:sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
+:coreexampledir: ../../../core/src/test/java/org/jdbi/core/mapper
+:guavaexampledir: ../../../guava/src/test/java/org/jdbi/guava
+:sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/sqlobject
 
 [preface]
 image::logo.svg[Jdbi logo]
@@ -561,17 +561,17 @@ Managing Handles and query objects across threads is error-prone and should be a
 
 ==== Obtaining a managed handle
 
-The most convenient way to get access to a handle is by using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^] or link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^] methods on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] class.
+The most convenient way to get access to a handle is by using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[withHandle^] or link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[useHandle^] methods on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] class.
 These methods use callbacks and provide a fully managed handle that is correctly closed and all related resources are released. `withHandle` allows the callback to return a result while `useHandle` is just executing operations that do not need to return any value.
 
-Providing a return value from a query using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[Jdbi#withHandle()^] method:
+Providing a return value from a query using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[Jdbi#withHandle()^] method:
 
 [source,java,indent=0]
 ----
 include::{exampledir}/FiveMinuteTourTest.java[tags=withHandle]
 ----
 
-Executing an operation using the link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[Jdbi#useHandle()^] method:
+Executing an operation using the link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[Jdbi#useHandle()^] method:
 
 [source,java,indent=0]
 ----
@@ -737,7 +737,7 @@ include::{exampledir}/TestCollections.java[tag=use-stream]
 include::{exampledir}/TestCollections.java[tag=stream]
 ----
 
-<1> link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.v3.core.result.StreamConsumer)[ResultIterable#useStream()^] and link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[ResultIterable#withStream()^] provide a callback with a managed stream object.
+<1> link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.core.result.StreamConsumer)[ResultIterable#useStream()^] and link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.core.result.StreamCallback)[ResultIterable#withStream()^] provide a callback with a managed stream object.
 
 <2> link:{jdbidocs}/core/result/ResultIterable.html#stream()[ResultIterable#stream()^] provides a stream that must be managed by user code
 
@@ -1025,7 +1025,7 @@ link:{jdbidocs}/core/async/JdbiExecutor.html[JdbiExcecutor^] class that wraps ar
 
 To create a link:{jdbidocs}/core/async/JdbiExecutor.html[JdbiExcecutor^] instance, we first need to create a link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance (see <<The Jdbi class>>).
 Then pass that instance into
-link:{jdbidocs}/core/async/JdbiExecutor.html#create(org.jdbi.v3.core.Jdbi,java.util.concurrent.Executor)[JdbiExecutor.create()^]:
+link:{jdbidocs}/core/async/JdbiExecutor.html#create(org.jdbi.core.Jdbi,java.util.concurrent.Executor)[JdbiExecutor.create()^]:
 
 [source,java,indent=0]
 ----
@@ -1033,7 +1033,7 @@ include::{exampledir}/AsyncTest.java[tags=createJdbiExecutor]
 ----
 
 It is important to size the executor to the specific implementation.
-See link:{jdbidocs}/core/async/JdbiExecutor.html#create(org.jdbi.v3.core.Jdbi,java.util.concurrent.Executor)[here^] for some hints.
+See link:{jdbidocs}/core/async/JdbiExecutor.html#create(org.jdbi.core.Jdbi,java.util.concurrent.Executor)[here^] for some hints.
 
 To use the `jdbiExecutor`, we make similar calls to link:{jdbidocs}/core/async/JdbiExecutor.html[JdbiExcecutor^]
 as we do to link:{jdbidocs}/core/Jdbi.html[Jdbi^]
@@ -1102,7 +1102,7 @@ public interface UserDao {
 }
 ----
 
-- with the Jdbi link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[withExtension^] and link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class-org.jdbi.v3.core.extension.ExtensionConsumer)[useExtension^] callbacks:
+- with the Jdbi link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[withExtension^] and link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class-org.jdbi.core.extension.ExtensionConsumer)[useExtension^] callbacks:
 
 [source,java,indent=0]
 ----
@@ -1129,7 +1129,7 @@ try (Handle handle = jdbi.open()) {
 
 Closing the handle releases the connection managed by the handle.
 Handle resource management is only necessary when using the various link:{jdbidocs}/core/Jdbi.html#open()[Jdbi#open()^] methods on the Jdbi object.
-Any handle that is passed in through a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[Jdbi#withHandle()^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[Jdbi#useHandle()^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[Jdbi#inTransaction()^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[Jdbi#useTransaction()^]) is managed through Jdbi:
+Any handle that is passed in through a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[Jdbi#withHandle()^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[Jdbi#useHandle()^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.core.HandleCallback)[Jdbi#inTransaction()^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.core.HandleConsumer)[Jdbi#useTransaction()^]) is managed through Jdbi:
 
 Jdbi is still able to manage statement resources even if the handle is managed manually:
 
@@ -1154,7 +1154,7 @@ public interface UserDao {
 ----
 
 <1> link:{jdbidocs}/core/Jdbi.html#open()[Jdbi.open()^] creates a new Handle that must be managed through a _try-with-resources_ block.
-<2> link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[jdbi.withHandle()^] passes a managed Handle to the callback and does not require management.
+<2> link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[jdbi.withHandle()^] passes a managed Handle to the callback and does not require management.
 
 [#statement-resource-management]
 === Statement resource management
@@ -1311,7 +1311,7 @@ Optional<User> user = stream.findFirst(); <3>
 <2> leaving the callback closes the handle and releases all resources including the result set
 <3> throws an exception because the result set has already been closed
 
-This can be avoided by using one of the callback methods that ResultIterable offers: link:{jdbidocs}/core/result/ResultIterable.html#withIterator(org.jdbi.v3.core.result.IteratorCallback)[withIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.v3.core.result.IteratorConsumer)[useIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^], link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^].
+This can be avoided by using one of the callback methods that ResultIterable offers: link:{jdbidocs}/core/result/ResultIterable.html#withIterator(org.jdbi.core.result.IteratorCallback)[withIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.core.result.IteratorConsumer)[useIterator()^], link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.core.result.StreamCallback)[withStream()^], link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.core.result.StreamConsumer)[useStream()^].
 Each of these methods manages the iterator / stream and allows consumption of its contents within a callback:
 
 [source,java,indent=0]
@@ -1325,7 +1325,7 @@ try (Handle handle = jdbi.open()) {
 }
 ----
 
-While it is not strictly necessary to execute the query in a _try-with-resources_ block because the link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.v3.core.result.IteratorConsumer)[useIterator()^] method will close the iterator and release all resources from the query, it is good practice and guards against possible errors that may happen between the creation of the query and the callback execution.
+While it is not strictly necessary to execute the query in a _try-with-resources_ block because the link:{jdbidocs}/core/result/ResultIterable.html#useIterator(org.jdbi.core.result.IteratorConsumer)[useIterator()^] method will close the iterator and release all resources from the query, it is good practice and guards against possible errors that may happen between the creation of the query and the callback execution.
 
 Using a jdbi callback allows fully automated resource management:
 
@@ -1463,7 +1463,7 @@ try (Handle handle = jdbi.open()) {
 }
 ----
 
-As a special case, any method on the Jdbi object that takes a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]) attaches statements created in the callback by default to the handle passed into the callback.
+As a special case, any method on the Jdbi object that takes a callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.core.HandleConsumer)[useTransaction^]) attaches statements created in the callback by default to the handle passed into the callback.
 These handles are fully managed and will be closed when the callback exits.
 
 [source,java,indent=0]
@@ -1497,7 +1497,7 @@ jdbi.useHandle(handle -> {
 Modifying this value only changes the setting for the current handle; it does not affect the global setting associated with the Jdbi object that created the handle.
 
 [NOTE]
-While the `attachAllStatementsForCleanup` setting affects all statements created *outside* a Jdbi callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]), *inside* these callbacks, the behavior is controlled by the `attachCallbackStatementsForCleanup` setting.
+While the `attachAllStatementsForCleanup` setting affects all statements created *outside* a Jdbi callback (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.core.HandleConsumer)[useTransaction^]), *inside* these callbacks, the behavior is controlled by the `attachCallbackStatementsForCleanup` setting.
 The default value for the `attachAllStatementsForCleanup` is `false` while the default value for `attachCallbackStatementsForCleanup` is `true`.
 
 == Arguments
@@ -2946,7 +2946,7 @@ The link:{jdbidocs}/core/result/ResultIterable.html#stream()[stream()^] method r
 This is not a terminal operation and the stream must be closed to release any database resources held.
 See <<Resources with Streams and Iterators>> for more details.
 
-The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^] and link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^] methods pass the Stream into a callback.
+The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.core.result.StreamCallback)[withStream()^] and link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.core.result.StreamConsumer)[useStream()^] methods pass the Stream into a callback.
 
 [source,java,indent=0]
 ----
@@ -2962,7 +2962,7 @@ handle.createQuery("SELECT id, name FROM user ORDER BY id ASC")
 ----
 
 These methods handle closing the stream for the caller.
-The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.v3.core.result.StreamCallback)[withStream()^] method allows passing a result back to the caller, link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.v3.core.result.StreamConsumer)[useStream()^] only executed the code in the callback.
+The link:{jdbidocs}/core/result/ResultIterable.html#withStream(org.jdbi.core.result.StreamCallback)[withStream()^] method allows passing a result back to the caller, link:{jdbidocs}/core/result/ResultIterable.html#useStream(org.jdbi.core.result.StreamConsumer)[useStream()^] only executed the code in the callback.
 
 ==== List
 
@@ -3119,7 +3119,7 @@ So we call `Map.values()` to get a `Collection<Contact>`.
 <7> Collect the contacts into a link:{jdkdocs}/java.base/java/util/List.html[List<Contact>^].
 
 Alternatively, the
-link:{jdbidocs}/core/result/ResultBearing.html#reduceRows(org.jdbi.v3.core.result.RowReducer)[ResultBearing.reduceRows(RowReducer)^]
+link:{jdbidocs}/core/result/ResultBearing.html#reduceRows(org.jdbi.core.result.RowReducer)[ResultBearing.reduceRows(RowReducer)^]
 variant accepts a link:{jdbidocs}/core/result/RowReducer.html[RowReducer^] and returns a stream of reduced elements.
 
 For simple main-detail joins, the
@@ -3182,7 +3182,7 @@ Optional<Contact> contact = handle.createQuery(SELECT_ONE)
 
 ==== ResultBearing.reduceResultSet()
 
-link:{jdbidocs}/core/result/ResultBearing.html#reduceResultSet(U,org.jdbi.v3.core.result.ResultSetAccumulator)[ResultBearing.reduceResultSet()^]
+link:{jdbidocs}/core/result/ResultBearing.html#reduceResultSet(U,org.jdbi.core.result.ResultSetAccumulator)[ResultBearing.reduceResultSet()^]
 is a low-level API similar to `reduceRows()`, except it provides direct access to the JDBC link:{jdkdocs}/java.sql/java/sql/ResultSet.html[ResultSet^] instead of a `RowView` for each row.
 
 This method can provide superior performance compared to `reduceRows()`, at the expense of verbosity:
@@ -3263,8 +3263,8 @@ Jdbi provides full support for JDBC transactions.
 
 A managed transaction is controlled through Jdbi code and provides a handle with an open transaction to user code.
 
-* The link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^] and link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^] methods on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] object create a new link:{jdbidocs}/core/Handle.html[Handle^], open a transaction and pass it to the callback code.
-* The link:{jdbidocs}/core/Handle.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^] and link:{jdbidocs}/core/Handle.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^] methods on link:{jdbidocs}/core/Handle.html[Handle^] objects open a transaction on the handle itself and then pass it to the callback code.
+* The link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.core.HandleCallback)[inTransaction^] and link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.core.HandleConsumer)[useTransaction^] methods on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] object create a new link:{jdbidocs}/core/Handle.html[Handle^], open a transaction and pass it to the callback code.
+* The link:{jdbidocs}/core/Handle.html#inTransaction(org.jdbi.core.HandleCallback)[inTransaction^] and link:{jdbidocs}/core/Handle.html#useTransaction(org.jdbi.core.HandleConsumer)[useTransaction^] methods on link:{jdbidocs}/core/Handle.html[Handle^] objects open a transaction on the handle itself and then pass it to the callback code.
 By default, if these methods are called while the handle is already in an open transaction, the existing transaction is reused (no nested transaction is created).
 
 Each of these methods also has a variant that allows setting the link:{jdbidocs}/core/transaction/TransactionIsolationLevel.html[transaction isolation level^].
@@ -3292,7 +3292,7 @@ The <<Nesting Callbacks with managed Handles and Transactions>> chapter has more
 Jdbi provides the necessary primitives to control transactions directly from a Handle:
 
 * the link:{jdbidocs}/core/Handle.html#begin()[begin()^]/link:{jdbidocs}/core/Handle.html#commit()[commit()^]/link:{jdbidocs}/core/Handle.html#rollback()[rollback()^] methods provide standard transaction semantics
-* link:{jdbidocs}/core/Handle.html#setTransactionIsolationLevel(org.jdbi.v3.core.transaction.TransactionIsolationLevel)[setTransactionIsolationLevel()^] and link:{jdbidocs}/core/Handle.html#getTransactionIsolationLevel()[getTransactionIsolationLevel()^] to control the transaction isolation level
+* link:{jdbidocs}/core/Handle.html#setTransactionIsolationLevel(org.jdbi.core.transaction.TransactionIsolationLevel)[setTransactionIsolationLevel()^] and link:{jdbidocs}/core/Handle.html#getTransactionIsolationLevel()[getTransactionIsolationLevel()^] to control the transaction isolation level
 * link:{jdbidocs}/core/Handle.html#isInTransaction()[isInTransaction()^] returns `true` if the handle is currently in a transaction
 * link:{jdbidocs}/core/Handle.html#savepoint(java.lang.String)[savepoint()^]/link:{jdbidocs}/core/Handle.html#releaseSavepoint(java.lang.String)[releaseSavepoint()^]/link:{jdbidocs}/core/Handle.html#rollbackToSavepoint(java.lang.String)[rollbackToSavepoint()^] for transaction savepoint support.
 This is not supported by all TransactionHandlers and requires support from the JDBC driver
@@ -3300,7 +3300,7 @@ This is not supported by all TransactionHandlers and requires support from the J
 Transactions are managed by link:{jdbidocs}/core/transaction/TransactionHandler.html[TransactionHandler^] implementations.
 By default, transactions are delegated to the JDBC connection and managed through the connection by the database.
 
-The transaction handler can be set per link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance using the link:{jdbidocs}/core/Jdbi.html#setTransactionHandler(org.jdbi.v3.core.transaction.TransactionHandler)[setTransactionHandler^] and link:{jdbidocs}/core/Jdbi.html#getTransactionHandler()[getTransactionHandler^] methods.
+The transaction handler can be set per link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance using the link:{jdbidocs}/core/Jdbi.html#setTransactionHandler(org.jdbi.core.transaction.TransactionHandler)[setTransactionHandler^] and link:{jdbidocs}/core/Jdbi.html#getTransactionHandler()[getTransactionHandler^] methods.
 
 In addition to the link:{jdbidocs}/core/transaction/LocalTransactionHandler.html[standard transaction handler^], Jdbi includes a link:{jdbidocs}/core/transaction/CMTTransactionHandler.html[handler that works correctly in a container managed environment^] and a link:{jdbidocs}/core/transaction/SerializableTransactionRunner.html[serializable transaction handler^] that allows multiple concurrent operations on a single handle to retry transparently.
 
@@ -3486,7 +3486,7 @@ If this setting is `true`, then statements are attached by default.
 
 | attachCallbackStatementsForCleanup
 ^| boolean ^| `true`
-<| Similar to `attachAllStatementsForCleanup` but for statements created in any of the Jdbi callback methods (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^]).
+<| Similar to `attachAllStatementsForCleanup` but for statements created in any of the Jdbi callback methods (link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[withHandle^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[useHandle^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.core.HandleCallback)[inTransaction^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.core.HandleConsumer)[useTransaction^]).
 
 
 | queryTimeout
@@ -4061,9 +4061,9 @@ Attached SQL Objects have the same lifecycle as the handle--when the handle is c
 * *using Jdbi extension methods*
 
 SQL Object types can be created using
-link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^]
+link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^]
 for operations that return a result, or
-link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^]
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^]
 for operations with no result.
 These methods take a callback (or a lambda object) and provide it with a managed instance of the SQL object type:
 
@@ -4491,14 +4491,14 @@ try (Stream<String> names = dao.getNamesAsStream()) {
 }
 ----
 
-The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] or link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods *can not be used*:
+The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^] or link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods *can not be used*:
 
 [source,java,indent=0]
 ----
 include::{exampledir}/LiveObjectsTest.java[tag=extension]
 ----
 
-<1> The handle is closed when leaving the link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] method.
+<1> The handle is closed when leaving the link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^] method.
 
 <2> Calling the link:{jdkdocs}/java.base/java/util/stream/Stream.html#collect(java.util.stream.Collector)[Stream#collect()^] method on the returned stream causes a link:{jdbidocs}/core/result/ResultSetException.html[ResultSetException^].
 
@@ -4529,7 +4529,7 @@ include::{exampledir}/LiveObjectsTest.java[tag=dao]
 
 <3> The stream can be processed within the `getNames` method.
 
-The default method can be used with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^], link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] and link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods:
+The default method can be used with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^], link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^] and link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods:
 
 [source,java,indent=0]
 ----
@@ -4560,7 +4560,7 @@ include::{exampledir}/LiveObjectsTest.java[tag=attach-callback]
 
 <2> The stream is managed by the SQL object framework and does not need to be closed by user code.
 
-This code also works with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] and link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods:
+This code also works with the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] and link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods:
 
 [source,java,indent=0]
 ----
@@ -4569,7 +4569,7 @@ include::{exampledir}/LiveObjectsTest.java[tag=on-demand-callback]
 include::{exampledir}/LiveObjectsTest.java[tag=extension-callback]
 ----
 
-<1> This code uses link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] instead of link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] as the SQL Object method returns `void`.
+<1> This code uses link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] instead of link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^] as the SQL Object method returns `void`.
 
 [NOTE]
 While using a consumer or a function argument is a great way to deal with cursor-type objects, there is the drawback that the user code is called while holding the handle (or the database connection) open.
@@ -5282,22 +5282,22 @@ See <<Collectors>> for more details.
 
 Jdbi provides many additional annotations out of the box:
 
-* link:{jdbidocs}/sqlobject/config/package-summary.html[org.jdbi.v3.sqlobject.config^]
+* link:{jdbidocs}/sqlobject/config/package-summary.html[org.jdbi.sqlobject.config^]
 provides annotations for things that can be configured at the link:{jdbidocs}/core/Jdbi.html[Jdbi^] or
 link:{jdbidocs}/core/Handle.html[Handle^] level.
 This includes registration of mappers and arguments, and for configuring SQL statement rendering and parsing.
-* link:{jdbidocs}/sqlobject/customizer/package-summary.html[org.jdbi.v3.sqlobject.customizer^]
+* link:{jdbidocs}/sqlobject/customizer/package-summary.html[org.jdbi.sqlobject.customizer^]
 provides annotations for binding parameters, defining attributes, and controlling the fetch behavior of the statement's result set.
-* link:{jdbidocs}/jpa/package-summary.html[org.jdbi.v3.jpa^]
+* link:{jdbidocs}/jpa/package-summary.html[org.jdbi.jpa^]
 provides the link:{jdbidocs}/jpa/BindJpa.html[@BindJpa^] annotation, for binding properties to column according to JPA `@Column` annotations.
-* link:{jdbidocs}/sqlobject/locator/package-summary.html[org.jdbi.v3.sqlobject.locator^]
+* link:{jdbidocs}/sqlobject/locator/package-summary.html[org.jdbi.sqlobject.locator^]
 provides annotations that configure Jdbi to load SQL statements from an alternative source, e.g. a file on the classpath.
-* link:{jdbidocs}/sqlobject/statement/package-summary.html[org.jdbi.v3.sqlobject.statement^]
+* link:{jdbidocs}/sqlobject/statement/package-summary.html[org.jdbi.sqlobject.statement^]
 provides the link:{jdbidocs}/sqlobject/statement/MapTo.html[@MapTo^] annotation, which is used for dynamically specifying the mapped type at the time the method is invoked.
-* link:{jdbidocs}/stringtemplate4/package-summary.html[org.jdbi.v3.stringtemplate4^]
+* link:{jdbidocs}/stringtemplate4/package-summary.html[org.jdbi.stringtemplate4^]
 provides annotations that configure Jdbi to load SQL from StringTemplate 4
 `.stg` files on the classpath, and/or to parse SQL templates using the ST4 template engine.
-* link:{jdbidocs}/sqlobject/transaction/package-summary.html[org.jdbi.v3.sqlobject.transaction^]
+* link:{jdbidocs}/sqlobject/transaction/package-summary.html[org.jdbi.sqlobject.transaction^]
 provides annotations for transaction management in a SQL object.
 See
 <<SQL Object Transactions>> for details.
@@ -5416,8 +5416,8 @@ void mixedCode() {
 }
 ----
 
-This interface gives access to the handle and offers link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[SqlObject#withHandle()^] and
-link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[SqlObject#useHandle()^] methods that execute callback code using the same handle object as the methods on the SQL object interface itself.
+This interface gives access to the handle and offers link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.core.HandleCallback)[SqlObject#withHandle()^] and
+link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.core.HandleConsumer)[SqlObject#useHandle()^] methods that execute callback code using the same handle object as the methods on the SQL object interface itself.
 
 [NOTE]
 This is most useful for SQL object instances that get passed from other code, have been created from
@@ -5539,7 +5539,7 @@ SQL methods with a link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Trans
 include::{exampledir}/TransactionTest.java[tags=sqlObjectTransactionIsolation]
 ----
 
-Similar to the link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[Jdbi#inTransaction()^] and link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[Jdbi#useTransaction()^] operations in the core API, transactions are not nested.
+Similar to the link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.core.HandleCallback)[Jdbi#inTransaction()^] and link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.core.HandleConsumer)[Jdbi#useTransaction()^] operations in the core API, transactions are not nested.
 If a method, that has been annotated with link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Transaction^], calls another method which is annotated as well (e.g. through an _interface default method_), then the same transaction will be reused, and it will be committed when the outer transaction ends.
 
 Nested method calls must either use the same transaction isolation level or inner methods must not specify any transaction level.
@@ -5580,7 +5580,7 @@ As an alternative, the link:{jdbidocs}/sqlobject/transaction/Transactional.html[
 
 Similar to the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] interface, it gives access to all transaction related methods on the Handle and offers the same callbacks as the Handle itself.
 
-With this mixin interface, the link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[Transactional#useTransaction()^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalCallback)[Transactional#inTransaction()^] methods group statements into a single transaction by using a callback:
+With this mixin interface, the link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.sqlobject.transaction.TransactionalConsumer)[Transactional#useTransaction()^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.sqlobject.transaction.TransactionalCallback)[Transactional#inTransaction()^] methods group statements into a single transaction by using a callback:
 
 [source,java,indent=0]
 ----
@@ -6157,7 +6157,7 @@ While Jdbi makes an effort to support all databases provided by the Testcontaine
 - Using a custom docker image that is incompatible with the default Jdbi testcontainer support.
 - Require specific behavior in tests that is different from the Jdbi testcontainer support.
 
-The link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html#of(java.lang.String,java.lang.String,java.lang.String,java.util.function.BiFunction)[TestcontainersDatabaseInformation#of()^] method allows creation of custom database information instances which then can be passed into link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html#instance(org.jdbi.v3.testing.junit5.tc.TestcontainersDatabaseInformation,org.testcontainers.containers.JdbcDatabaseContainer)[JdbiTestcontainersExtension#instance(TestcontainersDatabaseInformation, JdbcDatabaseContainer)^] to create extensions with custom behavior.
+The link:{jdbidocs}/testing/junit5/tc/TestcontainersDatabaseInformation.html#of(java.lang.String,java.lang.String,java.lang.String,java.util.function.BiFunction)[TestcontainersDatabaseInformation#of()^] method allows creation of custom database information instances which then can be passed into link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html#instance(org.jdbi.testing.junit5.tc.TestcontainersDatabaseInformation,org.testcontainers.containers.JdbcDatabaseContainer)[JdbiTestcontainersExtension#instance(TestcontainersDatabaseInformation, JdbcDatabaseContainer)^] to create extensions with custom behavior.
 
 This is an example that uses a custom user with a special database image:
 
@@ -6637,20 +6637,20 @@ These methods return Guice LinkedBindingBuilder instances and allow the full ran
 | link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper()[bindRowMapper()^]
 .3+| link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper<?>^]
 .3+| <<Row Mappers>>
-| link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper(org.jdbi.v3.core.generic.GenericType)[bindRowMapper(GenericType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper(org.jdbi.core.generic.GenericType)[bindRowMapper(GenericType<?>)^]
 | link:{jdbidocs}/guice/JdbiBinder.html#bindRowMapper(java.lang.reflect.Type)[bindRowMapper(Type)^]
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper()[bindColumnMapper()^]
 .4+| link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper<?>^]
 .4+| <<Column Mappers>>
-| link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper(org.jdbi.v3.core.qualifier.QualifiedType)[bindColumnMapper(QualifiedType<?>)^]
-| link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper(org.jdbi.v3.core.generic.GenericType)[bindColumnMapper(GenericType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper(org.jdbi.core.qualifier.QualifiedType)[bindColumnMapper(QualifiedType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper(org.jdbi.core.generic.GenericType)[bindColumnMapper(GenericType<?>)^]
 | link:{jdbidocs}/guice/JdbiBinder.html#bindColumnMapper(java.lang.reflect.Type)[bindColumnMapper(Type)^]
 
-| link:{jdbidocs}/guice/JdbiBinder.html#bindCodec(org.jdbi.v3.core.qualifier.QualifiedType)[bindCodec(QualifiedType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindCodec(org.jdbi.core.qualifier.QualifiedType)[bindCodec(QualifiedType<?>)^]
 .3+| link:{jdbidocs}/core/codec/Codec.html[Codec<?>^]
 .3+| <<Codecs>>
-| link:{jdbidocs}/guice/JdbiBinder.html#bindCodec(org.jdbi.v3.core.generic.GenericType)[bindCodec(GenericType<?>)^]
+| link:{jdbidocs}/guice/JdbiBinder.html#bindCodec(org.jdbi.core.generic.GenericType)[bindCodec(GenericType<?>)^]
 | link:{jdbidocs}/guice/JdbiBinder.html#bindCodec(java.lang.reflect.Type)[bindCodec(Type)^]
 
 | link:{jdbidocs}/guice/JdbiBinder.html#bindArrayType(java.lang.Class)[bindArrayType(Class<?>)^] | `String` | <<Registering array types>>
@@ -7674,25 +7674,25 @@ To support all Jdbi features, the following lines must be added:
 
 [source,java,indent=0]
 ----
-lombok.copyableAnnotations += org.jdbi.v3.core.mapper.reflect.ColumnName
-lombok.copyableAnnotations += org.jdbi.v3.core.mapper.Nested
-lombok.copyableAnnotations += org.jdbi.v3.core.mapper.PropagateNull
-lombok.copyableAnnotations += org.jdbi.v3.core.annotation.JdbiProperty
-lombok.copyableAnnotations += org.jdbi.v3.core.mapper.reflect.JdbiConstructor
+lombok.copyableAnnotations += org.jdbi.core.mapper.reflect.ColumnName
+lombok.copyableAnnotations += org.jdbi.core.mapper.Nested
+lombok.copyableAnnotations += org.jdbi.core.mapper.PropagateNull
+lombok.copyableAnnotations += org.jdbi.core.annotation.JdbiProperty
+lombok.copyableAnnotations += org.jdbi.core.mapper.reflect.JdbiConstructor
 ----
 
 Any additional annotation (such as the `@HStore` annotation for PostgreSQL support) can also be added:
 
 [source,java,indent=0]
 ----
-lombok.copyableAnnotations += org.jdbi.v3.postgres.HStore
+lombok.copyableAnnotations += org.jdbi.postgres.HStore
 ----
 
 When using any of the Json mappers (<<Jackson 2>>, <<Gson 2>> or <<Moshi>> ) with lombok, the link:{jdbidocs}/json/Json.html[@Json^] annotation must also be added to the lombok config file, otherwise Jdbi can not map json columns to lombok bean properties:
 
 [source,java,indent=0]
 ----
-lombok.copyableAnnotations += org.jdbi.v3.json.Json
+lombok.copyableAnnotations += org.jdbi.json.Json
 ----
 
 === Oracle 12
@@ -7962,7 +7962,7 @@ Then configure the Jdbi factory bean in your Spring container, e.g.:
 
   <!--3-->
   <bean id="jdbi"
-    class="org.jdbi.v3.spring.JdbiFactoryBean">
+    class="org.jdbi.spring.JdbiFactoryBean">
     <property name="dataSource" ref="db"/>
   </bean>
 
@@ -7988,12 +7988,12 @@ Plugins may be installed:
 
 [source,xml,indent=0]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.spring.JdbiFactoryBean">
   ...
   <property name="plugins">
     <list>
-      <bean class="org.jdbi.v3.sqlobject.SqlObjectPlugin"/>
-      <bean class="org.jdbi.v3.guava.GuavaPlugin"/>
+      <bean class="org.jdbi.sqlobject.SqlObjectPlugin"/>
+      <bean class="org.jdbi.guava.GuavaPlugin"/>
     </list>
   </property>
 </bean>
@@ -8005,7 +8005,7 @@ Global defined attributes may be configured on the factory bean:
 
 [source,xml,indent=0]
 ----
-<bean id="jdbi" class="org.jdbi.v3.spring.JdbiFactoryBean">
+<bean id="jdbi" class="org.jdbi.spring.JdbiFactoryBean">
   <property name="dataSource" ref="db"/>
   <property name="globalDefines">
     <map>
@@ -8620,8 +8620,8 @@ _Extension types are usually java interface classes._ Any interface can be an ex
 Jdbi offers multiple ways to obtain an extension type implementation:
 
 - Calling either
-link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] or
-link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods with an extension type will pass an extension type implementation to a callback that contains user code.
+link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^] or
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods with an extension type will pass an extension type implementation to a callback that contains user code.
 - The link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] attaches an extension type implementation directly to an existing  link:{jdbidocs}/core/Handle.html[Handle^] object.
 - Finally, the link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^] method creates an on-demand implementation of an extension type that is not limited to a callback.
 
@@ -8636,8 +8636,8 @@ If any of the SQL method annotations (link:{jdbidocs}/sqlobject/statement/SqlBat
 link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^], link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^],
 link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] and link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^]) is present on either the extension type itself or any extension type method, the SQL Object extension will be used.
 
-The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] and
-link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods are used to access SQLObject functionality:
+The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^] and
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] methods are used to access SQLObject functionality:
 
 [source,java,indent=0]
 ----
@@ -8654,7 +8654,7 @@ link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] metho
 include::{exampledir}/ExtensionFrameworkTest.java[tags=handle_attach]
 ----
 
-The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^], link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] and link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] methods are the most common way to use extension type implementations.
+The link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^], link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] and link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] methods are the most common way to use extension type implementations.
 
 [#on-demand-extension]
 ==== On-demand extensions
@@ -8679,8 +8679,8 @@ Java proxies only support Java interface classes as extension types.
 
 The difference between the methods to acquire an extension type implementation is the handle (and database connection) lifecycle:
 
-- link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^] and
-link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] provides a managed handle object when the callback is entered and reuses it for any extension type method call as long as the code does not return from the callback.
+- link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^] and
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^] provides a managed handle object when the callback is entered and reuses it for any extension type method call as long as the code does not return from the callback.
 
 - The link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] does not manage the handle at all.
 Any extension type method call will use the handle that the object was attached to and be part of its lifecycle.
@@ -8694,13 +8694,13 @@ _Any interface class can be an extension type._ There is nothing special to an e
 
 Extensions should document which information is needed for the extension framework to determine that a specific interface class represents an extension type that they accept.
 
-The extension type creation methods (link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionCallback)[Jdbi#withExtension()^],
-link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.v3.core.extension.ExtensionConsumer)[Jdbi#useExtension()^],
+The extension type creation methods (link:{jdbidocs}/core/Jdbi.html#withExtension(java.lang.Class,org.jdbi.core.extension.ExtensionCallback)[Jdbi#withExtension()^],
+link:{jdbidocs}/core/Jdbi.html#useExtension(java.lang.Class,org.jdbi.core.extension.ExtensionConsumer)[Jdbi#useExtension()^],
 link:{jdbidocs}/core/Handle.html#attach(java.lang.Class)[Handle#attach()^] and link:{jdbidocs}/core/Jdbi.html#onDemand(java.lang.Class)[Jdbi#onDemand()^]) all take the extension type as a parameter and provide an implementation either to the caller or within a callback object.
 
 The extension framework selects an link:{jdbidocs}/core/extension/ExtensionFactory.html[ExtensionFactory^] to handle the extension type and create an implementation.
 Extension factories must be registered ahead of time with the Jdbi core using the
-link:{jdbidocs}/core/extension/Extensions.html#register(org.jdbi.v3.core.extension.ExtensionFactory)[Extensions#register()^] method.
+link:{jdbidocs}/core/extension/Extensions.html#register(org.jdbi.core.extension.ExtensionFactory)[Extensions#register()^] method.
 
 The extension factory then creates an link:{jdbidocs}/core/extension/ExtensionMetadata.html[ExtensionMetadata^] object that contains information about each method on the extension type:
 
@@ -8818,10 +8818,10 @@ link:{jdbidocs}/core/extension/ExtensionHandlerFactory.html[ExtensionHandlerFact
 link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] and
 link:{jdbidocs}/core/extension/ConfigCustomizerFactory.html[ConfigCustomizerFactory^]) which are only applied when the factory has accepted an extension type.
 The extension factory provides the
-link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerFactories()^],
-link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerCustomizers(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerCustomizers()^]
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerFactories(org.jdbi.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerFactories()^],
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerCustomizers(org.jdbi.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerCustomizers()^]
 and
-link:{jdbidocs}/core/extension/ExtensionFactory.html#getConfigCustomizerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getConfigCustomizerFactories()^]
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getConfigCustomizerFactories(org.jdbi.core.config.ConfigRegistry)[ExtensionFactory#getConfigCustomizerFactories()^]
 getters that a factory can implement.
 By default, each returns an empty collection.
 
@@ -8865,7 +8865,7 @@ link:{jdbidocs}/core/extension/ExtensionFactory.FactoryFlag.html#NO_VIRTUAL_FACT
 link:{jdbidocs}/core/extension/ExtensionFactory.html#getFactoryFlags()[ExtensionFactory#getFactoryFlags()^] method.
 
 <2> The extension framework calls the
-link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method with the current extension type and a handle supplier.
+link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method with the current extension type and a handle supplier.
 The factory is expected to return an instance of the extension type.
 Methods on the instance will be wrapped in extension handlers and a proxy object is returned to the caller.
 
@@ -8890,7 +8890,7 @@ include::{exampledir}/DontUseProxyExtensionFactoryTest.java[tags=abstract-class-
 link:{jdbidocs}/core/extension/ExtensionFactory.FactoryFlag.html#DONT_USE_PROXY[`DONT_USE_PROXY`^] flag from the
 link:{jdbidocs}/core/extension/ExtensionFactory.html#getFactoryFlags()[ExtensionFactory#getFactoryFlags()^] method.
 Using this flag bypasses all the extension framework proxy mechanism and calls the
-link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method immediately.
+link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method immediately.
 
 <2> The extension factory creates an instance that must be compatible with the extension type.
 It can provide the current extension type and a handle supplier if needed.
@@ -8906,7 +8906,7 @@ Calling a method on the extension type will invoke the methods on the generated 
 link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] objects are the main place for extension functionality.
 Each method on an extension type is mapped to an extension handler.
 Extension handlers are executed by calling the
-link:{jdbidocs}/core/extension/ExtensionHandler.html#invoke(org.jdbi.v3.core.extension.HandleSupplier,java.lang.Object,java.lang.Object%2e%2e%2e)[ExtensionHandler#invoke()^]
+link:{jdbidocs}/core/extension/ExtensionHandler.html#invoke(org.jdbi.core.extension.HandleSupplier,java.lang.Object,java.lang.Object%2e%2e%2e)[ExtensionHandler#invoke()^]
 method.
 
 This is an example of an extension handler that provides a value whenever a method on the extension type is called:
@@ -8948,9 +8948,9 @@ While it is legal for a factory to accept a method on an extension type and then
 The extension framework provides extension handlers for _interface default methods_ and synthetic methods.
 
 An extension handler for a specific extension type can be either registered globally by adding a factory using the
-link:{jdbidocs}/core/extension/Extensions.html#registerHandlerFactory(org.jdbi.v3.core.extension.ExtensionHandlerFactory)[Extensions#registerHandlerFactory()^]
+link:{jdbidocs}/core/extension/Extensions.html#registerHandlerFactory(org.jdbi.core.extension.ExtensionHandlerFactory)[Extensions#registerHandlerFactory()^]
 method, or it can be returned on the
-link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerFactories()^]
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getExtensionHandlerFactories(org.jdbi.core.config.ConfigRegistry)[ExtensionFactory#getExtensionHandlerFactories()^]
 method of the extension factory for the extension type.
 It can also be configured through an annotation.
 
@@ -8969,9 +8969,9 @@ include::{exampledir}/ExtensionHandlerTest.java[tags=extension-factory]
 
 link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] objects can modify extension handler execution.
 They are either registered globally with the
-link:{jdbidocs}/core/extension/Extensions.html#registerHandlerCustomizer(org.jdbi.v3.core.extension.ExtensionHandlerCustomizer)[Extensions#registerHandlerCustomizer()^]
+link:{jdbidocs}/core/extension/Extensions.html#registerHandlerCustomizer(org.jdbi.core.extension.ExtensionHandlerCustomizer)[Extensions#registerHandlerCustomizer()^]
 and will augment any extension handler, or they can be provided by an extension factory by implementing the
-link:{jdbidocs}/core/extension/ExtensionFactory.html#getConfigCustomizerFactories(org.jdbi.v3.core.config.ConfigRegistry)[ExtensionFactory#getConfigCustomizerFactories()^]
+link:{jdbidocs}/core/extension/ExtensionFactory.html#getConfigCustomizerFactories(org.jdbi.core.config.ConfigRegistry)[ExtensionFactory#getConfigCustomizerFactories()^]
 method.
 
 Here is an example for an extension handler customizer that logs every method handler invocation.
@@ -8989,10 +8989,10 @@ include::{exampledir}/ExtensionHandlerCustomizerTest.java[tags=extension-handler
 [NOTE]
 This is example code.
 Jdbi actually offers better logging facilities with link:{jdbidocs}/core/statement/SqlLogger.html[SqlLogger^] and the
-link:{jdbidocs}/core/statement/SqlStatements.html#setSqlLogger(org.jdbi.v3.core.statement.SqlLogger)[SqlStatements#setSqlLogger()^] method.
+link:{jdbidocs}/core/statement/SqlStatements.html#setSqlLogger(org.jdbi.core.statement.SqlLogger)[SqlStatements#setSqlLogger()^] method.
 
 link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html[ExtensionHandlerCustomizer^] instances usually wrap or replace an existing extension handler.
-They must be stateless and can only modify or operate on the link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] object that was passed into the link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html#customize(org.jdbi.v3.core.extension.ExtensionHandler,java.lang.Class,java.lang.reflect.Method)[ExtensionHandlerCustomizer#customize()^]
+They must be stateless and can only modify or operate on the link:{jdbidocs}/core/extension/ExtensionHandler.html[ExtensionHandler^] object that was passed into the link:{jdbidocs}/core/extension/ExtensionHandlerCustomizer.html#customize(org.jdbi.core.extension.ExtensionHandler,java.lang.Class,java.lang.reflect.Method)[ExtensionHandlerCustomizer#customize()^]
 method.
 
 ==== Config customizers and their factories
@@ -9167,10 +9167,10 @@ Similar to extension handler customizers, configurers either apply to all method
 The meta-annotation provides an implementation of the link:{jdbidocs}/core/extension/ExtensionConfigurer.html[ExtensionConfigurer^].
 
 - the
-link:{jdbidocs}/core/extension/ExtensionConfigurer.html#configureForType(org.jdbi.v3.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class)[ExtensionConfigurer#configureForType()^]
+link:{jdbidocs}/core/extension/ExtensionConfigurer.html#configureForType(org.jdbi.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class)[ExtensionConfigurer#configureForType()^]
 is called if the anntation is placed on the extension type
 - method provides and
-link:{jdbidocs}/core/extension/ExtensionConfigurer.html#configureForMethod(org.jdbi.v3.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class,java.lang.reflect.Method)[ExtensionConfigurer#configureForMethod()^]
+link:{jdbidocs}/core/extension/ExtensionConfigurer.html#configureForMethod(org.jdbi.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class,java.lang.reflect.Method)[ExtensionConfigurer#configureForMethod()^]
 is called when the annotation is placed on an extension type method
 
 These methods are the equivalent of
@@ -9211,7 +9211,7 @@ In the example above, a custom extension configurer is used in combination with 
 [TIP]
 If an extension configurer should behave the same way independent of its position, the implementation should extend
 link:{jdbidocs}/core/extension/SimpleExtensionConfigurer.html[SimpleExtensionConfigurer^] and implement the
-link:{jdbidocs}/core/extension/SimpleExtensionConfigurer.html#configure(org.jdbi.v3.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class)[SimpleExtensionConfigurer#configure()^]
+link:{jdbidocs}/core/extension/SimpleExtensionConfigurer.html#configure(org.jdbi.core.config.ConfigRegistry,java.lang.annotation.Annotation,java.lang.Class)[SimpleExtensionConfigurer#configure()^]
 method.
 
 The <<sql-objects,SQL Object extension>> implements all per-method and per-class registration of specific objects (e.g. link:{jdbidocs}/sqlobject/config/RegisterColumnMapper.html[@RegisterColumnMapper^] or
@@ -9238,20 +9238,20 @@ E.g. the <<sql-objects,SQL Object extension>>
 uses this to add extension handlers for the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] interface methods.
 
 If an extension factory wants to participate in the metadata creation, it needs to implement the
-link:{jdbidocs}/core/extension/ExtensionFactory.html#buildExtensionMetaData(org.jdbi.v3.core.extension.ExtensionMetadata.Builder)[ExtensionFactory#buildExtensionMetadata()^]
+link:{jdbidocs}/core/extension/ExtensionFactory.html#buildExtensionMetaData(org.jdbi.core.extension.ExtensionMetadata.Builder)[ExtensionFactory#buildExtensionMetadata()^]
 method which is called with the extension metadata builder right before the actual metadata object is created.
 See the
 link:{jdbidocs}/core/extension/ExtensionMetadata.Builder.html[ExtensionMetadata.Builder^] documentation for all available methods.
 
 Metadata for an extension type can be retrieved from the link:{jdbidocs}/core/extension/Extensions.html[Extensions configuration object^] by calling the
-link:{jdbidocs}/core/extension/Extensions.html#findMetadata(java.lang.Class,org.jdbi.v3.core.extension.ExtensionFactory)[Extensions#findMetadata()^].
+link:{jdbidocs}/core/extension/Extensions.html#findMetadata(java.lang.Class,org.jdbi.core.extension.ExtensionFactory)[Extensions#findMetadata()^].
 
 A metadata object can create link:{jdbidocs}/core/extension/ExtensionMetadata.ExtensionHandlerInvoker.html[ExtensionHandlerInvoker^] instances for all methods on the extension type that is represents.
 An extension handler invoker binds the actual extension handler instance to a specific configuration object (and the config customizers applied to that configuration object).
 
 The main use case is within an extension type implementation class as it requires a link:{jdbidocs}/core/extension/HandleSupplier.html[HandlerSupplier^]
 instance, which is only available through the
-link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method.
+link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.core.extension.HandleSupplier)[ExtensionFactory#attach()^] method.
 By creating extension handler invokers and metadata manually, an implementation can sidestep all the proxy logic and directly wire up method invocation or redirect invocations between methods.
 The <<generator,jdbi SQL object generator>> uses this mechanism to create implementation classes that do not need the java proxy logic.
 
@@ -9266,7 +9266,7 @@ include::{exampledir}/ExtensionMetadataTest.java[tags=extension]
 
 <2> The extension factory retrieves the metadata for the `ExtensionType` class.
 This call is usually done by the extension framework but can be done manually when implementing the
-link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.v3.core.extension.HandleSupplier)[ExtensionFactory#attach()^].
+link:{jdbidocs}/core/extension/ExtensionFactory.html#attach(java.lang.Class,org.jdbi.core.extension.HandleSupplier)[ExtensionFactory#attach()^].
 
 <3> The extension factory returns an implementation of the extension type.
 
@@ -9533,7 +9533,7 @@ E.g. RowMappers registry delegates to ColumnMappers registry, if it does not hav
 JdbiPlugin can be used to bundle bulk configuration.
 Plugins should be installed via `Jdbi.installPlugin(JdbiPlugin)`.
 
-Jars may provide a file in `META-INF/services/org.jdbi.v3.core.spi.JdbiPlugin`
+Jars may provide a file in `META-INF/services/org.jdbi.core.spi.JdbiPlugin`
 containing the fully qualified class name of your plugin.
 
 In general, Jdbi's separate artifacts each provide a single relevant plugin (e.g. `jdbi3-sqlite`), and such modules will be auto-loadable.
@@ -9619,7 +9619,7 @@ In the above example, the `columns` attribute is defined as `"id, name"`.
 
 Jdbi supports custom template engines through the link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^]
 interface.
-By calling link:{jdbidocs}/core/config/Configurable.html#setTemplateEngine(org.jdbi.v3.core.statement.TemplateEngine)[Configurable#setTemplateEngine()^] method on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the template engine used to render SQL can be changed:
+By calling link:{jdbidocs}/core/config/Configurable.html#setTemplateEngine(org.jdbi.core.statement.TemplateEngine)[Configurable#setTemplateEngine()^] method on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the template engine used to render SQL can be changed:
 
 [source,java,indent=0]
 ----
@@ -9635,7 +9635,7 @@ Jdbi also provides link:{jdbidocs}/stringtemplate4/StringTemplateEngine.html[Str
 See <<stringtemplate4,StringTemplate 4>>.
 
 Template engines interact with the SQL template caching.
-A template engine may implement the link:{jdbidocs}/core/statement/TemplateEngine.html#parse(java.lang.String,org.jdbi.v3.core.config.ConfigRegistry)[TemplateEngine#parse()^] methods to create an intermediary representation of a template that can be used to render a template faster.
+A template engine may implement the link:{jdbidocs}/core/statement/TemplateEngine.html#parse(java.lang.String,org.jdbi.core.config.ConfigRegistry)[TemplateEngine#parse()^] methods to create an intermediary representation of a template that can be used to render a template faster.
 The output of this method will be cached.
 Depending on the implementation, defined attributes may be resolved at parse time and not at render time.
 
@@ -9660,7 +9660,7 @@ Jdbi also provides link:{jdbidocs}/core/statement/HashPrefixSqlParser.html[HashP
 Other custom parsers implement the link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^]
 interface.
 
-By calling link:{jdbidocs}/core/config/Configurable.html#setSqlParser(org.jdbi.v3.core.statement.SqlParser)[Configurable#setSqlParser()^] method on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the parser used to define named arguments can be changed:
+By calling link:{jdbidocs}/core/config/Configurable.html#setSqlParser(org.jdbi.core.statement.SqlParser)[Configurable#setSqlParser()^] method on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the parser used to define named arguments can be changed:
 
 [source,java,indent=0]
 ----
@@ -9744,9 +9744,9 @@ Learn more about https://www.graalvm.org/reference-manual/native-image/[GraalVM 
 === HandleCallbackDecorator
 
 Jdbi allows specifying a decorator that can be applied to all callbacks passed to
-link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle^],
-link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle^],
-link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[useTransaction^], or link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[inTransaction^].
+link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[useHandle^],
+link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[withHandle^],
+link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.core.HandleConsumer)[useTransaction^], or link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.core.HandleCallback)[inTransaction^].
 This is for use-cases where you need to perform an action on all callbacks used in Jdbi.
 For instance, you might want to have global retries whether a transaction is used or not.
 Jdbi already provides retry handlers for transactions, but you might want to retry auto-commit (non-transaction) queries as well.
@@ -9799,7 +9799,7 @@ public class ExampleJdbiPlugin
 
 ==== Nesting Callbacks with managed Handles and Transactions
 
-Jdbi has a number of methods that provide a managed handle or use a managed handle, e.g. link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.v3.core.HandleCallback)[Jdbi#withHandle()^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.v3.core.HandleConsumer)[Jdbi#useHandle()^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.v3.core.HandleCallback)[Jdbi#inTransaction()^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[Jdbi#useTransaction()^], link:{jdbidocs}/core/Handle.html#inTransaction(org.jdbi.v3.core.HandleCallback)[Handle#inTransaction()^], link:{jdbidocs}/core/Handle.html#useTransaction(org.jdbi.v3.core.HandleConsumer)[HandleuseTransaction()^], link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[SqlObject#withHandle()^], link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[SqlObject#useHandle()^] and methods that use the <<SQL Object Transactions>> annotations.
+Jdbi has a number of methods that provide a managed handle or use a managed handle, e.g. link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[Jdbi#withHandle()^], link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[Jdbi#useHandle()^], link:{jdbidocs}/core/Jdbi.html#inTransaction(org.jdbi.core.HandleCallback)[Jdbi#inTransaction()^], link:{jdbidocs}/core/Jdbi.html#useTransaction(org.jdbi.core.HandleConsumer)[Jdbi#useTransaction()^], link:{jdbidocs}/core/Handle.html#inTransaction(org.jdbi.core.HandleCallback)[Handle#inTransaction()^], link:{jdbidocs}/core/Handle.html#useTransaction(org.jdbi.core.HandleConsumer)[HandleuseTransaction()^], link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.core.HandleCallback)[SqlObject#withHandle()^], link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.core.HandleConsumer)[SqlObject#useHandle()^] and methods that use the <<SQL Object Transactions>> annotations.
 
 All of these methods use the same underlying mechanism to reuse the handle object if one of these methods is called from another within a callback.
 In this case, there is *no new handle object or transaction created* but the same Handle object is passed into the nested callback:
@@ -9871,7 +9871,7 @@ General:
 * Maven artifacts renamed and split out:
 * Old: `org.jdbi:jdbi`
 * New: `org.jdbi:jdbi3-core`, `org.jdbi:jdbi3-sqlobject`, etc.
-* Root package renamed: `org.skife.jdbi.v2` -> `org.jdbi.v3`
+* Root package renamed: `org.skife.jdbi.v2` -> `org.jdbi`
 
 Core API:
 

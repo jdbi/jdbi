@@ -16,11 +16,11 @@ package org.jdbi.nativedemo;
 import java.security.SecureRandom;
 import java.util.UUID;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.core.Jdbi;
+import org.jdbi.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.sqlobject.SqlObjectPlugin;
+import org.jdbi.sqlobject.statement.SqlQuery;
+import org.jdbi.sqlobject.statement.SqlUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,1 +1,1 @@
-org.jdbi.v3.cache.caffeine.CaffeineCachePlugin
+org.jdbi.cache.caffeine.CaffeineCachePlugin

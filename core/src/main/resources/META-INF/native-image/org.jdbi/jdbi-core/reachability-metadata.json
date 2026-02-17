@@ -1,0 +1,30 @@
+{
+  "reflection": [
+    {"type":"org.jdbi.core.Handles","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.argument.Arguments","methods":[{"name":"<init>","parameterTypes":["org.jdbi.core.config.ConfigRegistry"]}]},
+    {"type":"org.jdbi.core.array.SqlArrayTypes","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.config.internal.ConfigCaches","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.collector.JdbiCollectors","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.enums.Enums","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.extension.Extensions","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.internal.OnDemandExtensions","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.internal.EnumStrategies","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.RowMappers","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.ColumnMappers","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.Mappers","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.MapEntryMappers","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.MapMapper","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.MapMappers","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.immutables.JdbiImmutables","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.reflect.ReflectionMappers","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.reflect.internal.PojoTypes","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.statement.DefinedAttributeTemplateEngine","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.statement.HashPrefixSqlParser","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.statement.MessageFormatTemplateEngine","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.statement.SqlStatements","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.statement.StatementExceptions","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.qualifier.Qualifiers","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.result.ResultProducers","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.transaction.SerializableTransactionRunner$Configuration","methods":[{"name":"<init>"}]}
+  ]
+}

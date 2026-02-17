@@ -1,0 +1,7 @@
+{
+  "reflection": [
+    {"type":"org.jdbi.stringtemplate4.StringTemplates","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.stringtemplate4.internal.UseStringTemplateEngineImpl","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.stringtemplate4.internal.UseStringTemplateSqlLocatorImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation","java.lang.Class"]}]}
+  ]
+}

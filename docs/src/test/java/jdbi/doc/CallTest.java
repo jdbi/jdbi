@@ -17,11 +17,11 @@ import java.sql.Types;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.locator.ClasspathSqlLocator;
-import org.jdbi.v3.core.statement.Call;
-import org.jdbi.v3.core.statement.OutParameters;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.core.Handle;
+import org.jdbi.core.locator.ClasspathSqlLocator;
+import org.jdbi.core.statement.Call;
+import org.jdbi.core.statement.OutParameters;
+import org.jdbi.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

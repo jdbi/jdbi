@@ -18,10 +18,10 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.core.Handle;
+import org.jdbi.core.Jdbi;
+import org.jdbi.core.mapper.RowMapper;
+import org.jdbi.core.statement.StatementContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

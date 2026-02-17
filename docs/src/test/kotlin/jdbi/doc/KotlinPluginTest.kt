@@ -13,15 +13,15 @@
  */
 package jdbi.doc
 
-import org.jdbi.v3.core.kotlin.mapTo
-import org.jdbi.v3.core.kotlin.useSequence
-import org.jdbi.v3.core.mapper.Nested
-import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
-import org.jdbi.v3.sqlobject.kotlin.onDemand
-import org.jdbi.v3.sqlobject.statement.SqlQuery
-import org.jdbi.v3.sqlobject.statement.SqlUpdate
-import org.jdbi.v3.testing.junit5.JdbiExtension
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers
+import org.jdbi.core.kotlin.mapTo
+import org.jdbi.core.kotlin.useSequence
+import org.jdbi.core.mapper.Nested
+import org.jdbi.sqlobject.kotlin.KotlinSqlObjectPlugin
+import org.jdbi.sqlobject.kotlin.onDemand
+import org.jdbi.sqlobject.statement.SqlQuery
+import org.jdbi.sqlobject.statement.SqlUpdate
+import org.jdbi.testing.junit5.JdbiExtension
+import org.jdbi.testing.junit5.internal.TestingInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

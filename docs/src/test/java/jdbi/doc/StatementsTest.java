@@ -18,10 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.statement.PreparedBatch;
-import org.jdbi.v3.core.statement.Script;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.core.Handle;
+import org.jdbi.core.statement.PreparedBatch;
+import org.jdbi.core.statement.Script;
+import org.jdbi.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

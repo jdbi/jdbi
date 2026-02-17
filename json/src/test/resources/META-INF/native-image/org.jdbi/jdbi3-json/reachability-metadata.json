@@ -1,5 +1,0 @@
-{
-  "reflection": [
-    {"type":{"proxy":["org.jdbi.v3.json.StubJsonMapperTest$FooDao"]}}
-  ]
-}

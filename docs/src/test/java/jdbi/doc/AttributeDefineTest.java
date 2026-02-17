@@ -15,12 +15,12 @@ package jdbi.doc;
 
 import java.util.List;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.customizer.Define;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.core.Jdbi;
+import org.jdbi.sqlobject.SqlObjectPlugin;
+import org.jdbi.sqlobject.customizer.Define;
+import org.jdbi.sqlobject.statement.SqlQuery;
+import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

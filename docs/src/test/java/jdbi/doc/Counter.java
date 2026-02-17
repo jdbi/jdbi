@@ -15,9 +15,9 @@ package jdbi.doc;
 
 import java.util.function.Function;
 
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.codec.Codec;
-import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.core.argument.Argument;
+import org.jdbi.core.codec.Codec;
+import org.jdbi.core.mapper.ColumnMapper;
 
 /**
  * A simple counter class.

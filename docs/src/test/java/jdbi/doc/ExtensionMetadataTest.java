@@ -20,26 +20,26 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.extension.ExtensionFactory;
-import org.jdbi.v3.core.extension.ExtensionHandler;
-import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
-import org.jdbi.v3.core.extension.ExtensionMetadata;
-import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
-import org.jdbi.v3.core.extension.Extensions;
-import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.internal.JdbiClassUtils;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.core.Jdbi;
+import org.jdbi.core.Something;
+import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.extension.ExtensionFactory;
+import org.jdbi.core.extension.ExtensionHandler;
+import org.jdbi.core.extension.ExtensionHandlerFactory;
+import org.jdbi.core.extension.ExtensionMetadata;
+import org.jdbi.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
+import org.jdbi.core.extension.Extensions;
+import org.jdbi.core.extension.HandleSupplier;
+import org.jdbi.core.internal.JdbiClassUtils;
+import org.jdbi.sqlobject.SqlObjectPlugin;
+import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_PROXY;
+import static org.jdbi.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_PROXY;
 
 class ExtensionMetadataTest {
 

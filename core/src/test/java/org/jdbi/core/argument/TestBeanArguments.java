@@ -1,0 +1,277 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jdbi.core.argument;
+
+import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.Types;
+import java.util.Collections;
+import java.util.List;
+
+import org.jdbi.core.generic.GenericType;
+import org.jdbi.core.mapper.reflect.internal.BeanPropertiesFactory;
+import org.jdbi.core.mapper.reflect.internal.PojoProperties;
+import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.statement.StatementContextAccess;
+import org.jdbi.core.statement.UnableToCreateStatementException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+@SuppressWarnings("deprecation")
+public class TestBeanArguments {
+    @Mock
+    PreparedStatement stmt;
+
+    StatementContext ctx = StatementContextAccess.createContext();
+
+    @Test
+    public void testBindBare() throws Exception {
+        new BeanPropertyArguments("", new Foo(BigDecimal.ONE))
+            .find("foo", ctx)
+            .get()
+            .apply(5, stmt, ctx);
+
+        verify(stmt).setBigDecimal(5, BigDecimal.ONE);
+    }
+
+    @Test
+    public void testBindNull() throws Exception {
+        new BeanPropertyArguments("", new Foo(null))
+            .find("foo", ctx)
+            .get()
+            .apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.NUMERIC);
+    }
+
+    public static class Foo {
+        private final BigDecimal foo;
+
+        Foo(BigDecimal foo) {
+            this.foo = foo;
+        }
+
+        public BigDecimal getFoo() {
+            return foo;
+        }
+    }
+
+    @Test
+    public void testBindPrefix() throws Exception {
+        new BeanPropertyArguments("foo", new Bar())
+            .find("foo.bar", ctx)
+            .get()
+            .apply(3, stmt, ctx);
+
+        verify(stmt).setString(3, "baz");
+    }
+
+    public static class Bar {
+        public String getBar() {
+            return "baz";
+        }
+    }
+
+    @Test
+    public void testBindIllegalAccess() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new ThrowsIllegalAccessException()).find("foo.bar", ctx))
+            .isInstanceOf(IllegalAccessException.class);
+    }
+
+    public static class ThrowsIllegalAccessException {
+        public String getBar() throws IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+    }
+
+    @Test
+    public void testBindNoGetter() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new NoGetter()).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    public static class NoGetter {
+        @SuppressWarnings("unused")
+        public void setBar(String bar) {}
+    }
+
+    @Test
+    public void testBindNonPublicGetter() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("foo", new NonPublicGetter()).find("foo.bar", ctx))
+            .isInstanceOf(UnableToCreateStatementException.class);
+    }
+
+    public static class NonPublicGetter {
+        @SuppressWarnings("unused")
+        protected String getBar() {
+            return "baz";
+        }
+
+        @SuppressWarnings("unused")
+        public void setBar(String bar) {}
+    }
+
+    @Test
+    public void testBindNestedOptionalNull() throws Exception {
+        new BeanPropertyArguments("", new FooProperty(null)).find("foo?.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.OTHER);
+    }
+
+    @Test
+    public void testBindNestedNestedOptionalNull() throws Exception {
+        new BeanPropertyArguments("", new FooProperty(null)).find("foo?.bar.id", ctx).get().apply(3, stmt, null);
+
+        verify(stmt).setNull(3, Types.OTHER);
+    }
+
+    @Test
+    public void testBindNestedNestedNull() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+                .find("foo.bar.id", ctx)
+                .get()
+                .apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedNestedWrongOptionalNull1() {
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+            .find("foo.bar?.id", ctx)
+            .get()
+            .apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedNestedWrongOptionalNull2() {
+
+        assertThatThrownBy(() -> new BeanPropertyArguments("", new FooProperty(null))
+            .find("foo.bar.?id", ctx)
+            .get()
+            .apply(3, stmt, null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testBindNestedOptionalNonNull() throws Exception {
+        Object bean = new FooProperty(new IdProperty(69));
+
+        new BeanPropertyArguments("", bean).find("foo?.id", ctx).get().apply(3, stmt, ctx);
+
+        verify(stmt).setLong(3, 69);
+    }
+
+    public static class FooProperty {
+        private final Object foo;
+
+        FooProperty(Object foo) {
+            this.foo = foo;
+        }
+
+        @SuppressWarnings("unused")
+        public Object getFoo() {
+            return foo;
+        }
+    }
+
+    public static class IdProperty {
+        private final long id;
+
+        IdProperty(long id) {
+            this.id = id;
+        }
+
+        public long getId() {
+            return id;
+        }
+    }
+
+    @Test
+    public void testPrivateClass() throws Exception {
+        new ObjectMethodArguments(null, Person.create("hello")).find("name", ctx).get().apply(4, stmt, ctx);
+        verify(stmt).setString(4, "hello");
+    }
+
+    @Test
+    public void testPrivateInterfaceClass() throws Exception {
+        new ObjectMethodArguments(null, Car.create("hello")).find("name", ctx).get().apply(4, stmt, ctx);
+        verify(stmt).setString(4, "hello");
+    }
+
+    public abstract static class Person {
+        public static Person create(String name) {
+            return new PersonImpl(name);
+        }
+
+        public abstract String name();
+
+        private static class PersonImpl extends Person {
+            private String name;
+
+            PersonImpl(String name) {
+                this.name = name;
+            }
+
+            @Override
+            public String name() {
+                return name;
+            }
+        }
+    }
+
+    public interface Car {
+        static Car create(String name) {
+            return new CarImpl(name);
+        }
+
+        String name();
+    }
+
+    private static class CarImpl implements Car {
+        private String name;
+
+        CarImpl(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+    }
+
+    @Test
+    public void testGenericPropertyType() {
+        final PojoProperties<?> props = BeanPropertiesFactory.propertiesFor(GenericBean.class, ctx.getConfig());
+        assertThat(props.getProperties()
+                .get("property")
+                .getQualifiedType()
+                .getType())
+            .isEqualTo(new GenericType<List<String>>() {}.getType());
+    }
+
+    public static class GenericBean<T extends String> {
+        public List<T> getProperty() {
+            return Collections.emptyList();
+        }
+    }
+}

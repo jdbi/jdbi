@@ -13,7 +13,7 @@
  */
 package jdbi.doc;
 
-import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.core.config.JdbiConfig;
 
 // tag::exampleConfig[]
 public class ExampleConfig implements JdbiConfig<ExampleConfig> {

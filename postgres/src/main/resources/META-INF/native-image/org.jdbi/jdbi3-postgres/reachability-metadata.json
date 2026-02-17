@@ -1,5 +1,0 @@
-{
-  "reflection": [
-    {"type":"org.jdbi.v3.postgres.PostgresTypes","methods":[{"name":"<init>"}]}
-  ]
-}

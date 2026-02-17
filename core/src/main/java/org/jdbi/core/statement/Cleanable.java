@@ -1,0 +1,51 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jdbi.core.statement;
+
+import java.sql.SQLException;
+
+/**
+ * Cleans up some JDBC resource e.g. after completing execution of a SQL statement. Arguments, mappers, and other
+ * Jdbi interface implementations that allocate database resources should register a Cleanable to ensure that
+ * resources are freed after database operations are completed.
+ *
+ * @see org.jdbi.core.Handle#addCleanable(Cleanable)
+ * @see StatementContext#addCleanable(Cleanable)
+ */
+@FunctionalInterface
+public interface Cleanable extends AutoCloseable {
+
+    /**
+     * A cleanable that does nothing.
+     *
+     * @since 3.43.0
+     */
+    Cleanable NO_OP = () -> {};
+
+    @Override
+    void close() throws SQLException;
+
+    /**
+     * Cleans the underlying resource and appends possible exceptions to the given {@link Throwable}.
+     *
+     * @param t A {@link Throwable}. Must not be null.
+     */
+    default void closeAndSuppress(Throwable t) {
+        try {
+            close();
+        } catch (SQLException e) {
+            t.addSuppressed(e);
+        }
+    }
+}

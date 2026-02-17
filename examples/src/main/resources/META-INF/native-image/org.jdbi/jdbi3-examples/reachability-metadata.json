@@ -1,5 +1,0 @@
-{
-  "reflection": [
-    {"type":"org.jdbi.v3.examples.auth.AuthenticationExample$AuthenticationHandler","methods":[{"name":"<init>"}]}
-  ]
-}

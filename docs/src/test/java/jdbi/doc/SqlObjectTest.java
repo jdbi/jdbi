@@ -15,16 +15,16 @@ package jdbi.doc;
 
 import java.util.Optional;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.mapper.SomethingMapper;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
-import org.jdbi.v3.sqlobject.customizer.BindBean;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.core.Handle;
+import org.jdbi.core.Something;
+import org.jdbi.core.mapper.SomethingMapper;
+import org.jdbi.sqlobject.SqlObjectPlugin;
+import org.jdbi.sqlobject.config.RegisterRowMapper;
+import org.jdbi.sqlobject.customizer.BindBean;
+import org.jdbi.sqlobject.statement.SqlQuery;
+import org.jdbi.sqlobject.statement.SqlUpdate;
+import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

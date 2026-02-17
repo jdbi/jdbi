@@ -18,12 +18,12 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.argument.AbstractArgumentFactory;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.core.Handle;
+import org.jdbi.core.argument.AbstractArgumentFactory;
+import org.jdbi.core.argument.Argument;
+import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.statement.StatementContext;
+import org.jdbi.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

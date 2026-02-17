@@ -16,13 +16,13 @@ package jdbi.doc;
 import java.util.List;
 import java.util.Objects;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.customizer.BindBean;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.core.Jdbi;
+import org.jdbi.sqlobject.SqlObjectPlugin;
+import org.jdbi.sqlobject.config.RegisterBeanMapper;
+import org.jdbi.sqlobject.customizer.Bind;
+import org.jdbi.sqlobject.customizer.BindBean;
+import org.jdbi.sqlobject.statement.SqlQuery;
+import org.jdbi.sqlobject.statement.SqlUpdate;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

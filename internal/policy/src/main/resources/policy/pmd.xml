@@ -22,7 +22,7 @@
 
     <description>custom rules for jdbi</description>
 
-    <exclude-pattern>.*/org/jdbi/v3/core/internal/lexer/.+Lexer.*</exclude-pattern>
+    <exclude-pattern>.*/org/jdbi/core/internal/lexer/.+Lexer.*</exclude-pattern>
 
     <!-- https://pmd.github.io/pmd/pmd_rules_java.html -->
     <rule ref="category/java/bestpractices.xml">

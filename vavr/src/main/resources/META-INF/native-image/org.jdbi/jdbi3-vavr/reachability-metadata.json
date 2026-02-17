@@ -1,5 +1,0 @@
-{
-  "reflection": [
-    {"type":"org.jdbi.v3.vavr.TupleMappers","methods":[{"name":"<init>"}]}
-  ]
-}

@@ -1,0 +1,23 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.postgres.TestByteaArrays$ByteaDao"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestEnumSets$VideoDao"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestHStore$CampaignDao"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestImmutablesHStore$MappyDao"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestLobStream$Lobject"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestMacAddr$MacAddrDao"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestPostgresTypes$PostgresCustomTypeDAO"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestQualifiedHStore$CampaignDao"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestSqlArrays$ArrayObject"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestSqlArrays$WhereInDao"]}},
+    {"type":{"proxy":["org.jdbi.postgres.TestUuid$UuidObject"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.TestBatchGeneratedKeys$UsesBatching"]}},
+    {"type":{"proxy":["org.jdbi.sqlobject.TestJsonOperator$KeyValueStore"]}},
+    {"type":"org.jdbi.postgres.FooBarPGType","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.postgres.ImmutableMappy"},
+    {"type":"org.postgresql.util.PGmoney","methods":[{"name":"<init>"}]}
+  ],
+  "resources": [
+    {"glob":"**/*.sql.stg"}
+  ]
+}

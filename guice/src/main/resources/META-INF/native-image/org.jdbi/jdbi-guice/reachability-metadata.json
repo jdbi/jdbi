@@ -1,0 +1,9 @@
+{
+  "reflection": [
+    {"type":"com.google.inject.internal.Element"},
+    {"type":"org.jdbi.guice.internal.InternalImportBindingBuilder$InternalBindingProvider","methods":[{"name":"setInjector","parameterTypes":["com.google.inject.Injector"]}]},
+    {"type":"org.jdbi.guice.internal.InternalLooseImportBindingBuilder$InternalBindingProvider","methods":[{"name":"setInjector","parameterTypes":["com.google.inject.Injector"]}]},
+    {"type":"org.jdbi.guice.internal.InternalGuiceJdbiCustomizer","methods":[{"name":"<init>","parameterTypes":["java.util.Set","java.util.Map","java.util.Set","java.util.Map","java.util.Set","java.util.Map","java.util.Set","java.util.Map"]}]},
+    {"type":"org.jdbi.guice.internal.InternalGuiceJdbiFactory","methods":[{"name":"<init>","parameterTypes":["javax.sql.DataSource","java.util.Set"]}]}
+  ]
+}

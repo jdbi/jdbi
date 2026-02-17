@@ -1,5 +1,0 @@
-{
-  "reflection": [
-    {"type":"org.jdbi.v3.gson2.Gson2Config","methods":[{"name":"<init>"}]}
-  ]
-}

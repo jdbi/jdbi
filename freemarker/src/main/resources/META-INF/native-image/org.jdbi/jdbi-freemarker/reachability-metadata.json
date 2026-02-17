@@ -1,0 +1,7 @@
+{
+  "reflection": [
+    {"type":"org.jdbi.freemarker.FreemarkerConfig","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.freemarker.internal.UseFreemarkerEngineImpl","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.freemarker.internal.UseFreemarkerSqlLocatorImpl","methods":[{"name":"<init>"}]}
+  ]
+}

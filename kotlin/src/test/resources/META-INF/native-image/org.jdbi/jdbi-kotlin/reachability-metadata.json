@@ -1,0 +1,28 @@
+{
+  "reflection": [
+    {"type":{"proxy":["org.jdbi.core.kotlin.Jdbi858ExtensionsTest$FooDao"]}},
+    {"type":{"proxy":["org.jdbi.core.kotlin.KotlinPluginTest$ThingDao"]}},
+    {"type":"org.jdbi.core.kotlin.internal.TypeConversionHelper$GenericThing"},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest"},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test21Bean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test21Bean$NestedBean21","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test21FKBean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test21FKBean$NestedBean21FK","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test22Bean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test22Bean$NestedBean22","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test22FKBean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test22FKBean$NestedBean22FK","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test23Bean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test23Bean$NestedBean23","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test24Bean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test24Bean$NestedBean24","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test24FKBean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test24FKBean$NestedBean24FK","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test25Bean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test25Bean$NestedBean25","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test25FKBean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test25FKBean$NestedBean25FK","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test26Bean","allDeclaredFields":true},
+    {"type":"org.jdbi.core.mapper.PropagateNullTest$Test26Bean$NestedBean26","allDeclaredFields":true}
+  ]
+}

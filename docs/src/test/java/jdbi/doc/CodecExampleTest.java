@@ -17,10 +17,10 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import jdbi.doc.Counter.CounterCodec;
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.codec.CodecFactory;
-import org.jdbi.v3.core.qualifier.QualifiedType;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.core.Jdbi;
+import org.jdbi.core.codec.CodecFactory;
+import org.jdbi.core.qualifier.QualifiedType;
+import org.jdbi.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

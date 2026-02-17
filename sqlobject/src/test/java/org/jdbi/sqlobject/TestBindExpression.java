@@ -1,0 +1,95 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jdbi.sqlobject;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+import java.util.Optional;
+
+import org.jdbi.core.Something;
+import org.jdbi.core.mapper.SomethingMapper;
+import org.jdbi.sqlobject.config.RegisterRowMapper;
+import org.jdbi.sqlobject.customizer.BindBean;
+import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.sqlobject.customizer.SqlStatementParameterCustomizer;
+import org.jdbi.sqlobject.statement.SqlBatch;
+import org.jdbi.sqlobject.statement.SqlQuery;
+import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit5.internal.TestingInitializers;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class TestBindExpression {
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+
+    @Test
+    public void testExpression() {
+        DB db = h2Extension.getSharedHandle().attach(DB.class);
+        db.insert(new Something(1, "syrup"), new Something(2, "whipped cream"));
+
+        Something selected = db.findBySpecifier(new SyrupSpecifying());
+
+        assertThat(selected).isEqualTo(new Something(1, "syrup"));
+    }
+
+    @RegisterRowMapper(SomethingMapper.class)
+    public interface DB {
+        @SqlBatch("insert into something (id, name) values(:id, :name)")
+        void insert(@BindBean Something... things);
+
+        @SqlQuery("select id, name from something where name = :breakfast.waffle.topping limit 1")
+        Something findBySpecifier(@BindNameSpecifying("breakfast") SyrupSpecifying b);
+    }
+
+    private static class SyrupSpecifying {
+        private String getNameValue() {
+            return "syrup";
+        }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @SqlStatementCustomizingAnnotation(NameSpecifyingCustomizerFactory.class)
+    private @interface BindNameSpecifying {
+        String value();
+    }
+
+    public static class NameSpecifyingCustomizerFactory implements SqlStatementCustomizerFactory {
+        @Override
+        public SqlStatementParameterCustomizer createForParameter(Annotation annotation,
+                                                                  Class<?> sqlObjectType,
+                                                                  Method method,
+                                                                  Parameter param,
+                                                                  int index,
+                                                                  Type type) {
+            String bindingName = ((BindNameSpecifying) annotation).value();
+            assertThat(bindingName).isEqualTo("breakfast");
+
+            return (stmt, specifier) -> stmt.bindNamedArgumentFinder((paramName, context) -> {
+                assertThat(paramName).isEqualTo("breakfast.waffle.topping");
+
+                SyrupSpecifying syrupSpecifier = (SyrupSpecifying) specifier;
+                return Optional.of((position, statement, ctx) -> statement.setObject(position, syrupSpecifier.getNameValue()));
+            });
+        }
+    }
+}

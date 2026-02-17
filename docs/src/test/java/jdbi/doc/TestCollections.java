@@ -22,10 +22,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.generic.GenericTypes;
-import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.core.Handle;
+import org.jdbi.core.generic.GenericTypes;
+import org.jdbi.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

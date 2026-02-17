@@ -1,0 +1,6 @@
+{
+  "reflection": [
+    {"type":{"proxy":["java.util.stream.Collector"]}},
+    {"type":{"proxy":["org.jdbi.vavr.TestVavrSqlObject$Dao"]}}
+  ]
+}

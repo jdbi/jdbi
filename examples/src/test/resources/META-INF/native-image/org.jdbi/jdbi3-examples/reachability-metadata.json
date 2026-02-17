@@ -1,6 +1,6 @@
 {
   "reflection": [
-    {"type":{"proxy":["org.jdbi.v3.examples.auth.TestAuthenticationExample$DataDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.examples.TestQualifiedTypes$DataDao"]}}
+    {"type":{"proxy":["org.jdbi.examples.auth.TestAuthenticationExample$DataDao"]}},
+    {"type":{"proxy":["org.jdbi.examples.TestQualifiedTypes$DataDao"]}}
   ]
 }

@@ -1,0 +1,71 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jdbi.sqlobject;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.jdbi.core.internal.JdbiClassUtils;
+
+/**
+ * Applies decorations to method handlers, according to any {@link SqlMethodDecoratingAnnotation decorating annotations}
+ * present on the method. If multiple decorating annotations are present, the order of application can be controlled
+ * using the {@link DecoratorOrder} annotation.
+ * <p>
+ * This decorator is registered out of the box and supports the deprecated {@link SqlMethodDecoratingAnnotation} annotations.
+ * </p>
+ */
+class SqlMethodAnnotatedHandlerDecorator implements HandlerDecorator {
+    @Override
+    public Handler decorateHandler(Handler delegate, Class<?> sqlObjectType, Method method) {
+        Handler handler = delegate;
+
+        List<? extends Class<? extends Annotation>> annotationTypes = Stream.of(method, sqlObjectType)
+                .map(AnnotatedElement::getAnnotations)
+                .flatMap(Arrays::stream)
+                .map(Annotation::annotationType)
+                .filter(type -> type.isAnnotationPresent(SqlMethodDecoratingAnnotation.class))
+                .collect(Collectors.toCollection(ArrayList::new)); // must be a mutable list
+
+        SqlObjectAnnotationHelper.findAnnotation(DecoratorOrder.class, method, sqlObjectType)
+                .ifPresent(order -> annotationTypes.sort(createDecoratorComparator(order).reversed()));
+
+        List<? extends HandlerDecorator> decorators = annotationTypes.stream()
+                .map(type -> type.getAnnotation(SqlMethodDecoratingAnnotation.class))
+                .map(a -> JdbiClassUtils.checkedCreateInstance(a.value()))
+                .toList();
+
+        for (HandlerDecorator decorator : decorators) {
+            handler = decorator.decorateHandler(handler, sqlObjectType, method);
+        }
+
+        return handler;
+    }
+
+    private Comparator<Class<? extends Annotation>> createDecoratorComparator(DecoratorOrder order) {
+        List<Class<? extends Annotation>> ordering = Arrays.asList(order.value());
+
+        return Comparator.comparingInt(type -> {
+            int index = ordering.indexOf(type);
+            return index == -1 ? ordering.size() : index;
+        });
+    }
+}

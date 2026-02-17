@@ -1,0 +1,43 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jdbi.json;
+
+import org.jdbi.core.config.JdbiConfig;
+import org.jdbi.json.internal.UnimplementedJsonMapper;
+
+public class JsonConfig implements JdbiConfig<JsonConfig> {
+    private JsonMapper mapper;
+
+    public JsonConfig() {
+        mapper = new UnimplementedJsonMapper();
+    }
+
+    private JsonConfig(JsonConfig other) {
+        this.mapper = other.mapper;
+    }
+
+    public JsonConfig setJsonMapper(JsonMapper jsonMapper) {
+        this.mapper = jsonMapper;
+        return this;
+    }
+
+    public JsonMapper getJsonMapper() {
+        return mapper;
+    }
+
+    @Override
+    public JsonConfig createCopy() {
+        return new JsonConfig(this);
+    }
+}

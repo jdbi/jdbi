@@ -21,10 +21,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.jdbi.v3.core.async.JdbiExecutor;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.jdbi.core.async.JdbiExecutor;
+import org.jdbi.sqlobject.SqlObjectPlugin;
+import org.jdbi.sqlobject.statement.SqlQuery;
+import org.jdbi.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

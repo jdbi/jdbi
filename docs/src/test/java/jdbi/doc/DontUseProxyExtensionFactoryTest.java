@@ -19,24 +19,24 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.Something;
-import org.jdbi.v3.core.extension.ExtensionFactory;
-import org.jdbi.v3.core.extension.Extensions;
-import org.jdbi.v3.core.extension.HandleSupplier;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.Query;
-import org.jdbi.v3.core.statement.StatementContext;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.core.Jdbi;
+import org.jdbi.core.Something;
+import org.jdbi.core.extension.ExtensionFactory;
+import org.jdbi.core.extension.Extensions;
+import org.jdbi.core.extension.HandleSupplier;
+import org.jdbi.core.mapper.RowMapper;
+import org.jdbi.core.statement.Query;
+import org.jdbi.core.statement.StatementContext;
+import org.jdbi.sqlobject.SqlObjectPlugin;
+import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_PROXY;
+import static org.jdbi.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_PROXY;
 
 class DontUseProxyExtensionFactoryTest {
 
