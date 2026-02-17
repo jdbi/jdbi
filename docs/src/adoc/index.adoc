@@ -4829,41 +4829,6 @@ The value will default to the result of calling the method or getting the field.
 
 An example use is to take a list of columns and join them using `,` in order to template in a column list.
 
-==== @DefineList
-
-The link:{jdbidocs}/sqlobject/customizer/DefineList.html[@DefineList^] annotation converts an array or link:{jdkdocs}/java.base/java/util/List.html[List^] argument into a comma-separated string and defines it as a template attribute.
-This is useful for dynamically specifying column names or other SQL fragments that cannot be used as bound parameters.
-
-`@DefineList` uses a template placeholder (the `<name>` notation) similar to link:{jdbidocs}/sqlobject/customizer/Define.html[@Define^]:
-
-[source,java,indent=0]
-----
-public interface UserDao {
-    @SqlQuery("select <columns> from <table> where id = :id")
-    Something findById(@DefineList("columns") List<String> columns,
-                       @Define("table") String table,
-                       @Bind("id") long id);
-}
-----
-
-It can be combined with link:{jdbidocs}/sqlobject/customizer/BindList.html[@BindList^] to dynamically define both the column list and the values:
-
-[source,java,indent=0]
-----
-public interface UserDao {
-    @SqlUpdate("insert into <table> (<columns>) values (<values>)")
-    void insert(@Define("table") String table,
-                @DefineList("columns") List<String> columns,
-                @BindList("values") List<Object> values);
-}
-----
-
-[WARNING]
-Unlike bound parameters, defined attributes are inserted directly into the SQL statement without escaping or sanitization. **Passing untrusted input through `@DefineList` may make your application vulnerable to SQL injection.** Only use values that are under application control such as column or table names defined in code.
-
-[NOTE]
-An empty list or `null` elements in the list will result in an link:{jdkdocs}/java.base/java/lang/IllegalArgumentException.html[IllegalArgumentException^].
-
 [#sqlupdate-getgeneratedkeys]
 ==== @GetGeneratedKeys
 
@@ -8290,6 +8255,12 @@ public interface AccountDao {
 In this example, the SQL template will still be loaded from the template group file
 `com/foo/AccountDao.sql.stg` on the classpath, however the `listSorted`
 template will be used, regardless of the method name.
+
+[NOTE]
+When `@UseStringTemplateSqlLocator` is applied at the type level, it applies to every SQL method on that type, even if that method does not itself declare `@UseStringTemplateSqlLocator`.
+In that case, the value of any SQL method annotation (e.g. `@SqlQuery("...")`) is always interpreted as a template name to locate in the template group file, never as inline SQL -- even if the string looks like a SQL statement.
+If any method in the type should use inline SQL, do not apply `@UseStringTemplateSqlLocator` at the type level; instead, apply it only to those methods that are backed by templates.
+To process inline SQL strings with StringTemplate, use the link:{jdbidocs}/stringtemplate4/UseStringTemplateEngine.html[@UseStringTemplateEngine^] annotation.
 
 There are some options for StringTemplateEngine on the
 link:{jdbidocs}/stringtemplate4/StringTemplates.html[StringTemplates^] configuration class, like whether missing attributes are considered an error or not.
