@@ -5,6 +5,7 @@
 - Retire Apache Derby integration (#2866)
 - Run test suite against Spring Framework 7 (#2919)
 - Add OraclePlugin that sets untyped null argument to Types.NULL for Oracle compatibility (#1003)
+- Support INOUT parameters for stored procedure Call statements (#1606)
 
 # 3.51.0
 
