@@ -21,7 +21,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.locator.ClasspathSqlLocator;
 import org.jdbi.core.statement.Call;
 import org.jdbi.core.statement.OutParameters;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

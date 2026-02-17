@@ -19,7 +19,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.json.AbstractIssue2395Test;
 import org.jdbi.postgres.PostgresPlugin;
 import org.jdbi.sqlobject.SqlObjectPlugin;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 class MoshiIssue2395Test extends AbstractIssue2395Test {

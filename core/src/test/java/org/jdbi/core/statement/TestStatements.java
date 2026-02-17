@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.result.NoResultsException;
 import org.jdbi.core.result.ResultProducers;
 import org.junit.jupiter.api.Test;

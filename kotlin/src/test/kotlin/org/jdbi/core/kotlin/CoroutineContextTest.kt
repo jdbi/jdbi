@@ -26,8 +26,8 @@ import kotlinx.coroutines.withContext
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.core.Handle
 import org.jdbi.core.Jdbi
-import org.jdbi.testing.junit5.JdbiExtension
-import org.jdbi.testing.junit5.internal.TestingInitializers
+import org.jdbi.testing.junit.JdbiExtension
+import org.jdbi.testing.junit.internal.TestingInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

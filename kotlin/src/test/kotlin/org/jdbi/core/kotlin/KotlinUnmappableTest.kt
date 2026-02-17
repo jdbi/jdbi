@@ -15,8 +15,8 @@ package org.jdbi.core.kotlin
 
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.core.annotation.JdbiProperty
-import org.jdbi.core.junit5.H2DatabaseExtension
-import org.jdbi.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER
+import org.jdbi.core.internal.testing.H2DatabaseExtension
+import org.jdbi.core.internal.testing.H2DatabaseExtension.SOMETHING_INITIALIZER
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 

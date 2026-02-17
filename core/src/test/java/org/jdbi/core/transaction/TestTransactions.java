@@ -22,7 +22,7 @@ import java.util.List;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.TemplateEngine;
 import org.junit.jupiter.api.AfterEach;

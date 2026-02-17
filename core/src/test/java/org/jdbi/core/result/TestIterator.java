@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

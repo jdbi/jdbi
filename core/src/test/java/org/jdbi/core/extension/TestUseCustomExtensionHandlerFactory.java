@@ -25,7 +25,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.extension.annotation.UseExtensionHandler;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.Update;

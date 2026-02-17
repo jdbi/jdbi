@@ -31,7 +31,7 @@ import com.google.common.collect.Maps;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
 import org.jdbi.core.argument.NullArgument;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.locator.ClasspathSqlLocator;
 import org.jdbi.core.result.NoResultsException;
 import org.jdbi.core.result.ResultIterable;

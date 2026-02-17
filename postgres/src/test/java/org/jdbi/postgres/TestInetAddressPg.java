@@ -16,7 +16,7 @@ package org.jdbi.postgres;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.argument.TestInetAddressH2;
-import org.jdbi.core.junit5.PgDatabaseExtension;
+import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class TestInetAddressPg extends TestInetAddressH2 { { dbExtension = PgDatabaseExtension.instance(pg).withPlugin(new PostgresPlugin()); }

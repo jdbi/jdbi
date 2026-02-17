@@ -20,7 +20,7 @@ import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
 import org.assertj.core.data.Offset;
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.PgDatabaseExtension;
+import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

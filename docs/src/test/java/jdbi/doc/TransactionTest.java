@@ -37,7 +37,7 @@ import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.sqlobject.statement.SqlUpdate;
 import org.jdbi.sqlobject.transaction.Transaction;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

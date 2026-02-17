@@ -19,8 +19,8 @@ import org.jdbi.core.Handle
 import org.jdbi.core.qualifier.Reversed
 import org.jdbi.core.qualifier.ReversedStringArgumentFactory
 import org.jdbi.core.qualifier.ReversedStringMapper
-import org.jdbi.testing.junit5.JdbiExtension
-import org.jdbi.testing.junit5.internal.TestingInitializers
+import org.jdbi.testing.junit.JdbiExtension
+import org.jdbi.testing.junit.internal.TestingInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

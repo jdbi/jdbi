@@ -19,8 +19,8 @@ import org.jdbi.core.kotlin.KotlinMapperFactory
 import org.jdbi.core.kotlin.bindKotlin
 import org.jdbi.core.kotlin.mapTo
 import org.jdbi.sqlobject.kotlin.KotlinSqlObjectPlugin
-import org.jdbi.testing.junit5.JdbiExtension
-import org.jdbi.testing.junit5.internal.TestingInitializers
+import org.jdbi.testing.junit.JdbiExtension
+import org.jdbi.testing.junit.internal.TestingInitializers
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -23,7 +23,7 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
-import org.jdbi.core.junit5.PgDatabaseExtension;
+import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.jdbi.core.result.BatchResultBearing;
 import org.jdbi.core.result.ResultIterator;
 import org.junit.jupiter.api.Test;

@@ -17,7 +17,7 @@ package org.jdbi.core.mapper.reflect;
 import jakarta.annotation.Nullable;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.Nested;
 import org.jdbi.core.mapper.PropagateNull;
 import org.jdbi.core.mapper.reflect.ConstructorMapperTest.ClassPropagateNullThing;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jdbi.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER;
+import static org.jdbi.core.internal.testing.H2DatabaseExtension.SOMETHING_INITIALIZER;
 
 public class BeanMapperPropagateNullableTest {
 

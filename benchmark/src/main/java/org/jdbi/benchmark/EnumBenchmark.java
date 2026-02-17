@@ -13,13 +13,12 @@
  */
 package org.jdbi.benchmark;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.jdbi.core.Jdbi;
-import org.jdbi.testing.JdbiRule;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -29,7 +28,6 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 @State(Scope.Benchmark)
@@ -39,16 +37,13 @@ import org.openjdk.jmh.annotations.Warmup;
 @OutputTimeUnit(TimeUnit.SECONDS)
 @Fork(1)
 public class EnumBenchmark {
-    private JdbiRule db;
     private Jdbi jdbi;
 
-    private ThreadLocalRandom random = ThreadLocalRandom.current();
+    private SecureRandom random = new SecureRandom();
 
     @Setup
     public void setup() throws Throwable {
-        db = JdbiRule.h2();
-        db.before();
-        jdbi = db.getJdbi();
+        jdbi = BenchmarkSupport.h2();
         jdbi.useHandle(h -> {
             h.execute("create table sensitive (value varchar)");
             h.execute("create table insensitive (value varchar)");
@@ -68,11 +63,6 @@ public class EnumBenchmark {
             .toString();
     }
 
-    @TearDown
-    public void close() {
-        db.after();
-    }
-
     @Benchmark
     public List<SwedishChef> mapEnumCaseInsensitive() {
         return run("insensitive");
@@ -83,7 +73,7 @@ public class EnumBenchmark {
         return run("sensitive");
     }
 
-    private List<SwedishChef> run(String table) {
+    private List<SwedishChef> run(final String table) {
         return jdbi.withHandle(h -> h.createQuery("select value from " + table).mapTo(SwedishChef.class).list());
     }
 

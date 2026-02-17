@@ -16,7 +16,7 @@ package org.jdbi.postgres;
 import com.pgvector.PGhalfvec;
 import com.pgvector.PGsparsevec;
 import com.pgvector.PGvector;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;

@@ -15,7 +15,7 @@ package org.jdbi.core.argument;
 
 import java.util.List;
 
-import org.jdbi.core.junit5.SqliteDatabaseExtension;
+import org.jdbi.core.internal.testing.SqliteDatabaseExtension;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.UnableToCreateStatementException;
