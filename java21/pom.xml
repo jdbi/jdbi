@@ -17,46 +17,46 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-java21</artifactId>
+    <artifactId>jdbi-java21</artifactId>
 
-    <name>jdbi3 - internal - java21</name>
-    <description>jdbi3 for Java 21 or better</description>
+    <name>jdbi - internal - java21</name>
+    <description>jdbi for Java 21 or better</description>
 
     <properties>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.install.skip>true</basepom.install.skip>
         <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
-        <moduleName>org.jdbi.v3.java21</moduleName>
+        <moduleName>org.jdbi.java21</moduleName>
         <project.build.targetJdk>21</project.build.targetJdk>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-opentelemetry</artifactId>
+            <artifactId>jdbi-opentelemetry</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
             <scope>test</scope>
         </dependency>
 

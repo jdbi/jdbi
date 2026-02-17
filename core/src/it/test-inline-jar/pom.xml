@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>jdbi3-parent</artifactId>
+        <artifactId>jdbi-parent</artifactId>
         <groupId>org.jdbi.internal</groupId>
         <version>@project.version@</version>
     </parent>
@@ -30,13 +30,13 @@
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -117,7 +117,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <dependenciesToScan>
-                        <dependency>org.jdbi:jdbi3-core:*:tests</dependency>
+                        <dependency>org.jdbi:jdbi-core:*:tests</dependency>
                     </dependenciesToScan>
                 </configuration>
             </plugin>

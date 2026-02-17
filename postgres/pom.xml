@@ -17,33 +17,33 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-postgres</artifactId>
+    <artifactId>jdbi-postgres</artifactId>
 
-    <name>jdbi3 postgres</name>
+    <name>jdbi postgres</name>
     <description>Support for additional PostgreSQL features and data types.</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.postgres</moduleName>
+        <moduleName>org.jdbi.postgres</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-json</artifactId>
+            <artifactId>jdbi-json</artifactId>
             <optional>true</optional>
         </dependency>
 
@@ -67,23 +67,23 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-stringtemplate4</artifactId>
+            <artifactId>jdbi-stringtemplate4</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testcontainers</artifactId>
+            <artifactId>jdbi-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
 

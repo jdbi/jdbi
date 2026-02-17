@@ -17,26 +17,26 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-testing</artifactId>
+    <artifactId>jdbi-testing</artifactId>
 
-    <name>jdbi3 testing</name>
+    <name>jdbi testing</name>
     <description>Support for testing frameworks. Provides integration to spin up and access databases using Jdbi in unit tests.
 
         Currently supports JUnit 4 and JUnit 5.</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.testing</moduleName>
+        <moduleName>org.jdbi.testing</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
 
         <dependency>

@@ -17,24 +17,24 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-sqlite</artifactId>
+    <artifactId>jdbi-sqlite</artifactId>
 
-    <name>jdbi3 sqlite</name>
+    <name>jdbi sqlite</name>
     <description>Support for additional SQLite data types.</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.sqlite</moduleName>
+        <moduleName>org.jdbi.sqlite</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
 
         <dependency>

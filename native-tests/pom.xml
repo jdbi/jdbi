@@ -17,13 +17,13 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jdbi3-native-tests</artifactId>
+    <artifactId>jdbi-native-tests</artifactId>
 
-    <name>jdbi3 - internal - native-image testing suite</name>
+    <name>jdbi - internal - native-image testing suite</name>
     <description>Tests for the full Jdbi code base in GraalVM native image</description>
 
     <properties>
@@ -33,43 +33,43 @@
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.install.skip>true</basepom.install.skip>
         <basepom.test.skip>${jdbi.skip.native}</basepom.test.skip>
-        <moduleName>org.jdbi.v3.nativetests</moduleName>
+        <moduleName>org.jdbi.nativetests</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-caffeine-cache</artifactId>
+            <artifactId>jdbi-caffeine-cache</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-commons-text</artifactId>
+            <artifactId>jdbi-commons-text</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-freemarker</artifactId>
+            <artifactId>jdbi-freemarker</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-gson2</artifactId>
+            <artifactId>jdbi-gson2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guava</artifactId>
+            <artifactId>jdbi-guava</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guice</artifactId>
+            <artifactId>jdbi-guice</artifactId>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -80,226 +80,226 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jackson2</artifactId>
+            <artifactId>jdbi-jackson2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jodatime2</artifactId>
+            <artifactId>jdbi-jodatime2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jpa</artifactId>
+            <artifactId>jdbi-jpa</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-json</artifactId>
+            <artifactId>jdbi-json</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-kotlin</artifactId>
+            <artifactId>jdbi-kotlin</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-kotlin-sqlobject</artifactId>
+            <artifactId>jdbi-kotlin-sqlobject</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-moshi</artifactId>
+            <artifactId>jdbi-moshi</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-noop-cache</artifactId>
+            <artifactId>jdbi-noop-cache</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-opentelemetry</artifactId>
+            <artifactId>jdbi-opentelemetry</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
+            <artifactId>jdbi-postgres</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-spring</artifactId>
+            <artifactId>jdbi-spring</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlite</artifactId>
+            <artifactId>jdbi-sqlite</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-stringtemplate4</artifactId>
+            <artifactId>jdbi-stringtemplate4</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testcontainers</artifactId>
+            <artifactId>jdbi-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-vavr</artifactId>
+            <artifactId>jdbi-vavr</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-caffeine-cache</artifactId>
+            <artifactId>jdbi-caffeine-cache</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-commons-text</artifactId>
+            <artifactId>jdbi-commons-text</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-freemarker</artifactId>
+            <artifactId>jdbi-freemarker</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guava</artifactId>
+            <artifactId>jdbi-guava</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guice</artifactId>
+            <artifactId>jdbi-guice</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jackson2</artifactId>
+            <artifactId>jdbi-jackson2</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jodatime2</artifactId>
+            <artifactId>jdbi-jodatime2</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jpa</artifactId>
+            <artifactId>jdbi-jpa</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-json</artifactId>
+            <artifactId>jdbi-json</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-kotlin</artifactId>
+            <artifactId>jdbi-kotlin</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-kotlin-sqlobject</artifactId>
+            <artifactId>jdbi-kotlin-sqlobject</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-moshi</artifactId>
+            <artifactId>jdbi-moshi</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-noop-cache</artifactId>
+            <artifactId>jdbi-noop-cache</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
+            <artifactId>jdbi-postgres</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-spring</artifactId>
+            <artifactId>jdbi-spring</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlite</artifactId>
+            <artifactId>jdbi-sqlite</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-stringtemplate4</artifactId>
+            <artifactId>jdbi-stringtemplate4</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-vavr</artifactId>
+            <artifactId>jdbi-vavr</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

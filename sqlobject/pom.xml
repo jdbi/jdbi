@@ -17,14 +17,14 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-sqlobject</artifactId>
+    <artifactId>jdbi-sqlobject</artifactId>
 
-    <name>jdbi3 sqlobject</name>
+    <name>jdbi sqlobject</name>
     <description>SqlObject is a declarative, annotation-driven API
         for database access. It complements the core API.
 
@@ -35,13 +35,13 @@
         named parameter support for any database that supports JDBC.</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.sqlobject</moduleName>
+        <moduleName>org.jdbi.sqlobject</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
 
         <dependency>
@@ -51,14 +51,14 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -88,7 +88,7 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guava</artifactId>
+            <artifactId>jdbi-guava</artifactId>
             <scope>test</scope>
         </dependency>
 

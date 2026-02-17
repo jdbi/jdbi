@@ -17,16 +17,16 @@
 
     <parent>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-build-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-build-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
         <relativePath>internal/build</relativePath>
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
-    <artifactId>jdbi3-parent</artifactId>
+    <artifactId>jdbi-parent</artifactId>
     <packaging>pom</packaging>
 
-    <name>jdbi3 build parent</name>
+    <name>jdbi build parent</name>
     <description>Jdbi 3 is designed to provide convenient tabular data access in
         Java(tm) and other JVM based languages.
         It uses the Java collections framework for query results,
@@ -99,7 +99,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-bom</artifactId>
+                <artifactId>jdbi-bom</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>

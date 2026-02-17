@@ -24,11 +24,11 @@
     </parent>
 
     <groupId>org.jdbi.internal</groupId>
-    <artifactId>jdbi3-root</artifactId>
-    <version>3.52.0-SNAPSHOT</version>
+    <artifactId>jdbi-root</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>jdbi3 - internal - root</name>
+    <name>jdbi - internal - root</name>
     <description>Jdbi3 build root. This is a Jdbi internal module and not part of the public API.</description>
 
     <properties>

@@ -17,33 +17,33 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-e2e</artifactId>
+    <artifactId>jdbi-e2e</artifactId>
 
-    <name>jdbi3 - internal - end-to-end testing suite</name>
+    <name>jdbi - internal - end-to-end testing suite</name>
     <description>Tests for the full Jdbi code base</description>
 
     <properties>
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <basepom.install.skip>true</basepom.install.skip>
         <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
-        <moduleName>org.jdbi.v3.e2e</moduleName>
+        <moduleName>org.jdbi.e2e</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
 

@@ -17,28 +17,28 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-moshi</artifactId>
+    <artifactId>jdbi-moshi</artifactId>
 
-    <name>jdbi3 moshi</name>
+    <name>jdbi moshi</name>
     <description>Use Square Moshi for JSON column serialization/deserialization.</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.moshi</moduleName>
+        <moduleName>org.jdbi.moshi</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-json</artifactId>
+            <artifactId>jdbi-json</artifactId>
         </dependency>
 
         <dependency>
@@ -48,34 +48,34 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-json</artifactId>
+            <artifactId>jdbi-json</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
+            <artifactId>jdbi-postgres</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
+            <artifactId>jdbi-postgres</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>

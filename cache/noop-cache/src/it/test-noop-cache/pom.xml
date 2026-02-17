@@ -17,7 +17,7 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
+        <artifactId>jdbi-parent</artifactId>
         <version>@project.version@</version>
     </parent>
 
@@ -30,19 +30,19 @@
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-noop-cache</artifactId>
+            <artifactId>jdbi-noop-cache</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -123,10 +123,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <dependenciesToScan>
-                        <dependency>org.jdbi:jdbi3-core:*:tests</dependency>
+                        <dependency>org.jdbi:jdbi-core:*:tests</dependency>
                     </dependenciesToScan>
                     <systemPropertyVariables combine.children="append">
-                        <jdbi.test.cache-plugin>org.jdbi.v3.cache.noop.NoopCachePlugin</jdbi.test.cache-plugin>
+                        <jdbi.test.cache-plugin>org.jdbi.cache.noop.NoopCachePlugin</jdbi.test.cache-plugin>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

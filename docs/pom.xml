@@ -17,14 +17,14 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-docs</artifactId>
+    <artifactId>jdbi-docs</artifactId>
 
-    <name>jdbi3 - internal - documentation</name>
+    <name>jdbi - internal - documentation</name>
     <description>Source, build system and examples for https://jdbi.org/</description>
 
     <properties>
@@ -41,7 +41,7 @@
         <basepom.site.scm.skip-deploy>false</basepom.site.scm.skip-deploy>
         <basepom.site.scm.url>scm:git:git@github.com:jdbi/jdbi.github.io.git</basepom.site.scm.url>
         <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
-        <moduleName>org.jdbi.v3.docs</moduleName>
+        <moduleName>org.jdbi.docs</moduleName>
     </properties>
 
     <dependencies>
@@ -51,35 +51,35 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-caffeine-cache</artifactId>
+            <artifactId>jdbi-caffeine-cache</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-commons-text</artifactId>
+            <artifactId>jdbi-commons-text</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-freemarker</artifactId>
+            <artifactId>jdbi-freemarker</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-generator</artifactId>
+            <artifactId>jdbi-generator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-gson2</artifactId>
+            <artifactId>jdbi-gson2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guava</artifactId>
+            <artifactId>jdbi-guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guice</artifactId>
+            <artifactId>jdbi-guice</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>aopalliance</groupId>
@@ -89,55 +89,55 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jackson2</artifactId>
+            <artifactId>jdbi-jackson2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jodatime2</artifactId>
+            <artifactId>jdbi-jodatime2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-jpa</artifactId>
+            <artifactId>jdbi-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-json</artifactId>
+            <artifactId>jdbi-json</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-kotlin</artifactId>
+            <artifactId>jdbi-kotlin</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-kotlin-sqlobject</artifactId>
+            <artifactId>jdbi-kotlin-sqlobject</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-moshi</artifactId>
+            <artifactId>jdbi-moshi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-noop-cache</artifactId>
+            <artifactId>jdbi-noop-cache</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-opentelemetry</artifactId>
+            <artifactId>jdbi-opentelemetry</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-oracle12</artifactId>
+            <artifactId>jdbi-oracle12</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgis</artifactId>
+            <artifactId>jdbi-postgis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
+            <artifactId>jdbi-postgres</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-spring</artifactId>
+            <artifactId>jdbi-spring</artifactId>
             <!--- it is always spring. always. -->
             <exclusions>
                 <exclusion>
@@ -148,7 +148,7 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-spring5</artifactId>
+            <artifactId>jdbi-spring5</artifactId>
             <!--- it is always spring. always. -->
             <exclusions>
                 <exclusion>
@@ -159,27 +159,27 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlite</artifactId>
+            <artifactId>jdbi-sqlite</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-stringtemplate4</artifactId>
+            <artifactId>jdbi-stringtemplate4</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testcontainers</artifactId>
+            <artifactId>jdbi-testcontainers</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-vavr</artifactId>
+            <artifactId>jdbi-vavr</artifactId>
         </dependency>
 
         <dependency>
@@ -272,21 +272,21 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
+            <artifactId>jdbi-postgres</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -418,8 +418,8 @@
                                         <dependencySourceInclude>org.jdbi:*</dependencySourceInclude>
                                     </dependencySourceIncludes>
                                     <dependencySourceExcludes>
-                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin</dependencySourceExclude>
-                                        <dependencySourceExclude>org.jdbi:jdbi3-kotlin-sqlobject</dependencySourceExclude>
+                                        <dependencySourceExclude>org.jdbi:jdbi-kotlin</dependencySourceExclude>
+                                        <dependencySourceExclude>org.jdbi:jdbi-kotlin-sqlobject</dependencySourceExclude>
                                     </dependencySourceExcludes>
                                 </configuration>
                             </execution>
@@ -435,7 +435,7 @@
                                 </goals>
                                 <phase>validate</phase>
                                 <configuration>
-                                    <outputDirectory>${project.build.directory}/generated-docs/apidocs-kotlin/jdbi3-kotlin</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/generated-docs/apidocs-kotlin/jdbi-kotlin</outputDirectory>
                                     <resources>
                                         <resource>
                                             <directory>../kotlin/target/dokka</directory>
@@ -450,7 +450,7 @@
                                 </goals>
                                 <phase>validate</phase>
                                 <configuration>
-                                    <outputDirectory>${project.build.directory}/generated-docs/apidocs-kotlin/jdbi3-kotlin-sqlobject</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/generated-docs/apidocs-kotlin/jdbi-kotlin-sqlobject</outputDirectory>
                                     <resources>
                                         <resource>
                                             <directory>../kotlin-sqlobject/target/dokka</directory>
@@ -487,7 +487,7 @@
                                 <ignorePathToDelete>releases</ignorePathToDelete>
                                 <ignorePathToDelete>.github</ignorePathToDelete>
                                 <ignorePathToDelete>README.md</ignorePathToDelete>
-                                <!-- do not clobber the module (jdbi3-oracle12 and friends) sites -->
+                                <!-- do not clobber the module (jdbi-oracle12 and friends) sites -->
                                 <ignorePathToDelete>modules</ignorePathToDelete>
                             </ignorePathsToDelete>
                         </configuration>

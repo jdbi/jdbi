@@ -17,16 +17,16 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-root</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-root</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
         <relativePath>../root</relativePath>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-build-parent</artifactId>
+    <artifactId>jdbi-build-parent</artifactId>
     <packaging>pom</packaging>
 
-    <name>jdbi3 - internal - build parent</name>
+    <name>jdbi - internal - build parent</name>
     <description>Jdbi3 build settings. This is a Jdbi internal module and not part of the public API.</description>
 
     <properties>
@@ -72,7 +72,7 @@
         <dep.jakarta-annotation-api.version>3.0.0</dep.jakarta-annotation-api.version>
         <dep.jakarta-inject-api.version>2.0.1.MR</dep.jakarta-inject-api.version>
         <dep.javax-inject.version>1</dep.javax-inject.version>
-        <dep.jdbi-policy.version>3.52.0-SNAPSHOT</dep.jdbi-policy.version>
+        <dep.jdbi-policy.version>4.0.0-SNAPSHOT</dep.jdbi-policy.version>
         <dep.jetbrainsAnnotations.version>26.0.2-1</dep.jetbrainsAnnotations.version>
         <dep.jfrunit.version>1.0.0.Alpha2</dep.jfrunit.version>
         <dep.joda-time.version>2.14.0</dep.joda-time.version>
@@ -832,7 +832,7 @@
                     <dependencies>
                         <dependency>
                             <groupId>org.jdbi.internal</groupId>
-                            <artifactId>jdbi3-policy</artifactId>
+                            <artifactId>jdbi-policy</artifactId>
                             <version>${dep.jdbi-policy.version}</version>
                         </dependency>
                         <dependency>
@@ -862,7 +862,7 @@
                     <dependencies>
                         <dependency>
                             <groupId>org.jdbi.internal</groupId>
-                            <artifactId>jdbi3-policy</artifactId>
+                            <artifactId>jdbi-policy</artifactId>
                             <version>${dep.jdbi-policy.version}</version>
                         </dependency>
                     </dependencies>
@@ -879,7 +879,7 @@
                     <dependencies>
                         <dependency>
                             <groupId>org.jdbi.internal</groupId>
-                            <artifactId>jdbi3-policy</artifactId>
+                            <artifactId>jdbi-policy</artifactId>
                             <version>${dep.jdbi-policy.version}</version>
                         </dependency>
                     </dependencies>
@@ -898,7 +898,7 @@
                     <dependencies>
                         <dependency>
                             <groupId>org.jdbi.internal</groupId>
-                            <artifactId>jdbi3-policy</artifactId>
+                            <artifactId>jdbi-policy</artifactId>
                             <version>${dep.jdbi-policy.version}</version>
                         </dependency>
                     </dependencies>
@@ -925,7 +925,7 @@
                     <version>${dep.plugin.inline.version}</version>
 
                     <configuration>
-                        <prefix>org.jdbi.v3.inlined</prefix>
+                        <prefix>org.jdbi.inlined</prefix>
                         <hideClasses>true</hideClasses>
                     </configuration>
                 </plugin>
@@ -945,8 +945,8 @@
 
                             <excludes>
                                 <exclude>*.internal.*</exclude>
-                                <exclude>@org.jdbi.v3.meta.Alpha</exclude>
-                                <exclude>@org.jdbi.v3.meta.Beta</exclude>
+                                <exclude>@org.jdbi.meta.Alpha</exclude>
+                                <exclude>@org.jdbi.meta.Beta</exclude>
                             </excludes>
                         </parameter>
 
@@ -988,7 +988,7 @@
                         <!-- exclude "slow" group by default -->
                         <groups />
                         <!-- junit 4 and 5 -->
-                        <excludedGroups>slow,org.jdbi.v3.testing.SlowTests</excludedGroups>
+                        <excludedGroups>slow,org.jdbi.testing.SlowTests</excludedGroups>
                         <systemPropertyVariables combine.children="override">
                             <pg-embedded.postgres-version>${jdbi.test.pg-version}</pg-embedded.postgres-version>
                             <jdbi.test.mysql-version>${jdbi.test.mysql-version}</jdbi.test.mysql-version>
@@ -1011,7 +1011,7 @@
                     <configuration>
                         <scope>test</scope>
                         <extraArtifacts>
-                            <extraArtifact>org.jdbi:jdbi3-bom:${project.version}:pom</extraArtifact>
+                            <extraArtifact>org.jdbi:jdbi-bom:${project.version}:pom</extraArtifact>
                         </extraArtifacts>
                     </configuration>
                 </plugin>

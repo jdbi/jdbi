@@ -28,11 +28,11 @@
         <property name="url" value="jdbc:h2:mem:testing;INIT=create table if not exists something ( id integer, name varchar(50), integerValue integer, intValue integer )" />
     </bean>
 
-    <bean id="myJdbi" class="org.jdbi.v3.spring5.JdbiFactoryBean">
+    <bean id="myJdbi" class="org.jdbi.spring5.JdbiFactoryBean">
         <property name="dataSource" ref="db"/>
         <property name="plugins">
             <list>
-                <bean class="org.jdbi.v3.sqlobject.SqlObjectPlugin"/>
+                <bean class="org.jdbi.sqlobject.SqlObjectPlugin"/>
             </list>
         </property>
     </bean>

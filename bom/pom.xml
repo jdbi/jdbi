@@ -17,192 +17,192 @@
 
     <parent>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-build-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-build-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
         <relativePath>../internal/build</relativePath>
     </parent>
 
-    <artifactId>jdbi3-bom</artifactId>
+    <artifactId>jdbi-bom</artifactId>
     <packaging>pom</packaging>
 
-    <name>jdbi3 bom</name>
+    <name>jdbi bom</name>
     <description>Jdbi Bill of Materials (BOM). Import this module into a project to get a list of all public modules with a specific version.</description>
 
     <properties>
-        <dep.jdbi3.version>3.52.0-SNAPSHOT</dep.jdbi3.version>
-        <moduleName>org.jdbi.v3.bom</moduleName>
+        <dep.jdbi.version>4.0.0-SNAPSHOT</dep.jdbi.version>
+        <moduleName>org.jdbi.bom</moduleName>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-caffeine-cache</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-caffeine-cache</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-commons-text</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-commons-text</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-core</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-core</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-core</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-core</artifactId>
+                <version>${dep.jdbi.version}</version>
                 <classifier>tests</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-freemarker</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-freemarker</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-generator</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-generator</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-gson2</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-gson2</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-guava</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-guava</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-guice</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-guice</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-jackson2</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-jackson2</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-jackson3</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-jackson3</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-jodatime2</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-jodatime2</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-jpa</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-jpa</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-json</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-json</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-json</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-json</artifactId>
+                <version>${dep.jdbi.version}</version>
                 <classifier>tests</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-kotlin</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-kotlin</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-kotlin-sqlobject</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-kotlin-sqlobject</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-moshi</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-moshi</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-noop-cache</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-noop-cache</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-opentelemetry</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-opentelemetry</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-oracle12</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-oracle12</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-postgis</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-postgis</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-postgres</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-postgres</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-postgres</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-postgres</artifactId>
+                <version>${dep.jdbi.version}</version>
                 <classifier>tests</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-spring</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-spring5</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-spring5</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-sqlite</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-sqlite</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-sqlobject</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-sqlobject</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-sqlobject</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-sqlobject</artifactId>
+                <version>${dep.jdbi.version}</version>
                 <classifier>tests</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-stringtemplate4</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-stringtemplate4</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-testcontainers</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-testcontainers</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-testing</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-testing</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-vavr</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-vavr</artifactId>
+                <version>${dep.jdbi.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

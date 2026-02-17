@@ -17,24 +17,24 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-opentelemetry</artifactId>
+    <artifactId>jdbi-opentelemetry</artifactId>
 
-    <name>jdbi3 open telemetry</name>
+    <name>jdbi open telemetry</name>
     <description>Use OpenTelemetry for distributed tracing</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.opentelemetry</moduleName>
+        <moduleName>org.jdbi.opentelemetry</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
@@ -47,7 +47,7 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
 

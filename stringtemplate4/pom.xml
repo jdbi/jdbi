@@ -17,29 +17,29 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-stringtemplate4</artifactId>
+    <artifactId>jdbi-stringtemplate4</artifactId>
 
-    <name>jdbi3 stringtemplate4</name>
+    <name>jdbi stringtemplate4</name>
     <description>Use Stringtemplate 4 for query templating.</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.stringtemplate4</moduleName>
+        <moduleName>org.jdbi.stringtemplate4</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
             <optional>true</optional>
         </dependency>
 
@@ -50,13 +50,13 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -75,7 +75,7 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-guava</artifactId>
+            <artifactId>jdbi-guava</artifactId>
             <scope>test</scope>
         </dependency>
 

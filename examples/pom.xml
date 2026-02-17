@@ -17,36 +17,36 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-examples</artifactId>
+    <artifactId>jdbi-examples</artifactId>
 
-    <name>jdbi3 examples</name>
+    <name>jdbi examples</name>
     <description>Jdbi code examples.</description>
 
     <properties>
         <!-- not an API module -->
         <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
-        <moduleName>org.jdbi.v3.examples</moduleName>
+        <moduleName>org.jdbi.examples</moduleName>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
+            <artifactId>jdbi-postgres</artifactId>
         </dependency>
 
         <dependency>
@@ -73,7 +73,7 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

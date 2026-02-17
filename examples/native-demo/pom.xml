@@ -24,10 +24,10 @@
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-graalvm-demo</artifactId>
+    <artifactId>jdbi-graalvm-demo</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>jdbi3-graalvm-demo</name>
+    <name>jdbi-graalvm-demo</name>
     <description>Demo code for using Jdbi 3 with GraalVM and native compilation</description>
 
     <url>https://jdbi.org/</url>
@@ -51,20 +51,20 @@
     <properties>
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <dep.h2.version>2.3.232</dep.h2.version>
-        <dep.jdbi3.version>3.49.3</dep.jdbi3.version>
+        <dep.jdbi.version>3.49.3</dep.jdbi.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
         <dep.plugin.native.version>0.10.6</dep.plugin.native.version>
         <project.build.targetJdk>21</project.build.targetJdk>
         <basepom.main-class>org.jdbi.nativedemo.NativeMain</basepom.main-class>
-        <basepom.executable.name>jdbi3-graalvm-jit-executable</basepom.executable.name>
+        <basepom.executable.name>jdbi-graalvm-jit-executable</basepom.executable.name>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-bom</artifactId>
-                <version>${dep.jdbi3.version}</version>
+                <artifactId>jdbi-bom</artifactId>
+                <version>${dep.jdbi.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -92,12 +92,12 @@
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
         </dependency>
 
         <dependency>
@@ -135,7 +135,7 @@
                     <version>${dep.plugin.native.version}</version>
                     <configuration>
                         <mainClass>org.jdbi.nativedemo.NativeMain</mainClass>
-                        <imageName>jdbi3-graalvm-aot-executable</imageName>
+                        <imageName>jdbi-graalvm-aot-executable</imageName>
                         <buildArgs>
                             <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                         </buildArgs>

@@ -17,14 +17,14 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-vavr</artifactId>
+    <artifactId>jdbi-vavr</artifactId>
 
-    <name>jdbi3 vavr</name>
+    <name>jdbi vavr</name>
     <description>Support for vavr datatypes.
 
         Vavr is a functional programming library for the JVM.
@@ -32,7 +32,7 @@
         immutable datastructures to the Java World</description>
 
     <properties>
-        <moduleName>org.jdbi.v3.vavr</moduleName>
+        <moduleName>org.jdbi.vavr</moduleName>
     </properties>
 
     <dependencies>
@@ -43,11 +43,11 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -66,13 +66,13 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -17,14 +17,14 @@
 
     <parent>
         <groupId>org.jdbi.internal</groupId>
-        <artifactId>jdbi3-parent</artifactId>
-        <version>3.52.0-SNAPSHOT</version>
+        <artifactId>jdbi-parent</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-benchmark</artifactId>
+    <artifactId>jdbi-benchmark</artifactId>
 
-    <name>jdbi3 - internal - benchmark suite</name>
+    <name>jdbi - internal - benchmark suite</name>
 
     <properties>
         <basepom.check.skip-checkstyle>true</basepom.check.skip-checkstyle>
@@ -33,7 +33,7 @@
         <basepom.deploy.skip>true</basepom.deploy.skip>
         <dep.jmh.version>1.37</dep.jmh.version>
         <jdbi.check.skip-japicmp>true</jdbi.check.skip-japicmp>
-        <moduleName>org.jdbi.v3.benchmark</moduleName>
+        <moduleName>org.jdbi.benchmark</moduleName>
         <uberjar.name>benchmarks</uberjar.name>
     </properties>
 
@@ -46,19 +46,19 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-core</artifactId>
+            <artifactId>jdbi-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-sqlobject</artifactId>
+            <artifactId>jdbi-sqlobject</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-postgres</artifactId>
+            <artifactId>jdbi-postgres</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-testing</artifactId>
+            <artifactId>jdbi-testing</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
