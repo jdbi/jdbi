@@ -25,7 +25,7 @@ import org.jdbi.core.mapper.MapMappers;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.statement.Query;
 import org.jdbi.sqlobject.statement.SqlQuery;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

@@ -14,7 +14,7 @@
 package org.jdbi.jodatime2;
 
 import org.jdbi.core.Handle;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

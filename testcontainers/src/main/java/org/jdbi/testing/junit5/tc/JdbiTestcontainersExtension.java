@@ -19,7 +19,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jdbi.meta.Alpha;
 import org.jdbi.meta.Beta;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import static java.lang.String.format;

@@ -24,6 +24,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import org.jdbi.core.Handle;
+import org.jdbi.core.Jdbi;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.jdbi.core.statement.PreparedBatch;
 import org.jdbi.sqlobject.SqlObject;
@@ -33,7 +35,6 @@ import org.jdbi.sqlobject.customizer.BindMap;
 import org.jdbi.sqlobject.statement.SqlBatch;
 import org.jdbi.sqlobject.statement.SqlCall;
 import org.jdbi.sqlobject.statement.SqlUpdate;
-import org.jdbi.testing.JdbiRule;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -60,9 +61,11 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 public class BeanBindingBenchmark {
     private static final int INNER_LOOPS = 10_000;
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
-    private JdbiRule db;
+    private Jdbi db;
     private Dao dao;
     private List<SampleBean> sampleList;
+    private Handle handle;
+    private Connection c;
 
     public static void main(String[] args) throws RunnerException {
         Options options = new OptionsBuilder()
@@ -74,15 +77,17 @@ public class BeanBindingBenchmark {
 
     @Setup
     public void setup() throws Throwable {
-        db = JdbiRule.h2()
-                .withPlugin(new SqlObjectPlugin());
-        db.before();
-        dao = db.getHandle()
+
+        db = BenchmarkSupport.h2()
+                .installPlugin(new SqlObjectPlugin());
+        dao = db.open()
                 .attach(Dao.class);
         dao.create();
         sampleList = Stream.generate(SampleBean::new)
                 .limit(50000)
                 .toList();
+        handle = db.open();
+        c = handle.getConnection();
     }
 
     @TearDown(Level.Iteration)
@@ -90,14 +95,8 @@ public class BeanBindingBenchmark {
         dao.truncateTable();
     }
 
-    @TearDown
-    public void close() {
-        db.after();
-    }
-
     @Benchmark
     public void batchJdbc() throws SQLException {
-        Connection c = db.getHandle().getConnection();
         PreparedStatement ps = c.prepareStatement("insert into sample_table values (?, ?, ?, ?, ?, ?, ?)");
         sampleList.forEach(Unchecked.consumer(sampleBean -> {
             ps.setString(1, sampleBean.getField1());
@@ -115,7 +114,6 @@ public class BeanBindingBenchmark {
 
     @Benchmark
     public void oneJdbc() throws SQLException {
-        Connection c = db.getHandle().getConnection();
         for (int i = 0; i < INNER_LOOPS; i++) {
             PreparedStatement ps = c.prepareStatement("insert into sample_table values (?, ?, ?, ?, ?, ?, ?)");
             SampleBean sampleBean = sampleList.get(0);

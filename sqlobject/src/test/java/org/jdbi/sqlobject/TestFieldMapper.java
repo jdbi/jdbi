@@ -22,7 +22,7 @@ import org.jdbi.core.mapper.ValueTypeMapper;
 import org.jdbi.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.sqlobject.config.RegisterFieldMapper;
 import org.jdbi.sqlobject.statement.SqlQuery;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

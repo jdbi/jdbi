@@ -20,7 +20,7 @@ import com.google.common.collect.Multimap;
 import org.jdbi.core.Handle;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

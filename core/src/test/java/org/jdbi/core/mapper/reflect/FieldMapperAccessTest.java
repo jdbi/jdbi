@@ -19,7 +19,7 @@ import java.util.List;
 import org.jdbi.core.Handle;
 import org.jdbi.core.SampleBean;
 import org.jdbi.core.ValueType;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.JoinRow;
 import org.jdbi.core.mapper.JoinRowMapper;
 import org.jdbi.core.mapper.ValueTypeMapper;
@@ -32,7 +32,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
-import static org.jdbi.core.junit5.H2DatabaseExtension.USERS_INITIALIZER;
+import static org.jdbi.core.internal.testing.H2DatabaseExtension.USERS_INITIALIZER;
 
 public class FieldMapperAccessTest {
 

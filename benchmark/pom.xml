@@ -58,10 +58,6 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi-testing</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
             <artifactId>jdbi</artifactId>
             <version>2.78</version>
         </dependency>

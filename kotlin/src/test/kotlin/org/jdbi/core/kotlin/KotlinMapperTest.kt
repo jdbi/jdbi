@@ -20,7 +20,7 @@ import org.jdbi.core.mapper.Nested
 import org.jdbi.core.mapper.PropagateNull
 import org.jdbi.core.mapper.reflect.ColumnName
 import org.jdbi.core.mapper.reflect.JdbiConstructor
-import org.jdbi.testing.junit5.JdbiExtension
+import org.jdbi.testing.junit.JdbiExtension
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

@@ -17,7 +17,7 @@ import org.jdbi.core.HandleCallback
 import org.jdbi.core.Jdbi
 import org.jdbi.core.mapper.JoinRow
 import org.jdbi.core.mapper.JoinRowMapper
-import org.jdbi.testing.junit5.JdbiExtension
+import org.jdbi.testing.junit.JdbiExtension
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test

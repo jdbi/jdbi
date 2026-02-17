@@ -28,7 +28,7 @@ import org.jdbi.core.Something;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.junit.jupiter.api.Test;

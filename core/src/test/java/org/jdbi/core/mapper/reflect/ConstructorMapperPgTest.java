@@ -16,7 +16,7 @@ package org.jdbi.core.mapper.reflect;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.PgDatabaseExtension;
+import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.jdbi.core.mapper.reflect.ConstructorMapperTest.ConstructorBean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

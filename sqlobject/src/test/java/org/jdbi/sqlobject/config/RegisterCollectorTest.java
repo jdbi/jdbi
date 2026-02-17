@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.collector.CollectorFactory;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.junit.jupiter.api.BeforeEach;

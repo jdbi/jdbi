@@ -22,7 +22,7 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.h2.jdbc.JdbcSQLNonTransientException;
 import org.jdbi.core.extension.ExtensionFactory;
 import org.jdbi.core.extension.HandleSupplier;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.core.result.ResultSetException;
 import org.jdbi.core.spi.JdbiPlugin;

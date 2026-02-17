@@ -29,8 +29,8 @@ import org.jdbi.sqlobject.config.RegisterRowMapperFactory;
 import org.jdbi.sqlobject.customizer.Bind;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.sqlobject.statement.SqlUpdate;
-import org.jdbi.testing.junit5.JdbiExtension;
-import org.jdbi.testing.junit5.internal.TestingInitializers;
+import org.jdbi.testing.junit.JdbiExtension;
+import org.jdbi.testing.junit.internal.TestingInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

@@ -25,8 +25,8 @@ import org.jdbi.core.mapper.Nested;
 import org.jdbi.core.mapper.PropagateNull;
 import org.jdbi.core.mapper.reflect.BeanMapper;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
-import org.jdbi.testing.junit5.JdbiExtension;
-import org.jdbi.testing.junit5.JdbiH2Extension;
+import org.jdbi.testing.junit.JdbiExtension;
+import org.jdbi.testing.junit.JdbiH2Extension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

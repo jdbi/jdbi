@@ -16,7 +16,7 @@ package org.jdbi.cache.caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.statement.SqlStatements;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

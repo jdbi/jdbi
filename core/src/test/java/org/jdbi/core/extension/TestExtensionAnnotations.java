@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
 import org.jdbi.core.Handle;
 import org.jdbi.core.extension.TestExtensionAnnotations.ExtensionOne.Impl;
 import org.jdbi.core.extension.annotation.UseExtensionHandler;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

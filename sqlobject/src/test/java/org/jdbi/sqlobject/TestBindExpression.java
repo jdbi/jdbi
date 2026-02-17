@@ -30,8 +30,8 @@ import org.jdbi.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.sqlobject.customizer.SqlStatementParameterCustomizer;
 import org.jdbi.sqlobject.statement.SqlBatch;
 import org.jdbi.sqlobject.statement.SqlQuery;
-import org.jdbi.testing.junit5.JdbiExtension;
-import org.jdbi.testing.junit5.internal.TestingInitializers;
+import org.jdbi.testing.junit.JdbiExtension;
+import org.jdbi.testing.junit.internal.TestingInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

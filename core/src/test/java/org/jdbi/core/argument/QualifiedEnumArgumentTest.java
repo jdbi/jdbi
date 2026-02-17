@@ -17,7 +17,7 @@ import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.enums.EnumByOrdinal;
 import org.jdbi.core.enums.EnumStrategy;
 import org.jdbi.core.enums.Enums;
-import org.jdbi.core.junit5.SqliteDatabaseExtension;
+import org.jdbi.core.internal.testing.SqliteDatabaseExtension;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

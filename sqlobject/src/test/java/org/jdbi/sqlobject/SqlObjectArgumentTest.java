@@ -21,8 +21,8 @@ import org.jdbi.core.argument.Argument;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.sqlobject.statement.SqlUpdate;
-import org.jdbi.testing.junit5.JdbiExtension;
-import org.jdbi.testing.junit5.internal.TestingInitializers;
+import org.jdbi.testing.junit.JdbiExtension;
+import org.jdbi.testing.junit.internal.TestingInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

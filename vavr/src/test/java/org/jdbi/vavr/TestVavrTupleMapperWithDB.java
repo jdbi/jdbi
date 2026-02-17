@@ -21,7 +21,7 @@ import io.vavr.collection.List;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.result.ResultSetException;
 import org.jdbi.sqlobject.SqlObjectPlugin;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

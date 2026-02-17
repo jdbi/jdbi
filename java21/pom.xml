@@ -103,11 +103,5 @@
             <artifactId>opentelemetry-sdk-trace</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.moditect.jfrunit</groupId>
-            <artifactId>jfrunit-core</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
