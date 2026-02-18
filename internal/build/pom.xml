@@ -130,7 +130,7 @@
         <kotlin.compiler.jvmTarget>${project.build.targetJdk}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>2.1</kotlin.compiler.languageVersion>
         <no-docker>false</no-docker>
-        <project.build.targetJdk>17</project.build.targetJdk>
+        <project.build.targetJdk>21</project.build.targetJdk>
     </properties>
 
     <dependencyManagement>
@@ -1098,9 +1098,9 @@
                                     <searchTransitive>false</searchTransitive>
                                 </bannedDependencies>
 
-                                <!--  we now require java 17 for building -->
+                                <!--  we now require java 21 for building -->
                                 <requireJavaVersion>
-                                    <version>[17,)</version>
+                                    <version>[21,)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
