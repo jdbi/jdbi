@@ -9531,16 +9531,6 @@ E.g. RowMappers registry delegates to ColumnMappers registry, if it does not hav
 JdbiPlugin can be used to bundle bulk configuration.
 Plugins should be installed via `Jdbi.installPlugin(JdbiPlugin)`.
 
-Jars may provide a file in `META-INF/services/org.jdbi.core.spi.JdbiPlugin`
-containing the fully qualified class name of your plugin.
-
-In general, Jdbi's separate artifacts each provide a single relevant plugin (e.g. `jdbi3-sqlite`), and such modules will be auto-loadable.
-Modules that provide no (e.g. `jdbi3-commons-text`) or multiple (e.g. `jdbi3-core`) plugins typically will not be.
-
-[TIP]
-The developers encourage you to install plugins explicitly.
-Code with declared dependencies on the module it uses is more robust to refactoring and provides useful data for static analysis tools about what code is or is not used.
-
 ////
 === JdbiCollectors
 

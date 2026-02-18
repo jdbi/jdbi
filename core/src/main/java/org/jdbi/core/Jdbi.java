@@ -18,7 +18,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -220,20 +219,6 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public static Handle open(final String url, final Properties props) {
         return create(url, props).open();
-    }
-
-    /**
-     * Use the {@link ServiceLoader} API to detect and install plugins automagically.
-     * Some people consider this feature dangerous; some consider it essential --
-     * use at your own risk.
-     * @deprecated Registering plugins implicitly is less reliable. Please register plugins explicitly.
-     * @return this
-     */
-    @Deprecated(forRemoval = true)
-    public Jdbi installPlugins() {
-        ServiceLoader.load(JdbiPlugin.class).forEach(this::installPlugin);
-        LOG.debug("Automatically installed plugins {}", plugins);
-        return this;
     }
 
     /**
