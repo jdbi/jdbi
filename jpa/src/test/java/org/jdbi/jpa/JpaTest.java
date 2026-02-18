@@ -26,8 +26,6 @@ import org.assertj.core.api.AbstractListAssert;
 import org.jdbi.core.qualifier.Reversed;
 import org.jdbi.core.qualifier.ReversedStringArgumentFactory;
 import org.jdbi.core.qualifier.ReversedStringMapper;
-import org.jdbi.jpa.BindJpa;
-import org.jdbi.jpa.JpaMapperFactory;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.sqlobject.config.RegisterColumnMapper;

@@ -18,8 +18,6 @@ import java.util.Objects;
 
 import javax.persistence.Entity;
 
-import org.jdbi.jpa.BindJpa;
-import org.jdbi.jpa.JpaPlugin;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.sqlobject.statement.SqlUpdate;
