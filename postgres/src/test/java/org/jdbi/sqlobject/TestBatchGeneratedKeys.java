@@ -27,7 +27,7 @@ import org.jdbi.sqlobject.customizer.Bind;
 import org.jdbi.sqlobject.statement.BatchChunkSize;
 import org.jdbi.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.sqlobject.statement.SqlBatch;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

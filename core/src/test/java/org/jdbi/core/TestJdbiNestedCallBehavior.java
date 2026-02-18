@@ -18,7 +18,7 @@ import java.util.Set;
 
 import org.jdbi.core.extension.ExtensionFactory;
 import org.jdbi.core.extension.HandleSupplier;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.transaction.TransactionException;
 import org.junit.jupiter.api.BeforeEach;

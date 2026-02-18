@@ -21,7 +21,7 @@ import org.jdbi.examples.auth.AuthenticationExample.AuthContext;
 import org.jdbi.examples.auth.AuthenticationExample.UseAuthentication;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.statement.SqlQuery;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

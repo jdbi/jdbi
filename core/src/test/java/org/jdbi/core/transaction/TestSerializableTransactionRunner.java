@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

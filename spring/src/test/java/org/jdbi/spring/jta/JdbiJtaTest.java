@@ -24,7 +24,7 @@ import org.jdbi.core.result.ResultIterator;
 import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.UnableToCreateStatementException;
-import org.jdbi.testing.junit5.internal.JdbiLeakChecker;
+import org.jdbi.testing.internal.JdbiLeakChecker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -14,7 +14,7 @@
 package org.jdbi.oracle12;
 
 import org.jdbi.core.Handle;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

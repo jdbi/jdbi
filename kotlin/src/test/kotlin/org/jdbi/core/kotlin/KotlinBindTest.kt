@@ -17,7 +17,7 @@ package org.jdbi.core.kotlin
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder
 import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.core.generic.GenericType
-import org.jdbi.testing.junit5.JdbiExtension
+import org.jdbi.testing.junit.JdbiExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 

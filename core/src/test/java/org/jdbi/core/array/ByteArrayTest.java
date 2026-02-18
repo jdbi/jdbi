@@ -20,7 +20,7 @@ import java.sql.Types;
 
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.Arguments;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.StatementContextAccess;
 import org.junit.jupiter.api.Test;

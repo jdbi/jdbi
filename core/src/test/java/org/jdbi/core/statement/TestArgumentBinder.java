@@ -18,7 +18,7 @@ import java.sql.Types;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.PgDatabaseExtension;
+import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

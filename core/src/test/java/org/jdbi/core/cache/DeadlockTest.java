@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.cache.internal.DefaultJdbiCacheBuilder;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.Update;

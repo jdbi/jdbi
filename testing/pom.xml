@@ -27,7 +27,7 @@
     <name>jdbi testing</name>
     <description>Support for testing frameworks. Provides integration to spin up and access databases using Jdbi in unit tests.
 
-        Currently supports JUnit 4 and JUnit 5.</description>
+        Currently supports JUnit 6.</description>
 
     <properties>
         <moduleName>org.jdbi.testing</moduleName>
@@ -37,12 +37,6 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -93,12 +87,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
             <scope>test</scope>
@@ -140,10 +128,6 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <excludes combine.children="append">
-                                <!-- junit 4 -->
-                                <exclude>**/JdbiRulePostgresTest.*</exclude>
-                                <exclude>**/JdbiRuleTest.*</exclude>
-                                <!-- junit 5 -->
                                 <exclude>**/JdbiOtjPostgresExtendWithTest.*</exclude>
                                 <exclude>**/JdbiOtjPostgresExtensionTest.*</exclude>
                             </excludes>

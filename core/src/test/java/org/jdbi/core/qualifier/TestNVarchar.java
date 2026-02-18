@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.jdbi.core.argument.Arguments;
 import org.jdbi.core.generic.GenericType;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.statement.Query;

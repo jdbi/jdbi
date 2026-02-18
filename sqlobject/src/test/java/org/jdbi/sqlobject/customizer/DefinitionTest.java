@@ -17,7 +17,7 @@ import org.jdbi.core.statement.DefinedAttributeTemplateEngine;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.config.UseTemplateEngine;
 import org.jdbi.sqlobject.statement.SqlQuery;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

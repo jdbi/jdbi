@@ -14,7 +14,7 @@ package org.jdbi.core.statement;
  */
 
 import org.jdbi.stringtemplate4.StringTemplateEngine;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

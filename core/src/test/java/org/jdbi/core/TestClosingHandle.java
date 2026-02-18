@@ -18,7 +18,7 @@ import java.sql.DriverManager;
 import java.util.List;
 import java.util.Map;
 
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.result.ResultIterator;
 import org.jdbi.core.transaction.TransactionException;
 import org.junit.jupiter.api.Test;

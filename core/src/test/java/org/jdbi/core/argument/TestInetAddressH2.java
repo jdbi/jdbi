@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Sql;
-import org.jdbi.core.junit5.DatabaseExtension;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

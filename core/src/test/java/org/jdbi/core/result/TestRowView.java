@@ -14,7 +14,7 @@
 package org.jdbi.core.result;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.meta.Beta;

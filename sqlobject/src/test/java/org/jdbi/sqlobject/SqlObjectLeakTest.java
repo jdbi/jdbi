@@ -23,8 +23,8 @@ import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.core.statement.StatementCustomizers;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
 import org.jdbi.sqlobject.statement.SqlQuery;
-import org.jdbi.testing.junit5.JdbiExtension;
-import org.jdbi.testing.junit5.internal.TestingInitializers;
+import org.jdbi.testing.junit.JdbiExtension;
+import org.jdbi.testing.junit.internal.TestingInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.StatementCustomizers;
 import org.junit.jupiter.api.Test;

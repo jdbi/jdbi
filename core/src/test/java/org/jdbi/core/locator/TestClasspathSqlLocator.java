@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.StatementException;
 import org.jdbi.core.statement.StatementExceptions;
 import org.jdbi.core.statement.StatementExceptions.MessageRendering;

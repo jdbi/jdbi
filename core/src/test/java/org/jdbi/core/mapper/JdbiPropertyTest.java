@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import org.immutables.value.Value;
 import org.jdbi.core.Handle;
 import org.jdbi.core.annotation.JdbiProperty;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.core.mapper.reflect.BeanMapper;
 import org.jdbi.core.mapper.reflect.FieldMapper;

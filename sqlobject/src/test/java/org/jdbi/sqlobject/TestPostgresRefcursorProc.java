@@ -23,7 +23,7 @@ import org.jdbi.core.statement.OutParameters;
 import org.jdbi.sqlobject.customizer.OutParameter;
 import org.jdbi.sqlobject.statement.SqlCall;
 import org.jdbi.sqlobject.transaction.Transaction;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

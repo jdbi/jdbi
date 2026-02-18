@@ -26,7 +26,7 @@ import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.sqlobject.statement.SqlUpdate;
 import org.jdbi.sqlobject.transaction.Transaction;
 import org.jdbi.sqlobject.transaction.Transactional;
-import org.jdbi.testing.junit5.JdbiExtension;
+import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

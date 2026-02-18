@@ -16,7 +16,7 @@ package org.jdbi.core;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 import org.jdbi.core.transaction.LocalTransactionHandler;
 import org.jdbi.core.transaction.TransactionException;

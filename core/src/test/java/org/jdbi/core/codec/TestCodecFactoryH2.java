@@ -18,7 +18,7 @@ import java.util.function.Function;
 
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.junit5.H2DatabaseExtension;
+import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.junit.jupiter.api.Test;
