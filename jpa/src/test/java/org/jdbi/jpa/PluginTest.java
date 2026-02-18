@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.jpa;
+package org.jdbi.jpa;
 
 import java.util.List;
 import java.util.Objects;
