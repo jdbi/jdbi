@@ -1,6 +1,0 @@
-{
-  "reflection": [
-    {"type":{"proxy":["org.jdbi.java21.TestVirtualThreads$UserDao"]}},
-    {"type":{"proxy":["org.jdbi.java21.TestVirtualThreads$UserDao","org.jdbi.sqlobject.transaction.Transactional"]}}
-  ]
-}
