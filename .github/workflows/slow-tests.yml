@@ -161,7 +161,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi3-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-slow-tests

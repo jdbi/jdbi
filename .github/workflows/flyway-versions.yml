@@ -47,7 +47,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi3-testing -Ddep.flyway.version=${{ matrix.flyway-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi-testing -Ddep.flyway.version=${{ matrix.flyway-version }}"
         run: |
           ./mvnw --version
           make run-tests
