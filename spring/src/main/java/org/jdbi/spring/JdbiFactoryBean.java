@@ -34,7 +34,6 @@ public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
     private DataSource dataSource;
     private final Map<String, Object> globalDefines = new HashMap<>();
 
-    private boolean autoInstallPlugins = false;
     private Collection<JdbiPlugin> plugins = Collections.emptyList();
 
     public JdbiFactoryBean() {}
@@ -46,10 +45,6 @@ public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
     @Override
     protected Jdbi createInstance() throws Exception {
         final Jdbi jdbi = Jdbi.create(new SpringConnectionFactory(dataSource));
-
-        if (autoInstallPlugins) {
-            jdbi.installPlugins();
-        }
 
         plugins.forEach(jdbi::installPlugin);
 
@@ -86,22 +81,6 @@ public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
     @Autowired(required = false)
     public JdbiFactoryBean setPlugins(Collection<JdbiPlugin> plugins) {
         this.plugins = new ArrayList<>(plugins);
-        return this;
-    }
-
-    /**
-     * Sets whether to install plugins automatically from the classpath, using
-     * {@link java.util.ServiceLoader} manifests.
-     *
-     * @param autoInstallPlugins whether to install plugins automatically from
-     *                           the classpath.
-     * @return this
-     * @deprecated Registering plugins implicitly is less reliable. Please register plugins explicitly.
-     * @see Jdbi#installPlugins() for detail
-     */
-    @Deprecated(forRemoval = true)
-    public JdbiFactoryBean setAutoInstallPlugins(boolean autoInstallPlugins) {
-        this.autoInstallPlugins = autoInstallPlugins;
         return this;
     }
 

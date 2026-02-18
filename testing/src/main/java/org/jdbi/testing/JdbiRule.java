@@ -38,7 +38,6 @@ public abstract class JdbiRule extends ExternalResource {
     private Jdbi jdbi;
     private Handle handle;
     private Flyway flyway;
-    private volatile boolean installPlugins;
     private Migration migration;
 
     protected abstract DataSource createDataSource();
@@ -130,18 +129,6 @@ public abstract class JdbiRule extends ExternalResource {
     }
 
     /**
-     * Discover and install plugins from the classpath.
-     *
-     * @see JdbiRule#withPlugin(JdbiPlugin) we recommend installing plugins explicitly instead
-     * @deprecated Registering plugins implicitly is less reliable. Please register plugins explicitly.
-     */
-    @Deprecated(forRemoval = true)
-    public JdbiRule withPlugins() {
-        installPlugins = true;
-        return this;
-    }
-
-    /**
      * Install a plugin into JdbiRule.
      */
     public JdbiRule withPlugin(final JdbiPlugin plugin) {
@@ -162,9 +149,6 @@ public abstract class JdbiRule extends ExternalResource {
         }
 
         jdbi = Jdbi.create(getDataSource());
-        if (installPlugins) {
-            jdbi.installPlugins();
-        }
         plugins.forEach(jdbi::installPlugin);
         handle = jdbi.open();
     }

@@ -68,7 +68,6 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
 
     private Optional<JdbiExtensionInitializer> initializerMaybe = Optional.empty();
 
-    private volatile boolean installPlugins = false;
     private volatile boolean enableLeakchecker = true;
 
     private volatile Jdbi jdbi;
@@ -219,20 +218,6 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
     }
 
     /**
-     * When creating the {@link Jdbi} instance, call the {@link Jdbi#installPlugins()} method, which loads all plugins discovered by the
-     * {@link java.util.ServiceLoader} API.
-     *
-     * @return The extension itself for chaining method calls.
-     * @deprecated Registering plugins implicitly is less reliable. Please register plugins explicitly.
-     */
-    @Deprecated(forRemoval = true)
-    public final JdbiExtension installPlugins() {
-        this.installPlugins = true;
-
-        return this;
-    }
-
-    /**
      * Enable tracking of cleanable resources and handles when running tests. This is useful to find code paths where JDBI managed resources are not correctly
      * handled and "leak" out.
      *
@@ -356,10 +341,6 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
         }
 
         final Jdbi jdbiInstance = Jdbi.create(ds);
-
-        if (installPlugins) {
-            jdbiInstance.installPlugins();
-        }
 
         plugins.forEach(jdbiInstance::installPlugin);
         final Handle sharedHandleInstance = jdbiInstance.open();
