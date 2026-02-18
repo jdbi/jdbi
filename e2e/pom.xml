@@ -43,6 +43,12 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi-sqlobject</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi-testing</artifactId>
             <scope>test</scope>
         </dependency>
@@ -56,6 +62,12 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
             <scope>test</scope>
         </dependency>
 
