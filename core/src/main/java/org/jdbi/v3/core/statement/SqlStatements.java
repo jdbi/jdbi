@@ -64,6 +64,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private volatile int jfrSqlMaxLength = 512;
     private volatile int jfrParamMaxLength = 512;
 
+    private volatile boolean includeBindingsInTelemetry = true;
+
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());
         templateEngine = new DefinedAttributeTemplateEngine();
@@ -90,6 +92,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.templateCache = that.templateCache;
         this.jfrSqlMaxLength = that.jfrSqlMaxLength;
         this.jfrParamMaxLength = that.jfrParamMaxLength;
+        this.includeBindingsInTelemetry = that.includeBindingsInTelemetry;
     }
 
     /**
@@ -391,6 +394,14 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
+     * Toggle whether to include potentially sensitive bindins in telemetry data.
+     */
+    @Beta
+    public boolean getIncludeBindingsInTelemetry() {
+        return includeBindingsInTelemetry;
+    }
+
+    /**
      * When recording JFR events, the maximum length of rendered parameters to store in the event record.
      */
     @Beta
@@ -405,6 +416,14 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     @Beta
     public int getJfrParamMaxLength() {
         return jfrParamMaxLength;
+    }
+
+    /**
+     * Toggle whether to include potentially sensitive bindins in telemetry data.
+     */
+    public SqlStatements setIncludeBindingsInTelemetry(boolean includeBindingsInTelemetry) {
+        this.includeBindingsInTelemetry = includeBindingsInTelemetry;
+        return this;
     }
 
     /**

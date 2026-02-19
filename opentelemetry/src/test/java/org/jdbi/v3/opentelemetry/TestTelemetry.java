@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -32,6 +33,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.JdbiStatementEvent;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -59,6 +61,7 @@ public class TestTelemetry {
     Method setupOpenTelemetryMethod;
     Method eventsMethod;
     Method truncateMethod;
+    Method doNotIncludeBindingsMethod;
     Object instance;
 
     public TestTelemetry() throws ReflectiveOperationException {
@@ -66,6 +69,7 @@ public class TestTelemetry {
         this.setupOpenTelemetryMethod = testCode.getMethod("setupOpenTelemetry");
         this.eventsMethod = testCode.getMethod("events");
         this.truncateMethod = testCode.getMethod("truncate");
+        this.doNotIncludeBindingsMethod = testCode.getMethod("doNotIncludeBindings");
 
         this.instance = testCode.getDeclaredConstructors()[0].newInstance(this);
     }
@@ -85,6 +89,11 @@ public class TestTelemetry {
         assertThat(truncateMethod.invoke(instance)).isNull();
     }
 
+    @Test
+    void doNotIncludeBindings() throws InvocationTargetException, IllegalAccessException {
+        assertThat(doNotIncludeBindingsMethod.invoke(instance)).isNull();
+    }
+
     public final class TestCode {
         OpenTelemetrySdk otelSdk;
 
@@ -100,6 +109,11 @@ public class TestTelemetry {
                 .build();
 
             ext.getJdbi().installPlugin(new JdbiOpenTelemetryPlugin(otelSdk));
+        }
+
+        @AfterEach
+        public void resetOpenTelemetry() {
+            traces.clearExported();
         }
 
         public void events() {
@@ -193,6 +207,38 @@ public class TestTelemetry {
                 .containsEntry("sql", insert.substring(0, 10))
                 .containsEntry("parameters", "{named:{id:1,name:abcdefghijkl…}")
                 .containsEntry("type", "Update");
+        }
+
+        public void doNotIncludeBindings() {
+            final var sensitiveData = "sensitive_data";
+
+            ext.getJdbi().getConfig(SqlStatements.class)
+                .setIncludeBindingsInTelemetry(false);
+
+            final var create = "create table something(id identity primary key, name varchar(50))";
+            final var insert = "insert into something (id, name) values (:id, :name)";
+            try (var h = ext.openHandle()) {
+                h.execute(create);
+                insertSomething(h, insert, 1, sensitiveData);
+            }
+
+            final var spans = traces.getExported();
+
+            assertThat(spans)
+                .allSatisfy(span ->
+                    assertThat(span.getAttributes().asMap())
+                        .doesNotContainKey(AttributeKey.stringKey("binding"))
+                );
+
+            assertThat(spans)
+                .allSatisfy(span -> {
+                    span.getAttributes().forEach((key, value) -> {
+                        if (value != null) {
+                            assertThat(value.toString())
+                                .doesNotContain(sensitiveData);
+                        }
+                    });
+                });
         }
 
         private List<Map<String, Object>> extractEventProperties() {
