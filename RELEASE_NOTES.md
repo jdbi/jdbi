@@ -1,5 +1,6 @@
 # Unreleased
 
+- Add option to not attach sensitive binding data with OpenTelemetry (#2941, thanks @gmellemstrand !)
 - Add configuration for Jackson serialization of types with custom polymorphic handling (#2915)
 - Update to JUnit 6.0.2
 - Retire Apache Derby integration (#2866)
