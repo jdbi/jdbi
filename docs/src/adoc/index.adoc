@@ -27,6 +27,7 @@
 :coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
 :guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
 :sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
+:coreexamples: ../../../core/src/test/java
 
 [preface]
 image::logo.svg[Jdbi logo]
@@ -5755,6 +5756,40 @@ link:{jdbidocs}/core/statement/SqlStatement.html#bindBean(java.lang.Object)[bind
 - link:{jdbidocs}/jpa/BindJpa.html[@BindJpa^] and `JpaMapper` respect qualifiers on getters and setters.
 
 - link:{kotlinsqldocs}sqlobject.kotlin/-bind-kotlin/[@BindKotlin^], link:{kotlindocs}core.kotlin/bind-kotlin.html[bindKotlin()^], and link:{kotlindocs}core.kotlin/-kotlin-mapper/index.html[KotlinMapper^] respect qualifiers on constructor parameters, getters, setters, and setter parameters.
+
+==== Creating custom qualifiers
+
+A custom qualifier is a user-defined annotation that is meta-annotated with link:{jdbidocs}/core/qualifier/Qualifier.html[@Qualifier^]:
+
+[source,java,indent=0]
+----
+include::{coreexamples}/org/jdbi/v3/core/qualifier/Reversed.java[tags=qualifier]
+----
+
+To handle qualified values, create an link:{jdbidocs}/core/argument/ArgumentFactory.html[ArgumentFactory^] and/or a link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] annotated with the qualifier.
+Jdbi matches factories to values by their qualifier annotations:
+
+[source,java,indent=0]
+----
+include::{coreexamples}/org/jdbi/v3/core/qualifier/ReversedStringArgumentFactory.java[tags=argumentfactory]
+----
+
+[source,java,indent=0]
+----
+include::{coreexamples}/org/jdbi/v3/core/qualifier/ReversedStringMapper.java[tags=columnmapper]
+----
+
+<1> The qualifier annotation on the factory and mapper class tells Jdbi that these handle `@Reversed` qualified `String` values.
+
+Register the factories and use them with link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType^]:
+
+[source,java,indent=0]
+----
+include::{coreexamples}/org/jdbi/v3/core/qualifier/TestCustomQualifier.java[tags=usage]
+----
+
+<1> Bind the value using `bindByType` with the qualified type so the `@Reversed` factory is selected.
+<2> Map the result using the qualified type so the `@Reversed` mapper is selected.
 
 [#query-templating]
 === Query Templating
