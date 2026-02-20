@@ -74,7 +74,7 @@ public abstract class RowView {
      */
     public Object getRow(Type type) {
         return getRow(type, null);
-    };
+    }
 
     /**
      * Use a row mapper to extract a type from the current ResultSet row.
