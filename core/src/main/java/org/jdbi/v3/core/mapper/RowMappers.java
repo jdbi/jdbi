@@ -208,10 +208,8 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         for (RowMapperFactory factory : factories) {
             Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
             RowMapper<?> mapper = maybeMapper.orElse(null);
-            if (mapper instanceof PrefixedRowMapper prefixedRowMapper) {
-                if (prefix != null && !prefix.equals(prefixedRowMapper.getPrefix())) {
-                    mapper = null;
-                }
+            if (mapper instanceof PrefixedRowMapper prefixedRowMapper && prefix != null && !prefix.equals(prefixedRowMapper.getPrefix())) {
+                mapper = null;
             }
             if (mapper != null) {
                 mapper.init(registry);

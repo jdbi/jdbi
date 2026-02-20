@@ -138,10 +138,10 @@ public final class FieldMapper<T> implements PrefixedRowMapper<T> {
         return mapper;
     }
 
-	@Override
-	public String getPrefix() {
+    @Override
+    public String getPrefix() {
         return this.prefix;
-	}
+    }
 
     private <R> Optional<RowMapper<R>> createSpecializedRowMapper(StatementContext ctx,
                                                List<String> columnNames,

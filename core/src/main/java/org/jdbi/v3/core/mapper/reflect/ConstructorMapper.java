@@ -231,10 +231,10 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
         return specialize(rs, ctx).map(rs, ctx);
     }
 
-	@Override
-	public String getPrefix() {
+    @Override
+    public String getPrefix() {
         return this.prefix;
-	}
+    }
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {

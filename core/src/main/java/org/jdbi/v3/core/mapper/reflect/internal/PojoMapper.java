@@ -188,10 +188,10 @@ public class PojoMapper<T> implements PrefixedRowMapper<T> {
         return new PojoMapper<>(rawType, nestedPrefix);
     }
 
-	@Override
-	public String getPrefix() {
+    @Override
+    public String getPrefix() {
         return this.prefix;
-	}
+    }
 
     private String getName(PojoProperty<T> property) {
         return property.getAnnotation(ColumnName.class)
