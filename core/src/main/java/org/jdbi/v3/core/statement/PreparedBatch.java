@@ -61,6 +61,7 @@ import static org.jdbi.v3.core.result.ResultProducers.returningGeneratedKeys;
  */
 public class PreparedBatch extends SqlStatement<PreparedBatch> implements ResultBearing {
     private final List<PreparedBinding> bindings = new ArrayList<>();
+    private int batchChunkSize = Integer.MAX_VALUE;
     final Map<PrepareKey, Function<String, Optional<Function<Object, Argument>>>> preparedFinders = new HashMap<>();
 
     public PreparedBatch(Handle handle, CharSequence sql) {
@@ -239,32 +240,41 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
             beforeBinding();
 
-            try {
-                ArgumentBinder binder = new ArgumentBinder.Prepared(this, parsedParameters, bindings.get(0));
-                for (Binding binding : bindings) {
-                    ctx.setBinding(binding);
-                    binder.bind(binding);
-                    stmt.addBatch();
-                }
-            } catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception while binding parameters", e, ctx);
+            List<int[]> totalModifiedRows = new ArrayList<>();
+            for (int chunkStart = 0; chunkStart < bindings.size(); chunkStart += batchChunkSize) {
+                int chunkEnd = Math.min(chunkStart + batchChunkSize, bindings.size());
+
+                beforeExecution();
+                int[] chunkModifiedRows = executeChunk(parsedParameters, chunkStart, chunkEnd);
+                totalModifiedRows.add(chunkModifiedRows);
             }
+            afterExecution();
 
-            beforeExecution();
+            ctx.setBinding(new PreparedBinding(ctx));
 
-            try {
-                final int[] modifiedRows = SqlLoggerUtil.wrap(stmt::executeBatch, ctx, getConfig(SqlStatements.class).getSqlLogger());
-
-                afterExecution();
-
-                ctx.setBinding(new PreparedBinding(ctx));
-
-                return new ExecutedBatch(stmt, modifiedRows);
-            } catch (SQLException e) {
-                throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), ctx);
-            }
+            return new ExecutedBatch(stmt, totalModifiedRows.stream().flatMapToInt(Arrays::stream).toArray());
         } finally {
             bindings.clear();
+        }
+    }
+
+    private int[] executeChunk(ParsedParameters parsedParameters, int chunkStart, int chunkEnd) {
+        final StatementContext ctx = getContext();
+        try {
+            ArgumentBinder binder = new ArgumentBinder.Prepared(this, parsedParameters, bindings.get(chunkStart));
+            for (int i = chunkStart; i < chunkEnd; i++) {
+                ctx.setBinding(bindings.get(i));
+                binder.bind(bindings.get(i));
+                stmt.addBatch();
+            }
+        } catch (SQLException e) {
+            throw new UnableToExecuteStatementException("Exception while binding parameters", e, ctx);
+        }
+
+        try {
+            return SqlLoggerUtil.wrap(stmt::executeBatch, ctx, getConfig(SqlStatements.class).getSqlLogger());
+        } catch (SQLException e) {
+            throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), ctx);
         }
     }
 
@@ -308,6 +318,33 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         bindMap(args);
         add();
         return this;
+    }
+
+    /**
+     * Sets the batch chunk size - the maximum number of bindings to include in a single batch execution.
+     * When the number of bindings exceeds this size, multiple batch executions will be performed.
+     * <p>
+     * This is useful for very large batch operations to avoid excessive memory usage or database limitations.
+     *
+     * @param batchChunkSize the maximum number of bindings to include in a single batch execution
+     * @return this
+     * @throws IllegalArgumentException if batchChunkSize is less than or equal to zero
+     */
+    public PreparedBatch setBatchChunkSize(int batchChunkSize) {
+        if (batchChunkSize <= 0) {
+            throw new IllegalArgumentException("Batch chunk size must be greater than zero");
+        }
+        this.batchChunkSize = batchChunkSize;
+        return this;
+    }
+
+    /**
+     * Gets the current batch chunk size.
+     *
+     * @return the current batch chunk size
+     */
+    public int getBatchChunkSize() {
+        return batchChunkSize;
     }
 
     /**
