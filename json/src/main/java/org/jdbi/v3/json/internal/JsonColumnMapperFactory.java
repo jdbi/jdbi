@@ -14,6 +14,7 @@
 package org.jdbi.v3.json.internal;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -47,7 +48,7 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
                 () -> cm.findFor(String.class))
                 .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE));
 
-        final TypedJsonMapper mapper = config.get(JsonConfig.class).getJsonMapper().forType(type, config);
+        final TypedJsonMapper mapper = config.get(JsonConfig.class).getJsonMapper().forType(type, Collections.emptySet(), config);
         return Optional.of((rs, i, ctx) ->
             mapper.fromJson(
                     Optional.ofNullable(jsonStringMapper.map(rs, i, ctx))

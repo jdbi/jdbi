@@ -13,7 +13,9 @@
  */
 package org.jdbi.v3.json.internal;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Set;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
@@ -28,7 +30,7 @@ public class UnimplementedJsonMapper implements JsonMapper {
     );
 
     @Override
-    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+    public TypedJsonMapper forType(Type type, Set<? extends Annotation> annotations, ConfigRegistry config) {
         throw new UnableToCreateStatementException(NO_IMPL_INSTALLED);
     }
 }
