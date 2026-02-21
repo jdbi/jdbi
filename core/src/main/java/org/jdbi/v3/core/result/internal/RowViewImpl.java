@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jdbi.v3.core.internal.PrefixedMapperKey;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.MappingException;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
@@ -31,7 +32,7 @@ public class RowViewImpl extends RowView {
     private final StatementContext ctx;
     private final ResultSet rs;
 
-    private final Map<Type, RowMapper<?>> rowMappers = new ConcurrentHashMap<>();
+    private final Map<PrefixedMapperKey, RowMapper<?>> rowMappers = new ConcurrentHashMap<>();
     private final Map<QualifiedType<?>, ColumnMapper<?>> columnMappers = new ConcurrentHashMap<>();
 
     public RowViewImpl(ResultSet rs, StatementContext ctx) {
@@ -45,23 +46,24 @@ public class RowViewImpl extends RowView {
      * @return the materialized object
      */
     @Override
-    public Object getRow(Type type) {
+    public Object getRow(Type type, String prefix) {
         try {
-            return rowMapperFor(type).map(rs, ctx);
+            return rowMapperFor(type, prefix).map(rs, ctx);
         } catch (SQLException e) {
             throw new MappingException(e);
         }
     }
 
-    private RowMapper<?> rowMapperFor(Type type) throws SQLException {
-        if (rowMappers.containsKey(type)) {
-            return rowMappers.get(type);
+    private RowMapper<?> rowMapperFor(Type type, String prefix) throws SQLException {
+        var key = new PrefixedMapperKey(type, prefix);
+        if (rowMappers.containsKey(key)) {
+            return rowMappers.get(key);
         }
 
-        RowMapper<?> mapper = ctx.findRowMapperFor(type)
-                .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for " + type))
+        RowMapper<?> mapper = ctx.findRowMapperFor(type, prefix)
+                .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for " + type + " and prefix " + prefix))
                 .specialize(rs, ctx);
-        rowMappers.put(type, mapper);
+        rowMappers.put(key, mapper);
 
         return mapper;
     }
