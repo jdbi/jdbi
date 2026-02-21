@@ -61,7 +61,7 @@ public class RowViewImpl extends RowView {
         }
 
         RowMapper<?> mapper = ctx.findRowMapperFor(type, prefix)
-                .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for " + type))
+                .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for " + type + " and prefix " + prefix))
                 .specialize(rs, ctx);
         rowMappers.put(key, mapper);
 
