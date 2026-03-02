@@ -277,6 +277,8 @@ Some databases have additional data types and mappings, and support is added usi
 [glossary]
 jdbi3-postgres::
 Support for https://www.postgresql.org/[Postgres^] data types.
+jdbi3-mysql::
+Support for https://www.mysql.com/[MySQL^] data types.
 jdbi3-sqlite::
 Support for https://www.sqlite.org/index.html[sqlite^] data types.
 jdbi3-oracle12::

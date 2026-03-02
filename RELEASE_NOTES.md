@@ -1,5 +1,29 @@
 # Unreleased
 
+## Changes to java.time related classes
+
+JDBC 4.2 added full support to map java.time classes onto SQL types
+in 2014. This release of Jdbi switches from mapping these objects onto
+"classic" (`java.sql.Date`, `Time`, `Timestamp`) to using the JDBC 4.2 API
+(`PreparedStatement#setObject` and `ResultSet#getObject`).
+
+These changes should not be visible for any database, except if you
+were brave enough to map types with time zones or offsets
+(`ZonedDateTime` and `OffsetDateTime`) onto SQL types that have no
+timezone (`TIMESTAMP` or `DATETIME`). This affects databases that do
+not support the `TIMESTAMP WITH TIMEZONE` data type. IAW _MySQL_.
+
+If you use MySQL with Jdbi *and* map any of these data types, you are
+already losing the zone/offset information. Now you actually get an
+error (which is the correct behavior of the driver!) *unless* you load
+the new `MysqlPlugin` which restores the mapping.
+
+If your application relies on legacy mappings, you can also use the
+new `@Legacy` annotation to force the old behavior. See the
+documentation at https://jdbi.org/ for details.
+
+
+- Add MySQL specific module (jdbi3-mysql) and plugin (MysqlPlugin).
 - Add new SqlExceptionHandler hook to handle database exceptions thrown during statement execution
 - Add option to not attach sensitive binding data with OpenTelemetry (#2941, thanks @gmellemstrand !)
 - Add configuration for Jackson serialization of types with custom polymorphic handling (#2915)
