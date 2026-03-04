@@ -28,6 +28,7 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.statement.ArgumentBinder.ArgumentFactoryLocator;
 
 import static org.jdbi.v3.core.statement.ArgumentBinder.unwrap;
 /**
@@ -37,10 +38,10 @@ public class Binding {
     protected final Map<Integer, Object> positionals = new TreeMap<>();
     protected final Map<String, Object> named = new LinkedHashMap<>();
     protected final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
-    private final StatementContext ctx;
+    private final ArgumentFactoryLocator locator;
 
     protected Binding(StatementContext ctx) {
-        this.ctx = ctx;
+        this.locator = new ArgumentFactoryLocator(ctx);
     }
 
     /**
@@ -118,7 +119,7 @@ public class Binding {
     public Optional<Argument> findForName(String name, StatementContext ctx2) {
         final Object found = named.get(name);
         if (found != null || named.containsKey(name)) {
-            return Optional.of(new ArgumentBinder(null, ctx2, ParsedParameters.NONE).toArgument(found));
+            return Optional.of(locator.argumentFactoryForType(locator.typeOf(found)).apply(unwrap(found)));
         }
 
         return namedArgumentFinder.stream()
@@ -146,7 +147,8 @@ public class Binding {
      */
     @Deprecated(since = "3.11.0", forRemoval = true)
     public Optional<Argument> findForPosition(int position) {
-        return Optional.ofNullable(new ArgumentBinder(null, ctx, ParsedParameters.NONE).toArgument(positionals.get(position)));
+        var found = positionals.get(position);
+        return Optional.ofNullable(locator.argumentFactoryForType(locator.typeOf(found)).apply(unwrap(found)));
     }
 
     @Override
