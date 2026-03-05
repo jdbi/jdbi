@@ -101,7 +101,7 @@
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
         <dep.plugin.native.version>0.11.4</dep.plugin.native.version>
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
-        <dep.postgresql.version>42.7.9</dep.postgresql.version>
+        <dep.postgresql.version>42.7.10</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
         <dep.spring.boot.version>3.5.10</dep.spring.boot.version>
         <dep.spring.version>6.2.15</dep.spring.version>
