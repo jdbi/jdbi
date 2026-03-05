@@ -3256,6 +3256,19 @@ include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowdao]
 include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowusage]
 ----
 
+== Exception Handling
+
+When executing a statement, a thrown SQLException will include important information about the
+failure, such as the "state" code, as well as various vendor-specific extensions.
+
+For example, an insert that fails due to a duplicate key might come back with "23505" state, and
+potentially (driver-specific) the name of the violating column or index.
+
+In order to inspect these exceptions and provide more context to callers, Jdbi provides a `SqlExceptionHandler`
+extension point. For imperative support, please register your handler with
+`jdbi.getConfig(SqlStatements.class).addExceptionHandler(SqlExceptionHandler)`.
+With SqlObject, use the `@RegisterSqlExceptionHandler` annotation.
+
 == Transactions
 
 Jdbi provides full support for JDBC transactions.

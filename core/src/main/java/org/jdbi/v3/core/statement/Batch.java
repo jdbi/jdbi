@@ -61,10 +61,11 @@ public class Batch extends BaseStatement<Batch> {
 
         Statement stmt;
         try {
+            final SqlStatements stmtConfig = getConfig(SqlStatements.class);
             try {
                 stmt = createStatement();
                 getContext().addCleanable(() -> cleanupStatement(stmt));
-                getConfig(SqlStatements.class).customize(stmt);
+                stmtConfig.customize(stmt);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, getContext());
             }
@@ -73,7 +74,7 @@ public class Batch extends BaseStatement<Batch> {
 
             try {
                 for (String part : parts) {
-                    final String sql = getConfig(SqlStatements.class).getTemplateEngine().render(part, getContext());
+                    final String sql = stmtConfig.getTemplateEngine().render(part, getContext());
                     LOG.trace(" {}", sql);
                     stmt.addBatch(sql);
                 }
@@ -82,9 +83,9 @@ public class Batch extends BaseStatement<Batch> {
             }
 
             try {
-                return SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), getConfig(SqlStatements.class).getSqlLogger());
+                return SqlLoggerUtil.wrap(stmt::executeBatch, getContext(), stmtConfig.getSqlLogger());
             } catch (SQLException e) {
-                throw new UnableToExecuteStatementException(mungeBatchException(e), getContext());
+                throw stmtConfig.handleException(mungeBatchException(e), getContext());
             }
         } finally {
             close();

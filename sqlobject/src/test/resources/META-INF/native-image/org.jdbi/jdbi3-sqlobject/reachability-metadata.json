@@ -173,6 +173,8 @@
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestVariousOddities$VersionA"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestVariousOddities$VersionA","org.jdbi.v3.sqlobject.SqlObject"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.config.RegisterCollectorTest$RegisterCollectorDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.config.RegisterExceptionHandlersTest$ExceptionMethodDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.config.RegisterExceptionHandlersTest$ExceptionClassDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.config.TestRegisterBeanMapper$PrivateBlogDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.config.TestRegisterConstructorMapper$BlogDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.config.TestRegisterColumnMapper$TestDao"]}},
