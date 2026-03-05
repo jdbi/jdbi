@@ -1,5 +1,6 @@
 # Unreleased
 
+- Add new SqlExceptionHandler hook to handle database exceptions thrown during statement execution
 - Add option to not attach sensitive binding data with OpenTelemetry (#2941, thanks @gmellemstrand !)
 - Add configuration for Jackson serialization of types with custom polymorphic handling (#2915)
 - Update to JUnit 6.0.2
