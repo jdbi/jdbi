@@ -6000,7 +6000,7 @@ The instances injected are the same instances as returned by link:{jdbidocs}/tes
 
 Currently supported databases:
 
-* https://www.postgresql.org/[Postgres^] - link:{jdbidocs}/testing/junit/JdbiPostgresExtension.html[JdbiPostgresExtension^], link:{jdbidocs}/testing/junit/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^], link:{jdbidocs}/testing/junit5/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^]
+* https://www.postgresql.org/[Postgres^] - link:{jdbidocs}/testing/junit/JdbiPostgresExtension.html[JdbiPostgresExtension^], link:{jdbidocs}/testing/junit/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^],
 * https://www.h2database.com/[H2^] - link:{jdbidocs}/testing/junit/JdbiH2Extension.html[JdbiH2Extension^]
 * https://www.sqlite.org/[Sqlite^] - link:{jdbidocs}/testing/junit/JdbiSqliteExtension.html[JdbiSqliteExtension^]
 * Generic JDBC database support - link:{jdbidocs}/testing/junit/JdbiGenericExtension.html[JdbiGenericExtension^].
@@ -6020,8 +6020,6 @@ public class JdbiExtension {
     public JdbiExtension postgres(...) // new JdbiPostgresExtension(...)
 
     public JdbiExtension externalPostgres(...) // new JdbiExternalPostgresExtension(...)
-
-    public JdbiExtension otjEmbeddedPostgres() // new JdbiOtjPostgresExtension()
 
     public JdbiExtension h2() // new JdbiH2Extension()
 
@@ -6059,7 +6057,6 @@ It uses the https://pg-embedded.softwareforge.de/[pg-embedded^] library that can
 This is the fastest way to get to a Postgres instance.
 Most of the Jdbi test classes that use Postgres use this extension.
 * link:{jdbidocs}/testing/junit/JdbiExternalPostgresExtension.html[JdbiExternalPostgresExtension^] supports an external Postgres database and can run tests against any local or remote database.
-* link:{jdbidocs}/testing/junit/JdbiOtjPostgresExtension.html[JdbiOtjPostgresExtension^] supports the https://github.com/opentable/otj-pg-embedded[OpenTable Java Embedded PostgreSQL component^].
 
 === Using Testcontainers
 
@@ -9804,9 +9801,6 @@ And then measure again to be sure it made a difference.
 * link:apidocs-kotlin/jdbi3-kotlin-sqlobject/index.html[jdbi3-kotlin-sqlobject^]
 
 === Related Projects
-
-https://github.com/opentable/otj-pg-embedded[Embedded Postgres^]
-makes testing against a real database quick and easy.
 
 https://github.com/arteam/dropwizard-jdbi3[dropwizard-jdbi3^]
 provides integration with DropWizard.

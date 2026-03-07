@@ -87,7 +87,6 @@
         <dep.mysql.version>9.5.0</dep.mysql.version>
         <dep.opentelemetry.version>1.59.0</dep.opentelemetry.version>
         <dep.oracle-xe.version>23.26.1.0.0</dep.oracle-xe.version>
-        <dep.otj-pg-embedded.version>1.1.1</dep.otj-pg-embedded.version>
         <dep.pg-embedded.version>5.4.1</dep.pg-embedded.version>
         <dep.pgvector.version>0.1.6</dep.pgvector.version>
         <dep.plugin.asciidoctor.version>3.2.0</dep.plugin.asciidoctor.version>
@@ -371,12 +370,6 @@
                 <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-core</artifactId>
                 <version>${dep.jts.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.opentable.components</groupId>
-                <artifactId>otj-pg-embedded</artifactId>
-                <version>${dep.otj-pg-embedded.version}</version>
             </dependency>
 
             <dependency>

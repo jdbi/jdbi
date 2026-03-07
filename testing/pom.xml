@@ -46,12 +46,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
             <groupId>de.softwareforge.testing</groupId>
             <artifactId>pg-embedded</artifactId>
             <optional>true</optional>
@@ -112,29 +106,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>no-docker</id>
-            <activation>
-                <property>
-                    <name>no-docker</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes combine.children="append">
-                                <exclude>**/JdbiOtjPostgresExtendWithTest.*</exclude>
-                                <exclude>**/JdbiOtjPostgresExtensionTest.*</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
