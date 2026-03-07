@@ -59,7 +59,6 @@ import org.junit.jupiter.api.extension.ParameterResolver;
  * @see JdbiPostgresExtension
  * @see JdbiSqliteExtension
  * @see JdbiExternalPostgresExtension
- * @see JdbiOtjPostgresExtension
  */
 public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
@@ -127,24 +126,6 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
         @Nullable String username,
         @Nullable String password) {
         return JdbiExternalPostgresExtension.instance(hostname, port, database, username, password);
-    }
-
-    /**
-     * Creates a new extension using a managed, embedded postgres database. Using this method requires the <code>com.opentable.components:otj-pg-embedded</code>
-     * component and the postgres JDBC driver on the class path.
-     *
-     * <pre>{@code
-     *     @RegisterExtension
-     *     public JdbiExtension postgres = JdbiExtension.otjEmbeddedPostgres();
-     * }</pre>
-     * <p>
-     * Compared to the {@link #postgres(EmbeddedPgExtension)} method, this extension spins up a new postgres instance for each test method and is slower. It
-     * should only be used to migrate existing code that uses the JUnit 4 {@link org.jdbi.testing.JdbiRule} quickly to JUnit 5.
-     *
-     * @return A {@link JdbiExtension} connected to a managed postgres data source.
-     */
-    public static JdbiOtjPostgresExtension otjEmbeddedPostgres() {
-        return JdbiOtjPostgresExtension.instance();
     }
 
     /**
