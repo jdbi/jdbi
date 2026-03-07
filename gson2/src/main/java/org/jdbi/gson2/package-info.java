@@ -11,20 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.qualifier;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.statement.StatementContext;
-
-// tag::columnmapper[]
-@Reversed // <1>
-public class ReversedStringMapper implements ColumnMapper<String> {
-    @Override
-    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return Reverser.reverse(r.getString(columnNumber));
-    }
-}
-// end::columnmapper[]
+/**
+ * <p>
+ * JSON support using the <a href="https://github.com/google/gson">Gson</a>
+ * library. Install the {@link org.jdbi.gson2.Gson2Plugin} to provide
+ * Gson-backed JSON serialization for {@code @Json} qualified types.
+ * </p>
+ */
+package org.jdbi.gson2;

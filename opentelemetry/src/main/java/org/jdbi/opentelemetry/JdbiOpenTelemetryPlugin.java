@@ -71,7 +71,9 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
                         span.setAttribute(SQL, renderedSql.substring(0,
                                 Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength())));
                     }
-                    span.setAttribute(BINDING, ctx.getBinding().describe(stmtConfig.getJfrParamMaxLength()));
+                    if (stmtConfig.getIncludeBindingsInTelemetry()) {
+                        span.setAttribute(BINDING, ctx.getBinding().describe(stmtConfig.getJfrParamMaxLength()));
+                    }
                     span.setAttribute(NUM_ROWS, ctx.getMappedRows());
                     span.end();
                 });

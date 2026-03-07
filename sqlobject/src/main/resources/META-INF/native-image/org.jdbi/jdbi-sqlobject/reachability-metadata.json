@@ -28,6 +28,8 @@
     {"type":"org.jdbi.sqlobject.config.internal.RegisterRowMapperFactoryImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation"]}]},
     {"type":"org.jdbi.sqlobject.config.internal.RegisterRowMapperImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation"]}]},
     {"type":"org.jdbi.sqlobject.config.internal.RegisterRowMappersImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation"]}]},
+    {"type":"org.jdbi.sqlobject.config.internal.RegisterSqlExceptionHandlerImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation"]}]},
+    {"type":"org.jdbi.sqlobject.config.internal.RegisterSqlExceptionHandlersImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation"]}]},
     {"type":"org.jdbi.sqlobject.config.internal.UseEnumStrategyImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation"]}]},
     {"type":"org.jdbi.sqlobject.config.internal.UseSqlParserImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation","java.lang.Class", "java.lang.reflect.Method"]}]},
     {"type":"org.jdbi.sqlobject.config.internal.UseTemplateEngineImpl","methods":[{"name":"<init>","parameterTypes":["java.lang.annotation.Annotation","java.lang.Class", "java.lang.reflect.Method"]}]},

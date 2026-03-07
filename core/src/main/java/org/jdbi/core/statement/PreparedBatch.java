@@ -210,6 +210,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         }
     }
 
+    @SuppressWarnings("PMD.ExceptionAsFlowControl")
     private ExecutedBatch internalBatchExecute() {
         if (!getBinding().isEmpty()) {
             add();
@@ -224,11 +225,12 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         ParsedParameters parsedParameters = parsedSql.getParameters();
 
         try {
+            final SqlStatements stmtConfig = getConfig(SqlStatements.class);
             try {
                 stmt = createStatement(sql);
 
                 getContext().addCleanable(() -> cleanupStatement(stmt));
-                getConfig(SqlStatements.class).customize(stmt);
+                stmtConfig.customize(stmt);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(e, ctx);
             }
@@ -253,7 +255,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             beforeExecution();
 
             try {
-                final int[] modifiedRows = SqlLoggerUtil.wrap(stmt::executeBatch, ctx, getConfig(SqlStatements.class).getSqlLogger());
+                final int[] modifiedRows = SqlLoggerUtil.wrap(stmt::executeBatch, ctx, stmtConfig.getSqlLogger());
 
                 afterExecution();
 
@@ -261,8 +263,15 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
 
                 return new ExecutedBatch(stmt, modifiedRows);
             } catch (SQLException e) {
-                throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), ctx);
+                throw stmtConfig.handleException(Batch.mungeBatchException(e), ctx);
             }
+        } catch (Exception e) {
+            try {
+                close();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
+            throw e;
         } finally {
             bindings.clear();
         }

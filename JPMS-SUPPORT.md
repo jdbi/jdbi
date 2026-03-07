@@ -19,13 +19,9 @@ module support (having automatic module names) since release 3.7.1.
 
 Shipping automatic module names is sufficient to allow other projects
 and libraries to declare module dependencies on Jdbi artifacts. Jdbi
-uses `org.jdbi.v3.<...>` as automatic module names. By having
+uses `org.jdbi.<...>` as automatic module names. By having
 automatic module names for all artifacts, Jdbi avoids having the JVM
 create dummy module names from the jar names which is unstable.
-
-Build warnings like `src/main/java/module-info.java:[14,16] module
-name component v3 should avoid terminal digits` are here
-forever. Those are annoying but not critical.
 
 
 ## Javadocs

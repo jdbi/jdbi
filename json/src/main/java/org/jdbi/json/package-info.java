@@ -11,20 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.qualifier;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.statement.StatementContext;
-
-// tag::columnmapper[]
-@Reversed // <1>
-public class ReversedStringMapper implements ColumnMapper<String> {
-    @Override
-    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return Reverser.reverse(r.getString(columnNumber));
-    }
-}
-// end::columnmapper[]
+/**
+ * <p>
+ * JSON mapping SPI and the {@link org.jdbi.json.Json} qualifier.
+ * The {@link org.jdbi.json.JsonPlugin} registers argument and column
+ * mapper factories for {@code @Json} qualified types. A concrete JSON
+ * library implementation (such as Gson, Jackson, or Moshi) must be
+ * installed to provide the actual serialization.
+ * </p>
+ */
+package org.jdbi.json;

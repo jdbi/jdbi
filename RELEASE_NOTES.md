@@ -1,10 +1,13 @@
 # Unreleased
 
+- Add new SqlExceptionHandler hook to handle database exceptions thrown during statement execution
+- Add option to not attach sensitive binding data with OpenTelemetry (#2941, thanks @gmellemstrand !)
 - Add configuration for Jackson serialization of types with custom polymorphic handling (#2915)
 - Update to JUnit 6.0.2
 - Retire Apache Derby integration (#2866)
 - Run test suite against Spring Framework 7 (#2919)
 - Add OraclePlugin that sets untyped null argument to Types.NULL for Oracle compatibility (#1003)
+- Support INOUT parameters for stored procedure Call statements (#1606)
 
 # 3.51.0
 

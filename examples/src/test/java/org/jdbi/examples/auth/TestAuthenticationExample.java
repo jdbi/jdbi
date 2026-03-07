@@ -11,17 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.examples;
-
-import java.util.List;
+package org.jdbi.examples.auth;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.core.mapper.reflect.JdbiConstructor;
-import org.jdbi.examples.QualifiedTypes;
-import org.jdbi.examples.QualifiedTypes.Colon;
-import org.jdbi.examples.QualifiedTypes.Comma;
+import org.jdbi.examples.auth.AuthenticationExample.AuthContext;
+import org.jdbi.examples.auth.AuthenticationExample.UseAuthentication;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.testing.junit.JdbiExtension;
@@ -30,8 +27,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TestQualifiedTypes {
+public class TestAuthenticationExample {
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
@@ -39,8 +37,10 @@ public class TestQualifiedTypes {
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
             .withInitializer((ds, h) -> {
-                h.execute("CREATE TABLE data (id serial primary key, comma varchar(50), colon varchar(50))");
-                h.execute("INSERT INTO data (comma,colon) VALUES ('one,two,three,four', 'eins:zwei:drei:vier')");
+                h.execute("CREATE TABLE users (id serial primary key, name varchar(50), password varchar(50))");
+                h.execute("CREATE TABLE data (id serial primary key, value varchar(50))");
+                h.execute("INSERT INTO users (name, password) VALUES ('user','correct')");
+                h.execute("INSERT INTO data (value) VALUES ('secret')");
             })
             .withPlugin(new SqlObjectPlugin());
 
@@ -50,44 +50,64 @@ public class TestQualifiedTypes {
     public void setUp() {
         var jdbi = pgExtension.getJdbi();
         jdbi.registerRowMapper(Data.class, ConstructorMapper.of(Data.class));
-        QualifiedTypes.registerMappers(jdbi);
+
         this.dao = jdbi.onDemand(DataDao.class);
     }
 
     @Test
-    public void test() {
-        var data = dao.getData(1);
-        assertThat(data.getComma()).isNotEmpty().containsExactly("one", "two", "three", "four");
-        assertThat(data.getColon()).isNotEmpty().containsExactly("eins", "zwei", "drei", "vier");
+    public void authenticateSuccess() {
+        var authContext = new AuthContext("user", "correct");
+
+        var data = dao.getData(authContext, 1);
+        assertThat(data).hasFieldOrPropertyWithValue("id", 1);
+        assertThat(data).hasFieldOrPropertyWithValue("value", "secret");
+    }
+
+
+    @Test
+    public void authenticateBadUser() {
+        var authContext = new AuthContext("attacker", "correct");
+
+        assertThrows(IllegalStateException.class, () -> dao.getData(authContext, 1));
+    }
+
+    @Test
+    public void authenticateFailure() {
+        var authContext = new AuthContext("user", "incorrect");
+
+        assertThrows(IllegalStateException.class, () -> dao.getData(authContext, 1));
+    }
+
+    @Test
+    public void missingAuth() {
+        assertThrows(IllegalArgumentException.class, () -> dao.getSneakyData(1));
     }
 
     public static class Data {
         private final int id;
-        private final List<String> comma;
-        private final List<String> colon;
+        private final String value;
 
         @JdbiConstructor
-        public Data(int id, @Comma List<String> comma, @Colon List<String> colon) {
+        public Data(int id, String value) {
             this.id = id;
-            this.comma = comma;
-            this.colon = colon;
+            this.value = value;
         }
 
         public int getId() {
             return id;
         }
 
-        public List<String> getComma() {
-            return comma;
-        }
-
-        public List<String> getColon() {
-            return colon;
+        public String getValue() {
+            return value;
         }
     }
 
+    @UseAuthentication
     public interface DataDao {
         @SqlQuery("SELECT * FROM data WHERE id = :id")
-        Data getData(int id);
+        Data getData(AuthContext authContext, int id);
+
+        @SqlQuery("SELECT * FROM data WHERE id = :id")
+        Data getSneakyData(int id);
     }
 }

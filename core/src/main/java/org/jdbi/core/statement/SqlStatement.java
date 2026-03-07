@@ -1786,6 +1786,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return String.format("%s[sql=%s, bindings=%s]", getClass().getSimpleName(), sql, getContext().getBinding());
     }
 
+    @SuppressWarnings("PMD.ExceptionAsFlowControl")
     PreparedStatement internalExecute() {
         final StatementContext ctx = getContext();
         final OptionalEvent evt = JfrSupport.newStatementEvent();
@@ -1795,35 +1796,45 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         ParsedSql parsedSql = parseSql();
 
+        final SqlStatements stmtConfig = getConfig(SqlStatements.class);
         try {
-            stmt = createStatement(parsedSql.getSql());
-            // The statement builder might (or might not) clean up the statement when called. E.g. the
-            // caching statement builder relies on the statement *not* being closed.
-            getContext().addCleanable(() -> cleanupStatement(stmt));
-            getConfig(SqlStatements.class).customize(stmt);
-        } catch (SQLException e) {
-            throw new UnableToCreateStatementException(e, ctx);
+            try {
+                stmt = createStatement(parsedSql.getSql());
+                // The statement builder might (or might not) clean up the statement when called. E.g. the
+                // caching statement builder relies on the statement *not* being closed.
+                getContext().addCleanable(() -> cleanupStatement(stmt));
+                stmtConfig.customize(stmt);
+            } catch (SQLException e) {
+                throw new UnableToCreateStatementException(e, ctx);
+            }
+
+            ctx.setStatement(stmt);
+
+            beforeBinding();
+
+            new ArgumentBinder(stmt, ctx, parsedSql.getParameters()).bind(getBinding());
+
+            beforeExecution();
+
+            attachJfrEvent(evt, ctx);
+
+            try {
+                SqlLoggerUtil.wrap(stmt::execute, ctx, stmtConfig.getSqlLogger());
+            } catch (SQLException e) {
+                throw stmtConfig.handleException(e, ctx);
+            }
+
+            afterExecution();
+
+            return stmt;
+        } catch (Exception e) {
+            try {
+                close();
+            } catch (Exception e1) {
+                e.addSuppressed(e1);
+            }
+            throw e;
         }
-
-        ctx.setStatement(stmt);
-
-        beforeBinding();
-
-        new ArgumentBinder(stmt, ctx, parsedSql.getParameters()).bind(getBinding());
-
-        beforeExecution();
-
-        attachJfrEvent(evt, ctx);
-
-        try {
-            SqlLoggerUtil.wrap(stmt::execute, ctx, getConfig(SqlStatements.class).getSqlLogger());
-        } catch (SQLException e) {
-            throw new UnableToExecuteStatementException(e, ctx);
-        }
-
-        afterExecution();
-
-        return stmt;
     }
 
     PreparedStatement createStatement(final String parsedSql) throws SQLException {

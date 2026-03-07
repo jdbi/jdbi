@@ -11,20 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.qualifier;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.statement.StatementContext;
-
-// tag::columnmapper[]
-@Reversed // <1>
-public class ReversedStringMapper implements ColumnMapper<String> {
-    @Override
-    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return Reverser.reverse(r.getString(columnNumber));
-    }
-}
-// end::columnmapper[]
+/**
+ * <p>
+ * Annotations that control the behavior of reflective property mapping,
+ * such as {@link org.jdbi.core.annotation.JdbiProperty}.
+ * </p>
+ */
+package org.jdbi.core.annotation;

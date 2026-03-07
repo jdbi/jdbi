@@ -11,24 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * <p>
+ * Qualified types add context to Java types for database mapping.
+ * The {@link org.jdbi.core.qualifier.Qualifier} meta-annotation
+ * marks custom qualifying annotations, and
+ * {@link org.jdbi.core.qualifier.QualifiedType} pairs a Java type
+ * with its qualifiers for use in argument binding and column mapping.
+ * </p>
+ */
 package org.jdbi.core.qualifier;
-
-import java.sql.Types;
-
-import org.jdbi.core.argument.AbstractArgumentFactory;
-import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
-
-// tag::argumentfactory[]
-@Reversed // <1>
-public class ReversedStringArgumentFactory extends AbstractArgumentFactory<String> {
-    public ReversedStringArgumentFactory() {
-        super(Types.VARCHAR);
-    }
-
-    @Override
-    protected Argument build(String value, ConfigRegistry config) {
-        return (pos, stmt, ctx) -> stmt.setString(pos, Reverser.reverse(value));
-    }
-}
-// end::argumentfactory[]

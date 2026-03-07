@@ -11,20 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.qualifier;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.statement.StatementContext;
-
-// tag::columnmapper[]
-@Reversed // <1>
-public class ReversedStringMapper implements ColumnMapper<String> {
-    @Override
-    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return Reverser.reverse(r.getString(columnNumber));
-    }
-}
-// end::columnmapper[]
+/**
+ * <p>
+ * Meta-annotations for the extension framework. These annotations are
+ * used to mark other annotations that configure, customize, or provide
+ * handlers for extension types such as SQL Objects.
+ * </p>
+ */
+package org.jdbi.core.extension.annotation;

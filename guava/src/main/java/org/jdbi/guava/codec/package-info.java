@@ -11,20 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.qualifier;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.statement.StatementContext;
-
-// tag::columnmapper[]
-@Reversed // <1>
-public class ReversedStringMapper implements ColumnMapper<String> {
-    @Override
-    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return Reverser.reverse(r.getString(columnNumber));
-    }
-}
-// end::columnmapper[]
+/**
+ * <p>
+ * Provides codec implementations for some Guava types.
+ * The {@link org.jdbi.guava.codec.TypeResolvingCodecFactory} extends
+ * the codec framework with Guava's {@code TypeToken} to resolve codecs
+ * for subtypes of registered types.
+ * </p>
+ */
+package org.jdbi.guava.codec;

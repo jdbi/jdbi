@@ -11,13 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.qualifier;
+package org.jdbi.sqlobject.config;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-// tag::qualifier[]
+import org.jdbi.core.extension.annotation.UseExtensionConfigurer;
+import org.jdbi.sqlobject.config.internal.RegisterSqlExceptionHandlersImpl;
+
+@UseExtensionConfigurer(RegisterSqlExceptionHandlersImpl.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Qualifier
-public @interface Reversed {}
-// end::qualifier[]
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface RegisterSqlExceptionHandlers {
+    RegisterSqlExceptionHandler[] value();
+}

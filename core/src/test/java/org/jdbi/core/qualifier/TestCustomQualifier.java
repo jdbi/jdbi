@@ -43,6 +43,35 @@ public class TestCustomQualifier {
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
 
     @Test
+    public void qualifiedTypeUsage() {
+        // tag::usage[]
+        h2Extension.getJdbi()
+            .registerArgument(new ReversedStringArgumentFactory())
+            .registerColumnMapper(new ReversedStringMapper())
+            .useHandle(handle -> {
+                QualifiedType<String> reversedString =
+                    QualifiedType.of(String.class).with(Reversed.class);
+
+                handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
+                    .bindByType("name", "abc", reversedString) // <1>
+                    .execute();
+
+                // the value is stored reversed in the database
+                String raw = handle.select("SELECT name FROM something")
+                    .mapTo(String.class)
+                    .one();
+                assertThat(raw).isEqualTo("cba");
+
+                // mapping with the qualified type reverses it back
+                String name = handle.select("SELECT name FROM something")
+                    .mapTo(reversedString) // <2>
+                    .one();
+                assertThat(name).isEqualTo("abc");
+            });
+        // end::usage[]
+    }
+
+    @Test
     public void registerArgumentFactory() {
         h2Extension.getJdbi()
             .registerArgument(new ReversedStringArgumentFactory())

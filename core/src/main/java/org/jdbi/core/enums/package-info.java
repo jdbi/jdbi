@@ -11,20 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.qualifier;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.statement.StatementContext;
-
-// tag::columnmapper[]
-@Reversed // <1>
-public class ReversedStringMapper implements ColumnMapper<String> {
-    @Override
-    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return Reverser.reverse(r.getString(columnNumber));
-    }
-}
-// end::columnmapper[]
+/**
+ * <p>
+ * Configuration and annotations for binding and mapping Java
+ * {@link java.lang.Enum} types. Enums can be persisted by name or by
+ * ordinal, controlled through the {@link org.jdbi.core.enums.Enums}
+ * configuration class or the {@link org.jdbi.core.enums.EnumByName}
+ * and {@link org.jdbi.core.enums.EnumByOrdinal} annotations.
+ * </p>
+ */
+package org.jdbi.core.enums;

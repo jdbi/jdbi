@@ -11,20 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.core.qualifier;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.statement.StatementContext;
-
-// tag::columnmapper[]
-@Reversed // <1>
-public class ReversedStringMapper implements ColumnMapper<String> {
-    @Override
-    public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-        return Reverser.reverse(r.getString(columnNumber));
-    }
-}
-// end::columnmapper[]
+/**
+ * <p>
+ * OpenTelemetry integration for Jdbi. Install the
+ * {@link org.jdbi.opentelemetry.JdbiOpenTelemetryPlugin} to emit
+ * a trace span for every SQL statement executed by Jdbi.
+ * </p>
+ */
+package org.jdbi.opentelemetry;
