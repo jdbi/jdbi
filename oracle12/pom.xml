@@ -29,6 +29,8 @@
 
     <properties>
         <basepom.test.fork-count>1</basepom.test.fork-count>
+        <!-- docker tests run long -->
+        <basepom.test.timeout>600</basepom.test.timeout>
         <moduleName>org.jdbi.v3.oracle12</moduleName>
     </properties>
 
@@ -81,6 +83,13 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-sqlobject</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
 

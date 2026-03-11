@@ -11,11 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
+package org.jdbi.v3.oracle12;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -25,26 +26,26 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
 /**
- * Postgres specific mapper factory for Java Time types.
- * <br>
- * Maps {@link Instant} as the Postgres driver does not support them with {@link ResultSet#getObject}.
+ * Oracle specific mapper factory for java time types.
+ *
+ * {@link Instant} must be explicitly mapped from {@link Timestamp} as the Oracle driver does not support it with {@link ResultSet#getObject}.
  */
-public class JavaTimeMapperFactory implements ColumnMapperFactory {
+final class JavaTimeColumnMapperFactory implements ColumnMapperFactory {
+
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = Map.of(
-        Instant.class, (r, i, ctx) -> getPostgresInstant(r, i)
+        Instant.class, (r, columnNumber, ctx) -> getOracleInstant(r, columnNumber)
     );
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-
         return Optional.of(type)
             .filter(Class.class::isInstance)
             .map(Class.class::cast)
             .map(MAPPERS::get);
     }
 
-    private static Instant getPostgresInstant(ResultSet r, int i) throws SQLException {
-        var timestamp = r.getTimestamp(i);
-        return timestamp == null ? null : timestamp.toInstant();
+    private static Instant getOracleInstant(ResultSet r, int i) throws SQLException {
+        Timestamp ts = r.getTimestamp(i);
+        return ts == null ? null : ts.toInstant();
     }
 }

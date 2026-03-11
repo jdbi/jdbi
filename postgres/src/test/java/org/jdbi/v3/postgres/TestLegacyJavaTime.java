@@ -14,15 +14,20 @@
 package org.jdbi.v3.postgres;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.AbstractJavaTimeTests;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.Update;
+import org.jdbi.v3.meta.Legacy;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,8 +35,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
-public class TestJavaTime extends AbstractJavaTimeTests {
+public class TestLegacyJavaTime extends AbstractJavaTimeTests {
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
@@ -54,50 +60,42 @@ public class TestJavaTime extends AbstractJavaTimeTests {
         h.close();
     }
 
-    /**
-     * The resulting OffsetDateTime has the right LocalDateTime (for the default timezone) but the offset is UTC. IAW: It is a mess.
-     */
     @Override
-    protected void validateOffsetDateTimeLosesOffsetWithTimestamp(OffsetDateTime result, OffsetDateTime expected, ZoneOffset defaultOffset,
-        ZoneOffset testOffset) {
-        assertThat(result.withOffsetSameLocal(defaultOffset)).isCloseTo(expected, getAllowableOffset());
-        assertThat(result.getOffset()).isEqualTo(ZoneOffset.UTC);
+    protected <T> QualifiedType<T> getTestType(Class<T> clazz) {
+        return QualifiedType.of(clazz).with(Legacy.class);
     }
 
     /**
-     * postgres always returns UTC (+0) as Offset. See  <a href="https://github.com/pgjdbc/pgjdbc/issues/3943">pgjdbc #3943</a>.
+     * Legacy LocalTime mapper only supports second granularity.
+     */
+    @Override
+    protected void validateLocalTime(LocalTime result, LocalTime expected) {
+        assertThat(result).isCloseTo(expected, within(0, ChronoUnit.SECONDS));
+    }
+
+    /**
+     * Legacy OffsetDateTime maps offset to the system default.
      */
     @Override
     protected void validateOffsetDateTimeTSTZ(OffsetDateTime result, OffsetDateTime expected, ZoneOffset defaultOffset, ZoneOffset testOffset) {
         assertThat(result).isCloseTo(expected, getAllowableOffset());
 
-        // postgres always returns UTC as offset - see https://github.com/pgjdbc/pgjdbc/issues/3943
-        assertThat(result.getOffset()).isEqualTo(ZoneOffset.UTC);
-        if (!defaultOffset.equals(ZoneOffset.UTC)) {
-            assertThat(result.getOffset()).isNotEqualTo(defaultOffset);
-        }
+        // legacy mapper maps to the default offset.
+        assertThat(result.getOffset()).isEqualTo(defaultOffset);
         assertThat(result.getOffset()).isNotEqualTo(testOffset);
     }
 
     /**
-     * The resulting ZonedDateTime has the right LocalDateTime (for the default timezone) but the offset is UTC. IAW: It is a mess.
-     */
-    @Override
-    protected void validateZonedDateTimeLosesZoneWithTimestamp(ZonedDateTime result, ZonedDateTime expected, ZoneId defaultZoneId, ZoneId testZoneId) {
-        assertThat(result.withZoneSameLocal(defaultZoneId)).isCloseTo(expected, getAllowableOffset());
-        assertThat(result.getOffset()).isEqualTo(ZoneOffset.UTC);
-    }
-
-    /**
-     * postgres always returns UTC as Zone. See  <a href="https://github.com/pgjdbc/pgjdbc/issues/3943">pgjdbc #3943</a>.
+     * Legacy ZonedDateTime maps to the default zone offset.
      */
     @Override
     protected void validateZonedDateTimeTSTZ(ZonedDateTime result, ZonedDateTime expected, ZoneId defaultZoneId, ZoneId testZoneId) {
         assertThat(result).isCloseTo(expected, getAllowableOffset());
 
-        assertThat(result.getZone()).isEqualTo(ZoneOffset.UTC);
-        assertThat(result.getZone()).isNotEqualTo(defaultZoneId);
-        assertThat(result.getZone()).isNotEqualTo(testZoneId);
+        // multiple zones may match, find all of them and see that the default zone is in there.
+        List<String> matchingZoneIds = findZoneIdsFor(result);
+        assertThat(matchingZoneIds).doesNotContain(testZoneId.getId());
+        assertThat(matchingZoneIds).contains(defaultZoneId.getId());
     }
 
     @Test
