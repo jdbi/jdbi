@@ -1683,7 +1683,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                 }
 
                 final String methodName = methodNames.get(methodIndex);
-                final String name = key + valueIndex + '.' + methodName;
+                final String name = key + valueIndex + "_" + methodName;
                 names.append(':').append(name);
                 final Argument argument = beanMethods.find(methodName, ctx)
                     .orElseThrow(() -> new UnableToCreateStatementException("Unable to get " + methodName + " argument for " + bean, ctx));

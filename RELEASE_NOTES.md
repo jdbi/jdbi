@@ -34,6 +34,7 @@ documentation at https://jdbi.org/ for details.
 - Support INOUT parameters for stored procedure Call statements (#1606)
 - Map java.time types according to JDBC 4.2 spec (using setObject) (#988)
 - Add `@Legacy` annotation to restore old timestamp mapping behavior
+- Make `@BindMethodsList` work with the String template engine (fixes #2917, reported by @agavrilov76, fixed by @JScodeconcise)
 
 # 3.51.0
 
