@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.52.0
+
 ## Changes to java.time related classes
 
 JDBC 4.2 added full support to map java.time classes onto SQL types
