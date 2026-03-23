@@ -281,6 +281,7 @@ public class TestPreparedBatch {
         Handle h = h2Extension.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
         assertThat(batch.getBatchChunkSize()).isEqualTo(Integer.MAX_VALUE);
+        assertThat(batch.chunkCounter).isEqualTo(0);
     }
 
     @Test
@@ -291,6 +292,7 @@ public class TestPreparedBatch {
         assertThat(batch.getBatchChunkSize()).isEqualTo(100);
         batch.setBatchChunkSize(5000);
         assertThat(batch.getBatchChunkSize()).isEqualTo(5000);
+        assertThat(batch.chunkCounter).isEqualTo(0);
     }
 
     @Test
@@ -319,6 +321,7 @@ public class TestPreparedBatch {
             // All should be successful inserts
             assertThat(results).containsOnly(1);
             // Verify all data was inserted
+            assertThat(batch.chunkCounter).isEqualTo(3);
             List<Something> records = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
             assertThat(records).hasSize(7);
             assertThat(records).extracting(Something::getName)
@@ -339,6 +342,7 @@ public class TestPreparedBatch {
         int[] results = batch.execute();
         assertThat(results).hasSize(3);
         assertThat(results).containsOnly(1);
+        assertThat(batch.chunkCounter).isEqualTo(1);
         // Verify all data was inserted
         List<Something> records = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertThat(records).hasSize(3);
@@ -359,6 +363,7 @@ public class TestPreparedBatch {
         int[] results = batch.execute();
         assertThat(results).hasSize(totalItems);
         assertThat(results).containsOnly(1);
+        assertThat(batch.chunkCounter).isEqualTo(5);
         // Verify all data was inserted
         int recordCount = h.createQuery("select count(*) from something").mapTo(int.class).one();
         assertThat(recordCount).isEqualTo(totalItems);
@@ -377,6 +382,7 @@ public class TestPreparedBatch {
         int[] results = batch.execute();
         assertThat(results).hasSize(3);
         assertThat(results).containsOnly(1);
+        assertThat(batch.chunkCounter).isEqualTo(2);
         // Verify data
         List<Something> records = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertThat(records).hasSize(3);
@@ -391,6 +397,7 @@ public class TestPreparedBatch {
         batch.setBatchChunkSize(5);
         int[] results = batch.execute();
         assertThat(results).isEmpty();
+        assertThat(batch.chunkCounter).isEqualTo(0);
         assertThat(batch.getBatchChunkSize()).isEqualTo(5);
     }
     public static class PublicSomething {
