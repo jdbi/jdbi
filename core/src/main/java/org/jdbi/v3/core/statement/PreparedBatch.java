@@ -63,6 +63,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     private final List<PreparedBinding> bindings = new ArrayList<>();
     private int batchChunkSize = Integer.MAX_VALUE;
     final Map<PrepareKey, Function<String, Optional<Function<Object, Argument>>>> preparedFinders = new HashMap<>();
+    int chunkCounter = 0;
 
     public PreparedBatch(Handle handle, CharSequence sql) {
         super(handle, sql);
@@ -212,6 +213,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     private ExecutedBatch internalBatchExecute() {
+        chunkCounter = 0;
         if (!getBinding().isEmpty()) {
             add();
         }
@@ -272,6 +274,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         }
 
         try {
+            chunkCounter += 1;
             return SqlLoggerUtil.wrap(stmt::executeBatch, ctx, getConfig(SqlStatements.class).getSqlLogger());
         } catch (SQLException e) {
             throw new UnableToExecuteStatementException(Batch.mungeBatchException(e), ctx);

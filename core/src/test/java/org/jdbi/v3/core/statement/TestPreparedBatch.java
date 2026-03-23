@@ -37,6 +37,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.Assert.assertThrows;
 
 public class TestPreparedBatch {
 
@@ -296,40 +297,33 @@ public class TestPreparedBatch {
     public void testInvalidBatchChunkSize() {
         Handle h = h2Extension.getSharedHandle();
         PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
-        try {
-            batch.setBatchChunkSize(0);
-            fail("Expected IllegalArgumentException for chunk size 0");
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage()).contains("Batch chunk size must be greater than zero");
-        }
-        try {
-            batch.setBatchChunkSize(-1);
-            fail("Expected IllegalArgumentException for negative chunk size");
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage()).contains("Batch chunk size must be greater than zero");
-        }
+        IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class, () -> batch.setBatchChunkSize(0));
+        assertThat(exception1.getMessage()).contains("Batch chunk size must be greater than zero");
+        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> batch.setBatchChunkSize(-1));
+        assertThat(exception2.getMessage()).contains("Batch chunk size must be greater than zero");
     }
 
     @Test
     public void testBatchChunkSizeExecution() {
-        Handle h = h2Extension.getSharedHandle();
-        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
-        // Set chunk size to 3
-        batch.setBatchChunkSize(3);
-        // Add 7 items (will require 3 chunks: 3, 3, 1)
-        for (int i = 0; i < 7; i++) {
-            batch.bind("id", i).bind("name", "Name" + i).add();
+        try (Handle h = h2Extension.getSharedHandle()) {
+            PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+            // Set chunk size to 3
+            batch.setBatchChunkSize(3);
+            // Add 7 items (will require 3 chunks: 3, 3, 1)
+            for (int i = 0; i < 7; i++) {
+                batch.bind("id", i).bind("name", "Name" + i).add();
+            }
+            int[] results = batch.execute();
+            // Should get 7 update counts (one for each row)
+            assertThat(results).hasSize(7);
+            // All should be successful inserts
+            assertThat(results).containsOnly(1);
+            // Verify all data was inserted
+            List<Something> records = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
+            assertThat(records).hasSize(7);
+            assertThat(records).extracting(Something::getName)
+                .containsExactly("Name0", "Name1", "Name2", "Name3", "Name4", "Name5", "Name6");
         }
-        int[] results = batch.execute();
-        // Should get 7 update counts (one for each row)
-        assertThat(results).hasSize(7);
-        // All should be successful inserts
-        assertThat(results).containsOnly(1);
-        // Verify all data was inserted
-        List<Something> records = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
-        assertThat(records).hasSize(7);
-        assertThat(records).extracting(Something::getName)
-            .containsExactly("Name0", "Name1", "Name2", "Name3", "Name4", "Name5", "Name6");
     }
 
     @Test
@@ -408,6 +402,30 @@ public class TestPreparedBatch {
             this.id = id;
             this.name = name;
         }
+    }
+
+    @Test
+    public void testNumberOfChunks(){
+        // tag::BatchChunkTag[]
+        Handle h = h2Extension.getSharedHandle();
+        PreparedBatch batch = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        batch.setBatchChunkSize(5);
+        int totalItems = 13;
+        for (int i = 0; i < totalItems; i++) {
+            batch.bind("id", i).bind("name", "bob" + i).add();
+        }
+        batch.execute();
+        // end::BatchChunkTag[]
+        assertThat(batch.chunkCounter).isEqualTo(3);
+
+        batch.setBatchChunkSize(5);
+        int totalItems2 = 26;
+        for (int i = 13; i < totalItems2; i++) {
+            batch.bind("id", i).bind("name", "bob" + i).add();
+        }
+
+        batch.execute();
+        assertThat(batch.chunkCounter).isEqualTo(3);
     }
 
     public static class WrappedIntPublicSomething {

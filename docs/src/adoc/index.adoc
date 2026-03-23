@@ -829,6 +829,23 @@ include::{exampledir}/BatchTest.java[tags=sqlObjectBatch]
 Batching dramatically increases efficiency over repeated single statement execution, but many databases don't handle extremely large batches well either.
 Test with your database configuration, but often extremely large data sets should be divided and committed in pieces - or risk bringing your database to its knees.
 
+
+===== Executing Operations in Chunks
+You can set chunk size with `PreparedBatch.setBatchChunkSize()` which chunks the operations into your preferred size. See below, instead of the 5000 insert operations being executed at once, they will be executed 1000 operations at a time:
+
+[source,java,indent=0]
+----
+PreparedBatch batch = handle.prepareBatch("INSERT INTO \"user\" (id, \"name\") VALUES(:id, :name)");
+
+batch.setBatchChunkSize(1000);
+
+for (int i = 100; i < 5000; i++) {
+    batch.bind("id", i).bind("name", "User:" + i).add();
+}
+
+int[] counts = batch.execute();
+----
+
 ===== Exception Rewriting
 
 The JDBC SQLException class is was introduced in Java 1.1 and predates more modern exception facilities like Throwable's suppressed exceptions.
@@ -850,6 +867,7 @@ java.sql.BatchUpdateException: Batch entry 1 INSERT INTO something (id, name) VA
 Suppressed: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "something_pkey"
   Detail: Key (id)=(0) already exists.
 ----
+
 
 ==== Stored Procedure Calls
 
