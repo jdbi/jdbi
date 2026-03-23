@@ -14,18 +14,15 @@
 package org.jdbi.v3.postgres;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
+import java.time.ZonedDateTime;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
-import org.assertj.core.data.TemporalUnitOffset;
-import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.AbstractJavaTimeTests;
+import org.jdbi.v3.core.statement.Update;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,24 +30,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
 
-public class TestJavaTime {
+public class TestJavaTime extends AbstractJavaTimeTests {
 
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public JdbiExtension pgExtension = JdbiExtension.postgres(pg);
-
-    Handle h;
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugin(new PostgresPlugin());
 
     @BeforeEach
     public void setUp() {
         h = pgExtension.openHandle();
         h.useTransaction(th -> {
             th.execute("drop table if exists stuff");
-            th.execute("create table stuff (ts timestamp, d date, z text)");
+            th.execute("create table stuff (ts timestamp, d date, t time, z text, tstz timestamptz)");
         });
     }
 
@@ -59,60 +54,77 @@ public class TestJavaTime {
         h.close();
     }
 
-    private TemporalUnitOffset getAllowableOffset() {
-        // PostgreSQL seems to not have as much precision on Windows as it does on Linux.
-        return within(0, ChronoUnit.MICROS);
+    /**
+     * The resulting OffsetDateTime has the right LocalDateTime (for the default timezone) but the offset is UTC. IAW: It is a mess.
+     */
+    @Override
+    protected void validateOffsetDateTimeLosesOffsetWithTimestamp(OffsetDateTime result, OffsetDateTime expected, ZoneOffset defaultOffset,
+        ZoneOffset testOffset) {
+        assertThat(result.withOffsetSameLocal(defaultOffset)).isCloseTo(expected, getAllowableOffset());
+        assertThat(result.getOffset()).isEqualTo(ZoneOffset.UTC);
+    }
+
+    /**
+     * postgres always returns UTC (+0) as Offset. See  <a href="https://github.com/pgjdbc/pgjdbc/issues/3943">pgjdbc #3943</a>.
+     */
+    @Override
+    protected void validateOffsetDateTimeTSTZ(OffsetDateTime result, OffsetDateTime expected, ZoneOffset defaultOffset, ZoneOffset testOffset) {
+        assertThat(result).isCloseTo(expected, getAllowableOffset());
+
+        // postgres always returns UTC as offset - see https://github.com/pgjdbc/pgjdbc/issues/3943
+        assertThat(result.getOffset()).isEqualTo(ZoneOffset.UTC);
+        if (!defaultOffset.equals(ZoneOffset.UTC)) {
+            assertThat(result.getOffset()).isNotEqualTo(defaultOffset);
+        }
+        assertThat(result.getOffset()).isNotEqualTo(testOffset);
+    }
+
+    /**
+     * The resulting ZonedDateTime has the right LocalDateTime (for the default timezone) but the offset is UTC. IAW: It is a mess.
+     */
+    @Override
+    protected void validateZonedDateTimeLosesZoneWithTimestamp(ZonedDateTime result, ZonedDateTime expected, ZoneId defaultZoneId, ZoneId testZoneId) {
+        assertThat(result.withZoneSameLocal(defaultZoneId)).isCloseTo(expected, getAllowableOffset());
+        assertThat(result.getOffset()).isEqualTo(ZoneOffset.UTC);
+    }
+
+    /**
+     * postgres always returns UTC as Zone. See  <a href="https://github.com/pgjdbc/pgjdbc/issues/3943">pgjdbc #3943</a>.
+     */
+    @Override
+    protected void validateZonedDateTimeTSTZ(ZonedDateTime result, ZonedDateTime expected, ZoneId defaultZoneId, ZoneId testZoneId) {
+        assertThat(result).isCloseTo(expected, getAllowableOffset());
+
+        assertThat(result.getZone()).isEqualTo(ZoneOffset.UTC);
+        assertThat(result.getZone()).isNotEqualTo(defaultZoneId);
+        assertThat(result.getZone()).isNotEqualTo(testZoneId);
     }
 
     @Test
-    public void localDate() {
-        LocalDate d = LocalDate.now(ZoneId.systemDefault());
-        h.execute("insert into stuff(d) values (?)", d);
-        assertThat(h.createQuery("select d from stuff").mapTo(LocalDate.class).one()).isEqualTo(d);
+    public void instantLeap() {
+        var type = getTestType(Instant.class);
+        var i = Instant.ofEpochMilli(-14159025000L);
+
+        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
+            u.bindByType(0, i, type);
+            u.execute();
+        }
+
+        var result = h.createQuery("select ts from stuff").mapTo(type).one();
+        assertThat(result).isCloseTo(i, getAllowableOffset());
     }
 
     @Test
-    public void localDateTime() {
-        LocalDateTime d = LocalDateTime.now(ZoneId.systemDefault());
-        h.execute("insert into stuff(ts) values (?)", d);
-        assertThat(h.createQuery("select ts from stuff").mapTo(LocalDateTime.class).one()).isCloseTo(d, getAllowableOffset());
-    }
+    public void instantLeapTSTZ() {
+        var type = getTestType(Instant.class);
+        var i = Instant.ofEpochMilli(-14159025000L);
 
-    @Test
-    public void offsetDateTime() {
-        OffsetDateTime dt = OffsetDateTime.now(ZoneId.systemDefault()).withOffsetSameInstant(ZoneOffset.UTC);
-        h.execute("insert into stuff(ts) values (?)", dt);
-        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one()).isCloseTo(dt, getAllowableOffset());
-    }
+        try (Update u = h.createUpdate("insert into stuff(tstz) values (?)")) {
+            u.bindByType(0, i, type);
+            u.execute();
+        }
 
-    @Test
-    public void offsetDateTimeLosesOffset() {
-        OffsetDateTime dt = OffsetDateTime.now(ZoneId.systemDefault()).withOffsetSameInstant(ZoneOffset.ofHours(-7));
-        h.execute("insert into stuff(ts) values (?)", dt);
-        assertThat(h.createQuery("select ts from stuff").mapTo(OffsetDateTime.class).one()).isCloseTo(dt, getAllowableOffset());
-    }
-
-    @Test
-    public void localTime() {
-        h.execute("create table schedule (start time, stop time)");
-        LocalTime start = LocalTime.of(8, 30, 0);
-        LocalTime stop = LocalTime.of(10, 30, 0);
-        h.execute("insert into schedule (start, stop) values (?,?)", start, stop);
-        assertThat(h.createQuery("select start from schedule").mapTo(LocalTime.class).one()).isEqualTo(start);
-        assertThat(h.createQuery("select stop from schedule").mapTo(LocalTime.class).one()).isEqualTo(stop);
-    }
-
-    @Test
-    public void instant() {
-        final Instant leap = Instant.ofEpochMilli(-14159025000L);
-        h.execute("insert into stuff values(?)", leap);
-        assertThat(h.createQuery("select ts from stuff").mapTo(Instant.class).one()).isEqualTo(leap);
-    }
-
-    @Test
-    public void zoneId() {
-        final ZoneId zone = ZoneId.systemDefault();
-        h.execute("insert into stuff(z) values (?)", zone);
-        assertThat(h.createQuery("select z from stuff").mapTo(ZoneId.class).one()).isEqualTo(zone);
+        var result = h.createQuery("select tstz from stuff").mapTo(type).one();
+        assertThat(result).isCloseTo(i, getAllowableOffset());
     }
 }

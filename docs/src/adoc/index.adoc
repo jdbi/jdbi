@@ -27,6 +27,7 @@
 :coreexampledir: ../../../core/src/test/java/org/jdbi/v3/core/mapper
 :guavaexampledir: ../../../guava/src/test/java/org/jdbi/v3/guava
 :sqlobjectexampledir: ../../../sqlobject/src/test/java/org/jdbi/v3/sqlobject
+:coreexamples: ../../../core/src/test/java
 
 [preface]
 image::logo.svg[Jdbi logo]
@@ -58,6 +59,7 @@ All information in here reflects the current state of development on the `master
 
 === Release documentation
 
+* https://jdbi.org/releases/3.52.0[Release 3.52.0 - 2026-03-21^]
 * https://jdbi.org/releases/3.51.0[Release 3.51.0 - 2025-12-09^]
 * https://jdbi.org/releases/3.50.0[Release 3.50.0 - 2025-11-04^]
 * https://jdbi.org/releases/3.49.6[Release 3.49.6 - 2025-10-02^] - *This is the last release of Jdbi to support Java 11!*
@@ -276,6 +278,8 @@ Some databases have additional data types and mappings, and support is added usi
 [glossary]
 jdbi3-postgres::
 Support for https://www.postgresql.org/[Postgres^] data types.
+jdbi3-mysql::
+Support for https://www.mysql.com/[MySQL^] data types.
 jdbi3-sqlite::
 Support for https://www.sqlite.org/index.html[sqlite^] data types.
 jdbi3-oracle12::
@@ -3273,6 +3277,19 @@ include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowdao]
 include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowusage]
 ----
 
+== Exception Handling
+
+When executing a statement, a thrown SQLException will include important information about the
+failure, such as the "state" code, as well as various vendor-specific extensions.
+
+For example, an insert that fails due to a duplicate key might come back with "23505" state, and
+potentially (driver-specific) the name of the violating column or index.
+
+In order to inspect these exceptions and provide more context to callers, Jdbi provides a `SqlExceptionHandler`
+extension point. For imperative support, please register your handler with
+`jdbi.getConfig(SqlStatements.class).addExceptionHandler(SqlExceptionHandler)`.
+With SqlObject, use the `@RegisterSqlExceptionHandler` annotation.
+
 == Transactions
 
 Jdbi provides full support for JDBC transactions.
@@ -5774,6 +5791,76 @@ link:{jdbidocs}/core/statement/SqlStatement.html#bindBean(java.lang.Object)[bind
 
 - link:{kotlinsqldocs}sqlobject.kotlin/-bind-kotlin/[@BindKotlin^], link:{kotlindocs}core.kotlin/bind-kotlin.html[bindKotlin()^], and link:{kotlindocs}core.kotlin/-kotlin-mapper/index.html[KotlinMapper^] respect qualifiers on constructor parameters, getters, setters, and setter parameters.
 
+==== Creating custom qualifiers
+
+A custom qualifier is a user-defined annotation that is meta-annotated with link:{jdbidocs}/core/qualifier/Qualifier.html[@Qualifier^]:
+
+[source,java,indent=0]
+----
+include::{coreexamples}/org/jdbi/v3/core/qualifier/Reversed.java[tags=qualifier]
+----
+
+To handle qualified values, create an link:{jdbidocs}/core/argument/ArgumentFactory.html[ArgumentFactory^] and/or a link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMapper^] annotated with the qualifier.
+Jdbi matches factories to values by their qualifier annotations:
+
+[source,java,indent=0]
+----
+include::{coreexamples}/org/jdbi/v3/core/qualifier/ReversedStringArgumentFactory.java[tags=argumentfactory]
+----
+
+[source,java,indent=0]
+----
+include::{coreexamples}/org/jdbi/v3/core/qualifier/ReversedStringMapper.java[tags=columnmapper]
+----
+
+<1> The qualifier annotation on the factory and mapper class tells Jdbi that these handle `@Reversed` qualified `String` values.
+
+Register the factories and use them with link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType^]:
+
+[source,java,indent=0]
+----
+include::{coreexamples}/org/jdbi/v3/core/qualifier/TestCustomQualifier.java[tags=usage]
+----
+
+<1> Bind the value using `bindByType` with the qualified type so the `@Reversed` factory is selected.
+<2> Map the result using the qualified type so the `@Reversed` mapper is selected.
+
+=== Mapping Java Time (JSR 310) objects
+
+The link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] API provides date and time related types since JDK 8. At the same time, Java released JDBC 4.2 which defines mapping of these types to SQL.
+
+Starting with release 3.52.0, Jdbi supports all recent JDBC drivers natively by using the official link:{jdkdocs}/java.sql/java/sql/PreparedStatement.html#setObject(int,java.lang.Object)[PreparedStatement#setObject^] and link:{jdkdocs}/java.sql/java/sql/ResultSet.html#getObject(int)[ResultSet#getObject^] APIs. This affects all relevant types such as link:{jdkdocs}/java.base/java/time/LocalDate.html[LocalDate^],
+link:{jdkdocs}/java.base/java/time/LocalTime.html[LocalTime^],
+link:{jdkdocs}/java.base/java/time/LocalDateTime.html[LocalDateTime^],
+link:{jdkdocs}/java.base/java/time/OffsetDateTime.html[OffsetDateTime^] and
+link:{jdkdocs}/java.base/java/time/ZonedDateTime.html[ZonedDateTime^].
+
+JDBC drivers are unreliable when it comes to mapping Zone offsets and Zone names. Jdbi used to map these types explicitly to the legacy (pre-JDBC 4.2) types such as link:{jdkdocs}/java.sql/java/sql/Timestamp.html[Timestamp^], link:{jdkdocs}/java.sql/java/sql/Date.html[Date^] and link:{jdkdocs}/java.sql/java/sql/Time.html[Time^].
+
+If the pre-3.52.0 behavior is wanted, it is possible to qualify the mapping type with the link:{jdbidocs}/meta/Legacy.html[@Legacy^] annotation:
+
+[source,java,indent=0]
+----
+var legacyType = QualifiedType.of(OffsetDateTime.class).with(Legacy.class);
+try (Update u = h.createUpdate("INSERT INTO time_table (time_col) VALUES (?)")) {
+    u.bindByType(0, OffsetDateTime.now(), legacyType);
+    u.execute();
+}
+
+var result = h.createQuery("SELECT time_col FROM time_table").mapTo(legacyType).list();
+----
+
+[source,java,indent=0]
+----
+interface LegacyDao {
+    @SqlUpdate("INSERT INTO time_table (time_col) VALUES (:now)")
+    void update(@Legacy OffsetDateTime now);
+
+    @SqlQuery("SELECT time_col FROM time_table")
+    @Legacy List<OffsetDateTime> query();
+}
+----
+
 [#query-templating]
 === Query Templating
 
@@ -7287,6 +7374,43 @@ Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 jdbi.installPlugin(new JpaPlugin());
 ----
 
+Annotate your entity with JPA annotations:
+
+[source,java,indent=0]
+----
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
+@Entity
+public class Something {
+    @Column private int id;
+    @Column private String name;
+}
+----
+
+The entity type will be automatically mapped when querying:
+
+[source,java,indent=0]
+----
+Something result = handle.select("select * from Something where id = ?", id)
+    .mapTo(Something.class)
+    .one();
+----
+
+Use link:{jdbidocs}/jpa/BindJpa.html[@BindJpa^] instead of `@BindBean` to bind annotated classes in SQL Object interfaces:
+
+[source,java,indent=0]
+----
+public interface SomethingDAO {
+
+    @SqlQuery("select * from Something where id = :id")
+    Something get(@Bind("id") long id);
+
+    @SqlUpdate("update something set name = :s.name where id = :s.id")
+    void update(@BindJpa("s") Something something);
+}
+----
+
 Honestly though... just tear off the bandage and switch to Jdbi proper.
 
 === Kotlin
@@ -7901,7 +8025,7 @@ dependencies {
 
 ==== Supported versions
 
-The `spring` module supports Spring 6.1 (Spring Boot 3.2.x) and newer.
+The `spring` module supports Spring 6.1 (Spring Boot 3.2.x) and newer (including Spring 7).
 All versions of Spring framework that are under OSS support are supported.
 Other versions may work but are not tested and bug reports for older versions will not be addressed.
 
@@ -8236,6 +8360,12 @@ public interface AccountDao {
 In this example, the SQL template will still be loaded from the template group file
 `com/foo/AccountDao.sql.stg` on the classpath, however the `listSorted`
 template will be used, regardless of the method name.
+
+[NOTE]
+When `@UseStringTemplateSqlLocator` is applied at the type level, it applies to every SQL method on that type, even if that method does not itself declare `@UseStringTemplateSqlLocator`.
+In that case, the value of any SQL method annotation (e.g. `@SqlQuery("...")`) is always interpreted as a template name to locate in the template group file, never as inline SQL -- even if the string looks like a SQL statement.
+If any method in the type should use inline SQL, do not apply `@UseStringTemplateSqlLocator` at the type level; instead, apply it only to those methods that are backed by templates.
+To process inline SQL strings with StringTemplate, use the link:{jdbidocs}/stringtemplate4/UseStringTemplateEngine.html[@UseStringTemplateEngine^] annotation.
 
 There are some options for StringTemplateEngine on the
 link:{jdbidocs}/stringtemplate4/StringTemplates.html[StringTemplates^] configuration class, like whether missing attributes are considered an error or not.

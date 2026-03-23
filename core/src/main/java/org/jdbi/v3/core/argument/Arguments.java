@@ -70,6 +70,7 @@ public class Arguments implements JdbiConfig<Arguments> {
         register(new EnumArgumentFactory());
         register(new OptionalArgumentFactory());
         register(new DirectArgumentFactory());
+        register(new LegacyArgumentFactory());
     }
 
     private Arguments(final Arguments that) {

@@ -13,19 +13,38 @@
  */
 package org.jdbi.v3.postgres;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
+import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Optional;
 
-import org.jdbi.v3.core.mapper.GetObjectColumnMapperFactory;
+import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.mapper.ColumnMapper;
+import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 
 /**
- * Provide mappers corresponding to java time types.
- * @see JavaTimeArgumentFactory for the list of types
+ * Postgres specific mapper factory for Java Time types.
+ * <br>
+ * Maps {@link Instant} as the Postgres driver does not support them with {@link ResultSet#getObject}.
  */
-public class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
-    public JavaTimeMapperFactory() {
-        super(LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class);
+public class JavaTimeMapperFactory implements ColumnMapperFactory {
+    private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = Map.of(
+        Instant.class, (r, i, ctx) -> getPostgresInstant(r, i)
+    );
+
+    @Override
+    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+
+        return Optional.of(type)
+            .filter(Class.class::isInstance)
+            .map(Class.class::cast)
+            .map(MAPPERS::get);
+    }
+
+    private static Instant getPostgresInstant(ResultSet r, int i) throws SQLException {
+        var timestamp = r.getTimestamp(i);
+        return timestamp == null ? null : timestamp.toInstant();
     }
 }

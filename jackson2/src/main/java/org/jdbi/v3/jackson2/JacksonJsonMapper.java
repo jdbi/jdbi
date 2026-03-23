@@ -29,10 +29,14 @@ class JacksonJsonMapper implements JsonMapper {
     @Override
     public TypedJsonMapper forType(Type type, ConfigRegistry config) {
         return new TypedJsonMapper() {
-            private final ObjectMapper mapper = config.get(Jackson2Config.class).getMapper();
+            private final Jackson2Config jacksonConfig = config.get(Jackson2Config.class);
+            private final ObjectMapper mapper = jacksonConfig.getMapper();
             private final JavaType mappedType = mapper.constructType(type);
             private final ObjectReader reader = mapper.readerFor(mappedType);
-            private final ObjectWriter writer = mapper.writerFor(mappedType);
+            private final ObjectWriter writer =
+                    jacksonConfig.isUseStaticType()
+                            ? mapper.writerFor(mappedType)
+                            : mapper.writer();
 
             @Override
             public String toJson(Object value, ConfigRegistry config) {

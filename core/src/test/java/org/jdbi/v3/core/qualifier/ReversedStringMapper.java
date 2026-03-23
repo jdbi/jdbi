@@ -19,10 +19,12 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
-@Reversed
+// tag::columnmapper[]
+@Reversed // <1>
 public class ReversedStringMapper implements ColumnMapper<String> {
     @Override
     public String map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
         return Reverser.reverse(r.getString(columnNumber));
     }
 }
+// end::columnmapper[]

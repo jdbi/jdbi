@@ -49,9 +49,9 @@ class ArgumentBinder {
     final PreparedStatement stmt;
     final StatementContext ctx;
     final ParsedParameters params;
-    final Map<QualifiedType<?>, Function<Object, Argument>> argumentFactoryByType = new HashMap<>();
 
     private final Argument nullArgument;
+    protected final ArgumentFactoryLocator factoryLocator;
 
     ArgumentBinder(PreparedStatement stmt, StatementContext ctx, ParsedParameters params) {
         this.stmt = stmt;
@@ -59,6 +59,7 @@ class ArgumentBinder {
         this.params = params;
 
         this.nullArgument = ctx.getConfig(Arguments.class).getUntypedNullArgument();
+        this.factoryLocator = new ArgumentFactoryLocator(ctx);
     }
 
     void bind(Binding binding) {
@@ -74,9 +75,9 @@ class ArgumentBinder {
             if (!binding.positionals.containsKey(index)) {
                 throw new UnableToCreateStatementException(format("Missing positional parameter %d in binding:%s", index, binding), ctx);
             }
-            QualifiedType<?> type = typeOf(binding.positionals.get(index));
+            QualifiedType<?> type = factoryLocator.typeOf(binding.positionals.get(index));
             try {
-                argumentFactoryForType(type)
+                factoryLocator.argumentFactoryForType(type)
                     .apply(unwrap(binding.positionals.get(index)))
                     .apply(index + 1, stmt, ctx);
             } catch (SQLException e) {
@@ -118,7 +119,7 @@ class ArgumentBinder {
                         argument.apply(i + 1, stmt, ctx);
                     } else {
                         // value set, find an argument factory and assign the value
-                        argumentFactoryForType(typeOf(value))
+                        factoryLocator.argumentFactoryForType(factoryLocator.typeOf(value))
                             .apply(unwrap(value))
                             .apply(i + 1, stmt, ctx);
                     }
@@ -141,32 +142,13 @@ class ArgumentBinder {
         }
     }
 
-    @Nonnull
-    QualifiedType<?> typeOf(@Nullable Object value) {
-        return (value instanceof TypedValue t)
-                ? t.getType()
-                : ctx.getConfig(Qualifiers.class).qualifiedTypeOf(
-                        Optional.ofNullable(value).<Class<?>>map(Object::getClass).orElse(Object.class));
-    }
-
     /**
      * @deprecated prepare the argument by type instead
      */
     @Deprecated(since = "3.11.0", forRemoval = true)
     Argument toArgument(Object found) {
-        return argumentFactoryForType(typeOf(found))
+        return factoryLocator.argumentFactoryForType(factoryLocator.typeOf(found))
                 .apply(unwrap(found));
-    }
-
-    Function<Object, Argument> argumentFactoryForType(QualifiedType<?> type) {
-        return argumentFactoryByType.computeIfAbsent(type, qt -> {
-            Arguments args = ctx.getConfig(Arguments.class);
-            Function<Object, Argument> factory =
-                args.prepareFor(type)
-                    .orElse(v -> args.findFor(type, v)
-                            .orElseThrow(() -> factoryNotFound(type, v)));
-            return value -> DescribedArgument.wrap(ctx, factory.apply(value), value);
-        });
     }
 
     UnableToCreateStatementException missingNamedParameter(String name, Binding binding) {
@@ -187,22 +169,51 @@ class ArgumentBinder {
         };
     }
 
-    private UnableToCreateStatementException factoryNotFound(QualifiedType<?> qualifiedType, Object value) {
-        Type type = qualifiedType.getType();
-        if (type instanceof Class<?> clazz) { // not a ParameterizedType
-            final TypeVariable<?>[] typeVars = clazz.getTypeParameters();
-            if (typeVars.length > 0) {
-                return new UnableToCreateStatementException("No type parameters found for erased type '" + type + Arrays.toString(typeVars)
-                    + "' with qualifiers '" + qualifiedType.getQualifiers()
-                    + "'. To bind a generic type, prefer using bindByType.");
-            }
-        }
-        return new UnableToCreateStatementException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType, ctx);
-    }
-
     @CheckReturnValue
     static Object unwrap(@Nullable Object maybeTypedValue) {
         return maybeTypedValue instanceof TypedValue t ? t.getValue() : maybeTypedValue;
+    }
+
+    static class ArgumentFactoryLocator {
+        private final StatementContext ctx;
+
+        final Map<QualifiedType<?>, Function<Object, Argument>> argumentFactoryByType = new HashMap<>();
+
+        ArgumentFactoryLocator(StatementContext ctx) {
+            this.ctx = ctx;
+        }
+
+        @Nonnull
+        QualifiedType<?> typeOf(@Nullable Object value) {
+            return (value instanceof TypedValue t)
+                ? t.getType()
+                : ctx.getConfig(Qualifiers.class).qualifiedTypeOf(
+                    Optional.ofNullable(value).<Class<?>>map(Object::getClass).orElse(Object.class));
+        }
+
+        Function<Object, Argument> argumentFactoryForType(QualifiedType<?> type) {
+            return argumentFactoryByType.computeIfAbsent(type, qt -> {
+                Arguments args = ctx.getConfig(Arguments.class);
+                Function<Object, Argument> factory =
+                    args.prepareFor(type)
+                        .orElse(v -> args.findFor(type, v)
+                            .orElseThrow(() -> factoryNotFound(type, v)));
+                return value -> DescribedArgument.wrap(ctx, factory.apply(value), value);
+            });
+        }
+
+        private UnableToCreateStatementException factoryNotFound(QualifiedType<?> qualifiedType, Object value) {
+            Type type = qualifiedType.getType();
+            if (type instanceof Class<?> clazz) { // not a ParameterizedType
+                final TypeVariable<?>[] typeVars = clazz.getTypeParameters();
+                if (typeVars.length > 0) {
+                    return new UnableToCreateStatementException("No type parameters found for erased type '" + type + Arrays.toString(typeVars)
+                        + "' with qualifiers '" + qualifiedType.getQualifiers()
+                        + "'. To bind a generic type, prefer using bindByType.");
+                }
+            }
+            return new UnableToCreateStatementException("No argument factory registered for '" + value + "' of qualified type " + qualifiedType, ctx);
+        }
     }
 
     static class Prepared extends ArgumentBinder {
@@ -252,7 +263,7 @@ class ArgumentBinder {
                                 .apply(index + 1, stmt, ctx)));
                     }
                 } else {
-                    final Function<Object, Argument> binder = argumentFactoryForType(typeOf(value));
+                    final Function<Object, Argument> binder = factoryLocator.argumentFactoryForType(factoryLocator.typeOf(value));
                     innerBinders.add(wrapCheckedConsumer(name,
                         binding -> binder.apply(unwrap(binding.named.get(name)))
                             .apply(index + 1, stmt, ctx)));

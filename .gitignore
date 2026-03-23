@@ -15,7 +15,6 @@ report
 **/.project
 **/.settings
 **/bin/
-**/derby.log
 *.tokens
 .clover
 ^build
@@ -25,3 +24,4 @@ test-output
 travis-settings*.xml
 .build-oracle
 .factorypath
+.claude

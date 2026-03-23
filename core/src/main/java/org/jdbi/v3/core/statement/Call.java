@@ -30,6 +30,7 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.internal.ResultSetSupplier;
+import org.jdbi.v3.core.statement.ArgumentBinder.ArgumentFactoryLocator;
 
 /**
  * Used for invoking stored procedures. The most common way to use this is to register {@link OutParameters} with the call and then use the {@link Call#invoke()} method
@@ -72,14 +73,20 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Register a positional output parameter.
+     * Register a positional output parameter. For INOUT parameters, call {@link #bind(int, Object)} before this method;
+     * the existing binding will be captured and sent as the input value.
      * @param position the parameter position (zero-based)
      * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
      * @param mapper a mapper which converts the {@link CallableStatement} to a desired output type.
      * @return self
      */
     public Call registerOutParameter(int position, int sqlType, CallableStatementMapper mapper) {
-        getBinding().addPositional(position, new OutParamArgument(sqlType, mapper, null));
+        OutParamArgument outParam = new OutParamArgument(sqlType, mapper, null);
+        Binding binding = getBinding();
+        if (binding.positionals.containsKey(position)) {
+            outParam.setInputValue(binding.positionals.get(position));
+        }
+        binding.addPositional(position, outParam);
         return this;
     }
 
@@ -94,14 +101,20 @@ public class Call extends SqlStatement<Call> {
     }
 
     /**
-     * Register a named output parameter.
+     * Register a named output parameter. For INOUT parameters, call {@link #bind(String, Object)} before this method;
+     * the existing binding will be captured and sent as the input value.
      * @param name the parameter name
      * @param sqlType an SQL type constant as defined by {@link java.sql.Types} or by the JDBC vendor.
      * @param mapper a mapper which converts the {@link CallableStatement} to a desired output type.
      * @return self
      */
     public Call registerOutParameter(String name, int sqlType, CallableStatementMapper mapper) {
-        getBinding().addNamed(name, new OutParamArgument(sqlType, mapper, name));
+        OutParamArgument outParam = new OutParamArgument(sqlType, mapper, name);
+        Binding binding = getBinding();
+        if (binding.named.containsKey(name)) {
+            outParam.setInputValue(binding.named.get(name));
+        }
+        binding.addNamed(name, outParam);
         return this;
     }
 
@@ -215,6 +228,8 @@ public class Call extends SqlStatement<Call> {
         private final CallableStatementMapper mapper;
         private final String name;
         private int position;
+        private Object inputValue;
+        private boolean hasInput;
 
         OutParamArgument(int sqlType, CallableStatementMapper mapper, String name) {
             this.sqlType = sqlType;
@@ -223,10 +238,30 @@ public class Call extends SqlStatement<Call> {
             outParamArguments.add(this);
         }
 
+        void setInputValue(Object inputValue) {
+            this.inputValue = inputValue;
+            this.hasInput = true;
+        }
+
         @Override
         public void apply(int outPosition, PreparedStatement statement, StatementContext ctx) throws SQLException {
             ((CallableStatement) statement).registerOutParameter(outPosition, sqlType);
+            if (hasInput) {
+                applyInputValue(outPosition, statement, ctx);
+            }
             this.position = outPosition;
+        }
+
+        private void applyInputValue(int outPosition, PreparedStatement statement, StatementContext ctx) throws SQLException {
+            Argument argument;
+            if (inputValue instanceof Argument arg) {
+                argument = arg;
+            } else {
+                var factoryLocator = new ArgumentFactoryLocator(ctx);
+                argument = factoryLocator.argumentFactoryForType(factoryLocator.typeOf(inputValue))
+                    .apply(ArgumentBinder.unwrap(inputValue));
+            }
+            argument.apply(outPosition, statement, ctx);
         }
 
         public Supplier<Object> supplier(CallableStatement stmt) {

@@ -5,9 +5,11 @@ on:
   push:
     branches:
       - master
+      - jdbi4-dev
   pull_request:
     branches:
       - master
+      - jdbi4-dev
 
 concurrency:
   group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}
@@ -81,7 +83,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.10.1, 2.9.3 ]
+        test-version: [ 2.11.6, 2.10.1, 2.9.3 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -142,7 +144,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.20.1, 2.19.4, 2.17.3, 2.16.2 ]
+        test-version: [ 2.20.2, 2.19.4, 2.18.5, 2.17.3 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -264,7 +266,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 0.9.3 ]
+        test-version: [ 0.10.6, 0.9.3 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -386,7 +388,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 2.1.21, 2.0.21, 1.9.25 ]
+        test-version: [ 2.2.21, 2.1.21, 2.0.21 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -447,7 +449,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 6.1.21 ]
+        test-version: [ 6.1.21, 7.0.6 ]
 
     steps:
       - uses: actions/checkout@v4

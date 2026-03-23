@@ -79,6 +79,7 @@
         <exclude name="NcssCount"/>
         <exclude name="SignatureDeclareThrowsException"/>
         <exclude name="TooManyMethods"/>
+        <exclude name="PublicMemberInNonPublicType"/>
     </rule>
 
     <rule ref="category/java/documentation.xml">

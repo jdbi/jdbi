@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.51.1-SNAPSHOT</version>
+        <version>3.52.1-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
 
@@ -61,4 +61,13 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -5,9 +5,11 @@ on:
   push:
     branches:
       - master
+      - jdbi4-dev
   pull_request:
     branches:
       - master
+      - jdbi4-dev
 
 concurrency:
   group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}

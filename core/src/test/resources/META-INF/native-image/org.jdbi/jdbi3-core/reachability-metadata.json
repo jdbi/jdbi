@@ -20,6 +20,7 @@
     {"type":{"proxy":["org.jdbi.v3.core.extension.TestUseCustomExtensionHandlerFactory$SomethingDao"]}},
     {"type":{"proxy":["org.jdbi.v3.core.mapper.RowMapper"]}},
     {"type":{"proxy":["org.jdbi.v3.meta.Beta"]}},
+    {"type":{"proxy":["org.jdbi.v3.meta.Legacy"]}},
     {"type":"java.lang.Math","methods":[{"name":"toDegrees"}]},
     {"type":"java.lang.Integer","methods":[{"name":"parseInt","parameterTypes":["java.lang.String"]}]},
     {"type":"java.util.HashMap","methods":[{"name":"clone"}]},

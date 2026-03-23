@@ -58,6 +58,20 @@ public class TestCallable {
             + "END;\n"
             + "$$ LANGUAGE plpgsql;");
 
+        h.execute("""
+            CREATE OR REPLACE PROCEDURE DOUBLE_IT(INOUT v integer) AS $$
+            BEGIN
+            v := v * 2;
+            END;
+            $$ LANGUAGE plpgsql;""");
+
+        h.execute("""
+            CREATE OR REPLACE PROCEDURE PREFIX_IT(p varchar, INOUT v varchar) AS $$
+            BEGIN
+            v := p || v;
+            END;
+            $$ LANGUAGE plpgsql;""");
+
         h.execute("CREATE OR REPLACE PROCEDURE WITH_SIDE_EFFECT(v1 integer, v2 varchar) AS $$\n"
             + "BEGIN\n"
             + "INSERT INTO something (id, name) VALUES (v1, v2 || ' Doe');"
@@ -179,6 +193,55 @@ public class TestCallable {
 
             Integer out = result.getInt("out");
             assertThat(out).isNull();
+        }
+    }
+
+    @Test
+    public void testInOutParameterNamed() {
+        try (Call call = h.createCall("CALL DOUBLE_IT(:v)")) {
+            OutParameters ret = call
+                .bind("v", 21)
+                .registerOutParameter("v", Types.INTEGER)
+                .invoke();
+
+            assertThat(ret.getInt("v")).isEqualTo(42);
+        }
+    }
+
+    @Test
+    public void testInOutParameterPositional() {
+        try (Call call = h.createCall("CALL DOUBLE_IT(?)")) {
+            OutParameters ret = call
+                .bind(0, 21)
+                .registerOutParameter(0, Types.INTEGER)
+                .invoke();
+
+            assertThat(ret.getInt(0)).isEqualTo(42);
+        }
+    }
+
+    @Test
+    public void testInOutWithRegularInParameter() {
+        try (Call call = h.createCall("CALL PREFIX_IT(:p, :v)")) {
+            OutParameters ret = call
+                .bind("p", "Hello, ")
+                .bind("v", "World")
+                .registerOutParameter("v", Types.VARCHAR)
+                .invoke();
+
+            assertThat(ret.getString("v")).isEqualTo("Hello, World");
+        }
+    }
+
+    @Test
+    public void testInOutParameterWithNull() {
+        try (Call call = h.createCall("CALL DOUBLE_IT(:v)")) {
+            OutParameters ret = call
+                .bindByType("v", null, Integer.class)
+                .registerOutParameter("v", Types.INTEGER)
+                .invoke();
+
+            assertThat((Object) ret.getInt("v")).isNull();
         }
     }
 }

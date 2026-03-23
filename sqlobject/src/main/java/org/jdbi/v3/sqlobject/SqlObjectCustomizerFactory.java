@@ -47,7 +47,6 @@ class SqlObjectCustomizerFactory implements ConfigCustomizerFactory {
         return buildConfigCustomizer(Stream.of(method), forMethod);
     }
 
-    @SuppressWarnings("PMD.UnnecessaryCast")
     private static Collection<ConfigCustomizer> buildConfigCustomizer(Stream<AnnotatedElement> elements, ConfigurerMethod consumer) {
         return elements.flatMap(ae -> Arrays.stream(ae.getAnnotations()))
                 .filter(a -> a.annotationType().isAnnotationPresent(ConfiguringAnnotation.class))

@@ -13,31 +13,39 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.lang.reflect.Type;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.util.HashMap;
+import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
-import org.jdbi.v3.core.argument.SetObjectArgumentFactory;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.NullArgument;
+import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
- * Maps {@link LocalDate}, {@link LocalTime}, {@link LocalDateTime}, {@link OffsetDateTime}.
- * Note that no {@link java.time.Instant} override is needed.
+ * Postgres specific argument factory for Java Time types.
+ * <br>
+ * {@link Instant} must be mapped to {@link Types#TIMESTAMP}, as the Postgres driver does not support them with {@link PreparedStatement#setObject}.
  */
-public class JavaTimeArgumentFactory extends SetObjectArgumentFactory {
-    private static Map<Class<?>, Integer> types() {
-        final Map<Class<?>, Integer> types = new HashMap<>();
-        types.put(LocalDate.class, Types.DATE);
-        types.put(LocalTime.class, Types.TIME);
-        types.put(LocalDateTime.class, Types.TIMESTAMP);
-        types.put(OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE);
-        return types;
-    }
+public class JavaTimeArgumentFactory implements ArgumentFactory.Preparable {
 
-    public JavaTimeArgumentFactory() {
-        super(types());
+    private static final Map<Class<?>, Function<Object, Argument>> TYPES = Map.of(
+        Instant.class, value -> value == null
+            ? new NullArgument(Types.TIMESTAMP)
+            : new LoggableBinderArgument<>(value, (p, i, v) -> p.setTimestamp(i, Timestamp.from((Instant) v)))
+    );
+
+    @Override
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        return Optional.of(type)
+            .filter(Class.class::isInstance)
+            .map(Class.class::cast)
+            .map(TYPES::get);
     }
 }

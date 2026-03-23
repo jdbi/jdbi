@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.51.1-SNAPSHOT</version>
+        <version>3.52.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -33,9 +33,9 @@
         <!-- docker tests run long -->
         <basepom.test.timeout>600</basepom.test.timeout>
 
-        <dep.clickhouse.version>0.9.3</dep.clickhouse.version>
-        <dep.db2.version>12.1.2.0</dep.db2.version>
-        <dep.trino.version>478</dep.trino.version>
+        <dep.clickhouse.version>0.9.8</dep.clickhouse.version>
+        <dep.db2.version>12.1.4.0</dep.db2.version>
+        <dep.trino.version>479</dep.trino.version>
         <dep.yugabyte.version>42.7.3-yb-4</dep.yugabyte.version>
 
         <moduleName>org.jdbi.v3.testcontainers</moduleName>
@@ -123,7 +123,21 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-core</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-sqlobject</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-sqlobject</artifactId>
+            <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
 
@@ -245,4 +259,35 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
+                <configuration>
+                    <exceptions>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.clickhouse</groupId>
+                                    <artifactId>clickhouse-jdbc</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.jspecify</groupId>
+                                    <artifactId>jspecify</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <classes>
+                                <class>org.jspecify.annotations.NonNull</class>
+                                <class>org.jspecify.annotations.NullMarked</class>
+                                <class>org.jspecify.annotations.NullUnmarked</class>
+                                <class>org.jspecify.annotations.Nullable</class>
+                            </classes>
+                        </exception>
+                    </exceptions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

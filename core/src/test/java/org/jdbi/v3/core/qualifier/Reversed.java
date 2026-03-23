@@ -16,6 +16,8 @@ package org.jdbi.v3.core.qualifier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+// tag::qualifier[]
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
 public @interface Reversed {}
+// end::qualifier[]

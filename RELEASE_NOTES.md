@@ -1,5 +1,43 @@
 # Unreleased
 
+# 3.52.0
+
+## Changes to java.time related classes
+
+JDBC 4.2 added full support to map java.time classes onto SQL types
+in 2014. This release of Jdbi switches from mapping these objects onto
+"classic" (`java.sql.Date`, `Time`, `Timestamp`) to using the JDBC 4.2 API
+(`PreparedStatement#setObject` and `ResultSet#getObject`).
+
+These changes should not be visible for any database, except if you
+were brave enough to map types with time zones or offsets
+(`ZonedDateTime` and `OffsetDateTime`) onto SQL types that have no
+timezone (`TIMESTAMP` or `DATETIME`). This affects databases that do
+not support the `TIMESTAMP WITH TIMEZONE` data type. IAW _MySQL_.
+
+If you use MySQL with Jdbi *and* map any of these data types, you are
+already losing the zone/offset information. Now you actually get an
+error (which is the correct behavior of the driver!) *unless* you load
+the new `MysqlPlugin` which restores the mapping.
+
+If your application relies on legacy mappings, you can also use the
+new `@Legacy` annotation to force the old behavior. See the
+documentation at https://jdbi.org/ for details.
+
+
+- Add MySQL specific module (jdbi3-mysql) and plugin (MysqlPlugin).
+- Add new SqlExceptionHandler hook to handle database exceptions thrown during statement execution
+- Add option to not attach sensitive binding data with OpenTelemetry (#2941, thanks @gmellemstrand !)
+- Add configuration for Jackson serialization of types with custom polymorphic handling (#2915)
+- Update to JUnit 6.0.2
+- Retire Apache Derby integration (#2866)
+- Run test suite against Spring Framework 7 (#2919)
+- Add OraclePlugin that sets untyped null argument to Types.NULL for Oracle compatibility (#1003)
+- Support INOUT parameters for stored procedure Call statements (#1606)
+- Map java.time types according to JDBC 4.2 spec (using setObject) (#988)
+- Add `@Legacy` annotation to restore old timestamp mapping behavior
+- Make `@BindMethodsList` work with the String template engine (fixes #2917, reported by @agavrilov76, fixed by @JScodeconcise)
+
 # 3.51.0
 
 - Add new `jackson3` artifact for Jackson 3 ( #2878 )
