@@ -24,7 +24,7 @@ jobs:
         java-version: [ 25 ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-tags: true
           fetch-depth: 0
@@ -44,7 +44,7 @@ jobs:
           ./mvnw --version
           make install
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
         continue-on-error: true
@@ -57,7 +57,7 @@ jobs:
             !**/target/**/*.jar
             !**/target/**/*.class
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build artifacts
         id: upload_build_artifacts
         continue-on-error: true
