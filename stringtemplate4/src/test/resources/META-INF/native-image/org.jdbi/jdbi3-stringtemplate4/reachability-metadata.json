@@ -15,6 +15,7 @@
     {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingByIteratorHandleDefault"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingByVarargsHandleDefault"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.BindListTest$SomethingWithExplicitAttributeName"]}},
+    {"type":{"proxy":["org.jdbi.v3.stringtemplate4.TestBindMethodsListWithStringTemplate$Dao"]}},
     {"type":{"proxy":["org.jdbi.v3.stringtemplate4.TestConditionalStringTemplateLocator$Dao"]}},
     {"type":{"proxy":["org.jdbi.v3.stringtemplate4.TestStringTemplateGroupReference$Dao"]}},
     {"type":{"proxy":["org.jdbi.v3.stringtemplate4.TestStringTemplateSqlLocator$Wombat"]}}
