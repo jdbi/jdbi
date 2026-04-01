@@ -15,7 +15,6 @@ package org.jdbi.v3.mysql;
 
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -28,7 +27,6 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
@@ -41,9 +39,6 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 final class JavaTimeArgumentFactory implements ArgumentFactory.Preparable {
 
     private static final Map<Class<?>, Function<Object, Argument>> TYPES = Map.of(
-        Instant.class, value -> value == null
-            ? new NullArgument(Types.TIMESTAMP)
-            : new LoggableBinderArgument<>(value, (p, i, v) -> p.setTimestamp(i, Timestamp.from((Instant) v))),
         OffsetDateTime.class, value -> value == null
             ? new NullArgument(Types.TIMESTAMP)
             : ObjectArgument.of(value, Types.TIMESTAMP),

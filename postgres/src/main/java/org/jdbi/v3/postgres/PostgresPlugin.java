@@ -119,7 +119,6 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(new TypedEnumArgumentFactory());
-        jdbi.registerArgument(new JavaTimeArgumentFactory());
         jdbi.registerArgument(new DurationArgumentFactory());
         jdbi.registerArgument(new PeriodArgumentFactory());
         jdbi.registerArgument(new InetArgumentFactory());
@@ -143,7 +142,6 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerArrayType(PGpolygon.class, "polygon");
         jdbi.registerArrayType(new ByteaArrayType());
 
-        jdbi.registerColumnMapper(new JavaTimeMapperFactory());
         jdbi.registerColumnMapper(new HStoreColumnMapper());
         jdbi.registerColumnMapper(new MacAddrColumnMapper());
         jdbi.registerColumnMapper(new DurationColumnMapperFactory());
@@ -183,6 +181,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         private VectorEnabler() {
             throw new UtilityClassException();
         }
+
         static void enable(Connection conn) throws SQLException {
             PGvector.registerTypes(conn);
             PGbit.registerType(conn);

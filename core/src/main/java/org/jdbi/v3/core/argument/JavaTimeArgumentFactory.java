@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.reflect.Type;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -26,17 +27,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 class JavaTimeArgumentFactory extends SetObjectArgumentFactory {
     private static final Map<Class<?>, Function<Object, Argument>> TYPES = Map.of(
         ZonedDateTime.class, value -> value == null
             ? new NullArgument(Types.TIMESTAMP_WITH_TIMEZONE)
-            : ObjectArgument.of(((ZonedDateTime) value).toOffsetDateTime(), Types.TIMESTAMP_WITH_TIMEZONE)
+            : ObjectArgument.of(((ZonedDateTime) value).toOffsetDateTime(), Types.TIMESTAMP_WITH_TIMEZONE),
+        Instant.class, value -> value == null
+            ? new NullArgument(Types.TIMESTAMP)
+            : new LoggableBinderArgument<>(value, (p, i, v) -> p.setTimestamp(i, Timestamp.from((Instant) v)))
     );
 
     JavaTimeArgumentFactory() {
-        super(Map.of(Instant.class, Types.TIMESTAMP,
+        super(Map.of(
             LocalDate.class, Types.DATE,
             LocalTime.class, Types.TIME,
             LocalDateTime.class, Types.TIMESTAMP,
