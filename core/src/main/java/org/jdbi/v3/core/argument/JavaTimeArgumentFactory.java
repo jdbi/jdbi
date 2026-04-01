@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +40,8 @@ class JavaTimeArgumentFactory extends SetObjectArgumentFactory {
             LocalDate.class, Types.DATE,
             LocalTime.class, Types.TIME,
             LocalDateTime.class, Types.TIMESTAMP,
-            OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE
+            OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE,
+            OffsetTime.class, Types.TIME_WITH_TIMEZONE
         ));
     }
 

@@ -1,6 +1,7 @@
 # Unreleased
 
 - Add missing mappers for java.sql.Date and java.sql.Time
+- Add support for `java.time.OffsetTime`
 
 # 3.52.0
 
