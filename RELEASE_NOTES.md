@@ -2,6 +2,7 @@
 
 - Add missing mappers for java.sql.Date and java.sql.Time
 - Add support for `java.time.OffsetTime`
+- Add support for `java.time.ZoneOffset`
 
 # 3.52.0
 
@@ -1123,10 +1124,10 @@ NOTE: this release's git tags are missing due to maintainer error!
 
 # 2.45
 - Support for setting Enum values from strings in BeanMapper
-  
+
 # 2.44
 - Add java.io.Closeable to Handle and ResultIterator
- 
+
 # 2.35
 - Use CGLIB for sql objects instead of dyanmic proxies
 - Support for classes as well as interfaces in the sql object api
