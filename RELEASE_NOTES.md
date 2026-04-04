@@ -1,5 +1,7 @@
 # Unreleased
 
+- Add missing mappers for java.sql.Date and java.sql.Time
+
 # 3.52.0
 
 ## Changes to java.time related classes

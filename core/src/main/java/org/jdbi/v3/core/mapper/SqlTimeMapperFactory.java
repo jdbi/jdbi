@@ -14,7 +14,9 @@
 package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
+import java.sql.Date;
 import java.sql.ResultSet;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.IdentityHashMap;
 import java.util.Optional;
@@ -24,9 +26,11 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
 
 /**
- * Column mapper factory which knows how to map java.sql timekeeping objects:
+ * Column mapper factory which maps java.sql time and date objects:
  * <ul>
  *     <li>{@link Timestamp}</li>
+ *     <li>{@link Date}</li>
+ *     <li>{@link Time}</li>
  * </ul>
  */
 class SqlTimeMapperFactory implements ColumnMapperFactory {
@@ -34,6 +38,8 @@ class SqlTimeMapperFactory implements ColumnMapperFactory {
 
     SqlTimeMapperFactory() {
         mappers.put(Timestamp.class, new GetterMapper<>(ResultSet::getTimestamp));
+        mappers.put(Date.class, new GetterMapper<>(ResultSet::getDate));
+        mappers.put(Time.class, new GetterMapper<>(ResultSet::getTime));
     }
 
     @Override
