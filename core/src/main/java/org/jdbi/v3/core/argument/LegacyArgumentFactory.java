@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,6 +54,7 @@ final class LegacyArgumentFactory implements QualifiedArgumentFactory.Preparable
         register(LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
         register(OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
         register(ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
+        register(OffsetTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v.toLocalTime())));
     }
 
     @Override

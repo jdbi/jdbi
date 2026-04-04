@@ -22,7 +22,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,8 +37,8 @@ import org.jdbi.v3.meta.Legacy;
 /**
  * Supports alternative mappings for types by using the {@link Legacy} qualifier.
  * <br>
- * Restores the non-{@link java.sql.ResultSet#getObject} behavior for java time types. This is a fallback
- * when using {@link java.sql.ResultSet#getObject} is not available or does not work with a JDBC driver.
+ * Restores the non-{@link java.sql.ResultSet#getObject} behavior for java time types. This is a fallback when using {@link java.sql.ResultSet#getObject} is not
+ * available or does not work with a JDBC driver.
  *
  * @since 3.52.0
  */
@@ -52,6 +54,7 @@ final class LegacyColumnMapperFactory implements QualifiedColumnMapperFactory {
         register(map, LocalDateTime.class, new GetterMapper<>(LegacyColumnMapperFactory::getLegacyLocalDateTime));
         register(map, OffsetDateTime.class, new GetterMapper<>(LegacyColumnMapperFactory::getLegacyOffsetDateTime));
         register(map, ZonedDateTime.class, new GetterMapper<>(LegacyColumnMapperFactory::getLegacyZonedDateTime));
+        register(map, OffsetTime.class, new GetterMapper<>(LegacyColumnMapperFactory::getLegacyOffsetTime));
 
         MAPPERS = map;
     }
@@ -96,5 +99,10 @@ final class LegacyColumnMapperFactory implements QualifiedColumnMapperFactory {
     private static ZonedDateTime getLegacyZonedDateTime(ResultSet r, int i) throws SQLException {
         Timestamp ts = r.getTimestamp(i);
         return ts == null ? null : ZonedDateTime.ofInstant(ts.toInstant(), ZoneId.systemDefault());
+    }
+
+    private static OffsetTime getLegacyOffsetTime(ResultSet r, int i) throws SQLException {
+        var t = r.getTime(i);
+        return (t == null) ? null : OffsetTime.of(t.toLocalTime(), ZoneOffset.UTC);
     }
 }

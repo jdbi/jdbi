@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  *     <li>{@link LocalTime}</li>
  *     <li>{@link LocalDateTime}</li>
  *     <li>{@link OffsetDateTime}</li>
+ *     <li>{@link OffsetTime}</li>
  *     <li>{@link ZonedDateTime}</li>
  *     <li>{@link ZoneId}</li>
  * </ul>
@@ -48,7 +50,7 @@ class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
     );
 
     JavaTimeMapperFactory() {
-        super(Instant.class, LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class);
+        super(Instant.class, LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class, OffsetTime.class);
     }
 
     @Override
