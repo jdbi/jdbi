@@ -23,6 +23,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -40,12 +41,14 @@ import org.jdbi.v3.core.config.ConfigRegistry;
  *     <li>{@link OffsetTime}</li>
  *     <li>{@link ZonedDateTime}</li>
  *     <li>{@link ZoneId}</li>
+ *     <li>{@link ZoneOffset}</li>
  * </ul>
  */
 class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
 
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = Map.of(
         ZoneId.class, (r, i, ctx) -> getZoneId(r, i),
+        ZoneOffset.class, (r, i, ctx) -> getZoneOffset(r, i),
         ZonedDateTime.class, (r, i, ctx) -> getZonedDateTime(r, i)
     );
 
@@ -71,6 +74,11 @@ class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
     private static ZoneId getZoneId(ResultSet rs, int columnNumber) throws SQLException {
         var zoneId = rs.getString(columnNumber);
         return zoneId == null ? null : ZoneId.of(zoneId);
+    }
+
+    private static ZoneOffset getZoneOffset(ResultSet rs, int columnNumber) throws SQLException {
+        var zoneOffset = rs.getString(columnNumber);
+        return zoneOffset == null ? null : ZoneOffset.of(zoneOffset);
     }
 
     private static ZonedDateTime getZonedDateTime(ResultSet rs, int columnNumber) throws SQLException {
