@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.52.1
+
 - fix regression for `java.time.Instant` mapping from 3.52.0
 - Add missing mappers for java.sql.Date and java.sql.Time
 - Add support for `java.time.OffsetTime`
