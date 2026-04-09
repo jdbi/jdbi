@@ -38,7 +38,6 @@ import org.jdbi.v3.core.cache.JdbiCacheBuilder;
 import org.jdbi.v3.core.cache.JdbiCacheLoader;
 import org.jdbi.v3.core.cache.internal.DefaultJdbiCacheBuilder;
 import org.jdbi.v3.core.config.JdbiConfig;
-import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -489,14 +488,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     UnableToExecuteStatementException handleException(SQLException e, StatementContext ctx) {
         var handlerIter = exceptionHandlers.descendingIterator();
         while (handlerIter.hasNext()) {
-            SqlExceptionHandler handler = handlerIter.next();
-            Throwable rewritten = handler.handle(e);
-            if (rewritten != null) {
-                if (!e.equals(rewritten)) {
-                    rewritten.addSuppressed(e);
-                }
-                throw Sneaky.throwAnyway(rewritten);
-            }
+            handlerIter.next().handle(e, ctx);
         }
         throw new UnableToExecuteStatementException(e, ctx);
     }

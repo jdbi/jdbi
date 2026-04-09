@@ -1,5 +1,7 @@
 # Unreleased
 
+- Add StatementContext parameter to SqlExceptionHandler and remove return value
+
 # 3.52.1
 
 - fix regression for `java.time.Instant` mapping from 3.52.0 (#2955, reported by @Eng-Fouad and @toadzky)

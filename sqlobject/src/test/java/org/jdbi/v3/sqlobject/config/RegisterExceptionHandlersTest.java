@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.SqlExceptionHandler;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.jupiter.api.AfterEach;
@@ -92,18 +93,15 @@ class RegisterExceptionHandlersTest {
 
     public static class HandlerOne implements SqlExceptionHandler {
         @Override
-        public Throwable handle(SQLException ex) {
-            return null;
-        }
+        public void handle(SQLException ex, StatementContext ctx) {} // chaining test
     }
 
     public static class HandlerTwo implements SqlExceptionHandler {
         @Override
-        public Throwable handle(SQLException ex) {
+        public void handle(SQLException ex, StatementContext ctx) {
             if ("23505".equals(ex.getSQLState())) {
-                return new RuntimeException("Wahoo");
+                throw new RuntimeException("Wahoo");
             }
-            return null;
         }
     }
 }

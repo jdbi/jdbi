@@ -15,23 +15,23 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.SQLException;
 
-import jakarta.annotation.Nullable;
-
-import org.jdbi.v3.meta.Beta;
+import org.jdbi.v3.meta.Alpha;
 
 /**
  * Handler for exceptions thrown while executing SQL statements.
  */
-@Beta
+@Alpha
 @FunctionalInterface
 public interface SqlExceptionHandler {
     /**
      * Take action based on a SQLException thrown during statement execution.
-     * If you return a replacement exception, before throwing it Jdbi will automatically
-     * attach the original exception as "suppressed", so don't do that.
+     * If you would like to replace the thrown exception with a new one, you
+     * may {@code throw} from this method. If the method returns normally,
+     * exception handling proceeds to the next oldest registered handler.
+     * If no handler opts to {@code throw}, the original exception will propagate
+     * wrapped by an {@link UnableToExecuteStatementException}.
      * @param ex the exception thrown
-     * @return a replacement exception to throw, or null to defer
+     * @param ctx the statement context
      */
-    @Nullable
-    Throwable handle(SQLException ex);
+    void handle(SQLException ex, StatementContext ctx);
 }

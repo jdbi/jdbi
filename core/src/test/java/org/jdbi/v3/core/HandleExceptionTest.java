@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.SqlExceptionHandler;
 import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,17 +46,16 @@ class HandleExceptionTest {
     @Test
     void handleException() {
         h.getConfig(SqlStatements.class)
-                .addExceptionHandler(s -> null)
+                .addExceptionHandler((s, ctx) -> {})
                 .addExceptionHandler(new SqlExceptionHandler() {
                         @Override
-                        public Throwable handle(SQLException ex) {
+                        public void handle(SQLException ex, StatementContext ctx) {
                             if ("23505".equals(ex.getSQLState())) {
-                                return new RuntimeException("Wahoo");
+                                throw new RuntimeException("Wahoo");
                             }
-                            return null;
                         }
                 })
-                .addExceptionHandler(s -> null); // simple chaining test
+                .addExceptionHandler((s, ctx) -> {}); // simple chaining test
         h.execute("create table exception_test(id int primary key)");
         final String sql = "insert into exception_test (id) values(1)";
         h.execute(sql);
