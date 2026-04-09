@@ -59,6 +59,7 @@ All information in here reflects the current state of development on the `master
 
 === Release documentation
 
+* https://jdbi.org/releases/3.52.1[Release 3.52.1 - 2026-04-09^]
 * https://jdbi.org/releases/3.52.0[Release 3.52.0 - 2026-03-21^]
 * https://jdbi.org/releases/3.51.0[Release 3.51.0 - 2025-12-09^]
 * https://jdbi.org/releases/3.50.0[Release 3.50.0 - 2025-11-04^]
@@ -1561,7 +1562,7 @@ Out of the box, Jdbi supports the following types as SQL statement arguments:
 * java.net: `Inet4Address`, `Inet6Address`, `URL`, and `URI`
 * java.sql: `Blob`, `Clob`, `Date`, `Time`, and `Timestamp`
 * java.time: `Instant`, `LocalDate`, `LocalDateTime`, `LocalTime`,
-`OffsetDateTime`, `ZonedDateTime`, and `ZoneId`
+`OffsetDateTime`, `ZonedDateTime`, `ZoneId` and `ZoneOffset`.
 * java.util: `Date`, link:{jdkdocs}/java.base/java/util/Optional.html[Optional^] (around any other supported type), and `UUID`
 * `java.util.Collection` and Java arrays (stored as SQL arrays).
 Some additional setup may be required depending on the type of array element.
@@ -5811,15 +5812,17 @@ include::{coreexamples}/org/jdbi/v3/core/qualifier/TestCustomQualifier.java[tags
 
 The link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] API provides date and time related types since JDK 8. At the same time, Java released JDBC 4.2 which defines mapping of these types to SQL.
 
-Starting with release 3.52.0, Jdbi supports all recent JDBC drivers natively by using the official link:{jdkdocs}/java.sql/java/sql/PreparedStatement.html#setObject(int,java.lang.Object)[PreparedStatement#setObject^] and link:{jdkdocs}/java.sql/java/sql/ResultSet.html#getObject(int)[ResultSet#getObject^] APIs. This affects all relevant types such as link:{jdkdocs}/java.base/java/time/LocalDate.html[LocalDate^],
+Starting with release 3.52.0, Jdbi supports all recent JDBC drivers natively by using the official link:{jdkdocs}/java.sql/java/sql/PreparedStatement.html#setObject(int,java.lang.Object)[PreparedStatement#setObject^] and link:{jdkdocs}/java.sql/java/sql/ResultSet.html#getObject(int)[ResultSet#getObject^] APIs. This affects link:{jdkdocs}/java.base/java/time/LocalDate.html[LocalDate^],
 link:{jdkdocs}/java.base/java/time/LocalTime.html[LocalTime^],
 link:{jdkdocs}/java.base/java/time/LocalDateTime.html[LocalDateTime^],
 link:{jdkdocs}/java.base/java/time/OffsetDateTime.html[OffsetDateTime^] and
-link:{jdkdocs}/java.base/java/time/ZonedDateTime.html[ZonedDateTime^].
+link:{jdkdocs}/java.base/java/time/OffsetTime.html[OffsetTime^].
 
-JDBC drivers are unreliable when it comes to mapping Zone offsets and Zone names. Jdbi used to map these types explicitly to the legacy (pre-JDBC 4.2) types such as link:{jdkdocs}/java.sql/java/sql/Timestamp.html[Timestamp^], link:{jdkdocs}/java.sql/java/sql/Date.html[Date^] and link:{jdkdocs}/java.sql/java/sql/Time.html[Time^].
+JDBC drivers are not standardized when it comes to mapping data types with timezone onto columns that do not support timezones. Databases all behave differently when mapping data from those columns back onto data types such as link:{jdkdocs}/java.base/java/time/OffsetDateTime.html[OffsetDateTime^] or link:{jdkdocs}/java.base/java/time/ZonedDateTime.html[ZonedDateTime^].
 
-If the pre-3.52.0 behavior is wanted, it is possible to qualify the mapping type with the link:{jdbidocs}/meta/Legacy.html[@Legacy^] annotation:
+Jdbi used to map these types explicitly to the legacy (pre-JDBC 4.2) types such as link:{jdkdocs}/java.sql/java/sql/Timestamp.html[Timestamp^], link:{jdkdocs}/java.sql/java/sql/Date.html[Date^] and link:{jdkdocs}/java.sql/java/sql/Time.html[Time^]. None of those datatypes support timezones so heuristics were used for data types with timezones.
+
+These heuristics have changed with 3.52.0. If the old behavior is wanted, it is possible to qualify the mapping type with the link:{jdbidocs}/meta/Legacy.html[@Legacy^] annotation:
 
 [source,java,indent=0]
 ----
@@ -7849,8 +7852,7 @@ Jdbi jdbi = Jdbi.create("jdbc:postgresql://host:port/database")
                 .installPlugin(new PostgresPlugin());
 ----
 
-The plugin configures mappings for link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] types like
-link:{jdkdocs}/java.base/java/time/Instant.html[Instant^] or link:{jdkdocs}/java.base/java/time/Duration.html[Duration^], link:{jdkdocs}/java.base/java/net/InetAddress.html[InetAddress^], link:{jdkdocs}/java.base/java/util/UUID.html[UUID^], typed enums, and <<postgres-hstore,hstore>>.
+The plugin configures mappings for link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] types like link:{jdkdocs}/java.base/java/time/Duration.html[Duration^], link:{jdkdocs}/java.base/java/net/InetAddress.html[InetAddress^], link:{jdkdocs}/java.base/java/util/UUID.html[UUID^], typed enums, and <<postgres-hstore,hstore>>.
 
 It also configures SQL array type support for `int`, `long`, `float`, `double`,
 `String`, and `UUID`.
@@ -7977,6 +7979,46 @@ public interface Lobject {
 Please refer to
 https://jdbc.postgresql.org/documentation/binary-data/[Pg-JDBC docs^]
 for upstream driver documentation.
+
+=== MySQL
+
+The *jdbi3-mysql* plugin provides enhanced integration with the
+https://dev.mysql.com/doc/connector-j/en/[MySQL JDBC Driver^].
+
+To use this feature, add a dependency:
+
+For Apache Maven:
+
+[source,xml,indent=0,subs="attributes,specialchars"]
+----
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-mysql</artifactId>
+    <version>{project_version}</version>
+</dependency>
+----
+
+For Gradle:
+
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    implementation("org.jdbi:jdbi3-mysql:{project_version}")
+}
+----
+
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance.
+
+[source,java,indent=0]
+----
+Jdbi jdbi = Jdbi.create("jdbc:mysql://host:port/database")
+                .installPlugin(new MysqlPlugin());
+----
+
+The plugin configures mappings for data types from link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] that support time zones: link:{jdkdocs}/java.base/java/time/OffsetDateTime.html[OffsetDateTime^], link:{jdkdocs}/java.base/java/time/OffsetTime.html[OffsetTime^], link:{jdkdocs}/java.base/java/time/ZonedDateTime.html[ZonedDateTime^].
+
+[NOTE]
+MySQL does not have a data type that manages time zones! Loading this module makes it possible to map the java types directly onto columns. This converts the timezone to the system timezone and then creates a local timestamp (without a timezone). Without the module, the database driver will report an error that it does not support `TIMEZONE_WITH_TIMESTAMP` SQL types.
 
 === Spring framework
 
