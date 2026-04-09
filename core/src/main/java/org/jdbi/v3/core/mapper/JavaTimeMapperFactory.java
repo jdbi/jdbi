@@ -49,11 +49,12 @@ class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
     private static final Map<Class<?>, ColumnMapper<?>> MAPPERS = Map.of(
         ZoneId.class, (r, i, ctx) -> getZoneId(r, i),
         ZoneOffset.class, (r, i, ctx) -> getZoneOffset(r, i),
-        ZonedDateTime.class, (r, i, ctx) -> getZonedDateTime(r, i)
+        ZonedDateTime.class, (r, i, ctx) -> getZonedDateTime(r, i),
+        Instant.class, (r, i, ctx) -> getInstant(r, i)
     );
 
     JavaTimeMapperFactory() {
-        super(Instant.class, LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class, OffsetTime.class);
+        super(LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class, OffsetTime.class);
     }
 
     @Override
@@ -84,5 +85,10 @@ class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
     private static ZonedDateTime getZonedDateTime(ResultSet rs, int columnNumber) throws SQLException {
         var offsetDateTime = rs.getObject(columnNumber, OffsetDateTime.class);
         return offsetDateTime == null ? null : offsetDateTime.toZonedDateTime();
+    }
+
+    private static Instant getInstant(ResultSet r, int i) throws SQLException {
+        var timestamp = r.getTimestamp(i);
+        return timestamp == null ? null : timestamp.toInstant();
     }
 }

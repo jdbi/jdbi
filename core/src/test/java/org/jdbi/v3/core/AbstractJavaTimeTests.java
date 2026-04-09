@@ -13,463 +13,287 @@
  */
 package org.jdbi.v3.core;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.assertj.core.data.TemporalUnitOffset;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.Update;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIf;
+import org.jdbi.v3.meta.Legacy;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
+/**
+ * Set of tests for java.time types. Setup a table "time_test" with the following columns:<br>
+ * <ul>
+ *     <li>ts timestamp</li>
+ *     <li>d date</li>
+ *     <li>t time</li>
+ *     <li>dt datetime</li>
+ *     <li>tstz timestamp with timezone</li>
+ *     <li>ttz time with timezone</li>
+ * </ul>
+ * <p>
+ * Each column is optional. More columns are possible.
+ */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractJavaTimeTests {
+
+    private static final long TWO_DAY_OFFSET = 2 * 24 * 60 * 60 * 1000;
+
+    static final ZoneOffset TEST_ZONE_OFFSET;
+    static final ZoneId TEST_ZONE_ID;
+
+    static {
+        // Ah Time. Flowing like a river...
+
+        var testZoneOffset = ZoneOffset.of("-02:30");
+        if (ZoneId.systemDefault().getRules().getOffset(Instant.now()).equals(testZoneOffset)) {
+            testZoneOffset = ZoneOffset.of("-09:30");
+        }
+
+        var testZoneId = ZoneId.of("Asia/Katmandu"); // +05:45 ...
+        if (ZoneId.systemDefault().getId().equals(testZoneId.getId())) {
+            testZoneId = ZoneId.of("Australia/Broken_Hill"); // +10:30 ...
+        }
+
+        TEST_ZONE_OFFSET = testZoneOffset;
+        TEST_ZONE_ID = testZoneId;
+    }
+
+    private final Map<Class<?>, String[]> columnsForTypes;
 
     protected Handle h;
 
-    protected static List<String> findZoneIdsFor(ZonedDateTime dt) {
-        var offset = dt.getOffset();
-        return ZoneId.getAvailableZoneIds().stream()
-            .filter(id -> ZoneId.of(id).getRules().getOffset(dt.toInstant()).equals(offset))
-            .sorted()
-            .toList();
+    @BeforeEach
+    public void createHandle() {
+        this.h = getHandle();
     }
 
+    @AfterEach
+    public void destroyHandle() {
+        h.close();
+        this.h = null;
+    }
+
+    protected abstract Handle getHandle();
+
+    protected AbstractJavaTimeTests(Map<Class<?>, String[]> columnsForTypes) {
+        this.columnsForTypes = columnsForTypes;
+    }
+
+    /**
+     * Override if the type should be a qualified type.
+     */
     protected <T> QualifiedType<T> getTestType(Class<T> clazz) {
         return QualifiedType.of(clazz);
     }
 
-    protected TemporalUnitOffset getAllowableOffset() {
+    /**
+     * Default precision for is a microsecond. Override if that is not true for a specific database or data type.
+     */
+    protected TemporalUnitOffset getAllowableOffset(TestResult result) {
         return within(0, ChronoUnit.MICROS);
     }
 
-    protected boolean skipInstant() {
-        return false;
-    }
-
-    protected boolean skipLocalTime() {
-        return false;
-    }
-
-    protected boolean skipObjectTimestamp() {
-        return false;
-    }
-
-    protected boolean skipTSTZ() {
-        return false;
-    }
-
-    public final boolean skipInstantOrTSTZ() {
-        return skipInstant() || skipTSTZ();
-    }
-
-    public final boolean skipObjectTimestampOrTSTZ() {
-        return skipObjectTimestamp() || skipTSTZ();
-    }
-
-    @Test
-    @DisabledIf("skipInstant")
-    public final void instant() {
-        var type = getTestType(Instant.class);
-        var expected = Instant.now();
-
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
+    protected ZoneOffset getExpectedZoneOffset(Class<?> clazz, Object value, String column) {
+        if (value instanceof ZonedDateTime zdt) {
+            return zdt.getOffset();
+        } else if (value instanceof OffsetDateTime odt) {
+            return odt.getOffset();
+        } else if (value instanceof OffsetTime ot) {
+            return ot.getOffset();
+        } else {
+            return getSystemDefaultOffset();
         }
-
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-
-        validateInstant(result, expected);
-    }
-
-    protected void validateInstant(Instant result, Instant expected) {
-        assertThat(result).isCloseTo(expected, getAllowableOffset());
-    }
-
-    @Test
-    @DisabledIf("skipInstantOrTSTZ")
-    public final void instantTSTZ() {
-        var type = getTestType(Instant.class);
-        var expected = Instant.now();
-
-        try (Update u = h.createUpdate("insert into stuff(tstz) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select tstz from stuff").mapTo(type).one();
-
-        validateInstantTSTZ(result, expected);
-    }
-
-    protected void validateInstantTSTZ(Instant result, Instant expected) {
-        assertThat(result).isCloseTo(expected, getAllowableOffset());
-    }
-
-    @Test
-    @DisabledIf("skipInstant")
-    public final void instantNull() {
-        var type = getTestType(Instant.class);
-
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
-            u.bindByType(0, null, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    @DisabledIf("skipInstantOrTSTZ")
-    public final void instantNullTSTZ() {
-        var type = getTestType(Instant.class);
-
-        try (Update u = h.createUpdate("insert into stuff(tstz) values (?)")) {
-            u.bindByType(0, null, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select tstz from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    public final void localDate() {
-        var type = getTestType(LocalDate.class);
-        LocalDate expected = LocalDate.now(ZoneId.systemDefault());
-
-        try (Update u = h.createUpdate("insert into stuff(d) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select d from stuff").mapTo(type).one();
-
-        validateLocalDate(result, expected);
-    }
-
-    protected void validateLocalDate(LocalDate result, LocalDate expected) {
-        assertThat(result).isEqualTo(expected);
-    }
-
-    @Test
-    public final void localDateNull() {
-        var type = getTestType(LocalDate.class);
-
-        try (Update u = h.createUpdate("insert into stuff(d) values (?)")) {
-            u.bindByType(0, null, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select d from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    @DisabledIf("skipLocalTime")
-    public final void localTime() {
-        var type = getTestType(LocalTime.class);
-        var expected = LocalTime.now(ZoneId.systemDefault());
-
-        try (Update u = h.createUpdate("insert into stuff(t) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select t from stuff").mapTo(type).one();
-
-        validateLocalTime(result, expected);
-    }
-
-    protected void validateLocalTime(LocalTime result, LocalTime expected) {
-        assertThat(result).isCloseTo(expected, getAllowableOffset());
-    }
-
-    @Test
-    @DisabledIf("skipLocalTime")
-    public final void localTimeNull() {
-        var type = getTestType(LocalTime.class);
-
-        try (Update u = h.createUpdate("insert into stuff(t) values (?)")) {
-            u.bindByType(0, null, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select t from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    public final void localDateTime() {
-        var type = getTestType(LocalDateTime.class);
-        LocalDateTime expected = LocalDateTime.now(ZoneId.systemDefault());
-
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-
-        validateLocalDateTime(result, expected);
-    }
-
-    protected void validateLocalDateTime(LocalDateTime result, LocalDateTime expected) {
-        assertThat(result).isCloseTo(expected, getAllowableOffset());
-    }
-
-    @Test
-    public final void localDateTimeNull() {
-        var type = getTestType(LocalDateTime.class);
-
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
-            u.bindByType(0, null, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    @DisabledIf("skipObjectTimestamp")
-    public final void offsetDateTimeLosesOffsetWithTimestamp() {
-        var type = getTestType(OffsetDateTime.class);
-        var now = Instant.now();
-
-        var defaultOffset = ZoneOffset.systemDefault().getRules().getOffset(now);
-        var testOffset = ZoneOffset.ofHoursMinutes(-7, -15);
-
-        // use a non-existing offset to ensure tests don't fail because local time happens to be this offset.
-        OffsetDateTime expected = now.atOffset(testOffset);
-
-        assertThat(expected.getOffset()).isNotEqualTo(defaultOffset);
-        assertThat(expected.getOffset()).isEqualTo(testOffset);
-
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-
-        validateOffsetDateTimeLosesOffsetWithTimestamp(result, expected, defaultOffset, testOffset);
-    }
-
-    protected void validateOffsetDateTimeLosesOffsetWithTimestamp(OffsetDateTime result, OffsetDateTime expected, ZoneOffset defaultOffset,
-        ZoneOffset testOffset) {
-        assertThat(result).isCloseTo(expected, getAllowableOffset());
-        // falls back to default offset
-        assertThat(result.getOffset()).isEqualTo(defaultOffset);
-        assertThat(result.getOffset()).isNotEqualTo(testOffset);
-    }
-
-    @Test
-    @DisabledIf("skipObjectTimestamp")
-    public final void offsetDateTimeNull() {
-        var type = getTestType(OffsetDateTime.class);
-
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
-            u.bindByType(0, null, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    @DisabledIf("skipObjectTimestampOrTSTZ")
-    public final void offsetDateTimeNullTSTZ() {
-        var type = getTestType(OffsetDateTime.class);
-
-        try (Update u = h.createUpdate("insert into stuff(tstz) values (?)")) {
-            u.bindByType(0, null, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select tstz from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    @DisabledIf("skipObjectTimestamp")
-    public final void zonedDateTimeLosesZoneWithTimestamp() {
-        var now = ZonedDateTime.now(ZoneId.systemDefault());
-        var type = getTestType(ZonedDateTime.class);
-
-        var defaultZoneId = ZoneId.systemDefault();
-        var testZoneId = ZoneId.of("America/Denver");
-        if (defaultZoneId.equals(testZoneId)) {
-            testZoneId = ZoneId.of("America/Los_Angeles");
-        }
-
-        ZonedDateTime expected = now.withZoneSameInstant(testZoneId);
-
-        assertThat(expected.getZone()).isNotEqualTo(defaultZoneId);
-        assertThat(expected.getZone()).isEqualTo(testZoneId);
-
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-
-        validateZonedDateTimeLosesZoneWithTimestamp(result, expected, defaultZoneId, testZoneId);
     }
 
     /**
-     * by default, the driver should map onto the default timezone, not the test timezone.
+     * Helper returning the current offset for the system default zone.
      */
-    protected void validateZonedDateTimeLosesZoneWithTimestamp(ZonedDateTime result, ZonedDateTime expected, ZoneId defaultZoneId, ZoneId testZoneId) {
-        assertThat(result).isCloseTo(expected, getAllowableOffset());
-
-        var matchingZoneIds = findZoneIdsFor(result);
-
-        assertThat(matchingZoneIds).contains(defaultZoneId.getId());
-        assertThat(matchingZoneIds).doesNotContain(testZoneId.getId());
-    }
-
-    @Test
-    @DisabledIf("skipTSTZ")
-    public final void offsetDateTimeTSTZ() {
-        var type = getTestType(OffsetDateTime.class);
-
-        var defaultOffset = ZoneOffset.systemDefault().getRules().getOffset(Instant.now());
-        var testOffset = ZoneOffset.ofHoursMinutes(-7, -15);
-
-        // use a non-existing offset to ensure tests don't fail because local time happens to be this offset.
-        OffsetDateTime expected = OffsetDateTime.now(ZoneId.systemDefault()).withOffsetSameInstant(testOffset);
-
-        assertThat(expected.getOffset()).isNotEqualTo(defaultOffset);
-        assertThat(expected.getOffset()).isEqualTo(testOffset);
-
-        try (Update u = h.createUpdate("insert into stuff(tstz) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select tstz from stuff").mapTo(type).one();
-        validateOffsetDateTimeTSTZ(result, expected, defaultOffset, testOffset);
-    }
-
-    protected void validateOffsetDateTimeTSTZ(OffsetDateTime result, OffsetDateTime expected, ZoneOffset defaultOffset, ZoneOffset testOffset) {
-        assertThat(result).isCloseTo(expected, getAllowableOffset());
-
-        // preserved through the roundtrip
-        assertThat(result.getOffset()).isNotEqualTo(defaultOffset);
-        assertThat(result.getOffset()).isEqualTo(testOffset);
-    }
-
-    @Test
-    @DisabledIf("skipInstantOrTSTZ")
-    public void zonedDateTimeTSTZ() {
-        var type = getTestType(ZonedDateTime.class);
-
-        var defaultZoneId = ZoneId.systemDefault();
-        var testZoneId = ZoneId.of("America/Denver");
-        if (defaultZoneId.equals(testZoneId)) {
-            testZoneId = ZoneId.of("America/Los_Angeles");
-        }
-
-        ZonedDateTime expected = ZonedDateTime.now(ZoneId.systemDefault()).withZoneSameInstant(testZoneId);
-
-        assertThat(expected.getZone()).isNotEqualTo(defaultZoneId);
-        assertThat(expected.getZone()).isEqualTo(testZoneId);
-
-        try (Update u = h.createUpdate("insert into stuff(tstz) values (?)")) {
-            u.bindByType(0, expected, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select tstz from stuff").mapTo(type).one();
-
-        validateZonedDateTimeTSTZ(result, expected, defaultZoneId, testZoneId);
+    protected ZoneOffset getSystemDefaultOffset() {
+        return ZoneId.systemDefault().getRules().getOffset(NOWISH_INSTANT);
     }
 
     /**
-     * preserved through the roundtrip. Test is a bit convoluted because the result only contains an offset because Offset may map to multiple zones.
+     * Helper for legacy testing code.
      */
-    protected void validateZonedDateTimeTSTZ(ZonedDateTime result, ZonedDateTime expected, ZoneId defaultZoneId, ZoneId testZoneId) {
-        assertThat(result).isCloseTo(expected, getAllowableOffset());
-
-        List<String> matchingZoneIds = findZoneIdsFor(result);
-        assertThat(matchingZoneIds).contains(testZoneId.getId());
-        assertThat(matchingZoneIds).doesNotContain(defaultZoneId.getId());
+    protected final <T> QualifiedType<T> getLegacyTestType(Class<T> clazz) {
+        if (clazz.getPackage().getName().startsWith("java.time")) {
+            return QualifiedType.of(clazz).with(Legacy.class);
+        } else {
+            return QualifiedType.of(clazz);
+        }
     }
 
-    @Test
-    @DisabledIf("skipObjectTimestamp")
-    public final void zonedDateTimeNull() {
-        var type = getTestType(ZonedDateTime.class);
+    /**
+     * Helper for legacy testing code.
+     */
+    protected final TemporalUnitOffset getLegacyAllowableOffset(TestResult result) {
+        if (result.type() == OffsetTime.class || result.type() == LocalTime.class) {
+            // The legacy wrappers for {@link OffsetTime} and {@link LocalTime} only support second precision.
+            return within(0, ChronoUnit.SECONDS);
+        } else {
+            return within(0, ChronoUnit.MICROS);
+        }
+    }
 
-        try (Update u = h.createUpdate("insert into stuff(ts) values (?)")) {
+    /**
+     * Helper for legacy testing code.
+     */
+    protected final ZoneOffset getLegacyExpectedZoneOffset(Class<?> type) {
+        if (type == OffsetTime.class) {
+            return ZoneOffset.UTC;
+        } else {
+            return ZoneId.systemDefault().getRules().getOffset(NOWISH_INSTANT);
+        }
+    }
+
+    // Argument providers for the actual test.
+
+    static Stream<Class<?>> timeTypes() {
+        return Stream.of(OffsetDateTime.class, ZonedDateTime.class, OffsetTime.class,
+            Time.class, Date.class, Timestamp.class,
+            Instant.class, LocalDate.class, LocalTime.class, LocalDateTime.class);
+    }
+
+    // don't use the current date, otherwise datetime -> time column will seem to work because it fakes the local date.
+    static final long NOWISH = System.currentTimeMillis() + TWO_DAY_OFFSET;
+    static final Instant NOWISH_INSTANT = Instant.ofEpochMilli(NOWISH);
+
+    // null out milliseconds to not run into rounding issues with e.g. MySQL
+    static final long NOWISH_NO_MILLIS = NOWISH - (NOWISH % 1000);
+
+    static Map<Class<?>, Supplier<Object>> valueSuppliers() {
+        return Map.of(
+            OffsetDateTime.class, () -> OffsetDateTime.ofInstant(NOWISH_INSTANT, TEST_ZONE_OFFSET),
+            ZonedDateTime.class, () -> ZonedDateTime.ofInstant(NOWISH_INSTANT, TEST_ZONE_ID),
+            OffsetTime.class, () -> OffsetTime.ofInstant(NOWISH_INSTANT, TEST_ZONE_OFFSET),
+            Time.class, () -> new Time(NOWISH_NO_MILLIS),
+            Date.class, () -> new Date(NOWISH),
+            Timestamp.class, () -> new Timestamp(NOWISH),
+            Instant.class, () -> Instant.ofEpochMilli(NOWISH),
+            LocalDate.class, () -> LocalDate.ofInstant(NOWISH_INSTANT, ZoneId.systemDefault()),
+            LocalTime.class, () -> LocalTime.ofInstant(NOWISH_INSTANT, ZoneId.systemDefault()),
+            LocalDateTime.class, () -> LocalDateTime.ofInstant(NOWISH_INSTANT, ZoneId.systemDefault())
+        );
+    }
+
+    public record TestResult(Object expected, Object actual, String columnName, Class<?> type, ZoneOffset offset) {}
+
+    protected Map<Class<?>, Consumer<TestResult>> comparators() {
+        return Map.of(
+            OffsetDateTime.class,
+            (result) -> {
+                var actual = (OffsetDateTime) result.actual();
+                var expected = (OffsetDateTime) result.expected();
+                assertThat(actual.getOffset()).isEqualTo(result.offset());
+                assertThat(actual).isCloseTo(expected, getAllowableOffset(result));
+            },
+            ZonedDateTime.class,
+            (result) -> {
+                var actual = (ZonedDateTime) result.actual();
+                var expected = (ZonedDateTime) result.expected();
+                assertThat(actual.getOffset()).isEqualTo(result.offset());
+                assertThat(actual).isCloseTo(expected, getAllowableOffset(result));
+            },
+            OffsetTime.class, (result) -> {
+                var actual = (OffsetTime) result.actual();
+                var expected = (OffsetTime) result.expected();
+                assertThat(actual.getOffset()).isEqualTo(result.offset());
+                assertThat(actual.toLocalTime()).isCloseTo(expected.toLocalTime(), getAllowableOffset(result));
+            },
+            Time.class, (result) ->
+                assertThat(((Time) result.actual()).toLocalTime()).isCloseTo(((Time) result.expected()).toLocalTime(), getAllowableOffset(result)),
+            LocalTime.class, (result) ->
+                assertThat((LocalTime) result.actual()).isCloseTo(((LocalTime) result.expected()), getAllowableOffset(result)),
+            Date.class, (result) ->
+                assertThat(((Date) result.actual()).toLocalDate()).isEqualTo(((Date) result.expected()).toLocalDate()),
+            LocalDate.class, (result) ->
+                assertThat((LocalDate) result.actual()).isEqualTo(result.expected()),
+            Instant.class, (result) ->
+                assertThat((Instant) result.actual()).isCloseTo((Instant) result.expected(), getAllowableOffset(result)),
+            Timestamp.class, (result) ->
+                assertThat(((Timestamp) result.actual()).toInstant()).isCloseTo(((Timestamp) result.expected()).toInstant(), getAllowableOffset(result)),
+            LocalDateTime.class,
+            (result) ->
+                assertThat((LocalDateTime) result.actual()).isCloseTo((LocalDateTime) result.expected(), getAllowableOffset(result))
+        );
+    }
+
+    Stream<Arguments> argumentsProvider() {
+        var valueSupplierForType = valueSuppliers();
+        var comparatorForType = comparators();
+
+        List<Arguments> arguments = new ArrayList<>();
+        timeTypes().forEach(type -> {
+            var columns = columnsForTypes.get(type);
+            if (columns != null) {
+                Stream.of(columns).forEach(column -> arguments.add(
+                    Arguments.of(type, column, requireNonNull(valueSupplierForType.get(type)), requireNonNull(comparatorForType.get(type)))));
+            }
+        });
+        return arguments.stream();
+    }
+
+    @DisplayName("Test java.time types roundtrip")
+    @ParameterizedTest(name = "[{index}]: type = {0}, column = {1}")
+    @MethodSource("argumentsProvider")
+    public void testJavaTimeType(Class<?> clazz, String column, Supplier<Object> valueSupplier, Consumer<TestResult> comparator) {
+        var type = getTestType(clazz);
+        var value = valueSupplier.get();
+        var expectedZoneOffset = getExpectedZoneOffset(clazz, value, column);
+
+        try (Update u = h.createUpdate(format("insert into time_test(%s) values (?)", column))) {
+            u.bindByType(0, value, type);
+            u.execute();
+        }
+
+        var result = h.createQuery(format("select %s from time_test", column)).mapTo(type).one();
+
+        comparator.accept(new TestResult(value, result, column, clazz, expectedZoneOffset));
+    }
+
+    @DisplayName("Test java.time types null value")
+    @ParameterizedTest(name = "[{index}]: type = {0}, column = {1}")
+    @MethodSource("argumentsProvider")
+    public void testJavaTimeTypeNull(Class<?> clazz, String column) {
+        var type = getTestType(clazz);
+
+        try (Update u = h.createUpdate(format("insert into time_test(%s) values (?)", column))) {
             u.bindByType(0, null, type);
             u.execute();
         }
 
-        var result = h.createQuery("select ts from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    @DisabledIf("skipObjectTimestampOrTSTZ")
-    public final void zonedDateTimeNullTSTZ() {
-        var type = getTestType(ZonedDateTime.class);
-
-        try (Update u = h.createUpdate("insert into stuff(tstz) values (?)")) {
-            u.bindByType(0, null, type);
-            u.execute();
-        }
-
-        var result = h.createQuery("select tstz from stuff").mapTo(type).one();
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    public final void zoneId() {
-        final ZoneId expected = ZoneId.systemDefault();
-        h.execute("insert into stuff(z) values (?)", expected);
-
-        var result = h.createQuery("select z from stuff").mapTo(ZoneId.class).one();
-
-        validateZoneId(result, expected);
-    }
-
-    protected void validateZoneId(ZoneId result, ZoneId expected) {
-        assertThat(result).isEqualTo(expected);
-    }
-
-    @Test
-    public final void zoneIdNull() {
-        try (Update u = h.createUpdate("insert into stuff(z) values (?)")) {
-            u.bindByType(0, null, ZoneId.class);
-            u.execute();
-        }
-
-        var result = h.createQuery("select z from stuff").mapTo(ZoneId.class).one();
+        var result = h.createQuery(format("select %s from time_test", column)).mapTo(type).one();
 
         assertThat(result).isNull();
     }

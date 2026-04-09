@@ -25,3 +25,4 @@ travis-settings*.xml
 .build-oracle
 .factorypath
 .claude
+CLAUDE.md

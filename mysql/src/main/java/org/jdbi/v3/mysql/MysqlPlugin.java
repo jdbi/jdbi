@@ -26,7 +26,5 @@ public class MysqlPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.registerArgument(new JavaTimeArgumentFactory());
-
-        jdbi.registerColumnMapper(new JavaTimeMapperFactory());
     }
 }

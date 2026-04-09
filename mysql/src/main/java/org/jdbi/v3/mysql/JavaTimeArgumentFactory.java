@@ -14,11 +14,9 @@
 package org.jdbi.v3.mysql;
 
 import java.lang.reflect.Type;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -28,28 +26,27 @@ import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.argument.ObjectArgument;
-import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
 
 /**
  * MySQL specific argument factory for Java Time types.
  * <br>
- * {@link Instant} must be mapped to {@link Types#TIMESTAMP}, as the MySQL driver does not support them with {@link PreparedStatement#setObject}.
+ * Support timezone related types for mysql by mapping them onto {@link Types#TIMESTAMP} and {@link Types#TIME}.
  *
  * @since 3.52.0
  */
 final class JavaTimeArgumentFactory implements ArgumentFactory.Preparable {
 
     private static final Map<Class<?>, Function<Object, Argument>> TYPES = Map.of(
-        Instant.class, value -> value == null
-            ? new NullArgument(Types.TIMESTAMP)
-            : new LoggableBinderArgument<>(value, (p, i, v) -> p.setTimestamp(i, Timestamp.from((Instant) v))),
         OffsetDateTime.class, value -> value == null
             ? new NullArgument(Types.TIMESTAMP)
             : ObjectArgument.of(value, Types.TIMESTAMP),
         ZonedDateTime.class, value -> value == null
             ? new NullArgument(Types.TIMESTAMP)
-            : ObjectArgument.of(((ZonedDateTime) value).toOffsetDateTime(), Types.TIMESTAMP)
+            : ObjectArgument.of(((ZonedDateTime) value).toOffsetDateTime(), Types.TIMESTAMP),
+        OffsetTime.class, value -> value == null
+            ? new NullArgument(Types.TIME)
+            : ObjectArgument.of(((OffsetTime) value).toLocalTime(), Types.TIME)
     );
 
     @Override
