@@ -1,5 +1,6 @@
 {
   "reflection": [
+    {"type":{"proxy":["org.jdbi.v3.meta.Legacy"]}},
     {"type":"org.jdbi.v3.core.Handles","methods":[{"name":"<init>"}]},
     {"type":"org.jdbi.v3.core.argument.Arguments","methods":[{"name":"<init>","parameterTypes":["org.jdbi.v3.core.config.ConfigRegistry"]}]},
     {"type":"org.jdbi.v3.core.array.SqlArrayTypes","methods":[{"name":"<init>"}]},
