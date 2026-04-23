@@ -50,10 +50,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TestJavaTimeMysql {
 
-    static final String MYSQL_VERSION = System.getProperty("jdbi.test.mysql-version", "mysql");
+    static final String MYSQL_DOCKER_IMAGE = System.getProperty("jdbi.test.mysql-docker-image", "mysql");
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_VERSION);
+    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_DOCKER_IMAGE);
 
     @RegisterExtension
     JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer)
