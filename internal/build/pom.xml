@@ -107,7 +107,7 @@
         <dep.spring.version>6.2.17</dep.spring.version>
         <dep.sqlite.version>3.51.3.0</dep.sqlite.version>
         <dep.stringtemplate4.version>4.3.4</dep.stringtemplate4.version>
-        <dep.testcontainers.version>1.21.4</dep.testcontainers.version>
+        <dep.testcontainers.version>2.0.5</dep.testcontainers.version>
         <dep.vavr.version>0.11.0</dep.vavr.version>
         <dep.xz.version>1.12</dep.xz.version>
         <jdbi.check.fail-detekt>${jdbi.check.fail-kotlin}</jdbi.check.fail-detekt>
@@ -723,7 +723,7 @@
                             <link>https://google.github.io/guice/api-docs/${dep.guice.version}/javadoc/</link>
                             <link>https://javaee.github.io/javaee-spec/javadocs/</link>
                             <link>https://docs.junit.org/${dep.junit.version}/api/</link>
-                            <link>https://javadoc.io/doc/org.testcontainers/jdbc/${dep.testcontainers.version}/</link>
+                            <link>https://javadoc.io/doc/org.testcontainers/testcontainers-jdbc/${dep.testcontainers.version}/</link>
                         </links>
                         <detectOfflineLinks>false</detectOfflineLinks>
                         <nodeprecated>false</nodeprecated>
