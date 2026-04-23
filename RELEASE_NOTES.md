@@ -1,5 +1,23 @@
 # Unreleased
 
+=======
+## Upgrade to testcontainers 2.x
+
+While this required no code changes, the testcontainers project has
+renamed a number of their jar files. Jdbi still supports
+testcontainers 1.x and now also testcontainers 2.x:
+
+If you are using testcontainers with Jdbi today and can not update to
+2.x, make sure that you reference the `org.testcontainers:jdbc` and
+`org.testcontainers:junit-jupiter` dependencies. Those used to be
+available as transitive dependency from `jdbi3-testcontainers`.
+
+If you upgrade to testcontainers 2.x, the
+`org.testcontainers:testcontainers-jdbc` and
+`org.testcontainers:testcontainers-junit-jupiter` dependencies must be
+available.
+
+- Update testcontainers dependency to 2.0.5 (from 1.21.4)
 - Add StatementContext parameter to SqlExceptionHandler and remove return value
 
 # 3.52.1
