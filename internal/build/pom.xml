@@ -123,7 +123,8 @@
         <jdbi.native.fail-no-tests>true</jdbi.native.fail-no-tests>
         <jdbi.skip.native>true</jdbi.skip.native>
         <jdbi.test.language>en</jdbi.test.language>
-        <jdbi.test.mysql-version>mysql:lts</jdbi.test.mysql-version>
+        <jdbi.test.mysql-docker-image>mysql:lts</jdbi.test.mysql-docker-image>
+        <jdbi.test.oracle-docker-image>gvenzl/oracle-free:slim-faststart</jdbi.test.oracle-docker-image>
         <jdbi.test.pg-version>17</jdbi.test.pg-version>
         <jdbi.test.region>US</jdbi.test.region>
         <jdbi.test.timezone>UTC</jdbi.test.timezone>
@@ -991,7 +992,8 @@
                         <excludedGroups>slow,org.jdbi.v3.testing.SlowTests</excludedGroups>
                         <systemPropertyVariables combine.children="override">
                             <pg-embedded.postgres-version>${jdbi.test.pg-version}</pg-embedded.postgres-version>
-                            <jdbi.test.mysql-version>${jdbi.test.mysql-version}</jdbi.test.mysql-version>
+                            <jdbi.test.mysql-docker-image>${jdbi.test.mysql-docker-image}</jdbi.test.mysql-docker-image>
+                            <jdbi.test.oracle-docker-image>${jdbi.test.oracle-docker-image}</jdbi.test.oracle-docker-image>
                             <user.timezone>${jdbi.test.timezone}</user.timezone>
                             <user.language>${jdbi.test.language}</user.language>
                             <user.region>${jdbi.test.region}</user.region>
