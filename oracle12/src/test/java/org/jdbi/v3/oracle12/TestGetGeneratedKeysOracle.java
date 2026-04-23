@@ -43,10 +43,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 public class TestGetGeneratedKeysOracle {
 
-    static final String CONTAINER_VERSION = "gvenzl/oracle-free:" + System.getProperty("oracle.container.version", "slim-faststart");
+    static final String ORACLE_DOCKER_IMAGE = System.getProperty("jdbi.test.oracle-docker-image", "gvenzl/oracle-free:slim-faststart");
 
     @Container
-    static OracleContainer oc = new OracleContainer(CONTAINER_VERSION);
+    static OracleContainer oc = new OracleContainer(ORACLE_DOCKER_IMAGE);
 
     @RegisterExtension
     public JdbiExtension oracleExtension = JdbiTestcontainersExtension.instance(oc)

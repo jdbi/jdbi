@@ -134,7 +134,7 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 'latest-faststart', 'full-faststart' ]
+        test-version: [ 'gvenzl/oracle-free:latest-faststart', 'gvenzl/oracle-free:full-faststart' ]
 
     steps:
       - uses: actions/checkout@v6
@@ -161,7 +161,7 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi3-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi3-oracle12 -Djdbi.test.oracle-docker-image=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-slow-tests

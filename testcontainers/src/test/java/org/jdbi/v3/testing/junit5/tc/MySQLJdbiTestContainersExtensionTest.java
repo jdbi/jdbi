@@ -23,10 +23,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Tag("slow")
 @Testcontainers
 class MySQLJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
-    static final String MYSQL_VERSION = System.getProperty("jdbi.test.mysql-version", "mysql");
+    static final String MYSQL_DOCKER_IMAGE = System.getProperty("jdbi.test.mysql-docker-image", "mysql");
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_VERSION);
+    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_DOCKER_IMAGE);
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {
