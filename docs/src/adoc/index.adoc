@@ -3273,6 +3273,39 @@ extension point. For imperative support, please register your handler with
 `jdbi.getConfig(SqlStatements.class).addExceptionHandler(SqlExceptionHandler)`.
 With SqlObject, use the `@RegisterSqlExceptionHandler` annotation.
 
+A `SqlExceptionHandler` receives the raw `SQLException` and the `StatementContext` for the failed statement.
+To replace the exception, `throw` a new exception from the handler; if the method returns normally, the next
+registered handler is tried. If no handler throws, the original `SQLException` is wrapped and rethrown as an
+`UnableToExecuteStatementException`. Multiple handlers are tried in reverse registration order (last registered,
+first tried), so more specific handlers should be registered after more general ones.
+
+[source,java]
+----
+// Imperative registration
+jdbi.getConfig(SqlStatements.class).addExceptionHandler((ex, ctx) -> {
+    if ("23505".equals(ex.getSQLState())) {
+        throw new DuplicateKeyException("Duplicate key in: " + ctx.getRawSql(), ex);
+    }
+    // return normally to defer to the next handler (or re-throw the original)
+});
+
+// SqlObject annotation
+@RegisterSqlExceptionHandler(DuplicateKeyExceptionHandler.class)
+public interface UserDao {
+    @SqlUpdate("insert into users (id, name) values (:id, :name)")
+    void insert(@Bind("id") long id, @Bind("name") String name);
+}
+
+public class DuplicateKeyExceptionHandler implements SqlExceptionHandler {
+    @Override
+    public void handle(SQLException ex, StatementContext ctx) {
+        if ("23505".equals(ex.getSQLState())) {
+            throw new DuplicateKeyException("User already exists", ex);
+        }
+    }
+}
+----
+
 == Transactions
 
 Jdbi provides full support for JDBC transactions.
