@@ -59,6 +59,7 @@ All information in here reflects the current state of development on the `master
 
 === Release documentation
 
+* https://jdbi.org/releases/3.53.0[Release 3.53.0 - 2026-04-27^] - *Fixes https://github.com/jdbi/jdbi/security/advisories/GHSA-mggx-p7jf-jgw4[GHSA-mggx-p7jf-jgw4] *
 * https://jdbi.org/releases/3.52.1[Release 3.52.1 - 2026-04-09^]
 * https://jdbi.org/releases/3.52.0[Release 3.52.0 - 2026-03-21^]
 * https://jdbi.org/releases/3.51.0[Release 3.51.0 - 2025-12-09^]

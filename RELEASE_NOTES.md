@@ -1,6 +1,8 @@
 # Unreleased
 
-## Jdbi-Freemarker Security Advisory GHSA-mggx-p7jf-jgw4
+# 3.53.0
+
+## Fixes: Jdbi-Freemarker Security Advisory GHSA-mggx-p7jf-jgw4
 
 The Freemarker configuration allows templates to construct arbitrary
 Java types, including `freemarker.template.utility.Execute`.
