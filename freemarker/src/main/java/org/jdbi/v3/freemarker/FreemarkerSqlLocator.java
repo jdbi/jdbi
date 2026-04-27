@@ -16,6 +16,7 @@ package org.jdbi.v3.freemarker;
 import java.util.Optional;
 
 import freemarker.cache.ClassTemplateLoader;
+import freemarker.core.TemplateClassResolver;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.jdbi.v3.core.locator.internal.ClasspathBuilder;
@@ -37,6 +38,7 @@ public class FreemarkerSqlLocator {
         Configuration c = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
         c.setTemplateLoader(new ClassTemplateLoader(selectClassLoader(), "/"));
         c.setNumberFormat("computer");
+        c.setNewBuiltinClassResolver(TemplateClassResolver.ALLOWS_NOTHING_RESOLVER);
         CONFIGURATION = c;
     }
 
