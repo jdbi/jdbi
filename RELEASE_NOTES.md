@@ -1,6 +1,15 @@
 # Unreleased
 
-=======
+## Jdbi-Freemarker Security Advisory GHSA-mggx-p7jf-jgw4
+
+The Freemarker configuration allows templates to construct arbitrary
+Java types, including `freemarker.template.utility.Execute`.
+
+While exploiting this requires other unsafe practices (letting a user
+dictate template input), it seems prudent to disable template class resolution.
+
+Please see https://github.com/jdbi/jdbi/security/advisories/GHSA-mggx-p7jf-jgw4 for more details.
+
 ## Upgrade to testcontainers 2.x
 
 While this required no code changes, the testcontainers project has
