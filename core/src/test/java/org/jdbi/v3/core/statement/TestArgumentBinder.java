@@ -14,6 +14,8 @@
 package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
+import java.time.LocalDate;
+import java.util.List;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
@@ -34,7 +36,7 @@ public class TestArgumentBinder {
     @RegisterExtension
     public PgDatabaseExtension pgDatabaseExtension = PgDatabaseExtension.instance(pg)
         .withInitializer(handle ->
-            handle.execute("CREATE TABLE binder_test (i INT, u UUID, s VARCHAR, t timestamp with time zone default current_timestamp)"));
+            handle.execute("CREATE TABLE binder_test (i INT, u UUID, s VARCHAR, t timestamp with time zone default current_timestamp, d date)"));
 
     @Test
     public void testIntBinding() {
@@ -312,6 +314,59 @@ public class TestArgumentBinder {
             ).isInstanceOf(UnableToCreateStatementException.class)
                 .hasMessageStartingWith("Missing positional parameter 0 in binding:{pos:{1:100}}")
         );
+    }
+
+    // Regression tests for https://github.com/jdbi/jdbi/discussions/2951
+    // PreparedBatch: null-first binding must not lock the argument factory to Object.class
+
+    @Test
+    public void testNullFirstLocalDateBatch() {
+        LocalDate date = LocalDate.of(2024, 6, 1);
+        try (Handle h = pgDatabaseExtension.openHandle()) {
+            PreparedBatch b = h.prepareBatch("INSERT INTO binder_test (i, d) VALUES (:i, :d)");
+            b.bind("i", 1).bind("d", (LocalDate) null).add();
+            b.bind("i", 2).bind("d", date).add();
+            int[] counts = b.execute();
+            assertThat(counts).containsExactly(1, 1);
+
+            List<LocalDate> results = h.createQuery("SELECT d FROM binder_test ORDER BY i")
+                .mapTo(LocalDate.class)
+                .list();
+            assertThat(results).containsExactly(null, date);
+        }
+    }
+
+    @Test
+    public void testNonNullFirstNullSecondLocalDateBatch() {
+        LocalDate date = LocalDate.of(2024, 6, 1);
+        try (Handle h = pgDatabaseExtension.openHandle()) {
+            PreparedBatch b = h.prepareBatch("INSERT INTO binder_test (i, d) VALUES (:i, :d)");
+            b.bind("i", 1).bind("d", date).add();
+            b.bind("i", 2).bind("d", (LocalDate) null).add();
+            int[] counts = b.execute();
+            assertThat(counts).containsExactly(1, 1);
+
+            List<LocalDate> results = h.createQuery("SELECT d FROM binder_test ORDER BY i")
+                .mapTo(LocalDate.class)
+                .list();
+            assertThat(results).containsExactly(date, null);
+        }
+    }
+
+    @Test
+    public void testNullFirstNullSecondBatch() {
+        try (Handle h = pgDatabaseExtension.openHandle()) {
+            PreparedBatch b = h.prepareBatch("INSERT INTO binder_test (i, d) VALUES (:i, :d)");
+            b.bind("i", 1).bind("d", (LocalDate) null).add();
+            b.bind("i", 2).bind("d", (LocalDate) null).add();
+            int[] counts = b.execute();
+            assertThat(counts).containsExactly(1, 1);
+
+            List<LocalDate> results = h.createQuery("SELECT d FROM binder_test ORDER BY i")
+                .mapTo(LocalDate.class)
+                .list();
+            assertThat(results).containsExactly(null, null);
+        }
     }
 
     public static class TestBean {
