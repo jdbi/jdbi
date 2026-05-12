@@ -262,6 +262,15 @@ class ArgumentBinder {
                                         .orElseThrow(() -> missingNamedParameter(name, binding)))
                                 .apply(index + 1, stmt, ctx)));
                     }
+                } else if (value == null) {
+                    // Template row bound null; actual type is unknown until each row is bound,
+                    // so resolve the factory dynamically per row instead of fixing it to Object.class.
+                    innerBinders.add(wrapCheckedConsumer(name, binding -> {
+                        Object v = binding.named.get(name);
+                        factoryLocator.argumentFactoryForType(factoryLocator.typeOf(v))
+                            .apply(unwrap(v))
+                            .apply(index + 1, stmt, ctx);
+                    }));
                 } else {
                     final Function<Object, Argument> binder = factoryLocator.argumentFactoryForType(factoryLocator.typeOf(value));
                     innerBinders.add(wrapCheckedConsumer(name,
