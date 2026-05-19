@@ -13,12 +13,15 @@
  */
 package org.jdbi.v3.core.transaction;
 
+import java.io.Serial;
+
 import org.jdbi.v3.core.JdbiException;
 
 /**
  * Thrown when there's a problem manipulating the transaction isolation level.
  */
 public class TransactionException extends JdbiException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public TransactionException(String string, Throwable throwable) {

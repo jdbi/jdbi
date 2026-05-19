@@ -49,15 +49,13 @@ class DefinitionsFactory {
                 .ifPresent(this::configureTypeDefinitions);
         for (var typeDefinition : type.getAnnotationsByType(Definition.class)) {
             if (notDefined(typeDefinition.key())) {
-                throw new UnableToCreateSqlObjectException(String.format(
-                        "Type level @Definition on %s must have specific key",
-                        type));
+                throw new UnableToCreateSqlObjectException("Type level @Definition on %s must have specific key".formatted(
+                    type));
             }
 
             if (notDefined(typeDefinition.value())) {
-                throw new UnableToCreateSqlObjectException(String.format(
-                        "Type level @Definition on %s must have specific value",
-                        type));
+                throw new UnableToCreateSqlObjectException("Type level @Definition on %s must have specific value".formatted(
+                    type));
             }
 
             definitions.put(typeDefinition.key(), typeDefinition.value());
@@ -70,9 +68,8 @@ class DefinitionsFactory {
         for (var field : type.getDeclaredFields()) {
             for (var fieldDefinition : field.getAnnotationsByType(Definition.class)) {
                 if (defined(fieldDefinition.value())) {
-                    throw new UnableToCreateSqlObjectException(String.format(
-                            "Field %s @Definition on %s may not specify value",
-                            field.getName(), type));
+                    throw new UnableToCreateSqlObjectException("Field %s @Definition on %s may not specify value".formatted(
+                        field.getName(), type));
                 }
 
                 try {
@@ -81,7 +78,7 @@ class DefinitionsFactory {
                             field.get(null));
                 } catch (IllegalArgumentException | IllegalAccessException e) {
                     throw new UnableToCreateSqlObjectException(
-                            String.format("Could not read field %s of %s", field.getName(), type),
+                        "Could not read field %s of %s".formatted(field.getName(), type),
                             e);
                 }
             }
@@ -93,14 +90,13 @@ class DefinitionsFactory {
             for (var methodDefinition : method.getAnnotationsByType(Definition.class)) {
                 if (method.getParameterCount() > 0) {
                     throw new UnableToCreateSqlObjectException(
-                            String.format("@Definition annotated method %s may not have any parameters (on %s)",
-                                    method.getName(), type));
+                        "@Definition annotated method %s may not have any parameters (on %s)".formatted(
+                            method.getName(), type));
                 }
 
                 if (defined(methodDefinition.value())) {
-                    throw new UnableToCreateSqlObjectException(String.format(
-                            "Method %s @Definition on %s may not specify value",
-                            method.getName(), type));
+                    throw new UnableToCreateSqlObjectException("Method %s @Definition on %s may not specify value".formatted(
+                        method.getName(), type));
                 }
 
                 try {
@@ -109,7 +105,7 @@ class DefinitionsFactory {
                             method.invoke(null));
                 } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
                     throw new UnableToCreateSqlObjectException(
-                            String.format("Could not invoke method %s of %s", method.getName(), type),
+                        "Could not invoke method %s of %s".formatted(method.getName(), type),
                             e);
                 }
             }

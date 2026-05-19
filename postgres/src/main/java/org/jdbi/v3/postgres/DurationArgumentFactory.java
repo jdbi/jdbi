@@ -57,8 +57,8 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
         final long days = d.toDays();
         if (days > Integer.MAX_VALUE) {
             throw new IllegalArgumentException(
-                    String.format("duration %s too large to be represented unambiguously as postgres interval",
-                            d));
+                "duration %s too large to be represented unambiguously as postgres interval".formatted(
+                    d));
         }
         d = d.minusDays(days);
         final int hours = (int) d.toHours();
@@ -67,7 +67,7 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
         d = d.minusMinutes(minutes);
         if (d.getNano() % 1000 != 0) {
             throw new IllegalArgumentException(
-                    String.format("duration %s too precise to represented as postgres interval", d));
+                "duration %s too precise to represented as postgres interval".formatted(d));
         }
         double seconds = BigDecimal.valueOf(d.getSeconds())
                 .add(BigDecimal.valueOf(d.getNano()).movePointLeft(9))

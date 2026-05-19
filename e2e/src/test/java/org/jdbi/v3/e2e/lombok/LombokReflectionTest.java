@@ -41,15 +41,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class LombokReflectionTest {
 
-    private static final String QUERY = "SELECT\n"
-        + "b.id AS b_id,\n"
-        + "b.some_column AS b_s,\n"
-        + "c.id AS c_id,\n"
-        + "c.additional_column AS c_additionalColumn\n"
-        + "FROM table_b as b\n"
-        + "LEFT JOIN table_c AS c\n"
-        + "ON b.id = c.id\n"
-        + "WHERE b.id = :id\n";
+    private static final String QUERY = """
+        SELECT
+        b.id AS b_id,
+        b.some_column AS b_s,
+        c.id AS c_id,
+        c.additional_column AS c_additionalColumn
+        FROM table_b as b
+        LEFT JOIN table_c AS c
+        ON b.id = c.id
+        WHERE b.id = :id
+        """;
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiH2Extension.h2().withInitializer((ds, h) -> {

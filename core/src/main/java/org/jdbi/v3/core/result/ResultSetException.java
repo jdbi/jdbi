@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.result;
 
+import java.io.Serial;
+
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementException;
 
@@ -20,6 +22,7 @@ import org.jdbi.v3.core.statement.StatementException;
  * Wraps exceptions thrown while traversing the JDBC result set.
  */
 public class ResultSetException extends StatementException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public ResultSetException(String msg, Exception e, StatementContext ctx) {

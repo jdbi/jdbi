@@ -57,10 +57,10 @@ final class UseAnnotationExtensionHandlerFactory implements ExtensionHandlerFact
 
         if (extensionAnnotations.size() > 1) {
             throw new IllegalStateException(
-                    format("Mutually exclusive extension annotations on method %s.%s: %s",
-                            extensionType.getName(),
-                            method.getName(),
-                            extensionAnnotations));
+                "Mutually exclusive extension annotations on method %s.%s: %s".formatted(
+                    extensionType.getName(),
+                    method.getName(),
+                    extensionAnnotations));
         }
 
         if (method.isDefault() && !method.isSynthetic()) {

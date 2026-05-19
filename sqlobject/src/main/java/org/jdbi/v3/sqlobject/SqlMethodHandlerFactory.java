@@ -39,10 +39,10 @@ class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
 
         if (sqlMethodAnnotations.size() > 1) {
             throw new IllegalStateException(
-                    format("Mutually exclusive annotations on method %s.%s: %s",
-                            sqlObjectType.getName(),
-                            method.getName(),
-                            sqlMethodAnnotations));
+                "Mutually exclusive annotations on method %s.%s: %s".formatted(
+                    sqlObjectType.getName(),
+                    method.getName(),
+                    sqlMethodAnnotations));
         }
 
         if (method.isDefault() && !method.isSynthetic()) {
@@ -60,9 +60,8 @@ class SqlMethodHandlerFactory implements ExtensionHandlerFactory {
                 .map(klass -> JdbiClassUtils.findConstructorAndCreateInstance(klass, SQL_METHOD_HANDLER_TYPES,
                         handle -> handle.invokeExact(sqlObjectType, method)))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(format(
-                        "Method %s.%s must be default or be annotated with a SQL method annotation.",
-                        sqlObjectType.getSimpleName(),
-                        method.getName()))));
+                .orElseThrow(() -> new IllegalStateException("Method %s.%s must be default or be annotated with a SQL method annotation.".formatted(
+            sqlObjectType.getSimpleName(),
+            method.getName()))));
     }
 }

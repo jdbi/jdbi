@@ -25,8 +25,6 @@ import org.jdbi.v3.sqlobject.locator.SqlLocator;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import static java.lang.String.format;
-
 import static org.jdbi.v3.stringtemplate4.StringTemplateSqlLocator.findStringTemplateGroup;
 
 public class UseStringTemplateSqlLocatorImpl extends SimpleExtensionConfigurer {
@@ -40,7 +38,7 @@ public class UseStringTemplateSqlLocatorImpl extends SimpleExtensionConfigurer {
         this.locator = (type, method, config) -> {
             String templateName = SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
             if (!group.isDefined(templateName)) {
-                throw new IllegalStateException(format("No StringTemplate group %s for class %s", templateName, sqlObjectType));
+                throw new IllegalStateException("No StringTemplate group %s for class %s".formatted(templateName, sqlObjectType));
             }
             return templateName;
         };

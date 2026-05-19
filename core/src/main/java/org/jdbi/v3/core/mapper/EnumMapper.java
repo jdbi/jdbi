@@ -91,7 +91,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
                     )
                     .findFirst()
                     .orElseThrow(() -> new UnableToProduceResultException(
-                        String.format("no %s value could be matched to the name %s", enumClass.getSimpleName(), name)));
+                "no %s value could be matched to the name %s".formatted(enumClass.getSimpleName(), name)));
         }
 
         private static Predicate<Enum<?>> enumValueMatches(String name, BiPredicate<String, String> comparer) {
@@ -125,8 +125,7 @@ public abstract class EnumMapper<E extends Enum<E>> implements ColumnMapper<E> {
             try {
                 return rs.wasNull() ? null : enumConstants[ordinal];
             } catch (ArrayIndexOutOfBoundsException oob) {
-                throw new UnableToProduceResultException(String.format(
-                        "no %s value could be matched to the ordinal %s", enumClass.getSimpleName(), ordinal),
+                throw new UnableToProduceResultException("no %s value could be matched to the ordinal %s".formatted(enumClass.getSimpleName(), ordinal),
                     oob, ctx);
             }
         }

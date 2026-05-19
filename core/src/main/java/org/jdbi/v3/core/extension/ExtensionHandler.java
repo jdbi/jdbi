@@ -21,8 +21,6 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.meta.Alpha;
 
-import static java.lang.String.format;
-
 /**
  * Provides functionality for a single method on an extension object. Each extension handler can either
  * call another piece of code to return the result (e.g. the method on the underlying object) or return the
@@ -48,10 +46,9 @@ public interface ExtensionHandler {
      */
     static ExtensionHandler missingExtensionHandler(Method method) {
         return (ExtensionHandler.Simple) (handleSupplier, args) -> {
-            throw new IllegalStateException(format(
-                    "Method %s.%s has no registered extension handler!",
-                    method.getDeclaringClass().getSimpleName(),
-                    method.getName()));
+            throw new IllegalStateException("Method %s.%s has no registered extension handler!".formatted(
+                method.getDeclaringClass().getSimpleName(),
+                method.getName()));
         };
     }
 

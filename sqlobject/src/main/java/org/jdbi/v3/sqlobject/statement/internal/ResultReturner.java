@@ -35,8 +35,6 @@ import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SingleValue;
 
-import static java.lang.String.format;
-
 /**
  * Helper class used by the {@link CustomizingStatementHandler}s to assemble
  * the result Collection, Iterable, etc.
@@ -74,10 +72,9 @@ abstract class ResultReturner {
         if (Void.TYPE.equals(returnClass)) {
             // void types may contain a Consumer argument
             return findConsumerArgument(method)
-                .orElseThrow(() -> new IllegalStateException(format(
-                    "Method %s#%s is annotated as if it should return a value, but the method is void.",
-                    method.getDeclaringClass().getName(),
-                    method.getName())));
+                .orElseThrow(() -> new IllegalStateException("Method %s#%s is annotated as if it should return a value, but the method is void.".formatted(
+                method.getDeclaringClass().getName(),
+                method.getName())));
         } else if (ResultIterable.class.equals(returnClass)) {
             return new ResultIterableReturner(qualifiedReturnType);
         } else if (Stream.class.equals(returnClass)) {
@@ -108,7 +105,7 @@ abstract class ResultReturner {
         for (int consumerIndex = 0; consumerIndex < paramTypes.length; consumerIndex++) {
             if (paramTypes[consumerIndex] == Consumer.class) {
                 if (result.isPresent()) {
-                    throw new IllegalArgumentException(format("Method %s has multiple consumer arguments!", method));
+                    throw new IllegalArgumentException("Method %s has multiple consumer arguments!".formatted(method));
                 }
                 result = Optional.of(ConsumerResultReturner.of(method, consumerIndex));
             }
@@ -124,7 +121,7 @@ abstract class ResultReturner {
         for (int functionIndex = 0; functionIndex < paramTypes.length; functionIndex++) {
             if (paramTypes[functionIndex] == Function.class) {
                 if (result.isPresent()) {
-                    throw new IllegalArgumentException(format("Method %s has multiple function arguments!", method));
+                    throw new IllegalArgumentException("Method %s has multiple function arguments!".formatted(method));
                 }
                 result = FunctionResultReturner.of(returnType, method, functionIndex);
             }
@@ -387,7 +384,7 @@ abstract class ResultReturner {
             QualifiedType<?> elementType = QualifiedType.of(
                 GenericTypes.findGenericParameter(parameterType, Consumer.class)
                     .orElseThrow(() -> new IllegalStateException(
-                        format("Cannot reflect Consumer<T> element type T in method consumer parameter '%s'", parameterType))))
+                    "Cannot reflect Consumer<T> element type T in method consumer parameter '%s'".formatted(parameterType))))
                 .withAnnotations(new Qualifiers().findFor(method.getParameters()[consumerIndex]));
 
             Type type = elementType.getType();
@@ -396,25 +393,25 @@ abstract class ResultReturner {
                 // special case: Consumer<Iterator<T>>
                 if (GenericTypes.getErasedType(type) == Iterator.class) {
                     return getIteratorConsumer(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterator.class)
-                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Iterator type on '%s'", elementType)))));
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Iterator type on '%s'".formatted(elementType)))));
                 }
-                throw new IllegalArgumentException(format("Consumer argument for %s can not use subtype '%s' of Iterator!", method, type));
+                throw new IllegalArgumentException("Consumer argument for %s can not use subtype '%s' of Iterator!".formatted(method, type));
 
             } else if (GenericTypes.isSuperType(Stream.class, type)) {
                 // special case: Consumer<Stream<T>>
                 if (GenericTypes.getErasedType(type) == Stream.class) {
                     return getStreamConsumer(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Stream.class)
-                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Stream type on '%s'", elementType)))));
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Stream type on '%s'".formatted(elementType)))));
                 }
-                throw new IllegalArgumentException(format("Consumer argument for %s can not use subtype '%s' of Stream!", method, type));
+                throw new IllegalArgumentException("Consumer argument for %s can not use subtype '%s' of Stream!".formatted(method, type));
 
             } else if (GenericTypes.isSuperType(Iterable.class, type)) {
                 // special case: Consumer<Iterable<T>>
                 if (GenericTypes.getErasedType(type) == Iterable.class) {
                     return getIterableConsumer(consumerIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterable.class)
-                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Iterable type on '%s'", elementType)))));
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Iterable type on '%s'".formatted(elementType)))));
                 }
-                throw new IllegalArgumentException(format("Consumer argument for %s can not use subtype '%s' of Iterable!", method, type));
+                throw new IllegalArgumentException("Consumer argument for %s can not use subtype '%s' of Iterable!".formatted(method, type));
 
             } else {
                 // everything else is per-row Consumer<T>
@@ -485,17 +482,17 @@ abstract class ResultReturner {
             QualifiedType<?> targetType = QualifiedType.of(
                 GenericTypes.findGenericParameter(parameterType, Function.class, 1)
                     .orElseThrow(() -> new IllegalStateException(
-                        format("Cannot reflect Function<T, R> element type R in method function parameter '%s'", parameterType))));
+                    "Cannot reflect Function<T, R> element type R in method function parameter '%s'".formatted(parameterType))));
 
             if (!QualifiedType.of(returnType).equals(targetType)) {
-                throw new IllegalArgumentException(format("Function<T, R> argument R ('%s') for %s must match the function return type ('%s')",
+                throw new IllegalArgumentException("Function<T, R> argument R ('%s') for %s must match the function return type ('%s')".formatted(
                     targetType, method, returnType));
             }
 
             QualifiedType<?> elementType = QualifiedType.of(
                 GenericTypes.findGenericParameter(parameterType, Function.class, 0)
                     .orElseThrow(() -> new IllegalStateException(
-                        format("Cannot reflect Function<T, R> element type T in method function parameter '%s'", parameterType))))
+                    "Cannot reflect Function<T, R> element type T in method function parameter '%s'".formatted(parameterType))))
                 .withAnnotations(new Qualifiers().findFor(method.getParameters()[functionIndex]));
 
             Type type = elementType.getType();
@@ -504,25 +501,25 @@ abstract class ResultReturner {
                 // special case: Function<Iterator<T>, R>
                 if (GenericTypes.getErasedType(type) == Iterator.class) {
                     return getIteratorFunction(functionIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterator.class)
-                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Iterator type on '%s'", elementType)))));
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Iterator type on '%s'".formatted(elementType)))));
                 }
-                throw new IllegalArgumentException(format("Function argument for %s can not use subtype '%s' of Iterator!", method, type));
+                throw new IllegalArgumentException("Function argument for %s can not use subtype '%s' of Iterator!".formatted(method, type));
 
             } else if (GenericTypes.isSuperType(Stream.class, type)) {
                 // special case: Function<Stream<T>, R>
                 if (GenericTypes.getErasedType(type) == Stream.class) {
                     return getStreamFunction(functionIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Stream.class)
-                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Stream type on '%s'", elementType)))));
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Stream type on '%s'".formatted(elementType)))));
                 }
-                throw new IllegalArgumentException(format("Function argument for %s can not use subtype '%s' of Stream!", method, type));
+                throw new IllegalArgumentException("Function argument for %s can not use subtype '%s' of Stream!".formatted(method, type));
 
             } else if (GenericTypes.isSuperType(Iterable.class, type)) {
                 // special case: Function<Iterable<T>, R>
                 if (GenericTypes.getErasedType(type) == Iterable.class) {
                     return getIterableFunction(functionIndex, elementType.mapType(t -> GenericTypes.findGenericParameter(t, Iterable.class)
-                        .orElseThrow(() -> new IllegalStateException(format("Couldn't find Iterable type on '%s'", elementType)))));
+                        .orElseThrow(() -> new IllegalStateException("Couldn't find Iterable type on '%s'".formatted(elementType)))));
                 }
-                throw new IllegalArgumentException(format("Function argument for %s can not use subtype '%s' of Iterable!", method, type));
+                throw new IllegalArgumentException("Function argument for %s can not use subtype '%s' of Iterable!".formatted(method, type));
 
             } else {
                 return Optional.empty();

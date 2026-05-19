@@ -29,8 +29,6 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
-import static java.lang.String.format;
-
 public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
 
     private final WarmableResultTransformer resultTransformer;
@@ -79,9 +77,8 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
         } else if (isBoolean(method.getReturnType())) {
             this.resultTransformer = update -> update.execute() > 0;
         } else {
-            throw new UnableToCreateSqlObjectException(format(
-                    "%s.%s method is annotated with @SqlUpdate and should return void, boolean, int, long, or have a @GetGeneratedKeys annotation, but is returning: %s",
-                    method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
+            throw new UnableToCreateSqlObjectException("%s.%s method is annotated with @SqlUpdate and should return void, boolean, int, long, or have a @GetGeneratedKeys annotation, but is returning: %s".formatted(
+                method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
         }
     }
 

@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.core;
 
+import java.io.Serial;
+
 /**
  * Base unchecked exception for exceptions thrown from jdbi.
  */
 public abstract class JdbiException extends RuntimeException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

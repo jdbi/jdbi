@@ -60,7 +60,7 @@ public class JdbiSqliteExtension extends JdbiExtension {
     }
 
     public JdbiSqliteExtension() {
-        this(String.format("jdbc:sqlite:file:%s?mode=memory&cache=shared", UUID.randomUUID()));
+        this("jdbc:sqlite:file:%s?mode=memory&cache=shared".formatted(UUID.randomUUID()));
     }
 
     public JdbiSqliteExtension(String url) {

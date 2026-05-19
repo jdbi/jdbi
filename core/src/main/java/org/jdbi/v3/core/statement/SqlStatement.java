@@ -1783,7 +1783,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     @Override
     public String toString() {
-        return String.format("%s[sql=%s, bindings=%s]", getClass().getSimpleName(), sql, getContext().getBinding());
+        return "%s[sql=%s, bindings=%s]".formatted(getClass().getSimpleName(), sql, getContext().getBinding());
     }
 
     @SuppressWarnings("PMD.ExceptionAsFlowControl")

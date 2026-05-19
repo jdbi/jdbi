@@ -88,8 +88,8 @@ public class JdbiConstructors {
             return new StaticMethodInstanceFactory<>(factoryReturnType, allFactoryMethods.get(0));
         }
 
-        throw new IllegalArgumentException(String.format("%s must have exactly one factory method returning %s, or specify it with @JdbiConstructor",
-                factoryMethodClass, factoryReturnType));
+        throw new IllegalArgumentException("%s must have exactly one factory method returning %s, or specify it with @JdbiConstructor".formatted(
+            factoryMethodClass, factoryReturnType));
     }
 
     /**

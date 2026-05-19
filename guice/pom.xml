@@ -55,12 +55,13 @@
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
+      <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
-            <scope>provided</scope>
+            <scope>compile</scope>
             <optional>true</optional>
         </dependency>
 

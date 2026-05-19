@@ -36,8 +36,7 @@ import org.jdbi.v3.json.JsonMapper.TypedJsonMapper;
 public class JsonArgumentFactory implements ArgumentFactory.Preparable {
     public static final QualifiedType<String> ENCODED_JSON = QualifiedType.of(String.class).with(EncodedJson.class);
 
-    private static final String JSON_NOT_STORABLE = String.format(
-        "No argument factory found for `@%s String` or 'String'",
+    private static final String JSON_NOT_STORABLE = "No argument factory found for `@%s String` or 'String'".formatted(
         EncodedJson.class.getSimpleName()
     );
 

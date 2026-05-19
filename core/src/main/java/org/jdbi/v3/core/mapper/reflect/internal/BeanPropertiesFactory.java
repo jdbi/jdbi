@@ -129,18 +129,16 @@ public class BeanPropertiesFactory {
 
             protected Function<Object, Object> getter() {
                 if (getter == null) {
-                    throw new UnableToCreateStatementException(String.format(
-                            "No getter method found for bean property [%s] on [%s]",
-                            getName(), qualifiedType));
+                    throw new UnableToCreateStatementException("No getter method found for bean property [%s] on [%s]".formatted(
+                        getName(), qualifiedType));
                 }
                 return getter;
             }
 
             protected BiConsumer<Object, Object> setter() {
                 if (setter == null) {
-                    throw new UnableToCreateStatementException(String.format(
-                            "No setter method found for bean property [%s] on [%s]",
-                            getName(), qualifiedType));
+                    throw new UnableToCreateStatementException("No setter method found for bean property [%s] on [%s]".formatted(
+                        getName(), qualifiedType));
                 }
                 return setter;
             }

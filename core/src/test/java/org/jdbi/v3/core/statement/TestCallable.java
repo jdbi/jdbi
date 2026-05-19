@@ -42,21 +42,25 @@ public class TestCallable {
     @BeforeEach
     public void setUp() {
         h = pgExtension.getSharedHandle();
-        h.execute("CREATE OR REPLACE PROCEDURE TO_DEGREES(OUT result float, value float) AS $$\n"
-            + "BEGIN\n"
-            + "result := DEGREES(value);\n"
-            + "END;\n"
-            + "$$ LANGUAGE plpgsql;");
+        h.execute("""
+            CREATE OR REPLACE PROCEDURE TO_DEGREES(OUT result float, value float) AS $$
+            BEGIN
+            result := DEGREES(value);
+            END;
+            $$ LANGUAGE plpgsql;\
+            """);
 
-        h.execute("CREATE OR REPLACE PROCEDURE DO_LENGTH(value varchar, OUT result integer) AS $$\n"
-            + "BEGIN\n"
-            + "IF value IS NULL THEN\n"
-            + "result := NULL;\n"
-            + "ELSE\n"
-            + "result := CHAR_LENGTH(value);\n"
-            + "END IF;\n"
-            + "END;\n"
-            + "$$ LANGUAGE plpgsql;");
+        h.execute("""
+            CREATE OR REPLACE PROCEDURE DO_LENGTH(value varchar, OUT result integer) AS $$
+            BEGIN
+            IF value IS NULL THEN
+            result := NULL;
+            ELSE
+            result := CHAR_LENGTH(value);
+            END IF;
+            END;
+            $$ LANGUAGE plpgsql;\
+            """);
 
         h.execute("""
             CREATE OR REPLACE PROCEDURE DOUBLE_IT(INOUT v integer) AS $$
@@ -72,11 +76,13 @@ public class TestCallable {
             END;
             $$ LANGUAGE plpgsql;""");
 
-        h.execute("CREATE OR REPLACE PROCEDURE WITH_SIDE_EFFECT(v1 integer, v2 varchar) AS $$\n"
-            + "BEGIN\n"
-            + "INSERT INTO something (id, name) VALUES (v1, v2 || ' Doe');"
-            + "END;\n"
-            + "$$ LANGUAGE plpgsql;");
+        h.execute("""
+            CREATE OR REPLACE PROCEDURE WITH_SIDE_EFFECT(v1 integer, v2 varchar) AS $$
+            BEGIN
+            INSERT INTO something (id, name) VALUES (v1, v2 || ' Doe');\
+            END;
+            $$ LANGUAGE plpgsql;\
+            """);
 
         h.execute("CREATE TABLE something (id integer not null primary key, name varchar(255))");
     }
@@ -162,11 +168,13 @@ public class TestCallable {
 
     @Test
     public void testNullValue() {
-        h.execute("CREATE OR REPLACE PROCEDURE RETURN_VALUE(input integer, OUT result integer) AS $$\n"
-            + "BEGIN\n"
-            + "result := input;\n"
-            + "END;\n"
-            + "$$ LANGUAGE plpgsql;");
+        h.execute("""
+            CREATE OR REPLACE PROCEDURE RETURN_VALUE(input integer, OUT result integer) AS $$
+            BEGIN
+            result := input;
+            END;
+            $$ LANGUAGE plpgsql;\
+            """);
 
         try (Call call = h.createCall("CALL RETURN_VALUE(:in, :out)")) {
             OutParameters result = call.bind("in", 10)

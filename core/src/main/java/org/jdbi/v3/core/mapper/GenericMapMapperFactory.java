@@ -138,7 +138,7 @@ public class GenericMapMapperFactory implements RowMapperFactory {
 
                 boolean added = names.add(renamedKey);
                 if (!added) {
-                    throw new RuntimeException(String.format("map key \"%s\" (from column \"%s\") appears twice in this resultset!", renamedKey, key));
+                    throw new RuntimeException("map key \"%s\" (from column \"%s\") appears twice in this resultset!".formatted(renamedKey, key));
                 }
             }
 

@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static java.lang.String.format;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @TestMethodOrder(OrderAnnotation.class)
@@ -57,14 +55,14 @@ public class TestJdbiExtensionScopes {
 
 
     static int createTable(JdbiExtension extension, String table) {
-        try (Update update = extension.getSharedHandle().createUpdate(format("CREATE TABLE public.%s (a INTEGER)", table))) {
+        try (Update update = extension.getSharedHandle().createUpdate("CREATE TABLE public.%s (a INTEGER)".formatted(table))) {
             return update.execute();
         }
     }
 
     static boolean existsTable(JdbiExtension extension, String table) {
         try (Query query = extension.getSharedHandle()
-            .createQuery(format("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'PUBLIC' AND table_name = '%s')", table))) {
+            .createQuery("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'PUBLIC' AND table_name = '%s')".formatted(table))) {
             return query.mapTo(Boolean.class).one();
         }
     }

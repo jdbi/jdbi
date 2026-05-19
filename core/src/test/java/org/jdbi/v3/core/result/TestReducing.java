@@ -166,7 +166,7 @@ public class TestReducing {
 
         @Override
         public String toString() {
-            return String.format("Something %s with locations %s", something, locations);
+            return "Something %s with locations %s".formatted(something, locations);
         }
     }
 }

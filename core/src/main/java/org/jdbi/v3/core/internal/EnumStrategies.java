@@ -57,8 +57,7 @@ public class EnumStrategies implements JdbiConfig<EnumStrategies> {
         boolean hasByOrdinal = type.hasQualifier(EnumByOrdinal.class);
 
         if (hasByName && hasByOrdinal) {
-            throw new IllegalArgumentException(String.format(
-                "%s is both %s and %s",
+            throw new IllegalArgumentException("%s is both %s and %s".formatted(
                 type.getType(),
                 EnumByName.class.getSimpleName(),
                 EnumByOrdinal.class.getSimpleName()
