@@ -28,8 +28,6 @@ import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.JdbiClassUtils.MethodHandleHolder;
 import org.jdbi.v3.core.internal.OnDemandExtensions;
 
-import static java.lang.String.format;
-
 import static org.jdbi.v3.core.extension.ExtensionFactory.FactoryFlag.DONT_USE_PROXY;
 
 /**
@@ -66,7 +64,7 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
     @Override
     public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
         if (!isConcrete(extensionType)) {
-            throw new IllegalStateException(format("Can not process %s, not generated SQL object", extensionType.getSimpleName()));
+            throw new IllegalStateException("Can not process %s, not generated SQL object".formatted(extensionType.getSimpleName()));
         }
 
         ConfigRegistry config = handleSupplier.getConfig();

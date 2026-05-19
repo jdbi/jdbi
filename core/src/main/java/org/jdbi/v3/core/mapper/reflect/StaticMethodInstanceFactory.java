@@ -20,7 +20,6 @@ import java.util.function.Function;
 
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 class StaticMethodInstanceFactory<T> extends InstanceFactory<T> {
@@ -32,7 +31,7 @@ class StaticMethodInstanceFactory<T> extends InstanceFactory<T> {
         this.type = requireNonNull(type, "type is null");
         requireNonNull(method, "method is null");
         if (!isStaticFactoryMethodFor(method, type)) {
-            throw new IllegalArgumentException(format("Given method \"%s\" is not a valid factory method for %s", method, type));
+            throw new IllegalArgumentException("Given method \"%s\" is not a valid factory method for %s".formatted(method, type));
         }
         this.method = Unchecked.function(
                 Unchecked.function(MethodHandles.lookup()::unreflect)

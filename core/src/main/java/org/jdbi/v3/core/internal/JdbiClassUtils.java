@@ -30,8 +30,6 @@ import java.util.stream.Stream;
 
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 
-import static java.lang.String.format;
-
 import static org.jdbi.v3.core.internal.exceptions.Sneaky.throwAnyway;
 
 /**
@@ -87,7 +85,7 @@ public final class JdbiClassUtils {
             } catch (ReflectiveOperationException | SecurityException e2) {
                 e.addSuppressed(e2);
             }
-            throw new IllegalStateException(format("can't find %s#%s%s", klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
+            throw new IllegalStateException("can't find %s#%s%s".formatted(klass.getName(), methodName, Arrays.asList(parameterTypes)), e);
         }
     }
 
@@ -255,7 +253,7 @@ public final class JdbiClassUtils {
             }
         }
 
-        var failure = new NoSuchMethodException(format("No constructor for class '%s', loosely matching arguments %s", type.getName(), Arrays.toString(types)));
+        var failure = new NoSuchMethodException("No constructor for class '%s', loosely matching arguments %s".formatted(type.getName(), Arrays.toString(types)));
         suppressedThrowables.forEach(failure::addSuppressed);
 
         // return a method handle that will throw the no such method exception on invocation, thus deferring

@@ -26,8 +26,6 @@ import jakarta.annotation.Nullable;
 import org.jdbi.v3.core.result.ResultBearing;
 import org.jdbi.v3.core.result.internal.ResultSetSupplier;
 
-import static java.lang.String.format;
-
 /**
  * Holds all output parameters from a stored procedure call using {@link Call}.
  * Since output parameters can themselves be streaming result sets or cursors, it is important
@@ -141,7 +139,7 @@ public class OutParameters {
         try {
             return getObject(name, byte[].class);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException(format("Parameter '%s' is not a byte[]", name), e);
+            throw new IllegalArgumentException("Parameter '%s' is not a byte[]".formatted(name), e);
         }
     }
 
@@ -156,7 +154,7 @@ public class OutParameters {
         try {
             return getObject(pos, byte[].class);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException(format("Parameter #%d is not a byte[]", pos), e);
+            throw new IllegalArgumentException("Parameter #%d is not a byte[]".formatted(pos), e);
         }
     }
 
@@ -491,7 +489,7 @@ public class OutParameters {
         try {
             return getObject(name, Number.class);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException(format("Parameter '%s' is not a number", name), e);
+            throw new IllegalArgumentException("Parameter '%s' is not a number".formatted(name), e);
         }
     }
 
@@ -500,7 +498,7 @@ public class OutParameters {
         try {
             return getObject(pos, Number.class);
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException(format("Parameter #%d is not a number", pos), e);
+            throw new IllegalArgumentException("Parameter #%d is not a number".formatted(pos), e);
         }
     }
 
@@ -511,7 +509,7 @@ public class OutParameters {
             var date = getObject(name, java.util.Date.class);
             return date == null ? null : date.getTime();
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException(format("Parameter '%s' is not a java.util.Date", name), e);
+            throw new IllegalArgumentException("Parameter '%s' is not a java.util.Date".formatted(name), e);
         }
     }
 
@@ -522,7 +520,7 @@ public class OutParameters {
             var date = getObject(pos, java.util.Date.class);
             return date == null ? null : date.getTime();
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException(format("Parameter #%d is not a java.util.Date", pos), e);
+            throw new IllegalArgumentException("Parameter #%d is not a java.util.Date".formatted(pos), e);
         }
     }
 
@@ -546,7 +544,7 @@ public class OutParameters {
                 return supplier.get();
             }
 
-            throw new IllegalArgumentException(format("Parameter #%d does not exist", index));
+            throw new IllegalArgumentException("Parameter #%d does not exist".formatted(index));
         }
 
         Object getValue(String name) {
@@ -555,7 +553,7 @@ public class OutParameters {
                 return supplier.get();
             }
 
-            throw new IllegalArgumentException(format("Parameter '%s' does not exist", name));
+            throw new IllegalArgumentException("Parameter '%s' does not exist".formatted(name));
         }
     }
 }

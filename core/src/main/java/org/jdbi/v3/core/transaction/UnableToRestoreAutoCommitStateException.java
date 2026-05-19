@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.transaction;
 
+import java.io.Serial;
+
 import org.jdbi.v3.core.JdbiException;
 
 /**
@@ -20,6 +22,7 @@ import org.jdbi.v3.core.JdbiException;
  */
 public class UnableToRestoreAutoCommitStateException extends JdbiException {
 
+    @Serial
     private static final long serialVersionUID = 2433069110223543423L;
 
     public UnableToRestoreAutoCommitStateException(Throwable throwable) {

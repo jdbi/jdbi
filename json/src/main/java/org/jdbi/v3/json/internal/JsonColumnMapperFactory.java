@@ -33,8 +33,7 @@ import org.jdbi.v3.json.JsonMapper.TypedJsonMapper;
  */
 @Json
 public class JsonColumnMapperFactory implements ColumnMapperFactory {
-    private static final String JSON_NOT_RETRIEVABLE = String.format(
-        "No column mapper found for '@%s String', or 'String'",
+    private static final String JSON_NOT_RETRIEVABLE = "No column mapper found for '@%s String', or 'String'".formatted(
         Json.class.getSimpleName()
     );
 

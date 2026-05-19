@@ -24,8 +24,6 @@ import org.jdbi.v3.core.statement.Cleanable;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextListener;
 
-import static java.lang.String.format;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -44,7 +42,7 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
 
         assertThat(contextElements)
             .withFailMessage(() ->
-                format("statement context %s has already been created by thread %s", statementContext, contextElements.get(statementContext)))
+                "statement context %s has already been created by thread %s".formatted(statementContext, contextElements.get(statementContext)))
             .doesNotContainKey(statementContext);
 
         contextElements.putIfAbsent(statementContext, new RecordingContext<>());
@@ -55,14 +53,14 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(statementContext, "statementContext is null!");
 
         assertThat(contextElements)
-            .withFailMessage(() -> format("statement context %s is unknown", statementContext))
+            .withFailMessage(() -> "statement context %s is unknown".formatted(statementContext))
             .containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
 
         Set<Cleanable> leakedCleanables = context.leakedElements();
         if (!leakedCleanables.isEmpty()) {
-            fail(format("Found %d cleanables that were not removed [%s]", leakedCleanables.size(), leakedCleanables));
+            fail("Found %d cleanables that were not removed [%s]".formatted(leakedCleanables.size(), leakedCleanables));
         }
 
         context.reset();
@@ -74,16 +72,16 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(cleanable, "cleanable is null");
 
         assertThat(contextElements)
-            .withFailMessage(() -> format("statement context %s is unknown", statementContext))
+            .withFailMessage(() -> "statement context %s is unknown".formatted(statementContext))
             .containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
 
         assertThat(context.objectAdded)
-            .withFailMessage(() -> format("cleanable %s has already been added by thread %s", cleanable, context.objectAdded.get(cleanable)))
+            .withFailMessage(() -> "cleanable %s has already been added by thread %s".formatted(cleanable, context.objectAdded.get(cleanable)))
             .doesNotContainKey(cleanable);
         assertThat(context.objectRemoved)
-            .withFailMessage(() -> format("cleanable %s has already been removed by thread %s", cleanable, context.objectRemoved.get(cleanable)))
+            .withFailMessage(() -> "cleanable %s has already been removed by thread %s".formatted(cleanable, context.objectRemoved.get(cleanable)))
             .doesNotContainKey(cleanable);
 
         context.objectAdded.putIfAbsent(cleanable, getThreadName());
@@ -95,16 +93,16 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(cleanable, "cleanable is null");
 
         assertThat(contextElements)
-            .withFailMessage(() -> format("statement context %s is unknown", statementContext))
+            .withFailMessage(() -> "statement context %s is unknown".formatted(statementContext))
             .containsKey(statementContext);
 
         RecordingContext<Cleanable> context = contextElements.get(statementContext);
 
         assertThat(context.objectAdded)
-            .withFailMessage(() -> format("cleanable %s is unknown", cleanable))
+            .withFailMessage(() -> "cleanable %s is unknown".formatted(cleanable))
             .containsKey(cleanable);
         assertThat(context.objectRemoved)
-            .withFailMessage(() -> format("cleanable %s has already been removed by thread %s", cleanable, context.objectRemoved.get(cleanable)))
+            .withFailMessage(() -> "cleanable %s has already been removed by thread %s".formatted(cleanable, context.objectRemoved.get(cleanable)))
             .doesNotContainKey(cleanable);
 
         context.objectRemoved.putIfAbsent(cleanable, getThreadName());
@@ -115,11 +113,11 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(handle, "handle is null");
 
         assertThat(handleTracker.objectAdded)
-            .withFailMessage(() -> format("handle %s has already been added by thread %s", handle, handleTracker.objectAdded.get(handle)))
+            .withFailMessage(() -> "handle %s has already been added by thread %s".formatted(handle, handleTracker.objectAdded.get(handle)))
             .doesNotContainKey(handle);
 
         assertThat(handleTracker.objectRemoved)
-            .withFailMessage(() -> format("handle %s has already been removed by thread %s", handle, handleTracker.objectRemoved.get(handle)))
+            .withFailMessage(() -> "handle %s has already been removed by thread %s".formatted(handle, handleTracker.objectRemoved.get(handle)))
             .doesNotContainKey(handle);
 
         handleTracker.objectAdded.putIfAbsent(handle, getThreadName());
@@ -130,11 +128,11 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         checkNotNull(handle, "handle is null");
 
         assertThat(handleTracker.objectAdded)
-            .withFailMessage(() -> format("handle %s is unknown", handle))
+            .withFailMessage(() -> "handle %s is unknown".formatted(handle))
             .containsKey(handle);
 
         assertThat(handleTracker.objectRemoved)
-            .withFailMessage(() -> format("handle %s has already been removed by thread %s", handle, handleTracker.objectRemoved.get(handle)))
+            .withFailMessage(() -> "handle %s has already been removed by thread %s".formatted(handle, handleTracker.objectRemoved.get(handle)))
             .doesNotContainKey(handle);
 
         handleTracker.objectRemoved.putIfAbsent(handle, getThreadName());
@@ -144,7 +142,7 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         Set<Handle> leakedHandles = handleTracker.leakedElements();
 
         if (!leakedHandles.isEmpty()) {
-            fail(format("Found %d leaked handles.", leakedHandles.size()));
+            fail("Found %d leaked handles.".formatted(leakedHandles.size()));
         }
 
         int leakedCleanablesCount = 0;
@@ -157,7 +155,7 @@ final class JdbiLeakChecker implements StatementContextListener, HandleListener 
         }
 
         if (leakedCleanablesCount > 0) {
-            fail(format("Found %d leaked cleanable objects in %d contexts", leakedCleanablesCount, contextElements.size()));
+            fail("Found %d leaked cleanable objects in %d contexts".formatted(leakedCleanablesCount, contextElements.size()));
         }
     }
 

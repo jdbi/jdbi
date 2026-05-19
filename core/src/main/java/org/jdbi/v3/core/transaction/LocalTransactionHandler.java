@@ -171,7 +171,7 @@ public class LocalTransactionHandler implements TransactionHandler {
                 final Savepoint savepoint = conn.setSavepoint(name);
                 savepoints.put(name, savepoint);
             } catch (SQLException e) {
-                throw new TransactionException(String.format("Unable to create savepoint '%s'", name), e);
+                throw new TransactionException("Unable to create savepoint '%s'".formatted(name), e);
             }
         }
 
@@ -181,12 +181,12 @@ public class LocalTransactionHandler implements TransactionHandler {
             try {
                 final Savepoint savepoint = savepoints.remove(name);
                 if (savepoint == null) {
-                    throw new TransactionException(String.format("Attempt to release non-existent savepoint, '%s'",
-                                                                 name));
+                    throw new TransactionException("Attempt to release non-existent savepoint, '%s'".formatted(
+                        name));
                 }
                 conn.releaseSavepoint(savepoint);
             } catch (SQLException e) {
-                throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
+                throw new TransactionException("Unable to create savepoint %s".formatted(name), e);
             }
         }
 
@@ -196,12 +196,12 @@ public class LocalTransactionHandler implements TransactionHandler {
             try {
                 final Savepoint savepoint = savepoints.remove(name);
                 if (savepoint == null) {
-                    throw new TransactionException(String.format("Attempt to rollback to non-existent savepoint, '%s'",
-                                                                 name));
+                    throw new TransactionException("Attempt to rollback to non-existent savepoint, '%s'".formatted(
+                        name));
                 }
                 conn.rollback(savepoint);
             } catch (SQLException e) {
-                throw new TransactionException(String.format("Unable to create savepoint %s", name), e);
+                throw new TransactionException("Unable to create savepoint %s".formatted(name), e);
             }
         }
 

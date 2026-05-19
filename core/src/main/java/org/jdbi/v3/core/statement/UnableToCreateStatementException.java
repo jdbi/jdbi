@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.io.Serial;
+
 /**
  * Thrown when {@code Jdbi} couldn't create a statement.
  */
 public class UnableToCreateStatementException extends StatementException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public UnableToCreateStatementException(String string, Throwable cause, StatementContext ctx) {

@@ -48,8 +48,7 @@ class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
             if (cfg.get(Arguments.class).isBindingNullToPrimitivesPermitted()) {
                 return null;
             } else {
-                throw new IllegalArgumentException(String.format(
-                        "binding null to a primitive %s is forbidden by configuration, declare a boxed type instead", type
+                throw new IllegalArgumentException("binding null to a primitive %s is forbidden by configuration, declare a boxed type instead".formatted(type
                 ));
             }
         }

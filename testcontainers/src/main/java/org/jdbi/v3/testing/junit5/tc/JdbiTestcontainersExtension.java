@@ -22,8 +22,6 @@ import org.jdbi.v3.meta.Beta;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
-import static java.lang.String.format;
-
 /**
  * Support <a href="https://testcontainers.org/">Testcontainer JDBC containers</a> as database for Jdbi tests.
  */
@@ -51,7 +49,7 @@ public final class JdbiTestcontainersExtension extends JdbiExtension {
         TestcontainersDatabaseInformation databaseInformation = TestcontainersDatabaseInformation.forTestcontainerClass(jdbcDatabaseContainer.getClass());
 
         if (databaseInformation == null) {
-            throw new IllegalArgumentException(format("Container class '%s' is unknown!", jdbcDatabaseContainer.getClass().getName()));
+            throw new IllegalArgumentException("Container class '%s' is unknown!".formatted(jdbcDatabaseContainer.getClass().getName()));
         }
 
         return new JdbiTestcontainersExtension(databaseInformation, jdbcDatabaseContainer);
@@ -106,7 +104,7 @@ public final class JdbiTestcontainersExtension extends JdbiExtension {
 
         databaseInformation.getCatalog().ifPresent(schemaConfig::setCatalog);
         databaseInformation.getSchema().ifPresent(schemaConfig::setSchema);
-        schemaConfig.setPoolName(format("jdbi-test-pool (%s)", databaseInformation));
+        schemaConfig.setPoolName("jdbi-test-pool (%s)".formatted(databaseInformation));
 
         try (HikariDataSource ds = schemaDatasource) {
             this.schemaDatasource = new HikariDataSource(schemaConfig);
@@ -127,7 +125,7 @@ public final class JdbiTestcontainersExtension extends JdbiExtension {
         masterConfig.setUsername(databaseInformation.getUser().orElse(jdbcDatabaseContainer.getUsername()));
         masterConfig.setPassword(jdbcDatabaseContainer.getPassword());
         masterConfig.setDriverClassName(jdbcDatabaseContainer.getDriverClassName());
-        masterConfig.setPoolName(format("jdbi-template-pool (%s)", databaseInformation));
+        masterConfig.setPoolName("jdbi-template-pool (%s)".formatted(databaseInformation));
 
         databaseInformation.getCatalog().ifPresent(masterConfig::setCatalog);
         databaseInformation.getSchema().ifPresent(masterConfig::setSchema);

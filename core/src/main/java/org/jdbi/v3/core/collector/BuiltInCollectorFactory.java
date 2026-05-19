@@ -126,11 +126,10 @@ public class BuiltInCollectorFactory implements CollectorFactory {
     private static <K, V, M extends Map<K, V>> void putEntry(M map, K key, V value) {
         V oldValue = map.put(key, value);
         if (oldValue != null) {
-            throw new IllegalStateException(String.format(
-                    "Multiple values for Map key '%s': ['%s','%s',...]",
-                    key,
-                    oldValue,
-                    value));
+            throw new IllegalStateException("Multiple values for Map key '%s': ['%s','%s',...]".formatted(
+                key,
+                oldValue,
+                value));
         }
     }
 

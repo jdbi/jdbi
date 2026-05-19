@@ -46,8 +46,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.String.format;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ExtensionHandlerCustomizerAnnotationTest {
@@ -156,11 +154,11 @@ class ExtensionHandlerCustomizerAnnotationTest {
             return (config, target) -> {
                 AttachedExtensionHandler delegate = handler.attachTo(config, target);
                 return (handleSupplier, args) -> {
-                    LOG.info(format("Entering %s on %s", method, extensionType.getSimpleName()));
+                    LOG.info("Entering %s on %s".formatted(method, extensionType.getSimpleName()));
                     try {
                         return delegate.invoke(handleSupplier, args);
                     } finally {
-                        LOG.info(format("Leaving %s on %s", method, extensionType.getSimpleName()));
+                        LOG.info("Leaving %s on %s".formatted(method, extensionType.getSimpleName()));
                     }
                 };
             };

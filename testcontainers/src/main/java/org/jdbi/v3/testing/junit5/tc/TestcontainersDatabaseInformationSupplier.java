@@ -31,8 +31,6 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.String.format;
-
 
 final class TestcontainersDatabaseInformationSupplier implements Supplier<TestcontainersDatabaseInformation>, AutoCloseable, Runnable {
 
@@ -94,7 +92,7 @@ final class TestcontainersDatabaseInformationSupplier implements Supplier<Testco
             stopped.await();
         } else if (!stopped.await(shutdownWaitTimeInSeconds, TimeUnit.SECONDS)) {
             if (logWarning) {
-                LOG.warn(format("Could not shut down database creation thread within %d seconds", shutdownWaitTimeInSeconds));
+                LOG.warn("Could not shut down database creation thread within %d seconds".formatted(shutdownWaitTimeInSeconds));
             }
             return false;
         }

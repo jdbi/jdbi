@@ -94,7 +94,7 @@ public class TestBatchingSingleValue {
 
         @Override
         public String toString() {
-            return String.format("%s %s", id, Arrays.toString(vals));
+            return "%s %s".formatted(id, Arrays.toString(vals));
         }
     }
 }

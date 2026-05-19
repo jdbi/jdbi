@@ -13,7 +13,10 @@
  */
 package org.jdbi.v3.core.internal;
 
+import java.io.Serial;
+
 public class UtilityClassException extends UnsupportedOperationException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public UtilityClassException() {
