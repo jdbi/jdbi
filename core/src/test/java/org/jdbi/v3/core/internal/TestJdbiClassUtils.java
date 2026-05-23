@@ -20,6 +20,8 @@ import java.util.Arrays;
 import org.jdbi.v3.core.internal.JdbiClassUtils.MethodHandleHolder;
 import org.junit.jupiter.api.Test;
 
+import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -176,7 +178,7 @@ public class TestJdbiClassUtils {
 
         assertThatThrownBy(() -> failingHandle.invoke(handle -> handle.invokeExact("one", 2, true)))
                 .isInstanceOf(NoSuchMethodException.class)
-                .hasMessageContaining("No constructor for class '%s', loosely matching arguments %s".formatted(TestFCFail.class.getName(), Arrays.toString(CLASS_PARAMETERS)));
+                .hasMessageContaining(format("No constructor for class '%s', loosely matching arguments %s", TestFCFail.class.getName(), Arrays.toString(CLASS_PARAMETERS)));
     }
 
     private static <T> T create(Class<T> clazz) {

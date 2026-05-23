@@ -17,6 +17,8 @@ import java.io.Serial;
 
 import org.jdbi.v3.core.JdbiException;
 
+import static java.lang.String.format;
+
 /**
  * Thrown when no {@link ExtensionFactory} accepts a given extension type.
  */
@@ -67,6 +69,6 @@ public final class NoSuchExtensionException extends JdbiException {
     }
 
     private static String formatMessage(Class<?> extensionClass, String formatString) {
-        return formatString.formatted(extensionClass == null ? "<null>" : extensionClass.getSimpleName());
+        return format(formatString, extensionClass == null ? "<null>" : extensionClass.getSimpleName());
     }
 }

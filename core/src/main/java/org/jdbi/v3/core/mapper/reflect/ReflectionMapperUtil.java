@@ -93,7 +93,8 @@ public final class ReflectionMapperUtil {
             for (ColumnNameMatcher strategy : columnNameMatchers) {
                 if (strategy.columnNameMatches(columnName, paramName)) {
                     if (result.isPresent()) {
-                        throw new IllegalArgumentException("'%s' (%s) matches multiple columns: '%s' (%d) and '%s' (%d)".formatted(
+                        throw new IllegalArgumentException(String.format(
+                            "'%s' (%s) matches multiple columns: '%s' (%d) and '%s' (%d)",
                             debugName.get(), paramName,
                             columnNames.get(result.getAsInt()), result.getAsInt(),
                             columnNames.get(i), i));

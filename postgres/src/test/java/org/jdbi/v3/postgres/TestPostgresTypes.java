@@ -81,44 +81,37 @@ public class TestPostgresTypes {
                 th.execute("CREATE TYPE foo_bar_type AS (id integer, foo text, bar text);");
 
                 //create functions using custom types
-                th.execute("""
-                    CREATE OR REPLACE FUNCTION get_foo_bars() RETURNS SETOF foo_bar_type AS\s
-                    $$\s
-                    SELECT id, foo, bar FROM postgres_custom_types;
-                    $$ LANGUAGE sql;\
-                    """);
+                th.execute("CREATE OR REPLACE FUNCTION get_foo_bars() RETURNS SETOF foo_bar_type AS \n"
+                    + "$$ \n"
+                    + "SELECT id, foo, bar FROM postgres_custom_types;\n"
+                    + "$$ LANGUAGE sql;");
 
-                th.execute("""
-                    CREATE OR REPLACE FUNCTION get_foo_bar(aId integer) RETURNS foo_bar_type AS\s
-                    $$\s
-                    SELECT id, foo, bar FROM postgres_custom_types WHERE id = aId;
-                    $$ LANGUAGE sql;\
-                    """);
+                th.execute("CREATE OR REPLACE FUNCTION get_foo_bar(aId integer) RETURNS foo_bar_type AS \n"
+                    + "$$ \n"
+                    + "SELECT id, foo, bar FROM postgres_custom_types WHERE id = aId;\n"
+                    + "$$ LANGUAGE sql;");
 
-                th.execute("""
-                    CREATE OR REPLACE FUNCTION insert_foo_bar(aFooBar foo_bar_type) RETURNS void AS\s
-                    $$
-                    DECLARE
-                    
-                    BEGIN
-                    INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(aFooBar.id, aFooBar.foo, aFooBar.bar, current_timestamp);
-                    END;
-                    $$ LANGUAGE plpgsql;\
-                    """);
+                th.execute("CREATE OR REPLACE FUNCTION insert_foo_bar(aFooBar foo_bar_type) RETURNS void AS \n"
+                    + "$$\n"
+                    + "DECLARE\n"
+                    + "\n"
+                    + "BEGIN\n"
+                    + "INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(aFooBar.id, aFooBar.foo, aFooBar.bar, current_timestamp);"
+                    + "\n"
+                    + "END;\n"
+                    + "$$ LANGUAGE plpgsql;");
 
-                th.execute("""
-                    CREATE OR REPLACE FUNCTION insert_foo_bars(aFooBars foo_bar_type[]) RETURNS void AS\s
-                    $$
-                    DECLARE
-                    qFooBarType foo_bar_type;
-                    BEGIN
-                    FOREACH qFooBarType IN ARRAY aFooBars
-                    LOOP\s
-                    INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(qFooBarType.id, qFooBarType.foo, qFooBarType.bar, current_timestamp);\
-                    END LOOP;
-                    END;
-                    $$ LANGUAGE plpgsql;\
-                    """);
+                th.execute("CREATE OR REPLACE FUNCTION insert_foo_bars(aFooBars foo_bar_type[]) RETURNS void AS \n"
+                    + "$$\n"
+                    + "DECLARE\n"
+                    + "qFooBarType foo_bar_type;\n"
+                    + "BEGIN\n"
+                    + "FOREACH qFooBarType IN ARRAY aFooBars\n"
+                    + "LOOP \n"
+                    + "INSERT INTO postgres_custom_types(id, foo, bar, created_on) VALUES(qFooBarType.id, qFooBarType.foo, qFooBarType.bar, current_timestamp);"
+                    + "END LOOP;\n"
+                    + "END;\n"
+                    + "$$ LANGUAGE plpgsql;");
 
             });
 

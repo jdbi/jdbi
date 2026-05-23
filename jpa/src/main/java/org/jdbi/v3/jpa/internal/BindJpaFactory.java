@@ -54,12 +54,14 @@ public class BindJpaFactory implements SqlStatementCustomizerFactory {
         try {
             return member.read(entity);
         } catch (IllegalAccessException e) {
-            String message = "Unable to access property value for column %s".formatted(
-                member.getColumnName());
+            String message = String.format(
+                    "Unable to access property value for column %s",
+                    member.getColumnName());
             throw new EntityMemberAccessException(message, e);
         } catch (InvocationTargetException e) {
-            String message = "Exception thrown in accessor method for column %s".formatted(
-                member.getColumnName());
+            String message = String.format(
+                    "Exception thrown in accessor method for column %s",
+                    member.getColumnName());
             throw new EntityMemberAccessException(message, e);
         }
     }

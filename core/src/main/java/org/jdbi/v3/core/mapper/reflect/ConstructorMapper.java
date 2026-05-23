@@ -43,6 +43,8 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import static java.lang.String.format;
+
 import static org.jdbi.v3.core.mapper.reflect.JdbiConstructors.findFactoryFor;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
@@ -237,13 +239,14 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
-            .orElseGet(() -> new UnmatchedConstructorMapper<>(UNMATCHED_CONSTRUCTOR_PARAMETERS.formatted(factory)));
+            .orElseGet(() -> new UnmatchedConstructorMapper<>(format(
+                UNMATCHED_CONSTRUCTOR_PARAMETERS, factory)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
 
             return new UnmatchedConstructorMapper<>(
-                "Mapping instance factory %s could not match parameters for columns: %s".formatted(factory, unmatchedColumns));
+                format("Mapping instance factory %s could not match parameters for columns: %s", factory, unmatchedColumns));
         }
 
         return mapper;
@@ -279,7 +282,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                     paramData.add(new ParameterData(i, parameter, ctx.findColumnMapperFor(type)
                         .map(mapper -> new SingleColumnMapper<>(mapper, colIndex + 1))
                         .orElseThrow(() -> new IllegalArgumentException(
-                        "Could not find column mapper for type '%s' of parameter '%s' for instance factory '%s'".formatted(type, paramName, factory)))));
+                            format("Could not find column mapper for type '%s' of parameter '%s' for instance factory '%s'", type, paramName, factory)))));
 
                     matchedColumns = true;
                     unmatchedColumns.remove(columnNames.get(colIndex));
@@ -295,7 +298,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                     Class<?> rawType = GenericTypes.findGenericParameter(parameter.getParameterizedType(), Optional.class)
                         .map(GenericTypes::getErasedType)
                         .orElseThrow(() -> new IllegalArgumentException(
-                        "Could not determine the type of the Optional parameter '%s' for instance factory '%s'".formatted(parameter.getName(), factory)));
+                            format("Could not determine the type of the Optional parameter '%s' for instance factory '%s'", parameter.getName(), factory)));
                     ConstructorMapper<?> mapper = nestedMappers.computeIfAbsent(parameter, p ->
                             new ConstructorMapper<>(findFactoryFor(rawType), nestedPrefix));
 
@@ -326,7 +329,8 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
             p -> p.propagateNull ? 1 : 0));
 
         if (!unmatchedParameters.isEmpty()) {
-            throw new IllegalArgumentException(UNMATCHED_CONSTRUCTOR_PARAMETER.formatted(factory, unmatchedParameters));
+            throw new IllegalArgumentException(format(
+                UNMATCHED_CONSTRUCTOR_PARAMETER, factory, unmatchedParameters));
         }
 
         RowMapper<R> boundMapper = new BoundConstructorMapper<>(paramData, postProcessor);
@@ -345,7 +349,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
                 .map(PropagateNull::value)
                 .map(name -> addPropertyNamePrefix(prefix, name));
 
-        if (propagateNullColumn.isEmpty()) {
+        if (!propagateNullColumn.isPresent()) {
             return OptionalInt.empty();
         }
 
@@ -379,7 +383,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
     }
 
     private String debugName(Parameter parameter) {
-        return "%s constructor parameter %s".formatted(
+        return format("%s constructor parameter %s",
             factory.getDeclaringClass().getSimpleName(),
             parameter.getName());
     }
@@ -398,7 +402,7 @@ public final class ConstructorMapper<T> implements RowMapper<T> {
             final Optional<String> propagateNullValue = Optional.ofNullable(parameter.getAnnotation(PropagateNull.class)).map(PropagateNull::value);
             propagateNullValue.ifPresent(v -> {
                 if (!v.isEmpty()) {
-                    throw new IllegalArgumentException("@PropagateNull does not support a value (%s) on a parameter (%s)".formatted(v, parameter.getName()));
+                    throw new IllegalArgumentException(format("@PropagateNull does not support a value (%s) on a parameter (%s)", v, parameter.getName()));
                 }
             });
 

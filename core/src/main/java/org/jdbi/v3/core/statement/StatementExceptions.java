@@ -98,9 +98,9 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
         PARAMETERS {
             @Override
             public String render(StatementException exc, StatementContext ctx) {
-                return "%s [arguments:%s]".formatted(
-                    exc.getShortMessage(),
-                    ctx.getBinding());
+                return String.format("%s [arguments:%s]",
+                            exc.getShortMessage(),
+                            ctx.getBinding());
             }
         },
         /**
@@ -110,10 +110,10 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
             @Override
             public String render(StatementException exc, StatementContext ctx) {
                 final int limit = ctx.getConfig(StatementExceptions.class).getLengthLimit();
-                return "%s [statement:\"%s\", arguments:%s]".formatted(
-                    exc.getShortMessage(),
-                    limit(ctx.getRenderedSql(), limit),
-                    limit(ctx.getBinding().toString(), limit));
+                return String.format("%s [statement:\"%s\", arguments:%s]",
+                            exc.getShortMessage(),
+                            limit(ctx.getRenderedSql(), limit),
+                            limit(ctx.getBinding().toString(), limit));
             }
 
         },
@@ -123,12 +123,12 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
         DETAIL {
             @Override
             public String render(StatementException exc, StatementContext ctx) {
-                return "%s [statement:\"%s\", rewritten:\"%s\", parsed:\"%s\", arguments:%s]".formatted(
-                    exc.getShortMessage(),
-                    ctx.getRawSql(),
-                    ctx.getRenderedSql(),
-                    ctx.getParsedSql(),
-                    ctx.getBinding());
+                return String.format("%s [statement:\"%s\", rewritten:\"%s\", parsed:\"%s\", arguments:%s]",
+                            exc.getShortMessage(),
+                            ctx.getRawSql(),
+                            ctx.getRenderedSql(),
+                            ctx.getParsedSql(),
+                            ctx.getBinding());
             }
         };
 

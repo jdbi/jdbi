@@ -31,9 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SqlObjectArgumentTest {
 
     private static final String INSERT_QUERY
-        = """
-        INSERT INTO something (id, integerValue)
-         VALUES (:id, :status)""";
+        = "INSERT INTO something (id, integerValue)"
+        + "\n VALUES (:id, :status)";
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());

@@ -73,7 +73,7 @@ class ArgumentBinder {
     void bindPositional(Binding binding) {
         for (int index = 0; index < params.getParameterCount(); index++) {
             if (!binding.positionals.containsKey(index)) {
-                throw new UnableToCreateStatementException("Missing positional parameter %d in binding:%s".formatted(index, binding), ctx);
+                throw new UnableToCreateStatementException(format("Missing positional parameter %d in binding:%s", index, binding), ctx);
             }
             QualifiedType<?> type = factoryLocator.typeOf(binding.positionals.get(index));
             try {
@@ -125,7 +125,7 @@ class ArgumentBinder {
                     }
                 }
             } catch (SQLException e) {
-                throw new UnableToCreateStatementException("Exception while binding named parameter '%s'".formatted(name), e, ctx);
+                throw new UnableToCreateStatementException(format("Exception while binding named parameter '%s'", name), e, ctx);
             }
         }
     }
@@ -152,7 +152,7 @@ class ArgumentBinder {
     }
 
     UnableToCreateStatementException missingNamedParameter(String name, Binding binding) {
-        return new UnableToCreateStatementException("Missing named parameter '%s' in binding:%s".formatted(name, binding), ctx);
+        return new UnableToCreateStatementException(format("Missing named parameter '%s' in binding:%s", name, binding), ctx);
     }
 
     <T> Consumer<T> wrapCheckedConsumer(final String paramName, CheckedConsumer<T> consumer) {
@@ -161,7 +161,7 @@ class ArgumentBinder {
                 consumer.accept(t);
             } catch (SQLException e) {
                 throw new UnableToCreateStatementException(
-                    "Exception while binding named parameter '%s'".formatted(paramName),
+                        format("Exception while binding named parameter '%s'", paramName),
                         e, ctx);
             } catch (Exception e) {
                 throw Sneaky.throwAnyway(e);

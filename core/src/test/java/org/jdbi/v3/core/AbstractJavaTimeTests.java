@@ -45,6 +45,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -271,12 +272,12 @@ public abstract class AbstractJavaTimeTests {
         var value = valueSupplier.get();
         var expectedZoneOffset = getExpectedZoneOffset(clazz, value, column);
 
-        try (Update u = h.createUpdate("insert into time_test(%s) values (?)".formatted(column))) {
+        try (Update u = h.createUpdate(format("insert into time_test(%s) values (?)", column))) {
             u.bindByType(0, value, type);
             u.execute();
         }
 
-        var result = h.createQuery("select %s from time_test".formatted(column)).mapTo(type).one();
+        var result = h.createQuery(format("select %s from time_test", column)).mapTo(type).one();
 
         comparator.accept(new TestResult(value, result, column, clazz, expectedZoneOffset));
     }
@@ -287,12 +288,12 @@ public abstract class AbstractJavaTimeTests {
     public void testJavaTimeTypeNull(Class<?> clazz, String column) {
         var type = getTestType(clazz);
 
-        try (Update u = h.createUpdate("insert into time_test(%s) values (?)".formatted(column))) {
+        try (Update u = h.createUpdate(format("insert into time_test(%s) values (?)", column))) {
             u.bindByType(0, null, type);
             u.execute();
         }
 
-        var result = h.createQuery("select %s from time_test".formatted(column)).mapTo(type).one();
+        var result = h.createQuery(format("select %s from time_test", column)).mapTo(type).one();
 
         assertThat(result).isNull();
     }

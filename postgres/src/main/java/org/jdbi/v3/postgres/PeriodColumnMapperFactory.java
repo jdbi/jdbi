@@ -41,12 +41,12 @@ public class PeriodColumnMapperFactory implements ColumnMapperFactory {
                 return null;
             }
             if (!(obj instanceof PGInterval interval)) {
-                throw new IllegalArgumentException("got non-pginterval %s".formatted(obj));
+                throw new IllegalArgumentException(String.format("got non-pginterval %s", obj));
             }
             if (interval.getHours() != 0 || interval.getMinutes() != 0 || interval.getSeconds() != 0) {
                 throw new IllegalArgumentException(
-                    "pginterval \"%s\" is too granular to be represented as period".formatted(
-                        interval.getValue()));
+                        String.format("pginterval \"%s\" is too granular to be represented as period",
+                                interval.getValue()));
             }
             return Period.of(interval.getYears(), interval.getMonths(), interval.getDays());
         });

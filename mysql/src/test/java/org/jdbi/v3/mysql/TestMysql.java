@@ -32,6 +32,8 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("slow")
@@ -53,7 +55,7 @@ public class TestMysql {
         handle.execute("CREATE TABLE contacts (contact_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, etag VARCHAR(255))");
 
         for (int i = 0; i < 100; i++) {
-            handle.execute("INSERT INTO contacts (etag) VALUES ('tag_%05d')".formatted(i));
+            handle.execute(format("INSERT INTO contacts (etag) VALUES ('tag_%05d')", i));
         }
 
         ContactDao contactDao = handle.attach(ContactDao.class);

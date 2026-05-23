@@ -25,6 +25,8 @@ import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.meta.Beta;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
+import static java.lang.String.format;
+
 /**
  * Describes the parameters needed to create a new test-specific database or schema to isolate a test. Testcontainers supports many different databases and the
  * Jdbi specific extension requires parameterization.
@@ -53,34 +55,34 @@ public final class TestcontainersDatabaseInformation {
     private static final TestcontainersDatabaseInformation CLICKHOUSE =
         // clickhouse pre-0.8 uses the catalog name.
         // clickhouse post-0.8 uses the schema name.
-        of(null, null, null, (catalogName, schemaName) -> "CREATE DATABASE %s Engine = Memory".formatted(schemaName));
+        of(null, null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s Engine = Memory", schemaName));
 
     private static final TestcontainersDatabaseInformation MYSQL =
-        of("root", null, null, (catalogName, schemaName) -> "CREATE DATABASE %s".formatted(catalogName));
+        of("root", null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s", catalogName));
 
     // Oracle is ... special. This works with the gvenzl images; YMMV.
     private static final TestcontainersDatabaseInformation ORACLE_XE =
         ofScript("system", null, null, (catalogName, schemaName) -> List.of(
-            "CREATE USER %s IDENTIFIED BY %s QUOTA UNLIMITED ON USERS".formatted(schemaName, schemaName),
-            "GRANT CREATE session TO %s".formatted(schemaName),
-            "GRANT CREATE table TO %s".formatted(schemaName),
-            "GRANT CREATE view TO %s".formatted(schemaName),
-            "GRANT CREATE any trigger TO %s".formatted(schemaName),
-            "GRANT CREATE any procedure TO %s".formatted(schemaName),
-            "GRANT CREATE sequence TO %s".formatted(schemaName),
-            "GRANT CREATE synonym TO %s".formatted(schemaName)));
+            format("CREATE USER %s IDENTIFIED BY %s QUOTA UNLIMITED ON USERS", schemaName, schemaName),
+            format("GRANT CREATE session TO %s", schemaName),
+            format("GRANT CREATE table TO %s", schemaName),
+            format("GRANT CREATE view TO %s", schemaName),
+            format("GRANT CREATE any trigger TO %s", schemaName),
+            format("GRANT CREATE any procedure TO %s", schemaName),
+            format("GRANT CREATE sequence TO %s", schemaName),
+            format("GRANT CREATE synonym TO %s", schemaName)));
 
     private static final TestcontainersDatabaseInformation POSTGRES =
-        of(null, "test", null, (catalogName, schemaName) -> "CREATE SCHEMA %s".formatted(schemaName));
+        of(null, "test", null, (catalogName, schemaName) -> format("CREATE SCHEMA %s", schemaName));
 
     private static final TestcontainersDatabaseInformation TRINO =
-        of(null, "memory", null, (catalogName, schemaName) -> "CREATE SCHEMA %s".formatted(schemaName));
+        of(null, "memory", null, (catalogName, schemaName) -> format("CREATE SCHEMA %s", schemaName));
 
     private static final TestcontainersDatabaseInformation MSSQL =
-        of("sa", null, null, (catalogName, schemaName) -> "CREATE DATABASE %s".formatted(catalogName));
+        of("sa", null, null, (catalogName, schemaName) -> format("CREATE DATABASE %s", catalogName));
 
     private static final TestcontainersDatabaseInformation DB2 =
-        of(null, "test", null, (catalogName, schemaName) -> "CREATE SCHEMA \"%s\"".formatted(schemaName));
+        of(null, "test", null, (catalogName, schemaName) -> format("CREATE SCHEMA \"%s\"", schemaName));
 
     private static final Map<String, TestcontainersDatabaseInformation> KNOWN_CONTAINERS;
 

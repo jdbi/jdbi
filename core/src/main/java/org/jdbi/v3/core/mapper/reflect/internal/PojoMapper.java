@@ -45,6 +45,8 @@ import org.jdbi.v3.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import static java.lang.String.format;
+
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
@@ -77,13 +79,13 @@ public class PojoMapper<T> implements RowMapper<T> {
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> result = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
-            .orElseThrow(() -> new IllegalArgumentException("Mapping bean %s didn't find any matching columns in result set".formatted(type)));
+            .orElseThrow(() -> new IllegalArgumentException(format("Mapping bean %s didn't find any matching columns in result set", type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
 
             throw new IllegalArgumentException(
-                "Mapping bean %s could not match properties for columns: %s".formatted(type, unmatchedColumns));
+                format("Mapping bean %s could not match properties for columns: %s", type, unmatchedColumns));
         }
 
         return result;
@@ -110,7 +112,8 @@ public class PojoMapper<T> implements RowMapper<T> {
                         ColumnMapper<?> mapper = ctx.findColumnMapperFor(property.getQualifiedType().mapType(GenericTypes::box))
                             .orElseGet(() -> {
                                 if (strictColumnTypeMapping) {
-                                    throw new NoSuchMapperException("Couldn't find mapper for property '%s' of type '%s' from %s".formatted(property.getName(), property.getQualifiedType(), type));
+                                    throw new NoSuchMapperException(format(
+                                        "Couldn't find mapper for property '%s' of type '%s' from %s", property.getName(), property.getQualifiedType(), type));
                                 }
                                 return ColumnMapper.getDefaultColumnMapper();
                             });
@@ -128,7 +131,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                         Class<?> rawType = GenericTypes.findGenericParameter(propertyType, Optional.class)
                             .map(GenericTypes::getErasedType)
                             .orElseThrow(() -> new IllegalArgumentException(
-                            "Could not determine the type of Optional property %s".formatted(property.getName())));
+                                format("Could not determine the type of Optional property %s", property.getName())));
                         nestedMapper = nestedMappers
                             .computeIfAbsent(property, d -> createNestedMapper(ctx, rawType, nestedPrefix))
                             .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Optional::ofNullable);
@@ -167,7 +170,7 @@ public class PojoMapper<T> implements RowMapper<T> {
                 .map(PropagateNull::value)
                 .map(name -> addPropertyNamePrefix(prefix, name));
 
-        if (propagateNullColumn.isEmpty()) {
+        if (!propagateNullColumn.isPresent()) {
             return OptionalInt.empty();
         }
 
@@ -192,7 +195,7 @@ public class PojoMapper<T> implements RowMapper<T> {
     }
 
     private String debugName(PojoProperty<T> p) {
-        return "%s.%s".formatted(type, p.getName());
+        return format("%s.%s", type, p.getName());
     }
 
     private static class PropertyData<T> {
@@ -208,7 +211,7 @@ public class PojoMapper<T> implements RowMapper<T> {
             final Optional<String> propagateNullValue = property.getAnnotation(PropagateNull.class).map(PropagateNull::value);
             propagateNullValue.ifPresent(v -> {
                 if (!v.isEmpty()) {
-                    throw new IllegalArgumentException("@PropagateNull does not support a value (%s) on a property (%s)".formatted(v, property.getName()));
+                    throw new IllegalArgumentException(format("@PropagateNull does not support a value (%s) on a property (%s)", v, property.getName()));
                 }
             });
 

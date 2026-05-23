@@ -47,6 +47,8 @@ import org.jdbi.v3.sqlobject.statement.SqlBatch;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
+import static java.lang.String.format;
+
 public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> {
     private final SqlBatch sqlBatch;
     private final SqlBatchHandler.ChunkSizeFunction batchChunkSize;
@@ -174,7 +176,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
         }
 
         if (resultType == null) {
-            throw new IllegalStateException("type '%s' must have a generic parameter".formatted(type));
+            throw new IllegalStateException(format("type '%s' must have a generic parameter", type));
         }
 
         return resultType;

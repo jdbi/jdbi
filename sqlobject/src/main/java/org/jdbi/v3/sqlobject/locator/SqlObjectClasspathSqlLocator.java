@@ -55,6 +55,6 @@ public class SqlObjectClasspathSqlLocator implements SqlLocator {
         };
 
         return SqlAnnotations.getAnnotationValue(method, valueOrMethodNameToSql)
-            .orElseThrow(() -> new IllegalStateException("method %s has no query annotations".formatted(method)));
+            .orElseThrow(() -> new IllegalStateException(String.format("method %s has no query annotations", method)));
     }
 }

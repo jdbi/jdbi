@@ -46,16 +46,14 @@ public class TestOutparameterCursor {
                 h.execute("CREATE TABLE USERS (ID INTEGER, NAME VARCHAR(255))");
                 h.execute("INSERT INTO USERS VALUES (1, 'Alice')");
                 h.execute("INSERT INTO USERS VALUES (2, 'Bob')");
-                h.execute("""
-                        CREATE OR REPLACE PROCEDURE get_user_by_name(
-                        p_name IN USERS.NAME%TYPE,
-                        o_c_dbuser OUT SYS_REFCURSOR) \
-                        AS
-                        BEGIN
-                        OPEN o_c_dbuser FOR
-                        SELECT * FROM USERS WHERE NAME LIKE p_name || '%';
-                        END;\
-                        """);
+                h.execute("CREATE OR REPLACE PROCEDURE get_user_by_name(\n"
+                        + "p_name IN USERS.NAME%TYPE,\n"
+                        + "o_c_dbuser OUT SYS_REFCURSOR) "
+                        + "AS\n"
+                        + "BEGIN\n"
+                        + "OPEN o_c_dbuser FOR\n"
+                        + "SELECT * FROM USERS WHERE NAME LIKE p_name || '%';\n"
+                        + "END;");
             });
 
     @Test

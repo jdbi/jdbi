@@ -80,7 +80,8 @@ public class Slf4JSqlLogger implements SqlLogger {
         final long m = (totalSeconds % 3600) / 60;
         final long s = totalSeconds % 60;
         final long ms = duration.toMillis() % 1000;
-        return "%d:%02d:%02d.%03d".formatted(
-            h, m, s, ms);
+        return String.format(
+                "%d:%02d:%02d.%03d",
+                h, m, s, ms);
     }
 }

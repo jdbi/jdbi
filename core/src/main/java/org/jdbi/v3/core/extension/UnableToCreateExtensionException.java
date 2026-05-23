@@ -39,7 +39,7 @@ public final class UnableToCreateExtensionException extends JdbiException {
      */
     @FormatMethod
     public UnableToCreateExtensionException(String format, Object... args) {
-        super(format.formatted(args));
+        super(format(format, args));
     }
 
     /**
@@ -50,7 +50,7 @@ public final class UnableToCreateExtensionException extends JdbiException {
      */
     @FormatMethod
     public UnableToCreateExtensionException(Throwable throwable, String format, Object... args) {
-        super(format.formatted(args), throwable);
+        super(format(format, args), throwable);
     }
 
     public UnableToCreateExtensionException(Throwable cause) {

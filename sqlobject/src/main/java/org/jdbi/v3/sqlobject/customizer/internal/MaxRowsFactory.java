@@ -33,14 +33,16 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
         final int maxRows = ((MaxRows) annotation).value();
 
         if (maxRows == DEFAULT_MAX_ROWS) {
-            throw new IllegalArgumentException("no value given for @%s on %s:%s".formatted(
+            throw new IllegalArgumentException(String.format(
+                "no value given for @%s on %s:%s",
                 MaxRows.class.getSimpleName(),
                 sqlObjectType.getName(),
                 method.getName())
            );
         }
         if (maxRows <= 0) {
-            throw new IllegalArgumentException("@%s value given on %s:%s is %s, which is negative or 0. This makes no sense.".formatted(
+            throw new IllegalArgumentException(String.format(
+                "@%s value given on %s:%s is %s, which is negative or 0. This makes no sense.",
                 MaxRows.class.getSimpleName(),
                 sqlObjectType.getName(),
                 method.getName(),
@@ -63,7 +65,8 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
                                                               Type type) {
         int value = ((MaxRows) annotation).value();
         if (value != DEFAULT_MAX_ROWS) {
-            throw new IllegalArgumentException("You've specified a value for @%s on %s:%s(%s) — this value won't do anything, the parameter value will be used instead. Remove the value to prevent confusion.".formatted(
+            throw new IllegalArgumentException(String.format(
+                "You've specified a value for @%s on %s:%s(%s) — this value won't do anything, the parameter value will be used instead. Remove the value to prevent confusion.",
                 MaxRows.class.getSimpleName(),
                 sqlObjectType.getName(),
                 method.getName(),
@@ -74,7 +77,8 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
         return (stmt, arg) -> {
             int maxRows = (int) arg;
             if (maxRows <= 0) {
-                throw new IllegalArgumentException("@%s value given on %s:%s(%s) is %s, which is negative or 0. This makes no sense.".formatted(
+                throw new IllegalArgumentException(String.format(
+                    "@%s value given on %s:%s(%s) is %s, which is negative or 0. This makes no sense.",
                     MaxRows.class.getSimpleName(),
                     sqlObjectType.getName(),
                     method.getName(),

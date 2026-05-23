@@ -43,17 +43,17 @@ public class DurationColumnMapperFactory implements ColumnMapperFactory {
                 return null;
             }
             if (!(obj instanceof PGInterval interval)) {
-                throw new IllegalArgumentException("got non-pginterval %s".formatted(obj));
+                throw new IllegalArgumentException(String.format("got non-pginterval %s", obj));
             }
             if (interval.getYears() != 0 || interval.getMonths() != 0) {
                 throw new IllegalArgumentException(
-                    "pginterval \"%s\" not representable as duration".formatted(interval.getValue()));
+                        String.format("pginterval \"%s\" not representable as duration", interval.getValue()));
             }
             final double seconds = interval.getSeconds();
             if (seconds > Long.MAX_VALUE || seconds < Long.MIN_VALUE) {
                 throw new IllegalArgumentException(
-                    "pginterval \"%s\" has seconds too extreme to represent as duration".formatted(
-                        interval.getValue()));
+                        String.format("pginterval \"%s\" has seconds too extreme to represent as duration",
+                                interval.getValue()));
             }
             final long secondsLong = (long) seconds;
             final long nanos = BigDecimal.valueOf(seconds)

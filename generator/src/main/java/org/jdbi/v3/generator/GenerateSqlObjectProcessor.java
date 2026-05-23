@@ -56,6 +56,8 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.SqlObject;
 
+import static java.lang.String.format;
+
 @SupportedAnnotationTypes(GenerateSqlObjectProcessor.GENERATE_SQL_OBJECT_ANNOTATION_NAME)
 public class GenerateSqlObjectProcessor extends AbstractProcessor {
 
@@ -105,7 +107,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
     }
 
     private void generateSourceFile(Element element) {
-        messager.printMessage(Kind.NOTE, "[jdbi] generating for %s".formatted(element));
+        messager.printMessage(Kind.NOTE, format("[jdbi] generating for %s", element));
 
         try {
             final SqlObjectFile sqlObjectFile = new SqlObjectFile((TypeElement) element);
@@ -118,7 +120,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
             sqlObjectFile.writeFile();
 
         } catch (RuntimeException e) {
-            messager.printMessage(Kind.ERROR, "@GenerateSqlObject processor threw an exception for '%s': %s".formatted(element, e));
+            messager.printMessage(Kind.ERROR, format("@GenerateSqlObject processor threw an exception for '%s': %s", element, e));
             throw e;
         }
     }
@@ -129,7 +131,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                 .filter(e -> e.getSimpleName().toString().equals(name))
                 .findFirst()
                 .map(ExecutableElement.class::cast)
-                .orElseThrow(() -> new IllegalStateException("no %s.%s found!".formatted(klass, name)));
+                .orElseThrow(() -> new IllegalStateException(format("no %s.%s found!", klass, name)));
     }
 
     // can't be in the inner class b/c static.
@@ -229,7 +231,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
             final CodeBlock.Builder body = CodeBlock.builder();
             final String castReturn = method.getReturnType().getKind() == TypeKind.VOID
                             ? ""
-                            : "return (%s)".formatted(method.getReturnType());
+                            : format("return (%s)", method.getReturnType());
             final String paramList = paramList(method);
 
             if (method.getModifiers().contains(Modifier.ABSTRACT)) {
@@ -257,7 +259,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                 castReturn = "";
             } else {
                 jdbiMethod = "withExtension";
-                castReturn = "return (%s)".formatted(method.getReturnType());
+                castReturn = format("return (%s)", method.getReturnType());
             }
 
             onDemandBuilder.addMethod(MethodSpec.overriding(method)
@@ -295,7 +297,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
             try {
                 final PackageElement typePackage = elementUtils.getPackageOf(typeElement);
 
-                final JavaFileObject file = filer.createSourceFile("%s.%s".formatted(typePackage, getImplementationClassName(typeElement)), typeElement);
+                final JavaFileObject file = filer.createSourceFile(format("%s.%s", typePackage, getImplementationClassName(typeElement)), typeElement);
                 try (Writer out = file.openWriter()) {
                     JavaFile.builder(typePackage.toString(), implementationBuilder.build())
                             .build()
@@ -308,7 +310,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                 // right thing to do. If we are unable to write for some other reason, we should get a compile
                 // error later because user code will have a reference to the code we were supposed to
                 // generate.
-                messager.printMessage(Kind.WARNING, "Could not write generated class %s: %s".formatted(typeElement, e));
+                messager.printMessage(Kind.WARNING, format("Could not write generated class %s: %s", typeElement, e));
             }
         }
     }

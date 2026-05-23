@@ -52,7 +52,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
     private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, ConfigRegistry config) {
         Optional<ColumnMapper<?>> mapper = config.get(ColumnMappers.class).findFor(elementType);
 
-        if (mapper.isEmpty() && elementType == Object.class) {
+        if (!mapper.isPresent() && elementType == Object.class) {
             return Optional.of((rs, num, context) -> rs.getObject(num));
         }
 

@@ -42,6 +42,8 @@ import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
 
+import static java.lang.String.format;
+
 import static org.jdbi.v3.core.mapper.ColumnMapper.getDefaultColumnMapper;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.addPropertyNamePrefix;
 import static org.jdbi.v3.core.mapper.reflect.ReflectionMapperUtil.anyColumnsStartWithPrefix;
@@ -124,12 +126,12 @@ public final class FieldMapper<T> implements RowMapper<T> {
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
-            .orElseThrow(() -> new IllegalArgumentException("Mapping fields for type %s didn't find any matching columns in result set".formatted(type)));
+            .orElseThrow(() -> new IllegalArgumentException(format("Mapping fields for type %s didn't find any matching columns in result set", type)));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
             throw new IllegalArgumentException(
-                "Mapping type %s could not match fields for columns: %s".formatted(type.getSimpleName(), unmatchedColumns));
+                format("Mapping type %s could not match fields for columns: %s", type.getSimpleName(), unmatchedColumns));
         }
 
         return mapper;
@@ -169,7 +171,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
                             Class<?> rawType = GenericTypes.findGenericParameter(field.getGenericType(), Optional.class)
                                 .map(GenericTypes::getErasedType)
                                 .orElseThrow(() -> new IllegalArgumentException(
-                                "Could not determine the type of the Optional field %s".formatted(field.getName())));
+                                    format("Could not determine the type of the Optional field %s", field.getName())));
                             nestedMapper = nestedMappers
                                 .computeIfAbsent(field, f -> new FieldMapper<>(rawType, nestedPrefix))
                                 .createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Optional::ofNullable);
@@ -200,7 +202,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
         try {
             constructor = reflectionConfig.makeAccessible(type.getDeclaredConstructor());
         } catch (ReflectiveOperationException e) {
-            throw new IllegalArgumentException("A type, %s, was mapped which was not instantiable".formatted(type.getName()), e);
+            throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
         }
         RowMapper<R> boundMapper = new BoundFieldMapper<>(constructor, fields, postProcessor);
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
@@ -218,7 +220,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
                 .map(PropagateNull::value)
                 .map(name -> addPropertyNamePrefix(prefix, name));
 
-        if (propagateNullColumn.isEmpty()) {
+        if (!propagateNullColumn.isPresent()) {
             return OptionalInt.empty();
         }
 
@@ -232,14 +234,14 @@ public final class FieldMapper<T> implements RowMapper<T> {
     }
 
     private String debugName(Field field) {
-        return "%s.%s".formatted(type.getSimpleName(), field.getName());
+        return format("%s.%s", type.getSimpleName(), field.getName());
     }
 
     public static boolean checkPropagateNullAnnotation(Field field) {
         final Optional<String> propagateNullValue = Optional.ofNullable(field.getAnnotation(PropagateNull.class)).map(PropagateNull::value);
         propagateNullValue.ifPresent(v -> {
             if (!v.isEmpty()) {
-                throw new IllegalArgumentException("@PropagateNull does not support a value (%s) on a field (%s)".formatted(v, field.getName()));
+                throw new IllegalArgumentException(format("@PropagateNull does not support a value (%s) on a field (%s)", v, field.getName()));
             }
         });
 
@@ -292,7 +294,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
             try {
                 return constructor.newInstance();
             } catch (ReflectiveOperationException | SecurityException e) {
-                throw new IllegalArgumentException("A type, %s, was mapped which was not instantiable".formatted(type.getName()), e);
+                throw new IllegalArgumentException(format("A type, %s, was mapped which was not instantiable", type.getName()), e);
             }
         }
 
@@ -300,7 +302,7 @@ public final class FieldMapper<T> implements RowMapper<T> {
             try {
                 field.set(obj, value);
             } catch (IllegalAccessException e) {
-                throw new IllegalArgumentException("Unable to access property, %s".formatted(field.getName()), e);
+                throw new IllegalArgumentException(format("Unable to access property, %s", field.getName()), e);
             }
         }
 

@@ -51,7 +51,7 @@ class OptionalBuilder<T, O> {
 
     private static <T> IllegalStateException tooManyValues(T first, T second) {
         return new IllegalStateException(
-            "Multiple values for optional: [%s, %s, ...]".formatted(
+            String.format("Multiple values for optional: [%s, %s, ...]",
                 stringify(first),
                 stringify(second)));
     }

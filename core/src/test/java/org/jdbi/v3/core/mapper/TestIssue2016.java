@@ -321,7 +321,7 @@ public class TestIssue2016 {
             return ctx.getConfig().get(Mappers.class)
                 .findFor(targetClass)
                 .orElseThrow(() ->
-                    new NoSuchMapperException("No mapper registered for %s class".formatted(targetClass))
+                    new NoSuchMapperException(String.format("No mapper registered for %s class", targetClass))
                 )
                 .map(rs, ctx);
         }

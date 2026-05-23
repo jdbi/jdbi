@@ -69,7 +69,7 @@ public class TestOptionalArgumentH2 {
 
     private void insert(String binding, Object bean) {
         h2Extension.getJdbi().useHandle(h -> {
-            String insert = "INSERT INTO test VALUES(:id, :%s)".formatted(binding);
+            String insert = String.format("INSERT INTO test VALUES(:id, :%s)", binding);
             h.createUpdate(insert).bindBean(bean).execute();
         });
     }

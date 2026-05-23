@@ -24,6 +24,8 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
 import org.jdbi.v3.core.internal.JdbiClassUtils.MethodKey;
 
+import static java.lang.String.format;
+
 import static org.jdbi.v3.core.extension.BuiltInExtensionHandler.EQUALS_HANDLER;
 import static org.jdbi.v3.core.extension.BuiltInExtensionHandler.HASHCODE_HANDLER;
 import static org.jdbi.v3.core.extension.BuiltInExtensionHandler.NULL_HANDLER;
@@ -96,8 +98,8 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
         }
 
         if (extensionType == null || !extensionType.isInterface()) {
-            throw new IllegalArgumentException("Can not attach %s as an extension with %s".formatted(
-                extensionType, delegatedFactory.getClass().getSimpleName()));
+            throw new IllegalArgumentException(format("Can not attach %s as an extension with %s",
+                    extensionType, delegatedFactory.getClass().getSimpleName()));
         }
 
         final ConfigRegistry config = handleSupplier.getConfig();

@@ -31,6 +31,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static java.lang.String.format;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DeadlockTest {
@@ -69,7 +71,7 @@ class DeadlockTest {
             final int id = i;
             Callable<Integer> c = () -> {
                 return jdbi.withHandle(h -> {
-                    try (Query q = h.createQuery("SELECT <value> FROM something where %d = :id AND id = :id".formatted(id))) {
+                    try (Query q = h.createQuery(format("SELECT <value> FROM something where %d = :id AND id = :id", id))) {
                         q.bind("id", id);
                         q.define("value", id);
                         return q.mapTo(Integer.class).one();
