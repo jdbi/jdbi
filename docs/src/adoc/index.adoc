@@ -4090,6 +4090,35 @@ By default, methods annotated with link:{jdbidocs}/sqlobject/statement/SqlScript
 Depending on the database vendor and JDBC driver, this may be either the number of rowsreturn nothing changed by a statement, or the number matched by the query (regardless of whether any data was changed).
 * `boolean[]` - returns true if the update count is greater than zero, one value for each statement in the script.
 
+==== @SqlPreflight
+
+Use link:{jdbidocs}/sqlobject/statement/SqlPreflight.html[@SqlPreflight^] to run a literal SQL statement on the same link:{jdbidocs}/core/Handle.html[Handle^], immediately before the annotated method's main statement.
+This is useful for setting a scoped or session variable before a query, for example a non-default Postgres trigram similarity threshold:
+
+[source,java,indent=0]
+----
+@SqlPreflight("select set_config('pg_trgm.word_similarity_threshold', :threshold, true)") // <1>
+@SqlQuery("select name from users where name %> :search")
+@RegisterFieldMapper(User.class)
+List<User> findUser(@Bind("search") String search, @Bind("threshold") String threshold);
+----
+
+<1> The method's arguments are bound to the preflight statement, so it can reference `:threshold` just like the main query references `:search`.
+
+The preflight statement binds the method's arguments, respecting binding annotations such as link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] and link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^].
+Arguments that the preflight SQL does not reference are ignored, so a static preflight (one that binds nothing) also works on a method that declares arguments.
+
+The annotation is repeatable--multiple preflight statements run in declaration order--and may be placed on a method or on the SQL Object type, in which case it applies to all of the type's methods (type-level preflights run before method-level ones).
+
+Unlike link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^] and link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^], the `@SqlPreflight` value is always used as literal SQL; it is not resolved through the configured link:{jdbidocs}/sqlobject/locator/SqlLocator.html[SqlLocator^], so external `.sql` files and link:{jdbidocs}/sqlobject/locator/UseClasspathSqlLocator.html[@UseClasspathSqlLocator^] have no effect on it.
+
+Because the preflight runs on the same connection as the main statement, scoped variables set this way are visible to the query.
+When connection pooling is in use, prefer transaction-scoped settings (for example `SET LOCAL` in Postgres) together with link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Transaction^], so the setting does not leak to later users of the connection.
+
+NOTE: Jdbi normally rejects a statement when every one of its declared parameters goes unused.
+A preflight argument that the *main* statement does not also use is fine as long as the main statement declares at least one parameter of its own.
+However, if the main statement declares no parameters at all but the method takes an argument used only by the preflight, annotate the method with link:{jdbidocs}/sqlobject/customizer/AllowUnusedBindings.html[@AllowUnusedBindings^] so the main statement does not fail on that preflight-only argument.
+
 === Using SQL Objects
 
 SQL Object types are regular Java interfaces classes that must be public.
