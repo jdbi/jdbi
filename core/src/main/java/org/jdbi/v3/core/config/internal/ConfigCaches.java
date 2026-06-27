@@ -15,12 +15,14 @@ package org.jdbi.v3.core.config.internal;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 
 /**
  * Hold metadata caches which maps various JVM constants into pre-parsed forms.
@@ -57,7 +59,10 @@ public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
 
     public static <K, V> ConfigCache<K, V> declare(Function<K, ?> keyNormalizer, BiFunction<ConfigRegistry, K, V> computer) {
         return new ConfigCache<>() {
-            @SuppressWarnings("unchecked")
+            // PreserveStackTrace: the join() path deliberately discards the CompletionException wrapper and
+            // rethrows its cause; the wrapper carries only CompletableFuture plumbing, and the cause keeps
+            // its own stack. See the comment at the throw site.
+            @SuppressWarnings({"unchecked", "PMD.PreserveStackTrace"})
             @Override
             public V get(K key, ConfigRegistry config) {
                 // The per-cache map allocation below runs a trivial, non-reentrant mapping function, so
@@ -87,9 +92,14 @@ public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
                         throw new IllegalStateException("Recursive cache computation for key " + key);
                     }
                     // The winning thread has already run the computer and completed (or failed) the future,
-                    // so join() does not block on user code while holding any lock. A failed computation
-                    // surfaces here as a CompletionException wrapping the original cause.
-                    return (V) existing.value.join();
+                    // so join() does not block on user code while holding any lock. On failure, unwrap the
+                    // CompletionException so a thread that lost the race sees the same exception the computing
+                    // thread would throw: the type a caller catches must not depend on who won the race.
+                    try {
+                        return (V) existing.value.join();
+                    } catch (CompletionException e) {
+                        throw Sneaky.throwAnyway(e.getCause());
+                    }
                 }
 
                 final Object computed;

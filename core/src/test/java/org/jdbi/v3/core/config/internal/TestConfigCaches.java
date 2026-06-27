@@ -15,6 +15,7 @@ package org.jdbi.v3.core.config.internal;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -183,6 +184,56 @@ class TestConfigCaches {
     }
 
     @Test
+    void concurrentLoserSeesOriginalException() {
+        // A thread that lost the race and joined the in-flight entry must see the computer's original
+        // exception type, not a CompletionException wrapping it. (E.g. EnumMapper's computer throws
+        // UnableToProduceResultException for an unmatched name; a concurrent caller must still see that.)
+        assertTimeoutPreemptively(TIMEOUT, () -> {
+            final ConfigRegistry config = new ConfigRegistry();
+            final CountDownLatch computing = new CountDownLatch(1);
+            final CountDownLatch loserArrived = new CountDownLatch(1);
+
+            final ConfigCache<String, String> cache =
+                ConfigCaches.declare(key -> {
+                    // Announce that this thread owns the in-flight entry, then wait until the loser is stalled
+                    // on the entry before failing. This makes the loser deterministically observe a failure
+                    // produced by another thread rather than computing the value itself.
+                    computing.countDown();
+                    await(loserArrived);
+                    throw new CustomException("boom");
+                });
+
+            final ExecutorService pool = Executors.newFixedThreadPool(2);
+            try {
+                final Future<String> winner = pool.submit(() -> cache.get("a", config));
+                await(computing);
+
+                // Capture the loser's thread so we can observe when it stalls inside get() waiting on the
+                // winner, instead of guessing with a fixed sleep.
+                final CompletableFuture<Thread> loserThread = new CompletableFuture<>();
+                final Future<String> loser = pool.submit(() -> {
+                    loserThread.complete(Thread.currentThread());
+                    return cache.get("a", config);
+                });
+
+                // Wait until the loser is stalled inside get() waiting on the winner, then release the winner
+                // to fail. This guarantees the loser is committed to this computation rather than racing to a
+                // fresh one, so its observed exception reflects the shared failure.
+                final Thread t = loserThread.join();
+                awaitThreadStalled(t);
+                loserArrived.countDown();
+
+                assertThatThrownBy(winner::get)
+                    .hasCauseInstanceOf(CustomException.class);
+                assertThatThrownBy(loser::get)
+                    .hasCauseInstanceOf(CustomException.class);
+            } finally {
+                pool.shutdownNow();
+            }
+        });
+    }
+
+    @Test
     void selfRecursiveComputationFailsFast() {
         // A computer that re-enters the same cache for the key it is computing describes a value that
         // depends on itself. We reject it rather than self-deadlock on the join, mirroring
@@ -199,6 +250,31 @@ class TestConfigCaches {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Recursive");
         });
+    }
+
+    private static final class CustomException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        CustomException(String message) {
+            super(message);
+        }
+    }
+
+    // Spin until the thread is stalled inside get() waiting on the winner — parked on the future (WAITING)
+    // or blocked on a bin monitor (BLOCKED). Either way it is committed to the lookup and cannot recompute
+    // before the winner is released, which makes the race outcome deterministic; accepting both states keeps
+    // the handshake independent of get()'s locking strategy. The enclosing timeout bounds the spin.
+    private static void awaitThreadStalled(Thread thread) {
+        while (true) {
+            final Thread.State state = thread.getState();
+            if (state == Thread.State.WAITING || state == Thread.State.TIMED_WAITING || state == Thread.State.BLOCKED) {
+                return;
+            }
+            if (state == Thread.State.TERMINATED) {
+                throw new IllegalStateException("thread terminated before stalling on the cache entry");
+            }
+            Thread.onSpinWait();
+        }
     }
 
     private static void await(CountDownLatch latch) {
