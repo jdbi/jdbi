@@ -105,7 +105,8 @@ public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
                 final Object computed;
                 try {
                     computed = computer.apply(config, key);
-                } catch (RuntimeException | Error e) {
+                } catch (Throwable e) {
+                    // Clean up on ANY throwable, since otherwise we leave waiting threads blocked forever
                     fail(cache, normalizedKey, entry, e);
                     throw e;
                 }
@@ -117,7 +118,7 @@ public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
                     fail(cache, normalizedKey, entry, e);
                     throw e;
                 }
-                entry.value.complete(computed);
+                entry.complete(computed);
                 return (V) computed;
             }
         };
@@ -129,16 +130,31 @@ public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
      */
     private static void fail(Map<Object, Object> cache, Object normalizedKey, CacheEntry entry, Throwable cause) {
         cache.remove(normalizedKey, entry);
-        entry.value.completeExceptionally(cause);
+        entry.completeExceptionally(cause);
     }
 
     /**
      * A cache slot. {@code value} is completed exactly once by the thread that installed the entry;
      * {@code owner} is that thread, retained only to detect a computer re-entering the cache for the key
      * it is itself computing (an unsatisfiable self-dependency we must reject rather than deadlock on).
+     * The owner reference is meaningful only while the computation is in flight, so it is cleared on
+     * completion: the cache is unbounded and lives for the life of the Jdbi instance, and a retained
+     * Thread would pin that thread (and its thread-locals and context classloader) from collection.
      */
     private static final class CacheEntry {
-        final Thread owner = Thread.currentThread();
+        // No synchronization needed: a thread always sees its own writes, and any other thread that reads a
+        // stale owner fails the identity check and falls through to join() — the correct path.
+        Thread owner = Thread.currentThread();
         final CompletableFuture<Object> value = new CompletableFuture<>();
+
+        void complete(Object computed) {
+            owner = null;
+            value.complete(computed);
+        }
+
+        void completeExceptionally(Throwable cause) {
+            owner = null;
+            value.completeExceptionally(cause);
+        }
     }
 }
