@@ -104,7 +104,7 @@ public class TestArgumentsRegistry {
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
 
         assertThat(ctx.findArgumentFor(Object.class, new Weird()))
-                .isEmpty();
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(WeirdArgument.class));
         assertThat(ctx.findArgumentFor(Object.class, null))
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
