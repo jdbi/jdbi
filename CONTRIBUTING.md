@@ -12,6 +12,10 @@ We also have a [Mailing list](http://groups.google.com/group/jdbi) and occasiona
 
 ## Contributing to the project
 
+----
+** Please read our [AI contribution guidelines](https://github.com/jdbi/jdbi/blob/master/AI-GUIDELINES.md) first!**
+----
+
 If you find a bug that you can reproduce, please file an issue with the project. Jdbi is a project of volunteers and we give no time lines or guarantees when a bug will be addressed.
 
 Providing a bug and a fix is very welcome; send us a pull request. Having a test that demonstrates the bug and the fix will expedite getting your change into the code base.
