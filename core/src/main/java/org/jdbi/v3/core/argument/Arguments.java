@@ -30,6 +30,8 @@ import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Beta;
 
+import static org.jdbi.v3.core.generic.GenericTypes.getErasedType;
+
 /**
  * A registry for ArgumentFactory instances.
  * When a statement with bound parameters is executed, Jdbi consults the
@@ -129,12 +131,30 @@ public class Arguments implements JdbiConfig<Arguments> {
         if (prepared != null) {
             return Optional.of(prepared.apply(value));
         }
+
+        QualifiedType<?> expectedType;
+        Class<?> expectedClass = getErasedType(type.getType());
+
+        // this is a fixup for Batches that have rows with nulls before concrete types. If the batch logic
+        // sees a null first, it record "Object" as the type. If the type is "Object" but a non-null value,
+        // use the concrete type of the field to look up the argument factory.
+        //
+        // The correct fix is to track the type of the column in the batch and only assign a final type when
+        // an actual value is seen and defer when seeing nulls.
+        //
+        if (value != null && expectedClass == Object.class) {
+            var qualifiers = type.getQualifiers();
+            expectedType = QualifiedType.of(value.getClass()).withAnnotations(qualifiers);
+        } else {
+            expectedType = type;
+        }
+
         for (final QualifiedArgumentFactory factory : factories) {
-            final Optional<Argument> maybeBuilt = factory.build(type, value, registry);
+            final Optional<Argument> maybeBuilt = factory.build(expectedType, value, registry);
             if (maybeBuilt.isPresent()) {
-                if (factory instanceof QualifiedArgumentFactory.Preparable p && didPrepare.add(type)) {
-                    p.prepare(type, registry).ifPresent(argumentFactory ->
-                            preparedFactories.putIfAbsent(type, argumentFactory));
+                if (factory instanceof QualifiedArgumentFactory.Preparable p && didPrepare.add(expectedType)) {
+                    p.prepare(expectedType, registry).ifPresent(argumentFactory ->
+                            preparedFactories.putIfAbsent(expectedType, argumentFactory));
                 }
                 return maybeBuilt;
             }
