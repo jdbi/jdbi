@@ -1,5 +1,7 @@
 # Unreleased
 
+- fix deadlock in configuration caching (#2980)
+
 # 3.53.0
 
 ## Fixes: Jdbi-Freemarker Security Advisory GHSA-mggx-p7jf-jgw4
