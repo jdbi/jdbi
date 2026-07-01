@@ -4,6 +4,7 @@
   the same `Handle`, immediately before the method's main statement, binding the method's arguments.
   This is useful for setting scoped/session variables before a query (e.g. a Postgres trigram
   threshold). It is repeatable and may be placed on a method or a SQL Object type. See issue #2979.
+- fix deadlock in configuration caching (#2980)
 
 # 3.53.0
 

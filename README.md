@@ -3,12 +3,9 @@
 [![CD from master pushes](https://github.com/jdbi/jdbi/actions/workflows/cd.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/cd.yml) |
 [![CI Build with tests](https://github.com/jdbi/jdbi/actions/workflows/ci.yml/badge.svg)](https://github.com/jdbi/jdbi/actions/workflows/ci.yml) | [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi) | [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi) | [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jdbi_jdbi&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jdbi_jdbi)
 
-
-
 The Jdbi library provides convenient, idiomatic access to relational databases in Java and other JVM technologies such as Kotlin, Clojure or Scala.
 
 Jdbi is built on top of JDBC. If your database has a JDBC driver, you can use Jdbi with it.
-
 
 * [Developer Guide](https://jdbi.org/)
 * [Javadoc](https://jdbi.org/apidocs/)
@@ -94,9 +91,7 @@ Some tests use Postgres and H2 databases (the tests will spin up temporary datab
 
 ### Docker requirements
 
-For a full release build, docker or a docker compatible environment
-must be available. A small number of tests use testcontainers which in
-turn requires docker.
+For a full release build, docker or a docker compatible environment must be available. A small number of tests use testcontainers which in turn requires docker.
 
 `make install-nodocker` skips the tests when building and installing Jdbi locally. `make tests-nodocker` skips the tests when only running tests.
 
@@ -108,19 +103,14 @@ Supported configurations are
 
 Other docker installations such as [Colima](https://github.com/abiosoft/colima) may work but are untested and unsupported.
 
-For podman on Linux, the podman socket must be activated (see
-https://stackoverflow.com/questions/71549856/testcontainers-with-podman-in-java-tests)
-for details. SELinux sometimes interferes with testcontainers if
-SELinux is active; make sure that there is an exception configured.
+For podman on Linux, the podman socket must be activated (see https://stackoverflow.com/questions/71549856/testcontainers-with-podman-in-java-tests) for details. SELinux sometimes interferes with testcontainers if SELinux is active; make sure that there is an exception configured.
 
 For podman on MacOS, it is necessary to set the `DOCKER_HOST` environment variable correctly.
 
 
 ## Contributing
 
-Please read
-[CONTRIBUTING.md](https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md)
-for instructions to set up your development environment to build Jdbi.
+Please read [CONTRIBUTING.md](https://github.com/jdbi/jdbi/blob/master/CONTRIBUTING.md) for instructions to set up your development environment to build Jdbi.
 
 
 ## Versioning
@@ -130,8 +120,7 @@ Jdbi uses [SemVer](http://semver.org/) to version its public API.
 
 ## License
 
-This project is licensed under the
-[Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html).
+This project is licensed under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html).
 
 
 ## Project Members
@@ -154,6 +143,4 @@ This project is licensed under the
 * **Alex Harin ([@aharin](https://github.com/aharin))** - Kotlin plugins.
 * **Ali Shakiba ([@shakiba](https://github.com/shakiba))** - JPA plugin
 * **[@alwins0n](https://github.com/alwins0n)** - Vavr plugin.
-* **Fred Deschenes ([@FredDeschenes](https://github.com/FredDeschenes))** -
-  Kotlin unchecked extensions for `Jdbi` functions. `@BindFields`,
-  `@BindMethods` annotations.
+* **Fred Deschenes ([@FredDeschenes](https://github.com/FredDeschenes))** - Kotlin unchecked extensions for `Jdbi` functions. `@BindFields`, `@BindMethods` annotations.
