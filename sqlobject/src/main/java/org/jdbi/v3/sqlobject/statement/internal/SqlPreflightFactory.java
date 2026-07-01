@@ -59,8 +59,8 @@ public class SqlPreflightFactory implements SqlStatementCustomizerFactory {
     }
 
     private static List<String> sqlsOf(Annotation annotation) {
-        final Stream<SqlPreflight> preflights = annotation instanceof SqlPreflights
-                ? Stream.of(((SqlPreflights) annotation).value())
+        final Stream<SqlPreflight> preflights = annotation instanceof SqlPreflights container
+                ? Stream.of(container.value())
                 : Stream.of((SqlPreflight) annotation);
         return preflights.map(SqlPreflight::value).toList();
     }
