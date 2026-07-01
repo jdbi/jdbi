@@ -1,5 +1,6 @@
 # Unreleased
 
+- fix deadlock in configuration caching (#2980)
 - Add `@SqlPreflight` (Alpha) for SQL Object methods. The annotation runs a literal SQL statement on
   the same `Handle`, immediately before the method's main statement, binding the method's arguments.
   This is useful for setting scoped/session variables before a query (e.g. a Postgres trigram
