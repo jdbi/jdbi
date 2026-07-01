@@ -19,6 +19,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.FetchSize;
+import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestSqlPreflight {
 
@@ -89,6 +91,25 @@ public class TestSqlPreflight {
     }
 
     @Test
+    public void preflightRunsInsideTransactionRegardlessOfAnnotationOrder() {
+        // The preflight runs as a customizer on the main statement, so it is always inside the
+        // method's @Transaction, without any @ExtensionHandlerCustomizationOrder hint and regardless
+        // of which of @Transaction / @SqlPreflight is declared first. The main statement throws,
+        // rolling back the transaction, so the preflight's insert must not survive either way.
+        TxnDao dao = handle.attach(TxnDao.class);
+
+        assertThatThrownBy(dao::txnBeforePreflight).isInstanceOf(Exception.class);
+        assertThat(handle.createQuery("select count(*) from something").mapTo(Integer.class).one())
+                .describedAs("@Transaction declared before @SqlPreflight: preflight insert rolled back")
+                .isZero();
+
+        assertThatThrownBy(dao::preflightBeforeTxn).isInstanceOf(Exception.class);
+        assertThat(handle.createQuery("select count(*) from something").mapTo(Integer.class).one())
+                .describedAs("@SqlPreflight declared before @Transaction: preflight insert rolled back")
+                .isZero();
+    }
+
+    @Test
     public void typeLevelPreflightApplies() {
         TypeLevelDao dao = handle.attach(TypeLevelDao.class);
 
@@ -131,6 +152,19 @@ public class TestSqlPreflight {
         @SqlPreflight("insert into something (id, name) values (1, 'pre')")
         @SqlUpdate("insert into something (id, name) values (2, 'main')")
         void preflightThenUpdate();
+    }
+
+    public interface TxnDao {
+
+        @Transaction
+        @SqlPreflight("insert into something (id, name) values (1, 'preflight')")
+        @SqlUpdate("this is not valid sql and will throw")
+        void txnBeforePreflight();
+
+        @SqlPreflight("insert into something (id, name) values (1, 'preflight')")
+        @Transaction
+        @SqlUpdate("this is not valid sql and will throw")
+        void preflightBeforeTxn();
     }
 
     @SqlPreflight("insert into something (id, name) values (1, 'type')")

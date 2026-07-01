@@ -4113,7 +4113,8 @@ The annotation is repeatable--multiple preflight statements run in declaration o
 Unlike link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^] and link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^], the `@SqlPreflight` value is always used as literal SQL; it is not resolved through the configured link:{jdbidocs}/sqlobject/locator/SqlLocator.html[SqlLocator^], so external `.sql` files and link:{jdbidocs}/sqlobject/locator/UseClasspathSqlLocator.html[@UseClasspathSqlLocator^] have no effect on it.
 
 Because the preflight runs on the same connection as the main statement, scoped variables set this way are visible to the query.
-When connection pooling is in use, prefer transaction-scoped settings (for example `SET LOCAL` in Postgres) together with link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Transaction^], so the setting does not leak to later users of the connection.
+The preflight runs during the main statement's setup, so it always executes inside the method's transaction when the method is annotated with link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Transaction^], regardless of the order in which the two annotations are declared.
+When connection pooling is in use, prefer transaction-scoped settings (for example `SET LOCAL` in Postgres) together with `@Transaction`, so the setting does not leak to later users of the connection.
 
 NOTE: Jdbi normally rejects a statement when every one of its declared parameters goes unused.
 A preflight argument that the *main* statement does not also use is fine as long as the main statement declares at least one parameter of its own.

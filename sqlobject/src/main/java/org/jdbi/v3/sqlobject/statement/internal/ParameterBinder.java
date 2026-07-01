@@ -44,7 +44,9 @@ import static org.jdbi.v3.core.internal.JdbiClassUtils.checkedCreateInstance;
  * applied. {@link Consumer} and {@link Function} parameters are skipped, as they are not bindable
  * argument values.
  *
- * <p>This is an immutable, single-threaded helper.
+ * <p>This is immutable and thread-safe: the binder list is fixed at construction and {@link #apply}
+ * is stateless, resolving configuration from the statement on each call. A single instance is safe
+ * to share across concurrent invocations of the same SQL Object method.
  */
 final class ParameterBinder {
 

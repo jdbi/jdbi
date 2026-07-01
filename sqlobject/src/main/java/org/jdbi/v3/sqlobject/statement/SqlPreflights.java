@@ -18,9 +18,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
 import org.jdbi.v3.meta.Alpha;
-import org.jdbi.v3.sqlobject.statement.internal.SqlPreflightDecorator;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.statement.internal.SqlPreflightFactory;
 
 /**
  * Holder for repeating {@link SqlPreflight} annotations.
@@ -29,7 +29,7 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlPreflightDecorator;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-@UseExtensionHandlerCustomizer(SqlPreflightDecorator.class)
+@SqlStatementCustomizingAnnotation(SqlPreflightFactory.class)
 @Alpha
 public @interface SqlPreflights {
 

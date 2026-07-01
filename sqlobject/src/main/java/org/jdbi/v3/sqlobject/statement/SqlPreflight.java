@@ -19,9 +19,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.jdbi.v3.core.extension.annotation.UseExtensionHandlerCustomizer;
 import org.jdbi.v3.meta.Alpha;
-import org.jdbi.v3.sqlobject.statement.internal.SqlPreflightDecorator;
+import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.v3.sqlobject.statement.internal.SqlPreflightFactory;
 
 /**
  * Executes a "pre-flight" SQL statement on the same {@code Handle}, immediately before the
@@ -35,10 +35,12 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlPreflightDecorator;
  * List&lt;User&gt; findUser(String search);
  * </pre>
  *
- * <p>The preflight statement runs on the same {@code Handle} (and therefore the same connection and
- * transaction) as the main statement. The method's arguments are bound to the preflight statement,
- * respecting parameter binding annotations such as {@code @Bind} and {@code @BindBean}; arguments
- * that the preflight SQL does not reference are ignored.
+ * <p>The preflight statement runs during the main statement's setup, on the same {@code Handle}, so
+ * it always shares the main statement's connection and transaction. In particular, if the method is
+ * annotated with {@code @Transaction}, the preflight runs inside that transaction regardless of the
+ * order in which the two annotations are declared. The method's arguments are bound to the preflight
+ * statement, respecting parameter binding annotations such as {@code @Bind} and {@code @BindBean};
+ * arguments that the preflight SQL does not reference are ignored.
  *
  * <p>The annotation is repeatable; multiple preflight statements run in declaration order. It may be
  * placed on a method or on the SQL Object type (type-level preflights apply to all methods, and run
@@ -52,7 +54,7 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlPreflightDecorator;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-@UseExtensionHandlerCustomizer(SqlPreflightDecorator.class)
+@SqlStatementCustomizingAnnotation(SqlPreflightFactory.class)
 @Repeatable(SqlPreflights.class)
 @Alpha
 public @interface SqlPreflight {
