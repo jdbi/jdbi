@@ -1,10 +1,14 @@
 # Unreleased
 
+# 3.54.0
+
 - fix deadlock in configuration caching (#2980)
+- fix prepared batch first-time-null binding (#2975)
 - Add `@SqlPreflight` (Alpha) for SQL Object methods. The annotation runs a literal SQL statement on
   the same `Handle`, immediately before the method's main statement, binding the method's arguments.
   This is useful for setting scoped/session variables before a query (e.g. a Postgres trigram
   threshold). It is repeatable and may be placed on a method or a SQL Object type. See issue #2979.
+- update postgres driver due to CVE-2026-42198
 
 # 3.53.0
 
