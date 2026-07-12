@@ -35,11 +35,10 @@ import org.jdbi.core.internal.OnDemandExtensions;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.statement.DefaultStatementBuilder;
-import org.jdbi.core.statement.QueryTemplateBuilder;
+import org.jdbi.core.statement.QueryTemplate;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementBuilder;
 import org.jdbi.core.statement.StatementBuilderFactory;
-import org.jdbi.core.statement.internal.QueryTemplateBuilderImpl;
 import org.jdbi.core.transaction.LocalTransactionHandler;
 import org.jdbi.core.transaction.TransactionHandler;
 import org.jdbi.core.transaction.TransactionIsolationLevel;
@@ -585,11 +584,14 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
-     * Return a QueryTemplate builder. XXX docs
-     * @param sql
-     * @return
+     * Builds a reusable, thread-safe {@link QueryTemplate} over the given SQL. The SQL is rendered
+     * and parsed once against a snapshot of this Jdbi's configuration; the returned template can then
+     * be executed many times against any handle via {@link QueryTemplate#with(Handle)}.
+     *
+     * @param sql the SQL to render and parse once
+     * @return a reusable query template
      */
-    public QueryTemplateBuilder buildQueryTemplate(final CharSequence sql) {
-        return new QueryTemplateBuilderImpl(this, sql);
+    public QueryTemplate buildQueryTemplate(final CharSequence sql) {
+        return new QueryTemplate(getConfig().createCopy(), sql);
     }
 }

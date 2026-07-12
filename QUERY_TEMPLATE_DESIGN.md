@@ -104,6 +104,31 @@ Inventoried from the actual sources (needs a final review pass, task 2.1):
   `QueryTemplateBinding` is per-execution and thread-confined. `.with(handle)`
   returns a fresh binding per call.
 
+## Open API-surface decisions
+
+Guiding principle: the public API should be as small as possible and as large as
+needed — one obvious way to do each thing, no leaked internals. Two open questions:
+
+- [ ] **Rename `buildQueryTemplate` → `buildQuery`?** Once the classic query paths are
+      retired and templates are the only way to build a query, the word "template" is
+      redundant qualification. `jdbi.buildQuery(sql)` reads better and is the one obvious
+      entry point. Counter-consideration: the returned type is `QueryTemplate` (reusable,
+      not a one-shot `Query`), so `buildQuery` returning a `QueryTemplate` may mislead;
+      resolve the method name and the type name together. Decide during phase 5 (unify),
+      not piecemeal — renaming twice churns the API.
+- [ ] **Make the `QueryTemplate` constructor non-public.** Right now it is `public`
+      `QueryTemplate(ConfigRegistry, CharSequence)` so `Jdbi.buildQueryTemplate` (a
+      different package) can call it, and so the SQL Object retarget can build templates
+      from an extension's config later. Neither reason requires it to be *public API* for
+      users — the single intended entry point is `jdbi.buildQueryTemplate(...)`. Constraint:
+      `QueryTemplate` is in `org.jdbi.core.statement`; both callers are cross-package
+      (`org.jdbi.core.Jdbi`; the SQL Object retarget lives in the `sqlobject` module), so a
+      package-private constructor will not compile without a construction seam. Options:
+      (a) keep it public (simplest, matches the public `Query(Handle, CharSequence)`
+      constructor); (b) introduce an internal factory both callers use and hide the
+      constructor. Resolve alongside the SQL Object retarget (step 3), when the second
+      caller's construction path is actually designed.
+
 ## HANDOFF (2026-07-12): row reducers force a result-model change — START HERE
 
 **Read this first if picking up fresh.** Everything below in "Sequencing" and the phase
@@ -169,13 +194,21 @@ per `@SqlQuery` method; per call bind params/defines/customizers and apply the r
 op — `mapTo` or `reduceRows` — on the binding) is straightforward.
 
 ### Suggested order for the fresh session
-1. Make `QueryTemplateBinding implement ResultBearing` (impl `scanResultSet` from the
-   current `executeStatement` body); keep the hoist + defines overlay. Update
-   `QueryTemplate`/`QueryTemplateBuilder` (drop or demote the baked scanner). Update
-   `TestQueryTemplates` to the per-execution op style; add a `reduceRows` template test.
-2. Add the query-customizer surface to the binding.
+1. [x] **Done.** `QueryTemplateBinding implements ResultBearing` — `scanResultSet` is the
+   single primitive (the old `executeStatement` body), so `mapTo`/`map`/`reduceRows`/
+   `collectInto`/`stream` all come for free, exactly as `Query`. `QueryTemplate` is now
+   non-generic (SQL + config snapshot + hoisted rendered SQL + `ParsedSql`); the baked
+   scanner and the `QueryTemplateBuilder`/`QueryTemplateBuilderImpl` types were deleted.
+   `Jdbi.buildQueryTemplate` returns `QueryTemplate`. Result ops apply per execution:
+   `template.with(h).bind(...).mapToBean(X).list()`, `.with(h).reduceRows(...)`, etc.
+   `TestQueryTemplates` migrated to the per-execution style; added `testReuseAcrossExecutions`
+   and `testReduceRows`. Core suite **1005/0**; benchmark updated (`.with(h).mapTo(String).one()`)
+   and compiles. Hoist + defines overlay preserved.
+2. Add the query-customizer surface (`@FetchSize`/`@MaxRows`/`setMaxFieldSize`) to the
+   binding, applied as statement state at execute time.
 3. Retarget `SqlQueryHandler` onto the template (build once per method; bind + apply
-   returner op per call). Then `SqlUpdateHandler` etc.
+   returner op per call). Then `SqlUpdateHandler` etc. Resolve the two
+   [Open API-surface decisions](#open-api-surface-decisions) here.
 4. Benchmark SQL Object before/after; then return to phase 2 (immutable `JdbiConfig`).
 
 ## Sequencing decision (2026-07-12)

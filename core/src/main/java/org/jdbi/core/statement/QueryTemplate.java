@@ -15,8 +15,7 @@ package org.jdbi.core.statement;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.result.ResultIterable;
-import org.jdbi.core.result.ResultSetScanner;
+import org.jdbi.core.result.ResultBearing;
 
 /**
  * A reusable, immutable, thread-safe query definition. Built once from a {@link org.jdbi.core.Jdbi}
@@ -24,30 +23,46 @@ import org.jdbi.core.result.ResultSetScanner;
  * with {@link #with(Handle)}.
  *
  * <p>The SQL is rendered and parsed a single time when the template is built; the resulting
- * {@link ParsedSql} and the configuration are shared read-only, so each execution only binds its
- * parameters and runs the statement.
+ * {@link ParsedSql} and the configuration are shared read-only. Each execution binds its own
+ * parameters and applies a result operation through the {@link ResultBearing} methods on the
+ * {@link QueryTemplateBinding} returned by {@link #with(Handle)}, exactly as with a
+ * {@link Query}.
  */
-public class QueryTemplate<R> {
-    final QueryTemplateBuilder builder;
-    final ResultSetScanner<ResultIterable<R>> scanner;
+public class QueryTemplate {
+    final ConfigRegistry config;
+    final String sql;
 
     // Rendered and parsed once at build time, then reused for every execution.
     final String renderedSql;
     final ParsedSql parsedSql;
 
-    QueryTemplate(final QueryTemplateBuilder builder, final ResultSetScanner<ResultIterable<R>> scanner) {
-        this.builder = builder;
-        this.scanner = scanner;
+    /**
+     * Builds a template over the given SQL and configuration snapshot. The configuration is used
+     * read-only and is not copied; callers pass a snapshot the template may retain (for example,
+     * {@code jdbi.getConfig().createCopy()}).
+     *
+     * @param config the configuration snapshot to render, parse, and execute against
+     * @param sql    the SQL to render and parse once
+     */
+    public QueryTemplate(final ConfigRegistry config, final CharSequence sql) {
+        this.config = config;
+        this.sql = sql.toString();
 
-        final ConfigRegistry config = builder.getConfig();
         final SqlStatements stmtConfig = config.get(SqlStatements.class);
-        this.renderedSql = stmtConfig.preparedRender(builder.getSql(), RenderContext.of(config));
+        this.renderedSql = stmtConfig.preparedRender(this.sql, RenderContext.of(config));
         // The parser uses the context only for exception reporting; parsing depends solely on the SQL.
         this.parsedSql = stmtConfig.getSqlParser()
             .parse(renderedSql, StatementContext.create(config, null, QueryTemplate.class));
     }
 
-    public QueryTemplateBinding<R> with(final Handle handle) {
-        return new QueryTemplateBinding<>(handle, this);
+    /**
+     * Binds this template to a handle for a single execution. The returned binding is thread-confined;
+     * obtain a fresh one for each execution.
+     *
+     * @param handle the handle to execute against
+     * @return a fresh, thread-confined binding
+     */
+    public QueryTemplateBinding with(final Handle handle) {
+        return new QueryTemplateBinding(handle, this);
     }
 }

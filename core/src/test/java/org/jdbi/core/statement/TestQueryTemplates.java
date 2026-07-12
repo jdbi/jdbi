@@ -21,10 +21,11 @@ import com.google.common.collect.Maps;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
-import org.jdbi.core.result.ResultIterable;
+import org.jdbi.core.result.RowView;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,10 +43,9 @@ public class TestQueryTemplates {
         h.createUpdate("insert into something (id, name) values (1, 'eric')").execute();
         h.createUpdate("insert into something (id, name) values (2, 'brian')").execute();
 
-        final var queryTemplate = h.getJdbi().buildQueryTemplate("select * from something order by id")
-                .mapToMap();
+        final var queryTemplate = h.getJdbi().buildQueryTemplate("select * from something order by id");
 
-        final List<Map<String, Object>> results = queryTemplate.with(h).execute().list();
+        final List<Map<String, Object>> results = queryTemplate.with(h).mapToMap().list();
         assertThat(results).hasSize(2);
         assertThat(results.get(0).get("name")).isEqualTo("eric");
     }
@@ -57,12 +57,9 @@ public class TestQueryTemplates {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        final var queryTemplate = h.getJdbi().buildQueryTemplate("select * from something order by id")
-                .mapToBean(Something.class);
+        final var queryTemplate = h.getJdbi().buildQueryTemplate("select * from something order by id");
 
-        final ResultIterable<Something> query = queryTemplate.with(h).execute();
-
-        final List<Something> r = query.list();
+        final List<Something> r = queryTemplate.with(h).mapToBean(Something.class).list();
         assertThat(r).startsWith(new Something(1, "eric"));
     }
 
@@ -72,12 +69,9 @@ public class TestQueryTemplates {
 
         h.execute("insert into something (id, name, integerValue) values (1, 'eric', null)");
 
-        final var queryTemplate = h.getJdbi().buildQueryTemplate("select * from something order by id")
-                .mapToBean(Something.class);
+        final var queryTemplate = h.getJdbi().buildQueryTemplate("select * from something order by id");
 
-        final ResultIterable<Something> query = queryTemplate.with(h).execute();
-
-        final List<Something> r = query.list();
+        final List<Something> r = queryTemplate.with(h).mapToBean(Something.class).list();
         final Something eric = r.get(0);
         assertThat(eric).isEqualTo(new Something(1, "eric"));
         assertThat(eric.getIntegerValue()).isNull();
@@ -89,12 +83,9 @@ public class TestQueryTemplates {
 
         h.execute("insert into something (id, name, intValue) values (1, 'eric', null)");
 
-        final var queryTemplate = h.getJdbi().buildQueryTemplate("select * from something order by id")
-                .mapToBean(Something.class);
+        final var queryTemplate = h.getJdbi().buildQueryTemplate("select * from something order by id");
 
-        final ResultIterable<Something> query = queryTemplate.with(h).execute();
-
-        final List<Something> r = query.list();
+        final List<Something> r = queryTemplate.with(h).mapToBean(Something.class).list();
         final Something eric = r.get(0);
         assertThat(eric).isEqualTo(new Something(1, "eric"));
         assertThat(eric.getIntValue()).isZero();
@@ -107,13 +98,45 @@ public class TestQueryTemplates {
         h.execute("insert into something (id, name) values (1, 'eric')");
         h.execute("insert into something (id, name) values (2, 'brian')");
 
-        final var queryTemplate = h.getJdbi().buildQueryTemplate("select name from something order by id")
-                .map((r, ctx) -> r.getString(1));
+        final var queryTemplate = h.getJdbi().buildQueryTemplate("select name from something order by id");
 
-        final ResultIterable<String> query = queryTemplate.with(h).execute();
-
-        final List<String> r = query.list();
+        final List<String> r = queryTemplate.with(h).map((rs, ctx) -> rs.getString(1)).list();
         assertThat(r).startsWith("eric");
+    }
+
+    @Test
+    public void testReuseAcrossExecutions() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
+
+        // One template, bound and executed twice with different parameters.
+        final var queryTemplate = h.getJdbi().buildQueryTemplate("select name from something where id = :id");
+
+        assertThat(queryTemplate.with(h).bind("id", 1).mapTo(String.class).one()).isEqualTo("eric");
+        assertThat(queryTemplate.with(h).bind("id", 2).mapTo(String.class).one()).isEqualTo("brian");
+    }
+
+    @Test
+    public void testReduceRows() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.prepareBatch("insert into something (id, name) values (?, ?)")
+            .add(1, "Brian")
+            .add(2, "Keith")
+            .execute();
+
+        final var queryTemplate = h.getJdbi().buildQueryTemplate("select id, name from something order by id");
+
+        // Exercises the reduceRows path, which returns a Stream and cannot be expressed by a
+        // build-time-baked ResultIterable scanner; it works because the binding is a ResultBearing.
+        final List<String> names = queryTemplate.with(h)
+            .<Integer, String>reduceRows((map, rowView) ->
+                map.put(rowView.getColumn("id", Integer.class), rowView.getColumn("name", String.class)))
+            .collect(toList());
+
+        assertThat(names).containsExactly("Brian", "Keith");
     }
 
     @Test

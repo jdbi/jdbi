@@ -21,38 +21,32 @@ import java.util.Map;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.result.ResultIterable;
+import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultSetScanner;
 import org.jdbi.core.result.UnableToProduceResultException;
 
 /**
  * A single, thread-confined execution of a {@link QueryTemplate} against a specific {@link Handle}.
  * Obtained from {@link QueryTemplate#with(Handle)}. Bind parameters (and optionally override defined
- * attributes with {@link #define}), then call {@link #execute()}. The template's configuration and
- * pre-parsed SQL are shared read-only; only per-execution state (bindings, defines, the statement
- * context, the JDBC statement) lives here.
+ * attributes with {@link #define}), then apply a result operation inherited from {@link ResultBearing}
+ * &mdash; for example {@link #mapTo(Class)}, {@link #reduceRows}, or {@link #collectInto(Class)}.
+ *
+ * <p>The template's configuration and pre-parsed SQL are shared read-only; only per-execution state
+ * (bindings, defines, the statement context, the JDBC statement) lives here.
  */
-public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBinding<R>> {
+public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryTemplateBinding> {
     private final Handle handle;
+    private final QueryTemplate template;
     private final StatementContext ctx;
     private final Binding binding;
-    private final String sql;
-    private final ConfigRegistry config;
-    private final String renderedSql;
-    private final ParsedSql parsedSql;
-    private final ResultSetScanner<ResultIterable<R>> scanner;
     private final Map<String, Object> defines = new HashMap<>();
 
-    QueryTemplateBinding(final Handle handle, final QueryTemplate<R> template) {
+    QueryTemplateBinding(final Handle handle, final QueryTemplate template) {
         this.handle = handle;
-        this.sql = template.builder.getSql();
-        this.config = template.builder.getConfig();
-        this.renderedSql = template.renderedSql;
-        this.parsedSql = template.parsedSql;
-        this.scanner = template.scanner;
-        this.ctx = StatementContext.create(config, handle.getExtensionMethod(), getClass())
+        this.template = template;
+        this.ctx = StatementContext.create(template.config, handle.getExtensionMethod(), getClass())
             .setConnection(handle.getConnection())
-            .setRawSql(sql);
+            .setRawSql(template.sql);
         this.binding = new Binding(ctx);
     }
 
@@ -63,7 +57,7 @@ public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBindi
 
     @Override
     public ConfigRegistry getConfig() {
-        return config;
+        return template.config;
     }
 
     /**
@@ -76,49 +70,53 @@ public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBindi
      * @return this
      */
     @Override
-    public QueryTemplateBinding<R> define(final String key, final Object value) {
+    public QueryTemplateBinding define(final String key, final Object value) {
         defines.put(key, value);
         return this;
     }
 
     @Override
     @SafeVarargs
-    public final <T> QueryTemplateBinding<R> bindArray(final int pos, final T... array) {
+    public final <T> QueryTemplateBinding bindArray(final int pos, final T... array) {
         return BindingsMixin.super.bindArray(pos, array);
     }
 
     @Override
     @SafeVarargs
-    public final <T> QueryTemplateBinding<R> bindArray(final String name, final T... array) {
+    public final <T> QueryTemplateBinding bindArray(final String name, final T... array) {
         return BindingsMixin.super.bindArray(name, array);
     }
 
     /**
-     * Execute the query, returning a lazily-evaluated {@link ResultIterable} over the result rows.
-     * The statement is not created or executed until the result is consumed; consuming it also
-     * closes the statement context and releases the underlying JDBC resources.
+     * Runs the query and hands its result set to the given scanner. This is the single primitive on
+     * which every {@link ResultBearing} operation ({@code mapTo}, {@code reduceRows}, {@code collectInto},
+     * &hellip;) is built. The statement is not created or executed until the scanner pulls the result set;
+     * pulling it also closes the statement context and releases the underlying JDBC resources.
      *
-     * @return the query results.
+     * @param resultSetScanner the scanner consuming the result set
+     * @param <R>              the scanner's result type
+     * @return the value produced by the scanner
      */
-    public ResultIterable<R> execute() {
+    @Override
+    public <R> R scanResultSet(final ResultSetScanner<R> resultSetScanner) {
         try {
-            return scanner.scanResultSet(this::executeStatement, ctx);
+            return resultSetScanner.scanResultSet(this::executeStatement, ctx);
         } catch (final SQLException e) {
             throw new UnableToProduceResultException(e, ctx);
         }
     }
 
     private ResultSet executeStatement() {
-        final SqlStatements stmtConfig = config.get(SqlStatements.class);
+        final SqlStatements stmtConfig = template.config.get(SqlStatements.class);
 
         // Constant-defines fast path: reuse the SQL rendered and parsed once at template build time.
         // If this execution overrode any define, re-render and re-parse with the overlay applied.
         final ParsedSql effectiveParsedSql;
         if (defines.isEmpty()) {
-            ctx.setRenderedSql(renderedSql);
-            effectiveParsedSql = parsedSql;
+            ctx.setRenderedSql(template.renderedSql);
+            effectiveParsedSql = template.parsedSql;
         } else {
-            final String rendered = stmtConfig.preparedRender(sql, new RenderContext(config, defines));
+            final String rendered = stmtConfig.preparedRender(template.sql, new RenderContext(template.config, defines));
             ctx.setRenderedSql(rendered);
             effectiveParsedSql = stmtConfig.getSqlParser().parse(rendered, ctx);
         }
@@ -127,7 +125,7 @@ public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBindi
         try {
             final PreparedStatement stmt = handle.getStatementBuilder()
                 .create(handle.getConnection(), effectiveParsedSql.getSql(), ctx);
-            ctx.addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), sql, stmt));
+            ctx.addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), template.sql, stmt));
             stmtConfig.customize(stmt);
             ctx.setStatement(stmt);
 
