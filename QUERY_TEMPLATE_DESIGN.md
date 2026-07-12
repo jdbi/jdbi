@@ -104,6 +104,80 @@ Inventoried from the actual sources (needs a final review pass, task 2.1):
   `QueryTemplateBinding` is per-execution and thread-confined. `.with(handle)`
   returns a fresh binding per call.
 
+## HANDOFF (2026-07-12): row reducers force a result-model change — START HERE
+
+**Read this first if picking up fresh.** Everything below in "Sequencing" and the phase
+tasklist is still valid; this section is the live front.
+
+### State (all committed on branch `query-templates`, all green)
+Recent commits (newest last): `bd0e56a2` hoist render/parse · `55c5471` TemplateEngine→
+RenderContext · `9c146cd` wire define() · `2773934` Definable/EmptyHandling ·
+`36783ee5` docs. Verified: **core 1003 tests / 0 failures**; sqlobject, commons-text,
+freemarker, stringtemplate4 suites all pass. Full reactor `test-compile` clean.
+Build notes: JDK 26 env, local repo `/var/cache/maven-repository`, run
+`mvn ... -Dbasepom.check.skip-all=true`; benchmark APT fixed in `benchmark/pom.xml`.
+Template benchmark: classic ~8.2 KB/op vs template ~3.5 KB/op.
+
+### The problem
+`RowReducer<C,R>` (`core/.../result/RowReducer.java`) folds rows into a container and
+emits a **`Stream<R>`**, via `ResultScannable.reduceRows` (`core/.../result/ResultScannable.java:39`).
+But `QueryTemplate<R>` hardwires `scanner: ResultSetScanner<ResultIterable<R>>` and bakes
+the mapping at build time (`buildQueryTemplate(sql).mapToBean(X)`), so it can only ever
+yield a `ResultIterable<R>`. Reducers, collectors, `stream`, and `execute(ResultProducer)`
+do not fit. SQL Object's `@UseRowReducer` (`SqlQueryHandler.configureReturner`) calls
+`query.reduceRows(...)`, so the retarget cannot proceed without solving this.
+
+### The insight (this is the design)
+`ResultScannable` has ONE primitive: `<R> R scanResultSet(ResultSetScanner<R>)`. Every
+result operation — `mapTo`/`map`/`mapToBean`/`mapToMap`/`reduceRows`/`collectInto`/
+`stream`/`list`/`one` — is a **default method on top of it** (`ResultScannable` +
+`ResultBearing extends ResultScannable`). `Query` implements exactly `scanResultSet`
+(`Query.java:53`: `execute(returningResults()).scanResultSet(scanner)`) and gets all of it.
+
+**Decision: `QueryTemplateBinding` should implement `ResultBearing` (i.e. implement
+`scanResultSet`), not bake a single scanner at build.** Then reducers, collectors,
+streams, and `execute(ResultProducer)` all work for free, identically to `Query`.
+
+### Target API shape
+- `jdbi.buildQueryTemplate(sql)` → a `QueryTemplate` holding SQL + snapshotted config +
+  the **hoisted rendered SQL + `ParsedSql`** (keep the build-time hoist — it's the perf win).
+- `template.with(handle)` → `QueryTemplateBinding implements ResultBearing` (and the
+  binding/define/query-customizer mixins).
+- Apply the result operation **per execution**, like `Query`:
+  `template.with(h).bind("id", 1).mapToBean(X.class).list()` or
+  `.with(h).reduceRows(reducer)` or `.with(h).mapTo(X).collect(...)`.
+- The current build-time `mapToBean`/`mapTo` on `QueryTemplateBuilder` becomes either
+  optional sugar or is dropped in favor of the per-execution `ResultBearing` ops. (Decide;
+  dropping is simpler and matches `Query`. `TestQueryTemplates` will need updating either way.)
+
+### How to implement (mirror `Query`)
+`QueryTemplateBinding` should implement `scanResultSet(ResultSetScanner<R>)` by running the
+pre-parsed statement and feeding the `ResultSet` to the scanner — this is exactly the body
+of today's `executeStatement()` (render/parse hoist + defines-overlay re-render + bind +
+execute), with the final step handing `(resultSetSupplier, ctx)` to the passed scanner
+instead of a fixed one. Consider implementing `QueryExecute.execute(ResultProducer)` too
+(as `Query` does) and defining `scanResultSet` in terms of it, so `QueryTemplateBinding`
+and `Query` converge on shared execution machinery (this is the eventual unification).
+Preserve: build-time render/parse hoist; per-execution defines overlay (`define()` →
+re-render); `Definable`/`EmptyHandling`.
+
+### Related piece still needed for the SQL Object retarget
+Query customizers (`@FetchSize`, `@MaxRows`, …) call `QueryCustomizerMixin` methods not on
+the binding. Add that surface to `QueryTemplateBinding` (apply as statement-state at
+execute time). After the `ResultBearing` change + this, the retarget (build one template
+per `@SqlQuery` method; per call bind params/defines/customizers and apply the returner's
+op — `mapTo` or `reduceRows` — on the binding) is straightforward.
+
+### Suggested order for the fresh session
+1. Make `QueryTemplateBinding implement ResultBearing` (impl `scanResultSet` from the
+   current `executeStatement` body); keep the hoist + defines overlay. Update
+   `QueryTemplate`/`QueryTemplateBuilder` (drop or demote the baked scanner). Update
+   `TestQueryTemplates` to the per-execution op style; add a `reduceRows` template test.
+2. Add the query-customizer surface to the binding.
+3. Retarget `SqlQueryHandler` onto the template (build once per method; bind + apply
+   returner op per call). Then `SqlUpdateHandler` etc.
+4. Benchmark SQL Object before/after; then return to phase 2 (immutable `JdbiConfig`).
+
 ## Sequencing decision (2026-07-12)
 
 The template win is proven (phase 1) with the `JdbiConfig` contract **unchanged** —
