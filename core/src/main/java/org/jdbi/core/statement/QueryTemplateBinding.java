@@ -26,8 +26,8 @@ import org.jdbi.core.result.UnableToProduceResultException;
 /**
  * A single, thread-confined execution of a {@link QueryTemplate} against a specific {@link Handle}.
  * Obtained from {@link QueryTemplate#with(Handle)}. Bind parameters, then call {@link #execute()}.
- * The template's configuration is shared read-only; only per-execution state (bindings, the
- * statement context, the JDBC statement) lives here.
+ * The template's configuration and pre-parsed SQL are shared read-only; only per-execution state
+ * (bindings, the statement context, the JDBC statement) lives here.
  */
 public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBinding<R>> {
     private final Handle handle;
@@ -35,17 +35,21 @@ public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBindi
     private final Binding binding;
     private final String sql;
     private final ConfigRegistry config;
+    private final ParsedSql parsedSql;
     private final ResultSetScanner<ResultIterable<R>> scanner;
 
     QueryTemplateBinding(final Handle handle, final QueryTemplate<R> template) {
         this.handle = handle;
-        sql = template.builder.getSql();
-        config = template.builder.getConfig();
-        scanner = template.scanner;
-        ctx = StatementContext.create(config, handle.getExtensionMethod(), getClass())
+        this.sql = template.builder.getSql();
+        this.config = template.builder.getConfig();
+        this.parsedSql = template.parsedSql;
+        this.scanner = template.scanner;
+        this.ctx = StatementContext.create(config, handle.getExtensionMethod(), getClass())
             .setConnection(handle.getConnection())
-            .setRawSql(this.sql);
-        binding = new Binding(ctx);
+            .setRawSql(sql);
+        ctx.setRenderedSql(template.renderedSql);
+        ctx.setParsedSql(parsedSql);
+        this.binding = new Binding(ctx);
     }
 
     @Override
@@ -86,14 +90,9 @@ public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBindi
     }
 
     private ResultSet executeStatement() {
+        // The SQL was rendered and parsed once when the template was built; only binding and
+        // execution happen per call.
         final SqlStatements stmtConfig = config.get(SqlStatements.class);
-
-        final String renderedSql = stmtConfig.preparedRender(sql, config);
-        ctx.setRenderedSql(renderedSql);
-
-        final ParsedSql parsedSql = stmtConfig.getSqlParser().parse(renderedSql, ctx);
-        ctx.setParsedSql(parsedSql);
-
         try {
             final PreparedStatement stmt = handle.getStatementBuilder()
                 .create(handle.getConnection(), parsedSql.getSql(), ctx);

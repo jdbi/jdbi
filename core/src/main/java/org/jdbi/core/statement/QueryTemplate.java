@@ -14,16 +14,37 @@
 package org.jdbi.core.statement;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.result.ResultSetScanner;
 
+/**
+ * A reusable, immutable, thread-safe query definition. Built once from a {@link org.jdbi.core.Jdbi}
+ * (see {@code Jdbi.buildQueryTemplate}) and executed many times by binding it to a {@link Handle}
+ * with {@link #with(Handle)}.
+ *
+ * <p>The SQL is rendered and parsed a single time when the template is built; the resulting
+ * {@link ParsedSql} and the configuration are shared read-only, so each execution only binds its
+ * parameters and runs the statement.
+ */
 public class QueryTemplate<R> {
     final QueryTemplateBuilder builder;
     final ResultSetScanner<ResultIterable<R>> scanner;
 
+    // Rendered and parsed once at build time, then reused for every execution.
+    final String renderedSql;
+    final ParsedSql parsedSql;
+
     QueryTemplate(final QueryTemplateBuilder builder, final ResultSetScanner<ResultIterable<R>> scanner) {
         this.builder = builder;
         this.scanner = scanner;
+
+        final ConfigRegistry config = builder.getConfig();
+        final SqlStatements stmtConfig = config.get(SqlStatements.class);
+        this.renderedSql = stmtConfig.preparedRender(builder.getSql(), config);
+        // The parser uses the context only for exception reporting; parsing depends solely on the SQL.
+        this.parsedSql = stmtConfig.getSqlParser()
+            .parse(renderedSql, StatementContext.create(config, null, QueryTemplate.class));
     }
 
     public QueryTemplateBinding<R> with(final Handle handle) {
