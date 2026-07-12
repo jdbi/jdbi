@@ -185,7 +185,12 @@ to phase 2. Phases below are kept in logical order but executed 1 → 5(SQL Obje
 - [ ] Immutable config snapshot type + `configure(callback)` scoped mutation.
 - [ ] Handle config immutable after construction.
 - [ ] Move statement-state fields off config/context onto the statement/binding.
-- [ ] Split defines into a dedicated per-render holder (constant + overlay).
+- [x] Split defines out of the shared config. `TemplateEngine.render/parse` now take a
+      `RenderContext` (config + a per-execution defines overlay) instead of a raw
+      `ConfigRegistry`. Defines are no longer forced to live in (and be copied with) the
+      heavy config; a template binding's per-execution defines are an overlay applied at
+      render time. The immutable-snapshot/`configure(callback)`/handle-immutable pieces
+      above are still open.
 
 ### 3. Template primitive
 - [x] Real `execute()`: fresh binding/context/statement per call, handle-owned
@@ -195,8 +200,12 @@ to phase 2. Phases below are kept in logical order but executed 1 → 5(SQL Obje
       its constructor and stores `renderedSql` + `ParsedSql`; `QueryTemplateBinding`
       reuses them and no longer calls `preparedRender`/`getSqlParser().parse` per execute.
       ~9% allocation drop (see phase 1).
-- [ ] Per-execution defines overlay → re-render path (only when defines are overridden;
-      constant-defines path uses the hoisted render/parse above).
+- [x] Per-execution defines overlay → re-render path. `QueryTemplateBinding.define`
+      records overrides in an overlay; execution reuses the hoisted SQL when the overlay
+      is empty, and re-renders/re-parses with `RenderContext(config, overlay)` when not.
+      `define()` is now a real abstract method (`Definable<This>`) instead of a stub that
+      threw; classic statements define into config, and `EmptyHandling`/`bindList` work
+      uniformly on both via `Definable`. Full core suite (1003) + all template modules green.
 - [ ] `reconfigure(callback)` → new template.
 - [ ] Encode the thread-confinement boundary in types + javadoc.
 - [ ] **Incremental allocation trims (from the weight-based profile; do opportunistically):**
