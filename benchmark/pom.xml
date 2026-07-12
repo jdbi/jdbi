@@ -101,6 +101,24 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!--
+                        Run the JMH benchmark generator as an explicit annotation processor path.
+                        Since JDK 23, javac no longer runs processors found only on the classpath
+                        (JEP 8341778), so relying on the jmh-generator-annprocess dependency alone
+                        produces no META-INF/BenchmarkList and the benchmarks jar cannot run.
+                    -->
+                    <annotationProcessorPaths combine.children="append">
+                        <path>
+                            <groupId>org.openjdk.jmh</groupId>
+                            <artifactId>jmh-generator-annprocess</artifactId>
+                            <version>${dep.jmh.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
                     <ignoredUnusedDeclaredDependencies>
