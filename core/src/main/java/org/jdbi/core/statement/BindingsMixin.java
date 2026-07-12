@@ -65,7 +65,13 @@ public interface BindingsMixin<This> {
     }
 
     private This define(final String key, final Object value) { throw new UnsupportedOperationException(); }
-    private ConfigRegistry getConfig() { throw new UnsupportedOperationException(); }
+
+    /**
+     * The configuration in effect for this binding. Implementations back this with the statement's
+     * (or template binding's) immutable configuration.
+     */
+    ConfigRegistry getConfig();
+
     Binding getBinding();
 
     /**
