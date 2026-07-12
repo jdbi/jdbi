@@ -52,7 +52,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
 
     private final Map<String, Object> attributes;
     private TemplateEngine templateEngine;
-    private JdbiCache<StatementCacheKey, Function<ConfigRegistry, String>> templateCache;
+    private JdbiCache<StatementCacheKey, Function<RenderContext, String>> templateCache;
     private SqlParser sqlParser;
     private SqlLogger sqlLogger;
     private Integer queryTimeout;
@@ -474,14 +474,14 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         return contextListeners;
     }
 
-    String preparedRender(final String template, final ConfigRegistry config) {
+    String preparedRender(final String template, final RenderContext renderContext) {
         try {
             return Optional.ofNullable(
                             templateCache.getWithLoader(
                                     new StatementCacheKey(templateEngine, template),
-                                    cacheLoaderFunction(config)))
-                    .orElse(cx -> templateEngine.render(template, cx)) // fall-back to old behavior
-                    .apply(config);
+                                    cacheLoaderFunction(renderContext)))
+                    .orElse(rc -> templateEngine.render(template, rc)) // fall-back to old behavior
+                    .apply(renderContext);
         } catch (final IllegalArgumentException e) {
             throw new UnableToCreateStatementException("Exception rendering SQL template", e);
         }
@@ -502,8 +502,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         throw new UnableToExecuteStatementException(e, ctx);
     }
 
-    private static JdbiCacheLoader<StatementCacheKey, Function<ConfigRegistry, String>> cacheLoaderFunction(final ConfigRegistry config) {
-        return key -> key.getTemplateEngine().parse(key.getTemplate(), config).orElse(null);
+    private static JdbiCacheLoader<StatementCacheKey, Function<RenderContext, String>> cacheLoaderFunction(final RenderContext renderContext) {
+        return key -> key.getTemplateEngine().parse(key.getTemplate(), renderContext).orElse(null);
     }
 
     private static final class StatementCacheKey {

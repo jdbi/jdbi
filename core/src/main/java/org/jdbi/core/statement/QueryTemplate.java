@@ -41,7 +41,7 @@ public class QueryTemplate<R> {
 
         final ConfigRegistry config = builder.getConfig();
         final SqlStatements stmtConfig = config.get(SqlStatements.class);
-        this.renderedSql = stmtConfig.preparedRender(builder.getSql(), config);
+        this.renderedSql = stmtConfig.preparedRender(builder.getSql(), RenderContext.of(config));
         // The parser uses the context only for exception reporting; parsing depends solely on the SQL.
         this.parsedSql = stmtConfig.getSqlParser()
             .parse(renderedSql, StatementContext.create(config, null, QueryTemplate.class));

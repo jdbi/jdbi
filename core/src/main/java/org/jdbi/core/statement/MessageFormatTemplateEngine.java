@@ -19,8 +19,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
-import org.jdbi.core.config.ConfigRegistry;
-
 /**
  * Uses the equivalent of {@link MessageFormat#format(String, Object...)} as a template engine.
  *
@@ -48,10 +46,10 @@ public class MessageFormatTemplateEngine implements TemplateEngine {
     public MessageFormatTemplateEngine() {}
 
     @Override
-    public String render(String template, ConfigRegistry config) {
+    public String render(String template, RenderContext renderContext) {
         MessageFormat msgFormat = new MessageFormat(template);
 
-        Map<String, Object> attributes = config.getAttributes();
+        Map<String, Object> attributes = renderContext.getAttributes();
         validateKeys(attributes.keySet(), msgFormat.getFormats().length);
 
         Object[] args = attributes

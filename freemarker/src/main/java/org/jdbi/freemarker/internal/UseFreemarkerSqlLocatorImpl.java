@@ -40,7 +40,7 @@ public class UseFreemarkerSqlLocatorImpl extends SimpleExtensionConfigurer {
             SqlAnnotations.getAnnotationValue(method).orElseGet(method::getName);
 
         this.templateEngine = (templateName, ctx) -> {
-            Template template = findTemplate(ctx.getConfig(FreemarkerConfig.class).getFreemarkerConfiguration(), sqlObjectType, templateName);
+            Template template = findTemplate(ctx.getConfig().get(FreemarkerConfig.class).getFreemarkerConfiguration(), sqlObjectType, templateName);
 
             try (StringWriter writer = new StringWriter()) {
                 template.process(ctx.getAttributes(), writer);

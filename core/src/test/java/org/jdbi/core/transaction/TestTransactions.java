@@ -22,8 +22,8 @@ import java.util.List;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
+import org.jdbi.core.statement.RenderContext;
 import org.jdbi.core.statement.TemplateEngine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -232,7 +232,7 @@ public class TestTransactions {
     static class BoomEngine implements TemplateEngine {
 
         @Override
-        public String render(final String template, final ConfigRegistry config) {
+        public String render(final String template, final RenderContext renderContext) {
             throw new Error("boom");
         }
     }
