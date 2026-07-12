@@ -104,6 +104,16 @@ Inventoried from the actual sources (needs a final review pass, task 2.1):
   `QueryTemplateBinding` is per-execution and thread-confined. `.with(handle)`
   returns a fresh binding per call.
 
+## Sequencing decision (2026-07-12)
+
+The template win is proven (phase 1) with the `JdbiConfig` contract **unchanged** —
+the template snapshots config once at build via the existing `createCopy()`. So the
+`JdbiConfig` immutable-contract redesign (phase 2, ~48 impls, breaking) is not on the
+critical path for the win; it is for the clean API, extending the win to the classic
+path, and cache unwinding. Decision: **do phase 5's SQL Object retargeting next**
+(bank the flagship consumer's win now, low risk, no `JdbiConfig` change), then return
+to phase 2. Phases below are kept in logical order but executed 1 → 5(SQL Object) → 2 → 3 → 4 → rest.
+
 ## Tasklist
 
 ### 1. Baseline & measurement (do first — de-risk before the big rewrite)
@@ -131,6 +141,25 @@ Inventoried from the actual sources (needs a final review pass, task 2.1):
       **~53% less allocation (2.1×), ~2.7× throughput.** This is the minimal slice
       that still re-renders/re-parses per execute; hoisting those (phase 3) lowers
       it further. Confirms the config copy was ~half the per-statement cost. Win is real.
+- [x] Allocation attribution (JFR `ObjectAllocationSample`, standalone
+      `TemplateAllocProfiler`, 3M executions). **Aggregate by summed weight (bytes), not
+      sample count** — a count-based first pass badly overstated the render/cache share
+      (small objects, many samples). Weight-based, post-hoist (3.5 KB/op):
+      - **~1/3: H2 driver** (`VersionedBitSet`, `JdbcResultSet`, `Snapshot`,
+        `ExpressionVisitor`, `JdbcPreparedStatement`) — real query execution under
+        `SqlLoggerUtil.wrap`. The unavoidable floor for in-mem H2; dwarfed by I/O on a
+        real network DB.
+      - Controllable, per-execution jdbi allocation (candidates for further trimming):
+        `ArgumentBinder$ArgumentFactoryLocator` build + lambdas (~12%); `Binding` +
+        its `HashMap`s (~11%); `ResultSetSupplier` closing-context (~7%); `Instant`
+        execution/completion timing (~5%); `SingleColumnMapper` build (~4%);
+        `StatementContext` + cleanables (~4%).
+      No single dominant lever remains — the rest is spread across inherent per-execution
+      objects. Realistic further target is incremental, not ~1 KB/op.
+- [x] Hoist render + parse to build time. Result: **3.8 KB/op → 3.5 KB/op (~9%)**,
+      deterministic. Smaller than the count-based guess predicted (render/parse cache was
+      not the big cost); still correct architecture (render once) and removes per-call
+      `JdbiCache` lookups. The bigger remaining wins are the per-execution objects above.
 
 > **Finding (blocks a same-branch baseline):** the WIP refactor broke the classic
 > runtime path. `BindingsMixin.getConfig()` (core `.../statement/BindingsMixin.java:68`)
@@ -159,18 +188,40 @@ Inventoried from the actual sources (needs a final review pass, task 2.1):
 - [ ] Split defines into a dedicated per-render holder (constant + overlay).
 
 ### 3. Template primitive
-- [ ] Build-time parse + render for the constant-defines fast path.
-- [ ] Real `execute()`: fresh binding/context/statement per call, handle-owned
-      cleanup, nothing retained on the template between executions.
-- [ ] Per-execution defines overlay → re-render path.
+- [x] Real `execute()`: fresh binding/context/statement per call, handle-owned
+      cleanup, nothing retained on the template between executions. (Minimal slice;
+      still renders/parses per call — see hoisting below.)
+- [x] Hoist render + parse to build time. `QueryTemplate` renders and parses once in
+      its constructor and stores `renderedSql` + `ParsedSql`; `QueryTemplateBinding`
+      reuses them and no longer calls `preparedRender`/`getSqlParser().parse` per execute.
+      ~9% allocation drop (see phase 1).
+- [ ] Per-execution defines overlay → re-render path (only when defines are overridden;
+      constant-defines path uses the hoisted render/parse above).
 - [ ] `reconfigure(callback)` → new template.
 - [ ] Encode the thread-confinement boundary in types + javadoc.
+- [ ] **Incremental allocation trims (from the weight-based profile; do opportunistically):**
+      - Hoist argument-factory / mapper resolution to build time where the parameter and
+        result types are known (`ArgumentFactoryLocator` ~12%, `SingleColumnMapper` ~4%
+        are rebuilt every execute).
+      - Lighter `Binding` for a small number of parameters (avoid a full `HashMap`
+        per execute; ~11%).
+      - Avoid per-execute `Instant` timing allocation when no telemetry/logger observes it
+        (~5%).
+      - Trim `ResultSetSupplier` closing-context machinery (~7%).
+      None is a large lever; the H2 driver (~1/3) is the practical floor for in-mem.
 
 ### 4. Cache unwinding
 - [ ] Memoize resolution on the immutable config instance (eager at build).
 - [ ] Remove the config-entangled global caches.
 - [ ] Decide whether to keep a single pure `SQL → parsed-fn` cache for classic
       one-shot use; if not, remove it too.
+- [ ] **`JdbiCache.getWithLoader` is allocation-heavy per lookup** — the allocation
+      profile showed `TreeMap`/`KeySet`/`KeyIterator`/`HashMap$Node` churn *inside*
+      each cache access, plus callers (`preparedRender`) build a fresh loader lambda
+      and `StatementCacheKey` on every call even on a hit. This taxes the classic path
+      too (templates bypass it once render is hoisted). Investigate the default cache
+      impl (`DefaultJdbiCacheBuilder`) and the loader-per-call pattern; make hits
+      allocation-free.
 
 ### 5. Unify the APIs
 - [ ] Reimplement `Handle.createQuery`/`createUpdate`/… on the primitive.
@@ -180,5 +231,10 @@ Inventoried from the actual sources (needs a final review pass, task 2.1):
 ### 6. Finish
 - [ ] Tests: reuse across handles and threads, binding, constant + dynamic defines,
       `reconfigure`, cleanup/resource lifecycle, error paths.
+- [ ] Javadoc edit pass. **Convention: javadoc describes how things are *now*.** Do not
+      compare to or reference the older (to-be-deleted) jdbi3 behavior, and avoid framing
+      like "unlike before" / "previously this copied config". Describe the current API and
+      its behavior directly. (Applies to the new `QueryTemplate*` types — trim the
+      comparative "avoids what the classic path pays" phrasing to a plain description.)
 - [ ] Fold this document's content into javadoc + user guide.
 - [ ] Delete this file.
