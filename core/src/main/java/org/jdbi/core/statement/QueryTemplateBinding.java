@@ -16,6 +16,8 @@ package org.jdbi.core.statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
@@ -25,9 +27,10 @@ import org.jdbi.core.result.UnableToProduceResultException;
 
 /**
  * A single, thread-confined execution of a {@link QueryTemplate} against a specific {@link Handle}.
- * Obtained from {@link QueryTemplate#with(Handle)}. Bind parameters, then call {@link #execute()}.
- * The template's configuration and pre-parsed SQL are shared read-only; only per-execution state
- * (bindings, the statement context, the JDBC statement) lives here.
+ * Obtained from {@link QueryTemplate#with(Handle)}. Bind parameters (and optionally override defined
+ * attributes with {@link #define}), then call {@link #execute()}. The template's configuration and
+ * pre-parsed SQL are shared read-only; only per-execution state (bindings, defines, the statement
+ * context, the JDBC statement) lives here.
  */
 public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBinding<R>> {
     private final Handle handle;
@@ -35,20 +38,21 @@ public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBindi
     private final Binding binding;
     private final String sql;
     private final ConfigRegistry config;
+    private final String renderedSql;
     private final ParsedSql parsedSql;
     private final ResultSetScanner<ResultIterable<R>> scanner;
+    private final Map<String, Object> defines = new HashMap<>();
 
     QueryTemplateBinding(final Handle handle, final QueryTemplate<R> template) {
         this.handle = handle;
         this.sql = template.builder.getSql();
         this.config = template.builder.getConfig();
+        this.renderedSql = template.renderedSql;
         this.parsedSql = template.parsedSql;
         this.scanner = template.scanner;
         this.ctx = StatementContext.create(config, handle.getExtensionMethod(), getClass())
             .setConnection(handle.getConnection())
             .setRawSql(sql);
-        ctx.setRenderedSql(template.renderedSql);
-        ctx.setParsedSql(parsedSql);
         this.binding = new Binding(ctx);
     }
 
@@ -60,6 +64,21 @@ public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBindi
     @Override
     public ConfigRegistry getConfig() {
         return config;
+    }
+
+    /**
+     * Overrides a defined attribute for this execution only. The template's configuration is not
+     * affected. Defining any attribute causes the SQL to be re-rendered for this execution instead
+     * of reusing the template's pre-rendered SQL.
+     *
+     * @param key   the attribute name
+     * @param value the attribute value
+     * @return this
+     */
+    @Override
+    public QueryTemplateBinding<R> define(final String key, final Object value) {
+        defines.put(key, value);
+        return this;
     }
 
     @Override
@@ -90,17 +109,29 @@ public class QueryTemplateBinding<R> implements BindingsMixin<QueryTemplateBindi
     }
 
     private ResultSet executeStatement() {
-        // The SQL was rendered and parsed once when the template was built; only binding and
-        // execution happen per call.
         final SqlStatements stmtConfig = config.get(SqlStatements.class);
+
+        // Constant-defines fast path: reuse the SQL rendered and parsed once at template build time.
+        // If this execution overrode any define, re-render and re-parse with the overlay applied.
+        final ParsedSql effectiveParsedSql;
+        if (defines.isEmpty()) {
+            ctx.setRenderedSql(renderedSql);
+            effectiveParsedSql = parsedSql;
+        } else {
+            final String rendered = stmtConfig.preparedRender(sql, new RenderContext(config, defines));
+            ctx.setRenderedSql(rendered);
+            effectiveParsedSql = stmtConfig.getSqlParser().parse(rendered, ctx);
+        }
+        ctx.setParsedSql(effectiveParsedSql);
+
         try {
             final PreparedStatement stmt = handle.getStatementBuilder()
-                .create(handle.getConnection(), parsedSql.getSql(), ctx);
+                .create(handle.getConnection(), effectiveParsedSql.getSql(), ctx);
             ctx.addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), sql, stmt));
             stmtConfig.customize(stmt);
             ctx.setStatement(stmt);
 
-            new ArgumentBinder(stmt, ctx, parsedSql.getParameters()).bind(binding);
+            new ArgumentBinder(stmt, ctx, effectiveParsedSql.getParameters()).bind(binding);
 
             SqlLoggerUtil.wrap(stmt::execute, ctx, stmtConfig.getSqlLogger());
 

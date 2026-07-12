@@ -99,6 +99,13 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return typedThis;
     }
 
+    // Disambiguates the identically-signed define() inherited from Configurable (default) and
+    // BindingsMixin (abstract). Classic statements store defines in their configuration.
+    @Override
+    public This define(final String key, final Object value) {
+        return configure(SqlStatements.class, c -> c.define(key, value));
+    }
+
     @Override
     @SafeVarargs
     public final <T> This bindArray(final int pos, final T... array) {
