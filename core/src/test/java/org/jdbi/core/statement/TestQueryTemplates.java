@@ -119,6 +119,24 @@ public class TestQueryTemplates {
     }
 
     @Test
+    public void testPerExecutionMaxRows() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.prepareBatch("insert into something (id, name) values (?, ?)")
+            .add(1, "eric")
+            .add(2, "brian")
+            .add(3, "keith")
+            .execute();
+
+        final var queryTemplate = h.getJdbi().buildQueryTemplate("select name from something order by id");
+
+        // The customizer is recorded on the binding, so it caps only this execution...
+        assertThat(queryTemplate.with(h).setMaxRows(1).mapTo(String.class).list()).containsExactly("eric");
+        // ...and does not leak into the shared template: the next execution sees every row.
+        assertThat(queryTemplate.with(h).mapTo(String.class).list()).containsExactly("eric", "brian", "keith");
+    }
+
+    @Test
     public void testReduceRows() {
         final Handle h = h2Extension.getSharedHandle();
 
