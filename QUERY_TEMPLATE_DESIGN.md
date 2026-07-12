@@ -129,64 +129,81 @@ needed — one obvious way to do each thing, no leaked internals. Two open quest
       constructor. Resolve alongside the SQL Object retarget (step 3), when the second
       caller's construction path is actually designed.
 
-## HANDOFF (2026-07-12): row reducers force a result-model change — START HERE
+## HANDOFF (2026-07-12, end of day): phase 5 SQL Object retarget — START HERE
 
-**Read this first if picking up fresh.** Everything below in "Sequencing" and the phase
-tasklist is still valid; this section is the live front.
+**Read this first if picking up fresh.** The row-reducer result-model change is DONE; the
+live front is the SQL Object retarget (phase 5 unify). Decision made with the maintainer:
+**do the full refactor** (option #1 below) — breaking the public customizer SPI is
+sanctioned for v4. Implement it next session.
 
 ### State (all committed on branch `query-templates`, all green)
-Recent commits (newest last): `bd0e56a2` hoist render/parse · `55c5471` TemplateEngine→
-RenderContext · `9c146cd` wire define() · `2773934` Definable/EmptyHandling ·
-`36783ee5` docs. Verified: **core 1003 tests / 0 failures**; sqlobject, commons-text,
-freemarker, stringtemplate4 suites all pass. Full reactor `test-compile` clean.
-Build notes: JDK 26 env, local repo `/var/cache/maven-repository`, run
-`mvn ... -Dbasepom.check.skip-all=true`; benchmark APT fixed in `benchmark/pom.xml`.
-Template benchmark: classic ~8.2 KB/op vs template ~3.5 KB/op.
+Commits this session (newest last): `d0a0fc90` binding is a `ResultBearing` · `027544dd`
+per-execution customizer surface · `8df58eb` blocker analysis docs. Earlier: `bd0e56a2`
+hoist render/parse · `55c5471` TemplateEngine→RenderContext · `9c146cd` wire define() ·
+`2773934` Definable/EmptyHandling.
 
-### The problem
-`RowReducer<C,R>` (`core/.../result/RowReducer.java`) folds rows into a container and
-emits a **`Stream<R>`**, via `ResultScannable.reduceRows` (`core/.../result/ResultScannable.java:39`).
-But `QueryTemplate<R>` hardwires `scanner: ResultSetScanner<ResultIterable<R>>` and bakes
-the mapping at build time (`buildQueryTemplate(sql).mapToBean(X)`), so it can only ever
-yield a `ResultIterable<R>`. Reducers, collectors, `stream`, and `execute(ResultProducer)`
-do not fit. SQL Object's `@UseRowReducer` (`SqlQueryHandler.configureReturner`) calls
-`query.reduceRows(...)`, so the retarget cannot proceed without solving this.
+- **Step 1 DONE** (`d0a0fc90`): `QueryTemplateBinding implements ResultBearing` via the
+  single `scanResultSet` primitive → `mapTo`/`map`/`reduceRows`/`collectInto`/`stream` all
+  work per-execution, identically to `Query`. `QueryTemplate` is non-generic (SQL + config
+  snapshot + hoisted rendered SQL + `ParsedSql`); `Jdbi.buildQueryTemplate` returns it.
+  `QueryTemplateBuilder`/`QueryTemplateBuilderImpl` and the baked scanner are deleted.
+- **Step 2 DONE** (`027544dd`): binding has `setFetchSize`/`setMaxRows`/`setMaxFieldSize`/
+  `setQueryTimeout`/`addCustomizer`/`getContext`, records customizers binding-locally (not
+  in the shared config), and invokes the `beforeTemplating`/`beforeBinding`/`beforeExecution`/
+  `afterExecution` hooks — which the template path had never invoked (latent bug, now fixed).
 
-### The insight (this is the design)
-`ResultScannable` has ONE primitive: `<R> R scanResultSet(ResultSetScanner<R>)`. Every
-result operation — `mapTo`/`map`/`mapToBean`/`mapToMap`/`reduceRows`/`collectInto`/
-`stream`/`list`/`one` — is a **default method on top of it** (`ResultScannable` +
-`ResultBearing extends ResultScannable`). `Query` implements exactly `scanResultSet`
-(`Query.java:53`: `execute(returningResults()).scanResultSet(scanner)`) and gets all of it.
+Verified: **core 1006 tests / 0 failures**; benchmark compiles (`.with(h).mapTo(String).one()`).
+Build notes: JDK 26 env, local repo `/var/cache/maven-repository`; validate with
+`mvn clean verify -pl core -Dbasepom.check.skip-all=true` (must include `clean` — a no-clean
+run collides on a duplicate antlr `MANIFEST.MF` in the inline plugin). **Pre-existing PMD
+debt** on this branch (8 violations in unrelated files — `Definable`, `QueryCustomizerMixin`,
+`SqlStatements`, `MapArguments`, etc.) surfaces if you drop `-Dbasepom.check.skip-all=true`;
+it predates this session's work (prior sessions always skipped checks) and is not from the
+step 1/2 changes. Clean it up in a separate pass; don't fold it into the retarget commit.
 
-**Decision: `QueryTemplateBinding` should implement `ResultBearing` (i.e. implement
-`scanResultSet`), not bake a single scanner at build.** Then reducers, collectors,
-streams, and `execute(ResultProducer)` all work for free, identically to `Query`.
+### The plan for next session (ordered, mirrors the recommended design below)
+1. **Introduce `Customizable`** (new interface, `org.jdbi.core.statement`). It is the
+   customizer-facing surface: extends `BindingsMixin<This>` (→ `bind*`, `define*`,
+   `getConfig`) and adds the tail customizers actually use: `StatementContext getContext()`,
+   `This addCustomizer(StatementCustomizer)`, `This setQueryTimeout(int)`,
+   `This attachToHandleForCleanup()`. (Self-typed `<This>`; SPI methods take `Customizable<?>`.)
+2. **`SqlStatement implements Customizable<This>`** — it already has every method (verify:
+   `getContext`/`attachToHandleForCleanup` on `BaseStatement`, `setQueryTimeout`/`addCustomizer`
+   already present). Likely zero body changes, just the `implements` clause.
+3. **`QueryTemplateBinding implements Customizable<QueryTemplateBinding>`** — it has all but
+   `attachToHandleForCleanup`; add an analog (register the ctx/statement for cleanup when the
+   handle closes; see `BaseStatement.attachToHandleForCleanup` at `BaseStatement.java:72`).
+4. **Retype the two public SPI methods** `SqlStatementCustomizer.apply(Customizable<?>)` and
+   `SqlStatementParameterCustomizer.apply(Customizable<?>, Object)`. Fix the **8** explicit
+   `apply(SqlStatement…)` signatures repo-wide (5 in sqlobject; grep
+   `apply(SqlStatement\|apply(final SqlStatement`). Lambdas re-infer for free.
+5. **Widen `CustomizingStatementHandler`** — generic bound
+   `<StatementType extends SqlStatement<StatementType>>` → `<StatementType extends Customizable<StatementType>>`
+   and `BoundCustomizer.apply(SqlStatement<?>, …)` → `Customizable<?>`. All four handlers
+   (Query/Update/Batch/Call) still satisfy it since `SqlStatement implements Customizable`.
+6. **Move per-invocation `args`/`returner` off `SqlObjectStatementConfiguration`.** Today
+   `attachTo` does `stmt.getConfig(SqlObjectStatementConfiguration.class).setArgs(args)` +
+   `.setReturner(...)` + `.getReturner().get()`. This mutates config — safe only with a
+   per-statement config copy, unsafe under a shared template snapshot. Move `args`/`returner`
+   into per-call state (e.g. fields on the created statement/binding, or a small per-call
+   holder threaded through `attachTo`). Note: `ResultReturner.ConsumerResultReturner`/
+   `FunctionResultReturner.findConsumer/findFunction` read args via
+   `ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()` — update those read sites too.
+7. **Retarget `SqlQueryHandler`**: build one `QueryTemplate` per method (at `attachTo`/warm
+   time, from the method's config), and `createStatement` returns a fresh
+   `template.with(handle)` binding per call. `configureReturner` already only needs
+   `mapTo`/`map`/`reduceRows` on the binding (it's a `ResultBearing`) → `ResultReturner`
+   reused unchanged. Do `SqlUpdateHandler` etc. only if in scope; Query first.
+8. **Resolve the two [Open API-surface decisions](#open-api-surface-decisions)** while here
+   (rename `buildQueryTemplate`→`buildQuery`; `QueryTemplate` constructor visibility).
+9. **Validate**: full `core` + `sqlobject` suites green; then benchmark SQL Object
+   before/after and record numbers in phase 5.
 
-### Target API shape
-- `jdbi.buildQueryTemplate(sql)` → a `QueryTemplate` holding SQL + snapshotted config +
-  the **hoisted rendered SQL + `ParsedSql`** (keep the build-time hoist — it's the perf win).
-- `template.with(handle)` → `QueryTemplateBinding implements ResultBearing` (and the
-  binding/define/query-customizer mixins).
-- Apply the result operation **per execution**, like `Query`:
-  `template.with(h).bind("id", 1).mapToBean(X.class).list()` or
-  `.with(h).reduceRows(reducer)` or `.with(h).mapTo(X).collect(...)`.
-- The current build-time `mapToBean`/`mapTo` on `QueryTemplateBuilder` becomes either
-  optional sugar or is dropped in favor of the per-execution `ResultBearing` ops. (Decide;
-  dropping is simpler and matches `Query`. `TestQueryTemplates` will need updating either way.)
+Risk: this is all-handlers-at-once (shared base) and a breaking public SPI. Expect it to
+touch ~15-20 files. If it doesn't converge cleanly, land steps 1-3 (the non-breaking
+`Customizable` extraction) first, then the SPI retype separately.
 
-### How to implement (mirror `Query`)
-`QueryTemplateBinding` should implement `scanResultSet(ResultSetScanner<R>)` by running the
-pre-parsed statement and feeding the `ResultSet` to the scanner — this is exactly the body
-of today's `executeStatement()` (render/parse hoist + defines-overlay re-render + bind +
-execute), with the final step handing `(resultSetSupplier, ctx)` to the passed scanner
-instead of a fixed one. Consider implementing `QueryExecute.execute(ResultProducer)` too
-(as `Query` does) and defining `scanResultSet` in terms of it, so `QueryTemplateBinding`
-and `Query` converge on shared execution machinery (this is the eventual unification).
-Preserve: build-time render/parse hoist; per-execution defines overlay (`define()` →
-re-render); `Definable`/`EmptyHandling`.
-
-### Related piece still needed for the SQL Object retarget
+### Related piece for the SQL Object retarget (DONE)
 Query customizers (`@FetchSize`, `@MaxRows`, …) call `QueryCustomizerMixin` methods not on
 the binding. Add that surface to `QueryTemplateBinding` (apply as statement-state at
 execute time). **DONE (commit `027544dd`)** — the binding now has
@@ -239,22 +256,9 @@ warm time) and returns a fresh binding per call. This is the core of phase 5 (un
 executing across the module.
 
 ### Suggested order for the fresh session
-1. [x] **Done.** `QueryTemplateBinding implements ResultBearing` — `scanResultSet` is the
-   single primitive (the old `executeStatement` body), so `mapTo`/`map`/`reduceRows`/
-   `collectInto`/`stream` all come for free, exactly as `Query`. `QueryTemplate` is now
-   non-generic (SQL + config snapshot + hoisted rendered SQL + `ParsedSql`); the baked
-   scanner and the `QueryTemplateBuilder`/`QueryTemplateBuilderImpl` types were deleted.
-   `Jdbi.buildQueryTemplate` returns `QueryTemplate`. Result ops apply per execution:
-   `template.with(h).bind(...).mapToBean(X).list()`, `.with(h).reduceRows(...)`, etc.
-   `TestQueryTemplates` migrated to the per-execution style; added `testReuseAcrossExecutions`
-   and `testReduceRows`. Core suite **1005/0**; benchmark updated (`.with(h).mapTo(String).one()`)
-   and compiles. Hoist + defines overlay preserved.
-2. Add the query-customizer surface (`@FetchSize`/`@MaxRows`/`setMaxFieldSize`) to the
-   binding, applied as statement state at execute time.
-3. Retarget `SqlQueryHandler` onto the template (build once per method; bind + apply
-   returner op per call). Then `SqlUpdateHandler` etc. Resolve the two
-   [Open API-surface decisions](#open-api-surface-decisions) here.
-4. Benchmark SQL Object before/after; then return to phase 2 (immutable `JdbiConfig`).
+Steps 1 and 2 are DONE (see "State" above). The next-session plan is
+"### The plan for next session" near the top of this HANDOFF (the phase 5 retarget);
+after it, benchmark SQL Object before/after, then return to phase 2 (immutable `JdbiConfig`).
 
 ## Sequencing decision (2026-07-12)
 
@@ -385,8 +389,12 @@ to phase 2. Phases below are kept in logical order but executed 1 → 5(SQL Obje
       allocation-free.
 
 ### 5. Unify the APIs
+- [ ] **NEXT (planned, green-lit):** Retarget SQL Object onto the template — the full
+      breaking refactor. Detailed step-by-step in the HANDOFF "### The plan for next session";
+      blocker analysis in "### SQL Object retarget — precise blocker analysis". Introduce
+      `Customizable`, retype the customizer SPI + handler base, move `args`/`returner` off
+      `SqlObjectStatementConfiguration`, then `SqlQueryHandler` builds one template per method.
 - [ ] Reimplement `Handle.createQuery`/`createUpdate`/… on the primitive.
-- [ ] Retarget SQL Object: one template per method, bind + execute per call.
 - [ ] Re-run the benchmark for SQL Object, before vs after. Record numbers here.
 
 ### 6. Finish
