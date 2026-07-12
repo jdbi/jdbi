@@ -58,21 +58,11 @@ import static org.jdbi.core.generic.GenericTypes.arrayType;
 import static org.jdbi.core.generic.GenericTypes.parameterizeClass;
 
 @SuppressWarnings("deprecation")
-public interface BindingsMixin<This> {
+public interface BindingsMixin<This> extends Definable<This> {
     @SuppressWarnings("unchecked")
     private This typedThis() {
         return (This) this;
     }
-
-    /**
-     * Defines an attribute for use by the statement's template engine. Implementations store this
-     * as statement (or per-execution) state; it does not mutate shared configuration.
-     *
-     * @param key   the attribute name
-     * @param value the attribute value
-     * @return this
-     */
-    This define(String key, Object value);
 
     /**
      * The configuration in effect for this binding. Implementations back this with the statement's
@@ -1402,7 +1392,7 @@ public interface BindingsMixin<This> {
      * @see EmptyHandling
      * @see #bindList(BiConsumer, String, List)
      */
-    default This bindList(final BiConsumer<SqlStatement<?>, String> onEmpty, final String key, final Object... values) {
+    default This bindList(final BiConsumer<Definable<?>, String> onEmpty, final String key, final Object... values) {
         return bindList(onEmpty, key, values == null ? null : Arrays.asList(values));
     }
 
@@ -1430,7 +1420,7 @@ public interface BindingsMixin<This> {
      * @see EmptyHandling
      * @see #bindList(BiConsumer, String, List)
      */
-    default This bindList(final BiConsumer<SqlStatement<?>, String> onEmpty, final String key, final Iterable<?> values) {
+    default This bindList(final BiConsumer<Definable<?>, String> onEmpty, final String key, final Iterable<?> values) {
         return bindList(onEmpty, key, values == null ? null : IterableLike.toList(values));
     }
 
@@ -1458,7 +1448,7 @@ public interface BindingsMixin<This> {
      * @see EmptyHandling
      * @see #bindList(BiConsumer, String, List)
      */
-    default This bindList(final BiConsumer<This, String> onEmpty, final String key, final Iterator<?> values) {
+    default This bindList(final BiConsumer<Definable<?>, String> onEmpty, final String key, final Iterator<?> values) {
         return bindList(onEmpty, key, values == null ? null : IterableLike.toList(values));
     }
 
@@ -1495,9 +1485,9 @@ public interface BindingsMixin<This> {
      * @throws IllegalArgumentException if the list is empty.
      * @see EmptyHandling
      */
-    default This bindList(final BiConsumer<This, String> onEmpty, final String key, final List<?> values) {
+    default This bindList(final BiConsumer<Definable<?>, String> onEmpty, final String key, final List<?> values) {
         if (values == null || values.isEmpty()) {
-            onEmpty.accept(typedThis(), key);
+            onEmpty.accept(this, key);
             return typedThis();
         }
 
