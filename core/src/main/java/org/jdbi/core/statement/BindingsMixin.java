@@ -64,7 +64,15 @@ public interface BindingsMixin<This> {
         return (This) this;
     }
 
-    private This define(final String key, final Object value) { throw new UnsupportedOperationException(); }
+    /**
+     * Defines an attribute for use by the statement's template engine. Implementations store this
+     * as statement (or per-execution) state; it does not mutate shared configuration.
+     *
+     * @param key   the attribute name
+     * @param value the attribute value
+     * @return this
+     */
+    This define(String key, Object value);
 
     /**
      * The configuration in effect for this binding. Implementations back this with the statement's
