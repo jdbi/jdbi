@@ -189,9 +189,54 @@ re-render); `Definable`/`EmptyHandling`.
 ### Related piece still needed for the SQL Object retarget
 Query customizers (`@FetchSize`, `@MaxRows`, …) call `QueryCustomizerMixin` methods not on
 the binding. Add that surface to `QueryTemplateBinding` (apply as statement-state at
-execute time). After the `ResultBearing` change + this, the retarget (build one template
-per `@SqlQuery` method; per call bind params/defines/customizers and apply the returner's
-op — `mapTo` or `reduceRows` — on the binding) is straightforward.
+execute time). **DONE (commit `027544dd`)** — the binding now has
+`setFetchSize`/`setMaxRows`/`setMaxFieldSize`/`setQueryTimeout`/`addCustomizer`/`getContext`,
+records customizers locally (not in the shared config), and invokes the
+`beforeTemplating`/`beforeBinding`/`beforeExecution`/`afterExecution` hooks (which the
+template path had never invoked — a latent bug).
+
+### SQL Object retarget — precise blocker analysis (2026-07-12)
+`ResultReturner` is already decoupled: it consumes a `ResultIterable<?>` / `Stream<?>` /
+`StatementContext`, all of which `QueryTemplateBinding` produces (it's a `ResultBearing`).
+So the returner side is a non-issue. The entire remaining coupling to `SqlStatement` is
+**two interlocking things**, and they cannot be split apart because all four statement
+handlers share one base:
+
+1. **The public customizer SPI is hard-typed to the concrete `SqlStatement<?>`.**
+   `SqlStatementCustomizer.apply(SqlStatement<?>)` and
+   `SqlStatementParameterCustomizer.apply(SqlStatement<?>, Object)` (both public, both
+   implemented by external users) pass the statement to arbitrary customizers. The default
+   `@Bind` customizer (`BindFactory`) calls `stmt.getConfig()` + `stmt.bindByType(...)` —
+   all on `BindingsMixin`, which the binding has. The full method surface customizers use is
+   `bind*`/`define*`/`getConfig` (BindingsMixin) plus a small tail: `getContext` (×1),
+   `setQueryTimeout` (×2), `attachToHandleForCleanup` (×1). Only **8** explicit
+   `apply(SqlStatement…)` signatures exist repo-wide (5 in sqlobject) — lambdas re-infer
+   for free. So a shared `Customizable` interface (a supertype of both `SqlStatement` and
+   `QueryTemplateBinding`, carrying that surface) + retyping the two SPI methods is
+   mechanically small, but it is a **breaking change to a widely-implemented public SPI**.
+2. **`CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>>` is
+   shared** by `SqlQueryHandler`, `SqlUpdateHandler`, `SqlBatchHandler`, `SqlCallHandler`.
+   The generic bound and `BoundCustomizer.apply(SqlStatement<?>, …)` must widen to
+   `Customizable` for even one handler to target the binding. That is an all-handlers-at-once
+   change, not a per-handler one.
+3. **`SqlObjectStatementConfiguration` stores per-invocation state (`args`, `returner`) in
+   config.** `attachTo` does `stmt.getConfig(SqlObjectStatementConfiguration.class).setArgs(args)`
+   then `.setReturner(...)` then `.getReturner().get()`. That is per-statement-safe today only
+   because each classic statement owns a config *copy*. A template binding shares an immutable
+   config snapshot, so this per-invocation state must move off config (onto the binding / a
+   per-call object) before the retarget is thread-safe. This is the same "state in config"
+   anti-pattern the whole redesign removes.
+
+Recommended design (when green-lit): introduce `Customizable` (supertype carrying
+`bind*`/`define*`/`getConfig`/`getContext`/`addCustomizer`/`setQueryTimeout`/
+`attachToHandleForCleanup`); `SqlStatement implements Customizable` (it already has every
+method); ensure `QueryTemplateBinding` implements it (add an `attachToHandleForCleanup`
+analog); retype both SPI methods and the handler base to `Customizable`; move
+`args`/`returner` out of `SqlObjectStatementConfiguration` into per-call state; then
+`SqlQueryHandler.createStatement` builds one `QueryTemplate` per method (at `attachTo` /
+warm time) and returns a fresh binding per call. This is the core of phase 5 (unify) and is
+**breaking + interconnected** — it is the natural stopping point for a checkpoint before
+executing across the module.
 
 ### Suggested order for the fresh session
 1. [x] **Done.** `QueryTemplateBinding implements ResultBearing` — `scanResultSet` is the
