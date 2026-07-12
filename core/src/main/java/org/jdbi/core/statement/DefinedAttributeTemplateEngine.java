@@ -21,7 +21,6 @@ import java.util.function.Function;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.lexer.DefineStatementLexer;
 import org.jdbi.core.statement.internal.ErrorListener;
 
@@ -41,9 +40,9 @@ import static org.jdbi.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
  */
 public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
     @Override
-    public Optional<Function<ConfigRegistry, String>> parse(final String template, final ConfigRegistry config) {
+    public Optional<Function<RenderContext, String>> parse(final String template, final RenderContext renderContext) {
         final StringBuilder buf = new StringBuilder();
-        final List<BiConsumer<ConfigRegistry, StringBuilder>> preparation = new ArrayList<>();
+        final List<BiConsumer<RenderContext, StringBuilder>> preparation = new ArrayList<>();
         final Runnable pushBuf = () -> {
             if (buf.length() > 0) {
                 final String bit = buf.toString();

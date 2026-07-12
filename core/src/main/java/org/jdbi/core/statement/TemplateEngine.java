@@ -16,8 +16,6 @@ package org.jdbi.core.statement;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
-
 /**
  * Renders an SQL statement from a template.
  * <p>
@@ -35,25 +33,23 @@ public interface TemplateEngine {
     TemplateEngine NOP = new NoTemplateEngine();
 
     /**
-     * Renders an SQL statement from the given template, using the statement
-     * context as needed.
+     * Renders an SQL statement from the given template, using the render context as needed.
      *
-     * @param template The SQL to rewrite
-     * @param ctx      The statement context for the statement being executed
-     * @return something which can provide the actual SQL to prepare a statement from
-     * and which can bind the correct arguments to that prepared statement
+     * @param template      The SQL to rewrite
+     * @param renderContext The configuration and defined attributes in effect for this rendering
+     * @return the rendered SQL, ready to have named parameters parsed out and arguments bound
      */
-    String render(String template, ConfigRegistry config);
+    String render(String template, RenderContext renderContext);
 
     /**
-     * Parse a SQL template and return a parsed representation ready to apply to a statement.
+     * Parse a SQL template and return a parsed representation ready to apply to a render context.
      * This allows the parsed representation to be cached and reused.
      *
-     * @param template the sql template to parse
-     * @param config   the Jdbi configuration at prepare time
+     * @param template      the sql template to parse
+     * @param renderContext the render context at prepare time
      * @return a parsed representation, if available
      */
-    default Optional<Function<ConfigRegistry, String>> parse(final String template, final ConfigRegistry config) {
+    default Optional<Function<RenderContext, String>> parse(final String template, final RenderContext renderContext) {
         return Optional.empty();
     }
 
@@ -61,13 +57,13 @@ public interface TemplateEngine {
     interface Parsing extends TemplateEngine {
 
         @Override
-        default String render(final String template, final ConfigRegistry config) {
-            return parse(template, config)
+        default String render(final String template, final RenderContext renderContext) {
+            return parse(template, renderContext)
                 .orElseThrow(() -> new UnableToCreateStatementException("Caching template engine did not prepare"))
-                .apply(config);
+                .apply(renderContext);
         }
 
         @Override
-        Optional<Function<ConfigRegistry, String>> parse(String template, ConfigRegistry config);
+        Optional<Function<RenderContext, String>> parse(String template, RenderContext renderContext);
     }
 }

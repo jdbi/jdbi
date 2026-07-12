@@ -21,7 +21,7 @@ import java.util.function.Function;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.statement.RenderContext;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.TemplateEngine;
 
@@ -43,10 +43,10 @@ public class FreemarkerEngine implements TemplateEngine.Parsing {
     }
 
     @Override
-    public Optional<Function<ConfigRegistry, String>> parse(String sqlTemplate, ConfigRegistry config) {
+    public Optional<Function<RenderContext, String>> parse(String sqlTemplate, RenderContext renderContext) {
         try {
             Template template = new Template(null, sqlTemplate,
-                    config.get(FreemarkerConfig.class).getFreemarkerConfiguration());
+                    renderContext.getConfig().get(FreemarkerConfig.class).getFreemarkerConfiguration());
             return Optional.of(ctx -> {
                 try {
                     StringWriter writer = new StringWriter();

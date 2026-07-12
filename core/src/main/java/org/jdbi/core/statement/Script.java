@@ -69,7 +69,7 @@ public class Script extends SqlStatement<Script> {
      */
     public List<String> getStatements() {
         var templateEngine = getConfig(SqlStatements.class).getTemplateEngine();
-        return splitToStatements(templateEngine.render(getSql(), getConfig()));
+        return splitToStatements(templateEngine.render(getSql(), RenderContext.of(getConfig())));
     }
 
     private List<String> splitToStatements(String script) {

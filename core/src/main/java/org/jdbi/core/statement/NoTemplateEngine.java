@@ -13,14 +13,12 @@
  */
 package org.jdbi.core.statement;
 
-import org.jdbi.core.config.ConfigRegistry;
-
 /**
  * A TemplateEngine that does not do any templating but returns SQL verbatim.
  */
 public class NoTemplateEngine implements TemplateEngine {
     @Override
-    public String render(final String template, final ConfigRegistry config) {
+    public String render(final String template, final RenderContext renderContext) {
         return template;
     }
 }

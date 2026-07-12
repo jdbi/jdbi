@@ -179,7 +179,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         final StatementContext ctx = getContext();
         final SqlStatements statements = getConfig(SqlStatements.class);
 
-        final String renderedSql = statements.preparedRender(sql, ctx.getConfig());
+        final String renderedSql = statements.preparedRender(sql, RenderContext.of(ctx.getConfig()));
         ctx.setRenderedSql(renderedSql);
 
         final ParsedSql parsedSql = statements.getSqlParser().parse(renderedSql, ctx);

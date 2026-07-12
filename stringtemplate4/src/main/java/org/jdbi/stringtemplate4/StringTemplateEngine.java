@@ -13,6 +13,7 @@
  */
 package org.jdbi.stringtemplate4;
 
+import org.jdbi.core.statement.RenderContext;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.TemplateEngine;
 import org.jdbi.core.statement.UnableToCreateStatementException;
@@ -29,12 +30,12 @@ import org.stringtemplate.v4.misc.STMessage;
  */
 public class StringTemplateEngine implements TemplateEngine {
     @Override
-    public String render(String sql, ConfigRegistry config) {
+    public String render(String sql, RenderContext renderContext) {
         STGroup group = new STGroup();
-        group.setListener(new ErrorListener(config));
+        group.setListener(new ErrorListener(renderContext.getConfig()));
         ST template = new ST(group, sql);
 
-        config.getAttributes().forEach(template::add);
+        renderContext.getAttributes().forEach(template::add);
 
         return template.render();
     }
