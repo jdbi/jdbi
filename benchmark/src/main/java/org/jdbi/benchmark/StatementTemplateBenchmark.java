@@ -52,7 +52,7 @@ public class StatementTemplateBenchmark {
     private Jdbi jdbi;
     private Handle handle;
     private long rowOne;
-    private StatementTemplate<String> template;
+    private StatementTemplate template;
 
     @Setup(Level.Trial)
     public void setup() {
@@ -62,7 +62,7 @@ public class StatementTemplateBenchmark {
         handle.execute("insert into tbl (id, name) values (1, 'eric')");
         rowOne = 1L;
         // Built once; reused across every benchmark invocation.
-        template = jdbi.buildStatementTemplate(SELECT).mapTo(String.class);
+        template = jdbi.buildStatementTemplate(SELECT);
     }
 
     @TearDown(Level.Trial)
@@ -82,7 +82,7 @@ public class StatementTemplateBenchmark {
     public String template() {
         return template.with(handle)
             .bind("id", rowOne)
-            .execute()
+            .mapTo(String.class)
             .one();
     }
 }
