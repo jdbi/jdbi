@@ -14,16 +14,18 @@
 package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.config.cache.JdbiConfigCache;
+import org.jdbi.v3.core.config.cache.JdbiConfigCacheStats;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.interceptor.JdbiInterceptionChainHolder;
-import org.jdbi.v3.core.internal.CopyOnWriteHashMap;
 import org.jdbi.v3.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.meta.Alpha;
@@ -32,18 +34,16 @@ import org.jdbi.v3.meta.Alpha;
  * Configuration registry for {@link RowMapperFactory} instances.
  */
 public class RowMappers implements JdbiConfig<RowMappers> {
-
     private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors;
-
     private final List<RowMapperFactory> factories;
-    private final Map<Type, Optional<RowMapper<?>>> cache;
+    private final JdbiConfigCache<Type, Optional<RowMapper<?>>> cache;
 
     private ConfigRegistry registry;
 
     public RowMappers() {
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
         factories = new CopyOnWriteArrayList<>();
-        cache = new CopyOnWriteHashMap<>();
+        cache = new JdbiConfigCache<>("row mappers");
         register(MapEntryMapper.factory());
         register(new PojoMapperFactory());
         register(new OptionalRowMapperFactory());
@@ -51,7 +51,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
 
     private RowMappers(RowMappers that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
-        cache = new CopyOnWriteHashMap<>(that.cache);
+        cache = that.cache.copy();
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
     }
 
@@ -184,5 +184,10 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     @Override
     public RowMappers createCopy() {
         return new RowMappers(this);
+    }
+
+    @Override
+    public Set<JdbiConfigCacheStats> reportStats() {
+        return Collections.singleton(cache.getStats());
     }
 }
