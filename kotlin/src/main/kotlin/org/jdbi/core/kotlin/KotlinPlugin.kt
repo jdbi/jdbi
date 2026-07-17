@@ -36,6 +36,7 @@ class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true, priva
     override fun customizeJdbi(jdbi: Jdbi) {
         jdbi.configure(RowMappers::class.java) {
             it.inferenceInterceptors.addFirst(KotlinRowMapperInterceptor())
+            it
         }
 
         if (installKotlinMapperFactory) {

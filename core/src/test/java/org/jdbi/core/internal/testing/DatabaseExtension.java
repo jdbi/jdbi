@@ -13,7 +13,7 @@
  */
 package org.jdbi.core.internal.testing;
 
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
@@ -39,7 +39,7 @@ public interface DatabaseExtension<T extends DatabaseExtension<T>> {
         return getJdbi().open();
     }
 
-    default <C extends JdbiConfig<C>> T withConfig(Class<C> configClass, Consumer<C> configurer) {
+    default <C extends JdbiConfig<C>> T withConfig(Class<C> configClass, UnaryOperator<C> configurer) {
         return withPlugin(ConfiguringPlugin.of(configClass, configurer));
     }
 

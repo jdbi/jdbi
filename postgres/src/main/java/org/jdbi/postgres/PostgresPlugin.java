@@ -173,10 +173,8 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
             VectorEnabler.enable(conn);
         }
         PGConnection pgConnection = conn.unwrap(PGConnection.class);
-        return handle.configure(PostgresTypes.class, pt -> {
-            pt.addTypesToConnection(pgConnection);
-            pt.setLobApi(new PgLobApiImpl(conn));
-        });
+        return handle.configure(PostgresTypes.class, pt ->
+            pt.addTypesToConnection(pgConnection).setLobApi(new PgLobApiImpl(conn)));
     }
 
     static final class VectorEnabler {

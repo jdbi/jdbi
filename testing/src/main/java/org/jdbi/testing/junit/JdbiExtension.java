@@ -19,7 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import javax.sql.DataSource;
 
@@ -273,11 +273,11 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
      * }</pre>
      *
      * @param configClass A class instance which must implement {@link JdbiConfig}.
-     * @param configurer  A {@link Consumer} to access the {@link JdbiConfig} instance.
+     * @param configurer  A {@link UnaryOperator} applied to the {@link JdbiConfig} instance, returning the value to install.
      * @param <C>         The config type. Must extend {@link JdbiConfig}.
      * @return The extension itself for chaining method calls.
      */
-    public final <C extends JdbiConfig<C>> JdbiExtension withConfig(Class<C> configClass, Consumer<C> configurer) {
+    public final <C extends JdbiConfig<C>> JdbiExtension withConfig(Class<C> configClass, UnaryOperator<C> configurer) {
         return withPlugin(ConfiguringPlugin.of(configClass, configurer));
     }
 

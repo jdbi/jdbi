@@ -32,7 +32,10 @@ class KotlinSqlObjectPlugin(private val installKotlinMapperFactory: Boolean = tr
     override fun customizeJdbi(jdbi: Jdbi) {
         jdbi.installPlugin(KotlinPlugin(installKotlinMapperFactory = installKotlinMapperFactory, enableCoroutineSupport = enableCoroutineSupport))
         jdbi.installPlugin(SqlObjectPlugin())
-        jdbi.configure(SqlObjects::class) { c -> c.defaultParameterCustomizerFactory = KotlinSqlStatementCustomizerFactory() }
+        jdbi.configure(SqlObjects::class) { c ->
+            c.defaultParameterCustomizerFactory = KotlinSqlStatementCustomizerFactory()
+            c
+        }
         jdbi.configure(Extensions::class) { c -> c.registerHandlerFactory(KotlinDefaultMethodHandlerFactory()) }
     }
 }
