@@ -320,12 +320,18 @@ classpath-only processors). So:
   the new registry. Statements/templates capture the reference at creation (immutable snapshot).
 
 ### Suggested landable sub-steps (each self-contained + green)
-1. **Add the `ConfigRegistry.readAs(asType, factory)` view seam** (per-registry memo, empty on fork).
-   Tiny, additive, independently testable. The foundation everything else builds on.
-2. **Introduce resolvers, one domain at a time** (`MapperResolver` first). Move `findFor`+cache off the
-   config value into `SomeResolver.forRegistry(config)`; migrate that domain's call sites; add
-   `ctx`/`handle` delegators; drop that config's `setRegistry`/cache and make its value an immutable
-   record. Each domain is its own green commit. (This is P2+P3, per-domain.)
+1. **[DONE 2026-07-17, `03017fe`]** Add the `ConfigRegistry.readAs(asType, factory)` view seam
+   (per-registry memo, empty on fork). Tiny, additive, independently tested.
+2. **[IN PROGRESS]** Introduce resolvers, one domain at a time. Move `findFor`+cache off the config
+   value into `SomeResolver.forRegistry(config)`; migrate that domain's call sites; drop that config's
+   `setRegistry`/cache. Each domain is its own green commit. (This is P2+P3, per-domain.)
+   - **`MapperResolver` DONE** (`6c64997`): row+column+combined resolution off `RowMappers`/`ColumnMappers`
+     (now registration-data only); `Mappers` facade deleted; `ConfigReader` re-pointed; all callers migrated;
+     cache warm per-registry with size-based invalidation (moot once step 3 forks on register).
+   - **Remaining domains:** `Arguments` (findFor/prepareFor + preparedFactories cache + registry back-ref);
+     `JdbiCollectors` (findFor + factoryCache); `SqlArrayTypes`; `Extensions` (extensionMetadataCache);
+     `PojoTypes`. `Qualifiers` already resolves via the shared `ConfigCaches`, so it can stay as-is.
+     `RowMappers`/`ColumnMappers` still keep a mutable `register` + `createCopy` — they become records in step 4.
 3. **Contract + registry mechanics** — once no value holds a back-ref/cache, make `ConfigRegistry`
    immutable (share values by reference), add `configure(Class, UnaryOperator<C>)` returning a new
    registry, and give `Jdbi`/`Handle` a swappable reference. Migrate `getConfig(X).setY()` write sites to
