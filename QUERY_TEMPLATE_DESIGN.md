@@ -628,6 +628,23 @@ re-impl, like sub-step 2's domain-by-domain cadence) → D7 (statement copy-on-w
 per-statement copy, re-benchmark) → D4/D5/D6 (the builder + deprecations + open-scope) last, since they are the
 largest public surface and depend on the value/registry immutability being in place.
 
+**Naming (per sign-off):** config-value building methods are prefix-free — `register(...)` keeps its name
+(already returns the config type); scalar setters become `templateEngine(e)` / `keyColumn(k)` (no `set`, no
+`with`), consistent with `register` and clash-free with `getX()`/`isX()` getters. Apply during D1.
+
+### Progress
+- **Increment 1 DONE (`c52066465`): D2 mechanism.** `Configurable.configure(Class, Consumer)` →
+  `configure(Class, UnaryOperator)`; `ConfigRegistry.install(Class, value)` is the write half. Behavior-
+  preserving — `configure` installs the derived value into the CURRENT registry (aliasing unchanged, no
+  reference-swap, per-statement copy still present). Convenience methods unchanged in spelling (their
+  `c -> c.register(x)` lambdas are already valid `UnaryOperator`s). `ConfiguringPlugin`, `JdbiExtension`/
+  `DatabaseExtension.withConfig`, and the Kotlin `configure(KClass,…)` extension moved to `UnaryOperator`; a
+  few void setters used in configure lambdas made chainable. Whole reactor green (tests + static analysis).
+- **Next: D1 per domain** — make each `JdbiConfig` value immutable (prefix-free withers returning a new value),
+  re-impl its convenience methods, migrate direct `configure` callers. `configure`'s install-into-current already
+  handles a returned new value, so this is domain-local and stays green each step (like sub-step 2). Then D7,
+  sub-step 5, and D4/D5/D6.
+
 ---
 
 ## (superseded) earlier handoff: SQL Object retarget DONE — phase 2 is next
