@@ -557,11 +557,16 @@ carries non-config knobs (`installPlugin`, `setTransactionHandler`, `setStatemen
   already moved resolution off the values). `JdbiConfig<This>` becomes a minimal marker.
 - **Break:** every custom `JdbiConfig` implementation. Justified for v4; the SPI is small.
 
-### D2 — `configure` → `UnaryOperator`
+### D2 — `configure` → `UnaryOperator` [SIGNED OFF — break approved; minimize churn]
 - `Configurable.configure(Class<C>, UnaryOperator<C>)` replaces the `Consumer<C>` form (a `Consumer` can't
   express "return the new immutable value"). Cannot overload — a `c -> c.foo()` lambda is ambiguous — so the
   `Consumer` form is **removed** (deprecated first). The ~30 convenience methods keep their exact spelling,
   re-implemented as `configure(RowMappers.class, c -> c.withMapper(m))`.
+- **Churn minimized (per sign-off): withers are chainable and there are plural withers.** Each wither returns
+  the new immutable value, so migrated lambdas stay single-expression with no `return`:
+  `c -> c.setX(v)` → `c -> c.withX(v)`; `c -> { c.setA(a); c.setB(b); }` → `c -> c.withA(a).withB(b)`;
+  `factories.forEach(c::register)` → `c -> c.withArgumentFactories(factories)`. Block lambdas with a bare
+  `return c` are the thing to avoid; provide a plural/collection wither wherever the old code looped.
 - **Break:** direct `configure(X.class, c -> …)` callers only (~38 test + a few main); convenience callers
   unaffected.
 
@@ -589,14 +594,19 @@ Jdbi jdbi = Jdbi.builder(dataSource)          // or builder(connectionFactory) /
   `customizeJdbi(Jdbi)`. `customizeHandle(Handle)` / `customizeConnection(Connection)` stay (per-handle/
   connection concerns); handle-config contributions route through the open-scope derivation.
 
-### D6 — Handle config via `open` scope; `handle.registerX` deprecated
+### D6 — Handle config largely eliminated; `open(scope)` only if it earns its place [REFINED per sign-off]
+Sign-off observation: with Jdbi-level config (build) and statement/template-level config, **handle-level config
+has almost no remaining value.** Its one distinct use is an ad-hoc unit of work that runs several *plain*
+queries sharing non-global config — covered immutably by `jdbi.open(scope)`, which is a config *choice at open*,
+not mutable handle state:
 ```java
 Handle h = jdbi.open();                                              // handle references Jdbi's frozen config
 Handle h = jdbi.open(cfg -> cfg.with(RowMappers.class, r -> r.withMapper(m)));   // per-handle derived config
-jdbi.withHandle(scope, callback); jdbi.inTransaction(scope, callback);           // scoped lifecycle variants
 ```
-- The Handle references the derived immutable config; it never mutates it. Legacy `handle.registerX`/
-  `configure` are `@Deprecated`, backed by derive-and-re-reference (the transitional swap, confined to these).
+- **Decision:** drop handle config as a first-class mutable concept. `handle.registerX`/`configure` become
+  `@Deprecated` compat shims (derive-and-re-reference), scaffolding only. Keep `jdbi.open(scope)` + scoped
+  `withHandle`/`inTransaction` **only if** real usage justifies it; otherwise config is Jdbi-level +
+  statement/template-level and the deprecated shims are the sole bridge. Decide when we reach D6 (it is last).
 
 ### D7 — Statement / template config: surface unchanged
 - `query.registerRowMapper(m).mapTo(X)` stays. Backed by a lazily-created private derived registry
@@ -604,14 +614,14 @@ jdbi.withHandle(scope, callback); jdbi.inTransaction(scope, callback);          
   clean: no additions → the statement shares the handle's immutable config (no copy); additions → exactly one
   derived registry. The per-statement `createCopy()` at `BaseStatement.java:36` goes away.
 
-### Sign-off checklist (the decisions that need your yes/adjust)
-- [ ] **D1** immutable `JdbiConfig`, drop `createCopy`/`setRegistry`, mutators → withers (breaks custom configs).
-- [ ] **D2** `configure` `Consumer` → `UnaryOperator` (breaks ~40 direct callers; convenience spelling kept).
-- [ ] **D3** add `ConfigRegistry.with(Class, UnaryOperator)`.
-- [ ] **D4** `Jdbi.builder()` primary; `Jdbi.create()` + `registerX`/`installPlugin` deprecated, frozen on first open.
-- [ ] **D5** add `JdbiPlugin.configure(Jdbi.Builder)`; deprecate `customizeJdbi(Jdbi)`.
-- [ ] **D6** `jdbi.open(scope)` + scoped `withHandle`/`inTransaction`; deprecate `handle.registerX`.
-- [ ] **D7** statement-level `Configurable` unchanged (copy-on-write private config).
+### Sign-off checklist (SIGNED OFF 2026-07-17)
+- [x] **D1** immutable `JdbiConfig`, drop `createCopy`/`setRegistry`, mutators → withers (breaks custom configs).
+- [x] **D2** `configure` `Consumer` → `UnaryOperator` — break approved; churn minimized via chainable + plural withers.
+- [x] **D3** add `ConfigRegistry.with(Class, UnaryOperator)`.
+- [x] **D4** `Jdbi.builder()` primary; `Jdbi.create()` + `registerX`/`installPlugin` deprecated, frozen on first open.
+- [x] **D5** add `JdbiPlugin.configure(Jdbi.Builder)`; deprecate `customizeJdbi(Jdbi)`.
+- [~] **D6** handle config largely eliminated; `handle.registerX` → deprecated shim; `open(scope)` only if it earns it (decide at D6).
+- [x] **D7** statement-level `Configurable` unchanged (copy-on-write private config).
 
 **Implementation order once signed off:** D3 (additive) → D1+D2 per config domain (withers + convenience
 re-impl, like sub-step 2's domain-by-domain cadence) → D7 (statement copy-on-write) → sub-step 5 (delete the
