@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -161,6 +162,46 @@ public class TestConfigRegistry {
         validateTripleConfig(parentConfig);
         validateSingleConfig(child1Config);
         validateDoubleConfig(child2Config);
+    }
+
+    @Test
+    public void testReadAsMemoizesPerRegistry() {
+        AtomicInteger builds = new AtomicInteger();
+        View first = parent.readAs(View.class, r -> countingView(builds, r));
+        View second = parent.readAs(View.class, r -> countingView(builds, r));
+
+        assertThat(second).isSameAs(first);
+        assertThat(builds).hasValue(1);
+        assertThat(first.registry).isSameAs(parent);
+    }
+
+    @Test
+    public void testReadAsViewIsNotInheritedByCopies() {
+        AtomicInteger builds = new AtomicInteger();
+        View parentView = parent.readAs(View.class, r -> countingView(builds, r));
+
+        child1 = parent.createCopy();
+        View childView = child1.readAs(View.class, r -> countingView(builds, r));
+
+        assertThat(childView).isNotSameAs(parentView);
+        assertThat(childView.registry).isSameAs(child1);
+        assertThat(builds).hasValue(2);
+        // the parent's view is unchanged and still memoized
+        assertThat(parent.readAs(View.class, r -> countingView(builds, r))).isSameAs(parentView);
+        assertThat(builds).hasValue(2);
+    }
+
+    private static View countingView(AtomicInteger builds, ConfigRegistry registry) {
+        builds.incrementAndGet();
+        return new View(registry);
+    }
+
+    private static final class View {
+        private final ConfigRegistry registry;
+
+        View(ConfigRegistry registry) {
+            this.registry = registry;
+        }
     }
 
     private static void validateSingleConfig(TestConfig config) {
