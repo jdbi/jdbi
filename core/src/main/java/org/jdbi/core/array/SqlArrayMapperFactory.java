@@ -16,7 +16,7 @@ package org.jdbi.core.array;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.collector.JdbiCollectors;
+import org.jdbi.core.collector.CollectorResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.ColumnMapper;
@@ -41,7 +41,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
                     .map(elementMapper -> new ArrayColumnMapper(elementMapper, elementType));
         }
 
-        JdbiCollectors collectorRegistry = config.get(JdbiCollectors.class);
+        CollectorResolver collectorRegistry = CollectorResolver.forRegistry(config);
         return (Optional) collectorRegistry.findFor(type)
                 .flatMap(collector -> collectorRegistry.findElementTypeFor(type)
                         .flatMap(elementType -> elementTypeMapper(elementType, config))

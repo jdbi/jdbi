@@ -23,7 +23,7 @@ import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties.PojoProperty;
-import org.jdbi.core.mapper.reflect.internal.PojoTypes;
+import org.jdbi.core.mapper.reflect.internal.PojoResolver;
 import org.jdbi.core.statement.Customizable;
 import org.jdbi.sqlobject.customizer.SqlStatementParameterCustomizer;
 
@@ -40,7 +40,7 @@ public final class PojoWarmingCustomizer {
             @Override
             public void warm(ConfigRegistry config) {
                 ArgumentResolver arguments = ArgumentResolver.forRegistry(config);
-                config.get(PojoTypes.class)
+                PojoResolver.forRegistry(config)
                         .findFor(pojoType)
                         .map(Stream::of)
                         .orElseGet(Stream::empty)

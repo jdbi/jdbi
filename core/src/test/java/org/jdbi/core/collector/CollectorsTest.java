@@ -123,7 +123,7 @@ public class CollectorsTest {
 
         // look up default list type manually
         GenericType<List<String>> type = new GenericType<List<String>>() {};
-        Collector<?, ?, ?> collector = handle.getConfig(JdbiCollectors.class).findFor(type.getType())
+        Collector<?, ?, ?> collector = CollectorResolver.forRegistry(handle.getConfig()).findFor(type.getType())
                 .orElseGet(Assertions::fail);
 
         try (Query query = baseQuery()) {

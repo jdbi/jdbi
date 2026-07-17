@@ -24,7 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.core.collector.JdbiCollectors;
+import org.jdbi.core.collector.CollectorResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.qualifier.QualifiedType;
@@ -329,13 +329,13 @@ abstract class ResultReturner {
         @Override
         protected void warm(ConfigRegistry config) {
             super.warm(config);
-            config.get(JdbiCollectors.class).findFor(returnType.getType());
+            CollectorResolver.forRegistry(config).findFor(returnType.getType());
         }
 
         @Override
         protected QualifiedType<?> elementType(ConfigRegistry config) {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return returnType.flatMapType(type -> config.get(JdbiCollectors.class).findElementTypeFor(type))
+            return returnType.flatMapType(type -> CollectorResolver.forRegistry(config).findElementTypeFor(type))
                 .orElse(returnType);
         }
     }

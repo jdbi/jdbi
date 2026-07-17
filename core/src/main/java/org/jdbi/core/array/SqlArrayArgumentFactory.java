@@ -42,7 +42,7 @@ public class SqlArrayArgumentFactory implements ArgumentFactory.Preparable {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         return IterableLike.elementTypeOf(type)
-            .flatMap(config.get(SqlArrayTypes.class)::findFor)
+            .flatMap(ArrayTypeResolver.forRegistry(config)::findFor)
             .map(arrayType -> value -> arrayArgument(value, arrayType));
     }
 
