@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
-import org.jdbi.core.statement.Query;
+import org.jdbi.core.statement.QueryCustomizerMixin;
 import org.jdbi.sqlobject.customizer.MaxRows;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -50,7 +50,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
            );
         }
 
-        return stmt -> ((Query) stmt).setMaxRows(maxRows);
+        return stmt -> ((QueryCustomizerMixin<?>) stmt).setMaxRows(maxRows);
     }
 
     /*
@@ -87,7 +87,7 @@ public class MaxRowsFactory implements SqlStatementCustomizerFactory {
                );
             }
 
-            ((Query) stmt).setMaxRows(maxRows);
+            ((QueryCustomizerMixin<?>) stmt).setMaxRows(maxRows);
         };
     }
 }

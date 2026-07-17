@@ -35,9 +35,10 @@ import org.jdbi.core.extension.HandleSupplier;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.RowReducer;
-import org.jdbi.core.statement.SqlStatement;
+import org.jdbi.core.statement.Customizable;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
 import org.jdbi.sqlobject.SqlObjects;
+import org.jdbi.sqlobject.customizer.ConfigMutating;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizingAnnotation;
@@ -55,7 +56,21 @@ import static org.jdbi.core.internal.JdbiClassUtils.superTypes;
 /**
  * Base handler for annotations' implementation classes.
  */
-abstract class CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>> implements ExtensionHandler {
+abstract class CustomizingStatementHandler implements ExtensionHandler {
+
+    /**
+     * When a customizer runs, relative to a statement's lifecycle.
+     */
+    enum Phase {
+        /** Invariant configuration, applied once when a reusable template is built. */
+        CONFIGURE,
+        /** Per-invocation binding/defining, applied to each execution's statement. */
+        BIND,
+        /** Per-invocation configuration mutation ({@link ConfigMutating}); forces the classic path. */
+        LATE
+    }
+
+    private static final Object[] NO_ARGS = new Object[0];
 
     private final List<BoundCustomizer> statementCustomizers;
     private final Class<?> sqlObjectType;
@@ -69,18 +84,32 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         // type customizers, including annotations on the interface's supertypes
         concat(superTypes(sqlObjectType), Stream.of(sqlObjectType))
                 .flatMap(CustomizingStatementHandler::annotationsFor)
-                .map(a -> instantiateFactory(a).createForType(a, sqlObjectType))
-                .map(BoundCustomizer::of)
+                .map(a -> {
+                    SqlStatementCustomizerFactory factory = instantiateFactory(a);
+                    SqlStatementCustomizer customizer = factory.createForType(a, sqlObjectType);
+                    return BoundCustomizer.of(customizer, phaseFor(factory, customizer, Phase.CONFIGURE));
+                })
                 .forEach(statementCustomizers::add);
 
         // method customizers
         annotationsFor(method)
-                .map(a -> instantiateFactory(a).createForMethod(a, sqlObjectType, method))
-                .map(BoundCustomizer::of)
+                .map(a -> {
+                    SqlStatementCustomizerFactory factory = instantiateFactory(a);
+                    SqlStatementCustomizer customizer = factory.createForMethod(a, sqlObjectType, method);
+                    return BoundCustomizer.of(customizer, phaseFor(factory, customizer, Phase.CONFIGURE));
+                })
                 .forEach(statementCustomizers::add);
 
         // parameter customizers
         parameterCustomizers().forEach(statementCustomizers::add);
+    }
+
+    /**
+     * A customizer is {@link Phase#LATE} if it (or the factory that produced it) declares
+     * {@link ConfigMutating}; otherwise it runs in the given default phase.
+     */
+    private static Phase phaseFor(SqlStatementCustomizerFactory factory, Object customizer, Phase defaultPhase) {
+        return factory instanceof ConfigMutating || customizer instanceof ConfigMutating ? Phase.LATE : defaultPhase;
     }
 
     private static Stream<Annotation> annotationsFor(AnnotatedElement... elements) {
@@ -101,17 +130,26 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     private Stream<BoundCustomizer> eachParameterCustomizers(Parameter parameter, Integer i) {
         final Type parameterType = getParameterType(parameter);
         List<BoundCustomizer> customizers = annotationsFor(parameter)
-                .map(a -> instantiateFactory(a).createForParameter(a, sqlObjectType, method, parameter, i, parameterType))
-                .<BoundCustomizer>map(c -> new BoundCustomizer() {
-                    @Override
-                    public void warm(ConfigRegistry config) {
-                        c.warm(config);
-                    }
+                .<BoundCustomizer>map(a -> {
+                    SqlStatementCustomizerFactory factory = instantiateFactory(a);
+                    SqlStatementParameterCustomizer c = factory.createForParameter(a, sqlObjectType, method, parameter, i, parameterType);
+                    final Phase phase = phaseFor(factory, c, Phase.BIND);
+                    return new BoundCustomizer() {
+                        @Override
+                        public Phase phase() {
+                            return phase;
+                        }
 
-                    @Override
-                    public void apply(SqlStatement<?> stmt, Object[] args) throws SQLException {
-                        c.apply(stmt, args[i]);
-                    }
+                        @Override
+                        public void warm(ConfigRegistry config) {
+                            c.warm(config);
+                        }
+
+                        @Override
+                        public void apply(Customizable<?> stmt, Object[] args) throws SQLException {
+                            c.apply(stmt, args[i]);
+                        }
+                    };
                 })
                 .toList();
 
@@ -140,18 +178,24 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     }
 
     /**
-     * Default parameter customizer for parameters with no annotations.
+     * Default parameter customizer for parameters with no annotations. Binds the argument, so it runs
+     * in the {@link Phase#BIND} phase.
      */
     private BoundCustomizer defaultParameterCustomizer(Parameter parameter, Integer i) {
         final Type parameterType = getParameterType(parameter);
         return new BoundCustomizer() {
+            @Override
+            public Phase phase() {
+                return Phase.BIND;
+            }
+
             @Override
             public void warm(ConfigRegistry config) {
                 create(config).warm(config);
             }
 
             @Override
-            public void apply(SqlStatement<?> stmt, Object[] args) throws SQLException {
+            public void apply(Customizable<?> stmt, Object[] args) throws SQLException {
                 create(stmt.getConfig()).apply(stmt, args[i]);
             }
 
@@ -179,20 +223,21 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
     @Override
     public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
         final Supplier<String> locatedSql = locateSql(config);
+        final Function<Handle, ? extends Customizable<?>> statementFactory = statementFactory(config, locatedSql);
         return new AttachedExtensionHandler() {
             @Override
             public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
                 final Handle h = handleSupplier.getHandle();
-                final StatementType stmt = createStatement(h, locatedSql.get());
+                final Customizable<?> stmt = statementFactory.apply(h);
 
                 // clean the statement when the handle closes
                 stmt.attachToHandleForCleanup();
 
-                final SqlObjectStatementConfiguration cfg = stmt.getConfig(SqlObjectStatementConfiguration.class);
-                cfg.setArgs(args);
-                configureReturner(stmt, cfg);
-                applyCustomizers(stmt, safeVarargs(args));
-                return cfg.getReturner().get();
+                final SqlObjectStatementState state = new SqlObjectStatementState(args);
+                stmt.getContext().setExtensionState(state);
+                configureReturner(stmt, state);
+                applyPerInvocationCustomizers(stmt, safeVarargs(args));
+                return state.getReturner().get();
             }
 
             @Override
@@ -205,8 +250,32 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
     protected void warm(ConfigRegistry config) {}
 
-    void applyCustomizers(final StatementType stmt, Object[] args) {
+    /**
+     * Builds the per-invocation factory that produces the statement to execute. The default creates a
+     * fresh classic statement for each call; handlers that reuse a template override this.
+     */
+    Function<Handle, ? extends Customizable<?>> statementFactory(ConfigRegistry config, Supplier<String> locatedSql) {
+        return handle -> createStatement(handle, locatedSql.get());
+    }
+
+    /**
+     * Applies the customizers that run per invocation. The default applies every customizer (the
+     * classic behavior); handlers that bake configure-phase customizers into a template at build time
+     * override this to apply only the {@link Phase#BIND} phase.
+     */
+    void applyPerInvocationCustomizers(final Customizable<?> stmt, Object[] args) {
+        applyCustomizers(stmt, args, null);
+    }
+
+    /**
+     * Applies bound customizers to the statement. When {@code phase} is null, all customizers apply;
+     * otherwise only those in the given phase.
+     */
+    void applyCustomizers(final Customizable<?> stmt, Object[] args, Phase phase) {
         statementCustomizers.forEach(b -> {
+            if (phase != null && b.phase() != phase) {
+                return;
+            }
             try {
                 b.apply(stmt, args);
             } catch (SQLException e) {
@@ -215,9 +284,34 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
         });
     }
 
-    abstract void configureReturner(StatementType stmt, SqlObjectStatementConfiguration cfg);
+    /**
+     * Applies the {@link Phase#CONFIGURE} customizers once, against the given build-time configuration
+     * surface. Used by handlers that build a reusable template.
+     */
+    void applyConfigureCustomizers(final Customizable<?> configSurface) {
+        statementCustomizers.forEach(b -> {
+            if (b.phase() != Phase.CONFIGURE) {
+                return;
+            }
+            try {
+                b.apply(configSurface, NO_ARGS);
+            } catch (SQLException e) {
+                throw new UnableToExecuteStatementException("Exception thrown configuring statement template", e, null);
+            }
+        });
+    }
 
-    abstract StatementType createStatement(Handle handle, String locatedSql);
+    /**
+     * @return true if any customizer must mutate configuration per invocation, requiring the classic
+     * per-statement path.
+     */
+    boolean hasLateCustomizers() {
+        return statementCustomizers.stream().anyMatch(b -> b.phase() == Phase.LATE);
+    }
+
+    abstract void configureReturner(Customizable<?> stmt, SqlObjectStatementState state);
+
+    abstract Customizable<?> createStatement(Handle handle, String locatedSql);
 
     Supplier<String> locateSql(final ConfigRegistry config) {
         try {
@@ -244,18 +338,25 @@ abstract class CustomizingStatementHandler<StatementType extends SqlStatement<St
 
     /**
      * A {@link SqlStatementCustomizer} or {@link SqlStatementParameterCustomizer} that
-     * is ready to apply.
+     * is ready to apply, together with the phase it runs in.
      */
     private interface BoundCustomizer {
 
-        void apply(SqlStatement<?> stmt, Object[] args) throws SQLException;
+        Phase phase();
+
+        void apply(Customizable<?> stmt, Object[] args) throws SQLException;
 
         void warm(ConfigRegistry config);
 
-        static BoundCustomizer of(SqlStatementCustomizer inner) {
+        static BoundCustomizer of(SqlStatementCustomizer inner, Phase phase) {
             return new BoundCustomizer() {
                 @Override
-                public void apply(SqlStatement<?> stmt, Object[] args) throws SQLException {
+                public Phase phase() {
+                    return phase;
+                }
+
+                @Override
+                public void apply(Customizable<?> stmt, Object[] args) throws SQLException {
                     inner.apply(stmt);
                 }
 

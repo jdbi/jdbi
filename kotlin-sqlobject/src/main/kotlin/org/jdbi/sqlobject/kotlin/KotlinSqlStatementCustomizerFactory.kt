@@ -41,7 +41,7 @@ class KotlinSqlStatementCustomizerFactory : ParameterCustomizerFactory {
         )
 
         return SqlStatementParameterCustomizer { stmt, arg ->
-            val qualifiedType = QualifiedType.of(type).withAnnotations(stmt.getConfig(Qualifiers::class.java).findFor(parameter))
+            val qualifiedType = QualifiedType.of(type).withAnnotations(stmt.config.get(Qualifiers::class.java).findFor(parameter))
             val maybeArgument = stmt.context.findArgumentFor(qualifiedType, arg)
             if (maybeArgument.isPresent) {
                 val argument = maybeArgument.get()

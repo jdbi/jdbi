@@ -46,7 +46,7 @@ public class MapToFactory implements SqlStatementCustomizerFactory {
                 throw new UnsupportedOperationException("@MapTo must take a GenericType, QualifiedType, or Type, but got a " + arg.getClass().getName());
             }
 
-            sqlStatement.getConfig(SqlObjectStatementConfiguration.class).setReturner(
+            SqlObjectStatementState.from(sqlStatement.getContext()).setReturner(
                     () -> returner.mappedResult(((ResultBearing) sqlStatement).mapTo(mapTo), sqlStatement.getContext()));
         };
     }

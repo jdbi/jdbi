@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
-import org.jdbi.core.statement.Query;
+import org.jdbi.core.statement.QueryCustomizerMixin;
 import org.jdbi.sqlobject.customizer.FetchSize;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
@@ -28,7 +28,7 @@ public class FetchSizeFactory implements SqlStatementCustomizerFactory {
     @Override
     public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
         int fetchSize = ((FetchSize) annotation).value();
-        return stmt -> ((Query) stmt).setFetchSize(fetchSize);
+        return stmt -> ((QueryCustomizerMixin<?>) stmt).setFetchSize(fetchSize);
     }
 
     @Override
@@ -43,6 +43,6 @@ public class FetchSizeFactory implements SqlStatementCustomizerFactory {
                                                               Parameter param,
                                                               int index,
                                                               Type type) {
-        return (stmt, fetchSize) -> ((Query) stmt).setFetchSize((Integer) fetchSize);
+        return (stmt, fetchSize) -> ((QueryCustomizerMixin<?>) stmt).setFetchSize((Integer) fetchSize);
     }
 }
