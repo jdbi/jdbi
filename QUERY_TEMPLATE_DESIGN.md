@@ -322,9 +322,9 @@ classpath-only processors). So:
 ### Suggested landable sub-steps (each self-contained + green)
 1. **[DONE 2026-07-17, `03017fe`]** Add the `ConfigRegistry.readAs(asType, factory)` view seam
    (per-registry memo, empty on fork). Tiny, additive, independently tested.
-2. **[IN PROGRESS]** Introduce resolvers, one domain at a time. Move `findFor`+cache off the config
+2. **[DONE]** Introduce resolvers, one domain at a time. Move `findFor`+cache off the config
    value into `SomeResolver.forRegistry(config)`; migrate that domain's call sites; drop that config's
-   `setRegistry`/cache. Each domain is its own green commit. (This is P2+P3, per-domain.)
+   `setRegistry`/cache. (This is P2+P3, per-domain.)
    - **`MapperResolver` DONE** (`6c64997`): row+column+combined resolution off `RowMappers`/`ColumnMappers`
      (now registration-data only); `Mappers` facade deleted; `ConfigReader` re-pointed; all callers migrated;
      cache warm per-registry with size-based invalidation (moot once step 3 forks on register).
@@ -334,9 +334,13 @@ classpath-only processors). So:
      Note: unlike `RowMappers`, `Arguments` keeps its registry reference — `register(ArgumentFactory)` snapshots
      qualifiers via `QualifiedArgumentFactory.adapt` at registration (the mutation boundary), not on the shared
      resolution path, so the back-ref is not a sharing hazard.
-   - **Remaining domains:** `JdbiCollectors` (findFor + factoryCache); `SqlArrayTypes`; `Extensions`
-     (extensionMetadataCache); `PojoTypes`. `Qualifiers` already resolves via the shared `ConfigCaches`, so it can
-     stay as-is. `RowMappers`/`ColumnMappers` still keep a mutable `register` + `createCopy` — records in step 4.
+   - **`CollectorResolver`/`ArrayTypeResolver`/`PojoResolver`/`ExtensionMetadataResolver` DONE** (`f7c9470d6`):
+     off `JdbiCollectors` (findFor/findElementTypeFor + factoryCache), `SqlArrayTypes` (findFor + registry ref;
+     no cache existed), `PojoTypes` (findFor + registry ref), `Extensions` (findMetadata + extensionMetadataCache
+     + registry ref). `Extensions` keeps its pure registration-data lookups (findFor/hasExtensionFor/findFactory).
+     `ConfigReader` re-pointed for collectors + array types; callers across core/sqlobject/guava/docs migrated.
+   - `Qualifiers` already resolves via the shared `ConfigCaches`, so it stays as-is. `RowMappers`/`ColumnMappers`
+     and the other slimmed configs still keep a mutable `register` + `createCopy` — they become records in step 4.
 3. **Contract + registry mechanics** — once no value holds a back-ref/cache, make `ConfigRegistry`
    immutable (share values by reference), add `configure(Class, UnaryOperator<C>)` returning a new
    registry, and give `Jdbi`/`Handle` a swappable reference. Migrate `getConfig(X).setY()` write sites to
@@ -429,27 +433,32 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-17, later): phase 2 sub-step 2 in progress — `JdbiCollectors` is next
+## HANDOFF (2026-07-17, later): phase 2 sub-step 2 DONE — sub-step 3 (immutable registry) is next
 
 **START HERE.** Phase 2 (immutable config) is underway. Chosen end state and full plan are in
 "## Phase 2 implementation plan" and "## Phase 2 design options" below; the landable sub-step sequence
 is in "### Suggested landable sub-steps". Done so far (all committed, whole reactor green
 with static analysis ENABLED — do not go back to `-Dbasepom.check.skip-all` as the validation of record):
 - Sub-step 1 (`03017fe`): `ConfigRegistry.readAs(asType, factory)` — the per-registry memoized-view seam.
-- Sub-step 2, `MapperResolver` (`6c64997`): row/column/combined resolution + caches moved off
-  `RowMappers`/`ColumnMappers` (now registration-data only); `Mappers` facade deleted; `ConfigReader`
-  re-pointed; all callers migrated.
-- Sub-step 2, `ArgumentResolver` (`e0bce1d47`): findFor/prepareFor + preparedFactories cache + didPrepare
-  guard moved off `Arguments` (now registration + null/prepared policy only); `ConfigReader.findArgumentFor`
-  re-pointed; core/sqlobject/json/vavr/guava/kotlin callers migrated. `Arguments` keeps its registry ref for
-  registration-time qualifier snapshotting (`adapt`), which is a mutation boundary, not the shared path.
+- **Sub-step 2 DONE** — resolution + caches (+ registry back-refs, where used solely for resolution) moved
+  off the config values onto per-registry resolvers via `readAs`; each config value is now registration data
+  (+ policy) only. Resolvers landed:
+  - `MapperResolver` (`6c64997`): row/column/combined off `RowMappers`/`ColumnMappers`; `Mappers` facade deleted.
+  - `ArgumentResolver` (`e0bce1d47`): findFor/prepareFor + preparedFactories cache + didPrepare off `Arguments`.
+    `Arguments` keeps its registry ref for registration-time qualifier snapshotting (`adapt`) — a mutation
+    boundary, not the shared path.
+  - `CollectorResolver`, `ArrayTypeResolver`, `PojoResolver`, `ExtensionMetadataResolver` (`f7c9470d6`): off
+    `JdbiCollectors`, `SqlArrayTypes`, `PojoTypes`, `Extensions`. `Extensions` keeps its pure registration-data
+    lookups (findFor/hasExtensionFor/findFactory — no registry, no cache); only findMetadata + its cache moved.
+  - `Qualifiers` stays on the shared `ConfigCaches` (already decoupled) — no resolver needed.
 - Static-analysis debt cleaned (`c7aceeb` core, `2852f15` rest) — reactor passes `mvn clean install`.
 
-**Next: continue sub-step 2 with `JdbiCollectors`** (then `SqlArrayTypes`, `Extensions`, `PojoTypes`;
-`Qualifiers` stays on shared `ConfigCaches`). Follow the `MapperResolver`/`ArgumentResolver` pattern exactly:
-`SomeResolver.forRegistry(config)` via `readAs`, move `findFor` + the per-value cache (and, only if used
-solely for resolution, the `registry` back-ref) onto the resolver, re-point `ConfigReader`'s convenience
-methods, migrate direct callers, slim the config value to registration data. Then sub-steps 3-5.
+**Next: sub-step 3 — make `ConfigRegistry` itself immutable.** Add `configure(Class, UnaryOperator)` (or the
+agreed `configure(callback)` shape) that returns a NEW registry + swaps the holder reference on `Jdbi`/`Handle`;
+registration forks the registry instead of mutating in place. This makes the resolvers' size-based cache
+invalidation moot (each fork gets a fresh resolver). Then sub-step 4 (configs → records) and sub-step 5 (delete
+the per-statement `createCopy()` at `BaseStatement.java:36` — the payoff — and re-benchmark). The remaining
+config values still keep a mutable `register` + `createCopy`; those become the sub-step 3/4 work.
 
 ---
 
