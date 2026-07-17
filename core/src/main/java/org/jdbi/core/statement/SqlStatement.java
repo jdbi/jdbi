@@ -31,7 +31,7 @@ import org.jdbi.core.statement.internal.OptionalEvent;
  * used by its subclasses.
  */
 @SuppressWarnings({"PMD.ConfusingArgumentToVarargsMethod"})
-public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> implements BindingsMixin<This> {
+public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> implements Customizable<This> {
     private final String sql;
     PreparedStatement stmt;
 
@@ -106,16 +106,24 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         return configure(SqlStatements.class, c -> c.define(key, value));
     }
 
+    // Disambiguates addCustomizer, which SqlStatement inherits from both Configurable (as a default)
+    // and Customizable (as abstract). Keeps the Configurable behavior of recording on the (per-statement)
+    // configuration copy.
+    @Override
+    public This addCustomizer(final StatementCustomizer customizer) {
+        return configure(SqlStatements.class, c -> c.addCustomizer(customizer));
+    }
+
     @Override
     @SafeVarargs
     public final <T> This bindArray(final int pos, final T... array) {
-        return BindingsMixin.super.bindArray(pos, array);
+        return Customizable.super.bindArray(pos, array);
     }
 
     @Override
     @SafeVarargs
     public final <T> This bindArray(final String name, final T... array) {
-        return BindingsMixin.super.bindArray(name, array);
+        return Customizable.super.bindArray(name, array);
     }
 
     @Override

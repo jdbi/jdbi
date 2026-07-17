@@ -143,6 +143,16 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
     }
 
     /**
+     * Whether a query that produces no result set yields an empty result set instead of throwing.
+     *
+     * @return true if no-result statements yield an empty {@link ResultSet}, false if they throw
+     * {@link NoResultsException}
+     */
+    public boolean isAllowNoResults() {
+        return allowNoResults;
+    }
+
+    /**
      * Returns a ResultSet from a Statement.
      */
     @FunctionalInterface
