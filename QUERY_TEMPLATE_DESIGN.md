@@ -341,10 +341,13 @@ classpath-only processors). So:
      `ConfigReader` re-pointed for collectors + array types; callers across core/sqlobject/guava/docs migrated.
    - `Qualifiers` already resolves via the shared `ConfigCaches`, so it stays as-is. `RowMappers`/`ColumnMappers`
      and the other slimmed configs still keep a mutable `register` + `createCopy` — they become records in step 4.
-3. **Contract + registry mechanics** — once no value holds a back-ref/cache, make `ConfigRegistry`
-   immutable (share values by reference), add `configure(Class, UnaryOperator<C>)` returning a new
-   registry, and give `Jdbi`/`Handle` a swappable reference. Migrate `getConfig(X).setY()` write sites to
-   `configure`/withers.
+3. **[REDESIGNED — see "## Config/Handle decoupling" above]** The original plan (make `ConfigRegistry`
+   immutable + `Jdbi`/`Handle` swap a registry reference on `configure`) was rejected: a swappable reference on
+   a long-lived holder is still reconfigurable state. The replacement moves config off the stateful `Handle`
+   entirely (Handle = connection/transaction; config = immutable value built via a `Jdbi` builder and
+   referenced, not mutated). Foundational, no-break work to do first: (a) sub-step 4 (immutable config values);
+   (b) make `ConfigRegistry` immutable with a `with(Class, op)` derivation. The public builder/open-time API
+   and deprecated compat shims are a follow-on that needs maintainer sign-off on shapes.
 4. **Finish converting remaining configs to immutable** (records / hand-written) — the policy configs that
    weren't touched by a resolver in step 2.
 5. **Delete the per-statement `createCopy()`** at `BaseStatement.java:36` (the payoff); re-benchmark the
@@ -433,7 +436,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-17, later): phase 2 sub-step 2 DONE — sub-step 3 (immutable registry) is next
+## HANDOFF (2026-07-17, later): phase 2 sub-step 2 DONE — sub-step 3 redesigned as config/Handle decoupling
 
 **START HERE.** Phase 2 (immutable config) is underway. Chosen end state and full plan are in
 "## Phase 2 implementation plan" and "## Phase 2 design options" below; the landable sub-step sequence
@@ -453,12 +456,82 @@ with static analysis ENABLED — do not go back to `-Dbasepom.check.skip-all` as
   - `Qualifiers` stays on the shared `ConfigCaches` (already decoupled) — no resolver needed.
 - Static-analysis debt cleaned (`c7aceeb` core, `2852f15` rest) — reactor passes `mvn clean install`.
 
-**Next: sub-step 3 — make `ConfigRegistry` itself immutable.** Add `configure(Class, UnaryOperator)` (or the
-agreed `configure(callback)` shape) that returns a NEW registry + swaps the holder reference on `Jdbi`/`Handle`;
-registration forks the registry instead of mutating in place. This makes the resolvers' size-based cache
-invalidation moot (each fork gets a fresh resolver). Then sub-step 4 (configs → records) and sub-step 5 (delete
-the per-statement `createCopy()` at `BaseStatement.java:36` — the payoff — and re-benchmark). The remaining
-config values still keep a mutable `register` + `createCopy`; those become the sub-step 3/4 work.
+**Next: sub-step 3 — see the redesigned target below.** The original sub-step-3 sketch (make `ConfigRegistry`
+immutable and have `Jdbi`/`Handle` *swap* a registry reference on `configure`) was **reconsidered with the
+maintainer (2026-07-17)** and is **superseded** by the config/Handle decoupling in
+"## Config/Handle decoupling" immediately below. A reference-swap on a long-lived `Jdbi`/`Handle` is still
+mutable, reconfigurable state — the redesign moves config off the stateful objects entirely. Sub-step 4
+(immutable config *values*) and sub-step 5 (delete the per-statement `createCopy()`) stand and are needed
+under either approach.
+
+---
+
+## Config/Handle decoupling (2026-07-17): the immutable-config end state — supersedes the sub-step-3 swap sketch
+
+**Why the swap was rejected.** Making `ConfigRegistry` immutable and having `Jdbi.configure`/`Handle.configure`
+*fork a new registry and swap a `volatile` reference* achieves immutable config *values*, but the stateful
+holders still carry reconfigurable state — the identity of "the current config" changes over its lifetime.
+That is the very thing this project set out to remove. A prototype of the swap (volatile `Jdbi.config`,
+`Handle` reworking its `final ExtensionContext`, a `configLock`) was written and reverted; the only piece of it
+that has a future is as a *deprecated compatibility shim* (see migration), not as the model.
+
+**The target ownership split.** Separate the two concerns that `Handle` currently fuses:
+
+| Concern | Owner | Lifetime / mutability |
+| --- | --- | --- |
+| JDBC `Connection`, transaction state, cleanables, `StatementBuilder`, handle listeners | `Handle` | mutable, thread-confined, scoped to the handle |
+| Config: mappers, arguments, array/collector/pojo/extension registration, defines-defaults, policy | an **immutable `ConfigRegistry` value** | immutable; a changed config is a *new value*, never a mutation |
+| Root config assembly | a **`Jdbi` builder / configuring factory** | mutable only during build; frozen at `build()` |
+| Per-statement / per-template config additions (`query.registerRowMapper`, `define`, per-exec customizers) | the statement/template **build step** | accumulates locally, frozen into one immutable snapshot at execute |
+
+**Config as a value.**
+- `ConfigRegistry` becomes immutable over a persistent map of immutable `JdbiConfig` values. `get(Class)` reads;
+  deriving a change is `config.with(Class, op)` → a *new* registry that structurally shares the unchanged
+  values (cheap). No `setRegistry` back-ref remains anywhere (sub-step 2 already removed the resolution ones;
+  `Arguments`' registration-time ref becomes a build-time concern).
+- `JdbiConfig` values are immutable (sub-step 4): `register(...)` returns a new value; policy configs are records.
+
+**Handle.**
+- `Handle` holds a *reference* to an immutable config, captured at `open()` from the `Jdbi`. It never mutates
+  it. `handle.getConfig()` returns the immutable value.
+- Per-handle customization (the legitimate, less-common case) is expressed as deriving a scoped config at open:
+  `jdbi.open(cfg -> cfg.with(...))` (exact shape TBD), producing an immutable config the handle references.
+- Extension-method scoping already derives an immutable config per call (`ExtensionContext`); that pattern is
+  the general mechanism and stays — it is *derive-and-reference*, not mutate.
+
+**Statements / `QueryTemplate`.**
+- A statement/template is built from the handle's immutable config plus any local additions accumulated during
+  fluent building, frozen into one immutable snapshot at execution. This is exactly today's `QueryTemplate`
+  model; classic `Query`/`Update` are reimplemented on the primitive (the remaining phase-5 tail).
+- The per-statement `createCopy()` at `BaseStatement.java:36` disappears (sub-step 5 = the perf payoff): no
+  local additions → the statement shares the handle's immutable config; additions → one derived immutable
+  snapshot. Either way it is a single snapshot with no defensive copy.
+
+**`Configurable` fate.** Split reading from mutating. `getConfig()` stays widely. The mutating surface
+(`configure`/`registerX`) is removed from the long-lived `Jdbi`/`Handle` and survives only where scoped-then-
+frozen mutation is ergonomic: the `Jdbi` builder (assembly) and the statement/template build step
+(`query.registerRowMapper(...).mapTo(X)...`). Fluent per-statement config is legitimate and stays.
+
+**Compatibility — this is the expensive part, and it drives the staging.** Removing post-construction
+`jdbi.registerX`, `handle.registerX`, and in-place plugin mutation (`customizeJdbi(Jdbi)`) is a large public
+break (thousands of call sites in the wild, ~93 in this repo). Staged migration:
+1. **[useful now, no break]** Immutable config *values* (sub-step 4) + immutable `ConfigRegistry` with `with()`.
+   The foundation of everything below; not throwaway under any decision.
+2. Add the `Jdbi` builder / configuring factory that assembles config and freezes at `build()`. New idiomatic path.
+3. Keep legacy `Jdbi.create()` + `registerX` and `handle.registerX` as **deprecated shims** backed by
+   *derive-and-re-reference* (this is where the reverted swap returns — as a compat shim, not the model), so
+   existing code keeps working while the builder path is preferred. Plugins: `customizeJdbi(Jdbi)` →
+   a config-contributing SPI, old one deprecated.
+4. Delete the per-statement `createCopy()` (sub-step 5, the perf payoff) — safe once config is never mutated
+   after a statement captures it.
+5. Long-term: remove the deprecated shims.
+
+**Recommendation / what to do next.** Do the foundation now — it is required under either model and is not
+throwaway: (a) make the remaining `JdbiConfig` values immutable (`register` returns a new value; policy configs
+become records) — sub-step 4; (b) make `ConfigRegistry` immutable with a `with(Class, op)` derivation. Only
+after that is green do we design the *public* builder/open-time API (step 2–3 above), which is a genuine
+public-API redesign and wants maintainer sign-off on the exact shapes (`Jdbi.builder()`, `jdbi.open(scope)`,
+the plugin SPI). Do **not** re-add holder swap as the primary model.
 
 ---
 
