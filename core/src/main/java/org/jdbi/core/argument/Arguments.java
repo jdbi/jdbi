@@ -13,34 +13,22 @@
  */
 package org.jdbi.core.argument;
 
-import java.lang.reflect.Type;
 import java.sql.Types;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Function;
 
 import org.jdbi.core.array.SqlArrayArgumentFactory;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
-import org.jdbi.core.qualifier.QualifiedType;
-import org.jdbi.meta.Beta;
 
 /**
- * A registry for ArgumentFactory instances.
- * When a statement with bound parameters is executed, Jdbi consults the
- * Arguments registry to obtain an Argument instance for each bound parameter
- * (see #findFor(...)).
+ * A registry for ArgumentFactory instances. Holds only registration data; resolving a factory into an
+ * {@link Argument} for a bound value (and caching the result) is done per configuration registry by
+ * {@link ArgumentResolver}.
  * The factories are consulted in reverse order of registration (i.e. last-registered wins).
  */
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<QualifiedArgumentFactory> factories;
-    private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories = new ConcurrentHashMap<>();
-    private final Set<QualifiedType<?>> didPrepare = ConcurrentHashMap.newKeySet();
 
     private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
@@ -106,80 +94,12 @@ public class Arguments implements JdbiConfig<Arguments> {
     }
 
     /**
-     * Obtain an argument for given value in the given context
+     * Returns the registered factories, most-recently-registered first. Consumed by {@link ArgumentResolver}.
      *
-     * @param type  the type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
+     * @return the registered argument factories
      */
-    public Optional<Argument> findFor(final Type type, final Object value) {
-        return findFor(QualifiedType.of(type), value);
-    }
-
-    /**
-     * Obtain an argument for given value in the given context.
-     *
-     * @param type  the qualified type of the argument.
-     * @param value the argument value.
-     * @return an Argument for the given value.
-     */
-    public Optional<Argument> findFor(final QualifiedType<?> type, final Object value) {
-        final Function<Object, Argument> prepared = preparedFactories.get(type);
-        if (prepared != null) {
-            return Optional.of(prepared.apply(value));
-        }
-        for (final QualifiedArgumentFactory factory : factories) {
-            final Optional<Argument> maybeBuilt = factory.build(type, value, registry);
-            if (maybeBuilt.isPresent()) {
-                if (factory instanceof QualifiedArgumentFactory.Preparable p && didPrepare.add(type)) {
-                    p.prepare(type, registry).ifPresent(argumentFactory ->
-                            preparedFactories.putIfAbsent(type, argumentFactory));
-                }
-                return maybeBuilt;
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Obtain a prepared argument function for given type in the given context.
-     *
-     * @param type  the type of the argument.
-     * @return an Argument factory function for the given value.
-     */
-    public Optional<Function<Object, Argument>> prepareFor(final Type type) {
-        return prepareFor(QualifiedType.of(type));
-    }
-
-    /**
-     * Obtain a prepared argument function for given type in the given context.
-     *
-     * @param type  the qualified type of the argument.
-     * @return an Argument factory function for the given value.
-     */
-    @Beta
-    public Optional<Function<Object, Argument>> prepareFor(final QualifiedType<?> type) {
-        if (!isPreparedArgumentsEnabled()) {
-            return Optional.empty();
-        }
-        final Function<Object, Argument> prepared = preparedFactories.get(type);
-        if (prepared != null) {
-            return Optional.of(prepared);
-        }
-        for (final QualifiedArgumentFactory factory : factories) {
-            if (factory instanceof QualifiedArgumentFactory.Preparable preparable) {
-                final Optional<Function<Object, Argument>> argumentFactory = preparable.prepare(type, registry);
-                if (argumentFactory.isPresent()) {
-                    preparedFactories.putIfAbsent(type, argumentFactory.get());
-                    return argumentFactory;
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    public List<QualifiedArgumentFactory> getFactories() {
-        return Collections.unmodifiableList(factories);
+    List<QualifiedArgumentFactory> getFactories() {
+        return factories;
     }
 
     /**

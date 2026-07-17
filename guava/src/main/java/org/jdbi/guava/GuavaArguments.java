@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.UtilityClassException;
 
@@ -54,7 +54,7 @@ public class GuavaArguments {
             if (value instanceof com.google.common.base.Optional<?> maybeValue) {
                 Object nestedValue = maybeValue.orNull();
                 Type nestedType = findOptionalType(expectedType, nestedValue);
-                return config.get(Arguments.class).findFor(nestedType, nestedValue);
+                return ArgumentResolver.forRegistry(config).findFor(nestedType, nestedValue);
             }
 
             return Optional.empty();
