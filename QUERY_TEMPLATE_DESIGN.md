@@ -236,25 +236,59 @@ indirection for no net gain — you pay C's storage plus B's interface. Not wort
 
 ## Phase 2 implementation plan (2026-07-17): immutable config (end state B)
 
+### The decomposition (2026-07-17, refined with the maintainer): data vs. resolution
+The obstacle to immutable, shareable config values is that config objects fuse two roles: immutable
+**data** (registered factories + policy) and **resolution + cache** (`findFor`, factory iteration,
+`init`, memo) that needs the registry via the `setRegistry` back-reference. A back-reference is fatal only
+on a *shared* value; it is safe on a *per-registry* object. So split the roles:
+
+- **Config value** = immutable data (a record: the factory list / policy flags). Implements `JdbiConfig`,
+  shared by reference across forks. No `setRegistry`, no `findFor`, no cache.
+- **Resolver** = a per-registry object (NOT a `JdbiConfig`) that owns resolution logic **and the cache**,
+  holding the registry reference (safe — never shared across forks). Reads its data from
+  `config.get(RowMappers.class).factories()` etc.
+
+**Placement (avoids a god-object `ConfigRegistry`):** the registry gains exactly ONE generic, domain-blind
+seam — `readAs`, a per-registry memoized typed view of the registry (plain memoization; NOT the
+handle-lifecycle sense of "on demand") — and resolvers are first-class per-domain classes obtained
+through it:
+```java
+// ConfigRegistry: the only addition; the view memo starts empty on every fork (not copied)
+public <T> T readAs(Class<T> asType, Function<ConfigRegistry, T> create) {
+    T existing = asType.cast(views.get(asType));      // get/putIfAbsent, not computeIfAbsent (JDK-8062841)
+    if (existing != null) return existing;
+    T created = create.apply(this);
+    T prev = asType.cast(views.putIfAbsent(asType, created));
+    return prev != null ? prev : created;
+}
+// MapperResolver (not a JdbiConfig); subsumes today's `Mappers` row+column facade
+public static MapperResolver forRegistry(ConfigRegistry config) {
+    return config.readAs(MapperResolver.class, MapperResolver::new);
+}
+```
+Call site: `MapperResolver.forRegistry(config).findRowMapper(t)`; `StatementContext`/`Handle` get thin
+delegators for execution-path callers holding a ctx. Resolvers grouped by cohesion (~6: `MapperResolver`
+for row+column, `ArgumentResolver`, `CollectorResolver`, `ArrayTypeResolver`, extension-metadata, pojo);
+`Qualifiers` already resolves via the shared `ConfigCaches` and can stay.
+
+This **folds the old P2 and P3 into one move**: the cache moves onto the per-registry resolver, so a fork
+(fresh empty `services`) rebuilds resolvers lazily against the current data values — registration can't
+serve a stale "not found" — while an unforked registry shared across a handle's statements keeps resolvers
+**warm across executions** (a win beyond removing the per-statement copy). `setRegistry` and the back-ref
+are gone by construction.
+
 ### Prerequisites (must land before/with the immutability sweep)
 - **P1 — statement-state off config.** Done for `QueryTemplateBinding`. Classic `Query`/`Update` need it
   when reimplemented on the primitive; can be sequenced with the remaining phase-5 tail.
-- **P2 — externalize the 8 read-caches.** `RowMappers`/`ColumnMappers`/`Arguments`/`JdbiCollectors`/
-  `Extensions` (and `SqlStatements.templateCache`) populate an internal `Map` on lookup. An immutable
-  value can't self-mutate, so each moves to a `ConfigCaches`-style side cache (already the shared,
-  copy-returns-`this` pattern) keyed by the resolution input, or is eager-populated at build.
-- **P3 — remove the config→registry back-reference (NEW; found during planning).** ~12 configs override
-  `setRegistry` and resolve against the injected `registry` field (e.g. `RowMappers.findFor` →
-  `factory.build(type, registry)` / `mapper.init(registry)`). A value shared by reference across a forked
-  registry would resolve against the *wrong* (stale) registry, breaking cross-config consistency on fork.
-  Fix: **thread the registry through resolution** — `findFor(type, registry)` / resolution takes the
-  current `ConfigRegistry` (or `StatementContext`) as a parameter instead of a stored field. This is the
-  largest prerequisite and touches the mapper/argument resolution call paths. `setRegistry` is then dropped
-  from `JdbiConfig`.
+- **P2+P3 — relocate resolution+cache to per-registry resolvers** (the decomposition above). Replaces the
+  earlier "thread the registry param" plan (same ~140 call-site churn, distinctly cleaner end state).
+  ~78 mapper + ~61 argument main call sites move from `config.get(X.class).findFor(t)` to
+  `SomeResolver.forRegistry(config).findFor(t)` (plus delegators). `setRegistry` dropped from `JdbiConfig`.
 
 ### Contract change
 `JdbiConfig<This>`: drop `createCopy()` (immutable values are shared by reference; the registry no longer
-deep-copies) and `setRegistry(...)` (P3). It becomes a near-empty marker for "an immutable config value."
+deep-copies), `setRegistry(...)` (no back-ref), and any `findFor`/cache (moved to resolvers). It becomes a
+near-empty marker for "an immutable config value."
 
 ### Immutability strategy — records + hand-written services (Immutables considered, set aside)
 The maintainer asked to strongly consider the Immutables processor over hand-rolled builders. Evaluated:
@@ -286,19 +320,24 @@ classpath-only processors). So:
   the new registry. Statements/templates capture the reference at creation (immutable snapshot).
 
 ### Suggested landable sub-steps (each self-contained + green)
-1. **P3** — thread registry through mapper/argument resolution; drop `setRegistry`. (Non-breaking to the
-   immutability model yet; pure refactor, independently testable.)
-2. **P2** — move the 8 read-caches to side caches. (Independently testable.)
-3. **Contract + registry mechanics** — immutable `ConfigRegistry`, `configure(UnaryOperator)`, holder
-   reference-swap on `Jdbi`/`Handle`; keep config objects temporarily mutable behind the new seam to
-   isolate the mechanics change.
-4. **Convert configs to immutable** (records / hand-written) in waves: policy first, then registry/service;
-   migrate `getConfig(X).setY()` sites as each config loses its setters.
-5. **Delete the per-statement `createCopy()`** at `BaseStatement.java:36` (the payoff) and re-benchmark the
+1. **Add the `ConfigRegistry.readAs(asType, factory)` view seam** (per-registry memo, empty on fork).
+   Tiny, additive, independently testable. The foundation everything else builds on.
+2. **Introduce resolvers, one domain at a time** (`MapperResolver` first). Move `findFor`+cache off the
+   config value into `SomeResolver.forRegistry(config)`; migrate that domain's call sites; add
+   `ctx`/`handle` delegators; drop that config's `setRegistry`/cache and make its value an immutable
+   record. Each domain is its own green commit. (This is P2+P3, per-domain.)
+3. **Contract + registry mechanics** — once no value holds a back-ref/cache, make `ConfigRegistry`
+   immutable (share values by reference), add `configure(Class, UnaryOperator<C>)` returning a new
+   registry, and give `Jdbi`/`Handle` a swappable reference. Migrate `getConfig(X).setY()` write sites to
+   `configure`/withers.
+4. **Finish converting remaining configs to immutable** (records / hand-written) — the policy configs that
+   weren't touched by a resolver in step 2.
+5. **Delete the per-statement `createCopy()`** at `BaseStatement.java:36` (the payoff); re-benchmark the
    classic fluent path; extend P1 to classic `Query`/`Update`.
 
-Risk: this is the largest breaking change in the redesign (~40 config types + resolution APIs + ~61 write
-sites). Land it as the sub-steps above, not one commit. Sub-step 1 (P3) is the recommended starting point.
+Risk: this is the largest breaking change in the redesign (~40 config types + ~140 resolution call sites +
+~61 write sites). Land it as the sub-steps above, not one commit. **Sub-step 1 (the `readAs` seam) is the
+recommended starting point** — it's a few lines, additive, and unblocks the per-domain resolver work.
 
 ## Resolved decisions
 
