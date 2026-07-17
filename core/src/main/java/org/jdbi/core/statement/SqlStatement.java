@@ -20,7 +20,6 @@ import java.util.function.Consumer;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.generic.GenericType;
-import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.internal.JfrSupport;
 import org.jdbi.core.statement.internal.OptionalEvent;
@@ -214,7 +213,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     RowMapper<?> mapperForType(final Type type) {
-        return getConfig(Mappers.class).findFor(type)
+        return getConfig().findMapperFor(type)
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
 

@@ -22,7 +22,6 @@ import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
-import org.jdbi.core.mapper.RowMappers;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
 
@@ -36,7 +35,7 @@ class VavrOptionRowMapperFactory implements RowMapperFactory {
     }
 
     private static Optional<RowMapper<?>> create(Type type, ConfigRegistry config) {
-        return config.get(RowMappers.class).findFor(
+        return config.findRowMapperFor(
                 GenericTypes.findGenericParameter(type, Option.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw vavr Option type")))
             .map(mapper -> (r, ctx) -> Option.of(mapper.map(r, ctx)));

@@ -318,8 +318,8 @@ public class TestIssue2016 {
         }
 
         private static <T extends Tag> T mapTo(ResultSet rs, StatementContext ctx, Class<T> targetClass) throws SQLException {
-            return ctx.getConfig().get(Mappers.class)
-                .findFor(targetClass)
+            return ctx.getConfig()
+                .findMapperFor(targetClass)
                 .orElseThrow(() ->
                     new NoSuchMapperException(String.format("No mapper registered for %s class", targetClass))
                 )

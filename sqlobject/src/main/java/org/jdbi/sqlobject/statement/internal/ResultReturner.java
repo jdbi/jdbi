@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 import org.jdbi.core.collector.JdbiCollectors;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericTypes;
-import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 import org.jdbi.core.result.ResultIterable;
@@ -141,7 +140,7 @@ abstract class ResultReturner {
 
     protected void warm(ConfigRegistry config) {
         Optional.ofNullable(elementType(config))
-            .ifPresent(config.get(Mappers.class)::findFor);
+            .ifPresent(type -> config.findMapperFor(type));
     }
 
     private static Object checkResult(Object result, QualifiedType<?> type) {

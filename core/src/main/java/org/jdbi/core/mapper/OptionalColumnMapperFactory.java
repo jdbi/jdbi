@@ -71,7 +71,7 @@ class OptionalColumnMapperFactory implements ColumnMapperFactory {
     }
 
     private static ColumnMapper<?> create(Type type, ConfigRegistry config) {
-        final ColumnMapper<?> mapper = config.get(ColumnMappers.class).findFor(
+        final ColumnMapper<?> mapper = config.findColumnMapperFor(
                 GenericTypes.findGenericParameter(type, Optional.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Optional type")))
                 .orElseThrow(() -> new NoSuchMapperException("No column mapper for type " + type + ", nested in Optional"));

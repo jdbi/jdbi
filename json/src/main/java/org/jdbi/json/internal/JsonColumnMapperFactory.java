@@ -20,7 +20,6 @@ import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.JdbiOptionals;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
-import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.UnableToProduceResultException;
 import org.jdbi.json.EncodedJson;
@@ -40,11 +39,10 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
 
     @Override
     public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
-        ColumnMappers cm = config.get(ColumnMappers.class);
         // look for specialized json support first, revert to simple String mapping if absent
         ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
-                () -> cm.findFor(QualifiedType.of(String.class).with(EncodedJson.class)),
-                () -> cm.findFor(String.class))
+                () -> config.findColumnMapperFor(QualifiedType.of(String.class).with(EncodedJson.class)),
+                () -> config.findColumnMapperFor(String.class))
                 .orElseThrow(() -> new UnableToProduceResultException(JSON_NOT_RETRIEVABLE));
 
         final TypedJsonMapper mapper = config.get(JsonConfig.class).getJsonMapper().forType(type, config);

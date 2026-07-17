@@ -23,7 +23,6 @@ import org.jdbi.core.collector.JdbiCollectors;
 import org.jdbi.core.config.internal.ConfigCaches;
 import org.jdbi.core.internal.JdbiClassUtils;
 import org.jdbi.core.mapper.ColumnMappers;
-import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.statement.ConfigReader;
 import org.jdbi.core.statement.SqlStatements;
@@ -56,7 +55,6 @@ public final class ConfigRegistry implements ConfigReader {
         get(Arguments.class);
         get(RowMappers.class);
         get(ColumnMappers.class);
-        get(Mappers.class);
         get(JdbiCollectors.class);
     }
 

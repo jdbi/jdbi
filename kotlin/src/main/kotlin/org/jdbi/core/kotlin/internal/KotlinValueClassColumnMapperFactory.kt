@@ -16,7 +16,6 @@ package org.jdbi.core.kotlin.internal
 import org.jdbi.core.config.ConfigRegistry
 import org.jdbi.core.mapper.ColumnMapper
 import org.jdbi.core.mapper.ColumnMapperFactory
-import org.jdbi.core.mapper.ColumnMappers
 import org.jdbi.core.mapper.NoSuchMapperException
 import org.jdbi.core.statement.StatementContext
 import org.jdbi.meta.Alpha
@@ -39,7 +38,7 @@ class KotlinValueClassColumnMapperFactory : ColumnMapperFactory {
         val valueParameterType = clazz.primaryConstructor?.parameters?.singleOrNull()?.type ?: return Optional.empty()
         val valueParameterJavaType = toJavaType(valueParameterType)
 
-        val innerMapper = config[ColumnMappers::class.java].findFor(valueParameterJavaType).orElseThrow {
+        val innerMapper = config.findColumnMapperFor(valueParameterJavaType).orElseThrow {
             NoSuchMapperException("No column mapper registered for parameter (kotlin: $valueParameterType, java: $valueParameterJavaType) of type $type")
         }
 

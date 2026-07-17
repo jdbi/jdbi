@@ -22,7 +22,6 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.ValueType;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.ValueTypeMapper;
 import org.jdbi.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.sqlobject.config.RegisterColumnMapper;
@@ -311,7 +310,7 @@ public class TestColumnMappers {
 
         h.registerColumnMapper(iterableOfCalendarType, mapper);
 
-        assertThat(h.getConfig(ColumnMappers.class).findFor(iterableOfCalendarType))
+        assertThat(h.getConfig().findColumnMapperFor(iterableOfCalendarType))
             .contains(mapper);
     }
 }

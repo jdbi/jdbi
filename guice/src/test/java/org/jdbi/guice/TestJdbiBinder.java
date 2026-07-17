@@ -32,7 +32,6 @@ import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.guice.util.GuiceTestSupport;
@@ -197,7 +196,7 @@ public class TestJdbiBinder {
 
             @Override
             public void init(ConfigRegistry registry) {
-                myStringMapper = registry.get(ColumnMappers.class).findFor(MyString.class).orElseThrow(IllegalStateException::new);
+                myStringMapper = registry.findColumnMapperFor(MyString.class).orElseThrow(IllegalStateException::new);
             }
         }
     }

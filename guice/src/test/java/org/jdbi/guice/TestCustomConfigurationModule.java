@@ -26,7 +26,7 @@ import com.google.inject.name.Named;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
+import org.jdbi.core.mapper.MapperResolver;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.guice.util.GuiceTestSupport;
@@ -66,20 +66,20 @@ public class TestCustomConfigurationModule {
 
     @Test
     public void testOnlyCustomModule() throws Exception {
-        final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
+        final MapperResolver columnMappers = MapperResolver.forRegistry(jdbi.getConfig());
 
         // explicit custom mapper from the custom module
-        ColumnMapper<String> customMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("custom")))
+        ColumnMapper<String> customMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("custom")))
             .orElseThrow(IllegalStateException::new);
         assertThat(customMapper.map(null, 1, null)).isEqualTo(CUSTOM);
 
         // explicit local mapper from the local module
-        ColumnMapper<String> localMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("local")))
+        ColumnMapper<String> localMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("local")))
             .orElseThrow(IllegalStateException::new);
         assertThat(localMapper.map(null, 1, null)).isEqualTo(LOCAL);
 
         // but the global mapper is not loaded
-        assertThat(columnMappers.findFor(QualifiedType.of(String.class).with(named("global")))).isNotPresent();
+        assertThat(columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("global")))).isNotPresent();
     }
 
     static class GlobalModule extends AbstractJdbiConfigurationModule {

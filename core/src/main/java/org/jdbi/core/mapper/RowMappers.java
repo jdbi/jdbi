@@ -15,35 +15,29 @@ package org.jdbi.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.interceptor.JdbiInterceptionChainHolder;
-import org.jdbi.core.internal.CopyOnWriteHashMap;
 import org.jdbi.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.core.statement.Query;
 import org.jdbi.meta.Alpha;
 
 /**
- * Configuration registry for {@link RowMapperFactory} instances.
+ * Registry of {@link RowMapperFactory} instances. Holds only registration data; resolving a factory
+ * into a {@link RowMapper} for a given type (and caching the result) is done per configuration registry
+ * by {@link MapperResolver}.
  */
 public class RowMappers implements JdbiConfig<RowMappers> {
 
     private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors;
 
     private final List<RowMapperFactory> factories;
-    private final Map<Type, Optional<RowMapper<?>>> cache;
-
-    private ConfigRegistry registry;
 
     public RowMappers() {
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
         factories = new CopyOnWriteArrayList<>();
-        cache = new CopyOnWriteHashMap<>();
         register(MapEntryMapper.factory());
         register(new PojoMapperFactory());
         register(new OptionalRowMapperFactory());
@@ -51,13 +45,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
 
     private RowMappers(RowMappers that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
-        cache = new CopyOnWriteHashMap<>(that.cache);
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
-    }
-
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
     }
 
     /**
@@ -121,64 +109,16 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      */
     public RowMappers register(RowMapperFactory factory) {
         factories.add(0, factory);
-        cache.clear();
         return this;
     }
 
     /**
-     * Obtain a row mapper for the given type in the given context.
+     * Returns the registered factories, most-recently-registered first. Consumed by {@link MapperResolver}.
      *
-     * @param <T> the type of the mapper to find
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     * @return the registered row mapper factories
      */
-    @SuppressWarnings("unchecked")
-    public <T> Optional<RowMapper<T>> findFor(Class<T> type) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type).orElse(null);
-        return Optional.ofNullable(mapper);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in the given context.
-     *
-     * @param <T> the type of the mapper to find
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> Optional<RowMapper<T>> findFor(GenericType<T> type) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType()).orElse(null);
-        return Optional.ofNullable(mapper);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in the given context.
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findFor(Type type) {
-        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
-        // Since row mappers can decorate other row mappers, we have to populate the cache the old fashioned way.
-        // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        Optional<RowMapper<?>> cached = cache.get(type);
-
-        if (cached != null) {
-            return cached;
-        }
-
-        for (RowMapperFactory factory : factories) {
-            Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
-            RowMapper<?> mapper = maybeMapper.orElse(null);
-            if (mapper != null) {
-                mapper.init(registry);
-                cache.put(type, maybeMapper);
-                return maybeMapper;
-            }
-        }
-
-        cache.put(type, Optional.empty());
-        return Optional.empty();
+    List<RowMapperFactory> getFactories() {
+        return factories;
     }
 
     @Override

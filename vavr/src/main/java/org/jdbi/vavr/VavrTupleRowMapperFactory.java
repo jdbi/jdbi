@@ -32,11 +32,9 @@ import io.vavr.Tuple8;
 import io.vavr.collection.Array;
 import io.vavr.control.Option;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
-import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.mapper.SingleColumnMapper;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
@@ -151,19 +149,16 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
 
     Optional<RowMapper<?>> getColumnMapper(Type type, int tupleIndex, ConfigRegistry config) {
         int colIndex = tupleIndex;
-        return config.get(ColumnMappers.class)
-                .findFor(type)
+        return config.findColumnMapperFor(type)
                 .map(cm -> new SingleColumnMapper<>(cm, colIndex));
     }
 
     private Optional<RowMapper<?>> getRowMapper(Type type, ConfigRegistry config) {
-        return config.get(RowMappers.class).findFor(type);
+        return config.findRowMapperFor(type);
     }
 
     private Optional<RowMapper<?>> getColumnMapperForDefinedColumn(Type type, String col, ConfigRegistry config) {
-        return config
-                .get(ColumnMappers.class)
-                .findFor(type)
+        return config.findColumnMapperFor(type)
                 .map(cm -> new SingleColumnMapper<>(cm, col));
     }
 

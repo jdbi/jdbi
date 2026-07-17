@@ -28,10 +28,8 @@ import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
-import org.jdbi.core.mapper.Mappers;
+import org.jdbi.core.mapper.MapperResolver;
 import org.jdbi.core.mapper.RowMapper;
-import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.qualifier.QualifiedType;
 
 @SuppressWarnings("PMD.ImplicitFunctionalInterface")
@@ -104,7 +102,7 @@ public interface ConfigReader {
      * is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findMapperFor(final Class<T> type) {
-        return getConfig(Mappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findMapper(type);
     }
 
     /**
@@ -116,7 +114,7 @@ public interface ConfigReader {
      * is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findMapperFor(final GenericType<T> type) {
-        return getConfig(Mappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findMapper(type);
     }
 
     /**
@@ -127,7 +125,7 @@ public interface ConfigReader {
      * is registered for the given type.
      */
     default Optional<RowMapper<?>> findMapperFor(final Type type) {
-        return getConfig(Mappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findMapper(type);
     }
 
     /**
@@ -138,7 +136,7 @@ public interface ConfigReader {
      * is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findMapperFor(final QualifiedType<T> type) {
-        return getConfig(Mappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findMapper(type);
     }
 
     /**
@@ -149,7 +147,7 @@ public interface ConfigReader {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     default <T> Optional<ColumnMapper<T>> findColumnMapperFor(final Class<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findColumnMapper(type);
     }
 
     /**
@@ -160,7 +158,7 @@ public interface ConfigReader {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     default <T> Optional<ColumnMapper<T>> findColumnMapperFor(final GenericType<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findColumnMapper(type);
     }
 
     /**
@@ -170,7 +168,7 @@ public interface ConfigReader {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     default Optional<ColumnMapper<?>> findColumnMapperFor(final Type type) {
-        return getConfig(ColumnMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findColumnMapper(type);
     }
 
     /**
@@ -180,7 +178,7 @@ public interface ConfigReader {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     default <T> Optional<ColumnMapper<T>> findColumnMapperFor(final QualifiedType<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findColumnMapper(type);
     }
 
     /**
@@ -190,7 +188,7 @@ public interface ConfigReader {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     default Optional<RowMapper<?>> findRowMapperFor(final Type type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findRowMapper(type);
     }
 
     /**
@@ -201,7 +199,7 @@ public interface ConfigReader {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findRowMapperFor(final Class<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findRowMapper(type);
     }
 
     /**
@@ -212,7 +210,7 @@ public interface ConfigReader {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findRowMapperFor(final GenericType<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findRowMapper(type);
     }
 
     /**
