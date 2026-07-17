@@ -40,7 +40,6 @@ import org.jdbi.core.cache.internal.DefaultJdbiCacheBuilder;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.internal.exceptions.Sneaky;
 import org.jdbi.meta.Beta;
-import org.jdbi.core.config.ConfigRegistry;
 
 /**
  * Configuration holder for {@link SqlStatement}s.

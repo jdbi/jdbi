@@ -1234,6 +1234,7 @@ public interface BindingsMixin<This> extends Definable<This> {
      * @param array the array to bind
      * @return this Query
      */
+    @SuppressWarnings("PMD.ConfusingArgumentToVarargsMethod")
     default <T> This bindArray(final String name, @SuppressWarnings("unchecked") final T... array) {
         return bindArray(name, array.getClass().getComponentType(), array);
     }
@@ -1246,6 +1247,7 @@ public interface BindingsMixin<This> extends Definable<This> {
      * @param array the array to bind
      * @return this Query
      */
+    @SuppressWarnings("PMD.ConfusingArgumentToVarargsMethod")
     default <T> This bindArray(final int pos, @SuppressWarnings("unchecked") final T... array) {
         return bindArray(pos, array.getClass().getComponentType(), array);
     }

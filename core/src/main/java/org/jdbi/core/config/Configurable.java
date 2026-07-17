@@ -46,8 +46,8 @@ import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementCustomizer;
 import org.jdbi.core.statement.TemplateEngine;
 import org.jdbi.core.statement.TimingCollector;
-import org.jdbi.meta.Beta;
 import org.jdbi.core.statement.internal.DefineNamedBindingsStatementCustomizer;
+import org.jdbi.meta.Beta;
 
 /**
  * A type with access to access and modify arbitrary Jdbi configuration.

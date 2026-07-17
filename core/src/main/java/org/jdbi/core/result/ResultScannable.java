@@ -30,6 +30,7 @@ import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.internal.RowViewImpl;
 import org.jdbi.core.statement.StatementContext;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ResultScannable {
 
     /**
