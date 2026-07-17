@@ -20,6 +20,7 @@ package org.jdbi.core.statement;
  *
  * @param <This> the fluent self type returned by {@link #define}
  */
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface Definable<This> {
 
     /**

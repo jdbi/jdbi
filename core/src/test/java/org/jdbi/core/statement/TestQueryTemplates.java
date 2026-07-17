@@ -21,7 +21,6 @@ import com.google.common.collect.Maps;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
-import org.jdbi.core.result.RowView;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

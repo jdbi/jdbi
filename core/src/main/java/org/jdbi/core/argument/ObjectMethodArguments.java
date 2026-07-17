@@ -33,7 +33,6 @@ import org.jdbi.core.config.internal.ConfigCaches;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
-import org.jdbi.core.statement.StatementContext;
 
 /**
  * Binds public methods with no parameters on a specified object.

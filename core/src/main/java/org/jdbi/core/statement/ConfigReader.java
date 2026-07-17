@@ -34,6 +34,7 @@ import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.qualifier.QualifiedType;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ConfigReader {
     /**
      * Gets the configuration object of the given type, associated with this context.

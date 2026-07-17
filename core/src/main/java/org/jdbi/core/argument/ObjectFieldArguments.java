@@ -30,7 +30,6 @@ import org.jdbi.core.config.internal.ConfigCaches;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
-import org.jdbi.core.statement.StatementContext;
 
 /**
  * Inspect an object and binds parameters based on each of its public fields.

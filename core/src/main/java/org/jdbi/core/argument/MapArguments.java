@@ -20,7 +20,6 @@ import java.util.Optional;
 
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.statement.SqlStatement;
-import org.jdbi.core.statement.StatementContext;
 
 /**
  * Binds all entries of a map as arguments.
