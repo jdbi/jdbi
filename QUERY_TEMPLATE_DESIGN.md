@@ -99,6 +99,207 @@ overlay. What phase 2 still owes: making the *config itself* immutable after bui
 classic path also skips the copy) and turning an un-marked config-mutating customizer's write
 into a loud error instead of the current silent shared-snapshot mutation (see DECISION at top).
 
+## Phase 2 design options (2026-07-17): immutable config — COMPARE & CHOOSE
+
+Grounded in a survey of the actual sources (three research passes). **Landscape:** 40 `JdbiConfig`
+impls (35 main, 22 in `core`, 18 public API) — ~21 policy (scalar/flag fields + setters), ~10
+registry (append-only `register(...)` collections), **8 that mutate an internal cache on read**
+(`RowMappers`, `ColumnMappers`, `Arguments`, `JdbiCollectors`, `Extensions`, `SqlStatements.templateCache`;
+`ConfigCaches` is already a shared side-cache, orthogonal). Mutation has **two channels**: A —
+`Configurable.configure(Class, callback)` and all convenience methods route through this one seam
+(interceptable); B — `getConfig(X).setY()` on the returned object (uninterceptable). **Production
+Channel-B per-execution mutation is essentially one case** (config-mutating `SqlStatementCustomizer`s,
+already fenced by `ConfigMutating`); the weight of Channel B is **~61 test sites** plus the pervasive,
+first-class handle-level mutation (`handle.registerRowMapper/configure/getConfig(X).setY()`, ~98 repo-wide).
+The per-statement `createCopy()` at `BaseStatement.java:36` is the safety net that makes every in-flight
+mutation correct today; removing it (the perf goal) is exactly what turns Channel-B and the read-caches
+into shared-state hazards.
+
+### Two prerequisites shared by ALL approaches (independent of the immutability mechanism)
+- **P1 — move per-statement state off config onto the statement/binding.** `define` → per-execution
+  overlay; per-execution customizers, `setFetchSize`/`setMaxRows`/timeout → statement-local;
+  per-statement `registerX` → a copy-on-write fork. **Already done for `QueryTemplateBinding`** in the
+  retarget; the classic `Query`/`Update` need the same when reimplemented on the primitive.
+- **P2 — deal with the 8 read-caches.** An immutable config can't self-mutate a lazy cache. Either
+  eager-populate at build, or move each to a `ConfigCaches`-style side cache keyed off the (now stable)
+  config identity. This couples phase 2 with part of phase 4 (cache unwinding). Unavoidable in every option.
+
+### Common substrate (forced by the findings, not a choice)
+Config **values** are immutable; **holders** (`Jdbi`, `Handle`) keep a *swappable reference*.
+`handle.registerRowMapper(x)` installs a *new* immutable registry on the handle, so statements created
+afterward see it and statements/templates already snapshotted keep theirs. This preserves the
+`register/configure` API while letting statements share the handle's snapshot with zero copy. The
+extension framework and `BaseStatement` already copy-then-mutate-their-own-copy, so they survive this;
+only the per-statement copy is deleted. What no immutable model can keep is `handle.getConfig(X).setY()`
+(direct object mutation) — those sites migrate to `configure(...)`.
+
+### Approach A — freeze flag + per-class copy-on-write (smallest delta)
+Keep today's `ConfigRegistry` (Class→object map) and typed config objects. Add a `frozen` bit to each
+`JdbiConfig` (and the registry); snapshot boundaries freeze it; setters/`register` throw when frozen.
+`configure(Class, cb)` on a frozen registry **forks one config class** (copy it, apply, install in a new
+registry; other classes shared by reference). Read API (`getConfig(X).getY()`) unchanged.
+- **Channel B:** trapped at runtime — a setter on a frozen object throws a clear error (kills the footgun
+  loudly). Unfrozen handle/setup config still mutates as today.
+- **Blast radius:** touch all ~40 impls to add freeze-checks (mechanical boilerplate); registry gains fork
+  logic. No read-site changes. Public API mostly intact.
+- **Trade:** least churn and keeps the familiar typed API; but "frozen" is a runtime property, not
+  type-enforced — a forgotten check is a silent bug (the same *class* of discipline problem as the
+  `ConfigMutating` marker). Cache inconsistency (P2) still must be fixed separately.
+
+### Approach B — immutable value objects; `configure()` returns a new registry (functional)
+Every config type becomes an immutable value (final fields, no setters; a wither/builder derives a changed
+copy). `ConfigRegistry` is an immutable value over a persistent map; mutation produces a *new* registry
+(structural sharing → cheap fork). Holders swap references (the common substrate).
+- **Channel B:** eliminated at compile time — no setters exist, `getConfig(X).setY()` won't compile.
+- **Blast radius:** rewrite all ~40 impls to immutable form (withers/builders), change `configure` to
+  return-new, and **migrate every Channel-B site** (61 tests + customizers + downstream). Breaking public
+  API (setters removed). Forces P2 (caches must externalize — values can't self-cache).
+- **Trade:** compiler-enforced immutability, no frozen-bit discipline, footgun impossible by construction,
+  clean end state; but the largest per-type rewrite and it removes the long-familiar mutable-config-object
+  API.
+
+### Approach C — flat typed-key store (the maintainer's idea, refined)
+Replace per-type *fields* with a single immutable `Map<ConfigKey<?>, Object>` on the registry. Each config
+type declares **typed key constants** (`ConfigKey<TemplateEngine> TEMPLATE_ENGINE` — typed, not a raw enum,
+so `get(TEMPLATE_ENGINE)` stays `TemplateEngine`); config types become thin facades over the store or
+disappear. Immutability = one immutable map; fork = one persistent-map update (**cheapest possible**).
+Registry configs = a key holding an immutable `List`, appended via CoW. Read-caches = separate side store.
+- **Channel B:** eliminated by construction — there are no setters; every write is one `put`/one seam.
+- **Blast radius:** **largest** — every config field → a key, and **every read site in the codebase**
+  changes (`config.get(SqlStatements.class).getTemplateEngine()` → `config.get(SqlStatements.TEMPLATE_ENGINE)`);
+  reshapes the `JdbiConfig` SPI (downstream modules/user code that define config types must declare keys).
+- **Trade:** cleanest and cheapest end state, immutability + fork in exactly one place, footgun structurally
+  impossible, `createCopy` trivial; but the biggest one-time migration (mechanical but wide), and it loses
+  the typed config-object grouping unless facades are retained. Registry/cache configs fit a little awkwardly.
+
+### Comparison
+| Dimension | A: freeze + CoW | B: immutable values | C: flat typed-key store |
+| --- | --- | --- | --- |
+| Immutability enforced by | runtime flag (discipline) | compiler (no setters) | compiler (no setters) |
+| Channel B (`setY()`) | trapped at runtime | won't compile | doesn't exist |
+| Fork cost | copy one config class | persistent-map share | persistent-map share (cheapest) |
+| Read-site churn | none | none (read API kept) | **all read sites** |
+| Per-type rewrite | freeze plumbing ×40 | full immutable rewrite ×40 | fields→keys ×40 |
+| Public API break | small | setters removed | config SPI reshaped |
+| Caches (P2) | still ad hoc | forced clean | forced clean |
+| End-state cleanliness | lowest | high | highest |
+| One-time migration cost | lowest | high | highest |
+
+### End-state verdict (2026-07-17): immutable config-CLASS values (B), not the flat key store (C)
+
+Decision: go directly to the end state, and evaluate flat-keys (C) vs. a richer immutable
+config-class interface (B) fairly. On a close look the config-class wins. The reasoning:
+
+**Reframing — immutability, not flatness, delivers the perf goal.** Once config *values* are
+immutable, a registry copy shares every value by reference (the per-statement deep copy disappears),
+statements share the handle snapshot with zero copy, and a fork allocates almost nothing. B and C give
+this *equally*. Forks happen at `configure`/`register` (setup or per-statement registration), never on
+the execution hot path, so C's "cheapest fork" advantage is off the hot path and nearly irrelevant.
+
+With perf neutral, the decision turns on reads, cohesion, and migration:
+
+- **Hot-path reads favor B.** The hot path *reads* config. `config.get(SqlStatements.class)` fetches one
+  object, then many field reads are free; flat-keys is one map lookup *per field* (`get(TEMPLATE_ENGINE)`,
+  `get(PARSER)`, …), and render/execute touch several `SqlStatements` fields together. B amortizes; C
+  multiplies lookups (and casts) exactly where it's hottest.
+- **Cohesion favors B.** Config classes carry *behavior*, not just data: `SqlStatements.preparedRender`,
+  `Mappers/ColumnMappers/RowMappers.findFor`, `Arguments.prepareFor`, `handleException`, `customize`.
+  A key store holds data only; that behavior would relocate to free/static helpers that re-pull keys from
+  the map — scattering logic and losing the object model the codebase is built on.
+- **Migration favors B.** B keeps the read API (`getConfig(X).getY()`) unchanged, so the vast majority of
+  config usage (reads, everywhere) is untouched; the change concentrates in the ~40 config classes
+  (remove setters, add withers/builder) and the write sites (Channel-B `setY()` → `configure`/wither,
+  ~61 mostly-test sites). C additionally rewrites *every read site* and reshapes the SPI — strictly more.
+
+**What C genuinely wins** (and why it doesn't flip the verdict): single-place immutability enforcement
+(one map vs. 40 classes to keep correctly immutable) — but **records/compact builders make each config
+class immutable with compiler enforcement and little boilerplate**, neutralizing most of this; sparse
+footprint (store only non-default keys) — real but modest, and off the hot path; and generic tooling
+(serialize/diff/enumerate all config) — which jdbi does not need.
+
+**Hybrid considered and rejected:** config-class *facades* over a flat backing store gives two models and
+indirection for no net gain — you pay C's storage plus B's interface. Not worth it.
+
+**Chosen end state (B):**
+- Every `JdbiConfig` type is an immutable value (final fields; a `with…`/builder derives a changed copy).
+  Prefer records or a compact builder to keep immutability terse and compiler-enforced. Behavior methods
+  stay on the class.
+- `ConfigRegistry` is an immutable value over a `Map<Class<C>, C>`; because values are immutable it shares
+  them by reference on copy (persistent map for cheap forks). No deep copy anywhere.
+- `Configurable.configure(Class<C>, UnaryOperator<C>)` derives a new config value and returns a *new*
+  registry; the ~30 convenience methods route through it unchanged in spelling.
+- Holders (`Jdbi`, `Handle`) hold a swappable reference; `handle.register…/configure…` swap in the new
+  registry (future statements see it; existing snapshots are frozen). `getConfig(X).setY()` is removed —
+  its ~61 sites migrate to `configure`/withers.
+- Prerequisites P1 (statement-state off config) and P2 (externalize the 8 read-caches to `ConfigCaches`-
+  style side caches, or eager-populate at build) still apply and are sequenced first.
+
+## Phase 2 implementation plan (2026-07-17): immutable config (end state B)
+
+### Prerequisites (must land before/with the immutability sweep)
+- **P1 — statement-state off config.** Done for `QueryTemplateBinding`. Classic `Query`/`Update` need it
+  when reimplemented on the primitive; can be sequenced with the remaining phase-5 tail.
+- **P2 — externalize the 8 read-caches.** `RowMappers`/`ColumnMappers`/`Arguments`/`JdbiCollectors`/
+  `Extensions` (and `SqlStatements.templateCache`) populate an internal `Map` on lookup. An immutable
+  value can't self-mutate, so each moves to a `ConfigCaches`-style side cache (already the shared,
+  copy-returns-`this` pattern) keyed by the resolution input, or is eager-populated at build.
+- **P3 — remove the config→registry back-reference (NEW; found during planning).** ~12 configs override
+  `setRegistry` and resolve against the injected `registry` field (e.g. `RowMappers.findFor` →
+  `factory.build(type, registry)` / `mapper.init(registry)`). A value shared by reference across a forked
+  registry would resolve against the *wrong* (stale) registry, breaking cross-config consistency on fork.
+  Fix: **thread the registry through resolution** — `findFor(type, registry)` / resolution takes the
+  current `ConfigRegistry` (or `StatementContext`) as a parameter instead of a stored field. This is the
+  largest prerequisite and touches the mapper/argument resolution call paths. `setRegistry` is then dropped
+  from `JdbiConfig`.
+
+### Contract change
+`JdbiConfig<This>`: drop `createCopy()` (immutable values are shared by reference; the registry no longer
+deep-copies) and `setRegistry(...)` (P3). It becomes a near-empty marker for "an immutable config value."
+
+### Immutability strategy — records + hand-written services (Immutables considered, set aside)
+The maintainer asked to strongly consider the Immutables processor over hand-rolled builders. Evaluated:
+the config types are **tiny** (1–4 fields), so none needs a builder at all; and the behavior/registry
+configs can't be a generated value type regardless. Immutables shines for many-field pure-value types,
+which these are not, and adopting it would mean wiring the annotation processor into core's main compile
+(the dep is `provided`/`optional`, not currently an active processor for main; JDK 23+ ignores
+classpath-only processors). So:
+- **Value/policy configs (~small, no behavior):** Java **records** (native, zero processor wiring,
+  compiler-enforced immutability) with 1-line `with…` methods where a scoped change is needed. Covers
+  `MapEntryMappers`(2), `ReflectionMappers`(4), `ResultProducers`(1), `TimestampedConfig`(1),
+  `StatementExceptions`(2), `Enums`(1), `MapMappers`, `SqlObjects`, and the module configs.
+- **Behavior/registry/caching configs:** hand-written immutable classes — final fields, immutable
+  collections, `register(...)`/mutators return a *new instance*, behavior methods stay on the class,
+  resolution takes the registry as a parameter (P3). Covers `SqlStatements` (render behavior + caches),
+  `Arguments`, `ColumnMappers`, `RowMappers`, `JdbiCollectors`, `Extensions`, `Mappers`, `SqlArrayTypes`,
+  `PojoTypes`.
+- Immutables remains a fallback if we later prefer generated withers; revisit only if a config grows many
+  fields. (Records can't be a fallback for the behavior configs anyway — they need methods + non-canonical
+  state.)
+
+### Registry + configure + holder
+- `ConfigRegistry` becomes immutable over a persistent `Map<Class<C>, C>`; a copy/fork shares values by
+  reference and structurally shares the map (cheap). `get(Class)` unchanged for reads.
+- `Configurable.configure(Class<C>, UnaryOperator<C>)` derives a new config value and returns a *new*
+  registry; the ~30 convenience methods keep their spelling, routed through it. `getConfig(X).setY()` is
+  removed — migrate its ~61 (mostly test) sites to `configure`/withers.
+- Holders (`Jdbi`, `Handle`) hold a swappable `volatile` reference; `handle.register…/configure…` install
+  the new registry. Statements/templates capture the reference at creation (immutable snapshot).
+
+### Suggested landable sub-steps (each self-contained + green)
+1. **P3** — thread registry through mapper/argument resolution; drop `setRegistry`. (Non-breaking to the
+   immutability model yet; pure refactor, independently testable.)
+2. **P2** — move the 8 read-caches to side caches. (Independently testable.)
+3. **Contract + registry mechanics** — immutable `ConfigRegistry`, `configure(UnaryOperator)`, holder
+   reference-swap on `Jdbi`/`Handle`; keep config objects temporarily mutable behind the new seam to
+   isolate the mechanics change.
+4. **Convert configs to immutable** (records / hand-written) in waves: policy first, then registry/service;
+   migrate `getConfig(X).setY()` sites as each config loses its setters.
+5. **Delete the per-statement `createCopy()`** at `BaseStatement.java:36` (the payoff) and re-benchmark the
+   classic fluent path; extend P1 to classic `Query`/`Update`.
+
+Risk: this is the largest breaking change in the redesign (~40 config types + resolution APIs + ~61 write
+sites). Land it as the sub-steps above, not one commit. Sub-step 1 (P3) is the recommended starting point.
+
 ## Resolved decisions
 
 - Handle config is **immutable after construction** (opens memoization + cleanup;
