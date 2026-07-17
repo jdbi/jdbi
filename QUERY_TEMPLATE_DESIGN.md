@@ -90,6 +90,14 @@ Inventoried from the actual sources (needs a final review pass, task 2.1):
 | `executionMoment`, `completionMoment`, `exceptionMoment` | **statement state** (timing) |
 | `mappedRows`, `traceId` | **statement state** (instrumentation) |
 | fetch size, max rows, max field size (via `StatementCustomizers`) | **statement state** |
+| `extensionState` (opaque, `@Alpha`; added 2026-07-17) | **statement state** (per-execution) — the extension layer's per-invocation holder (SQL Object's args/returner), replacing the deleted `SqlObjectStatementConfiguration` |
+
+Post-retarget (2026-07-17) reality already realized on the template path: per-execution
+customizer additions and `queryTimeout` overrides live on the `QueryTemplateBinding` (its
+local `customizers` list), not on the shared config; `attributes` are the per-render defines
+overlay. What phase 2 still owes: making the *config itself* immutable after build (so the
+classic path also skips the copy) and turning an un-marked config-mutating customizer's write
+into a loud error instead of the current silent shared-snapshot mutation (see DECISION at top).
 
 ## Resolved decisions
 
@@ -109,14 +117,18 @@ Inventoried from the actual sources (needs a final review pass, task 2.1):
 Guiding principle: the public API should be as small as possible and as large as
 needed — one obvious way to do each thing, no leaked internals. Two open questions:
 
-- [ ] **Rename `buildQueryTemplate` → `buildQuery`?** Once the classic query paths are
-      retired and templates are the only way to build a query, the word "template" is
-      redundant qualification. `jdbi.buildQuery(sql)` reads better and is the one obvious
-      entry point. Counter-consideration: the returned type is `QueryTemplate` (reusable,
-      not a one-shot `Query`), so `buildQuery` returning a `QueryTemplate` may mislead;
-      resolve the method name and the type name together. Decide during phase 5 (unify),
-      not piecemeal — renaming twice churns the API.
-- [ ] **Make the `QueryTemplate` constructor non-public.** Right now it is `public`
+- [x] **Rename `buildQueryTemplate` → `buildQuery`?** RESOLVED (2026-07-17): **kept
+      `buildQueryTemplate`.** The name matches the returned type `QueryTemplate` (reusable,
+      not a one-shot `Query`) and stays distinct from `Handle.createQuery`; least-surprise
+      wins. Revisit only when the classic query paths are retired (the remaining phase-5
+      item) — then the method and type names can be reconsidered together.
+- [x] **Make the `QueryTemplate` constructor non-public.** RESOLVED (2026-07-17): **kept
+      public.** Option (a). The SQL Object retarget builds templates directly from a
+      method-level config snapshot (cross-module), so a public constructor is the simplest
+      seam and mirrors the public `Query(Handle, CharSequence)` constructor. Documented in
+      javadoc as an advanced entry point alongside `Jdbi.buildQueryTemplate`.
+      Original open text follows for context:
+- [ ] **(context) Make the `QueryTemplate` constructor non-public.** Right now it is `public`
       `QueryTemplate(ConfigRegistry, CharSequence)` so `Jdbi.buildQueryTemplate` (a
       different package) can call it, and so the SQL Object retarget can build templates
       from an extension's config later. Neither reason requires it to be *public API* for
@@ -166,12 +178,30 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-12, end of day): phase 5 SQL Object retarget — START HERE
+## HANDOFF (2026-07-17): SQL Object retarget DONE — phase 2 (immutable config) is next
 
-**Read this first if picking up fresh.** The row-reducer result-model change is DONE; the
-live front is the SQL Object retarget (phase 5 unify). Decision made with the maintainer:
-**do the full refactor** (option #1 below) — breaking the public customizer SPI is
-sanctioned for v4. Implement it next session.
+**Read this first if picking up fresh.** The SQL Object retarget (phase 5 unify) is **DONE and
+committed** (`760d8e8a` non-breaking `Customizable` extraction, `4e0f98d4` the retarget), full
+reactor green, sqlobject `sqlobjectSelectOne` ~9.1 → ~4.3 KB/op (~2.1×). See the `## DECISION`
+block at the very top for the customizer phase model that made it work.
+
+**The live front is now phase 2 (config contract redesign)** — see "### 2." below. It is
+directly motivated by the retarget: config mutation by customizers is uninterceptable today, so
+an un-marked config-mutating customizer silently corrupts the shared template snapshot. Making
+config immutable-after-build (with `configure(callback)` scoped mutation / copy-on-write) turns
+that into a loud error, lets the late path fork one config class instead of the whole classic
+path, and extends the allocation win to the classic fluent path. It is breaking (~48
+`JdbiConfig` impls) and needs a design pass + maintainer sign-off on the `configure(callback)`
+shape before editing. The field taxonomy (task 2.1, above) has had its review pass. Remaining
+phase-5 tail item (reimplement `Handle.createQuery`/… on the primitive) can come before or after
+phase 2. The historical retarget plan below is kept for provenance.
+
+---
+
+### (historical) phase 5 retarget plan — DONE, kept for provenance
+
+Decision made with the maintainer: **do the full refactor** — breaking the public customizer SPI
+is sanctioned for v4.
 
 ### State (all committed on branch `query-templates`, all green)
 Commits this session (newest last): `d0a0fc90` binding is a `ResultBearing` · `027544dd`
@@ -373,11 +403,17 @@ to phase 2. Phases below are kept in logical order but executed 1 → 5(SQL Obje
 > -Dbasepom.check.skip-all=true` then run `java -jar benchmark/target/benchmarks.jar
 > "<class>.<method>" -f 1 -wi 2 -i 4 -prof gc`.
 
-### 2. Config contract redesign
-- [ ] Complete the field taxonomy table above.
-- [ ] Immutable config snapshot type + `configure(callback)` scoped mutation.
-- [ ] Handle config immutable after construction.
-- [ ] Move statement-state fields off config/context onto the statement/binding.
+### 2. Config contract redesign — NEXT (the retarget surfaced its motivation)
+- [x] Complete the field taxonomy table above (reviewed against current sources 2026-07-17;
+      added the `extensionState` slot and the post-retarget note).
+- [ ] Immutable config snapshot type + `configure(callback)` scoped mutation. **Now motivated
+      by the config-mutation footgun:** a customizer that mutates config without the
+      `ConfigMutating` marker silently corrupts the shared template snapshot; an immutable
+      config turns that into a loud error and lets the late path fork copy-on-write instead of
+      falling back to the whole classic path.
+- [ ] Handle config immutable after construction (lets the classic fluent path also skip the
+      per-statement `createCopy()` — extends the retarget's win beyond SQL Object).
+- [ ] Move statement-state fields off config/context onto the statement/binding (per taxonomy).
 - [x] Split defines out of the shared config. `TemplateEngine.render/parse` now take a
       `RenderContext` (config + a per-execution defines overlay) instead of a raw
       `ConfigRegistry`. Defines are no longer forced to live in (and be copied with) the
