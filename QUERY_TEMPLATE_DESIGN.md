@@ -424,7 +424,27 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-17): SQL Object retarget DONE — phase 2 (immutable config) is next
+## HANDOFF (2026-07-17, later): phase 2 sub-step 2 in progress — `ArgumentResolver` is next
+
+**START HERE.** Phase 2 (immutable config) is underway. Chosen end state and full plan are in
+"## Phase 2 implementation plan" and "## Phase 2 design options" below; the landable sub-step sequence
+is in "### Suggested landable sub-steps". Done so far this session (all committed, whole reactor green
+with static analysis ENABLED — do not go back to `-Dbasepom.check.skip-all` as the validation of record):
+- Sub-step 1 (`03017fe`): `ConfigRegistry.readAs(asType, factory)` — the per-registry memoized-view seam.
+- Sub-step 2, `MapperResolver` (`6c64997`): row/column/combined resolution + caches moved off
+  `RowMappers`/`ColumnMappers` (now registration-data only); `Mappers` facade deleted; `ConfigReader`
+  re-pointed; all callers migrated.
+- Static-analysis debt cleaned (`c7aceeb` core, `2852f15` rest) — reactor passes `mvn clean install`.
+
+**Next: continue sub-step 2 with `ArgumentResolver`** (then `JdbiCollectors`, `SqlArrayTypes`,
+`Extensions`, `PojoTypes`; `Qualifiers` stays on shared `ConfigCaches`). Follow the `MapperResolver`
+pattern exactly: `SomeResolver.forRegistry(config)` via `readAs`, move `findFor`/`prepareFor` + the
+per-value cache + the `registry` back-ref onto the resolver, re-point `ConfigReader`'s convenience
+methods, migrate direct callers, slim the config value to registration data. Then sub-steps 3-5.
+
+---
+
+## (superseded) earlier handoff: SQL Object retarget DONE — phase 2 is next
 
 **Read this first if picking up fresh.** The SQL Object retarget (phase 5 unify) is **DONE and
 committed** (`760d8e8a` non-breaking `Customizable` extraction, `4e0f98d4` the retarget), full
