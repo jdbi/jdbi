@@ -68,12 +68,10 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
     private static RowMapper<?> getKeyMapper(Type keyType, ConfigRegistry config) {
         String column = config.get(MapEntryMappers.class).getKeyColumn();
         if (column == null) {
-            return config.get(RowMappers.class)
-                    .findFor(keyType)
+            return config.findRowMapperFor(keyType)
                     .orElseThrow(() -> new NoSuchMapperException(format("Map key column is not declared (missing @KeyColumn annotation?) and no row mapper for key type '%s' is registered!", keyType)));
         } else {
-            return config.get(ColumnMappers.class)
-                    .findFor(keyType)
+            return config.findColumnMapperFor(keyType)
                     .map(mapper -> new SingleColumnMapper<>(mapper, column))
                     .orElseThrow(() -> new NoSuchMapperException(format("Type '%s' for map key column '%s' has no column mapper registered!", keyType, column)));
         }
@@ -82,12 +80,10 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
     private static RowMapper<?> getValueMapper(Type valueType, ConfigRegistry config) {
         String column = config.get(MapEntryMappers.class).getValueColumn();
         if (column == null) {
-            return config.get(RowMappers.class)
-                    .findFor(valueType)
+            return config.findRowMapperFor(valueType)
                     .orElseThrow(() -> new NoSuchMapperException(format("Map value column is not declared (missing @ValueColumn annotation?) and no row mapper for value type '%s' is registered!", valueType)));
         } else {
-            return config.get(ColumnMappers.class)
-                    .findFor(valueType)
+            return config.findColumnMapperFor(valueType)
                     .map(mapper -> new SingleColumnMapper<>(mapper, column))
                     .orElseThrow(() -> new NoSuchMapperException(format("Type '%s' for map value column '%s' has no column mapper registered!", valueType, column)));
         }

@@ -23,9 +23,8 @@ import com.google.inject.name.Named;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
+import org.jdbi.core.mapper.MapperResolver;
 import org.jdbi.core.mapper.RowMapper;
-import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.guice.util.GuiceTestSupport;
@@ -58,59 +57,59 @@ public class TestOverrides {
 
     @Test
     public void testRowMapperOverrides() throws Exception {
-        RowMapper<String> mapper = jdbi.getConfig().get(RowMappers.class).findFor(String.class).orElseThrow(IllegalStateException::new);
+        RowMapper<String> mapper = jdbi.getConfig().findRowMapperFor(String.class).orElseThrow(IllegalStateException::new);
         assertThat(mapper.map(null, null)).isEqualTo(LOCAL);
     }
 
     @Test
     public void testColumnMapperLocalOverride() throws Exception {
-        final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
+        final MapperResolver columnMappers = MapperResolver.forRegistry(jdbi.getConfig());
 
         // unqualified local mapper overrides unqualified global mapper
-        ColumnMapper<String> unqualifiedMapper = columnMappers.findFor(String.class).orElseThrow(IllegalStateException::new);
+        ColumnMapper<String> unqualifiedMapper = columnMappers.findColumnMapper(String.class).orElseThrow(IllegalStateException::new);
         assertThat(unqualifiedMapper.map(null, 1, null)).isEqualTo(LOCAL);
     }
 
     @Test
     public void testColumnMapperGlobalOverride() throws Exception {
-        final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
+        final MapperResolver columnMappers = MapperResolver.forRegistry(jdbi.getConfig());
 
         // explicit global mapper
-        ColumnMapper<String> globalMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("global")))
+        ColumnMapper<String> globalMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("global")))
             .orElseThrow(IllegalStateException::new);
         assertThat(globalMapper.map(null, 1, null)).isEqualTo(GLOBAL);
     }
 
     @Test
     public void testLocalColumnMapper() throws Exception {
-        final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
+        final MapperResolver columnMappers = MapperResolver.forRegistry(jdbi.getConfig());
 
         // explicit local mapper
-        ColumnMapper<String> localMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("local")))
+        ColumnMapper<String> localMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("local")))
             .orElseThrow(IllegalStateException::new);
         assertThat(localMapper.map(null, 1, null)).isEqualTo(LOCAL);
     }
 
     @Test
     public void testQualifiedLocalColumnMapper() throws Exception {
-        final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
+        final MapperResolver columnMappers = MapperResolver.forRegistry(jdbi.getConfig());
 
         // qualified local mapper overrides qualified global mapper
-        ColumnMapper<String> qualifiedMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("qualified")))
+        ColumnMapper<String> qualifiedMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("qualified")))
             .orElseThrow(IllegalStateException::new);
         assertThat(qualifiedMapper.map(null, 1, null)).isEqualTo(LOCAL);
     }
 
     @Test
     public void testDifferentMappers() {
-        final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
-        ColumnMapper<String> unqualifiedMapper = columnMappers.findFor(String.class)
+        final MapperResolver columnMappers = MapperResolver.forRegistry(jdbi.getConfig());
+        ColumnMapper<String> unqualifiedMapper = columnMappers.findColumnMapper(String.class)
             .orElseThrow(IllegalStateException::new);
-        ColumnMapper<String> globalMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("global")))
+        ColumnMapper<String> globalMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("global")))
             .orElseThrow(IllegalStateException::new);
-        ColumnMapper<String> localMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("local")))
+        ColumnMapper<String> localMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("local")))
             .orElseThrow(IllegalStateException::new);
-        ColumnMapper<String> qualifiedMapper = columnMappers.findFor(QualifiedType.of(String.class).with(named("qualified")))
+        ColumnMapper<String> qualifiedMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("qualified")))
             .orElseThrow(IllegalStateException::new);
 
         assertThat(unqualifiedMapper)
@@ -125,20 +124,20 @@ public class TestOverrides {
 
     @Test
     public void testMissingMapperLookup() {
-        final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
+        final MapperResolver columnMappers = MapperResolver.forRegistry(jdbi.getConfig());
 
-        assertThat(columnMappers.findFor(QualifiedType.of(String.class).with(named("absent")))).isNotPresent();
+        assertThat(columnMappers.findColumnMapper(QualifiedType.of(String.class).with(named("absent")))).isNotPresent();
     }
 
     @Test
     public void testUnqualifiedQualified() {
-        final ColumnMappers columnMappers = jdbi.getConfig().get(ColumnMappers.class);
+        final MapperResolver columnMappers = MapperResolver.forRegistry(jdbi.getConfig());
 
         // lookup by type
-        ColumnMapper<String> typeMapper = columnMappers.findFor(String.class).orElseThrow(IllegalStateException::new);
+        ColumnMapper<String> typeMapper = columnMappers.findColumnMapper(String.class).orElseThrow(IllegalStateException::new);
 
         // lookup by qualified
-        ColumnMapper<String> qualifiedMapper = columnMappers.findFor(QualifiedType.of(String.class)).orElseThrow(IllegalStateException::new);
+        ColumnMapper<String> qualifiedMapper = columnMappers.findColumnMapper(QualifiedType.of(String.class)).orElseThrow(IllegalStateException::new);
 
         // lands on the same instance
         assertThat(typeMapper).isSameAs(qualifiedMapper);

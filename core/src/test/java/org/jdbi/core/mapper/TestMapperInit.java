@@ -232,7 +232,7 @@ public class TestMapperInit {
 
         @Override
         public void init(ConfigRegistry registry) {
-            stringValueMapper = registry.get(ColumnMappers.class).findFor(StringValue.class).orElseGet(() -> fail("No mapper found!"));
+            stringValueMapper = registry.findColumnMapperFor(StringValue.class).orElseGet(() -> fail("No mapper found!"));
         }
     }
 }

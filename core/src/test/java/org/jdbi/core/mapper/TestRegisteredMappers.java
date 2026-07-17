@@ -57,7 +57,7 @@ public class TestRegisteredMappers {
 
         db.registerRowMapper(iterableOfCalendarType, mapper);
 
-        assertThat(db.getConfig(RowMappers.class).findFor(iterableOfCalendarType))
+        assertThat(db.getConfig().findRowMapperFor(iterableOfCalendarType))
             .contains(mapper);
     }
 }
