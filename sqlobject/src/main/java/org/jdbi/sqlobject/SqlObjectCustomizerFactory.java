@@ -58,6 +58,7 @@ class SqlObjectCustomizerFactory implements ConfigCustomizerFactory {
                 .toList();
     }
 
+    @SuppressWarnings("PMD.ImplicitFunctionalInterface")
     private interface ConfigurerMethod {
 
         void configure(Configurer configurer, ConfigRegistry config, Annotation annotation);
