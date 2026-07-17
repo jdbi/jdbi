@@ -14,20 +14,26 @@
 package org.jdbi.sqlobject.statement.internal;
 
 import java.lang.reflect.Method;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.internal.MemoizingSupplier;
 import org.jdbi.core.qualifier.QualifiedType;
+import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultIterable;
-import org.jdbi.core.statement.Query;
+import org.jdbi.core.statement.Customizable;
+import org.jdbi.core.statement.QueryTemplate;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.sqlobject.statement.UseRowMapper;
 import org.jdbi.sqlobject.statement.UseRowReducer;
 
-public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
+public class SqlQueryHandler extends CustomizingStatementHandler {
     private final ResultReturner resultReturner;
     private final UseRowMapper useRowMapper;
     private final UseRowReducer useRowReducer;
+    private final boolean late;
 
     public SqlQueryHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -39,6 +45,9 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
         if (this.useRowReducer != null && this.useRowMapper != null) {
             throw new IllegalStateException("Cannot declare @UseRowMapper and @UseRowReducer on the same method.");
         }
+
+        // A method whose customizer must mutate configuration per invocation runs on the classic path.
+        this.late = hasLateCustomizers();
     }
 
     @Override
@@ -47,25 +56,51 @@ public class SqlQueryHandler extends CustomizingStatementHandler<Query> {
     }
 
     @Override
-    void configureReturner(Query query, SqlObjectStatementConfiguration cfg) {
+    Function<Handle, ? extends Customizable<?>> statementFactory(ConfigRegistry config, Supplier<String> locatedSql) {
+        if (late) {
+            // Classic path: a fresh Query per call, each with its own configuration copy.
+            return super.statementFactory(config, locatedSql);
+        }
+        // Fast path: build one template per attach, baking configure-phase customizers into its
+        // configuration snapshot once. Every call binds against a fresh, thread-confined binding.
+        final Supplier<QueryTemplate> template = MemoizingSupplier.of(() -> {
+            final ConfigRegistry templateConfig = config.createCopy();
+            applyConfigureCustomizers(new ConfigureStatement(templateConfig));
+            return new QueryTemplate(templateConfig, locatedSql.get());
+        });
+        return handle -> template.get().with(handle);
+    }
 
-        cfg.setReturner(() -> {
-            StatementContext ctx = query.getContext();
+    @Override
+    void applyPerInvocationCustomizers(Customizable<?> stmt, Object[] args) {
+        if (late) {
+            super.applyPerInvocationCustomizers(stmt, args);
+        } else {
+            // Configure-phase customizers are baked into the template; only bind per invocation.
+            applyCustomizers(stmt, args, Phase.BIND);
+        }
+    }
+
+    @Override
+    void configureReturner(Customizable<?> stmt, SqlObjectStatementState state) {
+        final ResultBearing results = (ResultBearing) stmt;
+        state.setReturner(() -> {
+            StatementContext ctx = stmt.getContext();
             QualifiedType<?> elementType = resultReturner.elementType(ctx.getConfig());
 
             if (useRowReducer != null) {
-                return resultReturner.reducedResult(query.reduceRows(rowReducerFor(useRowReducer)), ctx);
+                return resultReturner.reducedResult(results.reduceRows(rowReducerFor(useRowReducer)), ctx);
             }
 
             ResultIterable<?> iterable = useRowMapper == null
-                    ? query.mapTo(elementType)
-                    : query.map(rowMapperFor(useRowMapper));
+                    ? results.mapTo(elementType)
+                    : results.map(rowMapperFor(useRowMapper));
             return resultReturner.mappedResult(iterable, ctx);
         });
     }
 
     @Override
-    Query createStatement(Handle handle, String locatedSql) {
+    Customizable<?> createStatement(Handle handle, String locatedSql) {
         return handle.createQuery(locatedSql);
     }
 }

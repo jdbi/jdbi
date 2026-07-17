@@ -23,9 +23,10 @@ import java.util.function.Function;
 import org.jdbi.core.Handle;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.statement.Call;
+import org.jdbi.core.statement.Customizable;
 import org.jdbi.core.statement.OutParameters;
 
-public class SqlCallHandler extends CustomizingStatementHandler<Call> {
+public class SqlCallHandler extends CustomizingStatementHandler {
     private final BiFunction<OutParameters, Call, ?> resultTransformer;
 
     public SqlCallHandler(Class<?> sqlObjectType, Method method) {
@@ -41,10 +42,10 @@ public class SqlCallHandler extends CustomizingStatementHandler<Call> {
             final int pIdx = idx;
             Parameter p = method.getParameters()[idx];
             if (p.getType().equals(Function.class)) {
-                return (outParameters, call) -> ((Function) call.getConfig(SqlObjectStatementConfiguration.class).getArgs()[pIdx]).apply(outParameters);
+                return (outParameters, call) -> ((Function) SqlObjectStatementState.from(call.getContext()).getArgs()[pIdx]).apply(outParameters);
             } else if (p.getType().equals(Consumer.class)) {
                 return (outParameters, call) -> {
-                    ((Consumer) call.getConfig(SqlObjectStatementConfiguration.class).getArgs()[pIdx]).accept(outParameters);
+                    ((Consumer) SqlObjectStatementState.from(call.getContext()).getArgs()[pIdx]).accept(outParameters);
                     return null;
                 };
             }
@@ -64,7 +65,8 @@ public class SqlCallHandler extends CustomizingStatementHandler<Call> {
     }
 
     @Override
-    void configureReturner(Call call, SqlObjectStatementConfiguration cfg) {
-        cfg.setReturner(() -> resultTransformer.apply(call.invoke(), call));
+    void configureReturner(Customizable<?> stmt, SqlObjectStatementState state) {
+        final Call call = (Call) stmt;
+        state.setReturner(() -> resultTransformer.apply(call.invoke(), call));
     }
 }

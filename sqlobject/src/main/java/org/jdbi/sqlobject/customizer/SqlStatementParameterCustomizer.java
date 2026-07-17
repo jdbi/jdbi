@@ -16,10 +16,10 @@ package org.jdbi.sqlobject.customizer;
 import java.sql.SQLException;
 
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.statement.SqlStatement;
+import org.jdbi.core.statement.Customizable;
 
 /**
- * Customize a {@link SqlStatement} according to the value of an annotated parameter.
+ * Customize a statement according to the value of an annotated parameter.
  */
 @FunctionalInterface
 public interface SqlStatementParameterCustomizer {
@@ -31,7 +31,7 @@ public interface SqlStatementParameterCustomizer {
      * @param arg  the argument passed to the method
      * @throws SQLException will abort statement creation
      */
-    void apply(SqlStatement<?> stmt, Object arg) throws SQLException;
+    void apply(Customizable<?> stmt, Object arg) throws SQLException;
 
     /**
      * Called after the customizer is instantiated but before any statement is available,

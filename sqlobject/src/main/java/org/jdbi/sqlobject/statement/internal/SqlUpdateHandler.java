@@ -23,6 +23,7 @@ import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultIterable;
+import org.jdbi.core.statement.Customizable;
 import org.jdbi.core.statement.Update;
 import org.jdbi.sqlobject.UnableToCreateSqlObjectException;
 import org.jdbi.sqlobject.statement.GetGeneratedKeys;
@@ -31,7 +32,7 @@ import org.jdbi.sqlobject.statement.UseRowReducer;
 
 import static java.lang.String.format;
 
-public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
+public class SqlUpdateHandler extends CustomizingStatementHandler {
 
     private final WarmableResultTransformer resultTransformer;
 
@@ -96,8 +97,9 @@ public class SqlUpdateHandler extends CustomizingStatementHandler<Update> {
     }
 
     @Override
-    void configureReturner(Update u, SqlObjectStatementConfiguration cfg) {
-        cfg.setReturner(() -> resultTransformer.apply(u));
+    void configureReturner(Customizable<?> stmt, SqlObjectStatementState state) {
+        final Update u = (Update) stmt;
+        state.setReturner(() -> resultTransformer.apply(u));
     }
 
     private boolean isNumeric(Class<?> type) {

@@ -129,6 +129,43 @@ needed — one obvious way to do each thing, no leaked internals. Two open quest
       constructor. Resolve alongside the SQL Object retarget (step 3), when the second
       caller's construction path is actually designed.
 
+## DECISION (2026-07-17): customizer phase model — the general fix for config mutation
+
+The SQL Object retarget is NOT decoupled from the config redesign after all: statement
+customizers can mutate config (e.g. `@AllowUnusedBindings` → `getConfig(SqlStatements).set...`),
+and the retargeted query path shares one immutable config snapshot, so per-execution config
+mutation would race / leak. Config mutation is uninterceptable today (`ConfigRegistry.get(X)`
+returns a shared instance mutated by a plain setter; `StatementContext.config` is final, created
+before customizers run), so copy-on-write is not available without the phase-2 redesign.
+
+Resolution (decided with the maintainer) — a **customizer phase model**, applied to the query
+path first:
+
+- **Configure (early)** — type/method-level, invariant. Applied **once** when the template is
+  built, against the template's method-level config. Config mutations and registered statement
+  customizers freeze into the shared snapshot. Free per invocation. Built-ins: `@AllowUnusedBindings`,
+  `@DefineNamedBindings`, method-level `@FetchSize`/`@MaxRows`/`@QueryTimeout`, reworked `@Timestamped`.
+- **Bind** — parameter-level (+ the default per-param binder). Applied per invocation to the
+  binding; only `bind`/`define`, never config. Free (no config copy). Built-ins: `@Bind*`,
+  `@Define*`, `@MapTo`, param `@FetchSize`/`@MaxRows`.
+- **Late** — opt-in escape hatch (marker interface `ConfigMutating`) for a customizer that must
+  mutate config per invocation. A method carrying any late customizer falls back to the classic
+  per-statement `Query` path (config copy per call = existing correct behavior). No built-in needs it.
+
+Default policy: fast by default (type/method → configure, parameter → bind); late is explicit
+opt-in ("opt into the expensive path"). A customizer that mutates config per invocation MUST
+declare itself late, else it silently mutates the shared snapshot (a phase-2 immutable config
+would turn this into a loud error; deferred). Consequences accepted: (1) method/type-level
+`SqlStatementCustomizer`s are now build-time — a method-level customizer that binds per
+invocation must be a parameter customizer or register a `StatementCustomizer`; (2) `@Timestamped`
+is reworked from eager `bind(now())` to a configure-registered `StatementCustomizer` binding a
+fresh `now()` in `beforeBinding` each execution.
+
+Implementation notes: base `CustomizingStatementHandler` becomes non-generic over `Customizable<?>`
+(so `SqlQueryHandler.createStatement` can return a `Query` for the late/classic path or a
+`QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
+`SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
+
 ## HANDOFF (2026-07-12, end of day): phase 5 SQL Object retarget — START HERE
 
 **Read this first if picking up fresh.** The row-reducer result-model change is DONE; the
@@ -389,13 +426,35 @@ to phase 2. Phases below are kept in logical order but executed 1 → 5(SQL Obje
       allocation-free.
 
 ### 5. Unify the APIs
-- [ ] **NEXT (planned, green-lit):** Retarget SQL Object onto the template — the full
-      breaking refactor. Detailed step-by-step in the HANDOFF "### The plan for next session";
-      blocker analysis in "### SQL Object retarget — precise blocker analysis". Introduce
-      `Customizable`, retype the customizer SPI + handler base, move `args`/`returner` off
-      `SqlObjectStatementConfiguration`, then `SqlQueryHandler` builds one template per method.
+- [x] **DONE (2026-07-17):** Retarget SQL Object onto the template — the full breaking refactor.
+      Introduced `Customizable` (supertype of `SqlStatement` and `QueryTemplateBinding`), retyped the
+      customizer SPI (`SqlStatementCustomizer`/`SqlStatementParameterCustomizer` take `Customizable<?>`)
+      and made the handler base non-generic over `Customizable<?>`, moved `args`/`returner` off the
+      (deleted) `SqlObjectStatementConfiguration` onto an opaque `@Alpha` `StatementContext` slot, and
+      `SqlQueryHandler` now builds one `QueryTemplate` per attach. **Config mutation was solved by the
+      customizer phase model** (see DECISION at top): configure-phase customizers bake into the template
+      snapshot once; bind-phase customizers only touch the per-execution binding; `ConfigMutating` (late)
+      customizers fall back to the classic per-statement path. Two latent bugs fixed en route: the binding
+      used a separate `Binding` from `ctx.getBinding()` (broke `beforeBinding` customizers), and it skipped
+      the `null`-result-set → `NoResultsException` check. `@Timestamped` reworked to a configure-registered
+      `StatementCustomizer`. Full reactor green (core 1006, sqlobject 499, all modules).
 - [ ] Reimplement `Handle.createQuery`/`createUpdate`/… on the primitive.
-- [ ] Re-run the benchmark for SQL Object, before vs after. Record numbers here.
+- [x] Re-run the benchmark for SQL Object, before vs after (`H2SqlObjectV3Benchmark.sqlobjectSelectOne`,
+      `-prof gc`, allocation/op is the deterministic metric in this container):
+      | path | alloc/op |
+      | --- | --- |
+      | classic (baseline) | **~9,100 B/op** |
+      | retargeted (template) | **~4,334 B/op** (±176) |
+      **~52% less allocation (~2.1×).** Matches the fluent-template win; the ~0.5 KB over the pure
+      fluent template (~3.8 KB/op) is the extension dispatch + `ResultReturner` machinery.
+
+### Open API decisions — RESOLVED (2026-07-17)
+- **`Jdbi.buildQueryTemplate` name:** kept (not renamed to `buildQuery`). The name matches its return
+  type `QueryTemplate` and stays distinct from the one-shot `Handle.createQuery`; least-surprise wins.
+  Revisit if/when `Handle.createQuery` is reimplemented on the primitive (the remaining phase-5 item).
+- **`QueryTemplate(ConfigRegistry, CharSequence)` constructor visibility:** kept public. It is the entry
+  point the sqlobject module uses to build a template from a method-level config snapshot (cross-module),
+  and is a legitimate advanced API alongside `Jdbi.buildQueryTemplate`; documented in javadoc.
 
 ### 6. Finish
 - [ ] Tests: reuse across handles and threads, binding, constant + dynamic defines,

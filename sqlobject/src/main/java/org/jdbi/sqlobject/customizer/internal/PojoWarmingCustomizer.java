@@ -24,7 +24,7 @@ import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties.PojoProperty;
 import org.jdbi.core.mapper.reflect.internal.PojoTypes;
-import org.jdbi.core.statement.SqlStatement;
+import org.jdbi.core.statement.Customizable;
 import org.jdbi.sqlobject.customizer.SqlStatementParameterCustomizer;
 
 public final class PojoWarmingCustomizer {
@@ -33,7 +33,7 @@ public final class PojoWarmingCustomizer {
     public static SqlStatementParameterCustomizer of(Type pojoType, SqlStatementParameterCustomizer customizer) {
         return new SqlStatementParameterCustomizer() {
             @Override
-            public void apply(SqlStatement<?> stmt, Object arg) throws SQLException {
+            public void apply(Customizable<?> stmt, Object arg) throws SQLException {
                 customizer.apply(stmt, arg);
             }
 

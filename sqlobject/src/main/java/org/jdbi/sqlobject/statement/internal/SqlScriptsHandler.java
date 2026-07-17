@@ -16,17 +16,19 @@ package org.jdbi.sqlobject.statement.internal;
 import java.lang.reflect.Method;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.statement.Customizable;
 import org.jdbi.core.statement.Script;
 
-public class SqlScriptsHandler extends CustomizingStatementHandler<Script> {
+public class SqlScriptsHandler extends CustomizingStatementHandler {
 
     public SqlScriptsHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
     }
 
     @Override
-    void configureReturner(Script stmt, SqlObjectStatementConfiguration cfg) {
-        cfg.setReturner(stmt::execute);
+    void configureReturner(Customizable<?> stmt, SqlObjectStatementState state) {
+        final Script script = (Script) stmt;
+        state.setReturner(script::execute);
     }
 
     @Override

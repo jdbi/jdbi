@@ -36,6 +36,7 @@ import org.jdbi.core.internal.JdbiClassUtils;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.result.ResultIterator;
+import org.jdbi.core.statement.Customizable;
 import org.jdbi.core.statement.PreparedBatch;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.UnableToCreateStatementException;
@@ -49,7 +50,7 @@ import org.jdbi.sqlobject.statement.UseRowReducer;
 
 import static java.lang.String.format;
 
-public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> {
+public class SqlBatchHandler extends CustomizingStatementHandler {
     private final SqlBatch sqlBatch;
     private final SqlBatchHandler.ChunkSizeFunction batchChunkSize;
     private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
@@ -152,7 +153,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
     }
 
     @Override
-    void configureReturner(PreparedBatch stmt, SqlObjectStatementConfiguration cfg) {}
+    void configureReturner(Customizable<?> stmt, SqlObjectStatementState state) {}
 
     @Override
     Type getParameterType(Parameter parameter) {
@@ -219,7 +220,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler<PreparedBatch> 
                     private PreparedBatch createPreparedBatch(Handle handle, String sql, List<Object[]> currArgs) {
                         PreparedBatch batch = handle.prepareBatch(sql);
                         for (Object[] currArg : currArgs) {
-                            applyCustomizers(batch, currArg);
+                            applyCustomizers(batch, currArg, null);
                             batch.add();
                         }
                         return batch;
