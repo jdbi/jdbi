@@ -15,9 +15,7 @@ package org.jdbi.core.statement;
 
 import java.sql.Statement;
 
-import org.jdbi.core.config.Configurable;
-
-public interface QueryCustomizerMixin<This> extends Configurable<This> {
+public interface QueryCustomizerMixin<This> extends Customizable<This> {
 
     /**
      * Specify the fetch size for the query. This should cause the results to be

@@ -75,6 +75,8 @@ public class StatementContext implements Closeable, ConfigReader {
     private volatile long mappedRows;
     private String traceId;
 
+    private Object extensionState;
+
     static StatementContext create(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType) {
         final StatementContext context = new StatementContext(config, extensionMethod, jdbiStatementType);
         context.notifyContextCreated();
@@ -437,6 +439,30 @@ public class StatementContext implements Closeable, ConfigReader {
 
     public ExtensionMethod getExtensionMethod() {
         return extensionMethod;
+    }
+
+    /**
+     * Returns the opaque, per-execution state attached by the extension layer, or {@code null} if none.
+     * The extension framework (for example the SQL Object handlers) uses this to carry per-invocation
+     * data such as the method arguments and the result producer, without storing it on the shared
+     * configuration. Not part of the public Jdbi API.
+     *
+     * @return the attached extension state, or {@code null}
+     */
+    @Alpha
+    public Object getExtensionState() {
+        return extensionState;
+    }
+
+    /**
+     * Attaches opaque, per-execution state on behalf of the extension layer. Only intended for internal
+     * extension frameworks to call.
+     *
+     * @param extensionState the state to attach
+     */
+    @Alpha
+    public void setExtensionState(final Object extensionState) {
+        this.extensionState = extensionState;
     }
 
     boolean isClean() {

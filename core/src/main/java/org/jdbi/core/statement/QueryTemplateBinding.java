@@ -23,9 +23,12 @@ import java.util.Map;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.result.NoResultsException;
 import org.jdbi.core.result.ResultBearing;
+import org.jdbi.core.result.ResultProducers;
 import org.jdbi.core.result.ResultSetScanner;
 import org.jdbi.core.result.UnableToProduceResultException;
+import org.jdbi.core.result.internal.EmptyResultSet;
 import org.jdbi.core.statement.BaseStatement.StatementCustomizerInvocation;
 
 /**
@@ -40,11 +43,10 @@ import org.jdbi.core.statement.BaseStatement.StatementCustomizerInvocation;
  * In particular, customizers added here are recorded on the binding rather than on the shared
  * configuration, so they affect only this execution.
  */
-public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryTemplateBinding> {
+public class QueryTemplateBinding implements ResultBearing, QueryCustomizerMixin<QueryTemplateBinding> {
     private final Handle handle;
     private final QueryTemplate template;
     private final StatementContext ctx;
-    private final Binding binding;
     private final Map<String, Object> defines = new HashMap<>();
     private final List<StatementCustomizer> customizers = new ArrayList<>();
 
@@ -54,12 +56,11 @@ public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryT
         this.ctx = StatementContext.create(template.config, handle.getExtensionMethod(), getClass())
             .setConnection(handle.getConnection())
             .setRawSql(template.sql);
-        this.binding = new Binding(ctx);
     }
 
     @Override
     public Binding getBinding() {
-        return binding;
+        return ctx.getBinding();
     }
 
     @Override
@@ -67,11 +68,23 @@ public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryT
         return template.config;
     }
 
-    /**
-     * @return the statement context for this execution.
-     */
+    @Override
     public StatementContext getContext() {
         return ctx;
+    }
+
+    /**
+     * Registers this execution's statement context to be cleaned up when the owning handle is closed.
+     * If the context is cleaned up on its own first, it unregisters itself from the handle.
+     *
+     * @return this
+     */
+    @Override
+    public QueryTemplateBinding attachToHandleForCleanup() {
+        final Cleanable statementCleanable = ctx::close;
+        handle.addCleanable(statementCleanable);
+        ctx.addCleanable(() -> handle.removeCleanable(statementCleanable));
+        return this;
     }
 
     /**
@@ -97,39 +110,10 @@ public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryT
      * @param customizer the customizer to apply to this execution's JDBC statement
      * @return this
      */
+    @Override
     public QueryTemplateBinding addCustomizer(final StatementCustomizer customizer) {
         customizers.add(customizer);
         return this;
-    }
-
-    /**
-     * Sets the fetch size for this execution. See {@link java.sql.Statement#setFetchSize(int)}.
-     *
-     * @param fetchSize the number of rows to fetch per round trip
-     * @return this
-     */
-    public QueryTemplateBinding setFetchSize(final int fetchSize) {
-        return addCustomizer(StatementCustomizers.fetchSize(fetchSize));
-    }
-
-    /**
-     * Sets the maximum number of rows for this execution. See {@link java.sql.Statement#setMaxRows(int)}.
-     *
-     * @param maxRows the maximum number of rows to return
-     * @return this
-     */
-    public QueryTemplateBinding setMaxRows(final int maxRows) {
-        return addCustomizer(StatementCustomizers.maxRows(maxRows));
-    }
-
-    /**
-     * Sets the maximum field size for this execution. See {@link java.sql.Statement#setMaxFieldSize(int)}.
-     *
-     * @param maxFieldSize the maximum field size in bytes
-     * @return this
-     */
-    public QueryTemplateBinding setMaxFieldSize(final int maxFieldSize) {
-        return addCustomizer(StatementCustomizers.maxFieldSize(maxFieldSize));
     }
 
     /**
@@ -138,6 +122,7 @@ public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryT
      * @param seconds the timeout in seconds
      * @return this
      */
+    @Override
     public QueryTemplateBinding setQueryTimeout(final int seconds) {
         return addCustomizer(StatementCustomizers.statementTimeout(seconds));
     }
@@ -145,13 +130,13 @@ public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryT
     @Override
     @SafeVarargs
     public final <T> QueryTemplateBinding bindArray(final int pos, final T... array) {
-        return BindingsMixin.super.bindArray(pos, array);
+        return QueryCustomizerMixin.super.bindArray(pos, array);
     }
 
     @Override
     @SafeVarargs
     public final <T> QueryTemplateBinding bindArray(final String name, final T... array) {
-        return BindingsMixin.super.bindArray(name, array);
+        return QueryCustomizerMixin.super.bindArray(name, array);
     }
 
     /**
@@ -179,9 +164,10 @@ public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryT
         callCustomizers(stmtConfig, c -> c.beforeTemplating(null, ctx));
 
         // Constant-defines fast path: reuse the SQL rendered and parsed once at template build time.
-        // If this execution overrode any define, re-render and re-parse with the overlay applied.
+        // Re-render and re-parse for this execution if it overrode a define, or if the template's SQL
+        // depends on attributes supplied per execution (so it could not be rendered once at build time).
         final ParsedSql effectiveParsedSql;
-        if (defines.isEmpty()) {
+        if (defines.isEmpty() && template.parsedSql != null) {
             ctx.setRenderedSql(template.renderedSql);
             effectiveParsedSql = template.parsedSql;
         } else {
@@ -191,24 +177,40 @@ public class QueryTemplateBinding implements ResultBearing, BindingsMixin<QueryT
         }
         ctx.setParsedSql(effectiveParsedSql);
 
+        final PreparedStatement stmt;
         try {
-            final PreparedStatement stmt = handle.getStatementBuilder()
+            stmt = handle.getStatementBuilder()
                 .create(handle.getConnection(), effectiveParsedSql.getSql(), ctx);
             ctx.addCleanable(() -> handle.getStatementBuilder().close(handle.getConnection(), template.sql, stmt));
             stmtConfig.customize(stmt);
-            ctx.setStatement(stmt);
+        } catch (final SQLException e) {
+            throw new UnableToCreateStatementException(e, ctx);
+        }
+        ctx.setStatement(stmt);
 
-            callCustomizers(stmtConfig, c -> c.beforeBinding(stmt, ctx));
+        callCustomizers(stmtConfig, c -> c.beforeBinding(stmt, ctx));
 
-            new ArgumentBinder(stmt, ctx, effectiveParsedSql.getParameters()).bind(binding);
+        new ArgumentBinder(stmt, ctx, effectiveParsedSql.getParameters()).bind(ctx.getBinding());
 
-            callCustomizers(stmtConfig, c -> c.beforeExecution(stmt, ctx));
+        callCustomizers(stmtConfig, c -> c.beforeExecution(stmt, ctx));
 
+        try {
             SqlLoggerUtil.wrap(stmt::execute, ctx, stmtConfig.getSqlLogger());
+        } catch (final SQLException e) {
+            throw stmtConfig.handleException(e, ctx);
+        }
 
-            callCustomizers(stmtConfig, c -> c.afterExecution(stmt, ctx));
+        callCustomizers(stmtConfig, c -> c.afterExecution(stmt, ctx));
 
-            return stmt.getResultSet();
+        try {
+            final ResultSet resultSet = stmt.getResultSet();
+            if (resultSet == null) {
+                if (template.config.get(ResultProducers.class).isAllowNoResults()) {
+                    return new EmptyResultSet();
+                }
+                throw new NoResultsException("Statement returned no results", ctx);
+            }
+            return resultSet;
         } catch (final SQLException e) {
             throw stmtConfig.handleException(e, ctx);
         }

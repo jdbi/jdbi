@@ -32,7 +32,9 @@ public class QueryTemplate {
     final ConfigRegistry config;
     final String sql;
 
-    // Rendered and parsed once at build time, then reused for every execution.
+    // Rendered and parsed once at build time, then reused for every execution. Both are null when the
+    // SQL depends on attributes supplied per execution (so it cannot be rendered once here); each
+    // execution then renders and parses with its own defined attributes.
     final String renderedSql;
     final ParsedSql parsedSql;
 
@@ -49,10 +51,21 @@ public class QueryTemplate {
         this.sql = sql.toString();
 
         final SqlStatements stmtConfig = config.get(SqlStatements.class);
-        this.renderedSql = stmtConfig.preparedRender(this.sql, RenderContext.of(config));
-        // The parser uses the context only for exception reporting; parsing depends solely on the SQL.
-        this.parsedSql = stmtConfig.getSqlParser()
-            .parse(renderedSql, StatementContext.create(config, null, QueryTemplate.class));
+        String rendered;
+        ParsedSql parsed;
+        try {
+            rendered = stmtConfig.preparedRender(this.sql, RenderContext.of(config));
+            // The parser uses the context only for exception reporting; parsing depends solely on the SQL.
+            parsed = stmtConfig.getSqlParser()
+                .parse(rendered, StatementContext.create(config, null, QueryTemplate.class));
+        } catch (final RuntimeException ignored) {
+            // The SQL references attributes that are only defined per execution, so it cannot be
+            // rendered once here; each execution renders and parses with its own defined attributes.
+            rendered = null;
+            parsed = null;
+        }
+        this.renderedSql = rendered;
+        this.parsedSql = parsed;
     }
 
     /**
