@@ -535,6 +535,91 @@ the plugin SPI). Do **not** re-add holder swap as the primary model.
 
 ---
 
+## Config assembly API — PROPOSAL for sign-off (2026-07-17)
+
+Concrete public shapes for the config/Handle decoupling. Grounded in the current surfaces: config funnels
+through `Configurable.configure(Class<C>, Consumer<C>)` (~30 convenience methods delegate to it); `Jdbi` also
+carries non-config knobs (`installPlugin`, `setTransactionHandler`, `setStatementBuilderFactory`,
+`setHandleCallbackDecorator`); `JdbiConfig` today is `{ createCopy(); setRegistry(); }`; `JdbiPlugin` has
+`customizeJdbi(Jdbi)`, `customizeHandle(Handle)`, `customizeConnection(Connection)`.
+
+**Three configuration scopes, and where "mutation" is allowed to live:**
+1. **Jdbi (root)** — assembled at build time, then frozen. Immutable.
+2. **Handle** — config chosen at `open` (optionally derived from the Jdbi's), then fixed for the handle's life;
+   the Handle owns only connection + transaction + cleanables.
+3. **Statement / template** — fluent per-statement additions on a private copy-on-write registry, frozen at
+   execute. This scope legitimately keeps a mutate-then-freeze surface (short-lived, thread-confined).
+
+### D1 — `JdbiConfig` value contract → immutable
+- Config values become immutable. Mutators become withers returning a *new* instance:
+  `RowMappers.withMapper(m)`, `SqlStatements.withTemplateEngine(e)`; policy configs become records with `withX`.
+- Drop `createCopy()` (nothing deep-copies an immutable value) and `setRegistry()` (no back-ref; sub-step 2
+  already moved resolution off the values). `JdbiConfig<This>` becomes a minimal marker.
+- **Break:** every custom `JdbiConfig` implementation. Justified for v4; the SPI is small.
+
+### D2 — `configure` → `UnaryOperator`
+- `Configurable.configure(Class<C>, UnaryOperator<C>)` replaces the `Consumer<C>` form (a `Consumer` can't
+  express "return the new immutable value"). Cannot overload — a `c -> c.foo()` lambda is ambiguous — so the
+  `Consumer` form is **removed** (deprecated first). The ~30 convenience methods keep their exact spelling,
+  re-implemented as `configure(RowMappers.class, c -> c.withMapper(m))`.
+- **Break:** direct `configure(X.class, c -> …)` callers only (~38 test + a few main); convenience callers
+  unaffected.
+
+### D3 — `ConfigRegistry` derivation primitive
+- `ConfigRegistry.with(Class<C>, UnaryOperator<C>)` → a *new* registry with that one value replaced
+  (structural sharing once values are immutable). `get(Class)` unchanged (reads). `createCopy()` retired once
+  nothing deep-copies. This atom backs the builder, the open-scope, and statement copy-on-write.
+
+### D4 — Jdbi assembly via a builder (primary), `create()` deprecated-but-working
+```java
+Jdbi jdbi = Jdbi.builder(dataSource)          // or builder(connectionFactory) / builder(url) …
+        .installPlugin(new SqlObjectPlugin())
+        .registerRowMapper(new FooMapper())
+        .configure(SqlStatements.class, c -> c.withTemplateEngine(engine))
+        .transactionHandler(handler)          // non-config knobs live on the builder too
+        .build();                             // → immutable Jdbi (frozen ConfigRegistry)
+```
+- The builder is `Configurable<Builder>` (assembly) plus the non-config knobs. `build()` freezes.
+- **Compat:** `Jdbi.create(...)` stays; the returned Jdbi accepts the legacy `registerX`/`configure`/
+  `installPlugin` (now `@Deprecated`) and freezes on first `open()`. Deprecated mutation is backed by
+  derive-and-re-reference (the reverted swap returns *here only*, as scaffolding). Old code keeps working.
+
+### D5 — Plugins
+- Add `JdbiPlugin.configure(Jdbi.Builder)` (contributes config + knobs at build). Deprecate
+  `customizeJdbi(Jdbi)`. `customizeHandle(Handle)` / `customizeConnection(Connection)` stay (per-handle/
+  connection concerns); handle-config contributions route through the open-scope derivation.
+
+### D6 — Handle config via `open` scope; `handle.registerX` deprecated
+```java
+Handle h = jdbi.open();                                              // handle references Jdbi's frozen config
+Handle h = jdbi.open(cfg -> cfg.with(RowMappers.class, r -> r.withMapper(m)));   // per-handle derived config
+jdbi.withHandle(scope, callback); jdbi.inTransaction(scope, callback);           // scoped lifecycle variants
+```
+- The Handle references the derived immutable config; it never mutates it. Legacy `handle.registerX`/
+  `configure` are `@Deprecated`, backed by derive-and-re-reference (the transitional swap, confined to these).
+
+### D7 — Statement / template config: surface unchanged
+- `query.registerRowMapper(m).mapTo(X)` stays. Backed by a lazily-created private derived registry
+  (copy-on-first-write), frozen at execute. Statements keep `Configurable`. This is what makes sub-step 5
+  clean: no additions → the statement shares the handle's immutable config (no copy); additions → exactly one
+  derived registry. The per-statement `createCopy()` at `BaseStatement.java:36` goes away.
+
+### Sign-off checklist (the decisions that need your yes/adjust)
+- [ ] **D1** immutable `JdbiConfig`, drop `createCopy`/`setRegistry`, mutators → withers (breaks custom configs).
+- [ ] **D2** `configure` `Consumer` → `UnaryOperator` (breaks ~40 direct callers; convenience spelling kept).
+- [ ] **D3** add `ConfigRegistry.with(Class, UnaryOperator)`.
+- [ ] **D4** `Jdbi.builder()` primary; `Jdbi.create()` + `registerX`/`installPlugin` deprecated, frozen on first open.
+- [ ] **D5** add `JdbiPlugin.configure(Jdbi.Builder)`; deprecate `customizeJdbi(Jdbi)`.
+- [ ] **D6** `jdbi.open(scope)` + scoped `withHandle`/`inTransaction`; deprecate `handle.registerX`.
+- [ ] **D7** statement-level `Configurable` unchanged (copy-on-write private config).
+
+**Implementation order once signed off:** D3 (additive) → D1+D2 per config domain (withers + convenience
+re-impl, like sub-step 2's domain-by-domain cadence) → D7 (statement copy-on-write) → sub-step 5 (delete the
+per-statement copy, re-benchmark) → D4/D5/D6 (the builder + deprecations + open-scope) last, since they are the
+largest public surface and depend on the value/registry immutability being in place.
+
+---
+
 ## (superseded) earlier handoff: SQL Object retarget DONE — phase 2 is next
 
 **Read this first if picking up fresh.** The SQL Object retarget (phase 5 unify) is **DONE and
