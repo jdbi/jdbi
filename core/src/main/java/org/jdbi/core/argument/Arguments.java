@@ -106,12 +106,14 @@ public class Arguments implements JdbiConfig<Arguments> {
      * Configure the {@link Argument} to use when binding a null
      * we don't have a type for.
      * @param untypedNullArgument the argument to bind
+     * @return this
      */
-    public void setUntypedNullArgument(final Argument untypedNullArgument) {
+    public Arguments setUntypedNullArgument(final Argument untypedNullArgument) {
         if (untypedNullArgument == null) {
             throw new IllegalArgumentException("the Argument itself may not be null");
         }
         this.untypedNullArgument = untypedNullArgument;
+        return this;
     }
 
     /**

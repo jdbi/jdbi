@@ -14,8 +14,8 @@
 package org.jdbi.core.config;
 
 import java.lang.reflect.Type;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 
 import org.jdbi.core.argument.ArgumentFactory;
@@ -76,16 +76,19 @@ public interface Configurable<This> {
     }
 
     /**
-     * Passes the configuration object of the given type to the configurer, then returns this object.
+     * Derives a new configuration value of the given type by applying the given operator to the current value,
+     * installs it, then returns this object. With immutable config values the operator returns a new value
+     * (e.g. {@code c -> c.register(mapper)}); the installed value replaces the previous one.
      *
      * @param configClass the configuration type
-     * @param configurer  consumer that will be passed the configuration object
+     * @param configurer  operator applied to the current configuration value, returning the value to install
      * @param <C>         the configuration type
      * @return this object (for call chaining)
      */
     @SuppressWarnings("unchecked")
-    default <C extends JdbiConfig<C>> This configure(final Class<C> configClass, final Consumer<C> configurer) {
-        configurer.accept(getConfig(configClass));
+    default <C extends JdbiConfig<C>> This configure(final Class<C> configClass, final UnaryOperator<C> configurer) {
+        final ConfigRegistry config = getConfig();
+        config.install(configClass, configurer.apply(config.get(configClass)));
         return (This) this;
     }
 

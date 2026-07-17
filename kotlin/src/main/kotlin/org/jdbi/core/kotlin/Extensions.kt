@@ -29,7 +29,7 @@ import org.jdbi.core.statement.SqlStatement
 import org.jdbi.core.statement.StatementContext
 import org.jdbi.meta.Alpha
 import org.jdbi.meta.Beta
-import java.util.function.Consumer
+import java.util.function.UnaryOperator
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KClass
@@ -100,11 +100,11 @@ fun <This : SqlStatement<This>> SqlStatement<This>.bindKotlin(obj: Any): This = 
  * Convenience method for [Configurable.configure] using Kotlin class syntax.
  *
  * @param configClass – the configuration type
- * @param configurer – consumer that will be passed the configuration object
+ * @param configurer – operator applied to the configuration value, returning the value to install
  * @see Configurable.configure
  */
 @Beta
-fun <This : Configurable<This>, C : JdbiConfig<C>> Configurable<This>.configure(configClass: KClass<C>, configurer: Consumer<C>): This =
+fun <This : Configurable<This>, C : JdbiConfig<C>> Configurable<This>.configure(configClass: KClass<C>, configurer: UnaryOperator<C>): This =
     this.configure(configClass.java, configurer)
 
 /**

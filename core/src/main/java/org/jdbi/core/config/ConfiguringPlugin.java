@@ -13,21 +13,21 @@
  */
 package org.jdbi.core.config;
 
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.spi.JdbiPlugin;
 
 public final class ConfiguringPlugin<C extends JdbiConfig<C>> implements JdbiPlugin {
     private final Class<C> configClass;
-    private final Consumer<C> configurer;
+    private final UnaryOperator<C> configurer;
 
-    private ConfiguringPlugin(Class<C> configClass, Consumer<C> configurer) {
+    private ConfiguringPlugin(Class<C> configClass, UnaryOperator<C> configurer) {
         this.configClass = configClass;
         this.configurer = configurer;
     }
 
-    public static <C extends JdbiConfig<C>> ConfiguringPlugin<C> of(Class<C> configClass, Consumer<C> configurer) {
+    public static <C extends JdbiConfig<C>> ConfiguringPlugin<C> of(Class<C> configClass, UnaryOperator<C> configurer) {
         return new ConfiguringPlugin<>(configClass, configurer);
     }
 

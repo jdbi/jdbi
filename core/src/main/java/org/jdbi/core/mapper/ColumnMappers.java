@@ -172,9 +172,11 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * If this property is set to {@code false}, Jdbi will throw an exception when trying to map a SQL {@code NULL} value to a primitive type.
      *
      * @param coalesceNullPrimitivesToDefaults If true, then use the JDBC default value, otherwise throw an exception.
+     * @return this
      */
-    public void setCoalesceNullPrimitivesToDefaults(boolean coalesceNullPrimitivesToDefaults) {
+    public ColumnMappers setCoalesceNullPrimitivesToDefaults(boolean coalesceNullPrimitivesToDefaults) {
         this.coalesceNullPrimitivesToDefaults = coalesceNullPrimitivesToDefaults;
+        return this;
     }
 
     @Override

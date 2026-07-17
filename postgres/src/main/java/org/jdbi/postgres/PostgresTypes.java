@@ -78,8 +78,9 @@ public class PostgresTypes implements JdbiConfig<PostgresTypes> {
      *
      * @param connection connection on which to add all registered PostgreSQL custom types
      */
-    void addTypesToConnection(PGConnection connection) {
+    PostgresTypes addTypesToConnection(PGConnection connection) {
         types.forEach((clazz, type) -> Unchecked.<String, Class<? extends PGobject>>biConsumer(connection::addDataType).accept(type, clazz));
+        return this;
     }
 
     @Override

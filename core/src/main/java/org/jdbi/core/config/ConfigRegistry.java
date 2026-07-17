@@ -86,6 +86,21 @@ public final class ConfigRegistry implements ConfigReader {
     }
 
     /**
+     * Installs the given configuration value for its type, replacing any current value. This is the write half
+     * of {@link Configurable#configure(Class, java.util.function.UnaryOperator)}: a config value is derived and
+     * then installed here. Transitional — while config values are still mutable this re-installs the (possibly
+     * same, mutated) instance; once values are immutable the derived instance replaces the previous one.
+     *
+     * @param configClass the config type
+     * @param config      the value to install
+     * @param <C>         the config type
+     */
+    <C extends JdbiConfig<C>> void install(final Class<C> configClass, final C config) {
+        configs.put(configClass, config);
+        config.setRegistry(this);
+    }
+
+    /**
      * Returns a memoized, read-only view of this registry of the given type, creating it on first request.
      * Views (for example resolvers that carry resolution caches) are scoped to this registry: a copy of the
      * registry does not inherit them, so a view built against one registry is never observed by another.
