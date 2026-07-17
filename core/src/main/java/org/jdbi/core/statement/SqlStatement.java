@@ -30,7 +30,6 @@ import org.jdbi.core.statement.internal.OptionalEvent;
  * <code>Update</code>. It defines most of the argument binding functions
  * used by its subclasses.
  */
-@SuppressWarnings({"PMD.ConfusingArgumentToVarargsMethod"})
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> implements Customizable<This> {
     private final String sql;
     PreparedStatement stmt;
@@ -67,6 +66,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      *
      * @return the same Query instance
      */
+    @Override
     public This setQueryTimeout(final int seconds) {
         return addCustomizer(StatementCustomizers.statementTimeout(seconds));
     }
