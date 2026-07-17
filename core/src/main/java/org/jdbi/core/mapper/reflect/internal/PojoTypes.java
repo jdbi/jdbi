@@ -13,18 +13,17 @@
  */
 package org.jdbi.core.mapper.reflect.internal;
 
-import java.lang.reflect.Type;
 import java.util.Map;
-import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
-import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.internal.CopyOnWriteHashMap;
 
+/**
+ * Registry of {@link PojoPropertiesFactory} instances. Holds only registration data; resolving a type into
+ * its {@link PojoProperties} is done per configuration registry by {@link PojoResolver}.
+ */
 public class PojoTypes implements JdbiConfig<PojoTypes> {
     private final Map<Class<?>, PojoPropertiesFactory> factories;
-    private ConfigRegistry registry;
 
     public PojoTypes() {
         factories = new CopyOnWriteHashMap<>();
@@ -34,19 +33,18 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
         factories = new CopyOnWriteHashMap<>(other.factories);
     }
 
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
-    }
-
     public PojoTypes register(Class<?> key, PojoPropertiesFactory factory) {
         factories.put(key, factory);
         return this;
     }
 
-    public Optional<PojoProperties<?>> findFor(Type type) {
-        return Optional.ofNullable(factories.get(GenericTypes.getErasedType(type)))
-                .map(ppf -> ppf.create(type, registry));
+    /**
+     * Returns the registered factories keyed by erased type. Consumed by {@link PojoResolver}.
+     *
+     * @return the registered pojo-properties factories
+     */
+    Map<Class<?>, PojoPropertiesFactory> getFactories() {
+        return factories;
     }
 
     @Override

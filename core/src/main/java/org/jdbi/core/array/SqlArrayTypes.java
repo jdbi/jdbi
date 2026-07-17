@@ -13,21 +13,20 @@
  */
 package org.jdbi.core.array;
 
-import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.enums.internal.EnumSqlArrayTypeFactory;
 import org.jdbi.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.meta.Alpha;
 
 /**
- * Configuration class for SQL array binding and mapping.
+ * Configuration class for SQL array binding and mapping. Holds only registration data and the argument
+ * strategy; resolving a factory into a {@link SqlArrayType} for a given element type is done per
+ * configuration registry by {@link ArrayTypeResolver}.
  */
 public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
 
@@ -35,8 +34,6 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
 
     private final List<SqlArrayTypeFactory> factories;
     private SqlArrayArgumentStrategy argumentStrategy;
-
-    private ConfigRegistry registry;
 
     public SqlArrayTypes() {
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredSqlArrayTypeFactory::new);
@@ -128,20 +125,12 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
     }
 
     /**
-     * Obtain an {@link SqlArrayType} for the given array element type in the given context
+     * Returns the registered factories, most-recently-registered first. Consumed by {@link ArrayTypeResolver}.
      *
-     * @param elementType the array element type.
-     * @return an {@link SqlArrayType} for the given element type.
+     * @return the registered array-type factories
      */
-    public Optional<SqlArrayType<?>> findFor(Type elementType) {
-        return factories.stream()
-                .flatMap(factory -> factory.build(elementType, registry).stream())
-                .findFirst();
-    }
-
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
+    List<SqlArrayTypeFactory> getFactories() {
+        return factories;
     }
 
     /**

@@ -20,10 +20,11 @@ import java.util.stream.Collector;
 
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentResolver;
+import org.jdbi.core.array.ArrayTypeResolver;
 import org.jdbi.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.core.array.SqlArrayType;
 import org.jdbi.core.array.SqlArrayTypes;
-import org.jdbi.core.collector.JdbiCollectors;
+import org.jdbi.core.collector.CollectorResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.generic.GenericType;
@@ -90,7 +91,7 @@ public interface ConfigReader {
      * @return an {@link SqlArrayType} for the given element type.
      */
     default Optional<SqlArrayType<?>> findSqlArrayTypeFor(final Type elementType) {
-        return getConfig(SqlArrayTypes.class).findFor(elementType);
+        return ArrayTypeResolver.forRegistry(getConfig()).findFor(elementType);
     }
 
     /**
@@ -220,7 +221,7 @@ public interface ConfigReader {
      * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
      */
     default Optional<Collector<?, ?, ?>> findCollectorFor(final Type containerType) {
-        return getConfig(JdbiCollectors.class).findFor(containerType);
+        return CollectorResolver.forRegistry(getConfig()).findFor(containerType);
     }
 
     /**
@@ -230,7 +231,7 @@ public interface ConfigReader {
      * @return the element type for the given container type, if available.
      */
     default Optional<Type> findElementTypeFor(final Type containerType) {
-        return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
+        return CollectorResolver.forRegistry(getConfig()).findElementTypeFor(containerType);
     }
 
     /**

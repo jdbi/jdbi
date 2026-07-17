@@ -15,25 +15,22 @@ package org.jdbi.core.collector;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
 
 import org.jdbi.core.config.JdbiConfig;
 
 /**
- * Registry of collector factories.
+ * Registry of collector factories. Holds only registration data; resolving a factory into a
+ * {@link Collector} for a given container type (and caching the result) is done per configuration registry
+ * by {@link CollectorResolver}.
  * Contains a set of collector factories, registered by the application.
  */
 public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     private final List<CollectorFactory> factories;
-    private ConcurrentMap<Type, Optional<CollectorFactory>> factoryCache;
 
     public JdbiCollectors() {
         factories = new CopyOnWriteArrayList<>();
-        factoryCache = new ConcurrentHashMap<>();
         register(new MapCollectorFactory());
         register(new OptionalCollectorFactory());
         register(new ListCollectorFactory());
@@ -44,7 +41,6 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     }
 
     private JdbiCollectors(JdbiCollectors that) {
-        factoryCache = that.factoryCache;
         factories = new CopyOnWriteArrayList<>(that.factories);
     }
 
@@ -55,7 +51,6 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
      */
     public JdbiCollectors register(CollectorFactory factory) {
         factories.add(0, factory);
-        factoryCache = new ConcurrentHashMap<>();
         return this;
     }
 
@@ -72,37 +67,12 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     }
 
     /**
-     * Obtain a collector for the given type.
+     * Returns the registered factories, most-recently-registered first. Consumed by {@link CollectorResolver}.
      *
-     * @param containerType the container type.
-     * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
+     * @return the registered collector factories
      */
-    public Optional<Collector<?, ?, ?>> findFor(Type containerType) {
-        return findFactoryFor(containerType)
-                .map(f -> f.build(containerType));
-    }
-
-    /**
-     * Returns the element type for the given container type.
-     *
-     * @param containerType the container type.
-     * @return the element type for the given container type, if available.
-     */
-    public Optional<Type> findElementTypeFor(Type containerType) {
-        return findFactoryFor(containerType)
-                .flatMap(f -> f.elementType(containerType));
-    }
-
-    private Optional<CollectorFactory> findFactoryFor(Type containerType) {
-        Optional<CollectorFactory> entry = factoryCache.get(containerType);
-        if (entry != null) {
-            return entry;
-        }
-        entry = factories.stream()
-                .filter(f -> f.accepts(containerType))
-                .findFirst();
-        factoryCache.putIfAbsent(containerType, entry);
-        return entry;
+    List<CollectorFactory> getFactories() {
+        return factories;
     }
 
     @Override

@@ -25,7 +25,7 @@ import org.jdbi.core.argument.NamedArgumentFinder;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties.PojoProperty;
-import org.jdbi.core.mapper.reflect.internal.PojoTypes;
+import org.jdbi.core.mapper.reflect.internal.PojoResolver;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 
 /**
@@ -40,7 +40,7 @@ public class PojoPropertyArguments extends ObjectPropertyNamedArgumentFinder {
     public PojoPropertyArguments(String prefix, Object obj, Type type, ConfigRegistry config) {
         this(prefix,
                 obj,
-                config.get(PojoTypes.class).findFor(type)
+                PojoResolver.forRegistry(config).findFor(type)
                     .orElseThrow(() -> new UnableToCreateStatementException("Couldn't find pojo type of " + obj.getClass())),
                 config);
     }

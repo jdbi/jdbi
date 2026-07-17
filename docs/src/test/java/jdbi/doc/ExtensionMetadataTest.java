@@ -28,6 +28,7 @@ import org.jdbi.core.extension.ExtensionHandler;
 import org.jdbi.core.extension.ExtensionHandlerFactory;
 import org.jdbi.core.extension.ExtensionMetadata;
 import org.jdbi.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
+import org.jdbi.core.extension.ExtensionMetadataResolver;
 import org.jdbi.core.extension.Extensions;
 import org.jdbi.core.extension.HandleSupplier;
 import org.jdbi.core.internal.JdbiClassUtils;
@@ -87,8 +88,8 @@ class ExtensionMetadataTest {
         @Override
         public <E> E attach(Class<E> extensionType, HandleSupplier handleSupplier) {
 
-            ExtensionMetadata extensionMetadata = handleSupplier.getConfig() // <2>
-                    .get(Extensions.class).findMetadata(extensionType, this);
+            ExtensionMetadata extensionMetadata = ExtensionMetadataResolver
+                    .forRegistry(handleSupplier.getConfig()).findMetadata(extensionType, this); // <2>
 
             return extensionType.cast(new ExtensionTypeImpl(extensionMetadata, handleSupplier)); // <3>
         }

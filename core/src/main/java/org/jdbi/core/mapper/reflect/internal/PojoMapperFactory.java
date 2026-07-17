@@ -27,7 +27,7 @@ import org.jdbi.core.mapper.RowMapperFactory;
 public class PojoMapperFactory implements RowMapperFactory {
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
-        return config.get(PojoTypes.class).findFor(type)
+        return PojoResolver.forRegistry(config).findFor(type)
                 .map(p -> new PojoMapper<>(type, ""));
     }
 }

@@ -14,37 +14,29 @@
 package org.jdbi.core.extension;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.core.extension.annotation.UseExtensionHandlerCustomizer;
-import org.jdbi.core.internal.CopyOnWriteHashMap;
 import org.jdbi.meta.Alpha;
 import org.jdbi.meta.Beta;
 
-import static org.jdbi.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
-
 /**
  * Configuration class for defining {@code Jdbi} extensions via {@link ExtensionFactory}
- * instances.
+ * instances. Holds only registration data and policy; building and caching the {@link ExtensionMetadata}
+ * for an extension type is done per configuration registry by {@link ExtensionMetadataResolver}.
  */
 public class Extensions implements JdbiConfig<Extensions> {
 
     private final List<ExtensionFactoryDelegate> extensionFactories;
-    private final Map<Class<?>, ExtensionMetadata> extensionMetadataCache;
     private final List<ExtensionHandlerCustomizer> extensionHandlerCustomizers;
     private final List<ExtensionHandlerFactory> extensionHandlerFactories;
     private final List<ConfigCustomizerFactory> configCustomizerFactories;
 
     private boolean allowProxy;
     private boolean failFast;
-
-    private ConfigRegistry registry;
 
     /**
      * Creates a new instance.
@@ -56,7 +48,6 @@ public class Extensions implements JdbiConfig<Extensions> {
      */
     public Extensions() {
         extensionFactories = new CopyOnWriteArrayList<>();
-        extensionMetadataCache = new CopyOnWriteHashMap<>();
         extensionHandlerCustomizers = new CopyOnWriteArrayList<>();
         extensionHandlerFactories = new CopyOnWriteArrayList<>();
         configCustomizerFactories = new CopyOnWriteArrayList<>();
@@ -84,18 +75,12 @@ public class Extensions implements JdbiConfig<Extensions> {
      */
     private Extensions(Extensions that) {
         extensionFactories = new CopyOnWriteArrayList<>(that.extensionFactories);
-        extensionMetadataCache = new CopyOnWriteHashMap<>(that.extensionMetadataCache);
         extensionHandlerCustomizers = new CopyOnWriteArrayList<>(that.extensionHandlerCustomizers);
         extensionHandlerFactories = new CopyOnWriteArrayList<>(that.extensionHandlerFactories);
         configCustomizerFactories = new CopyOnWriteArrayList<>(that.configCustomizerFactories);
 
         allowProxy = that.allowProxy;
         failFast = that.failFast;
-    }
-
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
     }
 
     /**
@@ -204,52 +189,39 @@ public class Extensions implements JdbiConfig<Extensions> {
         return Optional.empty();
     }
 
-    /**
-     * Retrieves all extension metadata for a specific extension type.
-     *
-     * @param extensionType    The extension type
-     * @param extensionFactory The extension factory for this extension type
-     * @return A {@link ExtensionMetadata} object describing the extension handlers and customizers for this extension type
-     *
-     * @since 3.38.0
-     */
-    @Alpha
-    public ExtensionMetadata findMetadata(Class<?> extensionType, ExtensionFactory extensionFactory) {
-        return extensionMetadataCache.computeIfAbsent(extensionType, createMetadata(extensionFactory));
-    }
-
     private Extensions internalRegisterHandlerFactory(ExtensionHandlerFactory extensionHandlerFactory) {
         extensionHandlerFactories.add(0, extensionHandlerFactory);
         return this;
     }
 
-    private Function<Class<?>, ExtensionMetadata> createMetadata(ExtensionFactory extensionFactory) {
-        return extensionType -> {
+    /**
+     * Returns the globally registered extension handler factories, most-recently-registered first.
+     * Consumed by {@link ExtensionMetadataResolver}.
+     *
+     * @return the registered extension handler factories
+     */
+    List<ExtensionHandlerFactory> getExtensionHandlerFactories() {
+        return extensionHandlerFactories;
+    }
 
-            ExtensionMetadata.Builder builder = ExtensionMetadata.builder(extensionType);
+    /**
+     * Returns the globally registered extension handler customizers, most-recently-registered first.
+     * Consumed by {@link ExtensionMetadataResolver}.
+     *
+     * @return the registered extension handler customizers
+     */
+    List<ExtensionHandlerCustomizer> getExtensionHandlerCustomizers() {
+        return extensionHandlerCustomizers;
+    }
 
-            // prep the extension handler set for this factory
-            extensionFactory.getExtensionHandlerFactories(registry).forEach(builder::addExtensionHandlerFactory);
-            extensionHandlerFactories.forEach(builder::addExtensionHandlerFactory);
-
-            // InstanceExtensionHandlerFactory for non-virtual factories. These have a backing object and can invoke methods on those objects.
-            if (extensionFactory.getFactoryFlags().contains(NON_VIRTUAL_FACTORY)) {
-                builder.addExtensionHandlerFactory(InstanceExtensionHandlerFactory.INSTANCE);
-            }
-
-            // prep the extension customizer set for this factory
-            extensionFactory.getExtensionHandlerCustomizers(registry).forEach(builder::addExtensionHandlerCustomizer);
-            extensionHandlerCustomizers.forEach(builder::addExtensionHandlerCustomizer);
-
-            // prep the extension configurer set for this factory
-            extensionFactory.getConfigCustomizerFactories(registry).forEach(builder::addConfigCustomizerFactory);
-            configCustomizerFactories.forEach(builder::addConfigCustomizerFactory);
-
-            // build metadata
-            extensionFactory.buildExtensionMetadata(builder);
-
-            return builder.build();
-        };
+    /**
+     * Returns the globally registered config customizer factories, most-recently-registered first.
+     * Consumed by {@link ExtensionMetadataResolver}.
+     *
+     * @return the registered config customizer factories
+     */
+    List<ConfigCustomizerFactory> getConfigCustomizerFactories() {
+        return configCustomizerFactories;
     }
 
     /**
