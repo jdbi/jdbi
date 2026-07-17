@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.core.array.SqlArrayType;
 import org.jdbi.core.array.SqlArrayTypes;
@@ -60,7 +60,7 @@ public interface ConfigReader {
      * @return an Argument for the given value.
      */
     default Optional<Argument> findArgumentFor(final Type type, final Object value) {
-        return getConfig(Arguments.class).findFor(type, value);
+        return ArgumentResolver.forRegistry(getConfig()).findFor(type, value);
     }
 
     /**
@@ -71,7 +71,7 @@ public interface ConfigReader {
      * @return an Argument for the given value.
      */
     default Optional<Argument> findArgumentFor(final QualifiedType<?> type, final Object value) {
-        return getConfig(Arguments.class).findFor(type, value);
+        return ArgumentResolver.forRegistry(getConfig()).findFor(type, value);
     }
 
     /**

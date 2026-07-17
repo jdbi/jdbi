@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.StatementContextAccess;
@@ -48,7 +48,7 @@ public class ByteArrayTest {
 
     @Test
     public void byteArrayIsTypedAsVarbinary() throws SQLException {
-        Argument nullByteArrayArg = h2Extension.getJdbi().withHandle(h -> h.getConfig(Arguments.class).findFor(byte[].class, new byte[]{1})).get();
+        Argument nullByteArrayArg = h2Extension.getJdbi().withHandle(h -> ArgumentResolver.forRegistry(h.getConfig()).findFor(byte[].class, new byte[]{1})).get();
 
         nullByteArrayArg.apply(0, stmt, ctx);
 
@@ -58,7 +58,7 @@ public class ByteArrayTest {
 
     @Test
     public void nullByteArrayIsTypedAsVarbinary() throws SQLException {
-        Argument nullByteArrayArg = h2Extension.getJdbi().withHandle(h -> h.getConfig(Arguments.class).findFor(byte[].class, null)).get();
+        Argument nullByteArrayArg = h2Extension.getJdbi().withHandle(h -> ArgumentResolver.forRegistry(h.getConfig()).findFor(byte[].class, null)).get();
 
         nullByteArrayArg.apply(0, stmt, ctx);
 

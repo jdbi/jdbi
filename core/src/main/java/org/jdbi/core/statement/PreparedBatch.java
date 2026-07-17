@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.argument.NamedArgumentFinder;
 import org.jdbi.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.core.argument.internal.NamedArgumentFinderFactory.PrepareKey;
@@ -94,11 +94,11 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
     }
 
     Function<Object, Argument> buildArgument(QualifiedType<?> type) {
-        return getContext().getConfig(Arguments.class)
+        return ArgumentResolver.forRegistry(getContext().getConfig())
                 .prepareFor(type)
                 .orElse(value ->
                     (pos, st, ctx) ->
-                        ctx.getConfig(Arguments.class)
+                        ArgumentResolver.forRegistry(ctx.getConfig())
                             .findFor(type, value)
                             .orElseThrow(() -> new UnableToCreateStatementException("no argument factory for type " + type, ctx))
                             .apply(pos, st, ctx));

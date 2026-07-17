@@ -171,8 +171,8 @@ public class TestAbstractArgumentFactory {
     @Test
     public void testGenericClassMatches() {
         ConfigRegistry registry = new ConfigRegistry();
-        Arguments arguments = new Arguments(registry);
-        arguments.register(new BoxOfStringArgumentFactory());
+        registry.get(Arguments.class).register(new BoxOfStringArgumentFactory());
+        ArgumentResolver arguments = ArgumentResolver.forRegistry(registry);
         Box<String> genericBoxString = new Box<>("foo");
         StringBox stringBox = new StringBox("bar");
 
@@ -184,8 +184,8 @@ public class TestAbstractArgumentFactory {
     @Test
     public void testGenericClassNonMatches() {
         ConfigRegistry registry = new ConfigRegistry();
-        Arguments arguments = new Arguments(registry);
-        arguments.register(new BoxOfStringArgumentFactory());
+        registry.get(Arguments.class).register(new BoxOfStringArgumentFactory());
+        ArgumentResolver arguments = ArgumentResolver.forRegistry(registry);
         Box<Integer> genericBoxInteger = new Box<>(10);
         IntegerBox integerBox = new IntegerBox(20);
 
@@ -242,8 +242,8 @@ public class TestAbstractArgumentFactory {
     @Test
     public void testGenericInterfaceMatches() {
         ConfigRegistry registry = new ConfigRegistry();
-        Arguments arguments = new Arguments(registry);
-        arguments.register(new StringThingArgumentFactory());
+        registry.get(Arguments.class).register(new StringThingArgumentFactory());
+        ArgumentResolver arguments = ArgumentResolver.forRegistry(registry);
         StringThing stringThing = new StringThing("bar");
 
         assertThat(arguments.findFor(QualifiedType.of(new GenericType<Thing<String>>() {}), stringThing)).isPresent();
@@ -253,8 +253,8 @@ public class TestAbstractArgumentFactory {
     @Test
     public void testGenericInterfaceNonMatches() {
         ConfigRegistry registry = new ConfigRegistry();
-        Arguments arguments = new Arguments(registry);
-        arguments.register(new StringThingArgumentFactory());
+        registry.get(Arguments.class).register(new StringThingArgumentFactory());
+        ArgumentResolver arguments = ArgumentResolver.forRegistry(registry);
         IntegerThing integerThing = new IntegerThing(20);
 
         assertThat(arguments.findFor(QualifiedType.of(new GenericType<Thing<Integer>>() {}), integerThing)).isNotPresent();

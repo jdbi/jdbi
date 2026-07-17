@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.JdbiOptionals;
 import org.jdbi.core.qualifier.QualifiedType;
@@ -44,7 +44,7 @@ public class JsonArgumentFactory implements ArgumentFactory.Preparable {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         TypedJsonMapper mapper = config.get(JsonConfig.class).getJsonMapper().forType(type, config);
-        Arguments a = config.get(Arguments.class);
+        ArgumentResolver a = ArgumentResolver.forRegistry(config);
         // look for specialized json support first, revert to simple String binding if absent
         Function<Object, Argument> bindJson = JdbiOptionals.findFirstPresent(
                 () -> a.prepareFor(ENCODED_JSON),

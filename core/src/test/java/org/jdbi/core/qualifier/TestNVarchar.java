@@ -17,7 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.Query;
@@ -109,7 +109,7 @@ public class TestNVarchar {
 
             PreparedStatement stmt = mock(PreparedStatement.class);
 
-            handle.getConfig(Arguments.class)
+            ArgumentResolver.forRegistry(handle.getConfig())
                 .findFor(NVARCHAR_STRING, value)
                 .orElseThrow(IllegalStateException::new)
                 .apply(1, stmt, null);

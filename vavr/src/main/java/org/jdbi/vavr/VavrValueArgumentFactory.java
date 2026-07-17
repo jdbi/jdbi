@@ -26,7 +26,7 @@ import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.config.ConfigRegistry;
 
 import static org.jdbi.core.generic.GenericTypes.findGenericParameter;
@@ -48,7 +48,7 @@ class VavrValueArgumentFactory implements ArgumentFactory.Preparable {
         if (acceptType(type)) {
             Object nestedValue = unwrapValue((Value<?>) value);
             Type nestedType = findGenericType(type, nestedValue);
-            return config.get(Arguments.class).findFor(nestedType, nestedValue);
+            return ArgumentResolver.forRegistry(config).findFor(nestedType, nestedValue);
         } else {
             return Optional.empty();
         }
@@ -57,7 +57,7 @@ class VavrValueArgumentFactory implements ArgumentFactory.Preparable {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         if (acceptType(type)) {
-            return config.get(Arguments.class)
+            return ArgumentResolver.forRegistry(config)
                 .prepareFor(findGenericType(type, null))
                 .map(argumentFunction ->
                     value -> argumentFunction.apply(unwrapValue((Value<?>) value)));
