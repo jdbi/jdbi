@@ -117,6 +117,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
         return type.equals(long.class) || type.equals(Long.class);
     }
 
+    @SuppressWarnings("PMD.ImplicitFunctionalInterface")
     private interface WarmableResultTransformer extends Function<Update, Object> {
         default void warm(ConfigRegistry config) {}
     }

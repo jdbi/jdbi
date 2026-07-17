@@ -23,6 +23,10 @@ import org.jdbi.core.statement.StatementContext;
  * {@link StatementContext#setExtensionState}) rather than stored on the shared configuration, so that
  * a template binding executed concurrently on many threads never races on it.
  */
+// The method arguments are stored and returned by reference on purpose: this is a per-invocation
+// holder, the array is owned by the (single) invoking thread and only read (never mutated) downstream,
+// so defensively copying it on every call would be pure waste.
+@SuppressWarnings({"PMD.ArrayIsStoredDirectly", "PMD.MethodReturnsInternalArray"})
 final class SqlObjectStatementState {
 
     private final Object[] args;

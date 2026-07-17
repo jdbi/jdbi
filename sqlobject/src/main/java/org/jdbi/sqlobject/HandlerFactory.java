@@ -28,6 +28,7 @@ import org.jdbi.core.extension.ExtensionHandlerFactory;
  * @deprecated Use {@link ExtensionHandlerFactory} instances directly.
  */
 @Deprecated(since = "3.38.0", forRemoval = true)
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface HandlerFactory extends ExtensionHandlerFactory {
 
     /**

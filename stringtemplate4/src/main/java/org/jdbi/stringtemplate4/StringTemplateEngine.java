@@ -13,12 +13,12 @@
  */
 package org.jdbi.stringtemplate4;
 
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.statement.RenderContext;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.TemplateEngine;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
-import org.jdbi.core.config.ConfigRegistry;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
