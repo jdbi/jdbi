@@ -37,6 +37,6 @@
     {"type":"jdbi.doc.PhoneBean","allPublicConstructors": true,"allPublicMethods": true}
   ],
   "resources": [
-    {"glob":"**/*.sql"}
+    {"glob":"create_stored_proc_add.sql"}
   ]
 }

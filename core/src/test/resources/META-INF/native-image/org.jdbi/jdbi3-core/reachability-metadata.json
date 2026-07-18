@@ -70,6 +70,13 @@
     {"type":"org.mockito.internal.matchers.InstanceOf","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]}
   ],
   "resources": [
-    {"glob":"**/*.sql"}
+    {"glob":"org/**/*.sql"},
+    {"glob":"script/**/*.sql"},
+    {"glob":"caches-result-after-first-lookup.sql"},
+    {"glob":"default-data.sql"},
+    {"glob":"insert-eric-with-comments.sql"},
+    {"glob":"insert-id-name-positional.sql"},
+    {"glob":"insert-id-name.sql"},
+    {"glob":"insert-keith.sql"}
   ]
 }
