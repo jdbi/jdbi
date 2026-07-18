@@ -14,7 +14,6 @@
 package org.jdbi.core.codec;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,15 +84,6 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
     @SuppressWarnings("unchecked")
     public final Optional<Function<Object, Argument>> prepare(final QualifiedType<?> type, final ConfigRegistry config) {
         return Optional.of(type).map(this::resolveType).map(key -> (Function<Object, Argument>) key.getArgumentFunction(config));
-    }
-
-    /**
-     * @deprecated no longer used
-     */
-    @Deprecated(since = "3.39.0", forRemoval = true)
-    @Override
-    public final Collection<QualifiedType<?>> prePreparedTypes() {
-        return codecMap.keySet();
     }
 
     @Override
