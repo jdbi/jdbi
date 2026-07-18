@@ -215,7 +215,16 @@ prize early, then finish the handle-config removal:
     `TestJdbiBuilder`/`TestPlugins` (D4b.2 `@SuppressWarnings`) subject was the removed install path → rework/remove.
 - **R3 — handle `createCopy()` → `createChild()` COW off the frozen Jdbi config** (plain `open()` and `open(scope)`).
   Handles share the Jdbi root's warm resolver `views` instead of each paying a cold copy. **This is the #2992 fix.**
-  Safe now because R2 froze the root. Benchmark the warm-metadata win.
+  Safe now because R2 froze the root. Quantify in R7.
+- **R7 — re-run relevant benchmarks + quantify the gains** (maintainer ask 2026-07-18; runs once R3 lands the
+  payoff). The #2992 scenario is *one handle per request, `attach()` only* — a cold metadata cache under `createCopy`.
+  Author/confirm a handle-per-operation SQL Object benchmark (the existing `H2SqlObjectV3Benchmark` may reuse a
+  handle — check and add a per-open variant if so), then A/B the same build with the R3 commit in vs out
+  (`createCopy` handle vs `createChild` handle), `-prof gc` (alloc/op is the deterministic metric here). Report:
+  the handle-open path (classic fluent), the SQL Object attach path, and a no-regression check across the existing
+  benchmark suite. Baselines to beat, from the tasklist: classic ~8.2 KB/op → template ~3.5 KB/op; sqlobject
+  ~9.1 KB/op → retarget ~4.3 KB/op; statement-level `createCopy` 6104 → `createChild` 4208 B/op — R3 extends the COW
+  win to the handle boundary. Record the numbers here and in the branch memory.
 - **R4 — remove handle-level mutable config** (DECIDED 2026-07-18: retire it now — we target the major here, and it
   goes away sooner or later). Migrate ~120 in-repo `handle.registerX`/`configure` sites to `jdbi.open(scope)` or
   per-statement config; `Handle` drops `Configurable`'s mutators (read-only via `ConfigReader`). `open(scope)` (D6)
