@@ -445,9 +445,9 @@ section's "### Progress" and "### Remaining sub-step-3 work (START HERE on a cle
 first.** Short version of where we are: `configure` is now `UnaryOperator`-based; `Enums`, five scalar-policy
 configs, `Arguments` (with a bulk `register(Collection)`), and the Q1 interceptor trio
 (`RowMappers`/`ColumnMappers`/`SqlArrayTypes`, now with `withInferenceInterceptor` + a shared
-`RegistrationLists` helper) are done immutable; dead `prePreparedTypes` deleted. Remaining: shared
-`MapEntryConfig`, the big `SqlStatements`/`Extensions`, then D7 → sub-step 5 (the perf payoff) → D4/D5/D6
-(builder/plugin/open surface).
+`RegistrationLists` helper), and the shared `MapEntryConfig` (`MapEntryMappers` + vavr `TupleMappers`, whose
+registry back-ref was removed) are done immutable; dead `prePreparedTypes` deleted. Remaining: the big
+`SqlStatements`/`Extensions`, then D7 → sub-step 5 (the perf payoff) → D4/D5/D6 (builder/plugin/open surface).
 All commits are whole-reactor green with static analysis ENABLED — do not fall back to
 `-Dbasepom.check.skip-all` as the validation of record.
 
@@ -699,16 +699,28 @@ largest public surface and depend on the value/registry immutability being in pl
   `ColumnMappersTest` / `SqlArrayTypesTest`. **Gotcha found:** Kotlin's `config.get(X::class.java)` mutation
   sites do not match a Java-syntax `get(X.class)` grep — sweep `*.kt` separately (this bit kotlin-sqlobject).
   Whole reactor green (`mvn clean verify`, checks + tests, all modules).
+- **Item 3 DONE (`5a567f323`): shared `MapEntryConfig` immutable.** `MapEntryConfig` setters renamed to
+  prefix-free withers (`keyColumn`/`valueColumn`); `MapEntryMappers` immutable (final fields, withers, createCopy
+  returns `this`). **vavr `TupleMappers` had an undocumented wrinkle the handoff missed: a `ConfigRegistry`
+  back-ref (`setRegistry`) used so its getters fall back to the global `MapEntryMappers`.** That is incompatible
+  with an immutable shared value (createCopy-returns-this + setRegistry mutation), and sub-step 2's rule is "no
+  setRegistry back-ref remains anywhere." Fix (in-pattern with sub-step 2): remove the back-ref; relocate the
+  fallback to the sole reader `VavrTupleRowMapperFactory.resolveKeyValueColumns`, which already holds the
+  registry. `TupleMappers` now immutable (copy-on-wither `columns` array; `setColumn`→`column`); its
+  `getKeyColumn`/`getValueColumn` return the tuple-specific column only (a deliberate v4 break — the global
+  fallback is now the reader's job; behavior preserved end-to-end, covered by the tuple/map-collector DB tests).
+  Migrated `Configurable.setMapKeyColumn/setMapValueColumn`, sqlobject `KeyColumnImpl`/`ValueColumnImpl`, the
+  vavr tests, and the `ResultScannable`/`Configurable` javadoc. Added `MapEntryMappersTest`/`TupleMappersTest`.
+  Whole reactor green.
 
 ### Remaining sub-step-3 work (START HERE on a clean restart)
 1. ~~**`Arguments` full immutability**~~ **DONE (`2cd165fbb`)** — see the Progress entry above. Also added a
    public bulk `register(Collection)`; apply the same plural-wither pattern to the list-based configs below.
 2. ~~**Q1 interceptor trio**~~ **DONE (`4c1c1c5ba`)** — see the Progress entry above. Also introduced the
    shared `RegistrationLists` helper and bulk `register(Collection)` on `RowMappers`/`ColumnMappers`.
-3. **Shared `MapEntryConfig`** (`MapEntryMappers` in core + `TupleMappers` in vavr): the interface signature
-   `This setKeyColumn(String)` already allows returning a new instance, so immutability is per-impl; a prefix-free
-   rename (`setKeyColumn`→`keyColumn`, `setValueColumn`→`valueColumn`) touches the interface + both impls +
-   `Configurable.setMapKeyColumn`/`setMapValueColumn` + the sqlobject `KeyColumnImpl`/`ValueColumnImpl` (R) sites.
+3. ~~**Shared `MapEntryConfig`**~~ **DONE (`5a567f323`)** — see the Progress entry above. Note the `TupleMappers`
+   registry-back-ref removal (fallback relocated to `VavrTupleRowMapperFactory`), which was not in the original
+   one-line plan.
 4. **Large configs** `SqlStatements` (many fields + `attributes` (defines) + `customizers` + policy) and
    `Extensions` (registration lists + `allowProxy`/`failFast`). Biggest surface; do last in D1.
 5. **Sweep the remaining warm-like/dead constructs** (`PojoWarmingCustomizer`, any `warm(ConfigRegistry)` hooks) —
