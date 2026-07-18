@@ -133,7 +133,7 @@ public class GenericMapMapperFactoryTest {
     @Test
     public void duplicateColumnsWithoutCaseChangeCauseException() {
         jdbi.useHandle(h -> {
-            h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.NOP);
+            h.configure(MapMappers.class, c -> c.caseChange(CaseStrategy.NOP));
             try (Query query = h.createQuery(QUERY.replace("two", "one"))) {
                 ResultIterable<Map<String, BigDecimal>> iterable = query.mapToMap(BigDecimal.class);
 
@@ -146,7 +146,7 @@ public class GenericMapMapperFactoryTest {
     @Test
     public void duplicateKeysAfterCaseChangeCauseException() {
         jdbi.useHandle(h -> {
-            h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.LOWER);
+            h.configure(MapMappers.class, c -> c.caseChange(CaseStrategy.LOWER));
 
             try (Query query = h.createQuery(QUERY.replace("two", "ONE"))) {
                 // one and ONE

@@ -184,7 +184,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedParametersStrict() {
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
         handle.registerRowMapper(ConstructorMapper.factory(NestedBean.class));
 
         assertThat(handle
@@ -266,7 +266,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedPrefixParametersStrict() {
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
         handle.registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class));
 
         assertThat(handle

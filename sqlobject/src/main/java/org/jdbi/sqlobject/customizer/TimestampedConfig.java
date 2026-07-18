@@ -20,15 +20,15 @@ import org.jdbi.core.config.JdbiConfig;
 /**
  * Configuration for {@link Timestamped}.
  */
-public class TimestampedConfig implements JdbiConfig<TimestampedConfig> {
-    private ZoneId timezone;
+public final class TimestampedConfig implements JdbiConfig<TimestampedConfig> {
+    private final ZoneId timezone;
 
     public TimestampedConfig() {
-        timezone = ZoneId.systemDefault();
+        this(ZoneId.systemDefault());
     }
 
-    private TimestampedConfig(TimestampedConfig other) {
-        timezone = other.timezone;
+    private TimestampedConfig(ZoneId timezone) {
+        this.timezone = timezone;
     }
 
     /**
@@ -41,16 +41,19 @@ public class TimestampedConfig implements JdbiConfig<TimestampedConfig> {
     }
 
     /**
-     * Sets the timezone used for the conversion of {@link java.time.OffsetDateTime} objects.
+     * Returns a copy of this configuration with the given timezone used for the conversion of
+     * {@link java.time.OffsetDateTime} objects.
      *
      * @param timezone used in the resulting {@link java.time.OffsetDateTime}
+     * @return the derived configuration
      */
-    public void setTimezone(ZoneId timezone) {
-        this.timezone = timezone;
+    public TimestampedConfig timezone(ZoneId timezone) {
+        return new TimestampedConfig(timezone);
     }
 
     @Override
     public TimestampedConfig createCopy() {
-        return new TimestampedConfig(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

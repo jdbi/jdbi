@@ -177,7 +177,7 @@ public class FieldMapperAccessTest {
 
     @Test
     void shouldThrowOnMismatchedColumnsStrictMatch() {
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
         try (Query query = handle.createQuery("SELECT id as misspelledField, id as longField FROM users order by id")) {
             assertThatThrownBy(() -> query.mapTo(beanClass).list()).isInstanceOf(IllegalArgumentException.class);
         }

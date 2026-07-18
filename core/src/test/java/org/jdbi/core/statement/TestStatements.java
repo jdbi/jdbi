@@ -93,7 +93,7 @@ public class TestStatements {
     public void testStatementWithOptionalResults() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.getConfig(ResultProducers.class).allowNoResults(true);
+        h.configure(ResultProducers.class, c -> c.allowNoResults(true));
         assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
     }
 
@@ -101,7 +101,7 @@ public class TestStatements {
     public void testStatementWithOptionalBeanResults() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.getConfig(ResultProducers.class).allowNoResults(true);
+        h.configure(ResultProducers.class, c -> c.allowNoResults(true));
         assertThat(h.createQuery("commit").mapToBean(Object.class).findFirst()).isEmpty();
     }
 
@@ -109,7 +109,7 @@ public class TestStatements {
     public void testStatementWithOptionalMapResults() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.getConfig(ResultProducers.class).allowNoResults(true);
+        h.configure(ResultProducers.class, c -> c.allowNoResults(true));
         assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
     }
 

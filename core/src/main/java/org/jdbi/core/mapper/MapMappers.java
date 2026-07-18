@@ -17,16 +17,16 @@ import java.util.function.UnaryOperator;
 
 import org.jdbi.core.config.JdbiConfig;
 
-public class MapMappers implements JdbiConfig<MapMappers> {
+public final class MapMappers implements JdbiConfig<MapMappers> {
 
-    private UnaryOperator<String> caseChange;
+    private final UnaryOperator<String> caseChange;
 
     public MapMappers() {
-        caseChange = CaseStrategy.LOCALE_LOWER;
+        this(CaseStrategy.LOCALE_LOWER);
     }
 
-    private MapMappers(MapMappers that) {
-        caseChange = that.caseChange;
+    private MapMappers(UnaryOperator<String> caseChange) {
+        this.caseChange = caseChange;
     }
 
     /**
@@ -40,18 +40,20 @@ public class MapMappers implements JdbiConfig<MapMappers> {
     }
 
     /**
-     * Sets the case change strategy for the database column names. By default, the row names are lowercased using the system locale.
+     * Returns a copy of this configuration with the given case change strategy for the database column names.
+     * By default, the row names are lowercased using the system locale.
      *
      * @param caseChange The strategy to use. Must not be null.
+     * @return the derived configuration
      * @see CaseStrategy
      */
-    public MapMappers setCaseChange(UnaryOperator<String> caseChange) {
-        this.caseChange = caseChange;
-        return this;
+    public MapMappers caseChange(UnaryOperator<String> caseChange) {
+        return new MapMappers(caseChange);
     }
 
     @Override
     public MapMappers createCopy() {
-        return new MapMappers(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }
