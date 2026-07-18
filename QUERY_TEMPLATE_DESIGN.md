@@ -447,8 +447,9 @@ configs, `Arguments` (with a bulk `register(Collection)`), and the Q1 intercepto
 (`RowMappers`/`ColumnMappers`/`SqlArrayTypes`, now with `withInferenceInterceptor` + a shared
 `RegistrationLists` helper), the shared `MapEntryConfig` (`MapEntryMappers` + vavr `TupleMappers`, whose
 registry back-ref was removed), and `Extensions` are done immutable; dead `prePreparedTypes` deleted.
-Remaining: **`SqlStatements`** (the last and biggest D1 config — see Remaining #4 for its open design
-questions), then D7 → sub-step 5 (the perf payoff) → D4/D5/D6 (builder/plugin/open surface).
+Remaining: **`SqlStatements`** (the last and biggest D1 config — its direction is now **decided and written
+up** in Remaining #4, ready to implement), then D7 → sub-step 5 (the perf payoff) → D4/D5/D6
+(builder/plugin/open surface).
 All commits are whole-reactor green with static analysis ENABLED — do not fall back to
 `-Dbasepom.check.skip-all` as the validation of record.
 
@@ -719,10 +720,13 @@ largest public surface and depend on the value/registry immutability being in pl
   `createCopy` returns `this`. Built-ins move to a `buildDefaultHandlerFactories()` reproducing the exact
   reverse-of-registration order. Migrated the core extension tests + generator `setAllowProxy` sites (all via
   `configure`/`withConfig`) and the `registerExtension` javadoc; added `ExtensionsTest`. Whole reactor green.
-  **Item 4b `SqlStatements` NOT done — deliberately deferred** (see Remaining #4): it is 551 lines with a
-  define-map hot path, `volatile` fields, a derived `templateCache`, exception-handler deque and context
-  listeners, and it interlocks with D7/sub-step 5 (the per-statement `define()` copy-on-write question). It
-  wants its own focused pass, not a rushed one at the tail of this session.
+  **Item 4b `SqlStatements` NOT built — but its direction is now decided and written up** in Remaining #4
+  (investigated 2026-07-18): `volatile`→`final`; `templateCache` stays a shared config field (not a resolver);
+  append-semantics collections need a `RegistrationLists.append`; scalar setters→withers; and the one real
+  interlock — the `define` hot path — is resolved as "rewire `StatementContext.define` to `configure(...)`,
+  accept a bounded temporary O(n²)-for-define-heavy regression, permanent fix is D7's statement-local define
+  buffer." Ready to implement as its own increment (~34 caller files); left unbuilt only to keep this session's
+  commits small and reviewable.
 
 ### Remaining sub-step-3 work (START HERE on a clean restart)
 1. ~~**`Arguments` full immutability**~~ **DONE (`2cd165fbb`)** — see the Progress entry above. Also added a
@@ -733,24 +737,49 @@ largest public surface and depend on the value/registry immutability being in pl
    registry-back-ref removal (fallback relocated to `VavrTupleRowMapperFactory`), which was not in the original
    one-line plan.
 4. **Large configs.** `Extensions` ~~(registration lists + `allowProxy`/`failFast`)~~ **DONE (`6f7ebbad2`)**.
-   **`SqlStatements` (START HERE) is the one remaining D1 config** and the biggest/subtlest surface (551 lines).
-   Before editing, decide these (they interlock with D7/sub-step 5, so it is fine to defer some to then):
-   - **`attributes` (defines) hot path.** `define(key, value)` currently mutates a `Map<String,Object>` in place;
-     statements call it many times. An immutable copy-on-write map per `define` is O(n) per call. Options: a
-     persistent/HAMT map, or accept that per-statement defines live in the statement-local copy-on-write config
-     (D7) rather than forcing `SqlStatements` itself to re-copy on every `define`. Likely the define churn is
-     exactly what D7's statement-local config is for — so `SqlStatements`' own `attributes` may just need to
-     become an immutable snapshot with a wither, and the per-`define` accumulation stays in the D7 layer.
-   - **`volatile` fields** (`allowUnusedBindings`, `attach*ForCleanup`, `scriptStatementsNeedSemicolon`,
-     `jfr*MaxLength`, `includeBindingsInTelemetry`): the `volatile` exists only because config is mutated in
-     place on a shared instance today; immutability removes the need — make them plain final fields.
-   - **`templateCache`** (`JdbiCache<StatementCacheKey, Function<RenderContext,String>>`): this is a derived
-     cache, not registration data — it is a sub-step-2-style resolver concern. Decide whether it moves to a
-     `readAs` resolver (like the mapper/argument resolvers) rather than living as a config value field.
-   - **`exceptionHandlers` (Deque)** and **`contextListeners`**: registration lists — same
-     `RegistrationLists`/wither treatment, minding the Deque ordering semantics.
-   - Mixed void vs `this`-returning setters (~15): rename to prefix-free withers; migrate the direct callers
-     (sweep `*.java` AND `*.kt` for `get(SqlStatements.class).set*` / `SqlStatements::class.java`).
+   **`SqlStatements` (START HERE) is the one remaining D1 config** and the biggest surface (551 lines,
+   ~34 caller files / ~42 discard sites). The open questions were investigated 2026-07-18; **direction decided
+   below** (grounded in the actual code, not hand-waved). Do it as its own increment; validate whole reactor +
+   a define microbenchmark.
+   - **`volatile` fields → plain `final`.** `allowUnusedBindings`, `attach{All,Callback}StatementsForCleanup`,
+     `scriptStatementsNeedSemicolon`, `jfr{Sql,Param}MaxLength`, `includeBindingsInTelemetry` are `volatile`
+     ONLY because config is mutated in place on a shared instance today. Immutability removes the need.
+   - **`templateCache` stays a config field (a shared `JdbiCache` instance), NOT a `readAs` resolver.** It is
+     genuinely user-configurable (`setTemplateCache`), and the current copy-ctor already *shares* the one
+     instance across derivations (`this.templateCache = that.templateCache`) — that warm-cache sharing is the
+     desired behavior and `createCopy`-returns-`this` preserves it. (Contrast sub-step-2 resolvers: those were
+     per-registry resolution state, not user knobs.) → `final` field; `setTemplateCache` → `templateCache(...)`
+     wither returning a new `SqlStatements` with a fresh cache.
+   - **Registration collections — mind that these APPEND, unlike the prepend/last-wins configs.** `customizers`
+     (`List`, applied in registration order), `exceptionHandlers` (fired LIFO via `descendingIterator()`),
+     `contextListeners` (`Set`, dedup + insertion order). `RegistrationLists.prepend` is wrong here; add a
+     `RegistrationLists.append(base, tail)` (and a dedup variant for the Set, or keep an ordered immutable set)
+     rather than inlining three times. `addCustomizer`/`addExceptionHandler`/`addContextListener` keep their
+     names, return new.
+   - **Scalar setters → prefix-free withers** (`setTemplateEngine`→`templateEngine`, `setSqlParser`→`sqlParser`,
+     `setSqlLogger`→`sqlLogger`, `setQueryTimeout`→`queryTimeout`, `setUnusedBindingAllowed`→
+     `unusedBindingAllowed`, the `setAttach*`/`setScript*`/`setJfr*`/`setIncludeBindingsInTelemetry` group).
+     Keep the `@Deprecated(forRemoval)` `setTimingCollector` name as-is. `createCopy` returns `this`.
+   - **The define hot path is THE interlock — decided: accept a bounded temporary regression, fix in D7.**
+     `StatementContext.define(k,v)` currently does `getConfig(SqlStatements.class).define(k,v)` and *discards*
+     the return; `define` is thus the per-statement hot path. Under immutable `SqlStatements`, `attributes`
+     becomes an immutable map and `define`/`defineMap` return a new instance, so `StatementContext.define` must
+     rewire to `configure(SqlStatements.class, c -> c.define(k,v))`. That is **correct** under the current
+     per-statement-copy model (each statement owns its registry; `configure` installs into it, no cross-statement
+     leak). COST: a statement calling `define` n times does O(n²) map-copying (each define copies the growing
+     map). Bounded and rare (typical statements define a handful; `defineMap` exists for bulk). **Decision: take
+     the bounded regression in 4b; the permanent fix is D7's statement-local define buffer** (accumulate defines
+     in a local mutable map, freeze once at execute) — do NOT balloon 4b into D7. Benchmark typical vs
+     define-heavy and note it in the commit.
+   - **`ConfigMutating` late-phase customizers** (`ConfigureStatement`, `AllowUnusedBindingsFactory`,
+     `RegisterSqlExceptionHandlerImpl`, `UseTemplateEngineImpl`, `UseSqlParserImpl`) mutate `SqlStatements` from
+     a customizer; they run on the per-statement (eager-copied) config from the phase-5 retarget, so rewiring
+     them to `configure(...)` is correct — verify each operates on a mutable per-statement registry, not a shared
+     one.
+   - **Migration:** most of the ~42 sites are `configure(SqlStatements.class, c -> c.setX(...))` convenience
+     lambdas needing only the method rename; the true discard sites (`getConfig(SqlStatements.class).setX/define`
+     in tests, `StatementContext.define`, `ArgumentBinder`, the sqlobject customizer impls) rewire to
+     `configure`. Sweep `*.java` AND `*.kt` (`get(SqlStatements.class).` / `SqlStatements::class.java`).
 5. **Sweep the remaining warm-like/dead constructs** (`PojoWarmingCustomizer`, any `warm(ConfigRegistry)` hooks) —
    assess whether they still pull weight now that resolvers cache per-registry; drop if not (per maintainer:
    we are on 4.x, remove rather than shim when a construct adds baggage).
