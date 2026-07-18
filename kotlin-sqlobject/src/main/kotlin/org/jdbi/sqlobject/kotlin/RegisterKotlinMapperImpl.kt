@@ -25,7 +25,6 @@ class RegisterKotlinMapperImpl(annotation: Annotation) : SimpleExtensionConfigur
     private val kotlinMapper = KotlinMapper(kotlinClass.java, prefix)
 
     override fun configure(config: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
-        val mappers = config.get(RowMappers::class.java)
-        mappers.register(kotlinClass.java, kotlinMapper)
+        config.configure(RowMappers::class.java) { it.register(kotlinClass.java, kotlinMapper) }
     }
 }

@@ -105,7 +105,7 @@ class ExtensionConfigCustomizerTest {
         @Override
         public Collection<ConfigCustomizer> forExtensionType(Class<?> extensionType) {
             return Collections.singleton(
-                    config -> config.get(RowMappers.class).register(new SomethingMapper()) // <2>
+                    config -> config.configure(RowMappers.class, c -> c.register(new SomethingMapper())) // <2>
             );
         }
     }

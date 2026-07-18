@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.jdbi.core.array.SqlArrayArgumentFactory;
 import org.jdbi.core.config.JdbiConfig;
+import org.jdbi.core.internal.RegistrationLists;
 
 /**
  * A registry for ArgumentFactory instances. Holds only registration data; resolving a factory into an
@@ -98,10 +99,8 @@ public final class Arguments implements JdbiConfig<Arguments> {
      * @return a copy of this configuration with the factory registered
      */
     public Arguments register(final QualifiedArgumentFactory factory) {
-        final List<QualifiedArgumentFactory> newFactories = new ArrayList<>(factories.size() + 1);
-        newFactories.add(factory);
-        newFactories.addAll(factories);
-        return new Arguments(List.copyOf(newFactories), untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
+        return new Arguments(RegistrationLists.prepend(factories, factory),
+                untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }
 
     /**
@@ -116,13 +115,8 @@ public final class Arguments implements JdbiConfig<Arguments> {
         if (factories.isEmpty()) {
             return this;
         }
-        final List<QualifiedArgumentFactory> newFactories = new ArrayList<>(this.factories.size() + factories.size());
-        // Prepend in iteration order so that, as with successive register() calls, the last factory wins.
-        for (final ArgumentFactory factory : factories) {
-            newFactories.add(0, QualifiedArgumentFactory.adapt(factory));
-        }
-        newFactories.addAll(this.factories);
-        return new Arguments(List.copyOf(newFactories), untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
+        return new Arguments(RegistrationLists.prependAll(this.factories, factories, QualifiedArgumentFactory::adapt),
+                untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }
 
     /**

@@ -23,7 +23,9 @@ class RegisterKotlinMappersImpl(annotation: Annotation) : SimpleExtensionConfigu
     private val kotlinMappers = registerKotlinMappers.value.map { KotlinMapper(it.value.java, it.prefix) }
 
     override fun configure(config: ConfigRegistry, annotation: Annotation, sqlObjectType: Class<*>) {
-        val rowMappers = config.get(RowMappers::class.java)
-        kotlinMappers.forEach { rowMappers.register(it) }
+        // Raw mappers go through per-element type inference, so this cannot use the bulk register(Collection).
+        config.configure(RowMappers::class.java) { c ->
+            kotlinMappers.fold(c) { mappers, mapper -> mappers.register(mapper) }
+        }
     }
 }

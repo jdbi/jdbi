@@ -163,13 +163,13 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlArrayTypes.class).setArgumentStrategy(strategy)}
+     * Convenience method for {@code configure(SqlArrayTypes.class, c -> c.argumentStrategy(strategy))}
      *
      * @param strategy argument strategy
      * @return this
      */
     default This setSqlArrayArgumentStrategy(final SqlArrayArgumentStrategy strategy) {
-        return configure(SqlArrayTypes.class, c -> c.setArgumentStrategy(strategy));
+        return configure(SqlArrayTypes.class, c -> c.argumentStrategy(strategy));
     }
 
     /**
@@ -193,7 +193,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlArrayTypes.class).register(elementType, sqlTypeName)}
+     * Convenience method for {@code configure(SqlArrayTypes.class, c -> c.register(elementType, sqlTypeName))}
      *
      * @param elementType element type
      * @param sqlTypeName SQL type name
@@ -217,7 +217,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlArrayTypes.class).register(arrayType)}
+     * Convenience method for {@code configure(SqlArrayTypes.class, c -> c.register(arrayType))}
      *
      * @param arrayType SQL array type
      * @return this
@@ -227,7 +227,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlArrayTypes.class).register(factory)}
+     * Convenience method for {@code configure(SqlArrayTypes.class, c -> c.register(factory))}
      *
      * @param factory SQL array type factory
      * @return this
@@ -259,7 +259,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(mapper)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(mapper))}
      *
      * @param mapper column mapper
      * @return this
@@ -269,7 +269,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(type, mapper))}
      *
      * @param <T>    the type
      * @param type   the generic type to register
@@ -281,7 +281,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(type, mapper))}
      *
      * @param type   the type to register
      * @param mapper the mapper to use on that type
@@ -292,7 +292,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(type, mapper))}
      *
      * @param type   the type to register
      * @param mapper the mapper to use on that type
@@ -303,7 +303,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(factory)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(factory))}
      *
      * @param factory column mapper factory
      * @return this
@@ -313,7 +313,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(factory)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(factory))}
      *
      * @param factory column mapper factory
      * @return this
@@ -333,7 +333,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(RowMappers.class).register(mapper)}
+     * Convenience method for {@code configure(RowMappers.class, c -> c.register(mapper))}
      *
      * @param mapper row mapper
      * @return this
@@ -343,7 +343,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(RowMappers.class, c -> c.register(type, mapper))}
      *
      * @param <T>    the type
      * @param type   to match
@@ -355,7 +355,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(RowMappers.class, c -> c.register(type, mapper))}
      *
      * @param type   to match
      * @param mapper row mapper
@@ -366,7 +366,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(RowMappers.class).register(factory)}
+     * Convenience method for {@code configure(RowMappers.class, c -> c.register(factory))}
      *
      * @param factory row mapper factory
      * @return this

@@ -40,7 +40,6 @@ public class RegisterColumnMapperFactoriesImpl extends SimpleExtensionConfigurer
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ColumnMappers columnMappers = config.get(ColumnMappers.class);
-        columnMapperFactories.forEach(columnMappers::register);
+        config.configure(ColumnMappers.class, c -> c.register(columnMapperFactories));
     }
 }
