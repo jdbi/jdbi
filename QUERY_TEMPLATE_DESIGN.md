@@ -443,8 +443,8 @@ config/Handle decoupling; the **public API is signed off** and recorded in "## C
 for sign-off" below (D1–D7 with a sign-off checklist). **What is done and exactly what remains is in that
 section's "### Progress" and "### Remaining sub-step-3 work (START HERE on a clean restart)" — read those two
 first.** Short version of where we are: `configure` is now `UnaryOperator`-based; `Enums`, five scalar-policy
-configs, and `Arguments`' registry dependency are done immutable/registry-free; dead `prePreparedTypes` deleted.
-Remaining: `Arguments` full immutability, the Q1 interceptor trio, shared `MapEntryConfig`, the big
+configs, and `Arguments` (now fully immutable, with a bulk `register(Collection)`) are done; dead
+`prePreparedTypes` deleted. Remaining: the Q1 interceptor trio, shared `MapEntryConfig`, the big
 `SqlStatements`/`Extensions`, then D7 → sub-step 5 (the perf payoff) → D4/D5/D6 (builder/plugin/open surface).
 All commits are whole-reactor green with static analysis ENABLED — do not fall back to
 `-Dbasepom.check.skip-all` as the validation of record.
@@ -665,14 +665,24 @@ largest public surface and depend on the value/registry immutability being in pl
   annotations; snapshot once, reuse), proven green by the qualifier tests. `Arguments` now has a no-arg
   constructor with no `registry` field / `setRegistry`. Removed `prePreparedTypes` entirely (interface defaults
   + all seven overrides — it was only ever consumed by its own adapter): first of the dead "warm-like" constructs.
+- **Item 1 DONE (`2cd165fbb`): `Arguments` fully immutable + bulk `register(Collection)`.** Final fields;
+  `register(...)` and the three policy setters (renamed prefix-free: `untypedNullArgument` /
+  `bindingNullToPrimitivesPermitted` / `preparedArgumentsEnabled`) return a new instance; `createCopy()`
+  returns `this`. Built-ins moved to a shared static `DEFAULT_FACTORIES` (stateless), built via a `prepend`
+  helper that preserves the reverse-of-registration consultation order; `EnumArgumentFactory` added natively
+  (it already implements `QualifiedArgumentFactory`, so no `adapt`). **New public `register(Collection<? extends
+  ArgumentFactory>)`**: under immutability N sequential `register()` calls each copy the growing list (O(N²));
+  the bulk form is one derivation / one copy and reads better; ordering matches successive calls (last wins).
+  Migrated the direct-mutation sites that would now silently drop the derived value: the four sqlobject
+  `RegisterArgumentFactor{y,ies}`/`RegisterObjectArgumentFactor{y,ies}` configurers (the two plural ones use the
+  bulk `register`), `OraclePlugin`, and the affected core tests — all via `configure(Arguments.class, …)`.
+  Added unit tests (immutability, empty short-circuit, last-wins). **Pattern for the remaining list-based
+  configs:** give each a bulk/plural wither for the same O(N²)→O(N) reason (Q1 trio `register` lists,
+  `SqlStatements` customizers/attributes, `Extensions` registration lists).
 
 ### Remaining sub-step-3 work (START HERE on a clean restart)
-1. **`Arguments` full immutability** (now unblocked by Q2): make `factories`/policy immutable, `register(...)`
-   and the policy setters (`untypedNullArgument`/`bindingNullToPrimitivesPermitted`/`preparedArgumentsEnabled`
-   → prefix-free withers) return a new instance, `createCopy()` returns `this`; migrate `register` call sites
-   (`Configurable.registerArgument` convenience already routes through `configure`; the sqlobject
-   `RegisterArgumentFactor{y,ies}Impl` / `RegisterObjectArgumentFactor*` (R) sites and any tests must move to
-   `config.configure(Arguments.class, c -> c.register(...))`). `ArgumentResolver` reads `getFactories()` — fine.
+1. ~~**`Arguments` full immutability**~~ **DONE (`2cd165fbb`)** — see the Progress entry above. Also added a
+   public bulk `register(Collection)`; apply the same plural-wither pattern to the list-based configs below.
 2. **Q1 interceptor trio** `RowMappers`/`ColumnMappers`/`SqlArrayTypes`: add a `withInferenceInterceptor(...)`
    wither (copy-on-wither of the `JdbiInterceptionChainHolder`), drop the mutable public `getInferenceInterceptors()`
    (keep an internal read accessor for `register`'s `process()`); make the rest of each config immutable
