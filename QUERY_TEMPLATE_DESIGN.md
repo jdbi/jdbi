@@ -153,12 +153,12 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 
 **Latest (2026-07-18):** D4a (`d5565bf13`) landed the additive `Jdbi.builder()` assembly API + the
 `JdbiPlugin.configure(Jdbi.Builder)` SPI (D5) — new preferred path, nothing deprecated, config not yet frozen.
-Next is **D4b**: freeze the config on first `open()` and deprecate the post-construction mutators
-(`Jdbi.registerX`/`configure`/`installPlugin`, `customizeJdbi(Jdbi)`), backed by a derive-and-re-reference shim.
-This is the largest break in the project (thousands of external call sites; ~93 in-repo) and changes `open()`
-semantics, so it wants its own focused pass. Then **D6** (handle-config shims + `open(scope)`), which is also
-where the jdbi/jdbi#2992 warm-cross-handle metadata cache gets addressed (freeze-on-open enables handle-boundary
-COW — see the #2992 note above).
+Next is **D4b** — a first design pass is written up in "## D4b proposal" below (deprecate → remove the
+post-construction Jdbi mutation surface; **no shim, no freeze-on-open mechanism**; migrate in-repo assembly +
+the 19 plugins' `customizeJdbi` to the builder, then `@Deprecated`, then remove in the next major). It has a few
+sub-decisions flagged for confirmation (keep `create()`?, `@Deprecated` granularity). Then **D6** (handle config +
+`open(scope)`), which is where jdbi/jdbi#2992 warm-cross-handle caching lands (handle-boundary COW, unlocked once
+the Jdbi config is immutable at removal — see the #2992 note above).
 
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
@@ -447,6 +447,77 @@ largest public surface and depend on the value/registry immutability being in pl
 **Naming (per sign-off):** config-value building methods are prefix-free — `register(...)` keeps its name
 (already returns the config type); scalar setters become `templateEngine(e)` / `keyColumn(k)` (no `set`, no
 `with`), consistent with `register` and clash-free with `getX()`/`isX()` getters. Apply during D1.
+
+## D4b proposal (2026-07-18): freeze the Jdbi config by REMOVING post-construction mutation (deprecate → remove)
+
+This is the first design pass for D4b. D4a already landed the additive `Jdbi.builder()` + `JdbiPlugin.configure(Builder)`.
+D4b makes the builder the *only* way to configure a `Jdbi`, so a built `Jdbi`'s config is immutable for its life.
+
+### Decision: deprecate → remove; NO compatibility shim; NO freeze-on-open mechanism
+The earlier sketch proposed a derive-and-re-reference *shim* plus *freeze-on-open*. Both exist only to run
+immutable-config and legacy in-place mutation **at the same time**. If we instead remove the mutation API outright,
+neither is needed:
+- **During the deprecation window**, the deprecated mutators keep their *current* behavior — in-place mutation of
+  the `Jdbi`'s registry. That is already safe: `install()` clears memoized views (D7), and a handle takes
+  `createCopy()` of the config at `open()`, so post-open `jdbi.registerX` only affects *newly* opened handles
+  (the long-standing status quo). Nothing new to guarantee.
+- **At removal**, the mutating methods are gone, so a `Jdbi` assembled by the builder is immutable by construction.
+  No runtime "frozen" flag, no `IllegalStateException("read only")`.
+- **No shim is justified.** The shim bridges "config is already immutable but the old mutation API is still present";
+  we never enter that state. (If review wants immutability *enforced during* the window — e.g. to unlock handle-level
+  COW early — the minimal tool is throwing from the deprecated mutators after first `open()`; that is a behavior
+  break, heavier than plain deprecation, and can wait for the removal step. Recommend: do not.)
+
+### Target end state
+- Assemble with `Jdbi.builder(...)…build()`. The built `Jdbi`'s config never changes.
+- **`Configurable` splits into read vs mutate.** The read surface already exists as `ConfigReader`
+  (`getConfig()` + `findMapper`/`findArgument`/… ; `ConfigRegistry` implements it). At removal, `Jdbi` implements the
+  read surface only; the mutate surface (`configure`/`register*`) stays on the scoped-then-frozen owners: the
+  **builder** (assembly) and **statements/templates** (per-execution, COW). Handle is decided in D6.
+- **`Jdbi.create(...)` stays**, un-deprecated, as the zero-config shortcut — semantically `builder(x).build()`. This
+  revises the earlier "create() deprecated" sign-off: create() is the universal, ergonomic entry and the zero-config
+  path is legitimate; only post-construction *configuration* goes away. Migration is
+  `Jdbi.create(ds).installPlugin(p).registerX(...)` → `Jdbi.builder(ds).installPlugin(p).registerX(...).build()`.
+  *(Sub-decision — confirm: keep create() vs deprecate it too.)*
+- **Plugins** contribute via `configure(Jdbi.Builder)`; `customizeJdbi(Jdbi)` is removed. `customizeHandle(Handle)` /
+  `customizeConnection(Connection)` stay (per-handle/connection concerns).
+
+### Surface to deprecate (D4b) → remove (next major)
+- `Jdbi.installPlugin`, `Jdbi.setTransactionHandler`, `setStatementBuilderFactory`, `setHandleCallbackDecorator`,
+  `setHandleScope` (builder has all of these).
+- The `Configurable` mutators *as inherited by `Jdbi`*: `configure(Class, UnaryOperator)` and the ~30 `register*`
+  conveniences. *(Sub-decision — granularity: deprecating the `configure` funnel does NOT warn callers of
+  `jdbi.registerRowMapper(...)`, since those are sibling default methods. Recommend marking the funnel + the
+  directly-owned methods + the highest-traffic `register*` overloads `@Deprecated`, and letting the rest fall away
+  when `Jdbi` drops `Configurable` at removal — full per-overload deprecation on `Jdbi` is ~30 overrides of boilerplate.)*
+- `JdbiPlugin.customizeJdbi(Jdbi)`.
+
+### Migration plan (staged; each stage whole-reactor green and warning-clean)
+The build tolerates `@Deprecated(forRemoval=true)` declarations (see `Configurable:124`), so ordering is flexible;
+migrate-first keeps the tree clean and is recommended.
+1. **D4b.1 — migrate in-repo assembly to the builder (behavior-preserving, no `@Deprecated` yet).** ~47 assembly
+   call sites across main + tests, plus the two big central pieces:
+   - **Test support** (`testing/…/JdbiExtension`, core-test `DatabaseExtension`/`H2DatabaseExtension`): they
+     assemble a `Jdbi` and run `installPlugin`/`configure`. Route them through `builder()`. This touches every test
+     module, so do it first and carefully.
+   - **The 19 in-repo plugins' `customizeJdbi`** (SqlObject/Postgres/Jackson/Gson/… ): move the config registration
+     from `customizeJdbi(Jdbi)` to `configure(Jdbi.Builder)`; leave `customizeHandle`/`customizeConnection` alone.
+2. **D4b.2 — add `@Deprecated(forRemoval = true)` to the surface above**, javadoc pointing at `builder()` /
+   `configure(Builder)`. In-repo is already migrated, so no new warnings.
+3. **Next major (removal, with D6):** delete the deprecated methods; `Jdbi` drops `Configurable` for the read-only
+   surface; then handles become `createChild()` COW off the now-immutable `Jdbi` config — the jdbi/jdbi#2992
+   warm-cross-handle metadata fix (see that note).
+
+### Implementation notes / gotchas to carry in
+- **`build()` must drain dynamically-added plugins.** D4a's `build()` iterates `plugins` with a for-each; once a
+  migrated plugin's `configure(builder)` (or a legacy `customizeJdbi`) calls `builder.installPlugin(sub)`, the loop
+  must pick `sub` up (index/queue drain, with `installPlugin`'s add-if-absent dedup) instead of throwing
+  `ConcurrentModificationException`. Fix this as part of D4b.1.
+- **Plugin ordering & dedup**: preserve install order; `installPlugin` stays add-if-absent so a plugin pulled in by
+  two others runs once.
+- **Handle-level config is out of scope here** (`handle.registerX`); that is D6. D4b is Jdbi-level only.
+- **Third-party plugins** that only implement `customizeJdbi` keep working through the deprecation window and break at
+  removal — that is the window's purpose; call it out in release notes.
 
 ## Tasklist
 
