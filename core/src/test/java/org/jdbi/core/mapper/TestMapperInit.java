@@ -27,6 +27,7 @@ import org.jdbi.core.Jdbi;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
+import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,11 +100,21 @@ public class TestMapperInit {
                 .mapTo(StringValue.class)
                 .list();
 
-            // a new handle has its own registry, so the mapper is initialized again
-            assertThat(mapper.getInitializedCount()).isEqualTo(2);
+            // an unmodified handle shares the Jdbi root's copy-on-write registry (and its warm resolvers),
+            // so the mapper is not re-initialized
+            assertThat(mapper.getInitializedCount()).isOne();
 
             // has been called for every row again (mapper gets reused)
             assertThat(value.size() * 3).isEqualTo(mapper.getMappedCount());
+        });
+
+        // a handle that changes its configuration forks a private registry, so the mapper re-initializes
+        jdbi.useHandle(config -> config.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true)), h -> {
+            h.createQuery("SELECT string_value FROM column_mappers")
+                .mapTo(StringValue.class)
+                .list();
+
+            assertThat(mapper.getInitializedCount()).isEqualTo(2);
         });
     }
 
@@ -157,11 +168,21 @@ public class TestMapperInit {
             List<Map.Entry<StringValue, Integer>> value = h.createQuery("SELECT * FROM column_mappers")
                 .mapTo(resultType)
                 .list();
-            // a new handle has its own registry, so the mapper is initialized again
-            assertThat(mapper.getInitializedCount()).isEqualTo(2);
+            // an unmodified handle shares the Jdbi root's copy-on-write registry (and its warm resolvers),
+            // so the mapper is not re-initialized
+            assertThat(mapper.getInitializedCount()).isOne();
 
             // has been called for every row again (mapper gets reused)
             assertThat(value).hasSize(mapper.getMappedCount() / 3);
+        });
+
+        // a handle that changes its configuration forks a private registry, so the mapper re-initializes
+        jdbi.useHandle(config -> config.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true)), h -> {
+            h.createQuery("SELECT * FROM column_mappers")
+                .mapTo(resultType)
+                .list();
+
+            assertThat(mapper.getInitializedCount()).isEqualTo(2);
         });
     }
 
