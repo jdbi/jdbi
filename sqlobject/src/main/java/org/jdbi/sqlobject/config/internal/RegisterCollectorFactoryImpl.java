@@ -34,7 +34,6 @@ public class RegisterCollectorFactoryImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        JdbiCollectors collectors = config.get(JdbiCollectors.class);
-        collectors.register(collectorFactory);
+        config.configure(JdbiCollectors.class, c -> c.register(collectorFactory));
     }
 }

@@ -397,7 +397,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * Returns results in a {@link List}. The implementation of the list can be changed by registering a {@link Collector}:
      * <p>
      * <pre>{@code
-     *     jdbi.getConfig(JdbiCollectors.class).registerCollector(List.class, Collectors.toCollection(LinkedList::new));
+     *     jdbi.registerCollector(List.class, Collectors.toCollection(LinkedList::new));
      * }</pre>
      * or
      * <pre>{@code
@@ -420,7 +420,7 @@ public interface ResultIterable<T> extends Iterable<T> {
      * Returns results in a {@link Set}. The implementation of the set can be changed by registering a {@link Collector}:
      * <p>
      * <pre>{@code
-     *     jdbi.getConfig(JdbiCollectors.class).registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
+     *     jdbi.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
      * }</pre>
      * or
      * <pre>{@code

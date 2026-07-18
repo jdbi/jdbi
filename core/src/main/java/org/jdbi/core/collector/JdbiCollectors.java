@@ -14,55 +14,66 @@
 package org.jdbi.core.collector;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
 
 import org.jdbi.core.config.JdbiConfig;
+import org.jdbi.core.internal.RegistrationLists;
 
 /**
  * Registry of collector factories. Holds only registration data; resolving a factory into a
  * {@link Collector} for a given container type (and caching the result) is done per configuration registry
  * by {@link CollectorResolver}.
- * Contains a set of collector factories, registered by the application.
+ * <p>
+ * This configuration is immutable: the {@code register} methods return a new instance, leaving the receiver
+ * unchanged.
  */
-public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
+public final class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
+
+    private static final List<CollectorFactory> DEFAULT_FACTORIES = buildDefaultFactories();
+
     private final List<CollectorFactory> factories;
 
     public JdbiCollectors() {
-        factories = new CopyOnWriteArrayList<>();
-        register(new MapCollectorFactory());
-        register(new OptionalCollectorFactory());
-        register(new ListCollectorFactory());
-        register(new SetCollectorFactory());
-        register(new OptionalPrimitiveCollectorFactory());
-        register(new ArrayCollectorFactory());
-        register(new EnumSetCollectorFactory());
+        this(DEFAULT_FACTORIES);
     }
 
-    private JdbiCollectors(JdbiCollectors that) {
-        factories = new CopyOnWriteArrayList<>(that.factories);
+    private JdbiCollectors(final List<CollectorFactory> factories) {
+        this.factories = factories;
+    }
+
+    private static List<CollectorFactory> buildDefaultFactories() {
+        // Registration prepends, so the effective consultation order is the reverse of registration order.
+        final List<CollectorFactory> f = new ArrayList<>();
+        f.add(0, new MapCollectorFactory());
+        f.add(0, new OptionalCollectorFactory());
+        f.add(0, new ListCollectorFactory());
+        f.add(0, new SetCollectorFactory());
+        f.add(0, new OptionalPrimitiveCollectorFactory());
+        f.add(0, new ArrayCollectorFactory());
+        f.add(0, new EnumSetCollectorFactory());
+        return List.copyOf(f);
     }
 
     /**
      * Register a new {@link CollectorFactory}.
      * @param factory A collector factory
-     * @return this
+     * @return a copy of this configuration with the factory registered
      */
-    public JdbiCollectors register(CollectorFactory factory) {
-        factories.add(0, factory);
-        return this;
+    public JdbiCollectors register(final CollectorFactory factory) {
+        return new JdbiCollectors(RegistrationLists.prepend(factories, factory));
     }
 
     /**
      * Register a new {@link Collector} for the given type.
      * @param collectionType The type that this collector will return
      * @param collector A {@link Collector} implementation
-     * @return this
+     * @return a copy of this configuration with the collector registered
      * @since 3.38.0
      * @see org.jdbi.core.config.Configurable#registerCollector(CollectorFactory)
      */
-    public JdbiCollectors registerCollector(Type collectionType, Collector<?, ?, ?> collector) {
+    public JdbiCollectors registerCollector(final Type collectionType, final Collector<?, ?, ?> collector) {
         return register(CollectorFactory.collectorFactory(collectionType, collector));
     }
 
@@ -77,6 +88,7 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
 
     @Override
     public JdbiCollectors createCopy() {
-        return new JdbiCollectors(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

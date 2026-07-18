@@ -40,7 +40,6 @@ public class RegisterCollectorImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(final ConfigRegistry config, final Annotation annotation, final Class<?> extensionType) {
-        final JdbiCollectors collectors = config.get(JdbiCollectors.class);
-        collectors.registerCollector(resultType, collector);
+        config.configure(JdbiCollectors.class, c -> c.registerCollector(resultType, collector));
     }
 }

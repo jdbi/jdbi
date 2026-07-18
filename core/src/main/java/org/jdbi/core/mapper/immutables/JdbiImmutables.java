@@ -131,7 +131,7 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
     }
 
     private JdbiImmutables register(Class<?> spec, Class<?> impl, PojoPropertiesFactory factory) {
-        registry.get(PojoTypes.class).register(spec, factory).register(impl, factory);
+        registry.configure(PojoTypes.class, c -> c.register(spec, factory).register(impl, factory));
         return this;
     }
 

@@ -237,7 +237,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(JdbiCollectors.class).register(CollectorFactory.collectorFactory(collectionType, collector))}
+     * Convenience method for {@code configure(JdbiCollectors.class, c -> c.registerCollector(collectionType, collector))}
      *
      * @param collectionType collector type to register the collector for
      * @param collector      the Collector to use to build the resulting collection
@@ -249,7 +249,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(JdbiCollectors.class).register(factory)}
+     * Convenience method for {@code configure(JdbiCollectors.class, c -> c.register(factory))}
      *
      * @param factory collector factory
      * @return this
