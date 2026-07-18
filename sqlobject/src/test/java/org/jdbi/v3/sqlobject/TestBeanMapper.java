@@ -16,6 +16,8 @@ package org.jdbi.v3.sqlobject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +26,7 @@ import java.util.Optional;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.result.LinkedHashMapRowReducer;
 import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -100,6 +103,32 @@ public class TestBeanMapper {
         assertThat(beans).extracting(TestBean::getValueType).containsExactly(ValueType.valueOf("foo"));
     }
 
+    @Test
+    public void testMapBeanMultiplePrefixes() {
+        h.createUpdate("insert into testBean (valueType) values ('foo')").execute();
+        Collection<TestBean> beans = h.registerColumnMapper(new ValueTypeMapper())
+            .registerRowMapper(BeanMapper.factory(TestBean.class, "bean1_"))
+            .registerRowMapper(BeanMapper.factory(TestBean.class, "bean2_"))
+            .createQuery("""
+                select
+                    valueType || '_1' as bean1_value_type,
+                    valueType || '_2' as bean2_value_type
+                from testBean
+                """)
+            .reduceRows(
+                new HashMap<String, TestBean>(),
+                (map, rowView) -> {
+                    map.put("bean1", rowView.getRow(TestBean.class, "bean1_"));
+                    map.put("bean2", rowView.getRow(TestBean.class, "bean2_"));
+                    return map;
+                })
+            .values();
+
+        assertThat(beans).extracting(TestBean::getValueType)
+                .containsExactlyInAnyOrder(ValueType.valueOf("foo_1"), ValueType.valueOf("foo_2"));
+    }
+
+
     public static class Document {
         private int id;
         private String name;
@@ -166,6 +195,7 @@ public class TestBeanMapper {
         private int id;
         private String name;
         private List<Document> documents = new ArrayList<>();
+        private Folder parent;
 
         public Folder() {}
 
@@ -199,6 +229,14 @@ public class TestBeanMapper {
             this.documents = documents;
         }
 
+        public Folder getParent() {
+            return parent;
+        }
+
+        public void setParent(Folder parent) {
+            this.parent = parent;
+        }
+
         @Override
         public boolean equals(Object obj) {
             if (!(obj instanceof Folder that)) {
@@ -206,12 +244,13 @@ public class TestBeanMapper {
             }
             return this.id == that.id
                 && Objects.equals(this.name, that.name)
-                && Objects.equals(this.documents, that.documents);
+                && Objects.equals(this.documents, that.documents)
+                && Objects.equals(this.parent, that.parent);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, name, documents);
+            return Objects.hash(id, name, documents, parent);
         }
 
         @Override
@@ -220,16 +259,20 @@ public class TestBeanMapper {
                 + "id=" + id
                 + ", name='" + name + '\''
                 + ", documents=" + documents
+                + ", parent=" + parent
                 + '}';
         }
     }
 
     private interface DocumentDao extends SqlObject {
-        @SqlBatch("insert into folders (id, name) values (:id, :name)")
+        @SqlBatch("insert into folders (id, name, parent_folder_id) values (:id, :name, :parent?.id)")
         void insertFolders(@BindBean Folder... folders);
 
         @SqlBatch("insert into documents (id, folder_id, name, contents) values (:d.id, :f.id, :d.name, :d.contents)")
         void insertDocuments(@BindBean("f") Folder folder, @BindBean("d") Document... documents);
+
+        @SqlBatch("insert into documents (id, folder_id, previous_folder_id, name, contents) values (:d.id, :f.id, :pf.id, :d.name, :d.contents)")
+        void insertDocuments(@BindBean("f") Folder folder, @BindBean("pf") Folder previousFolder, @BindBean("d") Document... documents);
 
         @SqlQuery("select f.id f_id, f.name f_name, "
             + "d.id d_id, d.name d_name, d.contents d_contents "
@@ -252,6 +295,17 @@ public class TestBeanMapper {
         @UseRowReducer(FolderDocReducer.class)
         List<Folder> listFolders();
 
+        @SqlQuery("select "
+            + "f.id f_id, f.name f_name, "
+            + "pf.id pf_id, pf.name pf_name "
+            + "from folders f left join folders pf "
+            + "on f.parent_folder_id = pf.id "
+            + "order by f.name")
+        @RegisterBeanMapper(value = Folder.class, prefix = "f")
+        @RegisterBeanMapper(value = Folder.class, prefix = "pf")
+        @UseRowReducer(FolderWithParentDocReducer.class)
+        List<Folder> listFoldersWithParent();
+
         class FolderDocReducer implements LinkedHashMapRowReducer<Integer, Folder> {
             @Override
             public void accumulate(Map<Integer, Folder> map, RowView rv) {
@@ -263,12 +317,24 @@ public class TestBeanMapper {
                 }
             }
         }
+
+        class FolderWithParentDocReducer implements LinkedHashMapRowReducer<Integer, Folder> {
+            @Override
+            public void accumulate(Map<Integer, Folder> map, RowView rv) {
+                Folder f = map.computeIfAbsent(rv.getColumn("f_id", Integer.class),
+                                               id -> rv.getRow(Folder.class, "f"));
+
+                if (rv.getColumn("pf_id", Integer.class) != null) {
+                    f.setParent(rv.getRow(Folder.class, "pf"));
+                }
+            }
+        }
     }
 
     @Test
     public void testFoldWithPrefixedMappers() {
-        h.execute("create table folders (id identity primary key, name varchar(50))");
-        h.execute("create table documents (id identity primary key, folder_id integer, name varchar(50), contents varchar(1000))");
+        h.execute("create table folders (id identity primary key, name varchar(50), parent_folder_id integer)");
+        h.execute("create table documents (id identity primary key, folder_id integer, previous_folder_id integer, name varchar(50), contents varchar(1000))");
 
         Folder folder1 = new Folder(1, "folder1");
         Folder folder2 = new Folder(2, "folder2");
@@ -291,5 +357,26 @@ public class TestBeanMapper {
                 new Folder(1, "folder1"),
                 new Folder(2, "folder2", doc1),
                 new Folder(3, "folder3", doc2, doc3));
+    }
+
+    @Test
+    public void testFoldWithMultiplePrefixedMappers() {
+        h.execute("create table folders (id identity primary key, name varchar(50), parent_folder_id integer)");
+        h.execute("create table documents (id identity primary key, folder_id integer, previous_folder_id integer, name varchar(50), contents varchar(1000))");
+
+        Folder folder1 = new Folder(1, "folder1");
+        Folder folder2 = new Folder(2, "folder2");
+        Folder folder3 = new Folder(3, "folder3");
+        folder3.setParent(folder1);
+
+        DocumentDao dao = h.attach(DocumentDao.class);
+        dao.insertFolders(folder1, folder2, folder3);
+
+        Folder newFolder1 = new Folder(1, "folder1");
+        Folder newFolder2 = new Folder(2, "folder2");
+        Folder newFolder3 = new Folder(3, "folder3");
+        newFolder3.setParent(folder1);
+
+        assertThat(dao.listFoldersWithParent()).containsExactly(newFolder1, newFolder2, newFolder3);
     }
 }
