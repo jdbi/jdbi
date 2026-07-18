@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionHandler;
+import org.jdbi.v3.core.extension.Extensions;
 
 /**
  * Registry for {@link HandlerDecorator handler decorators}. Decorators may modify or augment the behavior of a method
@@ -36,6 +37,8 @@ import org.jdbi.v3.core.extension.ExtensionHandler;
 public class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
     private final List<HandlerDecorator> decorators;
 
+    private ConfigRegistry registry;
+
     public HandlerDecorators() {
         decorators = new CopyOnWriteArrayList<>();
         register(new SqlMethodAnnotatedHandlerDecorator());
@@ -45,6 +48,11 @@ public class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
         decorators = new CopyOnWriteArrayList<>(that.decorators);
     }
 
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
+    }
+
     /**
      * Registers the given handler decorator with the registry.
      *
@@ -52,6 +60,12 @@ public class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
      * @return this
      */
     public HandlerDecorators register(HandlerDecorator decorator) {
+        // The registered decorators feed ExtensionMetadata computation, so detach this config's shared
+        // metadata cache before mutating them (jdbi/jdbi#2991). No-op until the registry is wired up,
+        // which covers the construction-time registration below before any metadata could have been cached.
+        if (registry != null) {
+            registry.get(Extensions.class).invalidateMetadataCache();
+        }
         decorators.add(decorator);
         return this;
     }

@@ -1,5 +1,8 @@
 # Unreleased
 
+- share the extension metadata cache across handles so `handle.attach()`-only workloads no longer
+  recompute `ExtensionMetadata` on every handle (#2991)
+
 # 3.54.0
 
 - fix deadlock in configuration caching (#2980)
