@@ -149,9 +149,16 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): through D6 + REMOVAL R1+R2 DONE; next is R3 (#2992 handle-COW payoff) then R7/R4/R6
+## HANDOFF (2026-07-18): through D6 + REMOVAL R1+R2+R3 DONE; next is R7 (benchmark the #2992/COW payoff) then R4/R6
 
-> **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) DONE, whole reactor green. **R2 made `Jdbi` read-only**
+> **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`) DONE, whole reactor green. **R3
+> landed the #2992 handle-COW payoff** (`Handle` config = `createChild()` off the frozen root) AND — the key
+> discovery this session — moved the per-callback attach-for-cleanup scope off per-handle config onto a
+> `Handle.forceAttachStatements` flag, because `withHandle`'s `configure(SqlStatements, attachAll=attachCallback)`
+> was forking every callback handle and negating the COW sharing for the fluent path. See the R3 bullet for detail.
+> **NEXT: R7** — benchmark + quantify the handle-boundary COW win (handle-per-operation SQL Object / classic-fluent
+> A/B, `-prof gc`); R3 is the commit R7 measures in/out. Then R4 (handle-config removal), R6 (upgrade docs).
+> **R2 made `Jdbi` read-only**
 > (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
 > sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
 > `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
@@ -224,9 +231,29 @@ prize early, then finish the handle-config removal:
     `ImmutablesTest`/`TestBindProperties`) → `configure(Builder)`; `oracle12/TestOraclePlugin` asserts config
     before/after `installPlugin` → restructure to `builder().installPlugin().build()` (or drop the before-assert);
     `TestJdbiBuilder`/`TestPlugins` (D4b.2 `@SuppressWarnings`) subject was the removed install path → rework/remove.
-- **R3 — handle `createCopy()` → `createChild()` COW off the frozen Jdbi config** (plain `open()` and `open(scope)`).
-  Handles share the Jdbi root's warm resolver `views` instead of each paying a cold copy. **This is the #2992 fix.**
-  Safe now because R2 froze the root. Quantify in R7.
+- **R3 — handle `createCopy()` → `createChild()` COW off the frozen Jdbi config. [DONE `640246519`, whole reactor
+  green with checks.]** `Handle` ctor derives its config as `jdbi.getConfig().createChild()` (both `open()` and
+  `open(scope)`); an unmodified handle shares the root's warm resolver `views` (mappers/arguments/extension metadata)
+  instead of paying a cold copy, and only forks when the handle's config actually changes. **This is the #2992 fix.**
+  Safe because R2 froze the root. Quantify in R7.
+  - **KEY DISCOVERY — the one-liner alone did NOT reach the fluent path.** `withHandle`/`useHandle`/`inTransaction`/
+    `useTransaction` ran `h.configure(SqlStatements, attachAll = attachCallback)`, and since
+    `attachCallbackStatementsForCleanup` **defaults true**, that flipped `attachAll` false→true and forked EVERY
+    callback handle off the root (a fork does the same full config copy as `createCopy`), negating the COW win for
+    the dominant path (only raw `jdbi.open()`/on-demand-`attach` via `LazyHandleSupplier.getHandle`→`jdbi.open()`
+    benefited). **Fix (maintainer-directed): move the per-callback attach scope off config onto the handle.** New
+    `Handle.forceAttachStatements` (volatile — handles can cross threads via async executors) set by the callback
+    methods from the `attachCallback` policy at callback start; `BaseStatement` attaches when
+    `handle.isAttachStatementsForCleanup()` (the flag OR `SqlStatements.attachAllStatementsForCleanup`, still read
+    live so post-open `handle.configure(attachAll)` — e.g. `LeakTest` — keeps working). No config write in the
+    callback ⇒ no fork ⇒ the fluent path now shares the root's warm views too. Side benefit resolving the earlier
+    "subtlety": `getConfig().isAttachAllStatementsForCleanup()` inside a callback now reflects the user's real policy,
+    not the transient override. Tests: `TestMapperInit` (unmodified 2nd handle no longer re-inits; added a
+    config-changing-handle-forks-and-re-inits case), `TestPreparedArguments` (re-fetch resolver after the config
+    change — a resolver is scoped to the registry it came from, and the change forks). **Doc debt for R6:** the
+    `index.adoc` §"attaching statements" example (`handle.getConfig(SqlStatements.class).setAttachCallbackStatementsForCleanup(false)`
+    inside a callback) is already a discard-mutation no-op under immutable config (pre-existing D-phase debt), and the
+    `setAttachAllStatementsForCleanup`/`setAttach…` spellings predate the prefix-free withers.
 - **R7 — re-run relevant benchmarks + quantify the gains** (maintainer ask 2026-07-18; runs once R3 lands the
   payoff). The #2992 scenario is *one handle per request, `attach()` only* — a cold metadata cache under `createCopy`.
   Author/confirm a handle-per-operation SQL Object benchmark (the existing `H2SqlObjectV3Benchmark` may reuse a
