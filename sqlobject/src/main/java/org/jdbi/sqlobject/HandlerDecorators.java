@@ -15,11 +15,11 @@ package org.jdbi.sqlobject;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.ExtensionHandler;
+import org.jdbi.core.internal.RegistrationLists;
 
 /**
  * Registry for {@link HandlerDecorator handler decorators}. Decorators may modify or augment the behavior of a method
@@ -33,27 +33,25 @@ import org.jdbi.core.extension.ExtensionHandler;
  * from the {@link org.jdbi.core.extension.ExtensionFactory#getExtensionHandlerCustomizers(ConfigRegistry)}.
  */
 @Deprecated(since = "3.38.0", forRemoval = true)
-public class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
+public final class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
     private final List<HandlerDecorator> decorators;
 
     public HandlerDecorators() {
-        decorators = new CopyOnWriteArrayList<>();
-        register(new SqlMethodAnnotatedHandlerDecorator());
+        this(List.of(new SqlMethodAnnotatedHandlerDecorator()));
     }
 
-    private HandlerDecorators(HandlerDecorators that) {
-        decorators = new CopyOnWriteArrayList<>(that.decorators);
+    private HandlerDecorators(List<HandlerDecorator> decorators) {
+        this.decorators = decorators;
     }
 
     /**
      * Registers the given handler decorator with the registry.
      *
      * @param decorator the decorator to register
-     * @return this
+     * @return a copy of this configuration with the decorator registered
      */
     public HandlerDecorators register(HandlerDecorator decorator) {
-        decorators.add(decorator);
-        return this;
+        return new HandlerDecorators(RegistrationLists.append(decorators, decorator));
     }
 
     /**
@@ -82,6 +80,7 @@ public class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
 
     @Override
     public HandlerDecorators createCopy() {
-        return new HandlerDecorators(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

@@ -25,18 +25,17 @@ import org.jdbi.sqlobject.statement.ParameterCustomizerFactory;
 /**
  * Configuration class for SQL objects.
  */
-public class SqlObjects implements JdbiConfig<SqlObjects> {
-    private SqlLocator sqlLocator;
-    private ParameterCustomizerFactory defaultParameterCustomizerFactory;
+public final class SqlObjects implements JdbiConfig<SqlObjects> {
+    private final SqlLocator sqlLocator;
+    private final ParameterCustomizerFactory defaultParameterCustomizerFactory;
 
     public SqlObjects() {
-        sqlLocator = new AnnotationSqlLocator();
-        defaultParameterCustomizerFactory = new BindParameterCustomizerFactory();
+        this(new AnnotationSqlLocator(), new BindParameterCustomizerFactory());
     }
 
-    private SqlObjects(SqlObjects that) {
-        sqlLocator = that.sqlLocator;
-        defaultParameterCustomizerFactory = that.defaultParameterCustomizerFactory;
+    private SqlObjects(SqlLocator sqlLocator, ParameterCustomizerFactory defaultParameterCustomizerFactory) {
+        this.sqlLocator = sqlLocator;
+        this.defaultParameterCustomizerFactory = defaultParameterCustomizerFactory;
     }
 
     /**
@@ -49,14 +48,13 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
     }
 
     /**
-     * Configures SqlObject to use the given {@link SqlLocator}.
+     * Returns a copy of this configuration using the given {@link SqlLocator}.
      *
      * @param sqlLocator the new SQL locator.
-     * @return this {@link SqlObjects}.
+     * @return the derived configuration
      */
-    public SqlObjects setSqlLocator(SqlLocator sqlLocator) {
-        this.sqlLocator = Objects.requireNonNull(sqlLocator);
-        return this;
+    public SqlObjects sqlLocator(SqlLocator sqlLocator) {
+        return new SqlObjects(Objects.requireNonNull(sqlLocator), defaultParameterCustomizerFactory);
     }
 
     /**
@@ -70,18 +68,18 @@ public class SqlObjects implements JdbiConfig<SqlObjects> {
     }
 
     /**
-     * Configures SqlObject to use the given default parameter customizer factory.
+     * Returns a copy of this configuration using the given default parameter customizer factory.
      *
      * @param defaultParameterCustomizerFactory the new default parameter customizer factory.
-     * @return this {@link SqlObjects}.
+     * @return the derived configuration
      */
-    public SqlObjects setDefaultParameterCustomizerFactory(ParameterCustomizerFactory defaultParameterCustomizerFactory) {
-        this.defaultParameterCustomizerFactory = defaultParameterCustomizerFactory;
-        return this;
+    public SqlObjects defaultParameterCustomizerFactory(ParameterCustomizerFactory defaultParameterCustomizerFactory) {
+        return new SqlObjects(sqlLocator, defaultParameterCustomizerFactory);
     }
 
     @Override
     public SqlObjects createCopy() {
-        return new SqlObjects(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

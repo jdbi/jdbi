@@ -51,7 +51,7 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
             return (stmt, arg) -> stmt.bind("mybind" + index, arg);
         };
 
-        db.configure(SqlObjects.class, c -> c.setDefaultParameterCustomizerFactory(defaultParameterCustomizerFactory));
+        db.configure(SqlObjects.class, c -> c.defaultParameterCustomizerFactory(defaultParameterCustomizerFactory));
         handle = db.open();
     }
 

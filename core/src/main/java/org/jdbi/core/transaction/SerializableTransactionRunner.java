@@ -135,74 +135,73 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         @SuppressWarnings("UnnecessaryLambda") // constant for readablity
         private static final Consumer<List<Exception>> NOP = list -> {};
 
-        private int maxRetries = DEFAULT_MAX_RETRIES;
-        private String serializationFailureSqlState = SQLSTATE_TXN_SERIALIZATION_FAILED;
-        private Consumer<List<Exception>> onFailure = NOP;
-        private Consumer<List<Exception>> onSuccess = NOP;
+        private final int maxRetries;
+        private final String serializationFailureSqlState;
+        private final Consumer<List<Exception>> onFailure;
+        private final Consumer<List<Exception>> onSuccess;
 
-        public Configuration() {}
+        public Configuration() {
+            this(DEFAULT_MAX_RETRIES, SQLSTATE_TXN_SERIALIZATION_FAILED, NOP, NOP);
+        }
 
-        private Configuration(Configuration that) {
-            maxRetries = that.maxRetries;
-            serializationFailureSqlState = that.serializationFailureSqlState;
-            onFailure = that.onFailure;
-            onSuccess = that.onSuccess;
+        private Configuration(int maxRetries, String serializationFailureSqlState,
+                Consumer<List<Exception>> onFailure, Consumer<List<Exception>> onSuccess) {
+            this.maxRetries = maxRetries;
+            this.serializationFailureSqlState = serializationFailureSqlState;
+            this.onFailure = onFailure;
+            this.onSuccess = onSuccess;
         }
 
         /**
-         * Sets the maximum number of retry attempts before aborting.
+         * Returns a copy of this configuration using the given maximum number of retry attempts before aborting.
          *
          * @param maxRetries The maximum number of retry attempts before aborting.
-         * @return this
+         * @return the derived configuration
          */
-        public Configuration setMaxRetries(int maxRetries) {
+        public Configuration maxRetries(int maxRetries) {
             if (maxRetries < 0) {
                 throw new IllegalArgumentException("\"" + maxRetries + " retries\" makes no sense. Set a number >= 0 (default " + DEFAULT_MAX_RETRIES + ").");
             }
-
-            this.maxRetries = maxRetries;
-            return this;
+            return new Configuration(maxRetries, serializationFailureSqlState, onFailure, onSuccess);
         }
 
         /**
-         * Sets the SQL state to consider as a serialization failure.
+         * Returns a copy of this configuration using the given SQL state to consider as a serialization failure.
          *
          * @param serializationFailureSqlState the SQL state to consider as a serialization failure.
-         * @return this
+         * @return the derived configuration
          */
-        public Configuration setSerializationFailureSqlState(String serializationFailureSqlState) {
-            this.serializationFailureSqlState = serializationFailureSqlState;
-            return this;
+        public Configuration serializationFailureSqlState(String serializationFailureSqlState) {
+            return new Configuration(maxRetries, serializationFailureSqlState, onFailure, onSuccess);
         }
 
         /**
-         * Set a consumer that is called with a list of exceptions during a run. Will not be called with any exceptions that are not the configured
-         * serialization failure. These will simply be thrown, aborting the operation. Can be used e.g. for logging.
+         * Returns a copy of this configuration using the given consumer, called with a list of exceptions during a run. Will not be called with any exceptions
+         * that are not the configured serialization failure. These will simply be thrown, aborting the operation. Can be used e.g. for logging.
          *
          * @param onFailure A consumer to handle failures. Will never be called with Exceptions that have not been configured.
-         * @return this
+         * @return the derived configuration
          */
-        public Configuration setOnFailure(Consumer<List<Exception>> onFailure) {
-            this.onFailure = onFailure;
-            return this;
+        public Configuration onFailure(Consumer<List<Exception>> onFailure) {
+            return new Configuration(maxRetries, serializationFailureSqlState, onFailure, onSuccess);
         }
 
         /**
-         * Sets a consumer that is called after a run has completed successfully. The consumer will received any exceptions that happened during the run. Will
-         * not be called with any exceptions that are not the configured serialization failure. This can be used to e.g. log all exceptions after a successful
-         * run.
+         * Returns a copy of this configuration using the given consumer, called after a run has completed successfully. The consumer will receive any
+         * exceptions that happened during the run. Will not be called with any exceptions that are not the configured serialization failure. This can be used
+         * to e.g. log all exceptions after a successful run.
          *
          * @param onSuccess A consumer to handle the list of failures after the run has been completed successfully.
-         * @return this
+         * @return the derived configuration
          */
-        public Configuration setOnSuccess(Consumer<List<Exception>> onSuccess) {
-            this.onSuccess = onSuccess;
-            return this;
+        public Configuration onSuccess(Consumer<List<Exception>> onSuccess) {
+            return new Configuration(maxRetries, serializationFailureSqlState, onFailure, onSuccess);
         }
 
         @Override
         public Configuration createCopy() {
-            return new Configuration(this);
+            // Immutable: safe to share across registries.
+            return this;
         }
     }
 }

@@ -27,7 +27,7 @@ public class SqlObjectPlugin extends JdbiPlugin.Singleton {
         // support for generated classes (jdbi-generator)
         GeneratorSqlObjectFactory generatorSqlObjectFactory = new GeneratorSqlObjectFactory();
         db.registerExtension(generatorSqlObjectFactory);
-        db.getConfig(OnDemandExtensions.class).setFactory(generatorSqlObjectFactory);
+        db.configure(OnDemandExtensions.class, c -> c.factory(generatorSqlObjectFactory));
 
         // register SQL object proxy factory
         db.registerExtension(new SqlObjectFactory());

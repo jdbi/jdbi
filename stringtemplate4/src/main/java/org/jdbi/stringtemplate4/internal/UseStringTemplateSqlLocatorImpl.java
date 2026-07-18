@@ -54,7 +54,7 @@ public class UseStringTemplateSqlLocatorImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlObjects.class).setSqlLocator(locator);
+        config.configure(SqlObjects.class, c -> c.sqlLocator(locator));
         config.configure(SqlStatements.class, c -> c.templateEngine(templateEngine));
     }
 }

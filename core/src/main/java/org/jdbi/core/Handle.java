@@ -925,7 +925,7 @@ public class Handle implements Closeable, Configurable<Handle> {
                     + "transaction was closed. Transactions must be explicitly committed or rolled back "
                     + "before closing the Handle. "
                     + "Jdbi has rolled back this transaction automatically."
-                    + "This check may be disabled by calling getConfig(Handles.class).setForceEndTransactions(false).");
+                    + "This check may be disabled by calling configure(Handles.class, c -> c.forceEndTransactions(false)).");
         }
     }
 
