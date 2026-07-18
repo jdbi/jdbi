@@ -29,11 +29,9 @@ public class TestSqlObjectFactory {
 
     @BeforeEach
     public void setUp() {
-        jdbi = Jdbi.create(() -> {
+        jdbi = Jdbi.builder(() -> {
             throw new UnsupportedOperationException();
-        });
-
-        jdbi.registerExtension(new SqlObjectFactory());
+        }).registerExtension(new SqlObjectFactory()).build();
     }
 
     @Test

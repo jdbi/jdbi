@@ -37,7 +37,7 @@ public abstract class BaseSqlObjectV3Benchmark extends AbstractSqlObjectBenchmar
     private DaoV3 dao;
     private long rowOne;
 
-    protected abstract Jdbi createJdbi();
+    protected abstract Jdbi.Builder createJdbi();
     protected abstract void createTable();
 
     private void insertRow() {
@@ -47,9 +47,10 @@ public abstract class BaseSqlObjectV3Benchmark extends AbstractSqlObjectBenchmar
 
     @Setup(Level.Iteration)
     public void setup() throws Throwable {
-        jdbi = createJdbi();
-        jdbi.installPlugin(new SqlObjectPlugin());
-        jdbi.registerRowMapper(new DaoV3.TestDataMapper());
+        jdbi = createJdbi()
+                .installPlugin(new SqlObjectPlugin())
+                .registerRowMapper(new DaoV3.TestDataMapper())
+                .build();
 
         handle = jdbi.open();
         dao = handle.attach(DaoV3.class);

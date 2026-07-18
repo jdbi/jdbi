@@ -33,8 +33,7 @@ public class TestUrls {
 
     @BeforeEach
     public void setUp() {
-        Jdbi jdbi = Jdbi.create("jdbc:sqlite::memory:");
-        jdbi.installPlugin(new SQLitePlugin());
+        Jdbi jdbi = Jdbi.builder("jdbc:sqlite::memory:").installPlugin(new SQLitePlugin()).build();
         handle = jdbi.open();
         handle.useTransaction(h -> h.execute("CREATE TABLE foo(url URL);"));
     }

@@ -38,11 +38,9 @@ public class TestSqlObjectMethodBehavior {
 
     @BeforeEach
     public void setUp() {
-        jdbi = Jdbi.create(() -> {
+        jdbi = Jdbi.builder(() -> {
             throw new UnsupportedOperationException();
-        });
-
-        jdbi.registerExtension(new SqlObjectFactory());
+        }).registerExtension(new SqlObjectFactory()).build();
 
         // TODO - rewrite this test, it is strongly discouraged to create a handle supplier
         // manually. Once we go to Java 17, HandleSupplier will be a sealed class.

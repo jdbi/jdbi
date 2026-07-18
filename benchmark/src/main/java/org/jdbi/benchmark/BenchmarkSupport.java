@@ -23,7 +23,7 @@ final class BenchmarkSupport {
         throw new UtilityClassException();
     }
 
-    static Jdbi h2() {
-        return Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
+    static Jdbi.Builder h2() {
+        return Jdbi.builder("jdbc:h2:mem:" + UUID.randomUUID());
     }
 }

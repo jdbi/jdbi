@@ -34,14 +34,13 @@ public class TestCloseConnection {
 
     @Test
     void closeCustomizedConnection() throws Exception {
-        final Jdbi jdbi = Jdbi.create(() -> outerCxn);
-        jdbi.installPlugin(new JdbiPlugin() {
+        final Jdbi jdbi = Jdbi.builder(() -> outerCxn).installPlugin(new JdbiPlugin() {
             @Override
             public Connection customizeConnection(final Connection conn) throws SQLException {
                 assertThat(conn).isSameAs(outerCxn);
                 return innerCxn;
             }
-        });
+        }).build();
         jdbi.useHandle(h -> {});
         verify(outerCxn, never()).close();
         verify(innerCxn).close();
@@ -49,14 +48,13 @@ public class TestCloseConnection {
 
     @Test
     void customizeConnectionThrows() throws Exception {
-        final Jdbi jdbi = Jdbi.create(() -> outerCxn);
         final var t = new IllegalArgumentException();
-        jdbi.installPlugin(new JdbiPlugin() {
+        final Jdbi jdbi = Jdbi.builder(() -> outerCxn).installPlugin(new JdbiPlugin() {
             @Override
             public Connection customizeConnection(final Connection conn) throws SQLException {
                 throw t;
             }
-        });
+        }).build();
         assertThatThrownBy(() -> jdbi.useHandle(h -> {}))
                 .isSameAs(t);
         verify(outerCxn).close();

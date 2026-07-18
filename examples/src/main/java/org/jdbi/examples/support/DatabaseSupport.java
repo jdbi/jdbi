@@ -35,9 +35,10 @@ public final class DatabaseSupport {
             .build()
             .start()) {
             DatabaseInfo databaseInfo = manager.getDatabaseInfo();
-            Jdbi jdbi = Jdbi.create(databaseInfo.asDataSource());
-            jdbi.installPlugin(new SqlObjectPlugin())
-                .installPlugin(new PostgresPlugin());
+            Jdbi jdbi = Jdbi.builder(databaseInfo.asDataSource())
+                .installPlugin(new SqlObjectPlugin())
+                .installPlugin(new PostgresPlugin())
+                .build();
 
             jdbiConsumer.accept(jdbi);
         }

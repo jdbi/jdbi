@@ -201,6 +201,12 @@ prize early, then finish the handle-config removal:
   is the per-handle config path that now exists. Per-statement `Configurable` (D7) is unchanged.
 - **R5 — final `Configurable` read/mutate split cleanup + benchmark/verify.** Mutation survives only on the builder
   (assembly) and statements/templates (per-execution COW); `Jdbi`/`Handle` are read-only.
+- **R6 — "Upgrading to jdbi v4" docs section** (maintainer ask 2026-07-18). A user-facing migration guide capturing
+  every break this branch introduces: `Jdbi.create(...).registerX/installPlugin/setX` → `Jdbi.builder(...)…build()`;
+  `JdbiPlugin.customizeJdbi` → `configure(Jdbi.Builder)` (+ `JdbiPlugin.of`); post-build `jdbi.configure/registerX`
+  gone (assemble via builder); handle-level `handle.registerX/configure` gone → `jdbi.open(scope)` or per-statement;
+  the `org.jdbi.v3`→`org.jdbi` package rename; immutable `JdbiConfig` (custom configs: withers not setters,
+  `createCopy` semantics). Best drafted AFTER R2–R4 settle so the final API is captured; seed early, fill per break.
 
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the

@@ -37,8 +37,7 @@ public class TestBindListParameter {
 
     @BeforeEach
     public void setUp() {
-        db = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
-        db.installPlugin(new SqlObjectPlugin());
+        db = Jdbi.builder("jdbc:h2:mem:" + UUID.randomUUID()).installPlugin(new SqlObjectPlugin()).build();
         handle = db.open();
         handle.createUpdate(
                 "create table foo (id int, bar varchar(100) default null);")

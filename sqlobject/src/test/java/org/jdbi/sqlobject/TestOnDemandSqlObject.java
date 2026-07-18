@@ -92,7 +92,7 @@ public class TestOnDemandSqlObject {
                         ArgumentMatchers.eq(ResultSet.CONCUR_READ_ONLY));
         Mockito.doThrow(CloseException.class).when(c).close();
 
-        Spiffy s = Jdbi.create(c).installPlugin(new SqlObjectPlugin()).onDemand(Spiffy.class);
+        Spiffy s = Jdbi.builder(c).installPlugin(new SqlObjectPlugin()).build().onDemand(Spiffy.class);
         assertThatThrownBy(() -> s.insert(1, "Tom")).isInstanceOf(TransactionException.class);
     }
 
