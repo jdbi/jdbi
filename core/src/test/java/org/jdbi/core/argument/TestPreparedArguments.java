@@ -27,14 +27,15 @@ public class TestPreparedArguments {
     @Test
     public void disablePreparedArguments() {
         final Handle h = h2Extension.getSharedHandle();
-        final ArgumentResolver arguments = ArgumentResolver.forRegistry(h.getConfig());
 
-        assertThat(arguments.prepareFor(int.class))
+        assertThat(ArgumentResolver.forRegistry(h.getConfig()).prepareFor(int.class))
                 .isNotEmpty();
 
+        // Changing the handle's config forks a private registry with its own resolver; a resolver is scoped
+        // to the registry it was obtained from, so re-fetch it from the (now forked) config.
         h.configure(Arguments.class, c -> c.preparedArgumentsEnabled(false));
 
-        assertThat(arguments.prepareFor(int.class))
+        assertThat(ArgumentResolver.forRegistry(h.getConfig()).prepareFor(int.class))
                 .isEmpty();
     }
 }

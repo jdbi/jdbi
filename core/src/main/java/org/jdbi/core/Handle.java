@@ -41,6 +41,7 @@ import org.jdbi.core.statement.MetaData;
 import org.jdbi.core.statement.PreparedBatch;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.Script;
+import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementBuilder;
 import org.jdbi.core.statement.Update;
 import org.jdbi.core.transaction.TransactionException;
@@ -70,6 +71,12 @@ public class Handle implements Closeable, Configurable<Handle> {
     private final boolean forceEndTransactions;
 
     private StatementBuilder statementBuilder;
+
+    // Set for a managed callback handle (withHandle/useHandle/inTransaction/useTransaction): statements created
+    // on this handle are attached to it for cleanup, regardless of the SqlStatements.attachAllStatementsForCleanup
+    // policy. Held here rather than as per-handle config so an unmodified callback handle keeps sharing the Jdbi
+    // root's copy-on-write config (and its warm resolvers) instead of forking a private copy on open.
+    private volatile boolean forceAttachStatements;
 
     // the fallback context. It is used when resetting the Handle state.
     private final ExtensionContext defaultExtensionContext;
@@ -118,9 +125,11 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.connectionCleaner = connectionCleaner;
         this.connection = connection;
 
-        // create a copy to detach config from the jdbi to allow local changes, then apply any per-handle scope
-        // before the extension context and handle listeners are derived from it.
-        final ConfigRegistry handleConfig = jdbi.getConfig().createCopy();
+        // A copy-on-write child of the (frozen post-build) Jdbi config: an unmodified handle shares the root's
+        // warm resolver views instead of paying a cold copy, and a local change (a per-handle scope, or later
+        // handle.configure) forks a private snapshot without touching the root. The scope is applied before the
+        // extension context and handle listeners are derived from it.
+        final ConfigRegistry handleConfig = jdbi.getConfig().createChild();
         configScope.accept(handleConfig);
         this.defaultExtensionContext = ExtensionContext.forConfig(handleConfig);
         this.currentExtensionContext = defaultExtensionContext;
@@ -898,6 +907,22 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.currentExtensionContext = extensionContext == null ? defaultExtensionContext : extensionContext;
 
         return this;
+    }
+
+    /**
+     * Whether statements created on this handle are attached to it for cleanup when the handle closes. This is the
+     * case when either this is a managed callback handle (see {@link Jdbi#withHandle}) whose callback-cleanup policy
+     * is enabled, or the {@link SqlStatements#isAttachAllStatementsForCleanup()} policy is set on this handle's config.
+     *
+     * @return {@code true} if new statements are attached to this handle for cleanup
+     */
+    public boolean isAttachStatementsForCleanup() {
+        return forceAttachStatements || getConfig().get(SqlStatements.class).isAttachAllStatementsForCleanup();
+    }
+
+    // package-private: set by the Jdbi callback methods to mark this as a managed callback handle.
+    void setForceAttachStatements(final boolean forceAttachStatements) {
+        this.forceAttachStatements = forceAttachStatements;
     }
 
     private void notifyHandleCreated() {

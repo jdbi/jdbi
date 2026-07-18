@@ -447,7 +447,7 @@ public class Jdbi implements ConfigReader {
         }
 
         try (Handle h = this.open()) {
-            h.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(c.isAttachCallbackStatementsForCleanup()));
+            h.setForceAttachStatements(h.getConfig().get(SqlStatements.class).isAttachCallbackStatementsForCleanup());
 
             handleScope.set(ConstantHandleSupplier.of(h));
             return decoratedCallback.withHandle(h);
@@ -479,7 +479,7 @@ public class Jdbi implements ConfigReader {
 
         final var previous = handleScope.get();
         try (Handle h = this.open(configScope)) {
-            h.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(c.isAttachCallbackStatementsForCleanup()));
+            h.setForceAttachStatements(h.getConfig().get(SqlStatements.class).isAttachCallbackStatementsForCleanup());
 
             handleScope.set(ConstantHandleSupplier.of(h));
             return decoratedCallback.withHandle(h);
