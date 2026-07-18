@@ -63,7 +63,10 @@ public interface JdbiPlugin {
      * This method is invoked immediately when the plugin is installed.
      * @param jdbi the jdbi to customize
      * @throws SQLException something went wrong with the database
+     * @deprecated contribute configuration from {@link #configure(Jdbi.Builder)} instead; this hook is applied after
+     *             the {@code Jdbi} is constructed and is going away.
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     default void customizeJdbi(Jdbi jdbi) throws SQLException {}
 
     /**

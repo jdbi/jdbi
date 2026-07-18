@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// exercises the deprecated Jdbi.installPlugin bridge and the customizeJdbi hook on purpose
+@SuppressWarnings("deprecation")
 public class TestJdbiBuilder {
 
     private static String url() {
