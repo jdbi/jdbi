@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): sub-step 4 mostly done (17/19 configs immutable); 2 registration facades + D7 remain
+## HANDOFF (2026-07-18): sub-step 4 DONE (all configs immutable; setRegistry removed); D7 → sub-step 5 next
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
 config/Handle decoupling (see that section); its **public API is signed off** in "## Config assembly API"
@@ -161,9 +161,9 @@ scalar-policy configs, `Arguments` (with a bulk `register(Collection)`), the int
 registry back-ref was removed), `Extensions`, and `SqlStatements` — and sub-step 4 (below) has now converted
 almost all of the rest.
 
-**sub-step 4 — MOSTLY DONE (2026-07-18): 17 of 19 remaining configs converted to immutable.** An earlier note
-wrongly claimed "SqlStatements is the last D1 config"; `createCopy()` across all ~34 `JdbiConfig` impls showed
-~19 still mutable. Converted this session (each its own whole-reactor-green commit):
+**sub-step 4 — DONE (2026-07-18): every `JdbiConfig` value is now immutable and `setRegistry` is deleted.** An
+earlier note wrongly claimed "SqlStatements is the last D1 config"; `createCopy()` across all ~34 `JdbiConfig`
+impls showed ~19 still mutable. All are now converted (each its own whole-reactor-green commit):
 - `EnumStrategies` → deleted; became the per-registry `EnumStrategyResolver` (`readAs`), removing a real
   resolution back-ref (it depended on the registry's `Enums`/`Qualifiers`).
 - `JdbiCollectors`, `PojoTypes` → immutable (register returns new; resolvers already existed).
@@ -174,20 +174,27 @@ wrongly claimed "SqlStatements is the last D1 config"; `createCopy()` across all
 - Behavior/registration configs → immutable: `Handles`, `OnDemandExtensions`, `SqlObjects`, `Handlers`,
   `HandlerDecorators`, `SerializableTransactionRunner.Configuration`.
 
-**TWO configs deliberately NOT converted — `JdbiImmutables` and `PostgresTypes`.** They are registration
-*facades* whose `register*` methods write into ANOTHER config (`PojoTypes` / `SqlArrayTypes`) via a per-registry
-`setRegistry` reference. A clean immutable conversion needs an invasive resolver-coupling redesign (relocate the
-store and re-point `PojoResolver`/array-type resolution, with cross-package visibility friction) that is
-disproportionate. Their registry ref is a **registration-boundary** dependency (matching the precedent already
-accepted for `Arguments`), and it is used only during `registerImmutable`/`registerCustomType`, never on the
-statement read path — so they are not a correctness hazard for a read-through-shared child *until* someone
-registers mid-statement (not a real pattern). **Caveat:** `PostgresTypes` is read on the statement path
-(`getLobApi` during blob mapping) and is still mutable, so it MUST be made immutable before sub-step-5 zero-copy
-is safe on the postgres path. `setRegistry` therefore remains on `JdbiConfig` (these two are its only users).
+**The two registration facades — DONE (2026-07-18, decision: option "clean, drop setRegistry").** `JdbiImmutables`
+and `PostgresTypes` were registration *facades* whose `register*` methods wrote into ANOTHER config
+(`PojoTypes` / `SqlArrayTypes`) via a per-registry `setRegistry` back-ref — a self-returning immutable wither
+cannot reach a sibling config, which is why they lagged. Resolved by removing the sibling write, not the ref:
+- `JdbiImmutables` (`fb4e06797`): held no state of its own, so it is **deleted**. `registerImmutable`/
+  `registerModifiable` (all 8 overloads) move to `Configurable` as conveniences over `PojoTypes` (exactly
+  parallel to `Configurable.registerArrayType` over `SqlArrayTypes`); the Immutables reflection moves verbatim
+  into the internal `ImmutablesFactory`. Public break: `getConfig(JdbiImmutables.class).registerImmutable(X)` →
+  `jdbi.registerImmutable(X)`; `.withConfig(JdbiImmutables.class, ...)` sites → a `customizeJdbi` plugin.
+- `PostgresTypes` (`8c810af8c`): the eager `SqlArrayTypes` fan-out becomes a single data-driven
+  `PostgresCustomTypeArrayFactory`, registered once by `PostgresPlugin`, that resolves a custom type's array
+  type name by consulting `PostgresTypes` at bind time. `PostgresTypes` is then a plain immutable value —
+  `types` immutable, `registerCustomType` a wither, `lob` final (so the statement-path `getLobApi` read is safe
+  on a shared value), `setLobApi` → `lobApi` wither, `createCopy` returns `this`, no back-ref.
+- **`setRegistry` deleted from the `JdbiConfig` SPI** (`b710cb60b`): with both facades' refs gone, no config
+  needs post-construction registry injection (Qualifiers etc. take it via a `(ConfigRegistry)` ctor). Removed
+  the method and its three `ConfigRegistry` call sites (copy-ctor re-wire, `install`, on-demand `configFactory`).
+  Every config value's `createCopy` now returns `this`, so the registry copy-ctor shares all values by reference.
 
-Remaining, in order: **finish the last 2 configs** (`JdbiImmutables`/`PostgresTypes` registration redesign;
-needs a design decision) → **D7** (statement-level copy-on-write private config) → **sub-step 5** (delete the
-per-statement `createCopy()`, the perf payoff) → **D4/D5/D6** (builder/plugin/open surface).
+Remaining, in order: **D7** (statement-level copy-on-write private config) → **sub-step 5** (delete the
+per-statement `createCopy()` at `BaseStatement.java:36`, the perf payoff) → **D4/D5/D6** (builder/plugin/open surface).
 All commits are whole-reactor green with static analysis ENABLED (validated via full `mvn clean install`) — do
 not fall back to `-Dbasepom.check.skip-all` as the validation of record.
 
@@ -216,14 +223,13 @@ copy-on-write statement registry. Key findings so they are not re-derived:
   and as an *ephemeral child* (`BaseStatement`). Only the ephemeral-child use should become lazy; add a
   separate `createChild()` rather than changing `createCopy`.
 - **A correct lazy child requires every statement-reachable config to be immutable & shareable**
-  (`createCopy()==this`, no per-registry back-ref). That is exactly why the sub-step-4 config-value
-  immutability work is the prerequisite: a value that is mutable or carries a `setRegistry` back-ref cannot be safely read-through
-  shared from the parent. The two remaining holdouts (`JdbiImmutables`, `PostgresTypes`) must be finished
-  first — and `PostgresTypes` in particular is read on the statement path (`getLobApi`).
+  (`createCopy()==this`, no per-registry back-ref). That is why the sub-step-4 config-value immutability work
+  was the prerequisite. **This precondition now holds:** sub-step 4 is complete, every config value's
+  `createCopy` returns `this`, and `setRegistry` is deleted from the SPI — no config carries a back-ref.
 - **Sketch of the child** (parent-delegation model): the child holds only its own overrides and delegates
   reads to the parent; the first `install` materialises (or the child forks) so writes never touch the
   parent. Watch two hazards: on-demand config creation must not mutate the shared parent map, and a value
-  carrying a back-ref cannot be re-pointed on a shared instance. Both are moot once all values are immutable.
+  carrying a back-ref cannot be re-pointed on a shared instance. Both are now moot — all values are immutable.
 
 ---
 
@@ -316,6 +322,9 @@ carries non-config knobs (`installPlugin`, `setTransactionHandler`, `setStatemen
   `RowMappers.withMapper(m)`, `SqlStatements.withTemplateEngine(e)`; policy configs become records with `withX`.
 - Drop `createCopy()` (nothing deep-copies an immutable value) and `setRegistry()` (no back-ref; sub-step 2
   already moved resolution off the values). `JdbiConfig<This>` becomes a minimal marker.
+- **Status (2026-07-18):** all values are immutable and `setRegistry()` is **deleted** from the SPI.
+  `createCopy()` is retained transitionally — every impl now returns `this`, but the method stays until
+  sub-step 5 reworks the two callers (isolated snapshot vs ephemeral child; see the D7/sub-step-5 notes).
 - **Break:** every custom `JdbiConfig` implementation. Justified for v4; the SPI is small.
 
 ### D2 — `configure` → `UnaryOperator` [SIGNED OFF — break approved; minimize churn]
