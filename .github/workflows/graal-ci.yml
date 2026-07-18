@@ -44,6 +44,19 @@ jobs:
           ./mvnw --version
           make install
 
+      - name: dump native test failures
+        # A failing native run reports 2500+ passing lines and buries each failure's
+        # actual cause (e.g. a MissingReflectionRegistrationError) a few hundred lines
+        # above "BUILD FAILURE", so the job log ends on a bare Maven error. Re-print the
+        # error/failure entries from the native-image test reports at the end of the log
+        # so the real cause is the last thing shown, without downloading an artifact.
+        if: ${{ failure() && steps.install.conclusion == 'failure' }}
+        run: |
+          echo "::group::native test failures"
+          find . -path '*/target/native-test-reports/*.xml' -print0 \
+            | xargs -0 -r python3 .github/print-native-test-failures.py
+          echo "::endgroup::"
+
       - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
