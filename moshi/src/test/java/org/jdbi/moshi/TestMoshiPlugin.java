@@ -50,7 +50,7 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
     @BeforeEach
     public void before() {
         jdbi = pgExtension.getJdbi().installPlugin(new MoshiPlugin())
-            .configure(MoshiConfig.class, c -> c.setMoshi(
+            .configure(MoshiConfig.class, c -> c.moshi(
                 new Moshi.Builder().add(new OptionalAdapter()).build()));
     }
 
@@ -64,7 +64,7 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
                 .add(SuperUser.class, new SuperUserAdapter())
                 .add(SubUser.class, new SubUserAdapter())
                 .build();
-            h.getConfig(MoshiConfig.class).setMoshi(moshi);
+            h.configure(MoshiConfig.class, c -> c.moshi(moshi));
 
             h.createUpdate("insert into users(usr) values(:user)")
                 // declare that the subuser should be mapped as a superuser

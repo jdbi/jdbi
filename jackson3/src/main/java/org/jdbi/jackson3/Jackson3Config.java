@@ -19,31 +19,30 @@ import tools.jackson.databind.ObjectMapper;
 /**
  * Configuration class for Jackson 3 integration.
  */
-public class Jackson3Config implements JdbiConfig<Jackson3Config> {
-    private ObjectMapper mapper;
-    private Class<?> serializationView;
-    private Class<?> deserializationView;
-    private boolean useStaticType = true;
+public final class Jackson3Config implements JdbiConfig<Jackson3Config> {
+    private final ObjectMapper mapper;
+    private final Class<?> serializationView;
+    private final Class<?> deserializationView;
+    private final boolean useStaticType;
 
     public Jackson3Config() {
-        this.mapper = new ObjectMapper();
+        this(new ObjectMapper(), null, null, true);
     }
 
-    private Jackson3Config(final Jackson3Config other) {
-        this.mapper = other.mapper;
-        this.serializationView = other.serializationView;
-        this.deserializationView = other.deserializationView;
-        this.useStaticType = other.useStaticType;
+    private Jackson3Config(final ObjectMapper mapper, final Class<?> serializationView, final Class<?> deserializationView, final boolean useStaticType) {
+        this.mapper = mapper;
+        this.serializationView = serializationView;
+        this.deserializationView = deserializationView;
+        this.useStaticType = useStaticType;
     }
 
     /**
-     * Set the {@link ObjectMapper} to use for json conversion.
+     * Returns a copy of this configuration using the given {@link ObjectMapper} for json conversion.
      * @param mapper the mapper to use
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson3Config setMapper(final ObjectMapper mapper) {
-        this.mapper = mapper;
-        return this;
+    public Jackson3Config mapper(final ObjectMapper mapper) {
+        return new Jackson3Config(mapper, serializationView, deserializationView, useStaticType);
     }
 
     /**
@@ -56,22 +55,22 @@ public class Jackson3Config implements JdbiConfig<Jackson3Config> {
     }
 
     /**
-     * Set both serialization and deserialization {@code @JsonView} to the given class.
+     * Returns a copy of this configuration setting both serialization and deserialization {@code @JsonView} to
+     * the given class.
      * @param view the view class
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson3Config setView(final Class<?> view) {
-        return setSerializationView(view).setDeserializationView(view);
+    public Jackson3Config view(final Class<?> view) {
+        return serializationView(view).deserializationView(view);
     }
 
     /**
-     * Set the {@code @JsonView} used to serialize.
+     * Returns a copy of this configuration using the given {@code @JsonView} to serialize.
      * @param serializationView the serialization view
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson3Config setSerializationView(final Class<?> serializationView) {
-        this.serializationView = serializationView;
-        return this;
+    public Jackson3Config serializationView(final Class<?> serializationView) {
+        return new Jackson3Config(mapper, serializationView, deserializationView, useStaticType);
     }
 
     /**
@@ -84,13 +83,12 @@ public class Jackson3Config implements JdbiConfig<Jackson3Config> {
     }
 
     /**
-     * Set the {@code @JsonView} used to deserialize.
+     * Returns a copy of this configuration using the given {@code @JsonView} to deserialize.
      * @param deserializationView the serialization view
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson3Config setDeserializationView(final Class<?> deserializationView) {
-        this.deserializationView = deserializationView;
-        return this;
+    public Jackson3Config deserializationView(final Class<?> deserializationView) {
+        return new Jackson3Config(mapper, serializationView, deserializationView, useStaticType);
     }
 
     /**
@@ -103,14 +101,14 @@ public class Jackson3Config implements JdbiConfig<Jackson3Config> {
     }
 
     /**
-     * Use static type provided for serialization. Better performance and supports generic container types,
-     * but inhibits discovery of custom polymorphic types.
+     * Returns a copy of this configuration controlling whether the static type is used for serialization. Using
+     * the static type gives better performance and supports generic container types, but inhibits discovery of
+     * custom polymorphic types.
      * @param useStaticType whether to prefer using static type information
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson3Config setUseStaticType(final boolean useStaticType) {
-        this.useStaticType = useStaticType;
-        return this;
+    public Jackson3Config useStaticType(final boolean useStaticType) {
+        return new Jackson3Config(mapper, serializationView, deserializationView, useStaticType);
     }
 
     /**
@@ -122,6 +120,7 @@ public class Jackson3Config implements JdbiConfig<Jackson3Config> {
 
     @Override
     public Jackson3Config createCopy() {
-        return new Jackson3Config(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

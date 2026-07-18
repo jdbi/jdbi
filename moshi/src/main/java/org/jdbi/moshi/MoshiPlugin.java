@@ -30,6 +30,6 @@ public class MoshiPlugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.installPlugin(new JsonPlugin());
-        jdbi.getConfig(JsonConfig.class).setJsonMapper(new MoshiJsonMapper());
+        jdbi.configure(JsonConfig.class, c -> c.jsonMapper(new MoshiJsonMapper()));
     }
 }

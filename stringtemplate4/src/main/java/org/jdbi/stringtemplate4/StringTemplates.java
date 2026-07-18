@@ -18,13 +18,15 @@ import org.jdbi.core.config.JdbiConfig;
 /**
  * Configuration options for {@link StringTemplateEngine}.
  */
-public class StringTemplates implements JdbiConfig<StringTemplates> {
-    private boolean failOnMissingAttribute = false;
+public final class StringTemplates implements JdbiConfig<StringTemplates> {
+    private final boolean failOnMissingAttribute;
 
-    public StringTemplates() {}
+    public StringTemplates() {
+        this(false);
+    }
 
-    StringTemplates(StringTemplates other) {
-        this.failOnMissingAttribute = other.failOnMissingAttribute;
+    private StringTemplates(boolean failOnMissingAttribute) {
+        this.failOnMissingAttribute = failOnMissingAttribute;
     }
 
     /**
@@ -37,17 +39,18 @@ public class StringTemplates implements JdbiConfig<StringTemplates> {
     }
 
     /**
-     * Control whether missing attributes cause a rendering exception. Defaults to false.
+     * Returns a copy of this configuration controlling whether missing attributes cause a rendering exception.
+     * Defaults to false.
      * @param failOnMissingAttribute whether a missing attribute throws an exception
-     * @return this configuration instance
+     * @return the derived configuration
      */
-    public StringTemplates setFailOnMissingAttribute(boolean failOnMissingAttribute) {
-        this.failOnMissingAttribute = failOnMissingAttribute;
-        return this;
+    public StringTemplates failOnMissingAttribute(boolean failOnMissingAttribute) {
+        return new StringTemplates(failOnMissingAttribute);
     }
 
     @Override
     public StringTemplates createCopy() {
-        return new StringTemplates(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

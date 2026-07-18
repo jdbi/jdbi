@@ -29,6 +29,6 @@ public class Gson2Plugin extends JdbiPlugin.Singleton {
     @Override
     public void customizeJdbi(Jdbi jdbi) {
         jdbi.installPlugin(new JsonPlugin());
-        jdbi.getConfig(JsonConfig.class).setJsonMapper(new GsonJsonMapper());
+        jdbi.configure(JsonConfig.class, c -> c.jsonMapper(new GsonJsonMapper()));
     }
 }

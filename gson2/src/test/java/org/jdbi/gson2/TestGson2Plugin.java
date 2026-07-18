@@ -43,7 +43,7 @@ public class TestGson2Plugin extends AbstractJsonMapperTest {
     @RegisterExtension
     JdbiExtension pgExtension = JdbiExtension.postgres(pg)
         .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new Gson2Plugin())
-        .withConfig(Gson2Config.class, g -> g.setGson(
+        .withConfig(Gson2Config.class, g -> g.gson(
             new GsonBuilder()
                 .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
                 .create()));
@@ -62,7 +62,7 @@ public class TestGson2Plugin extends AbstractJsonMapperTest {
                 .registerTypeAdapter(SuperUser.class, new SuperUserAdapter())
                 .registerTypeAdapter(SubUser.class, new SubUserAdapter())
                 .create();
-            h.getConfig(Gson2Config.class).setGson(gson);
+            h.configure(Gson2Config.class, c -> c.gson(gson));
 
             h.createUpdate("insert into users(usr) values(:user)")
                 // declare that the subuser should be mapped as a superuser

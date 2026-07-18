@@ -32,7 +32,7 @@ class GsonIssue2395Test extends AbstractIssue2395Test {
     @RegisterExtension
     JdbiExtension pgExtension = JdbiExtension.postgres(pg)
         .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new Gson2Plugin())
-        .withConfig(Gson2Config.class, g -> g.setGson(
+        .withConfig(Gson2Config.class, g -> g.gson(
             new GsonBuilder()
                 .registerTypeAdapterFactory(new GsonJava8TypeAdapterFactory())
                 .create()));

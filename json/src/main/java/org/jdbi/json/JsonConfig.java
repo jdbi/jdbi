@@ -16,20 +16,19 @@ package org.jdbi.json;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.json.internal.UnimplementedJsonMapper;
 
-public class JsonConfig implements JdbiConfig<JsonConfig> {
-    private JsonMapper mapper;
+public final class JsonConfig implements JdbiConfig<JsonConfig> {
+    private final JsonMapper mapper;
 
     public JsonConfig() {
-        mapper = new UnimplementedJsonMapper();
+        this(new UnimplementedJsonMapper());
     }
 
-    private JsonConfig(JsonConfig other) {
-        this.mapper = other.mapper;
+    private JsonConfig(JsonMapper mapper) {
+        this.mapper = mapper;
     }
 
-    public JsonConfig setJsonMapper(JsonMapper jsonMapper) {
-        this.mapper = jsonMapper;
-        return this;
+    public JsonConfig jsonMapper(JsonMapper jsonMapper) {
+        return new JsonConfig(jsonMapper);
     }
 
     public JsonMapper getJsonMapper() {
@@ -38,6 +37,7 @@ public class JsonConfig implements JdbiConfig<JsonConfig> {
 
     @Override
     public JsonConfig createCopy() {
-        return new JsonConfig(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

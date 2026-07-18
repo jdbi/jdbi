@@ -19,25 +19,24 @@ import org.jdbi.core.config.JdbiConfig;
 /**
  * Configuration class for Gson 2 integration.
  */
-public class Gson2Config implements JdbiConfig<Gson2Config> {
-    private Gson gson;
+public final class Gson2Config implements JdbiConfig<Gson2Config> {
+    private final Gson gson;
 
     public Gson2Config() {
-        this.gson = new Gson();
+        this(new Gson());
     }
 
-    private Gson2Config(Gson2Config other) {
-        this.gson = other.gson;
+    private Gson2Config(Gson gson) {
+        this.gson = gson;
     }
 
     /**
-     * Set the {@link Gson} to use for json conversion.
+     * Returns a copy of this configuration using the given {@link Gson} for json conversion.
      * @param gson the mapper to use
-     * @return this
+     * @return the derived configuration
      */
-    public Gson2Config setGson(Gson gson) {
-        this.gson = gson;
-        return this;
+    public Gson2Config gson(Gson gson) {
+        return new Gson2Config(gson);
     }
 
     /**
@@ -51,6 +50,7 @@ public class Gson2Config implements JdbiConfig<Gson2Config> {
 
     @Override
     public Gson2Config createCopy() {
-        return new Gson2Config(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

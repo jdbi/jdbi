@@ -19,31 +19,30 @@ import org.jdbi.core.config.JdbiConfig;
 /**
  * Configuration class for Jackson 2 integration.
  */
-public class Jackson2Config implements JdbiConfig<Jackson2Config> {
-    private ObjectMapper mapper;
-    private Class<?> serializationView;
-    private Class<?> deserializationView;
-    private boolean useStaticType = true;
+public final class Jackson2Config implements JdbiConfig<Jackson2Config> {
+    private final ObjectMapper mapper;
+    private final Class<?> serializationView;
+    private final Class<?> deserializationView;
+    private final boolean useStaticType;
 
     public Jackson2Config() {
-        this.mapper = new ObjectMapper();
+        this(new ObjectMapper(), null, null, true);
     }
 
-    private Jackson2Config(Jackson2Config other) {
-        this.mapper = other.mapper;
-        this.serializationView = other.serializationView;
-        this.deserializationView = other.deserializationView;
-        this.useStaticType = other.useStaticType;
+    private Jackson2Config(ObjectMapper mapper, Class<?> serializationView, Class<?> deserializationView, boolean useStaticType) {
+        this.mapper = mapper;
+        this.serializationView = serializationView;
+        this.deserializationView = deserializationView;
+        this.useStaticType = useStaticType;
     }
 
     /**
-     * Set the {@link ObjectMapper} to use for json conversion.
+     * Returns a copy of this configuration using the given {@link ObjectMapper} for json conversion.
      * @param mapper the mapper to use
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson2Config setMapper(ObjectMapper mapper) {
-        this.mapper = mapper;
-        return this;
+    public Jackson2Config mapper(ObjectMapper mapper) {
+        return new Jackson2Config(mapper, serializationView, deserializationView, useStaticType);
     }
 
     /**
@@ -56,22 +55,22 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
     }
 
     /**
-     * Set both serialization and deserialization {@code @JsonView} to the given class.
+     * Returns a copy of this configuration setting both serialization and deserialization {@code @JsonView} to
+     * the given class.
      * @param view the view class
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson2Config setView(Class<?> view) {
-        return setSerializationView(view).setDeserializationView(view);
+    public Jackson2Config view(Class<?> view) {
+        return serializationView(view).deserializationView(view);
     }
 
     /**
-     * Set the {@code @JsonView} used to serialize.
+     * Returns a copy of this configuration using the given {@code @JsonView} to serialize.
      * @param serializationView the serialization view
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson2Config setSerializationView(Class<?> serializationView) {
-        this.serializationView = serializationView;
-        return this;
+    public Jackson2Config serializationView(Class<?> serializationView) {
+        return new Jackson2Config(mapper, serializationView, deserializationView, useStaticType);
     }
 
     /**
@@ -84,13 +83,12 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
     }
 
     /**
-     * Set the {@code @JsonView} used to deserialize.
+     * Returns a copy of this configuration using the given {@code @JsonView} to deserialize.
      * @param deserializationView the serialization view
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson2Config setDeserializationView(Class<?> deserializationView) {
-        this.deserializationView = deserializationView;
-        return this;
+    public Jackson2Config deserializationView(Class<?> deserializationView) {
+        return new Jackson2Config(mapper, serializationView, deserializationView, useStaticType);
     }
 
     /**
@@ -103,14 +101,14 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
     }
 
     /**
-     * Use static type provided for serialization. Better performance and supports generic container types,
-     * but inhibits discovery of custom polymorphic types.
+     * Returns a copy of this configuration controlling whether the static type is used for serialization. Using
+     * the static type gives better performance and supports generic container types, but inhibits discovery of
+     * custom polymorphic types.
      * @param useStaticType whether to prefer using static type information
-     * @return this
+     * @return the derived configuration
      */
-    public Jackson2Config setUseStaticType(boolean useStaticType) {
-        this.useStaticType = useStaticType;
-        return this;
+    public Jackson2Config useStaticType(boolean useStaticType) {
+        return new Jackson2Config(mapper, serializationView, deserializationView, useStaticType);
     }
 
     /**
@@ -122,6 +120,7 @@ public class Jackson2Config implements JdbiConfig<Jackson2Config> {
 
     @Override
     public Jackson2Config createCopy() {
-        return new Jackson2Config(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

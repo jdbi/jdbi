@@ -60,7 +60,7 @@ public class TestErrorHandling {
     void testUnboundVarThrows() {
         assertThatThrownBy(() ->
             h2Extension.getSharedHandle().createQuery("select <if(a)> true <else> false <endif>")
-                    .configure(StringTemplates.class, st -> st.setFailOnMissingAttribute(true))
+                    .configure(StringTemplates.class, st -> st.failOnMissingAttribute(true))
                 .mapTo(boolean.class)
                 .one())
             .isInstanceOf(UnableToExecuteStatementException.class)
