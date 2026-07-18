@@ -14,7 +14,6 @@
 package org.jdbi.core.argument;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Optional;
 import java.util.function.Function;
@@ -42,15 +41,6 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory.Preparable {
         }
 
         return Optional.ofNullable(builders.get(expectedClass)).map(r -> r.apply(value));
-    }
-
-    /**
-     * @deprecated no longer used
-     */
-    @Override
-    @Deprecated(since = "3.39.0", forRemoval = true)
-    public Collection<? extends Type> prePreparedTypes() {
-        return builders.keySet();
     }
 
     @SuppressWarnings("unchecked")

@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.core.array.SqlArrayArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -30,14 +29,12 @@ import org.jdbi.core.config.JdbiConfig;
 public class Arguments implements JdbiConfig<Arguments> {
     private final List<QualifiedArgumentFactory> factories;
 
-    private ConfigRegistry registry;
     private Argument untypedNullArgument = new NullArgument(Types.OTHER);
     private boolean bindingNullToPrimitivesPermitted = true;
     private boolean preparedArgumentsEnabled = true;
 
-    public Arguments(final ConfigRegistry registry) {
+    public Arguments() {
         factories = new CopyOnWriteArrayList<>();
-        this.registry = registry;
 
         // register built-in factories, priority of factories is by reverse registration order
 
@@ -67,11 +64,6 @@ public class Arguments implements JdbiConfig<Arguments> {
         preparedArgumentsEnabled = that.preparedArgumentsEnabled;
     }
 
-    @Override
-    public void setRegistry(final ConfigRegistry registry) {
-        this.registry = registry;
-    }
-
     /**
      * Registers the given argument factory.
      * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
@@ -79,7 +71,7 @@ public class Arguments implements JdbiConfig<Arguments> {
      * @return this
      */
     public Arguments register(final ArgumentFactory factory) {
-        return register(QualifiedArgumentFactory.adapt(registry, factory));
+        return register(QualifiedArgumentFactory.adapt(factory));
     }
 
     /**

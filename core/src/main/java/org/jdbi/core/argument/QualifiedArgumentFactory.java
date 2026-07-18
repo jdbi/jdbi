@@ -14,8 +14,6 @@
 package org.jdbi.core.argument;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -55,20 +53,35 @@ public interface QualifiedArgumentFactory {
 
     /**
      * Adapts an {@link ArgumentFactory} into a QualifiedArgumentFactory. The returned factory only
-     * matches qualified types with exactly the same qualifiers as annotated on the factory itself.
+     * matches qualified types with exactly the same qualifiers as annotated on the factory itself. The
+     * qualifiers are resolved lazily from the {@link ConfigRegistry} supplied at build time and memoized,
+     * so no registry is required at registration time.
      *
-     * @param config the ConfigRegistry
      * @param factory the factory to adapt
      */
-    static QualifiedArgumentFactory adapt(ConfigRegistry config, ArgumentFactory factory) {
+    static QualifiedArgumentFactory adapt(ArgumentFactory factory) {
         if (factory instanceof ArgumentFactory.Preparable preparable) {
-            return adapt(config, preparable);
+            return adapt(preparable);
         }
-        Set<Annotation> qualifiers = config.get(Qualifiers.class).findFor(factory.getClass());
-        return (type, value, cfg) ->
-            type.getQualifiers().equals(qualifiers)
-                ? factory.build(type.getType(), value, cfg)
-                : Optional.empty();
+        return new QualifiedArgumentFactory() {
+            private volatile Set<Annotation> qualifiers;
+
+            private Set<Annotation> qualifiers(ConfigRegistry cfg) {
+                Set<Annotation> q = qualifiers;
+                if (q == null) {
+                    q = cfg.get(Qualifiers.class).findFor(factory.getClass());
+                    qualifiers = q;
+                }
+                return q;
+            }
+
+            @Override
+            public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {
+                return type.getQualifiers().equals(qualifiers(cfg))
+                    ? factory.build(type.getType(), value, cfg)
+                    : Optional.empty();
+            }
+        };
     }
 
     /**
@@ -77,8 +90,8 @@ public interface QualifiedArgumentFactory {
      *
      * @param factory the factory to adapt
      */
-    static QualifiedArgumentFactory.Preparable adapt(ConfigRegistry config, ArgumentFactory.Preparable factory) {
-        return QualifiedArgumentFactory.Preparable.adapt(config, factory);
+    static QualifiedArgumentFactory.Preparable adapt(ArgumentFactory.Preparable factory) {
+        return QualifiedArgumentFactory.Preparable.adapt(factory);
     }
 
     /**
@@ -89,52 +102,38 @@ public interface QualifiedArgumentFactory {
         Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config);
 
         /**
-         * @deprecated no longer used
-         */
-        @Deprecated(since = "3.15.0", forRemoval = true)
-        default Collection<QualifiedType<?>> prePreparedTypes() {
-            return Collections.emptyList();
-        }
-
-        /**
-         * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable
-         * The returned factory only matches qualified types with zero qualifiers.
+         * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable.
+         * The returned factory only matches qualified types with exactly the same qualifiers as annotated on the
+         * factory itself; the qualifiers are resolved lazily from the {@link ConfigRegistry} supplied at
+         * build/prepare time and memoized, so no registry is required at registration time.
          *
          * @param factory the factory to adapt
          */
-        static QualifiedArgumentFactory.Preparable adapt(ConfigRegistry config, ArgumentFactory.Preparable factory) {
+        static QualifiedArgumentFactory.Preparable adapt(ArgumentFactory.Preparable factory) {
             return new Preparable() {
-                final Set<Annotation> qualifiers =
-                        config.get(Qualifiers.class)
-                        .findFor(factory.getClass());
+                private volatile Set<Annotation> qualifiers;
 
-                final Collection<QualifiedType<?>> prePreparedTypes = Collections.unmodifiableList(
-                        factory.prePreparedTypes().stream()
-                            .map(QualifiedType::of)
-                            .map(qt -> qt.withAnnotations(qualifiers))
-                            .toList());
+                private Set<Annotation> qualifiers(ConfigRegistry cfg) {
+                    Set<Annotation> q = qualifiers;
+                    if (q == null) {
+                        q = cfg.get(Qualifiers.class).findFor(factory.getClass());
+                        qualifiers = q;
+                    }
+                    return q;
+                }
 
                 @Override
                 public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {
-                    return type.getQualifiers().equals(qualifiers)
+                    return type.getQualifiers().equals(qualifiers(cfg))
                             ? factory.build(type.getType(), value, cfg)
                             : Optional.empty();
                 }
 
                 @Override
                 public Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry cfg) {
-                    return type.getQualifiers().equals(qualifiers)
+                    return type.getQualifiers().equals(qualifiers(cfg))
                             ? factory.prepare(type.getType(), cfg)
                             : Optional.empty();
-                }
-
-                /**
-                 * @deprecated no longer used
-                 */
-                @Deprecated(since = "3.39.0", forRemoval = true)
-                @Override
-                public Collection<QualifiedType<?>> prePreparedTypes() {
-                    return prePreparedTypes;
                 }
 
                 @Override

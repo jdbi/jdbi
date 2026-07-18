@@ -14,8 +14,6 @@
 package org.jdbi.core.argument;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -81,15 +79,6 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
         return isInstance.test(type, null)
                 ? Optional.of(value -> innerBuild(type, value, config))
                 : Optional.empty();
-    }
-
-    /**
-     * @deprecated no longer used
-     */
-    @Override
-    @Deprecated(since = "3.39.0", forRemoval = true)
-    public Collection<Type> prePreparedTypes() {
-        return Collections.singletonList(argumentType);
     }
 
     @Override
