@@ -127,7 +127,7 @@ public class StatementContext implements Closeable, ConfigReader {
      * @param value the value for the attribute
      */
     public void define(final String key, final Object value) {
-        getConfig(SqlStatements.class).define(key, value);
+        getConfig().configure(SqlStatements.class, c -> c.define(key, value));
     }
 
     StatementContext setRawSql(final String rawSql) {

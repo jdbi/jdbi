@@ -69,4 +69,38 @@ public final class RegistrationLists {
         result.addAll(base);
         return List.copyOf(result);
     }
+
+    /**
+     * Returns an immutable copy of {@code base} with {@code tail} appended. Use this for lists whose consultation
+     * order is registration order (first-registered wins, or the caller iterates in reverse for last-wins),
+     * as opposed to the prepend lists above.
+     *
+     * @param base the existing registration list
+     * @param tail the element to append
+     * @param <T>  the element type
+     * @return a new immutable list with {@code tail} at the end
+     */
+    public static <T> List<T> append(final List<T> base, final T tail) {
+        final List<T> result = new ArrayList<>(base.size() + 1);
+        result.addAll(base);
+        result.add(tail);
+        return List.copyOf(result);
+    }
+
+    /**
+     * Returns an immutable copy of {@code base} with {@code tail} appended, unless {@code base} already contains
+     * an equal element, in which case {@code base} is returned unchanged. This reproduces the insertion-order,
+     * no-duplicates semantics of a set while keeping an immutable list representation.
+     *
+     * @param base the existing registration list
+     * @param tail the element to append if not already present
+     * @param <T>  the element type
+     * @return a new immutable list with {@code tail} appended, or {@code base} if it was already present
+     */
+    public static <T> List<T> appendDistinct(final List<T> base, final T tail) {
+        if (base.contains(tail)) {
+            return base;
+        }
+        return append(base, tail);
+    }
 }

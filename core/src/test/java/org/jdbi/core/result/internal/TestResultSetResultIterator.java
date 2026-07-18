@@ -37,7 +37,7 @@ class TestResultSetResultIterator {
     void setUp() {
         this.closed = new AtomicBoolean();
         this.context = StatementContextAccess.createContext();
-        context.getConfig(SqlStatements.class).addContextListener(getCloseListener(closed));
+        context.getConfig().configure(SqlStatements.class, c -> c.addContextListener(getCloseListener(closed)));
     }
 
 

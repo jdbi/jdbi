@@ -138,7 +138,7 @@ class ArgumentBinder {
             throw new UnableToCreateStatementException(format(
                     "Superfluous named parameters provided while the query "
                             + "declares none: '%s'. This check may be disabled by calling "
-                            + "getConfig(SqlStatements.class).setUnusedBindingAllowed(true) "
+                            + "configure(SqlStatements.class, c -> c.unusedBindingAllowed(true)) "
                             + "or using @AllowUnusedBindings in SQL object.", binding), ctx);
         }
     }

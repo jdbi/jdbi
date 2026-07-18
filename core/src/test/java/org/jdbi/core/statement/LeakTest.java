@@ -110,7 +110,7 @@ public class LeakTest {
 
     @Test
     void testUnmanagedHandleExplodingStatemenCleanupBySetting() {
-        h2Extension.getJdbi().getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true));
 
         assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
             try (Handle handle = h2Extension.openHandle()) {
@@ -124,7 +124,7 @@ public class LeakTest {
 
     @Test
     void testStatementStreamCleanupBySetting() {
-        h2Extension.getJdbi().getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true));
 
         try (Handle h = h2Extension.openHandle()) {
             Optional<String> userName = h.createQuery("SELECT name from users")
@@ -138,7 +138,7 @@ public class LeakTest {
     void testStatementStreamCleanupByHandleSetting() {
 
         try (Handle h = h2Extension.openHandle()) {
-            h.getConfig(SqlStatements.class).setAttachAllStatementsForCleanup(true);
+            h.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true));
             Optional<String> userName = h.createQuery("SELECT name from users")
                     .mapTo(String.class)
                     .stream().findFirst();

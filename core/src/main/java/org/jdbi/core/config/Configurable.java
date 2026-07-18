@@ -92,27 +92,27 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setTemplateEngine(rewriter)}
+     * Convenience method for {@code configure(SqlStatements.class, c -> c.templateEngine(templateEngine))}
      *
      * @param templateEngine the template engine
      * @return this
      */
     default This setTemplateEngine(final TemplateEngine templateEngine) {
-        return configure(SqlStatements.class, c -> c.setTemplateEngine(templateEngine));
+        return configure(SqlStatements.class, c -> c.templateEngine(templateEngine));
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setSqlParser(rewriter)}
+     * Convenience method for {@code configure(SqlStatements.class, c -> c.sqlParser(parser))}
      *
      * @param parser SQL parser
      * @return this
      */
     default This setSqlParser(final SqlParser parser) {
-        return configure(SqlStatements.class, c -> c.setSqlParser(parser));
+        return configure(SqlStatements.class, c -> c.sqlParser(parser));
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setTimingCollector(collector)}
+     * Convenience method for {@code configure(SqlStatements.class, c -> c.setTimingCollector(collector))}
      *
      * @param collector timing collector
      * @return this
@@ -124,7 +124,7 @@ public interface Configurable<This> {
     }
 
     default This setSqlLogger(final SqlLogger sqlLogger) {
-        return configure(SqlStatements.class, c -> c.setSqlLogger(sqlLogger));
+        return configure(SqlStatements.class, c -> c.sqlLogger(sqlLogger));
     }
 
     default This addCustomizer(final StatementCustomizer customizer) {
@@ -132,7 +132,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).define(key, value)}
+     * Convenience method for {@code configure(SqlStatements.class, c -> c.define(key, value))}
      *
      * @param key   attribute name
      * @param value attribute value

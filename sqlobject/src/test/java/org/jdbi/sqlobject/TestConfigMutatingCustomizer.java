@@ -98,7 +98,7 @@ public class TestConfigMutatingCustomizer {
 
         @Override
         public void apply(Customizable<?> stmt, Object arg) {
-            stmt.getConfig().get(SqlStatements.class).define(name, arg);
+            stmt.getConfig().configure(SqlStatements.class, c -> c.define(name, arg));
         }
     }
 }

@@ -121,6 +121,6 @@ public class ArgumentBinderTest {
     }
 
     private void allowUnused() {
-        ctx.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+        ctx.getConfig().configure(SqlStatements.class, c -> c.unusedBindingAllowed(true));
     }
 }

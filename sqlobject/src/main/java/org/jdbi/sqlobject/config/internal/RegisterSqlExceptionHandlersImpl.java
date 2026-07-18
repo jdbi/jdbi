@@ -40,6 +40,12 @@ public final class RegisterSqlExceptionHandlersImpl extends SimpleExtensionConfi
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        handlers.forEach(config.get(SqlStatements.class)::addExceptionHandler);
+        config.configure(SqlStatements.class, c -> {
+            SqlStatements result = c;
+            for (SqlExceptionHandler handler : handlers) {
+                result = result.addExceptionHandler(handler);
+            }
+            return result;
+        });
     }
 }

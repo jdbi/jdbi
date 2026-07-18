@@ -24,6 +24,6 @@ public class UseFreemarkerEngineImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlStatements.class).setTemplateEngine(FreemarkerEngine.instance());
+        config.configure(SqlStatements.class, c -> c.templateEngine(FreemarkerEngine.instance()));
     }
 }

@@ -402,8 +402,7 @@ public class Jdbi implements Configurable<Jdbi> {
         }
 
         try (Handle h = this.open()) {
-            final SqlStatements sqlStatements = h.getConfig(SqlStatements.class);
-            sqlStatements.setAttachAllStatementsForCleanup(sqlStatements.isAttachCallbackStatementsForCleanup());
+            h.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(c.isAttachCallbackStatementsForCleanup()));
 
             handleScope.set(ConstantHandleSupplier.of(h));
             return decoratedCallback.withHandle(h);

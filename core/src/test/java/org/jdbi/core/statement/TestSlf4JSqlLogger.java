@@ -48,7 +48,7 @@ class TestSlf4JSqlLogger {
             }
         }
 
-        h2Extension.getJdbi().getConfig(SqlStatements.class).setSqlLogger(new Slf4JSqlLogger(logger));
+        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.sqlLogger(new Slf4JSqlLogger(logger)));
     }
 
     @Test
@@ -65,7 +65,7 @@ class TestSlf4JSqlLogger {
 
     @Test
     void testLogWithInfoLevelAfterExecutionForBatch() {
-        h2Extension.getJdbi().getConfig(SqlStatements.class).setSqlLogger(new Slf4JSqlLogger(logger, Level.INFO));
+        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.sqlLogger(new Slf4JSqlLogger(logger, Level.INFO)));
         try (Handle handle = h2Extension.openHandle()) {
             handle.execute(CREATE);
 

@@ -140,7 +140,7 @@ public class TestJsonOperator {
 
         @Override
         public void customizeJdbi(Jdbi jdbi) {
-            jdbi.getConfig(SqlStatements.class).setTemplateEngine(templateEngine);
+            jdbi.configure(SqlStatements.class, c -> c.templateEngine(templateEngine));
         }
     }
 }

@@ -46,7 +46,7 @@ final class ConfigureStatement implements QueryCustomizerMixin<ConfigureStatemen
 
     @Override
     public ConfigureStatement addCustomizer(final StatementCustomizer customizer) {
-        config.get(SqlStatements.class).addCustomizer(customizer);
+        config.configure(SqlStatements.class, c -> c.addCustomizer(customizer));
         return this;
     }
 
@@ -57,7 +57,7 @@ final class ConfigureStatement implements QueryCustomizerMixin<ConfigureStatemen
 
     @Override
     public ConfigureStatement define(final String key, final Object value) {
-        config.get(SqlStatements.class).define(key, value);
+        config.configure(SqlStatements.class, c -> c.define(key, value));
         return this;
     }
 

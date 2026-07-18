@@ -25,9 +25,8 @@ public final class NoopCachePlugin implements JdbiPlugin {
 
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        final SqlStatements config = jdbi.getConfig(SqlStatements.class);
-
-        config.setTemplateCache(NoopCache.builder());
-        config.setSqlParser(new ColonPrefixSqlParser(NoopCache.builder()));
+        jdbi.configure(SqlStatements.class, config -> config
+                .templateCache(NoopCache.builder())
+                .sqlParser(new ColonPrefixSqlParser(NoopCache.builder())));
     }
 }

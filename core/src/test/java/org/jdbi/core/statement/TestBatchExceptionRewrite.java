@@ -38,7 +38,7 @@ public class TestBatchExceptionRewrite {
         pgExtension.getJdbi()
             .useHandle(h -> h.execute("create table something (id int primary key, name varchar(50), integerValue integer, intValue integer)"));
         // silence chatty exception log
-        pgExtension.getJdbi().getConfig(SqlStatements.class).setSqlLogger(SqlLogger.NOP_SQL_LOGGER);
+        pgExtension.getJdbi().configure(SqlStatements.class, c -> c.sqlLogger(SqlLogger.NOP_SQL_LOGGER));
     }
 
     @Test
