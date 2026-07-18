@@ -15,6 +15,8 @@ package org.jdbi.core.spi;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.core.Handle;
@@ -25,6 +27,27 @@ import org.jdbi.core.Jdbi;
  * types before they are returned from their factories.
  */
 public interface JdbiPlugin {
+    /**
+     * Returns a plugin whose {@link #configure(Jdbi.Builder)} applies the given consumer to the builder. This is a
+     * lambda shorthand for bundling a bit of build-time configuration without declaring an anonymous {@code JdbiPlugin}:
+     * <pre>{@code
+     * builder.installPlugin(JdbiPlugin.of(b -> b.registerRowMapper(mapper).registerArgument(argument)));
+     * }</pre>
+     * The returned plugin implements only {@code configure(Builder)}; it does not customize handles or connections.
+     *
+     * @param configureConsumer applied to the {@link Jdbi.Builder} during assembly
+     * @return a plugin that runs the given consumer at build time
+     */
+    static JdbiPlugin of(Consumer<Jdbi.Builder> configureConsumer) {
+        Objects.requireNonNull(configureConsumer, "null configureConsumer");
+        return new JdbiPlugin() {
+            @Override
+            public void configure(Jdbi.Builder builder) {
+                configureConsumer.accept(builder);
+            }
+        };
+    }
+
     /**
      * Contributes configuration and knobs to a {@link Jdbi.Builder} during assembly. This method is invoked by
      * {@link Jdbi.Builder#build()} for each installed plugin, in install order, before {@link #customizeJdbi(Jdbi)}.
