@@ -31,12 +31,4 @@ public interface JdbiConfig<This extends JdbiConfig<This>> {
      * @return a copy of this configuration object.
      */
     This createCopy();
-
-    /**
-     * The registry will inject itself into the configuration object.
-     * This can be useful if you need to look up dependencies.
-     * You will get a new registry after being copied.
-     * @param registry the registry that owns this configuration object
-     */
-    default void setRegistry(ConfigRegistry registry) {}
 }

@@ -65,7 +65,6 @@ public final class ConfigRegistry implements ConfigReader {
             JdbiConfig<?> copy = config.createCopy();
             configs.put(type, copy);
         });
-        configs.values().forEach(c -> c.setRegistry(this));
     }
 
     /**
@@ -88,9 +87,8 @@ public final class ConfigRegistry implements ConfigReader {
 
     /**
      * Installs the given configuration value for its type, replacing any current value. This is the write half
-     * of {@link Configurable#configure(Class, java.util.function.UnaryOperator)}: a config value is derived and
-     * then installed here. Transitional — while config values are still mutable this re-installs the (possibly
-     * same, mutated) instance; once values are immutable the derived instance replaces the previous one.
+     * of {@link Configurable#configure(Class, java.util.function.UnaryOperator)}: a config value is derived
+     * (config values are immutable) and the derived instance replaces the previous one.
      *
      * @param configClass the config type
      * @param config      the value to install
@@ -98,7 +96,6 @@ public final class ConfigRegistry implements ConfigReader {
      */
     <C extends JdbiConfig<C>> void install(final Class<C> configClass, final C config) {
         configs.put(configClass, config);
-        config.setRegistry(this);
     }
 
     /**
@@ -145,11 +142,7 @@ public final class ConfigRegistry implements ConfigReader {
     private Function<ConfigRegistry, JdbiConfig<?>> configFactory(Class<? extends JdbiConfig<?>> configClass) {
         return configFactories.computeIfAbsent(configClass, klass -> {
             var handleHolder = JdbiClassUtils.findConstructor(klass, JDBI_CONFIG_TYPES);
-            return registry -> {
-                var config = handleHolder.invoke(handle -> handle.invokeExact(registry));
-                config.setRegistry(registry);
-                return config;
-            };
+            return registry -> handleHolder.invoke(handle -> handle.invokeExact(registry));
         });
     }
 
