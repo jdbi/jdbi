@@ -474,22 +474,31 @@ neither is needed:
   (`getConfig()` + `findMapper`/`findArgument`/… ; `ConfigRegistry` implements it). At removal, `Jdbi` implements the
   read surface only; the mutate surface (`configure`/`register*`) stays on the scoped-then-frozen owners: the
   **builder** (assembly) and **statements/templates** (per-execution, COW). Handle is decided in D6.
-- **`Jdbi.create(...)` stays**, un-deprecated, as the zero-config shortcut — semantically `builder(x).build()`. This
-  revises the earlier "create() deprecated" sign-off: create() is the universal, ergonomic entry and the zero-config
-  path is legitimate; only post-construction *configuration* goes away. Migration is
-  `Jdbi.create(ds).installPlugin(p).registerX(...)` → `Jdbi.builder(ds).installPlugin(p).registerX(...).build()`.
-  *(Sub-decision — confirm: keep create() vs deprecate it too.)*
+- **`Jdbi.create(...)` stays** (CONFIRMED with maintainer 2026-07-18), un-deprecated, as the zero-config shortcut —
+  semantically `builder(x).build()`. This revises the earlier "create() deprecated" sign-off: create() is the
+  universal, ergonomic entry and the zero-config path is legitimate; only post-construction *configuration* goes away.
+  Migration is `Jdbi.create(ds).installPlugin(p).registerX(...)` →
+  `Jdbi.builder(ds).installPlugin(p).registerX(...).build()`.
 - **Plugins** contribute via `configure(Jdbi.Builder)`; `customizeJdbi(Jdbi)` is removed. `customizeHandle(Handle)` /
   `customizeConnection(Connection)` stay (per-handle/connection concerns).
+- **A lambda shorthand for build-time config (CONFIRMED — add):** `JdbiPlugin.of(Consumer<Jdbi.Builder>)`, a static
+  factory whose `configure(Builder)` runs the consumer, so a small config bundle needs no anonymous `JdbiPlugin`:
+  `builder.installPlugin(JdbiPlugin.of(b -> b.registerImmutable(Foo.class).registerRowMapper(m)))`. It implements
+  **only** `configure(Builder)` (never `customizeJdbi`): the builder's `build()` runs both hooks, so implementing
+  both would apply the consumer twice; and the go-forward path is the builder. This is what the anonymous-plugin
+  test sites from `fb4e06797` (immutables migration) should collapse to. For the tightest test ergonomics, the test
+  extensions can also expose a thin `withConfig(Consumer<Jdbi.Builder>)` convenience (wrapping
+  `withPlugin(JdbiPlugin.of(...))`) during the D4b.1 extension migration.
 
 ### Surface to deprecate (D4b) → remove (next major)
 - `Jdbi.installPlugin`, `Jdbi.setTransactionHandler`, `setStatementBuilderFactory`, `setHandleCallbackDecorator`,
   `setHandleScope` (builder has all of these).
 - The `Configurable` mutators *as inherited by `Jdbi`*: `configure(Class, UnaryOperator)` and the ~30 `register*`
-  conveniences. *(Sub-decision — granularity: deprecating the `configure` funnel does NOT warn callers of
-  `jdbi.registerRowMapper(...)`, since those are sibling default methods. Recommend marking the funnel + the
-  directly-owned methods + the highest-traffic `register*` overloads `@Deprecated`, and letting the rest fall away
-  when `Jdbi` drops `Configurable` at removal — full per-overload deprecation on `Jdbi` is ~30 overrides of boilerplate.)*
+  conveniences. **Granularity (DECIDED 2026-07-18, per maintainer):** mark the `configure` funnel + the directly-owned
+  methods + the highest-traffic `register*` overloads (`registerRowMapper`/`registerColumnMapper`/`registerArgument`)
+  `@Deprecated`; let the rest fall away when `Jdbi` drops `Configurable` at removal. Do NOT write ~30
+  override-just-to-deprecate stubs on `Jdbi`. (Deprecating the funnel alone does not warn callers of
+  `jdbi.registerRowMapper(...)` — sibling default methods — hence deprecating the top overloads too.)
 - `JdbiPlugin.customizeJdbi(Jdbi)`.
 
 ### Migration plan (staged; each stage whole-reactor green and warning-clean)
@@ -509,10 +518,10 @@ migrate-first keeps the tree clean and is recommended.
    warm-cross-handle metadata fix (see that note).
 
 ### Implementation notes / gotchas to carry in
-- **`build()` must drain dynamically-added plugins.** D4a's `build()` iterates `plugins` with a for-each; once a
-  migrated plugin's `configure(builder)` (or a legacy `customizeJdbi`) calls `builder.installPlugin(sub)`, the loop
-  must pick `sub` up (index/queue drain, with `installPlugin`'s add-if-absent dedup) instead of throwing
-  `ConcurrentModificationException`. Fix this as part of D4b.1.
+- **`build()` must drain dynamically-added plugins (DECIDED — do it in D4b.1).** D4a's `build()` iterates `plugins`
+  with a for-each; once a migrated plugin's `configure(builder)` (or a legacy `customizeJdbi`) calls
+  `builder.installPlugin(sub)`, the loop must pick `sub` up (index/queue drain, with `installPlugin`'s add-if-absent
+  dedup) instead of throwing `ConcurrentModificationException`.
 - **Plugin ordering & dedup**: preserve install order; `installPlugin` stays add-if-absent so a plugin pulled in by
   two others runs once.
 - **Handle-level config is out of scope here** (`handle.registerX`); that is D6. D4b is Jdbi-level only.
