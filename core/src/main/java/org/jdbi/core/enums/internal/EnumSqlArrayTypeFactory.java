@@ -21,7 +21,7 @@ import org.jdbi.core.array.SqlArrayTypeFactory;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.enums.EnumStrategy;
 import org.jdbi.core.generic.GenericTypes;
-import org.jdbi.core.internal.EnumStrategies;
+import org.jdbi.core.internal.EnumStrategyResolver;
 import org.jdbi.core.qualifier.QualifiedType;
 
 // TODO Make this a QualifiedSqlArrayTypeFactory after we add qualified SQL array support
@@ -36,7 +36,7 @@ public class EnumSqlArrayTypeFactory implements SqlArrayTypeFactory {
     }
 
     private <E extends Enum<E>> SqlArrayType<E> makeSqlArrayType(Class<E> enumClass, ConfigRegistry config) {
-        boolean byName = EnumStrategy.BY_NAME == config.get(EnumStrategies.class).findStrategy(QualifiedType.of(enumClass));
+        boolean byName = EnumStrategy.BY_NAME == EnumStrategyResolver.forRegistry(config).findStrategy(QualifiedType.of(enumClass));
 
         return byName
             ? SqlArrayType.of("varchar", Enum::name)
