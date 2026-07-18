@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): sub-step 4 + D7/sub-step 5 + D4a/D5 + D4b.1 DONE; next is D4b.2 (deprecations) then D6
+## HANDOFF (2026-07-18): sub-step 4 + D7/sub-step 5 + D4a/D5 + D4b.1 + D4b.2 DONE; next is D6 (then removal, next major)
 
 **Latest (2026-07-18):** **D4b.1 DONE** (`674f6c496`, `661334b55`). All 17 in-repo plugins moved their config from
 `customizeJdbi(Jdbi)` to `configure(Jdbi.Builder)`; `Jdbi.installPlugin` now bridges through a throwaway
@@ -158,10 +158,15 @@ lockstep call-site migration** — this revises the doc's original "pure move + 
 have silently broken the direct-install path during the window). `build()` and `installPlugin` share a private
 `applyPlugin(Builder, plugin)` funnel; `build()` drains plugins by index; added `JdbiPlugin.of(Consumer<Builder>)`.
 The bridge is disposable at removal. Details + the corrected migration plan are in "## D4b proposal" below.
-Earlier: D4a (`d5565bf13`) landed the additive `Jdbi.builder()` assembly API + the `JdbiPlugin.configure` SPI (D5).
-Next is **D4b.2** — add `@Deprecated(forRemoval = true)` to the post-construction mutation surface (deprecating
-`installPlugin` surfaces the remaining in-repo `create(...).installPlugin(...)` sites, converted to the builder in
-the same pass), then remove in the next major. Then **D6** (handle config + `open(scope)`), where jdbi/jdbi#2992
+**D4b.2 DONE (`8f69b9f4e`):** deprecated the DIRECTLY-OWNED mutation surface (`Jdbi.installPlugin`/`setTransactionHandler`/
+`setStatementBuilderFactory`/`setHandleCallbackDecorator`/`setHandleScope` + `JdbiPlugin.customizeJdbi`,
+`@Deprecated(since="4.0.0", forRemoval=true)`); routed central test support (`JdbiExtension` + core-test H2/Pg/Sqlite
+`DatabaseExtension`) through the builder. Two maintainer-confirmed scope calls: the `Configurable` mutators inherited by
+`Jdbi` (`configure`/`register*`) are **NOT** deprecated now — deferred to removal (avoids ~6 override-stubs + a warning
+flood; they go when `Jdbi` drops `Configurable`'s mutators); and javac deprecation warnings are non-fatal + already
+pervasive in-repo, so ~66 incidental leaf callers are left to warn (swept at removal), only `TestJdbiBuilder`/`TestPlugins`
+(subject = deprecated path) get `@SuppressWarnings`. Earlier: D4a (`d5565bf13`) landed the additive `Jdbi.builder()`
+assembly API + the `JdbiPlugin.configure` SPI (D5). Next is **D6** (handle config + `open(scope)`), where jdbi/jdbi#2992
 warm-cross-handle caching lands (handle-boundary COW, unlocked once the Jdbi config is immutable at removal).
 
 
@@ -438,8 +443,8 @@ Handle h = jdbi.open(cfg -> cfg.with(RowMappers.class, r -> r.withMapper(m)));  
 - [x] **D1** immutable `JdbiConfig`, drop `createCopy`/`setRegistry`, mutators → withers (breaks custom configs).
 - [x] **D2** `configure` `Consumer` → `UnaryOperator` — break approved; churn minimized via chainable + plural withers.
 - [x] **D3** add `ConfigRegistry.with(Class, UnaryOperator)`.
-- [~] **D4** signed off. **D4a DONE** (`d5565bf13`, additive, no breaks): `Jdbi.builder(...)` factories + `Jdbi.Builder` (`Configurable` + knobs `transactionHandler`/`statementBuilderFactory`/`handleCallbackDecorator`/`handleScope`) + `build()`, a thin assembly facade over `Jdbi.create(...)`. **D4b.1 DONE** (`674f6c496`, `661334b55`): 17 in-repo plugins moved to `configure(Builder)`; `Jdbi.installPlugin` bridges through a throwaway `Builder` so all install sites keep working (no freeze-on-open, no shim — both dropped). **D4b.2 PENDING**: `@Deprecated(forRemoval=true)` on the post-construction mutation surface (`installPlugin`/`setX` knobs + `Configurable.configure` funnel + top `register*` as inherited by `Jdbi`); removal in next major.
-- [~] **D5** signed off. **DONE** (`d5565bf13` + `661334b55`): added `JdbiPlugin.configure(Jdbi.Builder)` (default no-op), applied by `build()`/`installPlugin` before `customizeJdbi` in install order; all in-repo plugins migrated onto it (D4b.1). **PENDING**: deprecate `customizeJdbi(Jdbi)` in D4b.2.
+- [~] **D4** signed off. **D4a DONE** (`d5565bf13`, additive, no breaks): `Jdbi.builder(...)` factories + `Jdbi.Builder` (`Configurable` + knobs `transactionHandler`/`statementBuilderFactory`/`handleCallbackDecorator`/`handleScope`) + `build()`, a thin assembly facade over `Jdbi.create(...)`. **D4b.1 DONE** (`674f6c496`, `661334b55`): 17 in-repo plugins moved to `configure(Builder)`; `Jdbi.installPlugin` bridges through a throwaway `Builder` so all install sites keep working (no freeze-on-open, no shim — both dropped). **D4b.2 DONE** (`8f69b9f4e`): `@Deprecated(since="4.0.0", forRemoval=true)` on the DIRECTLY-OWNED surface (`installPlugin` + 4 `setX` knobs) + `JdbiPlugin.customizeJdbi`; central test support routed through the builder. The `Configurable.configure` funnel + `register*` as inherited by `Jdbi` were DEFERRED to removal (no override-stubs; they drop with `Configurable`'s mutators). Incidental leaf warnings left (non-fatal); only `TestJdbiBuilder`/`TestPlugins` suppressed. Removal in next major.
+- [~] **D5** signed off. **DONE** (`d5565bf13` + `661334b55` + `8f69b9f4e`): added `JdbiPlugin.configure(Jdbi.Builder)` (default no-op), applied by `build()`/`installPlugin` before `customizeJdbi` in install order; all in-repo plugins migrated onto it (D4b.1); `customizeJdbi(Jdbi)` deprecated forRemoval (D4b.2).
 - [~] **D6** handle config largely eliminated; `handle.registerX` → deprecated shim; `open(scope)` only if it earns it (decide at D6).
 - [x] **D7** statement-level `Configurable` unchanged (copy-on-write private config).
 
@@ -530,14 +535,29 @@ migrate-first keeps the tree clean and is recommended.
    - **Consequence for the doc's ~47-site migration:** no longer required for correctness. Converting call sites
      from `create(x).installPlugin(p)…` to `builder(x).installPlugin(p)…build()` is now optional cosmetic cleanup
      that can ride along with the D4b.2 deprecation (deprecating `installPlugin` will flag those sites).
-2. **D4b.2 — NEXT: add `@Deprecated(forRemoval = true)` to the surface** (`Jdbi.installPlugin`/`setTransactionHandler`/
-   `setStatementBuilderFactory`/`setHandleCallbackDecorator`/`setHandleScope`, the `Configurable.configure` funnel +
-   top `register*` overloads as inherited by `Jdbi`, and `JdbiPlugin.customizeJdbi`), javadoc pointing at `builder()` /
-   `configure(Builder)`. In-repo plugins are already migrated; deprecating `installPlugin` will surface the remaining
-   in-repo `create(...).installPlugin(...)` assembly/test sites, which get converted to the builder in the same pass.
+2. **D4b.2 — DONE (`8f69b9f4e`). Deprecated the DIRECTLY-OWNED post-construction mutation surface.**
+   `@Deprecated(since = "4.0.0", forRemoval = true)` on `Jdbi.installPlugin`/`setTransactionHandler`/
+   `setStatementBuilderFactory`/`setHandleCallbackDecorator`/`setHandleScope` + `JdbiPlugin.customizeJdbi(Jdbi)`,
+   each javadoc pointing at its `Jdbi.Builder`/`configure(Builder)` replacement; `applyPlugin` keeps honoring
+   `customizeJdbi` during the window under a scoped `@SuppressWarnings("deprecation")`. Central test support routed
+   through the builder: `testing/JdbiExtension` + core-test `H2/Pg/Sqlite DatabaseExtension` assemble via
+   `Jdbi.builder(...).build()`, and `DatabaseExtension.installTestPlugins()` takes a `Jdbi.Builder`.
+   **Two scope decisions (maintainer-confirmed 2026-07-18), revising the doc's original plan:**
+   - **`Configurable` mutators as inherited by `Jdbi` (`configure` funnel + top `register*` overloads) NOT deprecated
+     here — DEFERRED to removal.** The `@Override`-just-to-deprecate stubs would add ~6 stubs + ~7 imports to `Jdbi`
+     and a large test-warning flood; the directly-owned deprecations already signal the direction, and these methods
+     fall away wholesale when `Jdbi` drops `Configurable`'s mutators at removal (read-only split).
+   - **Leaf-site cleanup: suppress-intentional, leave-incidental.** javac `-Xlint:deprecation` warnings are NON-FATAL
+     and already pervasive in-repo (e.g. `NamedArgumentFinder.find` used post-deprecation in MAIN source), so the
+     ~66 incidental leaf callers (`create(x).installPlugin(p)`, `setX`, test-fixture `customizeJdbi` overrides) are
+     left to warn and get swept at removal — consistent with existing convention. Only the two tests whose SUBJECT is
+     the deprecated install path (`TestJdbiBuilder`, `TestPlugins`) carry a class-level `@SuppressWarnings`.
 3. **Next major (removal, with D6):** delete the deprecated methods (the `installPlugin` bridge disappears with them);
-   `Jdbi` drops `Configurable` for the read-only surface; then handles become `createChild()` COW off the
-   now-immutable `Jdbi` config — the jdbi/jdbi#2992 warm-cross-handle metadata fix (see that note).
+   `Jdbi` drops `Configurable`'s MUTATORS for the read-only surface — this is where the deferred `configure`/`register*`
+   removal lands (no per-method deprecation stubs were ever written; the whole mutate surface goes at once), and where
+   the ~66 incidental leaf callers + the pre-existing `create(...).installPlugin(...)` sites are converted to the
+   builder in one sweep. Then handles become `createChild()` COW off the now-immutable `Jdbi` config — the
+   jdbi/jdbi#2992 warm-cross-handle metadata fix (see that note).
 
 ### Implementation notes / gotchas to carry in
 - **`build()` drains dynamically-added plugins (DONE in `674f6c496`).** `build()` iterates by index via a `while`
