@@ -13,37 +13,34 @@
  */
 package org.jdbi.postgres;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import org.jdbi.core.array.SqlArrayTypes;
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
-import org.jdbi.core.internal.CopyOnWriteHashMap;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.postgresql.PGConnection;
 import org.postgresql.util.PGobject;
 
 /**
  * Handler for PostgreSQL custom types.
+ * <p>
+ * This configuration is immutable: {@link #registerCustomType} and {@link #lobApi} return a new instance,
+ * leaving the receiver unchanged. Array binding for registered custom types is provided by a single
+ * {@link PostgresCustomTypeArrayFactory} that {@link PostgresPlugin} installs and that consults this
+ * configuration, so registration is a pure update here and no longer needs a reference back to the
+ * configuration registry.
  */
-public class PostgresTypes implements JdbiConfig<PostgresTypes> {
+public final class PostgresTypes implements JdbiConfig<PostgresTypes> {
     private final Map<Class<? extends PGobject>, String> types;
-    private ConfigRegistry registry;
-    private PgLobApi lob;
+    private final PgLobApi lob;
 
-    @SuppressWarnings("unused")
     public PostgresTypes() {
-        types = new CopyOnWriteHashMap<>();
+        this(Map.of(), null);
     }
 
-    private PostgresTypes(PostgresTypes that) {
-        this.types = new CopyOnWriteHashMap<>(that.types);
-        this.lob = that.lob;
-    }
-
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
+    private PostgresTypes(final Map<Class<? extends PGobject>, String> types, final PgLobApi lob) {
+        this.types = types;
+        this.lob = lob;
     }
 
     /**
@@ -51,18 +48,16 @@ public class PostgresTypes implements JdbiConfig<PostgresTypes> {
      * @param clazz the class implementing the Java representation of the custom type;
      * must extend {@link PGobject}.
      * @param typeName the Postgres custom type name
+     * @return a copy of this configuration with the custom type registered
      */
     public PostgresTypes registerCustomType(Class<? extends PGobject> clazz, String typeName) {
-        registry.configure(SqlArrayTypes.class, c -> c.register(clazz, typeName));
-
-        types.put(clazz, typeName);
-
-        return this;
+        final Map<Class<? extends PGobject>, String> updated = new HashMap<>(types);
+        updated.put(clazz, typeName);
+        return new PostgresTypes(Map.copyOf(updated), lob);
     }
 
-    PostgresTypes setLobApi(PgLobApi newLob) {
-        this.lob = newLob;
-        return this;
+    PostgresTypes lobApi(PgLobApi newLob) {
+        return new PostgresTypes(types, newLob);
     }
 
     /**
@@ -74,9 +69,18 @@ public class PostgresTypes implements JdbiConfig<PostgresTypes> {
     }
 
     /**
+     * Returns the registered Postgres type name for the given custom-type element class, or {@code null} if the
+     * class is not a registered custom type. Consulted by {@link PostgresCustomTypeArrayFactory}.
+     */
+    String sqlArrayTypeName(Class<?> elementType) {
+        return types.get(elementType);
+    }
+
+    /**
      * Add handler for each registered PostgreSQL custom type
      *
      * @param connection connection on which to add all registered PostgreSQL custom types
+     * @return this configuration, unchanged
      */
     PostgresTypes addTypesToConnection(PGConnection connection) {
         types.forEach((clazz, type) -> Unchecked.<String, Class<? extends PGobject>>biConsumer(connection::addDataType).accept(type, clazz));
@@ -85,6 +89,7 @@ public class PostgresTypes implements JdbiConfig<PostgresTypes> {
 
     @Override
     public PostgresTypes createCopy() {
-        return new PostgresTypes(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

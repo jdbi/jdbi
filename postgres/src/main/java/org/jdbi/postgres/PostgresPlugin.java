@@ -142,6 +142,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerArrayType(PGpoint.class, "point");
         jdbi.registerArrayType(PGpolygon.class, "polygon");
         jdbi.registerArrayType(new ByteaArrayType());
+        jdbi.registerArrayType(new PostgresCustomTypeArrayFactory());
 
         jdbi.registerColumnMapper(new JavaTimeMapperFactory());
         jdbi.registerColumnMapper(new HStoreColumnMapper());
@@ -174,7 +175,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         }
         PGConnection pgConnection = conn.unwrap(PGConnection.class);
         return handle.configure(PostgresTypes.class, pt ->
-            pt.addTypesToConnection(pgConnection).setLobApi(new PgLobApiImpl(conn)));
+            pt.addTypesToConnection(pgConnection).lobApi(new PgLobApiImpl(conn)));
     }
 
     static final class VectorEnabler {
