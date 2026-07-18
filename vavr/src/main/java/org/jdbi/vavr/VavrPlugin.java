@@ -28,11 +28,11 @@ import org.jdbi.core.spi.JdbiPlugin;
  */
 public class VavrPlugin extends JdbiPlugin.Singleton {
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.registerCollector(new VavrCollectorFactory());
-        jdbi.registerRowMapper(new VavrTupleRowMapperFactory());
-        jdbi.registerRowMapper(new VavrOptionRowMapperFactory());
-        jdbi.registerArgument(new VavrValueArgumentFactory());
-        jdbi.registerColumnMapper(new VavrOptionColumnMapperFactory());
+    public void configure(Jdbi.Builder builder) {
+        builder.registerCollector(new VavrCollectorFactory());
+        builder.registerRowMapper(new VavrTupleRowMapperFactory());
+        builder.registerRowMapper(new VavrOptionRowMapperFactory());
+        builder.registerArgument(new VavrValueArgumentFactory());
+        builder.registerColumnMapper(new VavrOptionColumnMapperFactory());
     }
 }

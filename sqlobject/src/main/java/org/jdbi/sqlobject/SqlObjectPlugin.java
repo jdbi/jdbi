@@ -22,14 +22,14 @@ import org.jdbi.core.spi.JdbiPlugin;
  */
 public class SqlObjectPlugin extends JdbiPlugin.Singleton {
     @Override
-    public void customizeJdbi(Jdbi db) {
+    public void configure(Jdbi.Builder builder) {
 
         // support for generated classes (jdbi-generator)
         GeneratorSqlObjectFactory generatorSqlObjectFactory = new GeneratorSqlObjectFactory();
-        db.registerExtension(generatorSqlObjectFactory);
-        db.configure(OnDemandExtensions.class, c -> c.factory(generatorSqlObjectFactory));
+        builder.registerExtension(generatorSqlObjectFactory);
+        builder.configure(OnDemandExtensions.class, c -> c.factory(generatorSqlObjectFactory));
 
         // register SQL object proxy factory
-        db.registerExtension(new SqlObjectFactory());
+        builder.registerExtension(new SqlObjectFactory());
     }
 }

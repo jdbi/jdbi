@@ -22,7 +22,7 @@ import org.jdbi.core.spi.JdbiPlugin;
  */
 public class H2DatabasePlugin extends JdbiPlugin.Singleton {
     @Override
-    public void customizeJdbi(Jdbi db) {
-        db.setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY);
+    public void configure(Jdbi.Builder builder) {
+        builder.setSqlArrayArgumentStrategy(SqlArrayArgumentStrategy.OBJECT_ARRAY);
     }
 }

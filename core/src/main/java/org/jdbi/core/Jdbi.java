@@ -307,10 +307,24 @@ public class Jdbi implements Configurable<Jdbi> {
      * @return this
      */
     public Jdbi installPlugin(final JdbiPlugin plugin) {
+        Objects.requireNonNull(plugin, "null plugin");
+        // Bridge onto the assembly funnel so a plugin that contributes via configure(Builder) is applied even on
+        // this post-construction path. The Builder is a facade over this same instance (shared config), so build()
+        // applies the plugin's hooks to this Jdbi and returns it. Removed wholesale when this method is dropped.
+        return new Builder(this).installPlugin(plugin).build();
+    }
+
+    /**
+     * Applies a single plugin to this instance during assembly: it is registered once for the per-handle and
+     * per-connection hooks, then its {@link JdbiPlugin#configure(Builder)} and {@link JdbiPlugin#customizeJdbi(Jdbi)}
+     * hooks run in that order. The install-if-absent guard makes a plugin pulled in more than once apply only once.
+     * Shared by {@link Builder#build()} and the {@link #installPlugin(JdbiPlugin)} bridge.
+     */
+    private void applyPlugin(final Builder builder, final JdbiPlugin plugin) {
         if (plugins.addIfAbsent(plugin)) {
+            plugin.configure(builder);
             Unchecked.consumer(plugin::customizeJdbi).accept(this);
         }
-        return this;
     }
 
     /**
@@ -768,12 +782,10 @@ public class Jdbi implements Configurable<Jdbi> {
          */
         public Jdbi build() {
             // Drain by index: a plugin's configure()/customizeJdbi() may install further plugins, growing the list
-            // mid-drain. installPlugin() dedups so a plugin pulled in by two others is still applied once.
+            // mid-drain. applyPlugin() installs-if-absent so a plugin pulled in by two others is still applied once.
             int i = 0;
             while (i < plugins.size()) {
-                final JdbiPlugin plugin = plugins.get(i++);
-                plugin.configure(this);
-                jdbi.installPlugin(plugin);
+                jdbi.applyPlugin(this, plugins.get(i++));
             }
             return jdbi;
         }
