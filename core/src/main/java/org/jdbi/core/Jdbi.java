@@ -305,7 +305,10 @@ public class Jdbi implements Configurable<Jdbi> {
      * provided {@link Handle} instances.
      * @param plugin the plugin to install
      * @return this
+     * @deprecated assemble with {@link #builder(ConnectionFactory)} and {@link Builder#installPlugin(JdbiPlugin)};
+     *             post-construction plugin installation is going away.
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public Jdbi installPlugin(final JdbiPlugin plugin) {
         Objects.requireNonNull(plugin, "null plugin");
         // Bridge onto the assembly funnel so a plugin that contributes via configure(Builder) is applied even on
@@ -320,6 +323,7 @@ public class Jdbi implements Configurable<Jdbi> {
      * hooks run in that order. The install-if-absent guard makes a plugin pulled in more than once apply only once.
      * Shared by {@link Builder#build()} and the {@link #installPlugin(JdbiPlugin)} bridge.
      */
+    @SuppressWarnings("deprecation") // customizeJdbi is deprecated for removal but still honored during the window
     private void applyPlugin(final Builder builder, final JdbiPlugin plugin) {
         if (plugins.addIfAbsent(plugin)) {
             plugin.configure(builder);
@@ -335,7 +339,9 @@ public class Jdbi implements Configurable<Jdbi> {
      *
      * @param factory the new statement builder factory.
      * @return this
+     * @deprecated set this with {@link Builder#statementBuilderFactory(StatementBuilderFactory)} during assembly instead.
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public Jdbi setStatementBuilderFactory(final StatementBuilderFactory factory) {
         this.statementBuilderFactory.set(factory);
         return this;
@@ -367,7 +373,9 @@ public class Jdbi implements Configurable<Jdbi> {
      * @param handler The TransactionHandler to use for all Handle instances obtained
      *                from this Jdbi
      * @return this
+     * @deprecated set this with {@link Builder#transactionHandler(TransactionHandler)} during assembly instead.
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public Jdbi setTransactionHandler(final TransactionHandler handler) {
         Objects.requireNonNull(handler, "null transaction handler");
         this.transactionhandler.set(handler);
@@ -391,8 +399,10 @@ public class Jdbi implements Configurable<Jdbi> {
      * @param handleCallbackDecorator The {@link HandleCallbackDecorator} to use for all {@link #useHandle}, {@link #withHandle},
      *                {@link #useTransaction(HandleConsumer)} and {@link #inTransaction(HandleCallback)} from this Jdbi. Must not be null
      * @return this
+     * @deprecated set this with {@link Builder#handleCallbackDecorator(HandleCallbackDecorator)} during assembly instead.
      */
     @Alpha
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public Jdbi setHandleCallbackDecorator(final HandleCallbackDecorator handleCallbackDecorator) {
         Objects.requireNonNull(handleCallbackDecorator, "null handler");
         this.handleCallbackDecorator.set(handleCallbackDecorator);
@@ -424,8 +434,10 @@ public class Jdbi implements Configurable<Jdbi> {
      * Set the {@link HandleScope} object. The Jdbi instance uses this to provide handles in a given scope.
      * <br>
      * @param handleScope A {@link HandleScope} object. Must not be null!
+     * @deprecated set this with {@link Builder#handleScope(HandleScope)} during assembly instead.
      */
     @Alpha
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public final void setHandleScope(final HandleScope handleScope) {
         this.handleScope = handleScope;
     }

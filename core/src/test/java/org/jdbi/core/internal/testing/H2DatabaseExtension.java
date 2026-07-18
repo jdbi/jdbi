@@ -133,7 +133,7 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
         if (jdbi != null) {
             throw new IllegalStateException("jdbi is not null!");
         }
-        jdbi = Jdbi.create(() -> {
+        final Jdbi.Builder builder = Jdbi.builder(() -> {
             final Connection connection = DriverManager.getConnection(uri);
             // this will only work reliably in single-threaded tests. Any multi-threaded
             // test will hand out the last connection used by the last thread calling this
@@ -142,14 +142,15 @@ public final class H2DatabaseExtension implements DatabaseExtension<H2DatabaseEx
             return connection;
         });
 
-        installTestPlugins(jdbi);
+        installTestPlugins(builder);
 
         if (enableLeakchecker) {
-            jdbi.configure(Handles.class, c -> c.addListener(leakChecker));
-            jdbi.configure(SqlStatements.class, c -> c.addContextListener(leakChecker));
+            builder.configure(Handles.class, c -> c.addListener(leakChecker));
+            builder.configure(SqlStatements.class, c -> c.addContextListener(leakChecker));
         }
 
-        plugins.forEach(jdbi::installPlugin);
+        plugins.forEach(builder::installPlugin);
+        jdbi = builder.build();
         sharedHandle = jdbi.open();
 
         initializerMaybe.ifPresent(i -> i.initialize(sharedHandle));

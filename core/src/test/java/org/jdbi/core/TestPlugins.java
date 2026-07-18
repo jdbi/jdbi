@@ -24,6 +24,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// exercises the deprecated Jdbi.installPlugin path to verify the customizeHandle/customizeConnection hooks
+@SuppressWarnings("deprecation")
 public class TestPlugins {
 
     @RegisterExtension
