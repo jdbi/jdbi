@@ -323,7 +323,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(Extensions.class).register(factory)}
+     * Convenience method for {@code configure(Extensions.class, c -> c.register(factory))}
      *
      * @param factory extension factory
      * @return this

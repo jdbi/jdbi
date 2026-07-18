@@ -13,13 +13,14 @@
  */
 package org.jdbi.core.extension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.core.extension.annotation.UseExtensionHandlerCustomizer;
+import org.jdbi.core.internal.RegistrationLists;
 import org.jdbi.meta.Alpha;
 import org.jdbi.meta.Beta;
 
@@ -27,16 +28,19 @@ import org.jdbi.meta.Beta;
  * Configuration class for defining {@code Jdbi} extensions via {@link ExtensionFactory}
  * instances. Holds only registration data and policy; building and caching the {@link ExtensionMetadata}
  * for an extension type is done per configuration registry by {@link ExtensionMetadataResolver}.
+ * <p>
+ * This configuration is immutable: the {@code register} methods and the policy withers return a new instance,
+ * leaving the receiver unchanged.
  */
-public class Extensions implements JdbiConfig<Extensions> {
+public final class Extensions implements JdbiConfig<Extensions> {
 
     private final List<ExtensionFactoryDelegate> extensionFactories;
     private final List<ExtensionHandlerCustomizer> extensionHandlerCustomizers;
     private final List<ExtensionHandlerFactory> extensionHandlerFactories;
     private final List<ConfigCustomizerFactory> configCustomizerFactories;
 
-    private boolean allowProxy;
-    private boolean failFast;
+    private final boolean allowProxy;
+    private final boolean failFast;
 
     /**
      * Creates a new instance.
@@ -47,58 +51,54 @@ public class Extensions implements JdbiConfig<Extensions> {
      * </ul>
      */
     public Extensions() {
-        extensionFactories = new CopyOnWriteArrayList<>();
-        extensionHandlerCustomizers = new CopyOnWriteArrayList<>();
-        extensionHandlerFactories = new CopyOnWriteArrayList<>();
-        configCustomizerFactories = new CopyOnWriteArrayList<>();
-
-        allowProxy = true;
-        failFast = false;
-
-        // default handler factories for bridge and default methods
-        internalRegisterHandlerFactory(DefaultMethodExtensionHandlerFactory.INSTANCE);
-        internalRegisterHandlerFactory(BridgeMethodExtensionHandlerFactory.INSTANCE);
-
-        // default handler factory for the UseExtensionHandler annotation.
-        registerHandlerFactory(UseAnnotationExtensionHandlerFactory.INSTANCE);
-
-        // default handler customizer for the UseExtensionHandlerCustomizer annotation.
-        registerHandlerCustomizer(UseAnnotationExtensionHandlerCustomizer.INSTANCE);
-
-        registerConfigCustomizerFactory(UseAnnotationConfigCustomizerFactory.INSTANCE);
+        this(List.of(),
+                buildDefaultHandlerFactories(),
+                List.of(UseAnnotationExtensionHandlerCustomizer.INSTANCE),
+                List.of(UseAnnotationConfigCustomizerFactory.INSTANCE),
+                true, false);
     }
 
-    /**
-     * Create an extension configuration by cloning another.
-     *
-     * @param that the configuration to clone
-     */
-    private Extensions(Extensions that) {
-        extensionFactories = new CopyOnWriteArrayList<>(that.extensionFactories);
-        extensionHandlerCustomizers = new CopyOnWriteArrayList<>(that.extensionHandlerCustomizers);
-        extensionHandlerFactories = new CopyOnWriteArrayList<>(that.extensionHandlerFactories);
-        configCustomizerFactories = new CopyOnWriteArrayList<>(that.configCustomizerFactories);
+    private Extensions(List<ExtensionFactoryDelegate> extensionFactories,
+            List<ExtensionHandlerFactory> extensionHandlerFactories,
+            List<ExtensionHandlerCustomizer> extensionHandlerCustomizers,
+            List<ConfigCustomizerFactory> configCustomizerFactories,
+            boolean allowProxy,
+            boolean failFast) {
+        this.extensionFactories = extensionFactories;
+        this.extensionHandlerCustomizers = extensionHandlerCustomizers;
+        this.extensionHandlerFactories = extensionHandlerFactories;
+        this.configCustomizerFactories = configCustomizerFactories;
+        this.allowProxy = allowProxy;
+        this.failFast = failFast;
+    }
 
-        allowProxy = that.allowProxy;
-        failFast = that.failFast;
+    private static List<ExtensionHandlerFactory> buildDefaultHandlerFactories() {
+        // Registration prepends, so the effective consultation order is the reverse of registration order.
+        final List<ExtensionHandlerFactory> factories = new ArrayList<>();
+        // default handler factories for bridge and default methods
+        factories.add(0, DefaultMethodExtensionHandlerFactory.INSTANCE);
+        factories.add(0, BridgeMethodExtensionHandlerFactory.INSTANCE);
+        // default handler factory for the UseExtensionHandler annotation (filtered like registerHandlerFactory).
+        factories.add(0, FilteringExtensionHandlerFactory.forDelegate(UseAnnotationExtensionHandlerFactory.INSTANCE));
+        return List.copyOf(factories);
     }
 
     /**
      * Register a {@link ExtensionFactory} instance with the extension framework.
      *
      * @param factory the factory to register
-     * @return This instance
+     * @return a copy of this configuration with the factory registered
      */
     public Extensions register(ExtensionFactory factory) {
-        extensionFactories.add(0, new ExtensionFactoryDelegate(factory));
-        return this;
+        return new Extensions(RegistrationLists.prepend(extensionFactories, new ExtensionFactoryDelegate(factory)),
+                extensionHandlerFactories, extensionHandlerCustomizers, configCustomizerFactories, allowProxy, failFast);
     }
 
     /**
      * Registers a global {@link ExtensionHandlerFactory} instance. This factory is registered globally and will be used
      * with all registered {@link ExtensionFactory} instances.
      * @param extensionHandlerFactory The {@link ExtensionHandlerFactory} to register
-     * @return This instance
+     * @return a copy of this configuration with the handler factory registered
      *
      * @since 3.38.0
      */
@@ -111,28 +111,29 @@ public class Extensions implements JdbiConfig<Extensions> {
      * Registers a global {@link ExtensionHandlerCustomizer} instance. This customizer is registered globally and will be used
      * with all registered {@link ExtensionFactory} instances.
      * @param extensionHandlerCustomizer The {@link ExtensionHandlerCustomizer} to register
-     * @return This instance
+     * @return a copy of this configuration with the handler customizer registered
      *
      * @since 3.38.0
      */
     @Alpha
     public Extensions registerHandlerCustomizer(ExtensionHandlerCustomizer extensionHandlerCustomizer) {
-        extensionHandlerCustomizers.add(0, extensionHandlerCustomizer);
-        return this;
+        return new Extensions(extensionFactories, extensionHandlerFactories,
+                RegistrationLists.prepend(extensionHandlerCustomizers, extensionHandlerCustomizer),
+                configCustomizerFactories, allowProxy, failFast);
     }
 
     /**
      * Registers a global {@link ConfigCustomizerFactory} instance. This factory is registered globally and will be used
      * with all registered {@link ExtensionFactory} instances.
      * @param configCustomizerFactory The {@link ConfigCustomizerFactory} to register
-     * @return This instance
+     * @return a copy of this configuration with the config customizer factory registered
      *
      * @since 3.38.0
      */
     @Alpha
     public Extensions registerConfigCustomizerFactory(ConfigCustomizerFactory configCustomizerFactory) {
-        configCustomizerFactories.add(0, configCustomizerFactory);
-        return this;
+        return new Extensions(extensionFactories, extensionHandlerFactories, extensionHandlerCustomizers,
+                RegistrationLists.prepend(configCustomizerFactories, configCustomizerFactory), allowProxy, failFast);
     }
 
     /**
@@ -190,8 +191,9 @@ public class Extensions implements JdbiConfig<Extensions> {
     }
 
     private Extensions internalRegisterHandlerFactory(ExtensionHandlerFactory extensionHandlerFactory) {
-        extensionHandlerFactories.add(0, extensionHandlerFactory);
-        return this;
+        return new Extensions(extensionFactories,
+                RegistrationLists.prepend(extensionHandlerFactories, extensionHandlerFactory),
+                extensionHandlerCustomizers, configCustomizerFactories, allowProxy, failFast);
     }
 
     /**
@@ -225,15 +227,16 @@ public class Extensions implements JdbiConfig<Extensions> {
     }
 
     /**
-     * Allow using {@link java.lang.reflect.Proxy} to implement extensions.
+     * Returns a copy of this configuration that allows or disallows using {@link java.lang.reflect.Proxy} to
+     * implement extensions.
      *
      * @param allowProxy whether to allow use of Proxy types
-     * @return this
+     * @return the derived configuration
      */
     @Beta
-    public Extensions setAllowProxy(boolean allowProxy) {
-        this.allowProxy = allowProxy;
-        return this;
+    public Extensions allowProxy(boolean allowProxy) {
+        return new Extensions(extensionFactories, extensionHandlerFactories, extensionHandlerCustomizers,
+                configCustomizerFactories, allowProxy, failFast);
     }
 
     /**
@@ -250,14 +253,13 @@ public class Extensions implements JdbiConfig<Extensions> {
      * Fail fast if any method in an Extension object is misconfigured and can not be warmed. Default is to
      * fail when a method is used for the first time.
      *
-     * @return this
+     * @return a copy of this configuration that fails fast
      * @since 3.39.0
      */
     @Alpha
     public Extensions failFast() {
-        this.failFast = true;
-
-        return this;
+        return new Extensions(extensionFactories, extensionHandlerFactories, extensionHandlerCustomizers,
+                configCustomizerFactories, allowProxy, true);
     }
 
     /**
@@ -274,7 +276,8 @@ public class Extensions implements JdbiConfig<Extensions> {
 
     @Override
     public Extensions createCopy() {
-        return new Extensions(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 
     /**

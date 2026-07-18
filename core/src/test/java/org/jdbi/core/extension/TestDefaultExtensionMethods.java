@@ -35,7 +35,7 @@ public class TestDefaultExtensionMethods {
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.getConfig(Extensions.class).register(new ExtensionFrameworkTestFactory());
+        handle.configure(Extensions.class, c -> c.register(new ExtensionFrameworkTestFactory()));
     }
 
     @Test
