@@ -14,7 +14,9 @@
 package org.jdbi.core.config;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 
@@ -39,6 +41,8 @@ import org.jdbi.core.mapper.QualifiedColumnMapperFactory;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
 import org.jdbi.core.mapper.RowMappers;
+import org.jdbi.core.mapper.immutables.internal.ImmutablesFactory;
+import org.jdbi.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.statement.SqlLogger;
 import org.jdbi.core.statement.SqlParser;
@@ -54,7 +58,6 @@ import org.jdbi.meta.Beta;
  *
  * @param <This> The subtype that implements this interface.
  */
-@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface Configurable<This> {
 
     /**
@@ -385,6 +388,122 @@ public interface Configurable<This> {
     default This registerCodecFactory(final CodecFactory codecFactory) {
         registerColumnMapper(codecFactory);
         return registerArgument(codecFactory);
+    }
+
+    /**
+     * Register bean arguments and row mapping for an <a href="https://immutables.github.io">Immutables</a>
+     * {@code Immutable*} value class, expecting the default generated class and builder names.
+     *
+     * @param spec the specification interface or abstract class
+     * @param <S>  the specification class
+     * @return this
+     */
+    @Beta
+    default <S> This registerImmutable(final Class<S> spec) {
+        return registerPojoFactory(ImmutablesFactory.immutable(spec));
+    }
+
+    /**
+     * Convenience method for registering many immutable types.
+     *
+     * @param specs the specification interfaces or abstract classes
+     * @return this
+     * @see #registerImmutable(Class)
+     */
+    @Beta
+    default This registerImmutable(final Class<?>... specs) {
+        return registerImmutable(Arrays.asList(specs));
+    }
+
+    /**
+     * Convenience method for registering many immutable types.
+     *
+     * @param specs the specification interfaces or abstract classes
+     * @return this
+     * @see #registerImmutable(Class)
+     */
+    @Beta
+    @SuppressWarnings("unchecked")
+    default This registerImmutable(final Iterable<Class<?>> specs) {
+        specs.forEach(this::registerImmutable);
+        return (This) this;
+    }
+
+    /**
+     * Register bean arguments and row mapping for an {@code Immutable*} value class, using a supplied
+     * implementation and builder.
+     *
+     * @param spec    the specification interface or abstract class
+     * @param impl    the generated implementation class
+     * @param builder a supplier of new Builder instances
+     * @param <S>     the specification class
+     * @param <I>     the implementation class
+     * @return this
+     */
+    @Beta
+    default <S, I extends S> This registerImmutable(final Class<S> spec, final Class<I> impl, final Supplier<?> builder) {
+        return registerPojoFactory(ImmutablesFactory.immutable(spec, impl, builder));
+    }
+
+    /**
+     * Register bean arguments and row mapping for a {@code Modifiable*} value class, expecting the default
+     * generated class and public nullary constructor.
+     *
+     * @param spec the specification interface or abstract class
+     * @param <S>  the specification class
+     * @return this
+     */
+    @Beta
+    default <S> This registerModifiable(final Class<S> spec) {
+        return registerPojoFactory(ImmutablesFactory.modifiable(spec));
+    }
+
+    /**
+     * Convenience method for registering many modifiable types.
+     *
+     * @param specs the specification interfaces or abstract classes
+     * @return this
+     * @see #registerModifiable(Class)
+     */
+    @Beta
+    default This registerModifiable(final Class<?>... specs) {
+        return registerModifiable(Arrays.asList(specs));
+    }
+
+    /**
+     * Convenience method for registering many modifiable types.
+     *
+     * @param specs the specification interfaces or abstract classes
+     * @return this
+     * @see #registerModifiable(Class)
+     */
+    @Beta
+    @SuppressWarnings("unchecked")
+    default This registerModifiable(final Iterable<Class<?>> specs) {
+        specs.forEach(this::registerModifiable);
+        return (This) this;
+    }
+
+    /**
+     * Register bean arguments and row mapping for a {@code Modifiable*} value class, using a supplied
+     * implementation and constructor.
+     *
+     * @param spec        the specification interface or abstract class
+     * @param impl        the modifiable class
+     * @param constructor a supplier of new Modifiable instances
+     * @param <S>         the specification class
+     * @param <M>         the modifiable class
+     * @return this
+     */
+    @Beta
+    default <S, M extends S> This registerModifiable(final Class<S> spec, final Class<M> impl, final Supplier<?> constructor) {
+        return registerPojoFactory(ImmutablesFactory.modifiable(spec, impl, constructor));
+    }
+
+    private This registerPojoFactory(final ImmutablesFactory.Registration registration) {
+        return configure(PojoTypes.class, c -> c
+                .register(registration.spec(), registration.factory())
+                .register(registration.impl(), registration.factory()));
     }
 
     /**

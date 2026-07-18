@@ -23,9 +23,10 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.immutables.value.Value;
 import org.jdbi.core.Handle;
+import org.jdbi.core.Jdbi;
 import org.jdbi.core.generic.GenericType;
-import org.jdbi.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.core.qualifier.QualifiedType;
+import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.json.AbstractJsonMapperTest;
 import org.jdbi.json.Json;
 import org.jdbi.postgres.PostgresPlugin;
@@ -53,7 +54,12 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
     @RegisterExtension
     JdbiExtension pgExtension = JdbiExtension.postgres(pg)
         .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new Jackson3Plugin())
-        .withConfig(JdbiImmutables.class, i -> i.registerImmutable(JsonContainer.class));
+        .withPlugin(new JdbiPlugin() {
+            @Override
+            public void customizeJdbi(Jdbi jdbi) {
+                jdbi.registerImmutable(JsonContainer.class);
+            }
+        });
 
     private Handle h;
 

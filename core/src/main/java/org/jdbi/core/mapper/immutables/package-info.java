@@ -16,8 +16,9 @@
  * Support for mapping to and from
  * <a href="https://immutables.github.io">Immutables</a> generated value
  * types. Register value types through the
- * {@link org.jdbi.core.mapper.immutables.JdbiImmutables} configuration
- * class.
+ * {@link org.jdbi.core.config.Configurable#registerImmutable(Class)} and
+ * {@link org.jdbi.core.config.Configurable#registerModifiable(Class)}
+ * convenience methods.
  * </p>
  */
 package org.jdbi.core.mapper.immutables;

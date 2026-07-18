@@ -20,7 +20,6 @@ import org.immutables.value.Value;
 import org.jdbi.core.Handle;
 import org.jdbi.core.annotation.JdbiProperty;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
-import org.jdbi.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.core.mapper.reflect.BeanMapper;
 import org.jdbi.core.mapper.reflect.FieldMapper;
 import org.jdbi.core.statement.StatementContext;
@@ -160,7 +159,7 @@ public class JdbiPropertyTest {
 
     @Test
     public void immutablesBindDefineIgnore() {
-        handle.getConfig(JdbiImmutables.class).registerImmutable(TestImmutables.class);
+        handle.registerImmutable(TestImmutables.class);
         assertThat(handle.select("select :id")
                 .bindPojo(ImmutableTestImmutables.builder().build())
                 .defineNamedBindings()

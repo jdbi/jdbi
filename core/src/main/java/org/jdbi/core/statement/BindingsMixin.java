@@ -47,9 +47,9 @@ import org.jdbi.core.argument.ObjectMethodArguments;
 import org.jdbi.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.core.argument.internal.PojoPropertyArguments;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.Configurable;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.IterableLike;
-import org.jdbi.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.core.qualifier.NVarchar;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.meta.Beta;
@@ -139,7 +139,7 @@ public interface BindingsMixin<This> extends Definable<This> {
      * @param pojo source of named parameter values to use as arguments
      *
      * @return modified statement
-     * @see JdbiImmutables an example method of registering a type
+     * @see Configurable#registerImmutable(Class) an example method of registering a type
      */
     @Beta
     default This bindPojo(final Object pojo) {
@@ -155,7 +155,7 @@ public interface BindingsMixin<This> extends Definable<This> {
      * @param pojo source of named parameter values to use as arguments
      *
      * @return modified statement
-     * @see JdbiImmutables an example method of registering a type
+     * @see Configurable#registerImmutable(Class) an example method of registering a type
      */
     @Beta
     default This bindPojo(final String prefix, final Object pojo) {
@@ -171,7 +171,7 @@ public interface BindingsMixin<This> extends Definable<This> {
      * @param type the static, possibly generic type of the pojo
      *
      * @return modified statement
-     * @see JdbiImmutables an example method of registering a type
+     * @see Configurable#registerImmutable(Class) an example method of registering a type
      */
     @Beta
     default This bindPojo(final Object pojo, final Type type) {
@@ -188,7 +188,7 @@ public interface BindingsMixin<This> extends Definable<This> {
      * @param type the static, possibly generic type of the pojo
      *
      * @return modified statement
-     * @see JdbiImmutables an example method of registering a type
+     * @see Configurable#registerImmutable(Class) an example method of registering a type
      */
     @Beta
     default This bindPojo(final String prefix, final Object pojo, final Type type) {
@@ -212,7 +212,7 @@ public interface BindingsMixin<This> extends Definable<This> {
      * @param type the static generic type of the pojo
      *
      * @return modified statement
-     * @see JdbiImmutables an example method of registering a type
+     * @see Configurable#registerImmutable(Class) an example method of registering a type
      */
     @Beta
     default This bindPojo(final Object pojo, final GenericType<?> type) {
@@ -229,7 +229,7 @@ public interface BindingsMixin<This> extends Definable<This> {
      * @param type the static generic type of the pojo
      *
      * @return modified statement
-     * @see JdbiImmutables an example method of registering a type
+     * @see Configurable#registerImmutable(Class) an example method of registering a type
      */
     @Beta
     default This bindPojo(final String prefix, final Object pojo, final GenericType<?> type) {
