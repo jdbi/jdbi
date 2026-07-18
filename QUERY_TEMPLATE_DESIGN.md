@@ -159,9 +159,12 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 > sharing for the fluent path. **R7 quantified it** (new `HandlePerOpV3Benchmark`, handle-per-op): SQL Object attach
 > **134.6 → 45.6 KB/op (−66%, 2.95×), 1.3× thrpt**; `withHandle` matches `open` (proving the flag fix); fluent −10%;
 > no regression on warm-handle paths (classic 4208 / template 3512 unchanged). See the R3 + R7 bullets.
-> **NEXT: R4** — remove handle-level mutable config (migrate ~120 `handle.registerX`/`configure` sites to
-> `jdbi.open(scope)` or per-statement; `Handle` drops `Configurable`'s mutators). Then R5 (final read/mutate split),
-> R6 (upgrade docs). **R2 made `Jdbi` read-only**
+> **NEXT: R4** — remove handle-level mutable config: `Handle` drops `Configurable`'s mutators → `implements
+> ConfigReader`. SCOPED (maintainer-confirmed): main source is 2 edits, the only real break is
+> `PostgresPlugin.customizeHandle`, solved the immutability-consistent way via a new construction-time
+> `JdbiPlugin.customizeHandleConfig(Connection, ConfigRegistry)` SPI (OPTION 2, NOT an escape hatch). Test migration
+> is ~400–430 sites / ~70 files (core 200/37 exact) → `ext.withConfig(...)` / scoped `open(scope)`, run as a
+> workflow fan-out with a hard serialization point at core-test. Then R5 (final read/mutate split), R6 (upgrade docs). **R2 made `Jdbi` read-only**
 > (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
 > sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
 > `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
@@ -275,39 +278,68 @@ prize early, then finish the handle-config removal:
     unaffected (single handle → no per-handle re-warming). The ~89 KB/op the cold attach saves is exactly the
     ExtensionMetadata resolution that a fresh handle no longer repeats.
 - **R4 — remove handle-level mutable config.** `Handle` drops `Configurable`'s mutators → `implements ConfigReader`
-  (read-only, like `Jdbi` after R2). **SCOPED 2026-07-18 (compiler-driven, isolated worktree): the real number is
-  ~400–430 breaking test call-sites across ~70 files, NOT ~120.** Main source is trivial — exactly **2 edits**:
-  (1) `Handle` declaration `Configurable<Handle>` → `ConfigReader` (no self-mutation, no overrides, nothing depends
-  on `Handle` being `Configurable<?>`); (2) `PostgresPlugin.customizeHandle` (`postgres/.../PostgresPlugin.java:177`)
-  legitimately configures `PostgresTypes` per-connection → rewrite via the escape hatch
-  `handle.getConfig().configure(PostgresTypes.class, pt -> pt.addTypesToConnection(...).lobApi(...))`. With those two,
-  the whole reactor's `src/main` compiles. **Test-site breakdown:** core 200/37 files (exact); then (grep ≈0.5× under-
-  count) kotlin ~65, kotlin-sqlobject ~41, sqlobject ~34, docs ~24 (adoc snippets), vavr ~21, stringtemplate4 ~8,
-  plus 1–4 each across json/jackson2/jackson3/gson2/moshi/guava/freemarker/generator/opentelemetry/testcontainers/
-  postgres/noparameters/e2e. **Migration targets (maintainer-DECIDED 2026-07-18): the R2 pattern** — ~75% are
-  `ext.getSharedHandle()` then `handle.registerX/configure` → move to the extension field `ext.withConfig(b ->
-  b.registerX(m))`; `useHandle(h -> { h.configure(...); ... })`/`withHandle` → scoped `useHandle(scope, cb)` /
-  `open(scope)` (D6); the escape hatch `handle.getConfig().configure(...)` ONLY for the special tail (conflicting
-  per-method config, spies, mid-use mutation). **`docs` adoc snippets** are user-facing → migrate to the NEW
-  recommended API (`open(scope)`/`builder`), doubling as R6 doc work. **Ordering constraint (hard):** core-test is a
-  downstream test-jar dependency → core-test must be fully migrated + installed BEFORE any other module's tests
-  compile (serialization point). All-or-nothing: no green intermediate commit until the whole migration lands.
-  **Escape-hatch decision (maintainer 2026-07-18): keep it FOR NOW** (forced — `customizeHandle` needs per-connection
-  config; `ConfigRegistry.configure` stays public), **but see the TRUE-IMMUTABILITY GOAL note below — it is not the
-  end state.**
+  (read-only, like `Jdbi` after R2). **SCOPED 2026-07-18 (compiler-driven, isolated worktree); decisions
+  maintainer-confirmed. NOT yet implemented.**
+  - **API change is trivial:** `Handle implements Closeable, Configurable<Handle>` → `implements Closeable,
+    ConfigReader` (drop `import ...config.Configurable`, add `import org.jdbi.core.statement.ConfigReader`). `Handle`
+    has NO self-mutation, NO `Configurable` overrides, and nothing treats it as `Configurable<?>`; `getConfig()` /
+    `getConfig(Class)` stay (they live on `ConfigReader`).
+  - **MEASURED scope (NOT the stale "~120"): core = 200 sites / 37 files (compiler-exact); full reactor ≈ 400–430
+    sites / ~70 files.** grep UNDER-counts badly (core 107 grep vs 200 real, ≈1.87×). Per-module ≈: kotlin ~65,
+    kotlin-sqlobject ~41, sqlobject ~34, docs ~24 (adoc), vavr ~21, stringtemplate4 ~8, 1–4 each across
+    json/jackson2/jackson3/gson2/moshi/guava/freemarker/generator/opentelemetry/testcontainers/postgres/
+    noparameters/e2e.
+  - **ONLY ONE main-source break: `PostgresPlugin.customizeHandle` (`postgres/.../PostgresPlugin.java:177`).** It
+    legitimately needs per-connection config: PG types applied to the connection + a `PgLobApiImpl(conn)` LOB API
+    that statements later read from config, both only knowable post-connect. With `Handle` no longer `Configurable`,
+    the `handle.configure(...)` sugar it uses stops compiling.
+  - **customizeHandle SPI rework — DECISION: OPTION 2 (immutability-consistent, NOT an escape hatch), maintainer-chosen.**
+    The per-connection config must be applied DURING handle construction (the mutable-assembly window, like the D6
+    `configScope`), never post-construction on a read-only handle. Add a `JdbiPlugin` SPI
+    `default void customizeHandleConfig(Connection connection, ConfigRegistry config) throws SQLException {}` (name
+    TBD; consider instead a scope-returning `Consumer<ConfigRegistry> handleConfigScope(Connection)` so the plugin
+    never holds the registry). Apply it in the `Handle` ctor AFTER the user `configScope` and BEFORE the extension
+    context is derived (the ctor has `connection` and can reach `jdbi.getPlugins()`, same package). `Jdbi.open:415`
+    `customizeHandle(Handle)` STAYS for non-config customization. **PostgresPlugin:** move `configure(PostgresTypes,
+    …)` into the new hook; `VectorEnabler.enable(conn)` (a connection side-effect, not config) → `customizeConnection`
+    or keep in `customizeHandle`. **FIRST survey ALL `customizeHandle` impls (main + downstream) for direct
+    `handle.getConfig().configure(...)`** — the compiler only flags the `Configurable`-sugar call in PostgresPlugin;
+    direct-registry mutations won't have broken the build, so grep for them and move them too. Result: the Postgres
+    handle forks its COW child once at construction (correct — genuine per-connection config); every other handle
+    stays un-forked, preserving the R3 warm-cache payoff.
+  - **Test/doc migration (all → build-time config; NO escape hatch in user/test code):** dominant ~75% are
+    `ext.getSharedHandle()` then `handle.registerX/configure(...)` → `ext.withConfig(b -> b.registerX(m))` (the R2
+    convenience; class-scoped is fine for the static-fixture majority); `useHandle(h -> { h.configure(...); ... })` /
+    `withHandle` → scoped `useHandle(Consumer<ConfigRegistry>, cb)` / `withHandle(scope, cb)` (D6);
+    `openHandle()` + configure → `ext.getJdbi().open(scope)`. **Special tail:** `docs` (~24 sites, 4 adoc) are
+    user-facing snippets that must compile → migrate to the NEW recommended API (doubles as R6 doc work), don't
+    mechanically `withConfig`; kotlin / kotlin-sqlobject (~100 sites, `.kt` — a Java grep misses them, sweep `*.kt`
+    separately); methods with CONFLICTING per-method config → `open(scope)` per method, not class-scoped `withConfig`.
+  - **Workflow decomposition (hard serialization point at core-test):**
+    - **Phase 0 (inline):** the 2 main-source edits + the `customizeHandleConfig` SPI + the PostgresPlugin rework;
+      `mvn install -pl core,postgres -DskipTests` to confirm `src/main` compiles.
+    - **Phase 1 (fan-out):** core test = 37 files as ~5–6 per-package items (`argument/`, `mapper/`, `collector/`,
+      `extension/`, `statement/`, root). **BARRIER**, then install the core test-jar (downstream tests depend on it).
+    - **Phase 2 (fan-out):** 1 item per downstream module (~18); verify each with `mvn -pl <m> -am install` (MUST
+      `-am` or it links a stale core; MUST be `verify`/`install`, NOT `test-compile`, or checkstyle is skipped — both
+      R2 gotchas).
+    - **Phase 3 (inline):** full-reactor `mvn clean install` WITH checks, fix stragglers, commit R4.
+  - **All-or-nothing:** no green intermediate commit until the whole migration lands (core-test being a downstream
+    test-jar dependency forces the serialization). See the TRUE-IMMUTABILITY note below — R4 as scoped already
+    delivers problem (1)'s structural fix (the SPI, not an escape hatch); problem (2) is R5.
 
-  > **HANDOFF — TRUE IMMUTABILITY IS THE GOAL (maintainer 2026-07-18).** R4 removes the handle-mutation *sugar* but
-  > keeps the *capability* via `handle.getConfig().configure(...)` as an interim measure. The intended end state is
-  > that a handle's config is **truly immutable** post-open. Two structural problems to solve before that is real,
-  > and neither should be lost: **(1) PostgresPlugin `customizeHandle`** binds `PostgresTypes` to the live JDBC
-  > connection at handle creation — find a structure that expresses "per-connection config computed at open" WITHOUT
-  > post-open registry mutation (e.g. fold it into the handle's open-time config-scope derivation, or a connection-
-  > keyed config value resolved lazily). **(2) The config interface must not expose mutating methods that silently
-  > don't work** — today a read-only surface still hands back a `ConfigRegistry` with a live `configure()`, and
-  > immutable config values expose withers (`c.attachAllStatementsForCleanup(true)`) whose return value is easy to
-  > discard as a no-op (the recurring discard-mutation foot-gun). The read/mutate split (R5) should make the
-  > read-only contexts expose only read methods, so a mutating call that can't take effect doesn't compile. Capture
-  > the right shape for both when R5 is designed.
+  > **HANDOFF — TRUE IMMUTABILITY IS THE GOAL (maintainer 2026-07-18).** The end state is a handle whose config is
+  > **truly immutable** post-open — no post-construction registry mutation anywhere in idiomatic code. Two structural
+  > problems; R4 as scoped above resolves the first, R5 owns the second:
+  > **(1) PostgresPlugin `customizeHandle`** binds `PostgresTypes` to the live JDBC connection at handle creation.
+  > SOLVED by R4's OPTION 2: the new `customizeHandleConfig(Connection, ConfigRegistry)` SPI expresses "per-connection
+  > config computed at open" INSIDE the construction-time assembly window, with no post-open mutation. Do NOT regress
+  > this into a post-open `handle.getConfig().configure(...)` escape hatch.
+  > **(2) The config interface must not expose mutating methods that silently don't work** — today a read-only
+  > surface still hands back a `ConfigRegistry` with a live `configure()`, and immutable config values expose withers
+  > (`c.attachAllStatementsForCleanup(true)`) whose return value is easy to discard as a no-op (the recurring
+  > discard-mutation foot-gun). The read/mutate split (R5) should make read-only contexts expose only read methods,
+  > so a mutating call that can't take effect doesn't compile. Capture the right shape when R5 is designed.
 - **R5 — final `Configurable` read/mutate split cleanup + benchmark/verify.** Mutation survives only on the builder
   (assembly) and statements/templates (per-execution COW); `Jdbi`/`Handle` are read-only.
 - **R6 — "Upgrading to jdbi v4" docs section** (maintainer ask 2026-07-18). A user-facing migration guide capturing
