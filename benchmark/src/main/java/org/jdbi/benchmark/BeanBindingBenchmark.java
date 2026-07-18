@@ -79,7 +79,8 @@ public class BeanBindingBenchmark {
     public void setup() throws Throwable {
 
         db = BenchmarkSupport.h2()
-                .installPlugin(new SqlObjectPlugin());
+                .installPlugin(new SqlObjectPlugin())
+                .build();
         dao = db.open()
                 .attach(Dao.class);
         dao.create();

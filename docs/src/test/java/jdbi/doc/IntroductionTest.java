@@ -95,8 +95,9 @@ public class IntroductionTest {
     @Test
     public void sqlObject() {
         // tag::sqlobject-usage[]
-        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test");
-        jdbi.installPlugin(new SqlObjectPlugin());
+        Jdbi jdbi = Jdbi.builder("jdbc:h2:mem:test")
+                .installPlugin(new SqlObjectPlugin())
+                .build();
 
         // Jdbi implements your interface based on annotations
         List<User> userNames = jdbi.withExtension(UserDao.class, dao -> {

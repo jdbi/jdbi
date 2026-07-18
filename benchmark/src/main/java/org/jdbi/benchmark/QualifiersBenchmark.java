@@ -49,12 +49,13 @@ public class QualifiersBenchmark {
 
     @Setup
     public void setup() throws Throwable {
-        jdbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID());
-        jdbi.registerRowMapper(BeanMapper.factory(UnqualifiedBean.class));
-        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean1.class));
-        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean2.class));
-        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean3.class));
-        jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean4.class));
+        jdbi = Jdbi.builder("jdbc:h2:mem:" + UUID.randomUUID())
+                .registerRowMapper(BeanMapper.factory(UnqualifiedBean.class))
+                .registerRowMapper(BeanMapper.factory(QualifiedBean1.class))
+                .registerRowMapper(BeanMapper.factory(QualifiedBean2.class))
+                .registerRowMapper(BeanMapper.factory(QualifiedBean3.class))
+                .registerRowMapper(BeanMapper.factory(QualifiedBean4.class))
+                .build();
         qualifiers = new Qualifiers(new ConfigRegistry());
     }
 

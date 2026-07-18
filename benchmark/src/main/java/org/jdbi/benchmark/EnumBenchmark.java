@@ -43,7 +43,7 @@ public class EnumBenchmark {
 
     @Setup
     public void setup() throws Throwable {
-        jdbi = BenchmarkSupport.h2();
+        jdbi = BenchmarkSupport.h2().build();
         jdbi.useHandle(h -> {
             h.execute("create table sensitive (value varchar)");
             h.execute("create table insensitive (value varchar)");
