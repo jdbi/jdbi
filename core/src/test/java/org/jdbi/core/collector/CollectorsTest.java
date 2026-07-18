@@ -158,8 +158,8 @@ public class CollectorsTest {
         queryString(r -> assertThat(r.collectIntoList()).isNotInstanceOf(LinkedList.class));
 
         // register list type
-        handle.getConfig(JdbiCollectors.class)
-                .registerCollector(List.class, Collectors.toCollection(LinkedList::new));
+        handle.configure(JdbiCollectors.class, c ->
+                c.registerCollector(List.class, Collectors.toCollection(LinkedList::new)));
 
         try (Query query = baseQuery()) {
             assertThat(query

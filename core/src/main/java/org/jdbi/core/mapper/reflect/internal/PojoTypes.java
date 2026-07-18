@@ -13,29 +13,32 @@
  */
 package org.jdbi.core.mapper.reflect.internal;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jdbi.core.config.JdbiConfig;
-import org.jdbi.core.internal.CopyOnWriteHashMap;
 
 /**
  * Registry of {@link PojoPropertiesFactory} instances. Holds only registration data; resolving a type into
  * its {@link PojoProperties} is done per configuration registry by {@link PojoResolver}.
+ * <p>
+ * This configuration is immutable: {@link #register} returns a new instance, leaving the receiver unchanged.
  */
-public class PojoTypes implements JdbiConfig<PojoTypes> {
+public final class PojoTypes implements JdbiConfig<PojoTypes> {
     private final Map<Class<?>, PojoPropertiesFactory> factories;
 
     public PojoTypes() {
-        factories = new CopyOnWriteHashMap<>();
+        this(Map.of());
     }
 
-    private PojoTypes(PojoTypes other) {
-        factories = new CopyOnWriteHashMap<>(other.factories);
+    private PojoTypes(final Map<Class<?>, PojoPropertiesFactory> factories) {
+        this.factories = factories;
     }
 
-    public PojoTypes register(Class<?> key, PojoPropertiesFactory factory) {
-        factories.put(key, factory);
-        return this;
+    public PojoTypes register(final Class<?> key, final PojoPropertiesFactory factory) {
+        final Map<Class<?>, PojoPropertiesFactory> updated = new HashMap<>(factories);
+        updated.put(key, factory);
+        return new PojoTypes(Map.copyOf(updated));
     }
 
     /**
@@ -49,6 +52,7 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
 
     @Override
     public PojoTypes createCopy() {
-        return new PojoTypes(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }
