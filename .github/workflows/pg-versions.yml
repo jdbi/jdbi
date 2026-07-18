@@ -15,6 +15,12 @@ concurrency:
   group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# The test reporter publishes a check run. A pull_request build from a fork gets a
+# read-only token regardless, and falls back to annotations there.
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -56,6 +62,11 @@ jobs:
         run: |
           ./mvnw --version
           make run-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (postgres ${{ matrix.postgres-version }})'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
