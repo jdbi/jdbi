@@ -443,9 +443,11 @@ config/Handle decoupling; the **public API is signed off** and recorded in "## C
 for sign-off" below (D1–D7 with a sign-off checklist). **What is done and exactly what remains is in that
 section's "### Progress" and "### Remaining sub-step-3 work (START HERE on a clean restart)" — read those two
 first.** Short version of where we are: `configure` is now `UnaryOperator`-based; `Enums`, five scalar-policy
-configs, and `Arguments` (now fully immutable, with a bulk `register(Collection)`) are done; dead
-`prePreparedTypes` deleted. Remaining: the Q1 interceptor trio, shared `MapEntryConfig`, the big
-`SqlStatements`/`Extensions`, then D7 → sub-step 5 (the perf payoff) → D4/D5/D6 (builder/plugin/open surface).
+configs, `Arguments` (with a bulk `register(Collection)`), and the Q1 interceptor trio
+(`RowMappers`/`ColumnMappers`/`SqlArrayTypes`, now with `withInferenceInterceptor` + a shared
+`RegistrationLists` helper) are done immutable; dead `prePreparedTypes` deleted. Remaining: shared
+`MapEntryConfig`, the big `SqlStatements`/`Extensions`, then D7 → sub-step 5 (the perf payoff) → D4/D5/D6
+(builder/plugin/open surface).
 All commits are whole-reactor green with static analysis ENABLED — do not fall back to
 `-Dbasepom.check.skip-all` as the validation of record.
 
@@ -679,16 +681,30 @@ largest public surface and depend on the value/registry immutability being in pl
   Added unit tests (immutability, empty short-circuit, last-wins). **Pattern for the remaining list-based
   configs:** give each a bulk/plural wither for the same O(N²)→O(N) reason (Q1 trio `register` lists,
   `SqlStatements` customizers/attributes, `Extensions` registration lists).
+- **Item 2 DONE (`4c1c1c5ba`): Q1 interceptor trio immutable.** `RowMappers`, `ColumnMappers`,
+  `SqlArrayTypes` are now immutable (final fields, `register`/policy withers return new, `createCopy` returns
+  `this`). The mutable public `getInferenceInterceptors()` is **removed**; replaced by
+  `withInferenceInterceptor(JdbiInterceptor)` — a copy-on-wither that forks a new `JdbiInterceptionChainHolder`
+  (kept as a mutable utility, but never exposed for mutation) with the interceptor added first. `KotlinPlugin`
+  now uses it. `ColumnMappers.coalesceNullPrimitivesToDefaults(boolean)` and
+  `SqlArrayTypes.argumentStrategy(SqlArrayArgumentStrategy)` are prefix-free policy withers.
+  **Shared helper `RegistrationLists`** (`org.jdbi.core.internal`) extracts the prepend-and-freeze logic used
+  by every immutable config's `register` (single + bulk); `Arguments`/`RowMappers`/`ColumnMappers`/`SqlArrayTypes`
+  all route through it. Bulk `register(Collection)` added to `RowMappers`/`ColumnMappers` (factory collections);
+  `SqlArrayTypes` has no bulk caller so no bulk method. Migrated ~15 sqlobject `Register*MapperImpl` configurers
+  (singular → `configure`; factory-collection plural → bulk; the two raw-`RowMapper`/`ColumnMapper` collections
+  → fold, since raw mappers need per-element inference and can't share the `register(Collection)` overload),
+  the two kotlin-sqlobject `RegisterKotlinMapper{,s}Impl`, `PostgresTypes`, docs/core tests, and the stale
+  trio javadoc equivalence notes in `Configurable`. Added `RegistrationListsTest` + `RowMappersTest` /
+  `ColumnMappersTest` / `SqlArrayTypesTest`. **Gotcha found:** Kotlin's `config.get(X::class.java)` mutation
+  sites do not match a Java-syntax `get(X.class)` grep — sweep `*.kt` separately (this bit kotlin-sqlobject).
+  Whole reactor green (`mvn clean verify`, checks + tests, all modules).
 
 ### Remaining sub-step-3 work (START HERE on a clean restart)
 1. ~~**`Arguments` full immutability**~~ **DONE (`2cd165fbb`)** — see the Progress entry above. Also added a
    public bulk `register(Collection)`; apply the same plural-wither pattern to the list-based configs below.
-2. **Q1 interceptor trio** `RowMappers`/`ColumnMappers`/`SqlArrayTypes`: add a `withInferenceInterceptor(...)`
-   wither (copy-on-wither of the `JdbiInterceptionChainHolder`), drop the mutable public `getInferenceInterceptors()`
-   (keep an internal read accessor for `register`'s `process()`); make the rest of each config immutable
-   (`register(...)` returns new, policy withers, `createCopy()` returns `this`). `KotlinPlugin` →
-   `configure(RowMappers.class, c -> c.withInferenceInterceptor(new KotlinRowMapperInterceptor()))`. Keep
-   `JdbiInterceptionChainHolder` as a utility. `MapperResolver`/`ArrayTypeResolver` read `getFactories()` — fine.
+2. ~~**Q1 interceptor trio**~~ **DONE (`4c1c1c5ba`)** — see the Progress entry above. Also introduced the
+   shared `RegistrationLists` helper and bulk `register(Collection)` on `RowMappers`/`ColumnMappers`.
 3. **Shared `MapEntryConfig`** (`MapEntryMappers` in core + `TupleMappers` in vavr): the interface signature
    `This setKeyColumn(String)` already allows returning a new instance, so immutability is per-impl; a prefix-free
    rename (`setKeyColumn`→`keyColumn`, `setValueColumn`→`valueColumn`) touches the interface + both impls +
