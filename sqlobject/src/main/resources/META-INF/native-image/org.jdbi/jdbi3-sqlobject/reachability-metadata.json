@@ -61,6 +61,7 @@
     {"type":"org.jdbi.v3.sqlobject.statement.internal.SqlBatchHandler","methods":[{"name":"<init>","parameterTypes":["java.lang.Class", "java.lang.reflect.Method"]}]},
     {"type":"org.jdbi.v3.sqlobject.statement.internal.SqlCallHandler","methods":[{"name":"<init>","parameterTypes":["java.lang.Class", "java.lang.reflect.Method"]}]},
     {"type":"org.jdbi.v3.sqlobject.statement.internal.SqlObjectStatementConfiguration","methods":[{"name":"<init>"}]},
+    {"type":"org.jdbi.v3.sqlobject.statement.internal.SqlPreflightFactory","methods":[{"name":"<init>"}]},
     {"type":"org.jdbi.v3.sqlobject.statement.internal.SqlQueryHandler","methods":[{"name":"<init>","parameterTypes":["java.lang.Class", "java.lang.reflect.Method"]}]},
     {"type":"org.jdbi.v3.sqlobject.statement.internal.SqlScriptsHandler","methods":[{"name":"<init>","parameterTypes":["java.lang.Class", "java.lang.reflect.Method"]}]},
     {"type":"org.jdbi.v3.sqlobject.statement.internal.SqlUpdateHandler","methods":[{"name":"<init>","parameterTypes":["java.lang.Class", "java.lang.reflect.Method"]}]},
