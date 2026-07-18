@@ -274,10 +274,40 @@ prize early, then finish the handle-config removal:
     (unchanged from the D7 baseline); `H2SqlObjectV3Benchmark.attach` (warm reused handle) 30092 B/op, logically
     unaffected (single handle → no per-handle re-warming). The ~89 KB/op the cold attach saves is exactly the
     ExtensionMetadata resolution that a fresh handle no longer repeats.
-- **R4 — remove handle-level mutable config** (DECIDED 2026-07-18: retire it now — we target the major here, and it
-  goes away sooner or later). Migrate ~120 in-repo `handle.registerX`/`configure` sites to `jdbi.open(scope)` or
-  per-statement config; `Handle` drops `Configurable`'s mutators (read-only via `ConfigReader`). `open(scope)` (D6)
-  is the per-handle config path that now exists. Per-statement `Configurable` (D7) is unchanged.
+- **R4 — remove handle-level mutable config.** `Handle` drops `Configurable`'s mutators → `implements ConfigReader`
+  (read-only, like `Jdbi` after R2). **SCOPED 2026-07-18 (compiler-driven, isolated worktree): the real number is
+  ~400–430 breaking test call-sites across ~70 files, NOT ~120.** Main source is trivial — exactly **2 edits**:
+  (1) `Handle` declaration `Configurable<Handle>` → `ConfigReader` (no self-mutation, no overrides, nothing depends
+  on `Handle` being `Configurable<?>`); (2) `PostgresPlugin.customizeHandle` (`postgres/.../PostgresPlugin.java:177`)
+  legitimately configures `PostgresTypes` per-connection → rewrite via the escape hatch
+  `handle.getConfig().configure(PostgresTypes.class, pt -> pt.addTypesToConnection(...).lobApi(...))`. With those two,
+  the whole reactor's `src/main` compiles. **Test-site breakdown:** core 200/37 files (exact); then (grep ≈0.5× under-
+  count) kotlin ~65, kotlin-sqlobject ~41, sqlobject ~34, docs ~24 (adoc snippets), vavr ~21, stringtemplate4 ~8,
+  plus 1–4 each across json/jackson2/jackson3/gson2/moshi/guava/freemarker/generator/opentelemetry/testcontainers/
+  postgres/noparameters/e2e. **Migration targets (maintainer-DECIDED 2026-07-18): the R2 pattern** — ~75% are
+  `ext.getSharedHandle()` then `handle.registerX/configure` → move to the extension field `ext.withConfig(b ->
+  b.registerX(m))`; `useHandle(h -> { h.configure(...); ... })`/`withHandle` → scoped `useHandle(scope, cb)` /
+  `open(scope)` (D6); the escape hatch `handle.getConfig().configure(...)` ONLY for the special tail (conflicting
+  per-method config, spies, mid-use mutation). **`docs` adoc snippets** are user-facing → migrate to the NEW
+  recommended API (`open(scope)`/`builder`), doubling as R6 doc work. **Ordering constraint (hard):** core-test is a
+  downstream test-jar dependency → core-test must be fully migrated + installed BEFORE any other module's tests
+  compile (serialization point). All-or-nothing: no green intermediate commit until the whole migration lands.
+  **Escape-hatch decision (maintainer 2026-07-18): keep it FOR NOW** (forced — `customizeHandle` needs per-connection
+  config; `ConfigRegistry.configure` stays public), **but see the TRUE-IMMUTABILITY GOAL note below — it is not the
+  end state.**
+
+  > **HANDOFF — TRUE IMMUTABILITY IS THE GOAL (maintainer 2026-07-18).** R4 removes the handle-mutation *sugar* but
+  > keeps the *capability* via `handle.getConfig().configure(...)` as an interim measure. The intended end state is
+  > that a handle's config is **truly immutable** post-open. Two structural problems to solve before that is real,
+  > and neither should be lost: **(1) PostgresPlugin `customizeHandle`** binds `PostgresTypes` to the live JDBC
+  > connection at handle creation — find a structure that expresses "per-connection config computed at open" WITHOUT
+  > post-open registry mutation (e.g. fold it into the handle's open-time config-scope derivation, or a connection-
+  > keyed config value resolved lazily). **(2) The config interface must not expose mutating methods that silently
+  > don't work** — today a read-only surface still hands back a `ConfigRegistry` with a live `configure()`, and
+  > immutable config values expose withers (`c.attachAllStatementsForCleanup(true)`) whose return value is easy to
+  > discard as a no-op (the recurring discard-mutation foot-gun). The read/mutate split (R5) should make the
+  > read-only contexts expose only read methods, so a mutating call that can't take effect doesn't compile. Capture
+  > the right shape for both when R5 is designed.
 - **R5 — final `Configurable` read/mutate split cleanup + benchmark/verify.** Mutation survives only on the builder
   (assembly) and statements/templates (per-execution COW); `Jdbi`/`Handle` are read-only.
 - **R6 — "Upgrading to jdbi v4" docs section** (maintainer ask 2026-07-18). A user-facing migration guide capturing
