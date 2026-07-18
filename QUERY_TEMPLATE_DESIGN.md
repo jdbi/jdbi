@@ -58,10 +58,10 @@ binds + executes per invocation.
   Object are both reimplemented on the template primitive. Nothing is kept as a
   slow deprecated wrapper.
 
-## Field taxonomy (central deliverable — complete in task 2.1)
+## Field taxonomy (reference)
 
 Every field currently in `StatementContext` / `SqlStatements` / config gets a home.
-Inventoried from the actual sources (needs a final review pass, task 2.1):
+Inventoried from the actual sources:
 
 **`SqlStatements` (today a config object, deep-copied per statement):**
 
@@ -97,265 +97,7 @@ customizer additions and `queryTimeout` overrides live on the `QueryTemplateBind
 local `customizers` list), not on the shared config; `attributes` are the per-render defines
 overlay. What phase 2 still owes: making the *config itself* immutable after build (so the
 classic path also skips the copy) and turning an un-marked config-mutating customizer's write
-into a loud error instead of the current silent shared-snapshot mutation (see DECISION at top).
-
-## Phase 2 design options (2026-07-17): immutable config — COMPARE & CHOOSE
-
-Grounded in a survey of the actual sources (three research passes). **Landscape:** 40 `JdbiConfig`
-impls (35 main, 22 in `core`, 18 public API) — ~21 policy (scalar/flag fields + setters), ~10
-registry (append-only `register(...)` collections), **8 that mutate an internal cache on read**
-(`RowMappers`, `ColumnMappers`, `Arguments`, `JdbiCollectors`, `Extensions`, `SqlStatements.templateCache`;
-`ConfigCaches` is already a shared side-cache, orthogonal). Mutation has **two channels**: A —
-`Configurable.configure(Class, callback)` and all convenience methods route through this one seam
-(interceptable); B — `getConfig(X).setY()` on the returned object (uninterceptable). **Production
-Channel-B per-execution mutation is essentially one case** (config-mutating `SqlStatementCustomizer`s,
-already fenced by `ConfigMutating`); the weight of Channel B is **~61 test sites** plus the pervasive,
-first-class handle-level mutation (`handle.registerRowMapper/configure/getConfig(X).setY()`, ~98 repo-wide).
-The per-statement `createCopy()` at `BaseStatement.java:36` is the safety net that makes every in-flight
-mutation correct today; removing it (the perf goal) is exactly what turns Channel-B and the read-caches
-into shared-state hazards.
-
-### Two prerequisites shared by ALL approaches (independent of the immutability mechanism)
-- **P1 — move per-statement state off config onto the statement/binding.** `define` → per-execution
-  overlay; per-execution customizers, `setFetchSize`/`setMaxRows`/timeout → statement-local;
-  per-statement `registerX` → a copy-on-write fork. **Already done for `QueryTemplateBinding`** in the
-  retarget; the classic `Query`/`Update` need the same when reimplemented on the primitive.
-- **P2 — deal with the 8 read-caches.** An immutable config can't self-mutate a lazy cache. Either
-  eager-populate at build, or move each to a `ConfigCaches`-style side cache keyed off the (now stable)
-  config identity. This couples phase 2 with part of phase 4 (cache unwinding). Unavoidable in every option.
-
-### Common substrate (forced by the findings, not a choice)
-Config **values** are immutable; **holders** (`Jdbi`, `Handle`) keep a *swappable reference*.
-`handle.registerRowMapper(x)` installs a *new* immutable registry on the handle, so statements created
-afterward see it and statements/templates already snapshotted keep theirs. This preserves the
-`register/configure` API while letting statements share the handle's snapshot with zero copy. The
-extension framework and `BaseStatement` already copy-then-mutate-their-own-copy, so they survive this;
-only the per-statement copy is deleted. What no immutable model can keep is `handle.getConfig(X).setY()`
-(direct object mutation) — those sites migrate to `configure(...)`.
-
-### Approach A — freeze flag + per-class copy-on-write (smallest delta)
-Keep today's `ConfigRegistry` (Class→object map) and typed config objects. Add a `frozen` bit to each
-`JdbiConfig` (and the registry); snapshot boundaries freeze it; setters/`register` throw when frozen.
-`configure(Class, cb)` on a frozen registry **forks one config class** (copy it, apply, install in a new
-registry; other classes shared by reference). Read API (`getConfig(X).getY()`) unchanged.
-- **Channel B:** trapped at runtime — a setter on a frozen object throws a clear error (kills the footgun
-  loudly). Unfrozen handle/setup config still mutates as today.
-- **Blast radius:** touch all ~40 impls to add freeze-checks (mechanical boilerplate); registry gains fork
-  logic. No read-site changes. Public API mostly intact.
-- **Trade:** least churn and keeps the familiar typed API; but "frozen" is a runtime property, not
-  type-enforced — a forgotten check is a silent bug (the same *class* of discipline problem as the
-  `ConfigMutating` marker). Cache inconsistency (P2) still must be fixed separately.
-
-### Approach B — immutable value objects; `configure()` returns a new registry (functional)
-Every config type becomes an immutable value (final fields, no setters; a wither/builder derives a changed
-copy). `ConfigRegistry` is an immutable value over a persistent map; mutation produces a *new* registry
-(structural sharing → cheap fork). Holders swap references (the common substrate).
-- **Channel B:** eliminated at compile time — no setters exist, `getConfig(X).setY()` won't compile.
-- **Blast radius:** rewrite all ~40 impls to immutable form (withers/builders), change `configure` to
-  return-new, and **migrate every Channel-B site** (61 tests + customizers + downstream). Breaking public
-  API (setters removed). Forces P2 (caches must externalize — values can't self-cache).
-- **Trade:** compiler-enforced immutability, no frozen-bit discipline, footgun impossible by construction,
-  clean end state; but the largest per-type rewrite and it removes the long-familiar mutable-config-object
-  API.
-
-### Approach C — flat typed-key store (the maintainer's idea, refined)
-Replace per-type *fields* with a single immutable `Map<ConfigKey<?>, Object>` on the registry. Each config
-type declares **typed key constants** (`ConfigKey<TemplateEngine> TEMPLATE_ENGINE` — typed, not a raw enum,
-so `get(TEMPLATE_ENGINE)` stays `TemplateEngine`); config types become thin facades over the store or
-disappear. Immutability = one immutable map; fork = one persistent-map update (**cheapest possible**).
-Registry configs = a key holding an immutable `List`, appended via CoW. Read-caches = separate side store.
-- **Channel B:** eliminated by construction — there are no setters; every write is one `put`/one seam.
-- **Blast radius:** **largest** — every config field → a key, and **every read site in the codebase**
-  changes (`config.get(SqlStatements.class).getTemplateEngine()` → `config.get(SqlStatements.TEMPLATE_ENGINE)`);
-  reshapes the `JdbiConfig` SPI (downstream modules/user code that define config types must declare keys).
-- **Trade:** cleanest and cheapest end state, immutability + fork in exactly one place, footgun structurally
-  impossible, `createCopy` trivial; but the biggest one-time migration (mechanical but wide), and it loses
-  the typed config-object grouping unless facades are retained. Registry/cache configs fit a little awkwardly.
-
-### Comparison
-| Dimension | A: freeze + CoW | B: immutable values | C: flat typed-key store |
-| --- | --- | --- | --- |
-| Immutability enforced by | runtime flag (discipline) | compiler (no setters) | compiler (no setters) |
-| Channel B (`setY()`) | trapped at runtime | won't compile | doesn't exist |
-| Fork cost | copy one config class | persistent-map share | persistent-map share (cheapest) |
-| Read-site churn | none | none (read API kept) | **all read sites** |
-| Per-type rewrite | freeze plumbing ×40 | full immutable rewrite ×40 | fields→keys ×40 |
-| Public API break | small | setters removed | config SPI reshaped |
-| Caches (P2) | still ad hoc | forced clean | forced clean |
-| End-state cleanliness | lowest | high | highest |
-| One-time migration cost | lowest | high | highest |
-
-### End-state verdict (2026-07-17): immutable config-CLASS values (B), not the flat key store (C)
-
-Decision: go directly to the end state, and evaluate flat-keys (C) vs. a richer immutable
-config-class interface (B) fairly. On a close look the config-class wins. The reasoning:
-
-**Reframing — immutability, not flatness, delivers the perf goal.** Once config *values* are
-immutable, a registry copy shares every value by reference (the per-statement deep copy disappears),
-statements share the handle snapshot with zero copy, and a fork allocates almost nothing. B and C give
-this *equally*. Forks happen at `configure`/`register` (setup or per-statement registration), never on
-the execution hot path, so C's "cheapest fork" advantage is off the hot path and nearly irrelevant.
-
-With perf neutral, the decision turns on reads, cohesion, and migration:
-
-- **Hot-path reads favor B.** The hot path *reads* config. `config.get(SqlStatements.class)` fetches one
-  object, then many field reads are free; flat-keys is one map lookup *per field* (`get(TEMPLATE_ENGINE)`,
-  `get(PARSER)`, …), and render/execute touch several `SqlStatements` fields together. B amortizes; C
-  multiplies lookups (and casts) exactly where it's hottest.
-- **Cohesion favors B.** Config classes carry *behavior*, not just data: `SqlStatements.preparedRender`,
-  `Mappers/ColumnMappers/RowMappers.findFor`, `Arguments.prepareFor`, `handleException`, `customize`.
-  A key store holds data only; that behavior would relocate to free/static helpers that re-pull keys from
-  the map — scattering logic and losing the object model the codebase is built on.
-- **Migration favors B.** B keeps the read API (`getConfig(X).getY()`) unchanged, so the vast majority of
-  config usage (reads, everywhere) is untouched; the change concentrates in the ~40 config classes
-  (remove setters, add withers/builder) and the write sites (Channel-B `setY()` → `configure`/wither,
-  ~61 mostly-test sites). C additionally rewrites *every read site* and reshapes the SPI — strictly more.
-
-**What C genuinely wins** (and why it doesn't flip the verdict): single-place immutability enforcement
-(one map vs. 40 classes to keep correctly immutable) — but **records/compact builders make each config
-class immutable with compiler enforcement and little boilerplate**, neutralizing most of this; sparse
-footprint (store only non-default keys) — real but modest, and off the hot path; and generic tooling
-(serialize/diff/enumerate all config) — which jdbi does not need.
-
-**Hybrid considered and rejected:** config-class *facades* over a flat backing store gives two models and
-indirection for no net gain — you pay C's storage plus B's interface. Not worth it.
-
-**Chosen end state (B):**
-- Every `JdbiConfig` type is an immutable value (final fields; a `with…`/builder derives a changed copy).
-  Prefer records or a compact builder to keep immutability terse and compiler-enforced. Behavior methods
-  stay on the class.
-- `ConfigRegistry` is an immutable value over a `Map<Class<C>, C>`; because values are immutable it shares
-  them by reference on copy (persistent map for cheap forks). No deep copy anywhere.
-- `Configurable.configure(Class<C>, UnaryOperator<C>)` derives a new config value and returns a *new*
-  registry; the ~30 convenience methods route through it unchanged in spelling.
-- Holders (`Jdbi`, `Handle`) hold a swappable reference; `handle.register…/configure…` swap in the new
-  registry (future statements see it; existing snapshots are frozen). `getConfig(X).setY()` is removed —
-  its ~61 sites migrate to `configure`/withers.
-- Prerequisites P1 (statement-state off config) and P2 (externalize the 8 read-caches to `ConfigCaches`-
-  style side caches, or eager-populate at build) still apply and are sequenced first.
-
-## Phase 2 implementation plan (2026-07-17): immutable config (end state B)
-
-### The decomposition (2026-07-17, refined with the maintainer): data vs. resolution
-The obstacle to immutable, shareable config values is that config objects fuse two roles: immutable
-**data** (registered factories + policy) and **resolution + cache** (`findFor`, factory iteration,
-`init`, memo) that needs the registry via the `setRegistry` back-reference. A back-reference is fatal only
-on a *shared* value; it is safe on a *per-registry* object. So split the roles:
-
-- **Config value** = immutable data (a record: the factory list / policy flags). Implements `JdbiConfig`,
-  shared by reference across forks. No `setRegistry`, no `findFor`, no cache.
-- **Resolver** = a per-registry object (NOT a `JdbiConfig`) that owns resolution logic **and the cache**,
-  holding the registry reference (safe — never shared across forks). Reads its data from
-  `config.get(RowMappers.class).factories()` etc.
-
-**Placement (avoids a god-object `ConfigRegistry`):** the registry gains exactly ONE generic, domain-blind
-seam — `readAs`, a per-registry memoized typed view of the registry (plain memoization; NOT the
-handle-lifecycle sense of "on demand") — and resolvers are first-class per-domain classes obtained
-through it:
-```java
-// ConfigRegistry: the only addition; the view memo starts empty on every fork (not copied)
-public <T> T readAs(Class<T> asType, Function<ConfigRegistry, T> create) {
-    T existing = asType.cast(views.get(asType));      // get/putIfAbsent, not computeIfAbsent (JDK-8062841)
-    if (existing != null) return existing;
-    T created = create.apply(this);
-    T prev = asType.cast(views.putIfAbsent(asType, created));
-    return prev != null ? prev : created;
-}
-// MapperResolver (not a JdbiConfig); subsumes today's `Mappers` row+column facade
-public static MapperResolver forRegistry(ConfigRegistry config) {
-    return config.readAs(MapperResolver.class, MapperResolver::new);
-}
-```
-Call site: `MapperResolver.forRegistry(config).findRowMapper(t)`; `StatementContext`/`Handle` get thin
-delegators for execution-path callers holding a ctx. Resolvers grouped by cohesion (~6: `MapperResolver`
-for row+column, `ArgumentResolver`, `CollectorResolver`, `ArrayTypeResolver`, extension-metadata, pojo);
-`Qualifiers` already resolves via the shared `ConfigCaches` and can stay.
-
-This **folds the old P2 and P3 into one move**: the cache moves onto the per-registry resolver, so a fork
-(fresh empty `services`) rebuilds resolvers lazily against the current data values — registration can't
-serve a stale "not found" — while an unforked registry shared across a handle's statements keeps resolvers
-**warm across executions** (a win beyond removing the per-statement copy). `setRegistry` and the back-ref
-are gone by construction.
-
-### Prerequisites (must land before/with the immutability sweep)
-- **P1 — statement-state off config.** Done for `QueryTemplateBinding`. Classic `Query`/`Update` need it
-  when reimplemented on the primitive; can be sequenced with the remaining phase-5 tail.
-- **P2+P3 — relocate resolution+cache to per-registry resolvers** (the decomposition above). Replaces the
-  earlier "thread the registry param" plan (same ~140 call-site churn, distinctly cleaner end state).
-  ~78 mapper + ~61 argument main call sites move from `config.get(X.class).findFor(t)` to
-  `SomeResolver.forRegistry(config).findFor(t)` (plus delegators). `setRegistry` dropped from `JdbiConfig`.
-
-### Contract change
-`JdbiConfig<This>`: drop `createCopy()` (immutable values are shared by reference; the registry no longer
-deep-copies), `setRegistry(...)` (no back-ref), and any `findFor`/cache (moved to resolvers). It becomes a
-near-empty marker for "an immutable config value."
-
-### Immutability strategy — records + hand-written services (Immutables considered, set aside)
-The maintainer asked to strongly consider the Immutables processor over hand-rolled builders. Evaluated:
-the config types are **tiny** (1–4 fields), so none needs a builder at all; and the behavior/registry
-configs can't be a generated value type regardless. Immutables shines for many-field pure-value types,
-which these are not, and adopting it would mean wiring the annotation processor into core's main compile
-(the dep is `provided`/`optional`, not currently an active processor for main; JDK 23+ ignores
-classpath-only processors). So:
-- **Value/policy configs (~small, no behavior):** Java **records** (native, zero processor wiring,
-  compiler-enforced immutability) with 1-line `with…` methods where a scoped change is needed. Covers
-  `MapEntryMappers`(2), `ReflectionMappers`(4), `ResultProducers`(1), `TimestampedConfig`(1),
-  `StatementExceptions`(2), `Enums`(1), `MapMappers`, `SqlObjects`, and the module configs.
-- **Behavior/registry/caching configs:** hand-written immutable classes — final fields, immutable
-  collections, `register(...)`/mutators return a *new instance*, behavior methods stay on the class,
-  resolution takes the registry as a parameter (P3). Covers `SqlStatements` (render behavior + caches),
-  `Arguments`, `ColumnMappers`, `RowMappers`, `JdbiCollectors`, `Extensions`, `Mappers`, `SqlArrayTypes`,
-  `PojoTypes`.
-- Immutables remains a fallback if we later prefer generated withers; revisit only if a config grows many
-  fields. (Records can't be a fallback for the behavior configs anyway — they need methods + non-canonical
-  state.)
-
-### Registry + configure + holder
-- `ConfigRegistry` becomes immutable over a persistent `Map<Class<C>, C>`; a copy/fork shares values by
-  reference and structurally shares the map (cheap). `get(Class)` unchanged for reads.
-- `Configurable.configure(Class<C>, UnaryOperator<C>)` derives a new config value and returns a *new*
-  registry; the ~30 convenience methods keep their spelling, routed through it. `getConfig(X).setY()` is
-  removed — migrate its ~61 (mostly test) sites to `configure`/withers.
-- Holders (`Jdbi`, `Handle`) hold a swappable `volatile` reference; `handle.register…/configure…` install
-  the new registry. Statements/templates capture the reference at creation (immutable snapshot).
-
-### Suggested landable sub-steps (each self-contained + green)
-1. **[DONE 2026-07-17, `03017fe`]** Add the `ConfigRegistry.readAs(asType, factory)` view seam
-   (per-registry memo, empty on fork). Tiny, additive, independently tested.
-2. **[DONE]** Introduce resolvers, one domain at a time. Move `findFor`+cache off the config
-   value into `SomeResolver.forRegistry(config)`; migrate that domain's call sites; drop that config's
-   `setRegistry`/cache. (This is P2+P3, per-domain.)
-   - **`MapperResolver` DONE** (`6c64997`): row+column+combined resolution off `RowMappers`/`ColumnMappers`
-     (now registration-data only); `Mappers` facade deleted; `ConfigReader` re-pointed; all callers migrated;
-     cache warm per-registry with size-based invalidation (moot once step 3 forks on register).
-   - **`ArgumentResolver` DONE** (`e0bce1d47`): findFor/prepareFor + the preparedFactories cache and the
-     didPrepare guard off `Arguments` (now registration + null/prepared policy only); `ConfigReader.findArgumentFor`
-     re-pointed; core/sqlobject/json/vavr/guava/kotlin callers migrated; size-based cache invalidation as above.
-     Note: unlike `RowMappers`, `Arguments` keeps its registry reference — `register(ArgumentFactory)` snapshots
-     qualifiers via `QualifiedArgumentFactory.adapt` at registration (the mutation boundary), not on the shared
-     resolution path, so the back-ref is not a sharing hazard.
-   - **`CollectorResolver`/`ArrayTypeResolver`/`PojoResolver`/`ExtensionMetadataResolver` DONE** (`f7c9470d6`):
-     off `JdbiCollectors` (findFor/findElementTypeFor + factoryCache), `SqlArrayTypes` (findFor + registry ref;
-     no cache existed), `PojoTypes` (findFor + registry ref), `Extensions` (findMetadata + extensionMetadataCache
-     + registry ref). `Extensions` keeps its pure registration-data lookups (findFor/hasExtensionFor/findFactory).
-     `ConfigReader` re-pointed for collectors + array types; callers across core/sqlobject/guava/docs migrated.
-   - `Qualifiers` already resolves via the shared `ConfigCaches`, so it stays as-is. `RowMappers`/`ColumnMappers`
-     and the other slimmed configs still keep a mutable `register` + `createCopy` — they become records in step 4.
-3. **[REDESIGNED — see "## Config/Handle decoupling" above]** The original plan (make `ConfigRegistry`
-   immutable + `Jdbi`/`Handle` swap a registry reference on `configure`) was rejected: a swappable reference on
-   a long-lived holder is still reconfigurable state. The replacement moves config off the stateful `Handle`
-   entirely (Handle = connection/transaction; config = immutable value built via a `Jdbi` builder and
-   referenced, not mutated). Foundational, no-break work to do first: (a) sub-step 4 (immutable config values);
-   (b) make `ConfigRegistry` immutable with a `with(Class, op)` derivation. The public builder/open-time API
-   and deprecated compat shims are a follow-on that needs maintainer sign-off on shapes.
-4. **Finish converting remaining configs to immutable** (records / hand-written) — the policy configs that
-   weren't touched by a resolver in step 2.
-5. **Delete the per-statement `createCopy()`** at `BaseStatement.java:36` (the payoff); re-benchmark the
-   classic fluent path; extend P1 to classic `Query`/`Update`.
-
-Risk: this is the largest breaking change in the redesign (~40 config types + ~140 resolution call sites +
-~61 write sites). Land it as the sub-steps above, not one commit. **Sub-step 1 (the `readAs` seam) is the
-recommended starting point** — it's a few lines, additive, and unblocks the per-domain resolver work.
+into a loud error instead of the current silent shared-snapshot mutation (see the "Customizer phase model" section).
 
 ## Resolved decisions
 
@@ -370,36 +112,7 @@ recommended starting point** — it's a few lines, additive, and unblocks the pe
   `QueryTemplateBinding` is per-execution and thread-confined. `.with(handle)`
   returns a fresh binding per call.
 
-## Open API-surface decisions
-
-Guiding principle: the public API should be as small as possible and as large as
-needed — one obvious way to do each thing, no leaked internals. Two open questions:
-
-- [x] **Rename `buildQueryTemplate` → `buildQuery`?** RESOLVED (2026-07-17): **kept
-      `buildQueryTemplate`.** The name matches the returned type `QueryTemplate` (reusable,
-      not a one-shot `Query`) and stays distinct from `Handle.createQuery`; least-surprise
-      wins. Revisit only when the classic query paths are retired (the remaining phase-5
-      item) — then the method and type names can be reconsidered together.
-- [x] **Make the `QueryTemplate` constructor non-public.** RESOLVED (2026-07-17): **kept
-      public.** Option (a). The SQL Object retarget builds templates directly from a
-      method-level config snapshot (cross-module), so a public constructor is the simplest
-      seam and mirrors the public `Query(Handle, CharSequence)` constructor. Documented in
-      javadoc as an advanced entry point alongside `Jdbi.buildQueryTemplate`.
-      Original open text follows for context:
-- [ ] **(context) Make the `QueryTemplate` constructor non-public.** Right now it is `public`
-      `QueryTemplate(ConfigRegistry, CharSequence)` so `Jdbi.buildQueryTemplate` (a
-      different package) can call it, and so the SQL Object retarget can build templates
-      from an extension's config later. Neither reason requires it to be *public API* for
-      users — the single intended entry point is `jdbi.buildQueryTemplate(...)`. Constraint:
-      `QueryTemplate` is in `org.jdbi.core.statement`; both callers are cross-package
-      (`org.jdbi.core.Jdbi`; the SQL Object retarget lives in the `sqlobject` module), so a
-      package-private constructor will not compile without a construction seam. Options:
-      (a) keep it public (simplest, matches the public `Query(Handle, CharSequence)`
-      constructor); (b) introduce an internal factory both callers use and hide the
-      constructor. Resolve alongside the SQL Object retarget (step 3), when the second
-      caller's construction path is actually designed.
-
-## DECISION (2026-07-17): customizer phase model — the general fix for config mutation
+## Customizer phase model — the fix for config mutation (IMPLEMENTED; live on the SQL Object path)
 
 The SQL Object retarget is NOT decoupled from the config redesign after all: statement
 customizers can mutate config (e.g. `@AllowUnusedBindings` → `getConfig(SqlStatements).set...`),
@@ -439,15 +152,14 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 ## HANDOFF (2026-07-18): sub-step 4 mostly done (17/19 configs immutable); 2 registration facades + D7 remain
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
-config/Handle decoupling; the **public API is signed off** and recorded in "## Config assembly API — PROPOSAL
-for sign-off" below (D1–D7 with a sign-off checklist). **What is done and exactly what remains is in that
-section's "### Progress" and "### Remaining sub-step-3 work (START HERE on a clean restart)" — read those two
-first.** Short version of where we are: `configure` is now `UnaryOperator`-based; `Enums`, five scalar-policy
-configs, `Arguments` (with a bulk `register(Collection)`), the Q1 interceptor trio
+config/Handle decoupling (see that section); its **public API is signed off** in "## Config assembly API"
+below (D1–D7 with a sign-off checklist). Where we are: `configure` is now `UnaryOperator`-based; the config
+*values* are being made immutable domain-by-domain (D1). The sub-step-3 curated set is done — `Enums`, five
+scalar-policy configs, `Arguments` (with a bulk `register(Collection)`), the interceptor trio
 (`RowMappers`/`ColumnMappers`/`SqlArrayTypes`, now with `withInferenceInterceptor` + a shared
 `RegistrationLists` helper), the shared `MapEntryConfig` (`MapEntryMappers` + vavr `TupleMappers`, whose
-registry back-ref was removed), `Extensions`, **and now `SqlStatements`** are done immutable; dead
-`prePreparedTypes` deleted.
+registry back-ref was removed), `Extensions`, and `SqlStatements` — and sub-step 4 (below) has now converted
+almost all of the rest.
 
 **sub-step 4 — MOSTLY DONE (2026-07-18): 17 of 19 remaining configs converted to immutable.** An earlier note
 wrongly claimed "SqlStatements is the last D1 config"; `createCopy()` across all ~34 `JdbiConfig` impls showed
@@ -484,29 +196,34 @@ artifacts of unlisted dependency modules — this surfaced as a runtime `NoSuchM
 already-removed `RowMappers.getInferenceInterceptors()` from a stale `jdbi-kotlin` jar. Use `-am`, or validate
 with a full `mvn clean install`.
 
-Historical context below (sub-steps 1–2, and the decoupling rationale that superseded the original
-swap-based sub-step-3 sketch). Done earlier (all committed, whole reactor green):
-- Sub-step 1 (`03017fe`): `ConfigRegistry.readAs(asType, factory)` — the per-registry memoized-view seam.
-- **Sub-step 2 DONE** — resolution + caches (+ registry back-refs, where used solely for resolution) moved
-  off the config values onto per-registry resolvers via `readAs`; each config value is now registration data
-  (+ policy) only. Resolvers landed:
-  - `MapperResolver` (`6c64997`): row/column/combined off `RowMappers`/`ColumnMappers`; `Mappers` facade deleted.
-  - `ArgumentResolver` (`e0bce1d47`): findFor/prepareFor + preparedFactories cache + didPrepare off `Arguments`.
-    `Arguments` keeps its registry ref for registration-time qualifier snapshotting (`adapt`) — a mutation
-    boundary, not the shared path.
-  - `CollectorResolver`, `ArrayTypeResolver`, `PojoResolver`, `ExtensionMetadataResolver` (`f7c9470d6`): off
-    `JdbiCollectors`, `SqlArrayTypes`, `PojoTypes`, `Extensions`. `Extensions` keeps its pure registration-data
-    lookups (findFor/hasExtensionFor/findFactory — no registry, no cache); only findMetadata + its cache moved.
-  - `Qualifiers` stays on the shared `ConfigCaches` (already decoupled) — no resolver needed.
-- Static-analysis debt cleaned (`c7aceeb` core, `2852f15` rest) — reactor passes `mvn clean install`.
+**Done earlier (sub-steps 1–2, committed, whole reactor green):**
+- Sub-step 1 (`03017fe`): `ConfigRegistry.readAs(asType, factory)` — the per-registry memoized-view seam that
+  resolvers are built on (a fork starts with an empty view cache, so it never serves a stale resolution).
+- Sub-step 2: resolution + caches (+ registry back-refs used solely for resolution) moved off the config
+  values onto per-registry resolvers via `readAs`, so each value is registration data (+ policy) only:
+  `MapperResolver` (row/column; `Mappers` facade deleted), `ArgumentResolver`, `CollectorResolver`,
+  `ArrayTypeResolver`, `PojoResolver`, `ExtensionMetadataResolver`. This session's `EnumStrategyResolver`
+  finished the pattern for `EnumStrategies`.
 
-**Why the sub-step-3 target changed (historical).** The original sub-step-3 sketch (make `ConfigRegistry`
-immutable and have `Jdbi`/`Handle` *swap* a registry reference on `configure`) was **reconsidered with the
-maintainer (2026-07-17)** and **superseded** by the config/Handle decoupling in "## Config/Handle decoupling"
-below, whose public API was then designed and signed off in "## Config assembly API" (see that section for the
-live status). A reference-swap on a long-lived `Jdbi`/`Handle` is still mutable, reconfigurable state — the
-redesign moves config off the stateful objects entirely. The reference-swap still returns, but only at
-sub-step 5 (per-statement-copy removal), on top of immutable values, and as a deprecated compat shim.
+### Design notes for D7 / sub-step 5 (statement zero-copy) — from this session's analysis
+The perf payoff (delete the per-statement `createCopy()` at `BaseStatement.java:36`) needs a lazy
+copy-on-write statement registry. Key findings so they are not re-derived:
+- **`ConfigRegistry.install` is the single write choke point.** All mutation routes through
+  `configure(Class, UnaryOperator)` → `install`; values are immutable, so nothing mutates a config value in
+  place. A copy-on-write registry only has to intercept `install`.
+- **`createCopy()` is used two ways** — do not blanket-convert it: as a *snapshot that must stay isolated*
+  (`Jdbi.buildQueryTemplate`, the `Handle` default config, `ExtensionMetadata` per-method/instance config),
+  and as an *ephemeral child* (`BaseStatement`). Only the ephemeral-child use should become lazy; add a
+  separate `createChild()` rather than changing `createCopy`.
+- **A correct lazy child requires every statement-reachable config to be immutable & shareable**
+  (`createCopy()==this`, no per-registry back-ref). That is exactly why the sub-step-4 config-value
+  immutability work is the prerequisite: a value that is mutable or carries a `setRegistry` back-ref cannot be safely read-through
+  shared from the parent. The two remaining holdouts (`JdbiImmutables`, `PostgresTypes`) must be finished
+  first — and `PostgresTypes` in particular is read on the statement path (`getLobApi`).
+- **Sketch of the child** (parent-delegation model): the child holds only its own overrides and delegates
+  reads to the parent; the first `install` materialises (or the child forks) so writes never touch the
+  parent. Watch two hazards: on-demand config creation must not mutate the shared parent map, and a value
+  carrying a back-ref cannot be re-pointed on a shared instance. Both are moot once all values are immutable.
 
 ---
 
@@ -676,353 +393,22 @@ largest public surface and depend on the value/registry immutability being in pl
 (already returns the config type); scalar setters become `templateEngine(e)` / `keyColumn(k)` (no `set`, no
 `with`), consistent with `register` and clash-free with `getX()`/`isX()` getters. Apply during D1.
 
-### Progress (sub-step 3 implementation) — every commit below is whole-reactor green (tests + static analysis)
-- **Increment 1 DONE (`c52066465`): D2 mechanism.** `Configurable.configure(Class, Consumer)` →
-  `configure(Class, UnaryOperator)`; `ConfigRegistry.install(Class, value)` is the write half. Behavior-
-  preserving — `configure` installs the derived value into the CURRENT registry (aliasing unchanged, no
-  reference-swap, per-statement copy still present). Convenience methods unchanged in spelling (their
-  `c -> c.register(x)` lambdas are already valid `UnaryOperator`s). `ConfiguringPlugin`, `JdbiExtension`/
-  `DatabaseExtension.withConfig`, and the Kotlin `configure(KClass,…)` extension moved to `UnaryOperator`.
-- **D1 pattern locked (`c5820fd99`): `Enums` immutable + `ConfigRegistry.configure(Class, UnaryOperator)`.**
-  The registry-level `configure` (derive-and-install-into-self) is the write primitive for raw-registry setup
-  sites (annotation configurers, plugins); `Configurable.configure` delegates to it. Per-domain D1 recipe:
-  final fields; prefix-free wither returns a NEW instance (`register(...)` keeps its name, `setX`→`x(...)`);
-  `createCopy()` returns `this`; migrate direct-mutation callers `x.getConfig(X).setY(v)` →
-  `x.configure(X, c -> c.wither(v))` (an immutable setter's discarded return would silently lose the change);
-  for a raw-`ConfigRegistry`/`StatementContext` site use `cfg.configure(...)` / `ctx.getConfig().configure(...)`.
-- **D1 scalar-policy batch DONE (`39ffe2e6c`):** `StatementExceptions` (`lengthLimit`/`messageRendering`),
-  `ResultProducers` (`allowNoResults`), `TimestampedConfig` (`timezone`), `MapMappers` (`caseChange`),
-  `ReflectionMappers` (`columnNameMatchers`/`strictMatching`/`caseChange`/`accessibleObjectStrategy`, list is
-  `List.copyOf`). All immutable, callers migrated.
-- **Q2 RESOLVED (`5a41d8e4b`): `Arguments` is registry-free + dead `prePreparedTypes` deleted.**
-  `QualifiedArgumentFactory.adapt(factory)` (no `ConfigRegistry` param) snapshots the factory-class qualifiers
-  lazily from the build/prepare-time registry and memoizes — behavior-faithful (qualifiers are static class
-  annotations; snapshot once, reuse), proven green by the qualifier tests. `Arguments` now has a no-arg
-  constructor with no `registry` field / `setRegistry`. Removed `prePreparedTypes` entirely (interface defaults
-  + all seven overrides — it was only ever consumed by its own adapter): first of the dead "warm-like" constructs.
-- **Item 1 DONE (`2cd165fbb`): `Arguments` fully immutable + bulk `register(Collection)`.** Final fields;
-  `register(...)` and the three policy setters (renamed prefix-free: `untypedNullArgument` /
-  `bindingNullToPrimitivesPermitted` / `preparedArgumentsEnabled`) return a new instance; `createCopy()`
-  returns `this`. Built-ins moved to a shared static `DEFAULT_FACTORIES` (stateless), built via a `prepend`
-  helper that preserves the reverse-of-registration consultation order; `EnumArgumentFactory` added natively
-  (it already implements `QualifiedArgumentFactory`, so no `adapt`). **New public `register(Collection<? extends
-  ArgumentFactory>)`**: under immutability N sequential `register()` calls each copy the growing list (O(N²));
-  the bulk form is one derivation / one copy and reads better; ordering matches successive calls (last wins).
-  Migrated the direct-mutation sites that would now silently drop the derived value: the four sqlobject
-  `RegisterArgumentFactor{y,ies}`/`RegisterObjectArgumentFactor{y,ies}` configurers (the two plural ones use the
-  bulk `register`), `OraclePlugin`, and the affected core tests — all via `configure(Arguments.class, …)`.
-  Added unit tests (immutability, empty short-circuit, last-wins). **Pattern for the remaining list-based
-  configs:** give each a bulk/plural wither for the same O(N²)→O(N) reason (Q1 trio `register` lists,
-  `SqlStatements` customizers/attributes, `Extensions` registration lists).
-- **Item 2 DONE (`4c1c1c5ba`): Q1 interceptor trio immutable.** `RowMappers`, `ColumnMappers`,
-  `SqlArrayTypes` are now immutable (final fields, `register`/policy withers return new, `createCopy` returns
-  `this`). The mutable public `getInferenceInterceptors()` is **removed**; replaced by
-  `withInferenceInterceptor(JdbiInterceptor)` — a copy-on-wither that forks a new `JdbiInterceptionChainHolder`
-  (kept as a mutable utility, but never exposed for mutation) with the interceptor added first. `KotlinPlugin`
-  now uses it. `ColumnMappers.coalesceNullPrimitivesToDefaults(boolean)` and
-  `SqlArrayTypes.argumentStrategy(SqlArrayArgumentStrategy)` are prefix-free policy withers.
-  **Shared helper `RegistrationLists`** (`org.jdbi.core.internal`) extracts the prepend-and-freeze logic used
-  by every immutable config's `register` (single + bulk); `Arguments`/`RowMappers`/`ColumnMappers`/`SqlArrayTypes`
-  all route through it. Bulk `register(Collection)` added to `RowMappers`/`ColumnMappers` (factory collections);
-  `SqlArrayTypes` has no bulk caller so no bulk method. Migrated ~15 sqlobject `Register*MapperImpl` configurers
-  (singular → `configure`; factory-collection plural → bulk; the two raw-`RowMapper`/`ColumnMapper` collections
-  → fold, since raw mappers need per-element inference and can't share the `register(Collection)` overload),
-  the two kotlin-sqlobject `RegisterKotlinMapper{,s}Impl`, `PostgresTypes`, docs/core tests, and the stale
-  trio javadoc equivalence notes in `Configurable`. Added `RegistrationListsTest` + `RowMappersTest` /
-  `ColumnMappersTest` / `SqlArrayTypesTest`. **Gotcha found:** Kotlin's `config.get(X::class.java)` mutation
-  sites do not match a Java-syntax `get(X.class)` grep — sweep `*.kt` separately (this bit kotlin-sqlobject).
-  Whole reactor green (`mvn clean verify`, checks + tests, all modules).
-- **Item 3 DONE (`5a567f323`): shared `MapEntryConfig` immutable.** `MapEntryConfig` setters renamed to
-  prefix-free withers (`keyColumn`/`valueColumn`); `MapEntryMappers` immutable (final fields, withers, createCopy
-  returns `this`). **vavr `TupleMappers` had an undocumented wrinkle the handoff missed: a `ConfigRegistry`
-  back-ref (`setRegistry`) used so its getters fall back to the global `MapEntryMappers`.** That is incompatible
-  with an immutable shared value (createCopy-returns-this + setRegistry mutation), and sub-step 2's rule is "no
-  setRegistry back-ref remains anywhere." Fix (in-pattern with sub-step 2): remove the back-ref; relocate the
-  fallback to the sole reader `VavrTupleRowMapperFactory.resolveKeyValueColumns`, which already holds the
-  registry. `TupleMappers` now immutable (copy-on-wither `columns` array; `setColumn`→`column`); its
-  `getKeyColumn`/`getValueColumn` return the tuple-specific column only (a deliberate v4 break — the global
-  fallback is now the reader's job; behavior preserved end-to-end, covered by the tuple/map-collector DB tests).
-  Migrated `Configurable.setMapKeyColumn/setMapValueColumn`, sqlobject `KeyColumnImpl`/`ValueColumnImpl`, the
-  vavr tests, and the `ResultScannable`/`Configurable` javadoc. Added `MapEntryMappersTest`/`TupleMappersTest`.
-  Whole reactor green.
-- **Item 4a DONE (`6f7ebbad2`): `Extensions` immutable.** Four registration lists + two policy booleans final;
-  `register`/`registerHandlerFactory`/`registerHandlerCustomizer`/`registerConfigCustomizerFactory` prepend →
-  new (via `RegistrationLists.prepend`); `setAllowProxy`→`allowProxy(boolean)` wither; `failFast()` returns new;
-  `createCopy` returns `this`. Built-ins move to a `buildDefaultHandlerFactories()` reproducing the exact
-  reverse-of-registration order. Migrated the core extension tests + generator `setAllowProxy` sites (all via
-  `configure`/`withConfig`) and the `registerExtension` javadoc; added `ExtensionsTest`. Whole reactor green.
-- **Item 4b DONE: `SqlStatements` immutable.** The last and biggest config in the sub-step-3 set (NOT the last
-  config overall — see the CORRECTION in the HANDOFF: sub-step 4 still has ~19 mutable configs). All fields
-  `final` (the `volatile` flags dropped — immutability removes the need); scalar setters became prefix-free
-  chainable withers (`templateEngine`/`sqlParser`/`sqlLogger`/`queryTimeout`/`unusedBindingAllowed`/`attach*`/
-  `scriptStatementsNeedSemicolon`/`jfr*`/`includeBindingsInTelemetry`) returning a new instance; the deprecated
-  `setTimingCollector` name is kept but also returns new; `createCopy` returns `this`. `attributes` is an
-  immutable (null-tolerant `unmodifiableMap`) map; `define`/`defineMap` derive a new instance (`defineMap`
-  short-circuits on null/empty). `templateCache` stays a shared config field (a `JdbiCache`): ordinary withers
-  share the one instance by reference (warm cache preserved), only `templateCache(builder)` installs a fresh one.
-  New `RegistrationLists.append`/`appendDistinct` back the APPEND-semantics collections — `customizers`
-  (registration order), `contextListeners` (dedup + insertion order via `appendDistinct`), `exceptionHandlers`
-  (a `List` iterated in reverse so the latest-registered handler fires first). `StatementContext.define` and the
-  `ConfigMutating` late-phase customizers (`ConfigureStatement`, `AllowUnusedBindingsFactory`,
-  `RegisterSqlExceptionHandler{,s}Impl`, `UseSqlParserImpl`, `UseTemplateEngineImpl`, the freemarker/
-  stringtemplate4/commons-text engine configurers) rewired to `configure(SqlStatements.class, c -> c.wither(...))`
-  — correct under the current per-statement-copy model (each statement owns its registry). `Jdbi.withHandle`'s
-  in-place `setAttachAllStatementsForCleanup` and the noop/caffeine cache plugins rewired the same way. The
-  define O(n²) regression noted in the plan is deferred to D7 (statement-local define buffer) as decided. Added
-  `SqlStatementsTest` (26 tests): a full flag/int vector matrix that catches any positional-arg swap in the
-  16-arg constructor, plus immutability, define/defineMap null handling, LIFO exception handlers, contextListener
-  dedup, and template-cache sharing-vs-fresh (via reflection). Migrated ~30 caller/test sites; the sneaky
-  discards were the multi-line chain in `HandleExceptionTest`, the `::define` method-ref in
-  `TestDefinedAttributeTemplateEngine`, and the `::addExceptionHandler` forEach in `RegisterSqlExceptionHandlersImpl`
-  — a single-line grep misses these, so sweep with trailing context. Whole reactor compile + static analysis
-  green; core (1057), sqlobject (500), the template-engine/telemetry/cache/spring modules, and postgres (183) all
-  0 failures.
-
-### Remaining sub-step-3 work (START HERE on a clean restart)
-1. ~~**`Arguments` full immutability**~~ **DONE (`2cd165fbb`)** — see the Progress entry above. Also added a
-   public bulk `register(Collection)`; apply the same plural-wither pattern to the list-based configs below.
-2. ~~**Q1 interceptor trio**~~ **DONE (`4c1c1c5ba`)** — see the Progress entry above. Also introduced the
-   shared `RegistrationLists` helper and bulk `register(Collection)` on `RowMappers`/`ColumnMappers`.
-3. ~~**Shared `MapEntryConfig`**~~ **DONE (`5a567f323`)** — see the Progress entry above. Note the `TupleMappers`
-   registry-back-ref removal (fallback relocated to `VavrTupleRowMapperFactory`), which was not in the original
-   one-line plan.
-4. **Large configs.** `Extensions` **DONE (`6f7ebbad2`)** and `SqlStatements` **DONE (item 4b, this session)** —
-   see the Item 4b Progress entry above for the full write-up. (One deferred follow-on it named: the `define`
-   O(n²) regression, whose permanent fix is D7's statement-local define buffer.)
-5. **sub-step 4 — MOSTLY DONE (17/19).** See the HANDOFF "sub-step 4" section for the full per-config list and
-   commits. Remaining: `JdbiImmutables` and `PostgresTypes` (registration facades — need a registration
-   redesign; a design decision, and `PostgresTypes` must be done before sub-step-5 zero-copy on the postgres
-   read path).
-5. **Sweep the remaining warm-like/dead constructs** (`PojoWarmingCustomizer`, any `warm(ConfigRegistry)` hooks) —
-   assess whether they still pull weight now that resolvers cache per-registry; drop if not (per maintainer:
-   we are on 4.x, remove rather than shim when a construct adds baggage).
-6. Then **D7** (statement-level `Configurable` backed by lazy copy-on-write private config) → **sub-step 5**
-   (delete the per-statement `createCopy()` at `BaseStatement.java:36`; at that point `configure` must fork+swap
-   the holder's registry instead of install-into-current, since statements would otherwise observe post-capture
-   mutation — this is where the reference-swap finally belongs, on top of immutable values; re-benchmark) →
-   **D4/D5/D6** (the `Jdbi.builder()`, `JdbiPlugin.configure(Jdbi.Builder)`, `jdbi.open(scope)` public surface +
-   deprecate/remove legacy `registerX`/`customizeJdbi`).
-
-**Build note:** validate with `mvn clean install` (or `-Dbasepom.check.skip-all=true` for tests only /
-`-DskipTests` for static analysis only). Do NOT bury `mvn` behind a backgrounded `| grep | tail` pipeline, and
-always pass an explicit path to `grep` — a backgrounded pathless `grep`/`ugrep` hung for ~50 min once this session.
-
----
-
-## (superseded) earlier handoff: SQL Object retarget DONE — phase 2 is next
-
-**Read this first if picking up fresh.** The SQL Object retarget (phase 5 unify) is **DONE and
-committed** (`760d8e8a` non-breaking `Customizable` extraction, `4e0f98d4` the retarget), full
-reactor green, sqlobject `sqlobjectSelectOne` ~9.1 → ~4.3 KB/op (~2.1×). See the `## DECISION`
-block at the very top for the customizer phase model that made it work.
-
-**The live front is now phase 2 (config contract redesign)** — see "### 2." below. It is
-directly motivated by the retarget: config mutation by customizers is uninterceptable today, so
-an un-marked config-mutating customizer silently corrupts the shared template snapshot. Making
-config immutable-after-build (with `configure(callback)` scoped mutation / copy-on-write) turns
-that into a loud error, lets the late path fork one config class instead of the whole classic
-path, and extends the allocation win to the classic fluent path. It is breaking (~48
-`JdbiConfig` impls) and needs a design pass + maintainer sign-off on the `configure(callback)`
-shape before editing. The field taxonomy (task 2.1, above) has had its review pass. Remaining
-phase-5 tail item (reimplement `Handle.createQuery`/… on the primitive) can come before or after
-phase 2. The historical retarget plan below is kept for provenance.
-
----
-
-### (historical) phase 5 retarget plan — DONE, kept for provenance
-
-Decision made with the maintainer: **do the full refactor** — breaking the public customizer SPI
-is sanctioned for v4.
-
-### State (all committed on branch `query-templates`, all green)
-Commits this session (newest last): `d0a0fc90` binding is a `ResultBearing` · `027544dd`
-per-execution customizer surface · `8df58eb` blocker analysis docs. Earlier: `bd0e56a2`
-hoist render/parse · `55c5471` TemplateEngine→RenderContext · `9c146cd` wire define() ·
-`2773934` Definable/EmptyHandling.
-
-- **Step 1 DONE** (`d0a0fc90`): `QueryTemplateBinding implements ResultBearing` via the
-  single `scanResultSet` primitive → `mapTo`/`map`/`reduceRows`/`collectInto`/`stream` all
-  work per-execution, identically to `Query`. `QueryTemplate` is non-generic (SQL + config
-  snapshot + hoisted rendered SQL + `ParsedSql`); `Jdbi.buildQueryTemplate` returns it.
-  `QueryTemplateBuilder`/`QueryTemplateBuilderImpl` and the baked scanner are deleted.
-- **Step 2 DONE** (`027544dd`): binding has `setFetchSize`/`setMaxRows`/`setMaxFieldSize`/
-  `setQueryTimeout`/`addCustomizer`/`getContext`, records customizers binding-locally (not
-  in the shared config), and invokes the `beforeTemplating`/`beforeBinding`/`beforeExecution`/
-  `afterExecution` hooks — which the template path had never invoked (latent bug, now fixed).
-
-Verified: **core 1006 tests / 0 failures**; benchmark compiles (`.with(h).mapTo(String).one()`).
-Build notes: JDK 26 env, local repo `/var/cache/maven-repository`; validate with
-`mvn clean verify -pl core -Dbasepom.check.skip-all=true` (must include `clean` — a no-clean
-run collides on a duplicate antlr `MANIFEST.MF` in the inline plugin). **Pre-existing PMD
-debt** on this branch (8 violations in unrelated files — `Definable`, `QueryCustomizerMixin`,
-`SqlStatements`, `MapArguments`, etc.) surfaces if you drop `-Dbasepom.check.skip-all=true`;
-it predates this session's work (prior sessions always skipped checks) and is not from the
-step 1/2 changes. Clean it up in a separate pass; don't fold it into the retarget commit.
-
-### The plan for next session (ordered, mirrors the recommended design below)
-1. **Introduce `Customizable`** (new interface, `org.jdbi.core.statement`). It is the
-   customizer-facing surface: extends `BindingsMixin<This>` (→ `bind*`, `define*`,
-   `getConfig`) and adds the tail customizers actually use: `StatementContext getContext()`,
-   `This addCustomizer(StatementCustomizer)`, `This setQueryTimeout(int)`,
-   `This attachToHandleForCleanup()`. (Self-typed `<This>`; SPI methods take `Customizable<?>`.)
-2. **`SqlStatement implements Customizable<This>`** — it already has every method (verify:
-   `getContext`/`attachToHandleForCleanup` on `BaseStatement`, `setQueryTimeout`/`addCustomizer`
-   already present). Likely zero body changes, just the `implements` clause.
-3. **`QueryTemplateBinding implements Customizable<QueryTemplateBinding>`** — it has all but
-   `attachToHandleForCleanup`; add an analog (register the ctx/statement for cleanup when the
-   handle closes; see `BaseStatement.attachToHandleForCleanup` at `BaseStatement.java:72`).
-4. **Retype the two public SPI methods** `SqlStatementCustomizer.apply(Customizable<?>)` and
-   `SqlStatementParameterCustomizer.apply(Customizable<?>, Object)`. Fix the **8** explicit
-   `apply(SqlStatement…)` signatures repo-wide (5 in sqlobject; grep
-   `apply(SqlStatement\|apply(final SqlStatement`). Lambdas re-infer for free.
-5. **Widen `CustomizingStatementHandler`** — generic bound
-   `<StatementType extends SqlStatement<StatementType>>` → `<StatementType extends Customizable<StatementType>>`
-   and `BoundCustomizer.apply(SqlStatement<?>, …)` → `Customizable<?>`. All four handlers
-   (Query/Update/Batch/Call) still satisfy it since `SqlStatement implements Customizable`.
-6. **Move per-invocation `args`/`returner` off `SqlObjectStatementConfiguration`.** Today
-   `attachTo` does `stmt.getConfig(SqlObjectStatementConfiguration.class).setArgs(args)` +
-   `.setReturner(...)` + `.getReturner().get()`. This mutates config — safe only with a
-   per-statement config copy, unsafe under a shared template snapshot. Move `args`/`returner`
-   into per-call state (e.g. fields on the created statement/binding, or a small per-call
-   holder threaded through `attachTo`). Note: `ResultReturner.ConsumerResultReturner`/
-   `FunctionResultReturner.findConsumer/findFunction` read args via
-   `ctx.getConfig(SqlObjectStatementConfiguration.class).getArgs()` — update those read sites too.
-7. **Retarget `SqlQueryHandler`**: build one `QueryTemplate` per method (at `attachTo`/warm
-   time, from the method's config), and `createStatement` returns a fresh
-   `template.with(handle)` binding per call. `configureReturner` already only needs
-   `mapTo`/`map`/`reduceRows` on the binding (it's a `ResultBearing`) → `ResultReturner`
-   reused unchanged. Do `SqlUpdateHandler` etc. only if in scope; Query first.
-8. **Resolve the two [Open API-surface decisions](#open-api-surface-decisions)** while here
-   (rename `buildQueryTemplate`→`buildQuery`; `QueryTemplate` constructor visibility).
-9. **Validate**: full `core` + `sqlobject` suites green; then benchmark SQL Object
-   before/after and record numbers in phase 5.
-
-Risk: this is all-handlers-at-once (shared base) and a breaking public SPI. Expect it to
-touch ~15-20 files. If it doesn't converge cleanly, land steps 1-3 (the non-breaking
-`Customizable` extraction) first, then the SPI retype separately.
-
-### Related piece for the SQL Object retarget (DONE)
-Query customizers (`@FetchSize`, `@MaxRows`, …) call `QueryCustomizerMixin` methods not on
-the binding. Add that surface to `QueryTemplateBinding` (apply as statement-state at
-execute time). **DONE (commit `027544dd`)** — the binding now has
-`setFetchSize`/`setMaxRows`/`setMaxFieldSize`/`setQueryTimeout`/`addCustomizer`/`getContext`,
-records customizers locally (not in the shared config), and invokes the
-`beforeTemplating`/`beforeBinding`/`beforeExecution`/`afterExecution` hooks (which the
-template path had never invoked — a latent bug).
-
-### SQL Object retarget — precise blocker analysis (2026-07-12)
-`ResultReturner` is already decoupled: it consumes a `ResultIterable<?>` / `Stream<?>` /
-`StatementContext`, all of which `QueryTemplateBinding` produces (it's a `ResultBearing`).
-So the returner side is a non-issue. The entire remaining coupling to `SqlStatement` is
-**two interlocking things**, and they cannot be split apart because all four statement
-handlers share one base:
-
-1. **The public customizer SPI is hard-typed to the concrete `SqlStatement<?>`.**
-   `SqlStatementCustomizer.apply(SqlStatement<?>)` and
-   `SqlStatementParameterCustomizer.apply(SqlStatement<?>, Object)` (both public, both
-   implemented by external users) pass the statement to arbitrary customizers. The default
-   `@Bind` customizer (`BindFactory`) calls `stmt.getConfig()` + `stmt.bindByType(...)` —
-   all on `BindingsMixin`, which the binding has. The full method surface customizers use is
-   `bind*`/`define*`/`getConfig` (BindingsMixin) plus a small tail: `getContext` (×1),
-   `setQueryTimeout` (×2), `attachToHandleForCleanup` (×1). Only **8** explicit
-   `apply(SqlStatement…)` signatures exist repo-wide (5 in sqlobject) — lambdas re-infer
-   for free. So a shared `Customizable` interface (a supertype of both `SqlStatement` and
-   `QueryTemplateBinding`, carrying that surface) + retyping the two SPI methods is
-   mechanically small, but it is a **breaking change to a widely-implemented public SPI**.
-2. **`CustomizingStatementHandler<StatementType extends SqlStatement<StatementType>>` is
-   shared** by `SqlQueryHandler`, `SqlUpdateHandler`, `SqlBatchHandler`, `SqlCallHandler`.
-   The generic bound and `BoundCustomizer.apply(SqlStatement<?>, …)` must widen to
-   `Customizable` for even one handler to target the binding. That is an all-handlers-at-once
-   change, not a per-handler one.
-3. **`SqlObjectStatementConfiguration` stores per-invocation state (`args`, `returner`) in
-   config.** `attachTo` does `stmt.getConfig(SqlObjectStatementConfiguration.class).setArgs(args)`
-   then `.setReturner(...)` then `.getReturner().get()`. That is per-statement-safe today only
-   because each classic statement owns a config *copy*. A template binding shares an immutable
-   config snapshot, so this per-invocation state must move off config (onto the binding / a
-   per-call object) before the retarget is thread-safe. This is the same "state in config"
-   anti-pattern the whole redesign removes.
-
-Recommended design (when green-lit): introduce `Customizable` (supertype carrying
-`bind*`/`define*`/`getConfig`/`getContext`/`addCustomizer`/`setQueryTimeout`/
-`attachToHandleForCleanup`); `SqlStatement implements Customizable` (it already has every
-method); ensure `QueryTemplateBinding` implements it (add an `attachToHandleForCleanup`
-analog); retype both SPI methods and the handler base to `Customizable`; move
-`args`/`returner` out of `SqlObjectStatementConfiguration` into per-call state; then
-`SqlQueryHandler.createStatement` builds one `QueryTemplate` per method (at `attachTo` /
-warm time) and returns a fresh binding per call. This is the core of phase 5 (unify) and is
-**breaking + interconnected** — it is the natural stopping point for a checkpoint before
-executing across the module.
-
-### Suggested order for the fresh session
-Steps 1 and 2 are DONE (see "State" above). The next-session plan is
-"### The plan for next session" near the top of this HANDOFF (the phase 5 retarget);
-after it, benchmark SQL Object before/after, then return to phase 2 (immutable `JdbiConfig`).
-
-## Sequencing decision (2026-07-12)
-
-The template win is proven (phase 1) with the `JdbiConfig` contract **unchanged** —
-the template snapshots config once at build via the existing `createCopy()`. So the
-`JdbiConfig` immutable-contract redesign (phase 2, ~48 impls, breaking) is not on the
-critical path for the win; it is for the clean API, extending the win to the classic
-path, and cache unwinding. Decision: **do phase 5's SQL Object retargeting next**
-(bank the flagship consumer's win now, low risk, no `JdbiConfig` change), then return
-to phase 2. Phases below are kept in logical order but executed 1 → 5(SQL Object) → 2 → 3 → 4 → rest.
-
 ## Tasklist
 
-### 1. Baseline & measurement (do first — de-risk before the big rewrite)
-- [x] Survey the `benchmark/` JMH module. `AbstractSqlObjectBenchmark` +
-      `H2SqlObjectV3Benchmark` already exercise the classic per-statement path
-      (`fluentSelectOne`, `sqlobjectSelectOne`) against in-memory H2 — that is our
-      classic baseline; no new benchmark needed for the "before" number.
-- [x] Baseline: classic path, single SELECT (create + bind + map + one), measured
-      on `origin/jdbi4-dev` (our branch can't run it — see finding below).
-      **Allocation per op (deterministic, `-prof gc`):**
-      - `fluentSelectOne` — **~8.4 KB/op**
-      - `sqlobjectSelectOne` — **~9.1 KB/op**
-      (Throughput is unreliable in this container — ~120-130 ops/ms ±50%. Trust
-      allocation/op.) So ~10k statements ≈ 85-90 MB of allocation churn.
-- [x] Minimal working `execute()` slice. Wired `QueryTemplateBinding.execute()` to
-      render/parse/bind/execute against the shared context, and fixed the
-      `BindingsMixin.getConfig()` UOE (now abstract; `QueryTemplateBinding` returns
-      the shared config). `TestQueryTemplates` (6 tests) passes.
-- [x] Compare. Benchmark `QueryTemplateBenchmark` (classic `createQuery` vs reused
-      `QueryTemplate`, same single-row SELECT mapped to String), `-prof gc`:
-      | path | alloc/op | throughput |
-      | --- | --- | --- |
-      | classic | **8,168 B/op** (±2) | 138 ops/ms |
-      | template | **3,816 B/op** (±0.7) | 373 ops/ms |
-      **~53% less allocation (2.1×), ~2.7× throughput.** This is the minimal slice
-      that still re-renders/re-parses per execute; hoisting those (phase 3) lowers
-      it further. Confirms the config copy was ~half the per-statement cost. Win is real.
-- [x] Allocation attribution (JFR `ObjectAllocationSample`, standalone
-      `TemplateAllocProfiler`, 3M executions). **Aggregate by summed weight (bytes), not
-      sample count** — a count-based first pass badly overstated the render/cache share
-      (small objects, many samples). Weight-based, post-hoist (3.5 KB/op):
-      - **~1/3: H2 driver** (`VersionedBitSet`, `JdbcResultSet`, `Snapshot`,
-        `ExpressionVisitor`, `JdbcPreparedStatement`) — real query execution under
-        `SqlLoggerUtil.wrap`. The unavoidable floor for in-mem H2; dwarfed by I/O on a
-        real network DB.
-      - Controllable, per-execution jdbi allocation (candidates for further trimming):
-        `ArgumentBinder$ArgumentFactoryLocator` build + lambdas (~12%); `Binding` +
-        its `HashMap`s (~11%); `ResultSetSupplier` closing-context (~7%); `Instant`
-        execution/completion timing (~5%); `SingleColumnMapper` build (~4%);
-        `StatementContext` + cleanables (~4%).
-      No single dominant lever remains — the rest is spread across inherent per-execution
-      objects. Realistic further target is incremental, not ~1 KB/op.
-- [x] Hoist render + parse to build time. Result: **3.8 KB/op → 3.5 KB/op (~9%)**,
-      deterministic. Smaller than the count-based guess predicted (render/parse cache was
-      not the big cost); still correct architecture (render once) and removes per-call
-      `JdbiCache` lookups. The bigger remaining wins are the per-execution objects above.
-
-> **Finding (blocks a same-branch baseline):** the WIP refactor broke the classic
-> runtime path. `BindingsMixin.getConfig()` (core `.../statement/BindingsMixin.java:68`)
-> is an unimplemented stub that `throw new UnsupportedOperationException()`, and the
-> bind path (`bindBean` → `bindNamedArgumentFinder` → `getConfig()`) hits it. Both
-> the fluent API and SQL Object fail at runtime on this branch (compilation passes
-> because tests were skipped). Wiring `getConfig()` correctly on the binding is a
-> prerequisite for phase 3 (`execute()`) and phase 5 (unify). It also confirms this
-> is a correctness fix, not only a perf change.
+### 1. Baseline & measurement — DONE (the win is real, proven by JMH `-prof gc`)
+Allocation/op is the deterministic metric in this container (throughput is noisy, ±50%).
+- **Fluent path** (`QueryTemplateBenchmark`, single-row SELECT mapped to String): classic
+  `createQuery` **8,168 B/op** → reused `QueryTemplate` **3,816 B/op** (~53% less, ~2.1×; ~2.7× throughput).
+  Hoisting render+parse to build time took the template to **~3.5 KB/op** (a further ~9%).
+- **SQL Object** (`H2SqlObjectV3Benchmark.sqlobjectSelectOne`): classic **~9,100 B/op** → retargeted onto the
+  template **~4,334 B/op** (~52%, ~2.1×); the ~0.5 KB over the pure fluent template is extension dispatch +
+  `ResultReturner`.
+- **Where the remaining template allocation goes** (JFR `ObjectAllocationSample`, weight-based — a count-based
+  first pass overstated the small-object render/cache share): ~1/3 is the H2 driver itself (the in-mem floor,
+  dwarfed by I/O on a real DB); the controllable jdbi remainder — candidates for the phase-3 incremental trims —
+  is `ArgumentFactoryLocator` build (~12%), `Binding` + its `HashMap`s (~11%), `ResultSetSupplier` closing
+  context (~7%), per-execute `Instant` timing (~5%), `SingleColumnMapper` build (~4%), `StatementContext` +
+  cleanables (~4%). No single dominant lever remains.
 
 > **Build notes (JDK 26 env):** (1) The JMH annotation processor must be declared in
 > `annotationProcessorPaths` — done in `benchmark/pom.xml` — because since JDK 23
@@ -1099,21 +485,16 @@ to phase 2. Phases below are kept in logical order but executed 1 → 5(SQL Obje
       and made the handler base non-generic over `Customizable<?>`, moved `args`/`returner` off the
       (deleted) `SqlObjectStatementConfiguration` onto an opaque `@Alpha` `StatementContext` slot, and
       `SqlQueryHandler` now builds one `QueryTemplate` per attach. **Config mutation was solved by the
-      customizer phase model** (see DECISION at top): configure-phase customizers bake into the template
+      customizer phase model** (see the "Customizer phase model" section): configure-phase customizers bake into the template
       snapshot once; bind-phase customizers only touch the per-execution binding; `ConfigMutating` (late)
       customizers fall back to the classic per-statement path. Two latent bugs fixed en route: the binding
       used a separate `Binding` from `ctx.getBinding()` (broke `beforeBinding` customizers), and it skipped
       the `null`-result-set → `NoResultsException` check. `@Timestamped` reworked to a configure-registered
       `StatementCustomizer`. Full reactor green (core 1006, sqlobject 499, all modules).
-- [ ] Reimplement `Handle.createQuery`/`createUpdate`/… on the primitive.
-- [x] Re-run the benchmark for SQL Object, before vs after (`H2SqlObjectV3Benchmark.sqlobjectSelectOne`,
-      `-prof gc`, allocation/op is the deterministic metric in this container):
-      | path | alloc/op |
-      | --- | --- |
-      | classic (baseline) | **~9,100 B/op** |
-      | retargeted (template) | **~4,334 B/op** (±176) |
-      **~52% less allocation (~2.1×).** Matches the fluent-template win; the ~0.5 KB over the pure
-      fluent template (~3.8 KB/op) is the extension dispatch + `ResultReturner` machinery.
+- [x] Re-ran the SQL Object benchmark before/after (~9,100 → ~4,334 B/op) — numbers in phase 1 above.
+- [ ] Reimplement `Handle.createQuery`/`createUpdate`/… on the primitive (the remaining phase-5 tail; this is
+      what lets the classic fluent path share config with no copy, and where `buildQueryTemplate`/`QueryTemplate`
+      naming can be revisited).
 
 ### Open API decisions — RESOLVED (2026-07-17)
 - **`Jdbi.buildQueryTemplate` name:** kept (not renamed to `buildQuery`). The name matches its return
