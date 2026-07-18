@@ -24,13 +24,16 @@ import org.jdbi.meta.Beta;
 @Beta
 public class StatementExceptions implements JdbiConfig<StatementExceptions> {
 
-    private Function<StatementException, String> messageRendering = MessageRendering.SHORT_STATEMENT;
-    private int lengthLimit = 1024;
+    private final Function<StatementException, String> messageRendering;
+    private final int lengthLimit;
 
-    public StatementExceptions() {}
-    private StatementExceptions(StatementExceptions other) {
-        this.messageRendering = other.messageRendering;
-        this.lengthLimit = other.lengthLimit;
+    public StatementExceptions() {
+        this(MessageRendering.SHORT_STATEMENT, 1024);
+    }
+
+    private StatementExceptions(Function<StatementException, String> messageRendering, int lengthLimit) {
+        this.messageRendering = messageRendering;
+        this.lengthLimit = lengthLimit;
     }
 
     /**
@@ -43,14 +46,13 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
     }
 
     /**
-     * Set a hint on how long you'd like to shorten various variable-length strings to.
+     * Returns a copy of this configuration with the given hint on how long to shorten variable-length strings to.
      *
      * @param lengthLimit the limit hint.
-     * @return this
+     * @return the derived configuration
      */
-    public StatementExceptions setLengthLimit(int lengthLimit) {
-        this.lengthLimit = lengthLimit;
-        return this;
+    public StatementExceptions lengthLimit(int lengthLimit) {
+        return new StatementExceptions(messageRendering, lengthLimit);
     }
 
     /**
@@ -64,19 +66,19 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
     }
 
     /**
-     * Configure exception statement message generation.
+     * Returns a copy of this configuration with the given exception statement message generation strategy.
      * @param messageRendering the message rendering strategy to use
-     * @return this
+     * @return the derived configuration
      * @see MessageRendering
      */
-    public StatementExceptions setMessageRendering(Function<StatementException, String> messageRendering) {
-        this.messageRendering = messageRendering;
-        return this;
+    public StatementExceptions messageRendering(Function<StatementException, String> messageRendering) {
+        return new StatementExceptions(messageRendering, lengthLimit);
     }
 
     @Override
     public StatementExceptions createCopy() {
-        return new StatementExceptions(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 
     /**

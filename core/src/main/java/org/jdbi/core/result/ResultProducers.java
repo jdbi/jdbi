@@ -28,12 +28,14 @@ import org.jdbi.core.statement.StatementContext;
  */
 public class ResultProducers implements JdbiConfig<ResultProducers> {
 
-    private boolean allowNoResults = false;
+    private final boolean allowNoResults;
 
-    public ResultProducers() {}
+    public ResultProducers() {
+        this(false);
+    }
 
-    private ResultProducers(ResultProducers that) {
-        this.allowNoResults = that.allowNoResults;
+    private ResultProducers(boolean allowNoResults) {
+        this.allowNoResults = allowNoResults;
     }
 
     /**
@@ -127,7 +129,8 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
 
     @Override
     public ResultProducers createCopy() {
-        return new ResultProducers(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 
     /**
@@ -135,11 +138,10 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      * With this option, we will replace it with an empty result set instead.
      *
      * @param allowNoResults True if an empty {@link ResultSet} object should be returned, false if a {@link NoResultsException} should be thrown.
-     * @return this
+     * @return the derived configuration
      */
     public ResultProducers allowNoResults(boolean allowNoResults) {
-        this.allowNoResults = allowNoResults;
-        return this;
+        return new ResultProducers(allowNoResults);
     }
 
     /**

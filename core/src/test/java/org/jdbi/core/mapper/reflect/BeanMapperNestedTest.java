@@ -56,7 +56,7 @@ public class BeanMapperNestedTest {
 
     @Test
     public void testNestedStrict() {
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
 
         assertThat(handle
             .createQuery("select id, name from something")
@@ -96,7 +96,7 @@ public class BeanMapperNestedTest {
 
     @Test
     public void testNestedPrefixStrict() {
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
 
         assertThat(handle
             .createQuery("select id nested_id, name nested_name, integerValue from something")

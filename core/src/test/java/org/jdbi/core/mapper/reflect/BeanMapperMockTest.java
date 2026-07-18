@@ -221,7 +221,7 @@ public class BeanMapperMockTest {
 
     @Test
     public void shouldThrowOnMismatchedColumnsStrictMatch() throws Exception {
-        ctx.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        ctx.getConfig().configure(ReflectionMappers.class, c -> c.strictMatching(true));
         mockColumns("longField", "misspelledField");
         assertThatThrownBy(() -> mapper.map(resultSet, ctx)).isInstanceOf(IllegalArgumentException.class);
     }

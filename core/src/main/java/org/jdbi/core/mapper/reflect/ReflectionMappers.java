@@ -14,9 +14,6 @@
 package org.jdbi.core.mapper.reflect;
 
 import java.lang.reflect.AccessibleObject;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -33,29 +30,32 @@ import static org.jdbi.core.mapper.reflect.AccessibleObjectStrategy.FORCE_MAKE_A
  */
 public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
 
-    private List<ColumnNameMatcher> columnNameMatchers;
-    private boolean strictMatching;
-    private UnaryOperator<String> caseChange;
-    private Consumer<AccessibleObject> makeAccessible;
+    private final List<ColumnNameMatcher> columnNameMatchers;
+    private final boolean strictMatching;
+    private final UnaryOperator<String> caseChange;
+    private final Consumer<AccessibleObject> makeAccessible;
 
     /**
      * Create a default configuration that attempts case insensitive and
      * snake_case matching for names.
      */
     public ReflectionMappers() {
-        columnNameMatchers = Arrays.asList(
+        this(List.of(
                 new CaseInsensitiveColumnNameMatcher(),
-                new SnakeCaseColumnNameMatcher());
-        strictMatching = false;
-        caseChange = CaseStrategy.LOCALE_LOWER;
-        makeAccessible = FORCE_MAKE_ACCESSIBLE;
+                new SnakeCaseColumnNameMatcher()),
+            false,
+            CaseStrategy.LOCALE_LOWER,
+            FORCE_MAKE_ACCESSIBLE);
     }
 
-    private ReflectionMappers(ReflectionMappers that) {
-        columnNameMatchers = new ArrayList<>(that.columnNameMatchers);
-        strictMatching = that.strictMatching;
-        caseChange = that.caseChange;
-        makeAccessible = that.makeAccessible;
+    private ReflectionMappers(List<ColumnNameMatcher> columnNameMatchers,
+            boolean strictMatching,
+            UnaryOperator<String> caseChange,
+            Consumer<AccessibleObject> makeAccessible) {
+        this.columnNameMatchers = List.copyOf(columnNameMatchers);
+        this.strictMatching = strictMatching;
+        this.caseChange = caseChange;
+        this.makeAccessible = makeAccessible;
     }
 
     /**
@@ -64,17 +64,16 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * @return the registered column name mappers.
      */
     public List<ColumnNameMatcher> getColumnNameMatchers() {
-        return Collections.unmodifiableList(columnNameMatchers);
+        return columnNameMatchers;
     }
 
     /**
-     * Replace all column name matchers with the given list.
+     * Returns a copy of this configuration with all column name matchers replaced by the given list.
      * @param columnNameMatchers the column name matchers to use
-     * @return this
+     * @return the derived configuration
      */
-    public ReflectionMappers setColumnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
-        this.columnNameMatchers = new ArrayList<>(columnNameMatchers);
-        return this;
+    public ReflectionMappers columnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
+        return new ReflectionMappers(columnNameMatchers, strictMatching, caseChange, makeAccessible);
     }
 
     /**
@@ -87,18 +86,17 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     }
 
     /**
-     * Throw an IllegalArgumentException if a the set of fields doesn't
+     * Returns a copy of this configuration that throws an IllegalArgumentException if the set of fields doesn't
      * match to columns exactly.
      *
      * Reflection mappers with prefixes will only check those columns that
      * begin with the mapper's prefix.
      *
      * @param strictMatching whether to enable strict matching
-     * @return this
+     * @return the derived configuration
      */
-    public ReflectionMappers setStrictMatching(boolean strictMatching) {
-        this.strictMatching = strictMatching;
-        return this;
+    public ReflectionMappers strictMatching(boolean strictMatching) {
+        return new ReflectionMappers(columnNameMatchers, strictMatching, caseChange, makeAccessible);
     }
 
     /**
@@ -112,38 +110,40 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
     }
 
     /**
-     * Sets the case change strategy for the database column names. By default, the row names are lowercased using the system locale.
+     * Returns a copy of this configuration with the given case change strategy for the database column names.
+     * By default, the row names are lowercased using the system locale.
      *
      * @param caseChange The strategy to use. Must not be null.
+     * @return the derived configuration
      * @see CaseStrategy
      */
-    public ReflectionMappers setCaseChange(UnaryOperator<String> caseChange) {
-        this.caseChange = caseChange;
-        return this;
+    public ReflectionMappers caseChange(UnaryOperator<String> caseChange) {
+        return new ReflectionMappers(columnNameMatchers, strictMatching, caseChange, makeAccessible);
     }
 
     /**
-     * Set the strategy Jdbi uses for Java accessibility rules.
+     * Returns a copy of this configuration with the given strategy for Java accessibility rules.
      * The legacy default is to call {@code setAccessible(true)} in certain cases when we try to use a Constructor, Method, or Field.
      * In the future, this default will be changed to a no-op, to better interact with the Java module system.
      *
      * @param makeAccessible A {@link Consumer} instance that implements the strategy.
+     * @return the derived configuration
      * @see AccessibleObjectStrategy
      *
      */
     @Alpha
-    public ReflectionMappers setAccessibleObjectStrategy(Consumer<AccessibleObject> makeAccessible) {
-        this.makeAccessible = makeAccessible;
-        return this;
+    public ReflectionMappers accessibleObjectStrategy(Consumer<AccessibleObject> makeAccessible) {
+        return new ReflectionMappers(columnNameMatchers, strictMatching, caseChange, makeAccessible);
     }
 
     /**
-     * Set the strategy Jdbi uses for Java accessibility rules to a no-op.
+     * Returns a copy of this configuration with the strategy Jdbi uses for Java accessibility rules set to a no-op.
+     *
+     * @return the derived configuration
      */
     @Alpha
     public ReflectionMappers disableAccessibleObjectStrategy() {
-        this.makeAccessible = DO_NOT_MAKE_ACCESSIBLE;
-        return this;
+        return accessibleObjectStrategy(DO_NOT_MAKE_ACCESSIBLE);
     }
 
     /**
@@ -157,6 +157,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
 
     @Override
     public ReflectionMappers createCopy() {
-        return new ReflectionMappers(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

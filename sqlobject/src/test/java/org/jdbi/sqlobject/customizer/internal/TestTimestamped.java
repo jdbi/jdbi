@@ -67,7 +67,7 @@ public class TestTimestamped {
     public void before() {
         TimestampedFactory.setTimeSource(clock::withZone);
         final Jdbi db = h2Extension.getJdbi();
-        db.getConfig(TimestampedConfig.class).setTimezone(GMT_PLUS_2);
+        db.configure(TimestampedConfig.class, c -> c.timezone(GMT_PLUS_2));
 
         db.setSqlLogger(new SqlLogger() {
             @Override
