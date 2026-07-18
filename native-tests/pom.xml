@@ -137,6 +137,14 @@
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-spring</artifactId>
             <scope>test</scope>
+            <!-- spring-jcl duplicates the commons-logging classes that jcl-over-slf4j
+                 (via pg-embedded's maven-loader) provides on the test classpath. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -280,6 +288,12 @@
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>

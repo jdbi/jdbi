@@ -1,5 +1,7 @@
 # Unreleased
 
+- Fix jdbi3-spring excluding spring-jcl from consumers since 3.51.0, which broke Spring Boot 3
+  applications at startup with `NoClassDefFoundError: org.apache.commons.logging.LogFactory` (#2990)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
