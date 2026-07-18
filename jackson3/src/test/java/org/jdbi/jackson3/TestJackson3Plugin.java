@@ -128,7 +128,7 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
 
     @Test
     public void testSerializationView() {
-        h.getConfig(Jackson3Config.class).setSerializationView(ViewTest.ViewB.class);
+        h.configure(Jackson3Config.class, c -> c.serializationView(ViewTest.ViewB.class));
         assertThat(h.createQuery("select :vt::json ->> 'a'")
                 .bindByType("vt", viewValue, viewJsonType)
                 .mapTo(Integer.class)
@@ -138,7 +138,7 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
 
     @Test
     public void testDeserializationView() {
-        h.getConfig(Jackson3Config.class).setDeserializationView(ViewTest.ViewA.class);
+        h.configure(Jackson3Config.class, c -> c.deserializationView(ViewTest.ViewA.class));
         assertThat(h.createQuery("select '{\"a\":42,\"b\":43}'::json")
                 .mapTo(viewJsonType)
                 .one())
@@ -239,7 +239,7 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
     @Test
     public void dynamicType() {
         assertThat(h.createQuery("select :val::varchar")
-                .configure(Jackson3Config.class, jc -> jc.setUseStaticType(false))
+                .configure(Jackson3Config.class, jc -> jc.useStaticType(false))
                 .bindByType("val", new PolySub(), QualifiedType.of(PolyBase.class).with(Json.class))
                 .mapTo(String.class)
                 .one())

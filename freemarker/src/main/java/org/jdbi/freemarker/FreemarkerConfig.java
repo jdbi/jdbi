@@ -19,23 +19,27 @@ import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import org.jdbi.core.config.JdbiConfig;
 
-public class FreemarkerConfig implements JdbiConfig<FreemarkerConfig> {
+public final class FreemarkerConfig implements JdbiConfig<FreemarkerConfig> {
 
-    private Configuration freemarkerConfiguration;
+    private final Configuration freemarkerConfiguration;
 
     public FreemarkerConfig() {
-        freemarkerConfiguration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-        freemarkerConfiguration.setTemplateLoader(new ClassTemplateLoader(selectClassLoader(), "/"));
-        freemarkerConfiguration.setNumberFormat("computer");
+        this(defaultConfiguration());
     }
 
-    private FreemarkerConfig(FreemarkerConfig other) {
-        this.freemarkerConfiguration = other.freemarkerConfiguration;
-    }
-
-    public FreemarkerConfig setFreemarkerConfiguration(Configuration freemarkerConfiguration) {
+    private FreemarkerConfig(Configuration freemarkerConfiguration) {
         this.freemarkerConfiguration = freemarkerConfiguration;
-        return this;
+    }
+
+    private static Configuration defaultConfiguration() {
+        final Configuration configuration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+        configuration.setTemplateLoader(new ClassTemplateLoader(selectClassLoader(), "/"));
+        configuration.setNumberFormat("computer");
+        return configuration;
+    }
+
+    public FreemarkerConfig freemarkerConfiguration(Configuration freemarkerConfiguration) {
+        return new FreemarkerConfig(freemarkerConfiguration);
     }
 
     public Configuration getFreemarkerConfiguration() {
@@ -48,7 +52,8 @@ public class FreemarkerConfig implements JdbiConfig<FreemarkerConfig> {
 
     @Override
     public FreemarkerConfig createCopy() {
-        return new FreemarkerConfig(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 
     private static ClassLoader selectClassLoader() {
