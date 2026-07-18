@@ -32,7 +32,7 @@ public class TestPreparedArguments {
         assertThat(arguments.prepareFor(int.class))
                 .isNotEmpty();
 
-        h.getConfig(Arguments.class).setPreparedArgumentsEnabled(false);
+        h.configure(Arguments.class, c -> c.preparedArgumentsEnabled(false));
 
         assertThat(arguments.prepareFor(int.class))
                 .isEmpty();

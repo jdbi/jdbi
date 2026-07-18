@@ -14,8 +14,9 @@
 package org.jdbi.core.argument;
 
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.core.array.SqlArrayArgumentFactory;
 import org.jdbi.core.config.JdbiConfig;
@@ -25,50 +26,66 @@ import org.jdbi.core.config.JdbiConfig;
  * {@link Argument} for a bound value (and caching the result) is done per configuration registry by
  * {@link ArgumentResolver}.
  * The factories are consulted in reverse order of registration (i.e. last-registered wins).
+ * <p>
+ * This configuration is immutable: {@link #register} and the policy withers return a new instance, leaving
+ * the receiver unchanged.
  */
-public class Arguments implements JdbiConfig<Arguments> {
-    private final List<QualifiedArgumentFactory> factories;
+public final class Arguments implements JdbiConfig<Arguments> {
 
-    private Argument untypedNullArgument = new NullArgument(Types.OTHER);
-    private boolean bindingNullToPrimitivesPermitted = true;
-    private boolean preparedArgumentsEnabled = true;
+    // The built-in factories are stateless, so a single immutable list is shared across all root registries.
+    private static final List<QualifiedArgumentFactory> DEFAULT_FACTORIES = buildDefaultFactories();
+
+    private final List<QualifiedArgumentFactory> factories;
+    private final Argument untypedNullArgument;
+    private final boolean bindingNullToPrimitivesPermitted;
+    private final boolean preparedArgumentsEnabled;
 
     public Arguments() {
-        factories = new CopyOnWriteArrayList<>();
-
-        // register built-in factories, priority of factories is by reverse registration order
-
-        // the null factory must be interrogated last to preserve types!
-        register(new UntypedNullArgumentFactory());
-
-        register(new PrimitivesArgumentFactory());
-        register(new BoxedArgumentFactory());
-        register(new SqlArgumentFactory());
-        register(new InternetArgumentFactory());
-        register(new SqlTimeArgumentFactory());
-        register(new JavaTimeArgumentFactory());
-        register(new SqlArrayArgumentFactory());
-        register(new CharSequenceArgumentFactory()); // register before EssentialsArgumentFactory which handles String
-        register(new EssentialsArgumentFactory());
-        register(new JavaTimeZoneIdArgumentFactory());
-        register(new NVarcharArgumentFactory());
-        register(new EnumArgumentFactory());
-        register(new OptionalArgumentFactory());
-        register(new DirectArgumentFactory());
+        this(DEFAULT_FACTORIES, new NullArgument(Types.OTHER), true, true);
     }
 
-    private Arguments(final Arguments that) {
-        factories = new CopyOnWriteArrayList<>(that.factories);
-        untypedNullArgument = that.untypedNullArgument;
-        bindingNullToPrimitivesPermitted = that.bindingNullToPrimitivesPermitted;
-        preparedArgumentsEnabled = that.preparedArgumentsEnabled;
+    private Arguments(final List<QualifiedArgumentFactory> factories,
+            final Argument untypedNullArgument,
+            final boolean bindingNullToPrimitivesPermitted,
+            final boolean preparedArgumentsEnabled) {
+        this.factories = factories;
+        this.untypedNullArgument = untypedNullArgument;
+        this.bindingNullToPrimitivesPermitted = bindingNullToPrimitivesPermitted;
+        this.preparedArgumentsEnabled = preparedArgumentsEnabled;
+    }
+
+    private static List<QualifiedArgumentFactory> buildDefaultFactories() {
+        // Register built-in factories; priority is by reverse registration order, so registration prepends.
+        // The null factory must be interrogated last to preserve types, so it is registered first.
+        final List<QualifiedArgumentFactory> factories = new ArrayList<>();
+        prepend(factories, new UntypedNullArgumentFactory());
+
+        prepend(factories, new PrimitivesArgumentFactory());
+        prepend(factories, new BoxedArgumentFactory());
+        prepend(factories, new SqlArgumentFactory());
+        prepend(factories, new InternetArgumentFactory());
+        prepend(factories, new SqlTimeArgumentFactory());
+        prepend(factories, new JavaTimeArgumentFactory());
+        prepend(factories, new SqlArrayArgumentFactory());
+        prepend(factories, new CharSequenceArgumentFactory()); // register before EssentialsArgumentFactory which handles String
+        prepend(factories, new EssentialsArgumentFactory());
+        prepend(factories, new JavaTimeZoneIdArgumentFactory());
+        prepend(factories, new NVarcharArgumentFactory());
+        factories.add(0, new EnumArgumentFactory()); // natively a QualifiedArgumentFactory; no adaptation needed
+        prepend(factories, new OptionalArgumentFactory());
+        prepend(factories, new DirectArgumentFactory());
+        return List.copyOf(factories);
+    }
+
+    private static void prepend(final List<QualifiedArgumentFactory> factories, final ArgumentFactory factory) {
+        factories.add(0, QualifiedArgumentFactory.adapt(factory));
     }
 
     /**
      * Registers the given argument factory.
      * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
      * @param factory the factory to add
-     * @return this
+     * @return a copy of this configuration with the factory registered
      */
     public Arguments register(final ArgumentFactory factory) {
         return register(QualifiedArgumentFactory.adapt(factory));
@@ -78,11 +95,34 @@ public class Arguments implements JdbiConfig<Arguments> {
      * Registers the given qualified argument factory.
      * If more than one of the registered factories supports a given parameter type, the last-registered factory wins.
      * @param factory the qualified factory to add
-     * @return this
+     * @return a copy of this configuration with the factory registered
      */
     public Arguments register(final QualifiedArgumentFactory factory) {
-        factories.add(0, factory);
-        return this;
+        final List<QualifiedArgumentFactory> newFactories = new ArrayList<>(factories.size() + 1);
+        newFactories.add(factory);
+        newFactories.addAll(factories);
+        return new Arguments(List.copyOf(newFactories), untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
+    }
+
+    /**
+     * Registers all of the given argument factories in a single derivation, as if each were passed to
+     * {@link #register(ArgumentFactory)} in iteration order. As with successive {@code register} calls, the
+     * last factory in the collection has the highest priority. This is both more efficient and more readable
+     * than chaining individual {@code register} calls when adding several factories at once.
+     * @param factories the factories to add
+     * @return a copy of this configuration with the factories registered
+     */
+    public Arguments register(final Collection<? extends ArgumentFactory> factories) {
+        if (factories.isEmpty()) {
+            return this;
+        }
+        final List<QualifiedArgumentFactory> newFactories = new ArrayList<>(this.factories.size() + factories.size());
+        // Prepend in iteration order so that, as with successive register() calls, the last factory wins.
+        for (final ArgumentFactory factory : factories) {
+            newFactories.add(0, QualifiedArgumentFactory.adapt(factory));
+        }
+        newFactories.addAll(this.factories);
+        return new Arguments(List.copyOf(newFactories), untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }
 
     /**
@@ -98,14 +138,13 @@ public class Arguments implements JdbiConfig<Arguments> {
      * Configure the {@link Argument} to use when binding a null
      * we don't have a type for.
      * @param untypedNullArgument the argument to bind
-     * @return this
+     * @return a copy of this configuration with the untyped null argument set
      */
-    public Arguments setUntypedNullArgument(final Argument untypedNullArgument) {
+    public Arguments untypedNullArgument(final Argument untypedNullArgument) {
         if (untypedNullArgument == null) {
             throw new IllegalArgumentException("the Argument itself may not be null");
         }
-        this.untypedNullArgument = untypedNullArgument;
-        return this;
+        return new Arguments(factories, untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }
 
     /**
@@ -130,9 +169,10 @@ public class Arguments implements JdbiConfig<Arguments> {
      * Whether binding {@code null} to a variable declared as a primitive type should be allowed.
      *
      * @param bindingNullToPrimitivesPermitted if true, {@code null} can be bound to a variable declared as a primitive type.
+     * @return a copy of this configuration with the policy set
      */
-    public void setBindingNullToPrimitivesPermitted(final boolean bindingNullToPrimitivesPermitted) {
-        this.bindingNullToPrimitivesPermitted = bindingNullToPrimitivesPermitted;
+    public Arguments bindingNullToPrimitivesPermitted(final boolean bindingNullToPrimitivesPermitted) {
+        return new Arguments(factories, untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }
 
     /**
@@ -149,13 +189,15 @@ public class Arguments implements JdbiConfig<Arguments> {
      * instances are. This improves speed at a small cost to backwards compatibility. Please disable it if you require the old semantics.
      *
      * @param preparedArgumentsEnabled whether to enable preparable argument factories
+     * @return a copy of this configuration with the policy set
      */
-    public void setPreparedArgumentsEnabled(final boolean preparedArgumentsEnabled) {
-        this.preparedArgumentsEnabled = preparedArgumentsEnabled;
+    public Arguments preparedArgumentsEnabled(final boolean preparedArgumentsEnabled) {
+        return new Arguments(factories, untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }
 
     @Override
     public Arguments createCopy() {
-        return new Arguments(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

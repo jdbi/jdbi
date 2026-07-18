@@ -143,7 +143,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(Arguments.class).register(factory)}
+     * Convenience method for {@code configure(Arguments.class, c -> c.register(factory))}
      *
      * @param factory argument factory
      * @return this
@@ -153,7 +153,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(Arguments.class).register(factory)}
+     * Convenience method for {@code configure(Arguments.class, c -> c.register(factory))}
      *
      * @param factory qualified argument factory
      * @return this

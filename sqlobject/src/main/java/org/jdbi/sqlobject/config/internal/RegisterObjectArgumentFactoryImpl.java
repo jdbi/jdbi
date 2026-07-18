@@ -44,6 +44,6 @@ public class RegisterObjectArgumentFactoryImpl extends SimpleExtensionConfigurer
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(Arguments.class).register(argumentFactory);
+        config.configure(Arguments.class, c -> c.register(argumentFactory));
     }
 }

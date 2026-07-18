@@ -40,7 +40,6 @@ public class RegisterArgumentFactoriesImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        Arguments arguments = config.get(Arguments.class);
-        argumentFactories.forEach(arguments::register);
+        config.configure(Arguments.class, c -> c.register(argumentFactories));
     }
 }

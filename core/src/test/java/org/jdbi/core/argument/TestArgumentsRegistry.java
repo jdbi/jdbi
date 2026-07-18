@@ -16,6 +16,7 @@ package org.jdbi.core.argument;
 import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 import org.jdbi.core.Handle;
@@ -124,6 +125,36 @@ public class TestArgumentsRegistry {
                 .hasValueSatisfying(a -> assertThat(a).isInstanceOf(NullArgument.class));
     }
 
+    @Test
+    public void registerCollectionDoesNotMutateReceiver() {
+        Arguments base = new Arguments();
+        int baseSize = base.getFactories().size();
+
+        Arguments derived = base.register(List.of(new WeirdClassArgumentFactory(), new WeirdValueArgumentFactory()));
+
+        assertThat(base.getFactories()).hasSize(baseSize);
+        assertThat(derived.getFactories()).hasSize(baseSize + 2);
+        assertThat(derived).isNotSameAs(base);
+    }
+
+    @Test
+    public void registerEmptyCollectionReturnsSameInstance() {
+        Arguments base = new Arguments();
+        assertThat(base.register(List.<ArgumentFactory>of())).isSameAs(base);
+    }
+
+    @Test
+    public void registerCollectionLastFactoryWins() {
+        ConfigRegistry registry = new ConfigRegistry();
+        // Two factories both match Weird; as with successive register() calls, the last in the collection wins.
+        registry.configure(Arguments.class, c -> c.register(List.of(
+                new WeirdClassArgumentFactory(),
+                new OtherWeirdArgumentFactory())));
+
+        assertThat(ArgumentResolver.forRegistry(registry).findFor(Weird.class, new Weird()))
+                .hasValueSatisfying(a -> assertThat(a).isInstanceOf(OtherWeirdArgument.class));
+    }
+
     private static class Weird {}
 
     private static class WeirdClassArgumentFactory implements ArgumentFactory {
@@ -144,7 +175,22 @@ public class TestArgumentsRegistry {
         }
     }
 
+    private static class OtherWeirdArgumentFactory implements ArgumentFactory {
+        @Override
+        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+            return getErasedType(expectedType) == Weird.class
+                    ? Optional.of(new OtherWeirdArgument())
+                    : Optional.empty();
+        }
+    }
+
     private static class WeirdArgument implements Argument {
+
+        @Override
+        public void apply(int position, PreparedStatement statement, StatementContext ctx) {}
+    }
+
+    private static class OtherWeirdArgument implements Argument {
 
         @Override
         public void apply(int position, PreparedStatement statement, StatementContext ctx) {}

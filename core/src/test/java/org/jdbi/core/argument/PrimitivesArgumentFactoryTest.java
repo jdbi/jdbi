@@ -44,7 +44,7 @@ public class PrimitivesArgumentFactoryTest {
             .describedAs("binding a null binds the primitive's default")
             .isZero();
 
-        handle.getConfig(Arguments.class).setBindingNullToPrimitivesPermitted(false);
+        handle.configure(Arguments.class, c -> c.bindingNullToPrimitivesPermitted(false));
 
         assertThatThrownBy(() -> {
             try (Query query = handle.createQuery("select :foo")) {
