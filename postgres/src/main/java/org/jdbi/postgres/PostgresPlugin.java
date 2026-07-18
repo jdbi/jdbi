@@ -117,53 +117,53 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
     }
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.registerArgument(new TypedEnumArgumentFactory());
-        jdbi.registerArgument(new JavaTimeArgumentFactory());
-        jdbi.registerArgument(new DurationArgumentFactory());
-        jdbi.registerArgument(new PeriodArgumentFactory());
-        jdbi.registerArgument(new InetArgumentFactory());
-        jdbi.registerArgument(new HStoreArgumentFactory());
-        jdbi.registerArgument(new MacAddrArgumentFactory());
-        jdbi.registerArgument(new UUIDArgumentFactory());
-        jdbi.registerArgument(new PGobjectArgumentFactory());
-        jdbi.registerArgument(new BitStringEnumSetArgumentFactory());
-        jdbi.registerArgument(new BlobInputStreamArgumentFactory());
-        jdbi.registerArgument(new ClobReaderArgumentFactory());
+    public void configure(Jdbi.Builder builder) {
+        builder.registerArgument(new TypedEnumArgumentFactory());
+        builder.registerArgument(new JavaTimeArgumentFactory());
+        builder.registerArgument(new DurationArgumentFactory());
+        builder.registerArgument(new PeriodArgumentFactory());
+        builder.registerArgument(new InetArgumentFactory());
+        builder.registerArgument(new HStoreArgumentFactory());
+        builder.registerArgument(new MacAddrArgumentFactory());
+        builder.registerArgument(new UUIDArgumentFactory());
+        builder.registerArgument(new PGobjectArgumentFactory());
+        builder.registerArgument(new BitStringEnumSetArgumentFactory());
+        builder.registerArgument(new BlobInputStreamArgumentFactory());
+        builder.registerArgument(new ClobReaderArgumentFactory());
 
         // built-in PGobject types
-        jdbi.registerArrayType(PGbox.class, "box");
-        jdbi.registerArrayType(PGcircle.class, "circle");
-        jdbi.registerArrayType(PGInterval.class, "interval");
-        jdbi.registerArrayType(PGline.class, "line");
-        jdbi.registerArrayType(PGlseg.class, "lseg");
-        jdbi.registerArrayType(PGmoney.class, "money");
-        jdbi.registerArrayType(PGpath.class, "path");
-        jdbi.registerArrayType(PGpoint.class, "point");
-        jdbi.registerArrayType(PGpolygon.class, "polygon");
-        jdbi.registerArrayType(new ByteaArrayType());
-        jdbi.registerArrayType(new PostgresCustomTypeArrayFactory());
+        builder.registerArrayType(PGbox.class, "box");
+        builder.registerArrayType(PGcircle.class, "circle");
+        builder.registerArrayType(PGInterval.class, "interval");
+        builder.registerArrayType(PGline.class, "line");
+        builder.registerArrayType(PGlseg.class, "lseg");
+        builder.registerArrayType(PGmoney.class, "money");
+        builder.registerArrayType(PGpath.class, "path");
+        builder.registerArrayType(PGpoint.class, "point");
+        builder.registerArrayType(PGpolygon.class, "polygon");
+        builder.registerArrayType(new ByteaArrayType());
+        builder.registerArrayType(new PostgresCustomTypeArrayFactory());
 
-        jdbi.registerColumnMapper(new JavaTimeMapperFactory());
-        jdbi.registerColumnMapper(new HStoreColumnMapper());
-        jdbi.registerColumnMapper(new MacAddrColumnMapper());
-        jdbi.registerColumnMapper(new DurationColumnMapperFactory());
-        jdbi.registerColumnMapper(new PeriodColumnMapperFactory());
-        jdbi.registerColumnMapper(new PGobjectColumnMapperFactory());
-        jdbi.registerColumnMapper(new BitStringEnumSetMapperFactory());
-        jdbi.registerColumnMapper(new BlobInputStreamColumnMapperFactory());
-        jdbi.registerColumnMapper(new ClobReaderColumnMapperFactory());
+        builder.registerColumnMapper(new JavaTimeMapperFactory());
+        builder.registerColumnMapper(new HStoreColumnMapper());
+        builder.registerColumnMapper(new MacAddrColumnMapper());
+        builder.registerColumnMapper(new DurationColumnMapperFactory());
+        builder.registerColumnMapper(new PeriodColumnMapperFactory());
+        builder.registerColumnMapper(new PGobjectColumnMapperFactory());
+        builder.registerColumnMapper(new BitStringEnumSetMapperFactory());
+        builder.registerColumnMapper(new BlobInputStreamColumnMapperFactory());
+        builder.registerColumnMapper(new ClobReaderColumnMapperFactory());
 
         if (installLegacy) {
             // legacy unqualified HSTORE
             // Do *NOT* replace with `new HStoreArgumentFactory()`, the AI/Intellij whatever hint is wrong.
-            jdbi.registerArgument((ArgumentFactory) new HStoreArgumentFactory()::build);
-            jdbi.registerColumnMapper(new GenericType<>() {}, new HStoreColumnMapper());
+            builder.registerArgument((ArgumentFactory) new HStoreArgumentFactory()::build);
+            builder.registerColumnMapper(new GenericType<>() {}, new HStoreColumnMapper());
         }
 
         // optional integration
         if (JdbiClassUtils.isPresent("org.jdbi.json.JsonConfig")) {
-            jdbi.registerArgument(new JsonArgumentFactory());
+            builder.registerArgument(new JsonArgumentFactory());
         }
     }
 

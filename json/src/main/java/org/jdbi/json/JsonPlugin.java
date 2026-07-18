@@ -20,8 +20,8 @@ import org.jdbi.json.internal.JsonColumnMapperFactory;
 
 public class JsonPlugin extends JdbiPlugin.Singleton {
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.registerArgument(new JsonArgumentFactory());
-        jdbi.registerColumnMapper(new JsonColumnMapperFactory());
+    public void configure(Jdbi.Builder builder) {
+        builder.registerArgument(new JsonArgumentFactory());
+        builder.registerColumnMapper(new JsonColumnMapperFactory());
     }
 }

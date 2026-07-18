@@ -13,8 +13,6 @@
  */
 package org.jdbi.opentelemetry;
 
-import java.sql.SQLException;
-
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
@@ -52,8 +50,8 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     }
 
     @Override
-    public void customizeJdbi(final Jdbi jdbi) throws SQLException {
-        jdbi.configure(SqlStatements.class, c -> c.addContextListener(new TracingListener()));
+    public void configure(final Jdbi.Builder builder) {
+        builder.configure(SqlStatements.class, c -> c.addContextListener(new TracingListener()));
     }
 
     class TracingListener implements StatementContextListener {

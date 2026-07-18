@@ -21,8 +21,8 @@ import org.jdbi.core.spi.JdbiPlugin;
  */
 public class JodaTimePlugin implements JdbiPlugin {
     @Override
-    public void customizeJdbi(Jdbi db) {
-        db.registerArgument(new DateTimeArgumentFactory());
-        db.registerColumnMapper(new DateTimeMapper());
+    public void configure(Jdbi.Builder builder) {
+        builder.registerArgument(new DateTimeArgumentFactory());
+        builder.registerColumnMapper(new DateTimeMapper());
     }
 }

@@ -33,8 +33,8 @@ import org.jdbi.core.spi.JdbiPlugin;
 public class OraclePlugin extends JdbiPlugin.Singleton {
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.configure(Arguments.class, arguments ->
+    public void configure(Jdbi.Builder builder) {
+        builder.configure(Arguments.class, arguments ->
                 arguments.untypedNullArgument(new NullArgument(Types.NULL)));
     }
 }

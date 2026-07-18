@@ -126,6 +126,34 @@ public class TestJdbiBuilder {
     }
 
     @Test
+    public void installPluginBridgesConfigureHook() {
+        // A plugin that contributes only via configure(Builder) is still applied through the post-construction
+        // Jdbi.installPlugin path (the deprecation-window bridge onto the assembly funnel).
+        final RowMapper<String> mapper = (rs, ctx) -> "bridged";
+        final Jdbi jdbi = Jdbi.create(url())
+                .installPlugin(JdbiPlugin.of(b -> b.registerRowMapper(String.class, mapper)));
+
+        try (Handle h = jdbi.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("bridged");
+        }
+    }
+
+    @Test
+    public void installPluginAppliesPluginOnce() {
+        final AtomicInteger configureCount = new AtomicInteger();
+        final JdbiPlugin plugin = new JdbiPlugin.Singleton() {
+            @Override
+            public void configure(final Jdbi.Builder builder) {
+                configureCount.incrementAndGet();
+            }
+        };
+
+        Jdbi.create(url()).installPlugin(plugin).installPlugin(plugin);
+
+        assertThat(configureCount).hasValue(1);
+    }
+
+    @Test
     public void buildAppliesPluginPulledInByTwoOthersOnce() {
         final AtomicInteger configureCount = new AtomicInteger();
         final JdbiPlugin shared = new JdbiPlugin() {

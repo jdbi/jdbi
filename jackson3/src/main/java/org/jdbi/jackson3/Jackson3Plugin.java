@@ -27,8 +27,8 @@ import org.jdbi.json.JsonPlugin;
  */
 public class Jackson3Plugin extends JdbiPlugin.Singleton {
     @Override
-    public void customizeJdbi(final Jdbi jdbi) {
-        jdbi.installPlugin(new JsonPlugin());
-        jdbi.configure(JsonConfig.class, c -> c.jsonMapper(new JacksonJsonMapper()));
+    public void configure(final Jdbi.Builder builder) {
+        builder.installPlugin(new JsonPlugin());
+        builder.configure(JsonConfig.class, c -> c.jsonMapper(new JacksonJsonMapper()));
     }
 }

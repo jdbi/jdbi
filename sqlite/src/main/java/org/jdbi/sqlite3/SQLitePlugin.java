@@ -21,8 +21,8 @@ import org.jdbi.core.spi.JdbiPlugin;
  */
 public class SQLitePlugin extends JdbiPlugin.Singleton {
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.registerArgument(new URLArgumentFactory());
-        jdbi.registerColumnMapper(new URLColumnMapper());
+    public void configure(Jdbi.Builder builder) {
+        builder.registerArgument(new URLArgumentFactory());
+        builder.registerColumnMapper(new URLColumnMapper());
     }
 }
