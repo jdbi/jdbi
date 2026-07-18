@@ -55,8 +55,7 @@ public class QualifiersBenchmark {
         jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean2.class));
         jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean3.class));
         jdbi.registerRowMapper(BeanMapper.factory(QualifiedBean4.class));
-        qualifiers = new Qualifiers();
-        qualifiers.setRegistry(new ConfigRegistry());
+        qualifiers = new Qualifiers(new ConfigRegistry());
     }
 
     @Benchmark
