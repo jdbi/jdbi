@@ -15,6 +15,12 @@ concurrency:
   group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# The test reporter publishes a check run. A pull_request build from a fork gets a
+# read-only token regardless, and falls back to annotations there.
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   guava:
     name: Test Guava versions
@@ -53,6 +59,11 @@ jobs:
         run: |
           ./mvnw --version
           make run-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (guava ${{ matrix.test-version }})'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
@@ -115,6 +126,11 @@ jobs:
           ./mvnw --version
           make run-tests
 
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (immutables ${{ matrix.test-version }})'
+
       - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
@@ -175,6 +191,11 @@ jobs:
         run: |
           ./mvnw --version
           make run-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (jackson2 ${{ matrix.test-version }})'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
@@ -237,6 +258,11 @@ jobs:
           ./mvnw --version
           make run-tests
 
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (jodatime2 ${{ matrix.test-version }})'
+
       - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
@@ -297,6 +323,11 @@ jobs:
         run: |
           ./mvnw --version
           make run-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (vavr ${{ matrix.test-version }})'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
@@ -359,6 +390,11 @@ jobs:
           ./mvnw --version
           make run-tests
 
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (guice ${{ matrix.test-version }})'
+
       - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
@@ -419,6 +455,11 @@ jobs:
         run: |
           ./mvnw --version
           make run-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (kotlin ${{ matrix.test-version }})'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
@@ -481,6 +522,11 @@ jobs:
           ./mvnw --version
           make run-tests
 
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (spring ${{ matrix.test-version }})'
+
       - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
@@ -541,6 +587,11 @@ jobs:
         run: |
           ./mvnw --version
           make run-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        with:
+          name: 'test report (slf4j ${{ matrix.test-version }})'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
