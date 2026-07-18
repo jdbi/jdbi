@@ -103,12 +103,12 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testRegisteredDecorator() {
-        testHandle.getConfig(HandlerDecorators.class).register(
+        testHandle.configure(HandlerDecorators.class, c -> c.register(
                 (base, sqlObjectType, method) ->
                         (target, args, handleSupplier) -> {
                             invoked("custom");
                             return base.invoke(target, args, handleSupplier);
-                        });
+                        }));
 
         testHandle.attach(Dao.class).orderedFooBar();
 
@@ -117,7 +117,7 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testRegisteredDecoratorReturnsBase() {
-        testHandle.getConfig(HandlerDecorators.class).register((base, sqlObjectType, method) -> base);
+        testHandle.configure(HandlerDecorators.class, c -> c.register((base, sqlObjectType, method) -> base));
 
         testHandle.attach(Dao.class).orderedFooBar();
 

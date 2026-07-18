@@ -49,8 +49,8 @@ public class TestSqlLocator {
     public void testLocateConfigDriven() throws Exception {
         Jdbi jdbi = pgExtension.getJdbi();
 
-        jdbi.getConfig(SqlObjects.class).setSqlLocator(
-            (type, method, config) -> config.get(TestConfig.class).sql);
+        jdbi.configure(SqlObjects.class, c -> c.sqlLocator(
+            (type, method, config) -> config.get(TestConfig.class).sql));
 
         jdbi.useHandle(h -> {
             h.getConfig(TestConfig.class).sql = "select * from something order by id";

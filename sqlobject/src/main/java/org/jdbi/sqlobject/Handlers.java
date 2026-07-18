@@ -16,11 +16,11 @@ package org.jdbi.sqlobject;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.ExtensionHandlerFactory;
+import org.jdbi.core.internal.RegistrationLists;
 
 /**
  * Registry for {@link HandlerFactory handler factories}, which produce {@link Handler handlers} for SQL object methods.
@@ -33,15 +33,15 @@ import org.jdbi.core.extension.ExtensionHandlerFactory;
  * from the {@link org.jdbi.core.extension.ExtensionFactory#getExtensionHandlerFactories(ConfigRegistry)} method.
  */
 @Deprecated(since = "3.38.0", forRemoval = true)
-public class Handlers implements JdbiConfig<Handlers> {
+public final class Handlers implements JdbiConfig<Handlers> {
     private final List<HandlerFactory> factories;
 
     public Handlers() {
-        factories = new CopyOnWriteArrayList<>();
+        this(List.of());
     }
 
-    private Handlers(Handlers that) {
-        factories = new CopyOnWriteArrayList<>(that.factories);
+    private Handlers(List<HandlerFactory> factories) {
+        this.factories = factories;
     }
 
     List<HandlerFactory> getFactories() {
@@ -51,11 +51,10 @@ public class Handlers implements JdbiConfig<Handlers> {
     /**
      * Registers the given handler factory with the registry.
      * @param factory the factory to register
-     * @return this
+     * @return a copy of this configuration with the factory registered
      */
     public Handlers register(HandlerFactory factory) {
-        factories.add(0, factory);
-        return this;
+        return new Handlers(RegistrationLists.prepend(factories, factory));
     }
 
     public Optional<Handler> findFor(Class<?> sqlObjectType, Method method) {
@@ -66,6 +65,7 @@ public class Handlers implements JdbiConfig<Handlers> {
 
     @Override
     public Handlers createCopy() {
-        return new Handlers(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }
