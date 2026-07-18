@@ -149,16 +149,19 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): through D6 + REMOVAL R1+R2+R3 DONE; next is R7 (benchmark the #2992/COW payoff) then R4/R6
+## HANDOFF (2026-07-18): through D6 + REMOVAL R1+R2+R3+R7 DONE; next is R4 (handle-config removal) then R5/R6
 
-> **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`) DONE, whole reactor green. **R3
-> landed the #2992 handle-COW payoff** (`Handle` config = `createChild()` off the frozen root) AND — the key
-> discovery this session — moved the per-callback attach-for-cleanup scope off per-handle config onto a
-> `Handle.forceAttachStatements` flag, because `withHandle`'s `configure(SqlStatements, attachAll=attachCallback)`
-> was forking every callback handle and negating the COW sharing for the fluent path. See the R3 bullet for detail.
-> **NEXT: R7** — benchmark + quantify the handle-boundary COW win (handle-per-operation SQL Object / classic-fluent
-> A/B, `-prof gc`); R3 is the commit R7 measures in/out. Then R4 (handle-config removal), R6 (upgrade docs).
-> **R2 made `Jdbi` read-only**
+> **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
+> (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
+> `createChild()` off the frozen root) AND — the key discovery — moved the per-callback attach-for-cleanup scope off
+> per-handle config onto a `Handle.forceAttachStatements` flag, because `withHandle`'s
+> `configure(SqlStatements, attachAll=attachCallback)` was forking every callback handle and negating the COW
+> sharing for the fluent path. **R7 quantified it** (new `HandlePerOpV3Benchmark`, handle-per-op): SQL Object attach
+> **134.6 → 45.6 KB/op (−66%, 2.95×), 1.3× thrpt**; `withHandle` matches `open` (proving the flag fix); fluent −10%;
+> no regression on warm-handle paths (classic 4208 / template 3512 unchanged). See the R3 + R7 bullets.
+> **NEXT: R4** — remove handle-level mutable config (migrate ~120 `handle.registerX`/`configure` sites to
+> `jdbi.open(scope)` or per-statement; `Handle` drops `Configurable`'s mutators). Then R5 (final read/mutate split),
+> R6 (upgrade docs). **R2 made `Jdbi` read-only**
 > (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
 > sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
 > `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
@@ -256,15 +259,21 @@ prize early, then finish the handle-config removal:
     `index.adoc` §"attaching statements" example (`handle.getConfig(SqlStatements.class).setAttachCallbackStatementsForCleanup(false)`
     inside a callback) is already a discard-mutation no-op under immutable config (pre-existing D-phase debt), and the
     `setAttachAllStatementsForCleanup`/`setAttach…` spellings predate the prefix-free withers.
-- **R7 — re-run relevant benchmarks + quantify the gains** (maintainer ask 2026-07-18; runs once R3 lands the
-  payoff). The #2992 scenario is *one handle per request, `attach()` only* — a cold metadata cache under `createCopy`.
-  Author/confirm a handle-per-operation SQL Object benchmark (the existing `H2SqlObjectV3Benchmark` may reuse a
-  handle — check and add a per-open variant if so), then A/B the same build with the R3 commit in vs out
-  (`createCopy` handle vs `createChild` handle), `-prof gc` (alloc/op is the deterministic metric here). Report:
-  the handle-open path (classic fluent), the SQL Object attach path, and a no-regression check across the existing
-  benchmark suite. Baselines to beat, from the tasklist: classic ~8.2 KB/op → template ~3.5 KB/op; sqlobject
-  ~9.1 KB/op → retarget ~4.3 KB/op; statement-level `createCopy` 6104 → `createChild` 4208 B/op — R3 extends the COW
-  win to the handle boundary. Record the numbers here and in the branch memory.
+- **R7 — benchmark + quantify the gains. [DONE 2026-07-18, `0b3dbf9a1`.]** Added `HandlePerOpV3Benchmark`
+  (opens a FRESH handle per invocation — the #2992 "one handle per request" scenario — for the fluent and SQL
+  Object attach paths, via both `open()` and `withHandle()`); the existing benchmarks all reuse ONE warm handle so
+  none exercised the handle-open boundary. A/B = same build with the R3 source (Handle/Jdbi/BaseStatement) reverted
+  to `640246519^` vs current, `-prof gc`, 2 forks × 10 iterations. **Results (gc.alloc.rate.norm, R3 out → in):**
+  - `openAttachSelect` (SQL Object, the #2992 case): **134580 → 45584 B/op (−66%, 2.95×); 7.2 → 9.4 ops/ms (1.31×)**
+  - `withHandleAttachSelect`: **135124 → 46111 B/op (−66%, 2.93×)** — matches `open`, proving the attach-flag-off-config
+    fix (without it the callback handle would still fork and stay at ~135 KB)
+  - `openFluentSelect`: 13728 → 12302 B/op (−10.4%); `withHandleFluentSelect`: 14080 → 12575 B/op (−10.7%) — smaller
+    because the fluent path's alloc is dominated by SQL render/parse + JDBC, and it resolves only the mapper through
+    the warm cache (attach also reuses the warm `ExtensionMetadata` resolver, worth ~89 KB/op). Throughput flat.
+  - **No regression** on the warm-handle paths: `QueryTemplateBenchmark.classic` 4208 / `template` 3512 B/op
+    (unchanged from the D7 baseline); `H2SqlObjectV3Benchmark.attach` (warm reused handle) 30092 B/op, logically
+    unaffected (single handle → no per-handle re-warming). The ~89 KB/op the cold attach saves is exactly the
+    ExtensionMetadata resolution that a fresh handle no longer repeats.
 - **R4 — remove handle-level mutable config** (DECIDED 2026-07-18: retire it now — we target the major here, and it
   goes away sooner or later). Migrate ~120 in-repo `handle.registerX`/`configure` sites to `jdbi.open(scope)` or
   per-statement config; `Handle` drops `Configurable`'s mutators (read-only via `ConfigReader`). `open(scope)` (D6)
