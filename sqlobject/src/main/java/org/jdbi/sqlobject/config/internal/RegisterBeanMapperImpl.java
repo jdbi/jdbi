@@ -41,7 +41,6 @@ public class RegisterBeanMapperImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        RowMappers mappers = config.get(RowMappers.class);
-        mappers.register(beanMapper);
+        config.configure(RowMappers.class, c -> c.register(beanMapper));
     }
 }

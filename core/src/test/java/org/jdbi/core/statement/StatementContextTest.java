@@ -66,7 +66,7 @@ public class StatementContextTest {
         ColumnMapper<Foo> mapper = new FooMapper();
 
         ConfigRegistry config = new ConfigRegistry();
-        config.get(ColumnMappers.class).register(mapper);
+        config.configure(ColumnMappers.class, c -> c.register(mapper));
 
         final StatementContext context = StatementContextAccess.createContext(config);
 

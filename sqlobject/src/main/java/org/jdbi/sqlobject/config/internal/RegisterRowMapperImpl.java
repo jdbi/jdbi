@@ -33,6 +33,6 @@ public class RegisterRowMapperImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(RowMappers.class).register(rowMapper);
+        config.configure(RowMappers.class, c -> c.register(rowMapper));
     }
 }

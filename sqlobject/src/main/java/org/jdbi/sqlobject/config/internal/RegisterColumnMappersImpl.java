@@ -40,7 +40,13 @@ public class RegisterColumnMappersImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        ColumnMappers columnMappersConfig = config.get(ColumnMappers.class);
-        columnMappers.forEach(columnMappersConfig::register);
+        // Raw mappers go through per-element type inference, so this cannot use the bulk register(Collection).
+        config.configure(ColumnMappers.class, c -> {
+            ColumnMappers result = c;
+            for (final ColumnMapper<?> columnMapper : columnMappers) {
+                result = result.register(columnMapper);
+            }
+            return result;
+        });
     }
 }

@@ -41,8 +41,7 @@ public class RegisterFieldMapperImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        RowMappers mappers = config.get(RowMappers.class);
-        mappers.register(fieldMapper);
+        config.configure(RowMappers.class, c -> c.register(fieldMapper));
     }
 }
 

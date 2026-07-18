@@ -32,6 +32,6 @@ public class RegisterJoinRowMapperImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(RowMappers.class).register(mapper);
+        config.configure(RowMappers.class, c -> c.register(mapper));
     }
 }

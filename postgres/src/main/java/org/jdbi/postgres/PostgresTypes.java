@@ -53,7 +53,7 @@ public class PostgresTypes implements JdbiConfig<PostgresTypes> {
      * @param typeName the Postgres custom type name
      */
     public PostgresTypes registerCustomType(Class<? extends PGobject> clazz, String typeName) {
-        registry.get(SqlArrayTypes.class).register(clazz, typeName);
+        registry.configure(SqlArrayTypes.class, c -> c.register(clazz, typeName));
 
         types.put(clazz, typeName);
 

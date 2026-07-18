@@ -112,7 +112,7 @@ class ExtensionConfigurerAnnotationTest {
 
         @Override
         public void configure(ConfigRegistry config, Annotation annotation, Class<?> extensionType) {
-            config.get(RowMappers.class).register(new SomethingMapper());
+            config.configure(RowMappers.class, c -> c.register(new SomethingMapper()));
         }
     }
     //end::extension-configurer[]
