@@ -18,25 +18,25 @@ public interface MapEntryConfig<This> {
     String getKeyColumn();
 
     /**
-     * Sets the column that map entry keys are loaded from. If set, keys will be loaded from the given column, using the {@link ColumnMapper} registered
-     * for the key type. If unset, keys will be loaded using the {@link RowMapper} registered for the key type, from whichever columns that row mapper
-     * uses.
+     * Returns a copy of this configuration with the column that map entry keys are loaded from. If set, keys will be loaded from the given column, using
+     * the {@link ColumnMapper} registered for the key type. If unset, keys will be loaded using the {@link RowMapper} registered for the key type, from
+     * whichever columns that row mapper uses.
      *
      * @param keyColumn the key column name. not null
-     * @return this config object, for call chaining
+     * @return the derived configuration
      */
-    This setKeyColumn(String keyColumn);
+    This keyColumn(String keyColumn);
 
     String getValueColumn();
 
     /**
-     * Sets the column that map entry values are loaded from. If set, values will be loaded from the given column, using the {@link ColumnMapper}
-     * registered for the value type. If unset, values will be loaded using the {@link RowMapper} registered for the value type, from whichever columns
-     * that row mapper uses.
+     * Returns a copy of this configuration with the column that map entry values are loaded from. If set, values will be loaded from the given column,
+     * using the {@link ColumnMapper} registered for the value type. If unset, values will be loaded using the {@link RowMapper} registered for the value
+     * type, from whichever columns that row mapper uses.
      *
      * @param valueColumn the value column name. not null
-     * @return this config object, for call chaining
+     * @return the derived configuration
      */
-    This setValueColumn(String valueColumn);
+    This valueColumn(String valueColumn);
 
 }

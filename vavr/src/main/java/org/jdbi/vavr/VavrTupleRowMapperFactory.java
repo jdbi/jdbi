@@ -32,6 +32,7 @@ import io.vavr.Tuple8;
 import io.vavr.collection.Array;
 import io.vavr.control.Option;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.mapper.MapEntryMappers;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
@@ -113,11 +114,20 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
         Array<Tuple3<Type, Integer, Option<String>>> withConfiguredColumnName;
         Tuple2<Type, Integer> keyType = tupleTypes.get(0);
         Tuple2<Type, Integer> valueType = tupleTypes.get(1);
+        TupleMappers tupleMappers = config.get(TupleMappers.class);
+        MapEntryMappers mapEntryMappers = config.get(MapEntryMappers.class);
+        // Prefer the tuple-specific column, falling back to the global map entry column config.
+        String keyColumn = firstNonNull(tupleMappers.getKeyColumn(), mapEntryMappers.getKeyColumn());
+        String valueColumn = firstNonNull(tupleMappers.getValueColumn(), mapEntryMappers.getValueColumn());
         withConfiguredColumnName = Array.of(
-                Tuple.of(keyType._1, keyType._2, Option.of(config.get(TupleMappers.class).getKeyColumn())),
-                Tuple.of(valueType._1, valueType._2, Option.of(config.get(TupleMappers.class).getValueColumn()))
+                Tuple.of(keyType._1, keyType._2, Option.of(keyColumn)),
+                Tuple.of(valueType._1, valueType._2, Option.of(valueColumn))
        );
         return withConfiguredColumnName;
+    }
+
+    private static String firstNonNull(String first, String second) {
+        return first != null ? first : second;
     }
 
     private Optional<RowMapper<?>> buildMapper(Class<? extends Tuple> tupleClass, Array<Optional<RowMapper<?>>> colMappers) {
