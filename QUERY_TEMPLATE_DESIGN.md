@@ -186,12 +186,33 @@ prize early, then finish the handle-config removal:
 - **R1 — migrate in-repo Jdbi-mutation call sites to the builder** (behavior-preserving prep). ~90–100 sites across
   ~59 files: `Jdbi.create(x).registerY(...).installPlugin(p)` / post-`create` `jdbi.registerY(...)` →
   `Jdbi.builder(x).registerY(...).installPlugin(p)…build()`. Central test support already done (D4b.2).
-- **R2 — remove the Jdbi mutation API; `Jdbi` becomes read-only.** Delete `installPlugin`/`setTransactionHandler`/
+- **R2 — remove the Jdbi mutation API; `Jdbi` becomes read-only. [IN PROGRESS — API changes done + validated,
+  stashed; test-site migration pending]** Delete `installPlugin`/`setTransactionHandler`/
   `setStatementBuilderFactory`/`setHandleCallbackDecorator`/`setHandleScope` + `JdbiPlugin.customizeJdbi` (+ the
-  `applyPlugin` bridge's `customizeJdbi` leg); `Jdbi implements ConfigReader` (read) not `Configurable` (read+mutate).
+  `applyPlugin` bridge's `customizeJdbi` leg; Builder knob setters now write `jdbi` fields directly); `Jdbi implements
+  ConfigReader` (read, `org.jdbi.core.statement.ConfigReader`) not `Configurable` (read+mutate). Also migrate
+  `KotlinPlugin.kt` + `KotlinSqlObjectPlugin.kt` `customizeJdbi`→`configure(Builder)` (D4b.1 `.java`-grep missed them).
   The builder keeps mutating the `ConfigRegistry` directly during assembly, so this only removes *post-build* Jdbi
   mutation. Root config is then **convention-frozen** (no freeze-flag — consistent with the D4b "no freeze-on-open"
   decision): nothing idiomatic mutates the root post-build; handles/statements fork COW children.
+  - **STATUS (2026-07-18):** the main-source API removal is DONE and VALIDATED (whole reactor's `src/main` compiles;
+    all breakage is test call-sites) — parked in `git stash@{0}` ("R2 API removal…"). Restore it to resume.
+  - **Compiler-driven site list:** removing the API breaks ~150+ test call-sites (37 core test files + downstream
+    not yet reached). Dominant pattern: `extension.getJdbi().registerX(m)…useHandle/withHandle(h→…)` (a shared Jdbi
+    configured per test method) — exactly what R3's COW makes unsafe, so it genuinely must move.
+  - **MIGRATION PATTERN (maintainer-DECIDED 2026-07-18): extension-level config.** Add a
+    `withConfig(Consumer<Jdbi.Builder>)` convenience to the test extensions (core-test `DatabaseExtension` interface +
+    testing `JdbiExtension`), implemented as `withPlugin(JdbiPlugin.of(consumer))` (reuses the D4b.1 `JdbiPlugin.of`).
+    Then move each test's `getJdbi().registerX(m)` onto the extension field: `.withConfig(b → b.registerColumnMapper(m))`,
+    stripping the registration from the method (config applies at build, before the shared handle opens). Per-method
+    config becomes class-scoped — fine for the static-fixture majority.
+  - **Special-case tail (needs judgment, not the field pattern):** `getJdbi().setTransactionHandler(spy)` with a
+    per-test Mockito spy (`TestHandle`, `JdbiOpenLeakTest`, `TestTransactions`, sqlobject `TestSqlObjectTransactions`)
+    → rebuild a `Jdbi` from the extension's connection source with `.transactionHandler(spy)`, or restructure;
+    `customizeJdbi` test-plugins (`TestIterator`/`TestStream`/`TestJdbiNestedCallBehavior`/`TestExtensionContext`/
+    `ImmutablesTest`/`TestBindProperties`) → `configure(Builder)`; `oracle12/TestOraclePlugin` asserts config
+    before/after `installPlugin` → restructure to `builder().installPlugin().build()` (or drop the before-assert);
+    `TestJdbiBuilder`/`TestPlugins` (D4b.2 `@SuppressWarnings`) subject was the removed install path → rework/remove.
 - **R3 — handle `createCopy()` → `createChild()` COW off the frozen Jdbi config** (plain `open()` and `open(scope)`).
   Handles share the Jdbi root's warm resolver `views` instead of each paying a cold copy. **This is the #2992 fix.**
   Safe now because R2 froze the root. Benchmark the warm-metadata win.
