@@ -16,9 +16,10 @@ package org.jdbi.sqlobject;
 import java.util.List;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.Jdbi;
 import org.jdbi.core.mapper.ImmutableTrain;
 import org.jdbi.core.mapper.ImmutablesTest.Train;
-import org.jdbi.core.mapper.immutables.JdbiImmutables;
+import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.sqlobject.customizer.BindPojo;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.sqlobject.statement.SqlUpdate;
@@ -33,7 +34,12 @@ public class TestBindProperties {
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin())
-        .withConfig(JdbiImmutables.class, c -> c.registerImmutable(Train.class));
+        .withPlugin(new JdbiPlugin() {
+            @Override
+            public void customizeJdbi(Jdbi jdbi) {
+                jdbi.registerImmutable(Train.class);
+            }
+        });
 
     private Handle h;
 

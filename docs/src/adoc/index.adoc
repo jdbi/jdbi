@@ -6511,7 +6511,7 @@ We do support the configurable `get`, `is`, and `set` prefixes.
 
 Just tell us about your types by installing the plugin and configuring your `Immutables` type:
 
-`jdbi.getConfig(JdbiImmutables.class).registerImmutable(MyValueType.class)`
+`jdbi.registerImmutable(MyValueType.class)`
 
 The configuration will both register appropriate link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^]&#8288;s as well as configure the new link:{jdbidocs}/core/statement/SqlStatement.html#bindPojo(java.lang.Object) (or `@BindPojo`) binders:
 
