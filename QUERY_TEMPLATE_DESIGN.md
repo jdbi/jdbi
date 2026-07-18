@@ -445,9 +445,10 @@ section's "### Progress" and "### Remaining sub-step-3 work (START HERE on a cle
 first.** Short version of where we are: `configure` is now `UnaryOperator`-based; `Enums`, five scalar-policy
 configs, `Arguments` (with a bulk `register(Collection)`), and the Q1 interceptor trio
 (`RowMappers`/`ColumnMappers`/`SqlArrayTypes`, now with `withInferenceInterceptor` + a shared
-`RegistrationLists` helper), and the shared `MapEntryConfig` (`MapEntryMappers` + vavr `TupleMappers`, whose
-registry back-ref was removed) are done immutable; dead `prePreparedTypes` deleted. Remaining: the big
-`SqlStatements`/`Extensions`, then D7 → sub-step 5 (the perf payoff) → D4/D5/D6 (builder/plugin/open surface).
+`RegistrationLists` helper), the shared `MapEntryConfig` (`MapEntryMappers` + vavr `TupleMappers`, whose
+registry back-ref was removed), and `Extensions` are done immutable; dead `prePreparedTypes` deleted.
+Remaining: **`SqlStatements`** (the last and biggest D1 config — see Remaining #4 for its open design
+questions), then D7 → sub-step 5 (the perf payoff) → D4/D5/D6 (builder/plugin/open surface).
 All commits are whole-reactor green with static analysis ENABLED — do not fall back to
 `-Dbasepom.check.skip-all` as the validation of record.
 
@@ -712,6 +713,16 @@ largest public surface and depend on the value/registry immutability being in pl
   Migrated `Configurable.setMapKeyColumn/setMapValueColumn`, sqlobject `KeyColumnImpl`/`ValueColumnImpl`, the
   vavr tests, and the `ResultScannable`/`Configurable` javadoc. Added `MapEntryMappersTest`/`TupleMappersTest`.
   Whole reactor green.
+- **Item 4a DONE (`6f7ebbad2`): `Extensions` immutable.** Four registration lists + two policy booleans final;
+  `register`/`registerHandlerFactory`/`registerHandlerCustomizer`/`registerConfigCustomizerFactory` prepend →
+  new (via `RegistrationLists.prepend`); `setAllowProxy`→`allowProxy(boolean)` wither; `failFast()` returns new;
+  `createCopy` returns `this`. Built-ins move to a `buildDefaultHandlerFactories()` reproducing the exact
+  reverse-of-registration order. Migrated the core extension tests + generator `setAllowProxy` sites (all via
+  `configure`/`withConfig`) and the `registerExtension` javadoc; added `ExtensionsTest`. Whole reactor green.
+  **Item 4b `SqlStatements` NOT done — deliberately deferred** (see Remaining #4): it is 551 lines with a
+  define-map hot path, `volatile` fields, a derived `templateCache`, exception-handler deque and context
+  listeners, and it interlocks with D7/sub-step 5 (the per-statement `define()` copy-on-write question). It
+  wants its own focused pass, not a rushed one at the tail of this session.
 
 ### Remaining sub-step-3 work (START HERE on a clean restart)
 1. ~~**`Arguments` full immutability**~~ **DONE (`2cd165fbb`)** — see the Progress entry above. Also added a
@@ -721,8 +732,25 @@ largest public surface and depend on the value/registry immutability being in pl
 3. ~~**Shared `MapEntryConfig`**~~ **DONE (`5a567f323`)** — see the Progress entry above. Note the `TupleMappers`
    registry-back-ref removal (fallback relocated to `VavrTupleRowMapperFactory`), which was not in the original
    one-line plan.
-4. **Large configs** `SqlStatements` (many fields + `attributes` (defines) + `customizers` + policy) and
-   `Extensions` (registration lists + `allowProxy`/`failFast`). Biggest surface; do last in D1.
+4. **Large configs.** `Extensions` ~~(registration lists + `allowProxy`/`failFast`)~~ **DONE (`6f7ebbad2`)**.
+   **`SqlStatements` (START HERE) is the one remaining D1 config** and the biggest/subtlest surface (551 lines).
+   Before editing, decide these (they interlock with D7/sub-step 5, so it is fine to defer some to then):
+   - **`attributes` (defines) hot path.** `define(key, value)` currently mutates a `Map<String,Object>` in place;
+     statements call it many times. An immutable copy-on-write map per `define` is O(n) per call. Options: a
+     persistent/HAMT map, or accept that per-statement defines live in the statement-local copy-on-write config
+     (D7) rather than forcing `SqlStatements` itself to re-copy on every `define`. Likely the define churn is
+     exactly what D7's statement-local config is for — so `SqlStatements`' own `attributes` may just need to
+     become an immutable snapshot with a wither, and the per-`define` accumulation stays in the D7 layer.
+   - **`volatile` fields** (`allowUnusedBindings`, `attach*ForCleanup`, `scriptStatementsNeedSemicolon`,
+     `jfr*MaxLength`, `includeBindingsInTelemetry`): the `volatile` exists only because config is mutated in
+     place on a shared instance today; immutability removes the need — make them plain final fields.
+   - **`templateCache`** (`JdbiCache<StatementCacheKey, Function<RenderContext,String>>`): this is a derived
+     cache, not registration data — it is a sub-step-2-style resolver concern. Decide whether it moves to a
+     `readAs` resolver (like the mapper/argument resolvers) rather than living as a config value field.
+   - **`exceptionHandlers` (Deque)** and **`contextListeners`**: registration lists — same
+     `RegistrationLists`/wither treatment, minding the Deque ordering semantics.
+   - Mixed void vs `this`-returning setters (~15): rename to prefix-free withers; migrate the direct callers
+     (sweep `*.java` AND `*.kt` for `get(SqlStatements.class).set*` / `SqlStatements::class.java`).
 5. **Sweep the remaining warm-like/dead constructs** (`PojoWarmingCustomizer`, any `warm(ConfigRegistry)` hooks) —
    assess whether they still pull weight now that resolvers cache per-registry; drop if not (per maintainer:
    we are on 4.x, remove rather than shim when a construct adds baggage).
