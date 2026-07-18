@@ -60,7 +60,7 @@ public class LikeClauseTest {
 
         String name = query
             // this lovely safeguard :)
-            .configure(SqlStatements.class, sqls -> sqls.setUnusedBindingAllowed(true))
+            .configure(SqlStatements.class, sqls -> sqls.unusedBindingAllowed(true))
             .mapTo(String.class)
             .one();
 

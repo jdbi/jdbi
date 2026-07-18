@@ -28,9 +28,8 @@ public final class CaffeineCachePlugin implements JdbiPlugin {
 
     @Override
     public void customizeJdbi(Jdbi jdbi) {
-        final SqlStatements config = jdbi.getConfig(SqlStatements.class);
-
-        config.setTemplateCache(CaffeineCacheBuilder.instance().maxSize(SQL_TEMPLATE_CACHE_SIZE));
-        config.setSqlParser(new ColonPrefixSqlParser(CaffeineCacheBuilder.instance().maxSize(PARSED_SQL_CACHE_SIZE)));
+        jdbi.configure(SqlStatements.class, config -> config
+                .templateCache(CaffeineCacheBuilder.instance().maxSize(SQL_TEMPLATE_CACHE_SIZE))
+                .sqlParser(new ColonPrefixSqlParser(CaffeineCacheBuilder.instance().maxSize(PARSED_SQL_CACHE_SIZE))));
     }
 }

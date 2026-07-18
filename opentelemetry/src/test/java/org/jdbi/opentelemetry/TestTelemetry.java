@@ -186,9 +186,9 @@ public class TestTelemetry {
         }
 
         public void truncate() {
-            ext.getJdbi().getConfig(SqlStatements.class)
-                .setJfrSqlMaxLength(10)
-                .setJfrParamMaxLength(32);
+            ext.getJdbi().configure(SqlStatements.class, c -> c
+                .jfrSqlMaxLength(10)
+                .jfrParamMaxLength(32));
             final var create = "create table something(id identity primary key, name varchar(50))";
             final var insert = "insert into something (id, name) values (:id, :name)";
             try (var h = ext.openHandle()) {
@@ -212,8 +212,8 @@ public class TestTelemetry {
         public void doNotIncludeBindings() {
             final var sensitiveData = "sensitive_data";
 
-            ext.getJdbi().getConfig(SqlStatements.class)
-                .setIncludeBindingsInTelemetry(false);
+            ext.getJdbi().configure(SqlStatements.class, c -> c
+                .includeBindingsInTelemetry(false));
 
             final var create = "create table something(id identity primary key, name varchar(50))";
             final var insert = "insert into something (id, name) values (:id, :name)";

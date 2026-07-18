@@ -127,7 +127,7 @@ public class TestStatements {
     public void testPermittedUnusedBinding() {
         Handle h = h2Extension.getSharedHandle();
 
-        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
+        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.unusedBindingAllowed(true))
             .createQuery("select * from something")
             .bind("id", 1)
             .collectRows(Collectors.counting())).doesNotThrowAnyException();
@@ -137,7 +137,7 @@ public class TestStatements {
     public void testPermittedUsedAndUnusedBinding() {
         Handle h = h2Extension.getSharedHandle();
 
-        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true))
+        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.unusedBindingAllowed(true))
             .createQuery("select * from something where id = :id")
             .bind("id", 1)
             .bind("name", "jack")
@@ -187,7 +187,7 @@ public class TestStatements {
         Handle h = h2Extension.getSharedHandle();
 
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
-        h.configure(SqlStatements.class, stmts -> stmts.setUnusedBindingAllowed(true));
+        h.configure(SqlStatements.class, stmts -> stmts.unusedBindingAllowed(true));
         try (Call call = h.createCall("? = CALL TO_DEGREES(?)")) {
             call.registerOutParameter(0, Types.DOUBLE)
                 .bind(1, 100.0d)

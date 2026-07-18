@@ -33,6 +33,6 @@ public class UseStringSubstitutorTemplateEngineImpl extends SimpleExtensionConfi
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlStatements.class).setTemplateEngine(engine);
+        config.configure(SqlStatements.class, c -> c.templateEngine(engine));
     }
 }

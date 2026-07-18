@@ -43,7 +43,7 @@ public class TestSqlLoggerAttributesAndBinding {
     @BeforeEach
     public void before() {
         logger = new TalkativeSqlLogger();
-        h2Extension.getJdbi().getConfig(SqlStatements.class).setSqlLogger(logger);
+        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.sqlLogger(logger));
         h = h2Extension.openHandle();
     }
 
@@ -76,9 +76,9 @@ public class TestSqlLoggerAttributesAndBinding {
 
     @Test
     public void testPreparedBatch() {
-        h.configure(SqlStatements.class, c -> c.setSqlLogger(SqlLogger.NOP_SQL_LOGGER));
+        h.configure(SqlStatements.class, c -> c.sqlLogger(SqlLogger.NOP_SQL_LOGGER));
         h.createUpdate(CREATE).define("x", "foo").execute();
-        h.configure(SqlStatements.class, c -> c.setSqlLogger(logger));
+        h.configure(SqlStatements.class, c -> c.sqlLogger(logger));
 
         int id = 0;
 

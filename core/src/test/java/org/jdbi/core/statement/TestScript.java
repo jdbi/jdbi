@@ -129,7 +129,7 @@ public class TestScript {
     @Test
     public void testMySQLScript() {
         Handle h = h2Extension.getSharedHandle();
-        h.getConfig(SqlStatements.class).setScriptStatementsNeedSemicolon(false);
+        h.configure(SqlStatements.class, c -> c.scriptStatementsNeedSemicolon(false));
         String sql = getClasspathSqlLocator().getResource("script/oracle-issue-2021.sql");
 
         try (Script script = new Script(h, sql)) {
