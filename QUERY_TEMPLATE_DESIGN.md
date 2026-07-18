@@ -436,12 +436,21 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-17, later): phase 2 sub-step 2 DONE — sub-step 3 redesigned as config/Handle decoupling
+## HANDOFF (2026-07-18): phase 2 sub-step 3 IN PROGRESS — config assembly API signed off + partly built
 
-**START HERE.** Phase 2 (immutable config) is underway. Chosen end state and full plan are in
-"## Phase 2 implementation plan" and "## Phase 2 design options" below; the landable sub-step sequence
-is in "### Suggested landable sub-steps". Done so far (all committed, whole reactor green
-with static analysis ENABLED — do not go back to `-Dbasepom.check.skip-all` as the validation of record):
+**START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
+config/Handle decoupling; the **public API is signed off** and recorded in "## Config assembly API — PROPOSAL
+for sign-off" below (D1–D7 with a sign-off checklist). **What is done and exactly what remains is in that
+section's "### Progress" and "### Remaining sub-step-3 work (START HERE on a clean restart)" — read those two
+first.** Short version of where we are: `configure` is now `UnaryOperator`-based; `Enums`, five scalar-policy
+configs, and `Arguments`' registry dependency are done immutable/registry-free; dead `prePreparedTypes` deleted.
+Remaining: `Arguments` full immutability, the Q1 interceptor trio, shared `MapEntryConfig`, the big
+`SqlStatements`/`Extensions`, then D7 → sub-step 5 (the perf payoff) → D4/D5/D6 (builder/plugin/open surface).
+All commits are whole-reactor green with static analysis ENABLED — do not fall back to
+`-Dbasepom.check.skip-all` as the validation of record.
+
+Historical context below (sub-steps 1–2, and the decoupling rationale that superseded the original
+swap-based sub-step-3 sketch). Done earlier (all committed, whole reactor green):
 - Sub-step 1 (`03017fe`): `ConfigRegistry.readAs(asType, factory)` — the per-registry memoized-view seam.
 - **Sub-step 2 DONE** — resolution + caches (+ registry back-refs, where used solely for resolution) moved
   off the config values onto per-registry resolvers via `readAs`; each config value is now registration data
@@ -456,13 +465,13 @@ with static analysis ENABLED — do not go back to `-Dbasepom.check.skip-all` as
   - `Qualifiers` stays on the shared `ConfigCaches` (already decoupled) — no resolver needed.
 - Static-analysis debt cleaned (`c7aceeb` core, `2852f15` rest) — reactor passes `mvn clean install`.
 
-**Next: sub-step 3 — see the redesigned target below.** The original sub-step-3 sketch (make `ConfigRegistry`
+**Why the sub-step-3 target changed (historical).** The original sub-step-3 sketch (make `ConfigRegistry`
 immutable and have `Jdbi`/`Handle` *swap* a registry reference on `configure`) was **reconsidered with the
-maintainer (2026-07-17)** and is **superseded** by the config/Handle decoupling in
-"## Config/Handle decoupling" immediately below. A reference-swap on a long-lived `Jdbi`/`Handle` is still
-mutable, reconfigurable state — the redesign moves config off the stateful objects entirely. Sub-step 4
-(immutable config *values*) and sub-step 5 (delete the per-statement `createCopy()`) stand and are needed
-under either approach.
+maintainer (2026-07-17)** and **superseded** by the config/Handle decoupling in "## Config/Handle decoupling"
+below, whose public API was then designed and signed off in "## Config assembly API" (see that section for the
+live status). A reference-swap on a long-lived `Jdbi`/`Handle` is still mutable, reconfigurable state — the
+redesign moves config off the stateful objects entirely. The reference-swap still returns, but only at
+sub-step 5 (per-statement-copy removal), on top of immutable values, and as a deprecated compat shim.
 
 ---
 
@@ -632,18 +641,63 @@ largest public surface and depend on the value/registry immutability being in pl
 (already returns the config type); scalar setters become `templateEngine(e)` / `keyColumn(k)` (no `set`, no
 `with`), consistent with `register` and clash-free with `getX()`/`isX()` getters. Apply during D1.
 
-### Progress
+### Progress (sub-step 3 implementation) — every commit below is whole-reactor green (tests + static analysis)
 - **Increment 1 DONE (`c52066465`): D2 mechanism.** `Configurable.configure(Class, Consumer)` →
   `configure(Class, UnaryOperator)`; `ConfigRegistry.install(Class, value)` is the write half. Behavior-
   preserving — `configure` installs the derived value into the CURRENT registry (aliasing unchanged, no
   reference-swap, per-statement copy still present). Convenience methods unchanged in spelling (their
   `c -> c.register(x)` lambdas are already valid `UnaryOperator`s). `ConfiguringPlugin`, `JdbiExtension`/
-  `DatabaseExtension.withConfig`, and the Kotlin `configure(KClass,…)` extension moved to `UnaryOperator`; a
-  few void setters used in configure lambdas made chainable. Whole reactor green (tests + static analysis).
-- **Next: D1 per domain** — make each `JdbiConfig` value immutable (prefix-free withers returning a new value),
-  re-impl its convenience methods, migrate direct `configure` callers. `configure`'s install-into-current already
-  handles a returned new value, so this is domain-local and stays green each step (like sub-step 2). Then D7,
-  sub-step 5, and D4/D5/D6.
+  `DatabaseExtension.withConfig`, and the Kotlin `configure(KClass,…)` extension moved to `UnaryOperator`.
+- **D1 pattern locked (`c5820fd99`): `Enums` immutable + `ConfigRegistry.configure(Class, UnaryOperator)`.**
+  The registry-level `configure` (derive-and-install-into-self) is the write primitive for raw-registry setup
+  sites (annotation configurers, plugins); `Configurable.configure` delegates to it. Per-domain D1 recipe:
+  final fields; prefix-free wither returns a NEW instance (`register(...)` keeps its name, `setX`→`x(...)`);
+  `createCopy()` returns `this`; migrate direct-mutation callers `x.getConfig(X).setY(v)` →
+  `x.configure(X, c -> c.wither(v))` (an immutable setter's discarded return would silently lose the change);
+  for a raw-`ConfigRegistry`/`StatementContext` site use `cfg.configure(...)` / `ctx.getConfig().configure(...)`.
+- **D1 scalar-policy batch DONE (`39ffe2e6c`):** `StatementExceptions` (`lengthLimit`/`messageRendering`),
+  `ResultProducers` (`allowNoResults`), `TimestampedConfig` (`timezone`), `MapMappers` (`caseChange`),
+  `ReflectionMappers` (`columnNameMatchers`/`strictMatching`/`caseChange`/`accessibleObjectStrategy`, list is
+  `List.copyOf`). All immutable, callers migrated.
+- **Q2 RESOLVED (`5a41d8e4b`): `Arguments` is registry-free + dead `prePreparedTypes` deleted.**
+  `QualifiedArgumentFactory.adapt(factory)` (no `ConfigRegistry` param) snapshots the factory-class qualifiers
+  lazily from the build/prepare-time registry and memoizes — behavior-faithful (qualifiers are static class
+  annotations; snapshot once, reuse), proven green by the qualifier tests. `Arguments` now has a no-arg
+  constructor with no `registry` field / `setRegistry`. Removed `prePreparedTypes` entirely (interface defaults
+  + all seven overrides — it was only ever consumed by its own adapter): first of the dead "warm-like" constructs.
+
+### Remaining sub-step-3 work (START HERE on a clean restart)
+1. **`Arguments` full immutability** (now unblocked by Q2): make `factories`/policy immutable, `register(...)`
+   and the policy setters (`untypedNullArgument`/`bindingNullToPrimitivesPermitted`/`preparedArgumentsEnabled`
+   → prefix-free withers) return a new instance, `createCopy()` returns `this`; migrate `register` call sites
+   (`Configurable.registerArgument` convenience already routes through `configure`; the sqlobject
+   `RegisterArgumentFactor{y,ies}Impl` / `RegisterObjectArgumentFactor*` (R) sites and any tests must move to
+   `config.configure(Arguments.class, c -> c.register(...))`). `ArgumentResolver` reads `getFactories()` — fine.
+2. **Q1 interceptor trio** `RowMappers`/`ColumnMappers`/`SqlArrayTypes`: add a `withInferenceInterceptor(...)`
+   wither (copy-on-wither of the `JdbiInterceptionChainHolder`), drop the mutable public `getInferenceInterceptors()`
+   (keep an internal read accessor for `register`'s `process()`); make the rest of each config immutable
+   (`register(...)` returns new, policy withers, `createCopy()` returns `this`). `KotlinPlugin` →
+   `configure(RowMappers.class, c -> c.withInferenceInterceptor(new KotlinRowMapperInterceptor()))`. Keep
+   `JdbiInterceptionChainHolder` as a utility. `MapperResolver`/`ArrayTypeResolver` read `getFactories()` — fine.
+3. **Shared `MapEntryConfig`** (`MapEntryMappers` in core + `TupleMappers` in vavr): the interface signature
+   `This setKeyColumn(String)` already allows returning a new instance, so immutability is per-impl; a prefix-free
+   rename (`setKeyColumn`→`keyColumn`, `setValueColumn`→`valueColumn`) touches the interface + both impls +
+   `Configurable.setMapKeyColumn`/`setMapValueColumn` + the sqlobject `KeyColumnImpl`/`ValueColumnImpl` (R) sites.
+4. **Large configs** `SqlStatements` (many fields + `attributes` (defines) + `customizers` + policy) and
+   `Extensions` (registration lists + `allowProxy`/`failFast`). Biggest surface; do last in D1.
+5. **Sweep the remaining warm-like/dead constructs** (`PojoWarmingCustomizer`, any `warm(ConfigRegistry)` hooks) —
+   assess whether they still pull weight now that resolvers cache per-registry; drop if not (per maintainer:
+   we are on 4.x, remove rather than shim when a construct adds baggage).
+6. Then **D7** (statement-level `Configurable` backed by lazy copy-on-write private config) → **sub-step 5**
+   (delete the per-statement `createCopy()` at `BaseStatement.java:36`; at that point `configure` must fork+swap
+   the holder's registry instead of install-into-current, since statements would otherwise observe post-capture
+   mutation — this is where the reference-swap finally belongs, on top of immutable values; re-benchmark) →
+   **D4/D5/D6** (the `Jdbi.builder()`, `JdbiPlugin.configure(Jdbi.Builder)`, `jdbi.open(scope)` public surface +
+   deprecate/remove legacy `registerX`/`customizeJdbi`).
+
+**Build note:** validate with `mvn clean install` (or `-Dbasepom.check.skip-all=true` for tests only /
+`-DskipTests` for static analysis only). Do NOT bury `mvn` behind a backgrounded `| grep | tail` pipeline, and
+always pass an explicit path to `grep` — a backgrounded pathless `grep`/`ugrep` hung for ~50 min once this session.
 
 ---
 
