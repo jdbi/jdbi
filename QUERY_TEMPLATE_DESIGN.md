@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): sub-step 4 DONE (all configs immutable; setRegistry removed); D7 → sub-step 5 next
+## HANDOFF (2026-07-18): sub-step 4 + D7/sub-step 5 DONE (COW statement config = the perf payoff); D4/D5/D6 next
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
 config/Handle decoupling (see that section); its **public API is signed off** in "## Config assembly API"
@@ -193,8 +193,21 @@ cannot reach a sibling config, which is why they lagged. Resolved by removing th
   the method and its three `ConfigRegistry` call sites (copy-ctor re-wire, `install`, on-demand `configFactory`).
   Every config value's `createCopy` now returns `this`, so the registry copy-ctor shares all values by reference.
 
-Remaining, in order: **D7** (statement-level copy-on-write private config) → **sub-step 5** (delete the
-per-statement `createCopy()` at `BaseStatement.java:36`, the perf payoff) → **D4/D5/D6** (builder/plugin/open surface).
+**D7 + sub-step 5 — DONE (2026-07-18, `ebc1e3b2a`): copy-on-write statement config, the perf payoff.**
+Added `ConfigRegistry.createChild()` — a copy-on-write child that holds no config until its first write: reads
+and memoized resolver views delegate to the parent (so an unmodified statement reuses the handle's warm
+resolvers), and the first `configure()` forks a private snapshot and detaches, leaving the parent untouched.
+`install()` now clears the memoized views so a reconfigured registry never serves a resolver built against a
+superseded value. `BaseStatement` uses `createChild()` instead of `createCopy()`; `createCopy()` stays for the
+isolated-snapshot callers (`buildQueryTemplate`, the `Handle` default config, `ExtensionMetadata`). Benchmark
+(`QueryTemplateBenchmark.classic`, gc profiler, same build): `createCopy` 6104 B/op @ 806 ops/ms → `createChild`
+4208 B/op @ 1174 ops/ms (~31% less allocation, ~1.46× throughput); classic now approaches the reused-template
+path (3512 B/op). Behavior change consistent with the "init once per `ConfigRegistry`" contract: two statements
+on one handle that change no config share the handle's registry, so a mapper's `init()` runs once and is reused
+(re-inits only when a statement changes config and forks); clarified the `ColumnMapper`/`RowMapper.init` javadoc
+and updated `TestMapperInit`.
+
+Remaining: **D4/D5/D6** (the builder + plugin SPI + deprecations + open-scope) — the largest public surface.
 All commits are whole-reactor green with static analysis ENABLED (validated via full `mvn clean install`) — do
 not fall back to `-Dbasepom.check.skip-all` as the validation of record.
 
@@ -212,7 +225,7 @@ with a full `mvn clean install`.
   `ArrayTypeResolver`, `PojoResolver`, `ExtensionMetadataResolver`. This session's `EnumStrategyResolver`
   finished the pattern for `EnumStrategies`.
 
-### Design notes for D7 / sub-step 5 (statement zero-copy) — from this session's analysis
+### Design notes for D7 / sub-step 5 (statement zero-copy) — IMPLEMENTED (`ebc1e3b2a`); kept as rationale
 The perf payoff (delete the per-statement `createCopy()` at `BaseStatement.java:36`) needs a lazy
 copy-on-write statement registry. Key findings so they are not re-derived:
 - **`ConfigRegistry.install` is the single write choke point.** All mutation routes through
