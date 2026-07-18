@@ -149,7 +149,17 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): sub-step 4 + D7/sub-step 5 DONE (COW statement config = the perf payoff); D4/D5/D6 next
+## HANDOFF (2026-07-18): sub-step 4 + D7/sub-step 5 + D4a/D5 DONE; next is D4b (freeze-on-open + deprecations) then D6
+
+**Latest (2026-07-18):** D4a (`d5565bf13`) landed the additive `Jdbi.builder()` assembly API + the
+`JdbiPlugin.configure(Jdbi.Builder)` SPI (D5) — new preferred path, nothing deprecated, config not yet frozen.
+Next is **D4b**: freeze the config on first `open()` and deprecate the post-construction mutators
+(`Jdbi.registerX`/`configure`/`installPlugin`, `customizeJdbi(Jdbi)`), backed by a derive-and-re-reference shim.
+This is the largest break in the project (thousands of external call sites; ~93 in-repo) and changes `open()`
+semantics, so it wants its own focused pass. Then **D6** (handle-config shims + `open(scope)`), which is also
+where the jdbi/jdbi#2992 warm-cross-handle metadata cache gets addressed (freeze-on-open enables handle-boundary
+COW — see the #2992 note above).
+
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
 config/Handle decoupling (see that section); its **public API is signed off** in "## Config assembly API"
@@ -424,8 +434,8 @@ Handle h = jdbi.open(cfg -> cfg.with(RowMappers.class, r -> r.withMapper(m)));  
 - [x] **D1** immutable `JdbiConfig`, drop `createCopy`/`setRegistry`, mutators → withers (breaks custom configs).
 - [x] **D2** `configure` `Consumer` → `UnaryOperator` — break approved; churn minimized via chainable + plural withers.
 - [x] **D3** add `ConfigRegistry.with(Class, UnaryOperator)`.
-- [x] **D4** `Jdbi.builder()` primary; `Jdbi.create()` + `registerX`/`installPlugin` deprecated, frozen on first open.
-- [x] **D5** add `JdbiPlugin.configure(Jdbi.Builder)`; deprecate `customizeJdbi(Jdbi)`.
+- [~] **D4** signed off. **D4a DONE** (`d5565bf13`, additive, no breaks): `Jdbi.builder(...)` factories + `Jdbi.Builder` (`Configurable` + knobs `transactionHandler`/`statementBuilderFactory`/`handleCallbackDecorator`/`handleScope`) + `build()`, a thin assembly facade over `Jdbi.create(...)`. **D4b PENDING**: freeze config on first `open()`; deprecate post-construction `registerX`/`configure`/`installPlugin` on `Jdbi` (derive-and-re-reference shim).
+- [~] **D5** signed off. **DONE** (`d5565bf13`): added `JdbiPlugin.configure(Jdbi.Builder)` (default no-op), applied by `build()` before `customizeJdbi` in install order. **PENDING**: deprecate `customizeJdbi(Jdbi)` — deferred to land with D4b so migration + deprecation ship together.
 - [~] **D6** handle config largely eliminated; `handle.registerX` → deprecated shim; `open(scope)` only if it earns it (decide at D6).
 - [x] **D7** statement-level `Configurable` unchanged (copy-on-write private config).
 
