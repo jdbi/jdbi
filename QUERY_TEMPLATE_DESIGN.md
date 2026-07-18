@@ -242,8 +242,10 @@ prize early, then finish the handle-config removal:
     callback handle off the root (a fork does the same full config copy as `createCopy`), negating the COW win for
     the dominant path (only raw `jdbi.open()`/on-demand-`attach` via `LazyHandleSupplier.getHandle`→`jdbi.open()`
     benefited). **Fix (maintainer-directed): move the per-callback attach scope off config onto the handle.** New
-    `Handle.forceAttachStatements` (volatile — handles can cross threads via async executors) set by the callback
-    methods from the `attachCallback` policy at callback start; `BaseStatement` attaches when
+    `Handle.forceAttachStatements` (a PLAIN field — a Handle wraps a JDBC Connection and is thread-confined like its
+    other mutable fields, so no volatile; spotbugs `AT_STALE_THREAD_WRITE_OF_PRIMITIVE` suppressed on the setter with
+    the thread-confinement justification) set by the callback methods from the `attachCallback` policy at callback
+    start; `BaseStatement` attaches when
     `handle.isAttachStatementsForCleanup()` (the flag OR `SqlStatements.attachAllStatementsForCleanup`, still read
     live so post-open `handle.configure(attachAll)` — e.g. `LeakTest` — keeps working). No config write in the
     callback ⇒ no fork ⇒ the fluent path now shares the root's warm views too. Side benefit resolving the earlier
