@@ -44,7 +44,8 @@ public class MapResultTest {
 
     @RegisterExtension
     JdbiExtension pgExtension = JdbiExtension.postgres(pg)
-            .withPlugins(new SqlObjectPlugin());
+            .withPlugins(new SqlObjectPlugin())
+            .withConfig(b -> b.registerRowMapper(JsonBean.class, ConstructorMapper.of(JsonBean.class)));
 
     Jdbi jdbi;
     UUID content;
@@ -52,8 +53,6 @@ public class MapResultTest {
     @BeforeEach
     void setUp() {
         this.jdbi = pgExtension.getJdbi();
-
-        jdbi.registerRowMapper(JsonBean.class, ConstructorMapper.of(JsonBean.class));
 
         jdbi.useHandle(handle -> handle.execute("CREATE TABLE json_data (id INTEGER PRIMARY KEY, key VARCHAR, value UUID)"));
 
@@ -84,8 +83,9 @@ public class MapResultTest {
 
     @Test
     public void testGoodMethodFailsWhenRequested() {
-        jdbi.configure(Extensions.class, Extensions::failFast);
-        assertThatThrownBy(() -> jdbi.withExtension(MapDao.class, dao -> dao.getValues(1)))
+        assertThatThrownBy(() -> jdbi.withHandle(
+                cfg -> cfg.configure(Extensions.class, Extensions::failFast),
+                handle -> handle.attach(MapDao.class).getValues(1)))
                 .isInstanceOf(UnableToCreateExtensionException.class)
                 .hasMessageContaining("getValuesMissingAnnotation")
                 .hasMessageContaining(

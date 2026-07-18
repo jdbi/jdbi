@@ -14,9 +14,7 @@
 package org.jdbi.core.array;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -25,14 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestVendorArrays {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
-
-    @BeforeEach
-    public void setUp() {
-        Jdbi db = h2Extension.getJdbi();
-        db.registerArrayType(Integer.class, "int");
-        db.registerArrayType(String.class, "varchar");
-    }
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+            .withConfig(b -> b.registerArrayType(Integer.class, "int")
+                    .registerArrayType(String.class, "varchar"));
 
     @Test
     public void testHsqlDb() {

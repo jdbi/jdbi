@@ -21,7 +21,7 @@ public class ManualPlugin implements JdbiPlugin {
     static final String VALUE = "installed";
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.define(KEY, VALUE);
+    public void configure(Jdbi.Builder builder) {
+        builder.define(KEY, VALUE);
     }
 }

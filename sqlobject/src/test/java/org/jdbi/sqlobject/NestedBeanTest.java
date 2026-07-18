@@ -34,7 +34,12 @@ import static org.assertj.core.groups.Tuple.tuple;
 public class NestedBeanTest {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b
+            .registerRowMapper(ConstructorMapper.factory(MainBeanOne.class))
+            .registerRowMapper(ConstructorMapper.factory(NestedBeanOne.class))
+            .registerRowMapper(ConstructorMapper.factory(MainBeanTwo.class))
+            .registerRowMapper(ConstructorMapper.factory(NestedBeanTwo.class)));
 
     public interface BeanDao {
         @SqlQuery("select intValue as nested_val, name as nested_name, id from something order by id")
@@ -141,12 +146,6 @@ public class NestedBeanTest {
 
     @BeforeEach
     public void setUp() {
-        final Jdbi jdbi = h2Extension.getJdbi();
-        jdbi.registerRowMapper(ConstructorMapper.factory(MainBeanOne.class));
-        jdbi.registerRowMapper(ConstructorMapper.factory(NestedBeanOne.class));
-        jdbi.registerRowMapper(ConstructorMapper.factory(MainBeanTwo.class));
-        jdbi.registerRowMapper(ConstructorMapper.factory(NestedBeanTwo.class));
-
         final Handle h = h2Extension.getSharedHandle();
         h.execute("insert into something(intValue, name) values(1, 'Duke')");
         h.execute("insert into something(intValue, name) values(null, null)");

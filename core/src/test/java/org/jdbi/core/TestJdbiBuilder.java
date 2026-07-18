@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// exercises the deprecated Jdbi.installPlugin bridge and the customizeJdbi hook on purpose
-@SuppressWarnings("deprecation")
 public class TestJdbiBuilder {
 
     private static String url() {
@@ -52,32 +50,6 @@ public class TestJdbiBuilder {
                 .build();
 
         assertThat(jdbi.getTransactionHandler()).isSameAs(handler);
-    }
-
-    @Test
-    public void buildAppliesBothPluginHooksInOrder() {
-        final AtomicInteger tick = new AtomicInteger();
-        final int[] configuredAt = {-1};
-        final int[] customizedAt = {-1};
-
-        final JdbiPlugin plugin = new JdbiPlugin() {
-            @Override
-            public void configure(final Jdbi.Builder builder) {
-                configuredAt[0] = tick.getAndIncrement();
-            }
-
-            @Override
-            public void customizeJdbi(final Jdbi jdbi) {
-                customizedAt[0] = tick.getAndIncrement();
-            }
-        };
-
-        final Jdbi jdbi = Jdbi.builder(url()).installPlugin(plugin).build();
-
-        assertThat(jdbi).isNotNull();
-        // both hooks run, configure() before customizeJdbi()
-        assertThat(configuredAt[0]).isZero();
-        assertThat(customizedAt[0]).isOne();
     }
 
     @Test
@@ -128,19 +100,6 @@ public class TestJdbiBuilder {
     }
 
     @Test
-    public void installPluginBridgesConfigureHook() {
-        // A plugin that contributes only via configure(Builder) is still applied through the post-construction
-        // Jdbi.installPlugin path (the deprecation-window bridge onto the assembly funnel).
-        final RowMapper<String> mapper = (rs, ctx) -> "bridged";
-        final Jdbi jdbi = Jdbi.create(url())
-                .installPlugin(JdbiPlugin.of(b -> b.registerRowMapper(String.class, mapper)));
-
-        try (Handle h = jdbi.open()) {
-            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("bridged");
-        }
-    }
-
-    @Test
     public void installPluginAppliesPluginOnce() {
         final AtomicInteger configureCount = new AtomicInteger();
         final JdbiPlugin plugin = new JdbiPlugin.Singleton() {
@@ -150,7 +109,7 @@ public class TestJdbiBuilder {
             }
         };
 
-        Jdbi.create(url()).installPlugin(plugin).installPlugin(plugin);
+        Jdbi.builder(url()).installPlugin(plugin).installPlugin(plugin).build();
 
         assertThat(configureCount).hasValue(1);
     }

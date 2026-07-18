@@ -96,10 +96,11 @@ public class TestInheritedValueH2 {
 
     @Test
     public void testType() {
-        Jdbi jdbi = h2Extension.getJdbi();
-
         // register the codec with JDBI
-        jdbi.registerCodecFactory(TypeResolvingCodecFactory.forSingleCodec(DATA_TYPE, new DataCodec()));
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUrl())
+            .installPlugin(new SqlObjectPlugin())
+            .registerCodecFactory(TypeResolvingCodecFactory.forSingleCodec(DATA_TYPE, new DataCodec()))
+            .build();
 
         StringValue data = new StringValue("one");
 
@@ -121,10 +122,11 @@ public class TestInheritedValueH2 {
 
     @Test
     public void testBean() {
-        Jdbi jdbi = h2Extension.getJdbi();
-
         // register the codec with JDBI
-        jdbi.registerCodecFactory(TypeResolvingCodecFactory.forSingleCodec(DATA_TYPE, new DataCodec()));
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUrl())
+            .installPlugin(new SqlObjectPlugin())
+            .registerCodecFactory(TypeResolvingCodecFactory.forSingleCodec(DATA_TYPE, new DataCodec()))
+            .build();
 
         StringBean stringBean = new StringBean(UUID.randomUUID().toString(), new StringValue("two"));
 
@@ -143,13 +145,14 @@ public class TestInheritedValueH2 {
 
     @Test
     public void testCollection() {
-        Jdbi jdbi = h2Extension.getJdbi();
-
         // register codec
-        jdbi.registerCodecFactory(TypeResolvingCodecFactory.builder()
-            .addCodec(AUTOVALUE_SET_TYPE, new AutoValueSetCodec())
-            .addCodec(DATA_TYPE, new DataCodec())
-            .build());
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUrl())
+            .installPlugin(new SqlObjectPlugin())
+            .registerCodecFactory(TypeResolvingCodecFactory.builder()
+                .addCodec(AUTOVALUE_SET_TYPE, new AutoValueSetCodec())
+                .addCodec(DATA_TYPE, new DataCodec())
+                .build())
+            .build();
 
         String id = UUID.randomUUID().toString();
         ImmutableSet<AutoValue> data = ImmutableSet.of(AutoValue.create("one"), AutoValue.create("two"), AutoValue.create("three"));
@@ -169,13 +172,14 @@ public class TestInheritedValueH2 {
 
     @Test
     public void testCollectionBean() {
-        Jdbi jdbi = h2Extension.getJdbi();
-
         // register codec
-        jdbi.registerCodecFactory(TypeResolvingCodecFactory.builder()
-            .addCodec(AUTOVALUE_SET_TYPE, new AutoValueSetCodec())
-            .addCodec(DATA_TYPE, new DataCodec())
-            .build());
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUrl())
+            .installPlugin(new SqlObjectPlugin())
+            .registerCodecFactory(TypeResolvingCodecFactory.builder()
+                .addCodec(AUTOVALUE_SET_TYPE, new AutoValueSetCodec())
+                .addCodec(DATA_TYPE, new DataCodec())
+                .build())
+            .build();
 
         AutoValueBean bean = new AutoValueBean(
             UUID.randomUUID().toString(),

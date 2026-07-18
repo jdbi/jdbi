@@ -94,9 +94,9 @@ public class TestHandle {
     @Test
     public void testAutocommitFailDoesntLeak() {
         final BoomHandler handler = new BoomHandler();
-        h2Extension.getJdbi().setTransactionHandler(handler);
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUri()).transactionHandler(handler).build();
 
-        try (Handle transactionHandle = h2Extension.openHandle()) {
+        try (Handle transactionHandle = jdbi.open()) {
             assertThat(transactionHandle.isClosed()).isFalse();
 
             handler.failTest = true;
@@ -110,8 +110,8 @@ public class TestHandle {
     @Test
     public void testRollbackFailDoesntLeak() throws Exception {
         final BoomHandler handler = new BoomHandler();
-        h2Extension.getJdbi().setTransactionHandler(handler);
-        try (Handle transactionHandle = h2Extension.openHandle()) {
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUri()).transactionHandler(handler).build();
+        try (Handle transactionHandle = jdbi.open()) {
 
             assertThat(transactionHandle.isClosed()).isFalse();
 
@@ -234,38 +234,31 @@ public class TestHandle {
             }
         };
 
-        Jdbi jdbi = h2Extension.getJdbi();
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUri()).handleCallbackDecorator(handleCallbackDecorator).build();
 
-        HandleCallbackDecorator saveHandleDecorator = jdbi.getHandleCallbackDecorator();
-        jdbi.setHandleCallbackDecorator(handleCallbackDecorator);
+        String result = jdbi.withHandle(handle -> "hey");
+        assertThat(result).isEqualTo("hey");
+        assertThat(gotCalled).isTrue();
+        gotCalled.set(false);
 
-        try {
-            String result = jdbi.withHandle(handle -> "hey");
-            assertThat(result).isEqualTo("hey");
-            assertThat(gotCalled).isTrue();
-            gotCalled.set(false);
+        jdbi.useHandle(handle -> {});
+        assertThat(gotCalled).isTrue();
+        gotCalled.set(false);
 
-            jdbi.useHandle(handle -> {});
-            assertThat(gotCalled).isTrue();
-            gotCalled.set(false);
+        result = jdbi.inTransaction(handle -> "there");
+        assertThat(result).isEqualTo("there");
+        assertThat(gotCalled).isTrue();
 
-            result = jdbi.inTransaction(handle -> "there");
-            assertThat(result).isEqualTo("there");
-            assertThat(gotCalled).isTrue();
+        jdbi.useTransaction(handle -> {});
+        assertThat(gotCalled).isTrue();
+        gotCalled.set(false);
 
-            jdbi.useTransaction(handle -> {});
-            assertThat(gotCalled).isTrue();
-            gotCalled.set(false);
-
-            overrideCallback.set(handle -> "this is different");
-            result = jdbi.inTransaction(handle -> "you");
-            assertThat(result).isEqualTo("this is different");
-            assertThat(gotCalled).isTrue();
-            gotCalled.set(false);
-            overrideCallback.set(null);
-        } finally {
-            jdbi.setHandleCallbackDecorator(saveHandleDecorator);
-        }
+        overrideCallback.set(handle -> "this is different");
+        result = jdbi.inTransaction(handle -> "you");
+        assertThat(result).isEqualTo("this is different");
+        assertThat(gotCalled).isTrue();
+        gotCalled.set(false);
+        overrideCallback.set(null);
     }
 
     static class BoomHandler extends LocalTransactionHandler {

@@ -40,8 +40,9 @@ public class TestOnDemandObjectMethodBehavior {
                 throw new AssertionError();
             }
         };
-        Jdbi.create(cf)
+        Jdbi.builder(cf)
                 .installPlugin(new SqlObjectPlugin())
+                .build()
                 .onDemand(UselessDao.class)
                 .finalize();
     }

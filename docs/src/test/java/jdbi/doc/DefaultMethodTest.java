@@ -35,7 +35,8 @@ public class DefaultMethodTest {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
             .withInitializer(TestingInitializers.usersWithData())
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b.registerRowMapper(User.class, ConstructorMapper.of(User.class)));
 
     // tag::dao[]
     interface UserDao {
@@ -57,7 +58,6 @@ public class DefaultMethodTest {
     @BeforeEach
     void setUp() {
         this.jdbi = h2Extension.getJdbi();
-        jdbi.registerRowMapper(User.class, ConstructorMapper.of(User.class));
     }
 
     // tag::default-method[]

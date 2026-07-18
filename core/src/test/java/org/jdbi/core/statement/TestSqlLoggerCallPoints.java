@@ -47,8 +47,8 @@ public class TestSqlLoggerCallPoints {
     @BeforeEach
     public void before() {
         logger = new TalkativeSqlLogger();
-        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.sqlLogger(logger));
         h = h2Extension.openHandle();
+        h.configure(SqlStatements.class, c -> c.sqlLogger(logger));
     }
 
     @AfterEach

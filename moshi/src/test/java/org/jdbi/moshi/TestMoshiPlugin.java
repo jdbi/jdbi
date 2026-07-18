@@ -45,13 +45,14 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new MoshiPlugin());
+    JdbiExtension pgExtension = JdbiExtension.postgres(pg)
+        .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new MoshiPlugin())
+        .withConfig(b -> b.configure(MoshiConfig.class, c -> c.moshi(
+            new Moshi.Builder().add(new OptionalAdapter()).build())));
 
     @BeforeEach
     public void before() {
-        jdbi = pgExtension.getJdbi().installPlugin(new MoshiPlugin())
-            .configure(MoshiConfig.class, c -> c.moshi(
-                new Moshi.Builder().add(new OptionalAdapter()).build()));
+        jdbi = pgExtension.getJdbi();
     }
 
     @Test

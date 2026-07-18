@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.sqlobject.customizer.BindBeanList;
@@ -42,14 +41,13 @@ public class BindBeanListTest {
     private List<Something> expectedSomethings;
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something())
+        .withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(new SomethingMapper()));
 
     @BeforeEach
     public void before() {
-        final Jdbi db = h2Extension.getJdbi();
-        db.installPlugin(new SqlObjectPlugin());
-        db.registerRowMapper(new SomethingMapper());
-        handle = db.open();
+        handle = h2Extension.getJdbi().open();
 
         handle.execute("insert into something(id, name) values(1, '1')");
         handle.execute("insert into something(id, name) values(2, '2')");

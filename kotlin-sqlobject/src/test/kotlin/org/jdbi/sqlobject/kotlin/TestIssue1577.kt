@@ -41,13 +41,13 @@ class TestIssue1577 {
             handle.execute("INSERT INTO data (comma) VALUES ('one,two,three,four')")
         }
         .withPlugin(KotlinSqlObjectPlugin())
+        // Register with an explicit type: the inferring single-argument overload needs KotlinPlugin's row-mapper
+        // interceptor, which is not yet installed when this withConfig hook runs during Jdbi assembly.
+        .withConfig { b -> b.registerRowMapper(Data::class.java, KotlinMapper(Data::class)) }
 
     @BeforeEach
     fun setup() {
-        val jdbi = pgExtension.jdbi
-        jdbi.registerRowMapper(KotlinMapper(Data::class))
-
-        this.onDemandDao = jdbi.onDemand(DataDao::class.java)
+        this.onDemandDao = pgExtension.jdbi.onDemand(DataDao::class.java)
     }
 
     @Test

@@ -57,8 +57,9 @@ public class TestMapperInit {
         assertThat(mapper.getInitializedCount()).isZero();
         assertThat(mapper.getMappedCount()).isZero();
 
-        Jdbi jdbi = h2Extension.getJdbi();
-        jdbi.registerColumnMapper(StringValue.class, mapper);
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUri())
+            .registerColumnMapper(StringValue.class, mapper)
+            .build();
 
         // still not initialized, only at first retrieval
         assertThat(mapper.getInitializedCount()).isZero();
@@ -115,9 +116,10 @@ public class TestMapperInit {
         assertThat(mapper.getInitializedCount()).isZero();
         assertThat(mapper.getMappedCount()).isZero();
 
-        Jdbi jdbi = h2Extension.getJdbi();
-        jdbi.registerColumnMapper(StringValue.class, mapper);
-        jdbi.registerRowMapper(resultType, new ResultMapper());
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUri())
+            .registerColumnMapper(StringValue.class, mapper)
+            .registerRowMapper(resultType, new ResultMapper())
+            .build();
 
         // still not initialized, only at first retrieval
         assertThat(mapper.getInitializedCount()).isZero();

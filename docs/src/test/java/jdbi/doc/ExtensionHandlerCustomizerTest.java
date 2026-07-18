@@ -71,14 +71,14 @@ class ExtensionHandlerCustomizerTest {
 
     @BeforeEach
     void setUp() {
-        this.jdbi = h2Extension.getJdbi();
-
-        // tag::register-global[]
-        jdbi.configure(Extensions.class, e ->
-                e.registerHandlerCustomizer(new LoggingExtensionHandlerCustomizer())); // <1>
-        // end::register-global[]
-
-        jdbi.registerRowMapper(new SomethingMapper());
+        this.jdbi = Jdbi.builder(h2Extension.getUrl())
+                .installPlugin(new SqlObjectPlugin())
+                // tag::register-global[]
+                .configure(Extensions.class, e ->
+                        e.registerHandlerCustomizer(new LoggingExtensionHandlerCustomizer())) // <1>
+                // end::register-global[]
+                .registerRowMapper(new SomethingMapper())
+                .build();
 
         jdbi.useExtension(SomethingDao.class, SomethingDao::initialize);
     }

@@ -105,20 +105,25 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
         if (jdbi != null) {
             throw new IllegalStateException("jdbi is not null!");
         }
+        jdbi = builder().build();
+        sharedHandle = jdbi.open();
+
+        initializerMaybe.ifPresent(i -> i.initialize(sharedHandle));
+    }
+
+    @Override
+    public Jdbi.Builder builder() throws Exception {
         final Jdbi.Builder builder = Jdbi.builder(uri);
 
         installTestPlugins(builder);
+        plugins.forEach(builder::installPlugin);
 
         if (enableLeakchecker) {
             builder.configure(Handles.class, c -> c.addListener(leakChecker));
             builder.configure(SqlStatements.class, c -> c.addContextListener(leakChecker));
         }
 
-        plugins.forEach(builder::installPlugin);
-        jdbi = builder.build();
-        sharedHandle = jdbi.open();
-
-        initializerMaybe.ifPresent(i -> i.initialize(sharedHandle));
+        return builder;
     }
 
     @Override

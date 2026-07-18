@@ -16,18 +16,19 @@ package org.jdbi.guice;
 import org.jdbi.core.Jdbi;
 
 /**
- * Allows specific customizations of the {@link Jdbi} instance during creation.
+ * Allows specific customizations of the {@link Jdbi} instance during creation, contributed through its
+ * {@link Jdbi.Builder} while the instance is being assembled.
  */
 @FunctionalInterface
 public interface GuiceJdbiCustomizer {
 
     /** Does not modify the Jdbi instance. */
-    GuiceJdbiCustomizer NOP = jdbi -> {};
+    GuiceJdbiCustomizer NOP = builder -> {};
 
     /**
-     * Customize the {@link Jdbi} instance passed in.
+     * Customize the {@link Jdbi} instance being assembled by contributing to its builder.
      *
-     * @param jdbi A {@link Jdbi} instance.
+     * @param builder the {@link Jdbi.Builder} for the instance being assembled.
      */
-    void customize(Jdbi jdbi);
+    void customize(Jdbi.Builder builder);
 }

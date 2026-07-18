@@ -36,8 +36,8 @@ public class TestBindProperties {
     public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin())
         .withPlugin(new JdbiPlugin() {
             @Override
-            public void customizeJdbi(Jdbi jdbi) {
-                jdbi.registerImmutable(Train.class);
+            public void configure(Jdbi.Builder builder) {
+                builder.registerImmutable(Train.class);
             }
         });
 

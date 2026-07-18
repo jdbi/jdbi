@@ -38,7 +38,8 @@ public class GeneratedKeysTest {
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
         .withPlugin(new PostgresPlugin())
-        .withPlugin(new SqlObjectPlugin());
+        .withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(ConstructorMapper.factory(User.class)));
 
     private Jdbi db;
 
@@ -59,7 +60,6 @@ public class GeneratedKeysTest {
         db = pgExtension.getJdbi();
 
         db.useHandle(h -> h.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR)"));
-        db.registerRowMapper(ConstructorMapper.factory(User.class));
     }
     // end::setup[]
 

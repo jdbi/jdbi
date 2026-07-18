@@ -33,15 +33,15 @@ import org.jdbi.core.spi.JdbiPlugin
  */
 class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true, private val enableCoroutineSupport: Boolean = false) : JdbiPlugin.Singleton() {
 
-    override fun customizeJdbi(jdbi: Jdbi) {
-        jdbi.configure(RowMappers::class.java) {
+    override fun configure(builder: Jdbi.Builder) {
+        builder.configure(RowMappers::class.java) {
             it.withInferenceInterceptor(KotlinRowMapperInterceptor())
         }
 
         if (installKotlinMapperFactory) {
-            jdbi.registerRowMapper(KotlinMapperFactory())
-            jdbi.registerColumnMapper(KotlinValueClassColumnMapperFactory())
-            jdbi.registerArgument(KotlinValueClassArgumentFactory())
+            builder.registerRowMapper(KotlinMapperFactory())
+            builder.registerColumnMapper(KotlinValueClassColumnMapperFactory())
+            builder.registerArgument(KotlinValueClassArgumentFactory())
         }
 
         // install a special handle scope that can deal with coroutines.
@@ -49,7 +49,7 @@ class KotlinPlugin(private val installKotlinMapperFactory: Boolean = true, priva
         // Note that this needs to be revisited in the future if we move from the ThreadLocal in Jdbi
         // to e.g., structured concurrency. Right now, this delegates to a ThreadLocalHandleScope.
         if (enableCoroutineSupport) {
-            jdbi.handleScope = CoroutineHandleScope()
+            builder.handleScope(CoroutineHandleScope())
         }
     }
 }

@@ -8,3 +8,14 @@
 * Throwables throwOnlyException only exists because of the above <X extends Exception> issue, so clean that up too
 * BeanMapper should throw if it can't find a nested type rather than default to `rs.getObject` (strictColumnMapping)
 * use the with/use pattern everywhere. Replace `inTransaction` with `withTransaction`
+* Improve builder/plugin registration ordering for interceptor-dependent registrations.
+  JdbiPlugin.configure(Builder) hooks run at build() time, and a plugin that installs further
+  plugins appends them to the drain queue. So a register* call made from a builder/withConfig hook
+  can execute BEFORE a plugin that installs the interceptor it needs. Concretely, registering a
+  KotlinMapper via the inferring registerRowMapper(RowMapper) overload from a withConfig hook throws
+  "Must use a concretely typed RowMapper here" because KotlinPlugin's KotlinRowMapperInterceptor is
+  not installed yet (KotlinSqlObjectPlugin installs KotlinPlugin as a nested plugin, drained later).
+  Workarounds today: register on a built Jdbi's handle, or use an explicit-type overload that skips
+  inference. Consider making nested-plugin configuration eager (or two-phase: install all plugins,
+  then run their config hooks) so registration order within a hook no longer depends on drain timing.
+  See Issue1944Test / TestIssue1577 for the affected patterns.

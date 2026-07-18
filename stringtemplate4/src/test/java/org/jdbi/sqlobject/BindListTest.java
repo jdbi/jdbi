@@ -41,16 +41,15 @@ import static org.jdbi.sqlobject.customizer.BindList.EmptyHandling.VOID;
 public class BindListTest {
 
     @RegisterExtension
-    public final JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public final JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(new SomethingMapper()));
 
     private Handle handle;
     private List<Something> expectedSomethings;
 
     @BeforeEach
     public void before() {
-        handle = h2Extension.getJdbi()
-            .registerRowMapper(new SomethingMapper())
-            .open();
+        handle = h2Extension.getJdbi().open();
 
         handle.execute("insert into something(id, name) values(1, '1')");
         handle.execute("insert into something(id, name) values(2, '2')");

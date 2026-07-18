@@ -29,10 +29,10 @@ import org.jdbi.sqlobject.SqlObjects
  */
 class KotlinSqlObjectPlugin(private val installKotlinMapperFactory: Boolean = true, private val enableCoroutineSupport: Boolean = false) :
     JdbiPlugin.Singleton() {
-    override fun customizeJdbi(jdbi: Jdbi) {
-        jdbi.installPlugin(KotlinPlugin(installKotlinMapperFactory = installKotlinMapperFactory, enableCoroutineSupport = enableCoroutineSupport))
-        jdbi.installPlugin(SqlObjectPlugin())
-        jdbi.configure(SqlObjects::class) { c -> c.defaultParameterCustomizerFactory(KotlinSqlStatementCustomizerFactory()) }
-        jdbi.configure(Extensions::class) { c -> c.registerHandlerFactory(KotlinDefaultMethodHandlerFactory()) }
+    override fun configure(builder: Jdbi.Builder) {
+        builder.installPlugin(KotlinPlugin(installKotlinMapperFactory = installKotlinMapperFactory, enableCoroutineSupport = enableCoroutineSupport))
+        builder.installPlugin(SqlObjectPlugin())
+        builder.configure(SqlObjects::class) { c -> c.defaultParameterCustomizerFactory(KotlinSqlStatementCustomizerFactory()) }
+        builder.configure(Extensions::class) { c -> c.registerHandlerFactory(KotlinDefaultMethodHandlerFactory()) }
     }
 }

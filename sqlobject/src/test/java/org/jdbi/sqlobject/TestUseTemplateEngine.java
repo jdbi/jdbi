@@ -30,13 +30,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestUseTemplateEngine {
 
     @RegisterExtension
-    public JdbiExtension sqliteExtension = JdbiExtension.sqlite().withPlugin(new SqlObjectPlugin());
+    public JdbiExtension sqliteExtension = JdbiExtension.sqlite().withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.setTemplateEngine(TemplateEngine.NOP));
 
     private Jdbi jdbi;
 
     @BeforeEach
     public void before() {
-        jdbi = sqliteExtension.getJdbi().setTemplateEngine(TemplateEngine.NOP);
+        jdbi = sqliteExtension.getJdbi();
     }
 
     @Test

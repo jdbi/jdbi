@@ -39,8 +39,9 @@ public class ImmutablesTest {
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
         .withPlugin(new JdbiPlugin() {
             @Override
-            public void customizeJdbi(Jdbi jdbi) {
-                jdbi.registerImmutable(
+            public void configure(Jdbi.Builder builder) {
+                builder.registerImmutable(
+                        Train.class,
                         SubValue.class,
                         FooBarBaz.class,
                         Getter.class,
@@ -80,7 +81,6 @@ public class ImmutablesTest {
 
     @Test
     public void simpleTest() {
-        jdbi.registerImmutable(Train.class);
         try (Handle handle = jdbi.open()) {
             handle.execute("create table train (name varchar, carriages int, observation_car boolean)");
 

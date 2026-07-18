@@ -15,6 +15,7 @@ package org.jdbi.oracle12;
 
 import java.sql.Types;
 
+import org.jdbi.core.ConnectionFactory;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.argument.Arguments;
 import org.jdbi.core.argument.NullArgument;
@@ -26,18 +27,18 @@ public class TestOraclePlugin {
 
     @Test
     public void testPluginSetsUntypedNullArgument() {
-        Jdbi jdbi = Jdbi.create(() -> {
+        ConnectionFactory connectionFactory = () -> {
             throw new UnsupportedOperationException();
-        });
+        };
 
-        // before installing the plugin, the default is Types.OTHER
-        NullArgument defaultNull = (NullArgument) jdbi.getConfig(Arguments.class).getUntypedNullArgument();
+        // without the plugin, the default is Types.OTHER
+        Jdbi defaultJdbi = Jdbi.builder(connectionFactory).build();
+        NullArgument defaultNull = (NullArgument) defaultJdbi.getConfig(Arguments.class).getUntypedNullArgument();
         assertThat(defaultNull.getSqlType()).isEqualTo(Types.OTHER);
 
-        jdbi.installPlugin(new OraclePlugin());
-
-        // after installing the plugin, the untyped null uses Types.NULL
-        NullArgument oracleNull = (NullArgument) jdbi.getConfig(Arguments.class).getUntypedNullArgument();
+        // with the plugin installed, the untyped null uses Types.NULL
+        Jdbi oracleJdbi = Jdbi.builder(connectionFactory).installPlugin(new OraclePlugin()).build();
+        NullArgument oracleNull = (NullArgument) oracleJdbi.getConfig(Arguments.class).getUntypedNullArgument();
         assertThat(oracleNull.getSqlType()).isEqualTo(Types.NULL);
     }
 

@@ -38,7 +38,8 @@ class OnDemandExtensionTest {
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
             .withInitializer(TestingInitializers.something())
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b.registerRowMapper(new SomethingMapper()));
     Jdbi jdbi;
 
     interface SomethingDao {
@@ -64,8 +65,6 @@ class OnDemandExtensionTest {
     @BeforeEach
     void setUp() {
         this.jdbi = h2Extension.getJdbi();
-
-        jdbi.registerRowMapper(new SomethingMapper());
 
         // tag::use[]
         SomethingDao dao = jdbi.onDemand(SomethingDao.class);

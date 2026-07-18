@@ -123,9 +123,9 @@ public class TestIssue2497 {
     @Test
     public void testMapToObjectArgument() {
         final Jdbi db = h2Extension.getJdbi();
-        db.registerArgument(new ListObjectFactory());
 
         try (Handle h = db.open()) {
+            h.registerArgument(new ListObjectFactory());
             h.execute("insert into something (id, name) values (1, ?)",
                 List.of(Parameters.thing("Hello"), Parameters.thing("World")));
             h.execute("insert into something (id, name) values (2, ?)",

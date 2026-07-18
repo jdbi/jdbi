@@ -18,12 +18,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.statement.StatementContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -32,14 +30,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestCustomArrayType {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
-
-    @BeforeEach
-    public void setUp() {
-        Jdbi db = h2Extension.getJdbi();
-        db.registerArrayType(UserId.class, "int", UserId::getId);
-        db.registerColumnMapper(new UserIdColumnMapper());
-    }
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+            .withConfig(b -> b.registerArrayType(UserId.class, "int", UserId::getId)
+                    .registerColumnMapper(new UserIdColumnMapper()));
 
     /**
      * Test binding and mapping a custom array type; binding requires registration of a {@link SqlArrayType} implementation, and mapping requires registration

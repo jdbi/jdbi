@@ -34,7 +34,6 @@ import org.jdbi.core.statement.JdbiStatementEvent;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -50,15 +49,21 @@ import static org.assertj.core.api.Assertions.tuple;
 @EnabledIf("org.jdbi.core.statement.internal.JfrSupport#isFlightRecorderAvailable")
 // While JFR is available all the way back to Java 9, the utilities to test it are not.
 public class TestTelemetry {
+    InMemorySpanExporter traces = new InMemorySpanExporter();
+
+    OpenTelemetrySdk otelSdk = OpenTelemetrySdk.builder()
+        .setTracerProvider(SdkTracerProvider.builder()
+            .addSpanProcessor(SimpleSpanProcessor.create(traces))
+            .setSampler(Sampler.alwaysOn())
+            .build())
+        .build();
+
     @RegisterExtension
-    JdbiExtension ext = JdbiExtension.h2();
+    JdbiExtension ext = JdbiExtension.h2().withPlugin(new JdbiOpenTelemetryPlugin(otelSdk));
 
     public JfrEvents jfrEvents = new JfrEvents();
 
-    InMemorySpanExporter traces = new InMemorySpanExporter();
-
     Class<?> testCode;
-    Method setupOpenTelemetryMethod;
     Method eventsMethod;
     Method truncateMethod;
     Method doNotIncludeBindingsMethod;
@@ -66,17 +71,11 @@ public class TestTelemetry {
 
     public TestTelemetry() throws ReflectiveOperationException {
         this.testCode = Class.forName(this.getClass().getName() + "$TestCode");
-        this.setupOpenTelemetryMethod = testCode.getMethod("setupOpenTelemetry");
         this.eventsMethod = testCode.getMethod("events");
         this.truncateMethod = testCode.getMethod("truncate");
         this.doNotIncludeBindingsMethod = testCode.getMethod("doNotIncludeBindings");
 
         this.instance = testCode.getDeclaredConstructors()[0].newInstance(this);
-    }
-
-    @BeforeEach
-    void setupOpenTelemetry() throws InvocationTargetException, IllegalAccessException {
-        setupOpenTelemetryMethod.invoke(instance);
     }
 
     @Test
@@ -95,21 +94,6 @@ public class TestTelemetry {
     }
 
     public final class TestCode {
-        OpenTelemetrySdk otelSdk;
-
-
-        @BeforeEach
-        public void setupOpenTelemetry() {
-            final var tracerProvider = SdkTracerProvider.builder()
-                .addSpanProcessor(SimpleSpanProcessor.create(traces))
-                .setSampler(Sampler.alwaysOn())
-                .build();
-            otelSdk = OpenTelemetrySdk.builder()
-                .setTracerProvider(tracerProvider)
-                .build();
-
-            ext.getJdbi().installPlugin(new JdbiOpenTelemetryPlugin(otelSdk));
-        }
 
         @AfterEach
         public void resetOpenTelemetry() {
@@ -186,12 +170,12 @@ public class TestTelemetry {
         }
 
         public void truncate() {
-            ext.getJdbi().configure(SqlStatements.class, c -> c
-                .jfrSqlMaxLength(10)
-                .jfrParamMaxLength(32));
             final var create = "create table something(id identity primary key, name varchar(50))";
             final var insert = "insert into something (id, name) values (:id, :name)";
             try (var h = ext.openHandle()) {
+                h.configure(SqlStatements.class, c -> c
+                    .jfrSqlMaxLength(10)
+                    .jfrParamMaxLength(32));
                 h.execute(create);
                 insertSomething(h, insert, 1, "abcdefghijklmnopqrstuvwxyz");
             }
@@ -212,12 +196,11 @@ public class TestTelemetry {
         public void doNotIncludeBindings() {
             final var sensitiveData = "sensitive_data";
 
-            ext.getJdbi().configure(SqlStatements.class, c -> c
-                .includeBindingsInTelemetry(false));
-
             final var create = "create table something(id identity primary key, name varchar(50))";
             final var insert = "insert into something (id, name) values (:id, :name)";
             try (var h = ext.openHandle()) {
+                h.configure(SqlStatements.class, c -> c
+                    .includeBindingsInTelemetry(false));
                 h.execute(create);
                 insertSomething(h, insert, 1, sensitiveData);
             }

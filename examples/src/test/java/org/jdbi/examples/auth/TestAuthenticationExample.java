@@ -42,16 +42,14 @@ public class TestAuthenticationExample {
                 h.execute("INSERT INTO users (name, password) VALUES ('user','correct')");
                 h.execute("INSERT INTO data (value) VALUES ('secret')");
             })
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b.registerRowMapper(Data.class, ConstructorMapper.of(Data.class)));
 
     private DataDao dao;
 
     @BeforeEach
     public void setUp() {
-        var jdbi = pgExtension.getJdbi();
-        jdbi.registerRowMapper(Data.class, ConstructorMapper.of(Data.class));
-
-        this.dao = jdbi.onDemand(DataDao.class);
+        this.dao = pgExtension.getJdbi().onDemand(DataDao.class);
     }
 
     @Test

@@ -28,14 +28,14 @@ public final class OrderSupport {
     }
 
     public static void withOrders(Consumer<Jdbi> jdbiConsumer) throws Exception {
-        DatabaseSupport.withDatabase(jdbi -> {
-            createTables(jdbi);
-            populateOrders(jdbi, 3, 20);
+        DatabaseSupport.withDatabase(
+            builder -> builder.registerRowMapper(new OrderMapper()),
+            jdbi -> {
+                createTables(jdbi);
+                populateOrders(jdbi, 3, 20);
 
-            jdbi.registerRowMapper(new OrderMapper());
-
-            jdbiConsumer.accept(jdbi);
-        });
+                jdbiConsumer.accept(jdbi);
+            });
     }
 
     public static void createTables(Jdbi jdbi) {

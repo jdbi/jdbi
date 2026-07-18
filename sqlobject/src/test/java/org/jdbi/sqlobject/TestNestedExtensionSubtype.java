@@ -35,14 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TestNestedExtensionSubtype {
     @RegisterExtension
-    JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
-
-    Jdbi jdbi;
-
-    @BeforeEach
-    void setUp() {
-        jdbi = h2Extension.getJdbi();
-        jdbi.registerExtension(new ExtensionFactory() {
+    JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerExtension(new ExtensionFactory() {
             @Override
             public boolean accepts(final Class<?> extensionType) {
                 return Supertype.class.equals(extensionType);
@@ -57,7 +51,13 @@ class TestNestedExtensionSubtype {
             public <E> E attach(final Class<E> extensionType, final HandleSupplier handleSupplier) {
                 return extensionType.cast(handleSupplier.getHandle().attach(Subtype.class));
             }
-        });
+        }));
+
+    Jdbi jdbi;
+
+    @BeforeEach
+    void setUp() {
+        jdbi = h2Extension.getJdbi();
     }
 
     @Test

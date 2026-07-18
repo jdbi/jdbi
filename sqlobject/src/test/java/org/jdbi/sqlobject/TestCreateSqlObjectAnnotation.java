@@ -36,13 +36,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestCreateSqlObjectAnnotation {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(new SomethingMapper()));
 
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
-        h2Extension.getJdbi().registerRowMapper(new SomethingMapper());
         handle = h2Extension.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
     }

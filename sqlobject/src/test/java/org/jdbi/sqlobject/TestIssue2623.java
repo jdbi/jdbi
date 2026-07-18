@@ -28,7 +28,6 @@ import org.jdbi.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit.internal.TestingInitializers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -39,12 +38,8 @@ public class TestIssue2623 {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
         .withInitializer(TestingInitializers.usersWithData())
-        .withPlugins(new SqlObjectPlugin(), new GuavaPlugin());
-
-    @BeforeEach
-    public void setUp() {
-        h2Extension.getJdbi().registerRowMapper(new GenericType<>() {}, new UserIntegerMapper());
-    }
+        .withPlugins(new SqlObjectPlugin(), new GuavaPlugin())
+        .withConfig(b -> b.registerRowMapper(new GenericType<>() {}, new UserIntegerMapper()));
 
     @Test
     public void testParameterizeTypedMapper() {

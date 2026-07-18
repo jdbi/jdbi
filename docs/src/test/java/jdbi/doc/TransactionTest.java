@@ -54,7 +54,8 @@ public class TransactionTest {
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
             .withPlugin(new PostgresPlugin())
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b.registerRowMapper(ConstructorMapper.factory(User.class)));
 
     private Handle handle;
     private Jdbi jdbi;
@@ -62,7 +63,6 @@ public class TransactionTest {
     @BeforeEach
     public void setUp() {
         jdbi = pgExtension.getJdbi();
-        jdbi.registerRowMapper(ConstructorMapper.factory(User.class));
         handle = pgExtension.openHandle();
 
         handle.useTransaction(h -> {
@@ -187,51 +187,58 @@ public class TransactionTest {
 
     @Test
     public void serializableTransaction() throws Exception {
+        var dataSource = pg.createDatabaseInfo().asDataSource();
+
         // tag::serializable[]
         // Automatically rerun transactions
-        jdbi.setTransactionHandler(new SerializableTransactionRunner());
-        handle.execute("CREATE TABLE ints (value INTEGER)");
+        Jdbi jdbi = Jdbi.builder(dataSource)
+                .transactionHandler(new SerializableTransactionRunner())
+                .build();
 
-        // Set up some values
-        handle.execute("INSERT INTO ints (value) VALUES(?)", 10);
-        handle.execute("INSERT INTO ints (value) VALUES(?)", 20);
+        try (Handle handle = jdbi.open()) {
+            handle.execute("CREATE TABLE ints (value INTEGER)");
 
-        // Run the following twice in parallel, and synchronize
-        ExecutorService executor = Executors.newCachedThreadPool();
-        CountDownLatch latch = new CountDownLatch(2);
+            // Set up some values
+            handle.execute("INSERT INTO ints (value) VALUES(?)", 10);
+            handle.execute("INSERT INTO ints (value) VALUES(?)", 20);
 
-        Callable<Integer> sumAndInsert = () ->
-                jdbi.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactionHandle -> {
-                    // Both threads read initial state of table
-                    int sum = transactionHandle.select("SELECT sum(value) FROM ints").mapTo(int.class).one();
+            // Run the following twice in parallel, and synchronize
+            ExecutorService executor = Executors.newCachedThreadPool();
+            CountDownLatch latch = new CountDownLatch(2);
 
-                    // synchronize threads, make sure that they each has successfully read the data
-                    latch.countDown();
-                    latch.await();
+            Callable<Integer> sumAndInsert = () ->
+                    jdbi.inTransaction(TransactionIsolationLevel.SERIALIZABLE, transactionHandle -> {
+                        // Both threads read initial state of table
+                        int sum = transactionHandle.select("SELECT sum(value) FROM ints").mapTo(int.class).one();
 
-                    // Now do the write.
-                    synchronized (this) {
-                        // handle can be used by multiple threads, but not at the same time
-                        transactionHandle.execute("INSERT INTO ints (value) VALUES(?)", sum);
-                    }
-                    return sum;
-                });
+                        // synchronize threads, make sure that they each has successfully read the data
+                        latch.countDown();
+                        latch.await();
 
-        // Both of these would calculate 10 + 20 = 30, but that violates serialization!
-        Future<Integer> result1 = executor.submit(sumAndInsert);
-        Future<Integer> result2 = executor.submit(sumAndInsert);
+                        // Now do the write.
+                        synchronized (this) {
+                            // handle can be used by multiple threads, but not at the same time
+                            transactionHandle.execute("INSERT INTO ints (value) VALUES(?)", sum);
+                        }
+                        return sum;
+                    });
 
-        // One of the transactions gets 30, the other will abort and automatically rerun.
-        // On the second attempt it will compute 10 + 20 + 30 = 60, seeing the update from its sibling.
-        // This assertion fails under any isolation level below SERIALIZABLE!
-        assertThat(result1.get() + result2.get()).isEqualTo(30 + 60);
+            // Both of these would calculate 10 + 20 = 30, but that violates serialization!
+            Future<Integer> result1 = executor.submit(sumAndInsert);
+            Future<Integer> result2 = executor.submit(sumAndInsert);
 
-        executor.shutdown();
-        // end::serializable[]
+            // One of the transactions gets 30, the other will abort and automatically rerun.
+            // On the second attempt it will compute 10 + 20 + 30 = 60, seeing the update from its sibling.
+            // This assertion fails under any isolation level below SERIALIZABLE!
+            assertThat(result1.get() + result2.get()).isEqualTo(30 + 60);
 
-        List<Integer> results = handle.createQuery("SELECT * from ints").mapTo(Integer.class).list();
-        // both threads have committed their result
-        assertThat(results.size()).isEqualTo(4);
+            executor.shutdown();
+            // end::serializable[]
+
+            List<Integer> results = handle.createQuery("SELECT * from ints").mapTo(Integer.class).list();
+            // both threads have committed their result
+            assertThat(results.size()).isEqualTo(4);
+        }
 
     }
 }

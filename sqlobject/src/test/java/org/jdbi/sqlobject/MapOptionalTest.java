@@ -23,7 +23,6 @@ import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit.internal.TestingInitializers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -33,17 +32,12 @@ import static org.assertj.core.groups.Tuple.tuple;
 public class MapOptionalTest {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(ConstructorMapper.factory(OptionalBean.class)));
 
     public interface OptionalBeanDao {
         @SqlQuery("select intValue, name from something order by id")
         List<OptionalBean> getBeans();
-    }
-
-    @BeforeEach
-    public void setUp() {
-        final Jdbi jdbi = h2Extension.getJdbi();
-        jdbi.registerRowMapper(ConstructorMapper.factory(OptionalBean.class));
     }
 
     @Test

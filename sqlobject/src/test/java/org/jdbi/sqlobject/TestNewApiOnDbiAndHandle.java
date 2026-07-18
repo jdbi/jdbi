@@ -88,8 +88,9 @@ public class TestNewApiOnDbiAndHandle {
 
     @Test
     public void testCorrectExceptionIfUnableToConnectOnDemand() {
-        assertThatThrownBy(() -> Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+        assertThatThrownBy(() -> Jdbi.builder("jdbc:mysql://invalid.invalid/test", "john", "scott")
             .installPlugin(new SqlObjectPlugin())
+            .build()
             .onDemand(Spiffy.class)
             .findNameById(1)).isInstanceOf(ConnectionException.class);
     }
@@ -98,8 +99,9 @@ public class TestNewApiOnDbiAndHandle {
     public void testCorrectExceptionIfUnableToConnectOnOpen() {
         assertThatThrownBy(() -> {
             try (Handle handle =
-                Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+                Jdbi.builder("jdbc:mysql://invalid.invalid/test", "john", "scott")
                     .installPlugin(new SqlObjectPlugin())
+                    .build()
                     .open()) {
                 handle.attach(Spiffy.class);
             }
@@ -110,8 +112,9 @@ public class TestNewApiOnDbiAndHandle {
     public void testCorrectExceptionIfUnableToConnectOnAttach() {
         assertThatThrownBy(() -> {
             try (Handle handle =
-                Jdbi.create("jdbc:mysql://invalid.invalid/test", "john", "scott")
+                Jdbi.builder("jdbc:mysql://invalid.invalid/test", "john", "scott")
                     .installPlugin(new SqlObjectPlugin())
+                    .build()
                     .open()) {
                 handle.attach(Spiffy.class);
             }

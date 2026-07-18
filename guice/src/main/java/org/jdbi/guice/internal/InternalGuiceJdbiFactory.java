@@ -44,9 +44,9 @@ public final class InternalGuiceJdbiFactory implements Provider<Jdbi> {
 
     @Override
     public Jdbi get() {
-        Jdbi jdbi = Jdbi.create(dataSource);
-        moduleCustomizers.forEach(c -> c.customize(jdbi));
+        Jdbi.Builder builder = Jdbi.builder(dataSource);
+        moduleCustomizers.forEach(c -> c.customize(builder));
 
-        return jdbi;
+        return builder.build();
     }
 }

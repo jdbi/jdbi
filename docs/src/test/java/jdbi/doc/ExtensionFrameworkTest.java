@@ -39,7 +39,8 @@ class ExtensionFrameworkTest {
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
             .withInitializer(TestingInitializers.something())
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b.registerRowMapper(new SomethingMapper()));
     Jdbi jdbi;
 
     // tag::dao[]
@@ -66,8 +67,6 @@ class ExtensionFrameworkTest {
     @BeforeEach
     void setUp() {
         this.jdbi = h2Extension.getJdbi();
-
-        jdbi.registerRowMapper(new SomethingMapper());
 
         // tag::use[]
         jdbi.useExtension(SomethingDao.class, dao -> {

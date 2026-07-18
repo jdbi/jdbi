@@ -67,8 +67,7 @@ public class TestUseCustomHandlerFactory {
             }
         };
 
-        db.configure(Handlers.class, c -> c.register(defaultHandlerFactory));
-        handle = db.open();
+        handle = db.open(cfg -> cfg.configure(Handlers.class, c -> c.register(defaultHandlerFactory)));
     }
 
     @AfterEach

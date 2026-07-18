@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.Jdbi;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,19 +52,23 @@ public class TestSerializableTransactionRunner {
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
+    private Jdbi jdbi;
+
     @BeforeEach
     public void setUp() {
-        h2Extension.getJdbi().setTransactionHandler(new SerializableTransactionRunner());
-        h2Extension.getJdbi().configure(SerializableTransactionRunner.Configuration.class, config -> config
-            .maxRetries(MAX_RETRIES)
-            .onFailure(onFailure)
-            .onSuccess(onSuccess));
+        jdbi = Jdbi.builder(h2Extension.getUri())
+            .transactionHandler(new SerializableTransactionRunner())
+            .configure(SerializableTransactionRunner.Configuration.class, config -> config
+                .maxRetries(MAX_RETRIES)
+                .onFailure(onFailure)
+                .onSuccess(onSuccess))
+            .build();
     }
 
     @Test
     public void testEventuallyFails() {
         final AtomicInteger attempts = new AtomicInteger(0);
-        try (Handle handle = h2Extension.openHandle()) {
+        try (Handle handle = jdbi.open()) {
 
             assertThatExceptionOfType(SQLException.class)
                 .isThrownBy(() -> handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE,
@@ -85,7 +90,7 @@ public class TestSerializableTransactionRunner {
     @Test
     public void testEventuallySucceeds() throws Exception {
         final AtomicInteger remaining = new AtomicInteger(MAX_RETRIES / 2);
-        try (Handle handle = h2Extension.openHandle()) {
+        try (Handle handle = jdbi.open()) {
             handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
                 if (remaining.decrementAndGet() == 0) {
                     return null;
@@ -100,7 +105,7 @@ public class TestSerializableTransactionRunner {
     @Test
     public void testEventuallySucceedsWrappexException() throws Exception {
         final AtomicInteger remaining = new AtomicInteger(MAX_RETRIES / 2);
-        try (Handle handle = h2Extension.openHandle()) {
+        try (Handle handle = jdbi.open()) {
             handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
                 if (remaining.decrementAndGet() == 0) {
                     return null;
@@ -115,7 +120,7 @@ public class TestSerializableTransactionRunner {
     @Test
     public void testBatchSucceeds() throws Exception {
         final AtomicInteger remaining = new AtomicInteger(MAX_RETRIES / 2);
-        try (Handle handle = h2Extension.openHandle()) {
+        try (Handle handle = jdbi.open()) {
             handle.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
                 if (remaining.decrementAndGet() == 0) {
                     return null;
@@ -131,7 +136,7 @@ public class TestSerializableTransactionRunner {
 
     @Test
     public void testNonsenseRetryCount() {
-        assertThatThrownBy(() -> h2Extension.getJdbi().configure(SerializableTransactionRunner.Configuration.class, config -> config.maxRetries(-1)))
+        assertThatThrownBy(() -> Jdbi.builder(h2Extension.getUri()).configure(SerializableTransactionRunner.Configuration.class, config -> config.maxRetries(-1)))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Set a number >= 0");
     }
@@ -157,7 +162,7 @@ public class TestSerializableTransactionRunner {
             return null;
         }).when(onSuccess).accept(anyList());
 
-        try (Handle h = h2Extension.openHandle()) {
+        try (Handle h = jdbi.open()) {
             h.inTransaction(TransactionIsolationLevel.SERIALIZABLE, conn -> {
                 if (remainingAttempts.decrementAndGet() == 0) {
                     return null;

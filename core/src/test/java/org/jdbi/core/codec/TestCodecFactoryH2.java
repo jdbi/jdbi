@@ -29,15 +29,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestCodecFactoryH2 {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+            .withConfig(b -> b.registerCodecFactory(
+                    CodecFactory.forSingleCodec(QualifiedType.of(TestValue.class), new TestValueCodec())));
 
     @Test
     public void testCodecFactory() throws Exception {
         QualifiedType<TestValue> testType = QualifiedType.of(TestValue.class);
 
         Jdbi jdbi = h2Extension.getJdbi();
-
-        jdbi.registerCodecFactory(CodecFactory.forSingleCodec(testType, new TestValueCodec()));
 
         jdbi.useHandle(h ->
             h.execute("CREATE TABLE test (test VARCHAR PRIMARY KEY)"));

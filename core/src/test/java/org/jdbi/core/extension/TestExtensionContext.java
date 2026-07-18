@@ -39,8 +39,8 @@ public class TestExtensionContext {
     static class TestPlugin implements JdbiPlugin {
 
         @Override
-        public void customizeJdbi(Jdbi jdbi) {
-            jdbi.registerExtension(new TestExtensionFactory());
+        public void configure(Jdbi.Builder builder) {
+            builder.registerExtension(new TestExtensionFactory());
         }
     }
 

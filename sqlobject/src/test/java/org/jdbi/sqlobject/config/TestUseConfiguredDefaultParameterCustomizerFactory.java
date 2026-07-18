@@ -16,13 +16,11 @@ package org.jdbi.sqlobject.config;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.SqlObjects;
 import org.jdbi.sqlobject.customizer.Bind;
-import org.jdbi.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit.internal.TestingInitializers;
@@ -35,24 +33,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestUseConfiguredDefaultParameterCustomizerFactory {
 
+    private final AtomicInteger invocationCounter = new AtomicInteger(0);
+
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.configure(SqlObjects.class, c -> c.defaultParameterCustomizerFactory(
+            (sqlObjectType, method, param, index, type) -> {
+                invocationCounter.incrementAndGet();
+                return (stmt, arg) -> stmt.bind("mybind" + index, arg);
+            })));
 
     private Handle handle;
 
-    private AtomicInteger invocationCounter = new AtomicInteger(0);
-
     @BeforeEach
     public void setUp() {
-        Jdbi db = h2Extension.getJdbi();
-
-        ParameterCustomizerFactory defaultParameterCustomizerFactory = (sqlObjectType, method, param, index, type) -> {
-            invocationCounter.incrementAndGet();
-            return (stmt, arg) -> stmt.bind("mybind" + index, arg);
-        };
-
-        db.configure(SqlObjects.class, c -> c.defaultParameterCustomizerFactory(defaultParameterCustomizerFactory));
-        handle = db.open();
+        handle = h2Extension.getJdbi().open();
     }
 
     @AfterEach

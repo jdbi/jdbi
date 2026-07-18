@@ -42,9 +42,9 @@ public final class QualifiedTypes {
         throw new AssertionError("do not instantiate");
     }
 
-    public static void registerMappers(Jdbi jdbi) {
-        jdbi.registerColumnMapper(QualifiedType.of(new GenericType<List<String>>() {}).with(Colon.class), new ColonMapper());
-        jdbi.registerColumnMapper(QualifiedType.of(new GenericType<List<String>>() {}).with(Comma.class), new CommaMapper());
+    public static void registerMappers(Jdbi.Builder builder) {
+        builder.registerColumnMapper(QualifiedType.of(new GenericType<List<String>>() {}).with(Colon.class), new ColonMapper());
+        builder.registerColumnMapper(QualifiedType.of(new GenericType<List<String>>() {}).with(Comma.class), new CommaMapper());
     }
 
     @Retention(RetentionPolicy.RUNTIME)

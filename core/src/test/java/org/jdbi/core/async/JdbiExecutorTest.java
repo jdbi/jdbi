@@ -90,7 +90,8 @@ public class JdbiExecutorTest {
     }
 
     @RegisterExtension
-    private final H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    private final H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+            .withConfig(b -> b.registerExtension(new TestExtensionFactory()));
 
     private JdbiExecutor jdbiExecutor = null;
     private Jdbi jdbi;
@@ -98,7 +99,7 @@ public class JdbiExecutorTest {
     @BeforeEach
     void setup() {
         h2Extension.getJdbi().useHandle(H2DatabaseExtension.USERS_INITIALIZER::initialize);
-        jdbi = h2Extension.getJdbi().registerExtension(new TestExtensionFactory());
+        jdbi = h2Extension.getJdbi();
         jdbiExecutor = JdbiExecutor.create(jdbi, Executors.newFixedThreadPool(2));
     }
 
