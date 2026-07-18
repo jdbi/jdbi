@@ -244,6 +244,29 @@ copy-on-write statement registry. Key findings so they are not re-derived:
   parent. Watch two hazards: on-demand config creation must not mutate the shared parent map, and a value
   carrying a back-ref cannot be re-pointed on a shared instance. Both are now moot — all values are immutable.
 
+### Warm ExtensionMetadata across handles (jdbi/jdbi#2992) — open, to address in D4/D6
+Upstream v3 PR #2992 fixes a real production bug: `ExtensionMetadata` (the reflected SQL Object wiring) was
+cached per config copy, so a service that only does `handle.attach()` (one handle per request) recomputed all
+metadata every request — the cache stayed permanently cold. Its v3 fix shares a mutable cache map by reference
+across copies and adds manual `invalidateMetadataCache()` (called from every `register*`), a `ConfigRegistry`
+back-ref on `Handlers`/`HandlerDecorators`, and `volatile`/`AtomicBoolean` publication. That bundle is exactly
+the mutable-registry-keyed-cache-plus-manual-invalidation coupling this project removes; **do not port it.**
+Note: #2992 is **not** in the jdbi4 base and its machinery is absent here — but the underlying problem is still
+present, because our `ExtensionMetadataResolver` lives in the registry's `views` (per-registry, not copied), and
+a handle is a `createCopy()` of the Jdbi config, so each handle's metadata cache is cold. Two clean fixes the
+immutable world gives us, neither needing #2992's plumbing:
+- **COW at the handle boundary.** Have a non-reconfigured handle be a `createChild()` of the Jdbi config (like a
+  statement is of the handle), so handles share the Jdbi registry's warm resolvers. Safe only once the Jdbi
+  config is frozen after first open (**D4**) — an un-forked child is a live view of a mutating parent, and
+  handles run on different threads. So this is a D4 deliverable, and a reason to freeze-on-open.
+- **Value-keyed caching.** Key metadata on the immutable config value's identity: a config change is a new value
+  → automatic miss, no manual invalidation. Needs config addressable as one immutable value (the D-series end
+  state), because metadata can depend on arbitrary registry config via `extensionFactory.get…(registry)`.
+When #2992 lands upstream and master is merged in, take it **mostly as a removal**: keep its intent/regression
+tests, drop its shared-mutable-cache + `invalidateMetadataCache` + back-ref + atomics — our COW + `views.clear()`
+already covers correctness. (The `customizerCount` staleness guard in `ExtensionMetadataResolver`, which the D7
+`install()`→`views.clear()` subsumed, was removed in this pass.)
+
 ---
 
 ## Config/Handle decoupling (2026-07-17): the immutable-config end state — supersedes the sub-step-3 swap sketch
