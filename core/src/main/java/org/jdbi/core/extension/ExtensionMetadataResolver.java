@@ -29,6 +29,10 @@ import static org.jdbi.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_F
  * registration data), memoizing the outcome. It is obtained per registry via {@link #forRegistry(ConfigRegistry)}
  * and is scoped to that registry: its cache is warm across the extensions attached against a shared registry,
  * yet a forked registry starts with an empty cache and re-resolves against its own registration data.
+ * <p>
+ * The cache needs no staleness check of its own: any configuration change installs a new immutable config value,
+ * which {@link ConfigRegistry#install} responds to by dropping the registry's memoized views, so the next lookup
+ * builds a fresh resolver against the new configuration.
  */
 public final class ExtensionMetadataResolver {
 
@@ -45,12 +49,6 @@ public final class ExtensionMetadataResolver {
     private final ConfigRegistry registry;
     private final Map<Class<?>, ExtensionMetadata> metadataCache = new CopyOnWriteHashMap<>();
 
-    // Metadata is built from the global handler/customizer factory lists; registration only ever adds to them,
-    // so a change in their combined count means one was registered on this (still-mutable) registry after we
-    // cached; drop the stale cache. Once registration forks the registry (immutable-config step), each fork has
-    // its own fresh resolver and this guard is moot.
-    private volatile int customizerCount = -1;
-
     private ExtensionMetadataResolver(final ConfigRegistry registry) {
         this.registry = registry;
     }
@@ -64,13 +62,6 @@ public final class ExtensionMetadataResolver {
      */
     public ExtensionMetadata findMetadata(final Class<?> extensionType, final ExtensionFactory extensionFactory) {
         final Extensions extensions = registry.get(Extensions.class);
-        final int count = extensions.getExtensionHandlerFactories().size()
-                + extensions.getExtensionHandlerCustomizers().size()
-                + extensions.getConfigCustomizerFactories().size();
-        if (count != customizerCount) {
-            metadataCache.clear();
-            customizerCount = count;
-        }
         return metadataCache.computeIfAbsent(extensionType, createMetadata(extensions, extensionFactory));
     }
 
