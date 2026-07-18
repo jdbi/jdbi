@@ -26,6 +26,16 @@ import org.jdbi.core.Jdbi;
  */
 public interface JdbiPlugin {
     /**
+     * Contributes configuration and knobs to a {@link Jdbi.Builder} during assembly. This method is invoked by
+     * {@link Jdbi.Builder#build()} for each installed plugin, in install order, before {@link #customizeJdbi(Jdbi)}.
+     * It is the preferred hook for plugins that only add configuration (mappers, arguments, and the like), because
+     * it runs while the {@code Jdbi} is still being assembled rather than mutating it after construction.
+     *
+     * @param builder the builder to contribute to
+     */
+    default void configure(Jdbi.Builder builder) {}
+
+    /**
      * Configure customizations global to any object managed by this Jdbi.
      * This method is invoked immediately when the plugin is installed.
      * @param jdbi the jdbi to customize
