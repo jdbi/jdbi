@@ -3,6 +3,8 @@
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
+- Share the extension metadata cache across handles so `handle.attach()`-only workloads no longer
+  recompute `ExtensionMetadata` on every handle (#2991)
 
 # 3.54.0
 

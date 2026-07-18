@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
 import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
+import org.jdbi.v3.core.extension.Extensions;
 
 /**
  * Registry for {@link HandlerFactory handler factories}, which produce {@link Handler handlers} for SQL object methods.
@@ -36,12 +37,19 @@ import org.jdbi.v3.core.extension.ExtensionHandlerFactory;
 public class Handlers implements JdbiConfig<Handlers> {
     private final List<HandlerFactory> factories;
 
+    private ConfigRegistry registry;
+
     public Handlers() {
         factories = new CopyOnWriteArrayList<>();
     }
 
     private Handlers(Handlers that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
+    }
+
+    @Override
+    public void setRegistry(ConfigRegistry registry) {
+        this.registry = registry;
     }
 
     List<HandlerFactory> getFactories() {
@@ -54,6 +62,12 @@ public class Handlers implements JdbiConfig<Handlers> {
      * @return this
      */
     public Handlers register(HandlerFactory factory) {
+        // The registered factories feed ExtensionMetadata computation, so detach this config's shared
+        // metadata cache before mutating them (jdbi/jdbi#2991). No-op until the registry is wired up,
+        // which covers construction-time registration before any metadata could have been cached.
+        if (registry != null) {
+            registry.get(Extensions.class).invalidateMetadataCache();
+        }
         factories.add(0, factory);
         return this;
     }
