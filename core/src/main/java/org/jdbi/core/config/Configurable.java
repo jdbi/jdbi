@@ -87,8 +87,7 @@ public interface Configurable<This> {
      */
     @SuppressWarnings("unchecked")
     default <C extends JdbiConfig<C>> This configure(final Class<C> configClass, final UnaryOperator<C> configurer) {
-        final ConfigRegistry config = getConfig();
-        config.install(configClass, configurer.apply(config.get(configClass)));
+        getConfig().configure(configClass, configurer);
         return (This) this;
     }
 

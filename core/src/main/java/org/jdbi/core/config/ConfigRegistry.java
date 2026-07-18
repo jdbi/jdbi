@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.jdbi.core.argument.Arguments;
 import org.jdbi.core.collector.JdbiCollectors;
@@ -98,6 +99,22 @@ public final class ConfigRegistry implements ConfigReader {
     <C extends JdbiConfig<C>> void install(final Class<C> configClass, final C config) {
         configs.put(configClass, config);
         config.setRegistry(this);
+    }
+
+    /**
+     * Derives a new configuration value by applying the operator to the current value of the given type and
+     * installs it into this registry, replacing the previous value. This mutates this registry in place, so it
+     * is for a registry that is not yet shared (during setup / extension-config derivation) or one whose
+     * in-place mutation is intentional; {@link Configurable#configure(Class, UnaryOperator)} routes through here.
+     *
+     * @param configClass the config type
+     * @param configurer  operator applied to the current value, returning the value to install
+     * @param <C>         the config type
+     * @return this registry
+     */
+    public <C extends JdbiConfig<C>> ConfigRegistry configure(final Class<C> configClass, final UnaryOperator<C> configurer) {
+        install(configClass, configurer.apply(get(configClass)));
+        return this;
     }
 
     /**
