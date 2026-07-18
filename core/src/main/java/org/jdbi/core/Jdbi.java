@@ -703,7 +703,10 @@ public class Jdbi implements Configurable<Jdbi> {
          * @return this builder
          */
         public Builder installPlugin(final JdbiPlugin plugin) {
-            plugins.add(Objects.requireNonNull(plugin, "null plugin"));
+            Objects.requireNonNull(plugin, "null plugin");
+            if (!plugins.contains(plugin)) {
+                plugins.add(plugin);
+            }
             return this;
         }
 
@@ -758,11 +761,17 @@ public class Jdbi implements Configurable<Jdbi> {
         /**
          * Applies the installed plugins and returns the assembled {@link Jdbi}. Each plugin's
          * {@link JdbiPlugin#configure(Builder)} runs, then its {@link JdbiPlugin#customizeJdbi(Jdbi)}, in install order.
+         * A plugin may itself install further plugins (via {@link #installPlugin(JdbiPlugin)} from its
+         * {@code configure}/{@code customizeJdbi} hook); those are drained and applied in turn, each at most once.
          *
          * @return the assembled {@code Jdbi}
          */
         public Jdbi build() {
-            for (final JdbiPlugin plugin : plugins) {
+            // Drain by index: a plugin's configure()/customizeJdbi() may install further plugins, growing the list
+            // mid-drain. installPlugin() dedups so a plugin pulled in by two others is still applied once.
+            int i = 0;
+            while (i < plugins.size()) {
+                final JdbiPlugin plugin = plugins.get(i++);
                 plugin.configure(this);
                 jdbi.installPlugin(plugin);
             }

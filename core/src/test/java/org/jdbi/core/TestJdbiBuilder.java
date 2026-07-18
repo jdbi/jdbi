@@ -94,4 +94,61 @@ public class TestJdbiBuilder {
             assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("from-plugin");
         }
     }
+
+    @Test
+    public void ofRunsConsumerAtBuildTime() {
+        final RowMapper<String> mapper = (rs, ctx) -> "from-of";
+        final Jdbi jdbi = Jdbi.builder(url())
+                .installPlugin(JdbiPlugin.of(b -> b.registerRowMapper(String.class, mapper)))
+                .build();
+
+        try (Handle h = jdbi.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("from-of");
+        }
+    }
+
+    @Test
+    public void buildDrainsPluginsInstalledDuringConfigure() {
+        final RowMapper<String> mapper = (rs, ctx) -> "from-sub";
+        final JdbiPlugin sub = JdbiPlugin.of(b -> b.registerRowMapper(String.class, mapper));
+        final JdbiPlugin parent = new JdbiPlugin() {
+            @Override
+            public void configure(final Jdbi.Builder builder) {
+                builder.installPlugin(sub);
+            }
+        };
+
+        final Jdbi jdbi = Jdbi.builder(url()).installPlugin(parent).build();
+
+        try (Handle h = jdbi.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("from-sub");
+        }
+    }
+
+    @Test
+    public void buildAppliesPluginPulledInByTwoOthersOnce() {
+        final AtomicInteger configureCount = new AtomicInteger();
+        final JdbiPlugin shared = new JdbiPlugin() {
+            @Override
+            public void configure(final Jdbi.Builder builder) {
+                configureCount.incrementAndGet();
+            }
+        };
+        final JdbiPlugin first = new JdbiPlugin() {
+            @Override
+            public void configure(final Jdbi.Builder builder) {
+                builder.installPlugin(shared);
+            }
+        };
+        final JdbiPlugin second = new JdbiPlugin() {
+            @Override
+            public void configure(final Jdbi.Builder builder) {
+                builder.installPlugin(shared);
+            }
+        };
+
+        Jdbi.builder(url()).installPlugin(first).installPlugin(second).build();
+
+        assertThat(configureCount).hasValue(1);
+    }
 }
