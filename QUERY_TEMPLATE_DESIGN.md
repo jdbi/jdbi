@@ -149,7 +149,15 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): sub-step 4 + D7/sub-step 5 + D4a/D5 + D4b.1 + D4b.2 + D6 (window slice) DONE; next is REMOVAL — in THIS branch (4.x)
+## HANDOFF (2026-07-18): through D6 + REMOVAL R1+R2 DONE; next is R3 (#2992 handle-COW payoff) then R7/R4/R6
+
+> **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) DONE, whole reactor green. **R2 made `Jdbi` read-only**
+> (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
+> sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
+> `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
+> (handle `createCopy`→`createChild` COW = the jdbi/jdbi#2992 warm-metadata payoff) is UNBLOCKED and is next.**
+> Small R2 polish still pending (re-point clear-win `Jdbi.builder(ext.getUrl())` rebuilds → `ext.builder()`; leave
+> isolation-intent + doc snippets bare). Details in the "REMOVAL phase" section.
 
 > **VERSIONING FRAMING (2026-07-18, maintainer-confirmed).** This branch **is** the next major (jdbi 4.x, still
 > `4.0.0-SNAPSHOT`, unreleased). Earlier phases wrote "removal in the next major" as if removal were a *future*
@@ -186,8 +194,11 @@ prize early, then finish the handle-config removal:
 - **R1 — migrate in-repo Jdbi-mutation call sites to the builder** (behavior-preserving prep). ~90–100 sites across
   ~59 files: `Jdbi.create(x).registerY(...).installPlugin(p)` / post-`create` `jdbi.registerY(...)` →
   `Jdbi.builder(x).registerY(...).installPlugin(p)…build()`. Central test support already done (D4b.2).
-- **R2 — remove the Jdbi mutation API; `Jdbi` becomes read-only. [IN PROGRESS — API changes done + validated,
-  stashed; test-site migration pending]** Delete `installPlugin`/`setTransactionHandler`/
+- **R2 — remove the Jdbi mutation API; `Jdbi` becomes read-only. [DONE `2c9c4aa6f`, whole reactor green. Details in
+  the branch memory [[query-templates-branch]] "R2 DONE" entry — including the `withConfig(Consumer<Builder>)` +
+  `builder()` test conveniences, the JdbiJtaTest discard-mutation fix, and two gotchas: immutable-config
+  `getConfig(X).<wither>()` silently discards, and agents' `test-compile` skips checkstyle. Pending polish = re-point
+  clear-win `Jdbi.builder(ext.getUrl())` rebuilds to `ext.builder()`.]** Delete `installPlugin`/`setTransactionHandler`/
   `setStatementBuilderFactory`/`setHandleCallbackDecorator`/`setHandleScope` + `JdbiPlugin.customizeJdbi` (+ the
   `applyPlugin` bridge's `customizeJdbi` leg; Builder knob setters now write `jdbi` fields directly); `Jdbi implements
   ConfigReader` (read, `org.jdbi.core.statement.ConfigReader`) not `Configurable` (read+mutate). Also migrate
