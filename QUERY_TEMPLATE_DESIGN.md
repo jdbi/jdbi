@@ -436,7 +436,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): phase 2 sub-step 3 — ALL D1 CONFIGS IMMUTABLE; next is D7 → sub-step 5
+## HANDOFF (2026-07-18): sub-step 3 done incl. SqlStatements; D1 is NOT complete — sub-step 4 remains
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
 config/Handle decoupling; the **public API is signed off** and recorded in "## Config assembly API — PROPOSAL
@@ -447,9 +447,25 @@ configs, `Arguments` (with a bulk `register(Collection)`), the Q1 interceptor tr
 (`RowMappers`/`ColumnMappers`/`SqlArrayTypes`, now with `withInferenceInterceptor` + a shared
 `RegistrationLists` helper), the shared `MapEntryConfig` (`MapEntryMappers` + vavr `TupleMappers`, whose
 registry back-ref was removed), `Extensions`, **and now `SqlStatements`** are done immutable; dead
-`prePreparedTypes` deleted. **D1 is complete — every `JdbiConfig` value is now immutable.**
-Remaining: **D7** (statement-level copy-on-write private config) → **sub-step 5** (delete the per-statement
-`createCopy()`, the perf payoff) → **D4/D5/D6** (builder/plugin/open surface).
+`prePreparedTypes` deleted.
+
+**CORRECTION (2026-07-18): D1 is NOT complete.** An earlier note here claimed "SqlStatements is the last D1
+config / every value is immutable" — that was wrong. Verified by `createCopy()` behavior across all ~34
+`JdbiConfig` impls: ~15 are immutable (`createCopy` returns `this` — the sub-step-3 set above), but **~19 still
+return a real copy and mutate in place**: `JdbiCollectors`, `PojoTypes`, `SqlObjects`, `OnDemandExtensions`,
+`Handles`, `Handlers`, `HandlerDecorators`, `SerializableTransactionRunner`, the four `setRegistry` holdouts
+(`Qualifiers`, `EnumStrategies`, `JdbiImmutables`, `PostgresTypes`), and the module configs
+(`Jackson2/3Config`, `Gson2Config`, `MoshiConfig`, `JsonConfig`, `FreemarkerConfig`, `StringTemplates`). These
+are the plan's **sub-step 4** ("finish converting remaining configs"). Note the four `setRegistry` back-refs
+still exist (sub-step 2 did NOT remove all of them, contrary to the D-contract text): `EnumStrategies` is a
+true resolution dependency (→ convert to a `readAs` resolver), `Qualifiers` is benign (keys the shared
+`ConfigCaches`; registry-independent result), and `JdbiImmutables`/`PostgresTypes` use the ref only at
+registration boundaries (register also into `PojoTypes`/`SqlArrayTypes`).
+
+Remaining, in order: **sub-step 4** (convert the ~19 configs above; a value that is not immutable & shareable
+cannot be read-through-shared, so this blocks zero-copy) → **D7** (statement-level copy-on-write private
+config) → **sub-step 5** (delete the per-statement `createCopy()`, the perf payoff) → **D4/D5/D6**
+(builder/plugin/open surface).
 All commits are whole-reactor green with static analysis ENABLED — do not fall back to
 `-Dbasepom.check.skip-all` as the validation of record.
 
@@ -720,7 +736,8 @@ largest public surface and depend on the value/registry immutability being in pl
   `createCopy` returns `this`. Built-ins move to a `buildDefaultHandlerFactories()` reproducing the exact
   reverse-of-registration order. Migrated the core extension tests + generator `setAllowProxy` sites (all via
   `configure`/`withConfig`) and the `registerExtension` javadoc; added `ExtensionsTest`. Whole reactor green.
-- **Item 4b DONE: `SqlStatements` immutable — D1 is now complete.** The last and biggest D1 config. All fields
+- **Item 4b DONE: `SqlStatements` immutable.** The last and biggest config in the sub-step-3 set (NOT the last
+  config overall — see the CORRECTION in the HANDOFF: sub-step 4 still has ~19 mutable configs). All fields
   `final` (the `volatile` flags dropped — immutability removes the need); scalar setters became prefix-free
   chainable withers (`templateEngine`/`sqlParser`/`sqlLogger`/`queryTimeout`/`unusedBindingAllowed`/`attach*`/
   `scriptStatementsNeedSemicolon`/`jfr*`/`includeBindingsInTelemetry`) returning a new instance; the deprecated
@@ -755,9 +772,13 @@ largest public surface and depend on the value/registry immutability being in pl
    registry-back-ref removal (fallback relocated to `VavrTupleRowMapperFactory`), which was not in the original
    one-line plan.
 4. **Large configs.** `Extensions` **DONE (`6f7ebbad2`)** and `SqlStatements` **DONE (item 4b, this session)** —
-   see the Item 4b Progress entry above for the full write-up. **This completes D1: every `JdbiConfig` value is
-   now immutable.** (One deferred follow-on it named: the `define` O(n²) regression, whose permanent fix is D7's
-   statement-local define buffer.)
+   see the Item 4b Progress entry above for the full write-up. (One deferred follow-on it named: the `define`
+   O(n²) regression, whose permanent fix is D7's statement-local define buffer.)
+5. **sub-step 4 — convert the remaining ~19 mutable configs** (see the HANDOFF CORRECTION for the full list and
+   the `setRegistry` analysis). Until a statement-reachable config is immutable & shareable, it cannot be
+   read-through-shared, so this blocks the D7/sub-step-5 zero-copy payoff. `EnumStrategies` → a `readAs`
+   resolver; the module/registration configs → records / hand-written immutable; `JdbiImmutables`/`PostgresTypes`
+   registration-boundary refs and `Qualifiers` (benign) to be resolved as part of it.
 5. **Sweep the remaining warm-like/dead constructs** (`PojoWarmingCustomizer`, any `warm(ConfigRegistry)` hooks) —
    assess whether they still pull weight now that resolvers cache per-registry; drop if not (per maintainer:
    we are on 4.x, remove rather than shim when a construct adds baggage).
