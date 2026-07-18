@@ -118,7 +118,7 @@ public class EnumsConfigTest {
     @Test
     public void ordinalsAreBoundCorrectly() {
         sqliteExtension.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
+            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
 
             h.createUpdate("create table enums(id int, ordinal int)").execute();
 
@@ -138,7 +138,7 @@ public class EnumsConfigTest {
     @Test
     public void ordinalsAreMappedCorrectly() {
         sqliteExtension.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
+            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
 
             Foobar name = h.createQuery("select :ordinal")
                 .bind("ordinal", Foobar.FOO.ordinal())
@@ -162,7 +162,7 @@ public class EnumsConfigTest {
     @Test
     public void badOrdinalThrows() {
         sqliteExtension.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
+            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
 
             assertThatThrownBy(h.createQuery("select 3").mapTo(Foobar.class)::one)
                 .isInstanceOf(UnableToProduceResultException.class)

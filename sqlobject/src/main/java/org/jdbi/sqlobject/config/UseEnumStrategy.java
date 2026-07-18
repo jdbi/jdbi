@@ -27,7 +27,7 @@ import org.jdbi.sqlobject.config.internal.UseEnumStrategyImpl;
  * values.
  *
  * @see org.jdbi.core.enums.EnumStrategy
- * @see org.jdbi.core.enums.Enums#setEnumStrategy(EnumStrategy)
+ * @see org.jdbi.core.enums.Enums#defaultStrategy(EnumStrategy)
  */
 @Retention(RetentionPolicy.RUNTIME)
 @UseExtensionConfigurer(UseEnumStrategyImpl.class)

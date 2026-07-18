@@ -18,15 +18,15 @@ import org.jdbi.core.config.JdbiConfig;
 /**
  * Configuration for behavior related to {@link Enum}s.
  */
-public class Enums implements JdbiConfig<Enums> {
-    private EnumStrategy strategy;
+public final class Enums implements JdbiConfig<Enums> {
+    private final EnumStrategy strategy;
 
     public Enums() {
-        strategy = EnumStrategy.BY_NAME;
+        this(EnumStrategy.BY_NAME);
     }
 
-    private Enums(Enums other) {
-        strategy = other.strategy;
+    private Enums(EnumStrategy strategy) {
+        this.strategy = strategy;
     }
 
     /**
@@ -39,17 +39,17 @@ public class Enums implements JdbiConfig<Enums> {
     }
 
     /**
-     * Sets the default strategy for mapping and binding enums.
+     * Returns a copy of this configuration with the given default strategy for mapping and binding enums.
      * @param enumStrategy the new strategy
-     * @return this Enums instance, for chaining
+     * @return the derived configuration
      */
-    public Enums setEnumStrategy(EnumStrategy enumStrategy) {
-        this.strategy = enumStrategy;
-        return this;
+    public Enums defaultStrategy(EnumStrategy enumStrategy) {
+        return new Enums(enumStrategy);
     }
 
     @Override
     public Enums createCopy() {
-        return new Enums(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

@@ -49,7 +49,7 @@ public class SqlObjectEnumQualifierTest {
     @Test
     public void byNameOverridesDefaultInBindingAndMapping() {
         sqliteExtension.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL);
+            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
 
             h.execute("create table enums(name varchar)");
 
@@ -66,7 +66,7 @@ public class SqlObjectEnumQualifierTest {
     @Test
     public void useEnumStrategyOrdinalAnnotation() {
         sqliteExtension.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_NAME); // dao annotations will override
+            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_NAME)); // dao annotations will override
 
             h.execute("create table enums(ordinal int)");
 
@@ -83,7 +83,7 @@ public class SqlObjectEnumQualifierTest {
     @Test
     public void useEnumStrategyNameAnnotation() {
         sqliteExtension.getJdbi().useHandle(h -> {
-            h.getConfig(Enums.class).setEnumStrategy(EnumStrategy.BY_ORDINAL); // dao annotations will override
+            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)); // dao annotations will override
 
             h.execute("create table enums(name varchar)");
 
