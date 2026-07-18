@@ -79,8 +79,8 @@ public class TestMapperInit {
                 .mapTo(StringValue.class)
                 .list();
 
-            // has been called once
-            assertThat(mapper.getInitializedCount()).isEqualTo(2);
+            // a second statement that changes no configuration shares the handle's registry: no re-initialization
+            assertThat(mapper.getInitializedCount()).isOne();
 
             // has been called for every row (mapper gets reused)
             assertThat(value.size() * 2).isEqualTo(mapper.getMappedCount());
@@ -98,8 +98,8 @@ public class TestMapperInit {
                 .mapTo(StringValue.class)
                 .list();
 
-            // called again for the statement
-            assertThat(mapper.getInitializedCount()).isEqualTo(3);
+            // a new handle has its own registry, so the mapper is initialized again
+            assertThat(mapper.getInitializedCount()).isEqualTo(2);
 
             // has been called for every row again (mapper gets reused)
             assertThat(value.size() * 3).isEqualTo(mapper.getMappedCount());
@@ -138,8 +138,8 @@ public class TestMapperInit {
                 .mapTo(resultType)
                 .list();
 
-            // has been called once
-            assertThat(mapper.getInitializedCount()).isEqualTo(2);
+            // a second statement that changes no configuration shares the handle's registry: no re-initialization
+            assertThat(mapper.getInitializedCount()).isOne();
 
             // has been called for every row (mapper gets reused)
             assertThat(value.size() * 2).isEqualTo(mapper.getMappedCount());
@@ -155,8 +155,8 @@ public class TestMapperInit {
             List<Map.Entry<StringValue, Integer>> value = h.createQuery("SELECT * FROM column_mappers")
                 .mapTo(resultType)
                 .list();
-            // called again for the statement
-            assertThat(mapper.getInitializedCount()).isEqualTo(3);
+            // a new handle has its own registry, so the mapper is initialized again
+            assertThat(mapper.getInitializedCount()).isEqualTo(2);
 
             // has been called for every row again (mapper gets reused)
             assertThat(value).hasSize(mapper.getMappedCount() / 3);

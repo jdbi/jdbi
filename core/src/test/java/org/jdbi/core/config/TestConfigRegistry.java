@@ -16,12 +16,15 @@ package org.jdbi.core.config;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jdbi.core.mapper.RowMapperFactory;
+import org.jdbi.core.mapper.RowMappers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -188,6 +191,75 @@ public class TestConfigRegistry {
         assertThat(builds).hasValue(2);
         // the parent's view is unchanged and still memoized
         assertThat(parent.readAs(View.class, r -> countingView(builds, r))).isSameAs(parentView);
+        assertThat(builds).hasValue(2);
+    }
+
+    // A no-op factory; registering it derives a new (immutable) RowMappers value.
+    private static final RowMapperFactory FACTORY = (type, config) -> Optional.empty();
+
+    @Test
+    public void testUnforkedChildDelegatesReads() {
+        child1 = parent.createChild();
+        // an un-forked child holds no config of its own; it reads the parent's value by reference
+        assertThat(child1.get(RowMappers.class)).isSameAs(parent.get(RowMappers.class));
+    }
+
+    @Test
+    public void testUnforkedChildIsLiveViewOfParent() {
+        child1 = parent.createChild();
+        parent.configure(RowMappers.class, r -> r.register(FACTORY));
+        // before it forks, the child reflects a later change to the parent
+        assertThat(child1.get(RowMappers.class)).isSameAs(parent.get(RowMappers.class));
+    }
+
+    @Test
+    public void testChildForkOnWriteIsolatesParent() {
+        RowMappers before = parent.get(RowMappers.class);
+
+        child1 = parent.createChild();
+        child1.configure(RowMappers.class, r -> r.register(FACTORY));
+
+        // the child forked a private value; the parent is untouched
+        assertThat(child1.get(RowMappers.class)).isNotSameAs(before);
+        assertThat(parent.get(RowMappers.class)).isSameAs(before);
+    }
+
+    @Test
+    public void testUnforkedChildReusesParentView() {
+        AtomicInteger builds = new AtomicInteger();
+        View parentView = parent.readAs(View.class, r -> countingView(builds, r));
+
+        child1 = parent.createChild();
+        View childView = child1.readAs(View.class, r -> countingView(builds, r));
+
+        // delegated to the parent: same (warm) view, no rebuild, bound to the parent
+        assertThat(childView).isSameAs(parentView);
+        assertThat(childView.registry).isSameAs(parent);
+        assertThat(builds).hasValue(1);
+    }
+
+    @Test
+    public void testForkedChildBuildsItsOwnView() {
+        AtomicInteger builds = new AtomicInteger();
+        parent.readAs(View.class, r -> countingView(builds, r));
+
+        child1 = parent.createChild();
+        child1.configure(RowMappers.class, r -> r.register(FACTORY)); // forks
+        View childView = child1.readAs(View.class, r -> countingView(builds, r));
+
+        assertThat(childView.registry).isSameAs(child1);
+        assertThat(builds).hasValue(2);
+    }
+
+    @Test
+    public void testInstallInvalidatesMemoizedViews() {
+        AtomicInteger builds = new AtomicInteger();
+        View before = parent.readAs(View.class, r -> countingView(builds, r));
+
+        parent.configure(RowMappers.class, r -> r.register(FACTORY)); // a config change invalidates views
+
+        View after = parent.readAs(View.class, r -> countingView(builds, r));
+        assertThat(after).isNotSameAs(before);
         assertThat(builds).hasValue(2);
     }
 

@@ -33,7 +33,9 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
 
     BaseStatement(Handle handle) {
         this.handle = handle;
-        final ConfigRegistry config = handle.getConfig().createCopy();
+        // Copy-on-write: a statement that adds no config of its own shares the handle's registry (and its warm
+        // resolvers); the first per-statement configure() forks a private snapshot, leaving the handle untouched.
+        final ConfigRegistry config = handle.getConfig().createChild();
         this.ctx = StatementContext.create(config, handle.getExtensionMethod(), getClass());
 
         if (config.get(SqlStatements.class).isAttachAllStatementsForCleanup()) {

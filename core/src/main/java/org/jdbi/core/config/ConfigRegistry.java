@@ -42,9 +42,13 @@ public final class ConfigRegistry implements ConfigReader {
     private final Map<Class<? extends JdbiConfig<?>>, Function<ConfigRegistry, JdbiConfig<?>>> configFactories;
 
     // Per-registry memoized read-only views of this registry (e.g. resolvers). Deliberately NOT copied by
-    // the copy constructor: a forked registry starts with an empty view cache and rebuilds lazily, so a
-    // fork that changed a config value never serves a stale view.
+    // the copy constructor, and cleared by install(): a change to any config value invalidates memoized
+    // resolvers, so a registry never serves a view built against a superseded config.
     private final Map<Class<?>, Object> views = new ConcurrentHashMap<>(4);
+
+    // Non-null only for an un-forked copy-on-write child (see createChild()): reads delegate to this parent
+    // until the child's first install(), at which point the child materialises its own configs and detaches.
+    private ConfigRegistry parent;
 
     /**
      * Creates a new config registry.
@@ -59,12 +63,19 @@ public final class ConfigRegistry implements ConfigReader {
         get(JdbiCollectors.class);
     }
 
-    private ConfigRegistry(ConfigRegistry that) {
-        configFactories = that.configFactories;
-        that.configs.forEach((type, config) -> {
-            JdbiConfig<?> copy = config.createCopy();
-            configs.put(type, copy);
-        });
+    private ConfigRegistry(ConfigRegistry source, boolean asChild) {
+        configFactories = source.configFactories;
+        if (asChild) {
+            // Copy-on-write child: share the parent's config values (and warm resolver views) by delegation
+            // until the first install().
+            parent = source;
+        } else {
+            // Full snapshot: copy the effective config set, walking any copy-on-write parent chain so that a
+            // nearer (child) value wins. Values are immutable, so createCopy() returns the same instance.
+            for (ConfigRegistry r = source; r != null; r = r.parent) {
+                r.configs.forEach((type, config) -> configs.putIfAbsent(type, config.createCopy()));
+            }
+        }
     }
 
     /**
@@ -81,6 +92,10 @@ public final class ConfigRegistry implements ConfigReader {
         if (lookup != null) {
             return configClass.cast(lookup);
         }
+        if (parent != null) {
+            // Un-forked child: read (and lazily create the shared default) through the parent.
+            return parent.get(configClass);
+        }
         C config = configClass.cast(configFactory(configClass).apply(this));
         return Optional.ofNullable(configClass.cast(configs.putIfAbsent(configClass, config))).orElse(config);
     }
@@ -95,7 +110,24 @@ public final class ConfigRegistry implements ConfigReader {
      * @param <C>         the config type
      */
     <C extends JdbiConfig<C>> void install(final Class<C> configClass, final C config) {
+        if (parent != null) {
+            fork();
+        }
+        // A changed config value invalidates any memoized resolver built against the previous value.
+        views.clear();
         configs.put(configClass, config);
+    }
+
+    /**
+     * Materialises a copy-on-write child ({@link #createChild()}) on its first write: snapshot the effective
+     * config set from the parent chain into this registry, then detach so subsequent reads and writes are local
+     * and never touch the (shared) parent.
+     */
+    private void fork() {
+        for (ConfigRegistry r = parent; r != null; r = r.parent) {
+            r.configs.forEach(configs::putIfAbsent);
+        }
+        parent = null;
     }
 
     /**
@@ -129,6 +161,10 @@ public final class ConfigRegistry implements ConfigReader {
      */
     @Alpha
     public <T> T readAs(final Class<T> asType, final Function<ConfigRegistry, T> create) {
+        if (parent != null) {
+            // Un-forked child: its effective config equals the parent's, so reuse the parent's (warm) view.
+            return parent.readAs(asType, create);
+        }
         // get/putIfAbsent rather than computeIfAbsent to avoid re-entrancy issues (see JDK-8062841).
         final T existing = asType.cast(views.get(asType));
         if (existing != null) {
@@ -154,7 +190,26 @@ public final class ConfigRegistry implements ConfigReader {
      * config objects from this registry.
      */
     public ConfigRegistry createCopy() {
-        return new ConfigRegistry(this);
+        return new ConfigRegistry(this, false);
+    }
+
+    /**
+     * Returns a copy-on-write child of this registry, for a short-lived scope (e.g. a single statement) that may
+     * add a few config values but usually adds none. Until its first {@link Configurable#configure} call the
+     * child holds no config of its own: reads delegate to this registry and reuse its memoized resolvers, so an
+     * unmodified scope pays no per-use copy. The first write materialises a private snapshot and detaches, so the
+     * change never affects this registry. Unlike {@link #createCopy()}, an unmodified child is nearly free.
+     * <p>
+     * Until it forks, the child is a live view of this registry rather than a frozen snapshot: a later change
+     * to this registry is visible through the child. Use {@link #createCopy()} when an isolated snapshot is
+     * required. Like any registry the child is not safe under concurrent mutation, so a child and its parent
+     * should be confined to a single thread.
+     *
+     * @return a copy-on-write child of this registry
+     */
+    @Alpha
+    public ConfigRegistry createChild() {
+        return new ConfigRegistry(this, true);
     }
 
     @Override
