@@ -18,6 +18,6 @@
     {"type":"org.postgresql.util.PGmoney","methods":[{"name":"<init>"}]}
   ],
   "resources": [
-    {"glob":"**/*.sql.stg"}
+    {"glob":"org/**/*.sql.stg"}
   ]
 }
