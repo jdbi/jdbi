@@ -16,7 +16,6 @@ package org.jdbi.core.internal;
 import java.util.Optional;
 
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.enums.EnumByOrdinal;
 import org.jdbi.core.enums.EnumStrategy;
@@ -26,13 +25,28 @@ import org.jdbi.core.qualifier.Qualifiers;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
 
-public class EnumStrategies implements JdbiConfig<EnumStrategies> {
-    private ConfigRegistry registry;
+/**
+ * Resolves the {@link EnumStrategy} to use for an enum type against a specific {@link ConfigRegistry}.
+ * <p>
+ * This reads the registry's {@link Enums} default strategy and per-type strategy annotations (via
+ * {@link Qualifiers}), so the outcome tracks the registry it is obtained from. It is obtained per registry via
+ * {@link #forRegistry(ConfigRegistry)}; a forked registry resolves against its own {@code Enums} configuration.
+ */
+public final class EnumStrategyResolver {
 
-    public EnumStrategies() {}
+    /**
+     * Returns the enum-strategy resolver for the given registry, creating it on first use.
+     *
+     * @param config the configuration registry to resolve against
+     * @return the registry's memoized enum-strategy resolver
+     */
+    public static EnumStrategyResolver forRegistry(final ConfigRegistry config) {
+        return config.readAs(EnumStrategyResolver.class, EnumStrategyResolver::new);
+    }
 
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
+    private final ConfigRegistry registry;
+
+    private EnumStrategyResolver(final ConfigRegistry registry) {
         this.registry = registry;
     }
 
@@ -44,15 +58,15 @@ public class EnumStrategies implements JdbiConfig<EnumStrategies> {
      * @param type qualified type to derive a strategy from
      * @return the strategy by which this enum should be handled
      */
-    public <E extends Enum<E>> EnumStrategy findStrategy(QualifiedType<E> type) {
-        Class<?> erasedType = getErasedType(type.getType());
+    public <E extends Enum<E>> EnumStrategy findStrategy(final QualifiedType<E> type) {
+        final Class<?> erasedType = getErasedType(type.getType());
         return JdbiOptionals.findFirstPresent(
             () -> doFindStrategy(type),
             () -> doFindStrategy(QualifiedType.of(erasedType).withAnnotations(registry.get(Qualifiers.class).findFor(erasedType)))
         ).orElseGet(() -> registry.get(Enums.class).getDefaultStrategy());
     }
 
-    private static <T> Optional<EnumStrategy> doFindStrategy(QualifiedType<T> type) {
+    private static <T> Optional<EnumStrategy> doFindStrategy(final QualifiedType<T> type) {
         boolean hasByName = type.hasQualifier(EnumByName.class);
         boolean hasByOrdinal = type.hasQualifier(EnumByOrdinal.class);
 
@@ -72,10 +86,5 @@ public class EnumStrategies implements JdbiConfig<EnumStrategies> {
         } else {
             return Optional.empty();
         }
-    }
-
-    @Override
-    public EnumStrategies createCopy() {
-        return new EnumStrategies();
     }
 }

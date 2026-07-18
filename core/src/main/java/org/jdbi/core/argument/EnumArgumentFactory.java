@@ -21,7 +21,7 @@ import java.util.function.Function;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.enums.DatabaseValue;
 import org.jdbi.core.enums.EnumStrategy;
-import org.jdbi.core.internal.EnumStrategies;
+import org.jdbi.core.internal.EnumStrategyResolver;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.jdbi.core.qualifier.QualifiedType;
 
@@ -42,7 +42,7 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
     }
 
     private static <E extends Enum<E>> Optional<Argument> makeEnumArgument(QualifiedType<E> givenType, E value, ConfigRegistry config) {
-        boolean byName = EnumStrategy.BY_NAME == config.get(EnumStrategies.class).findStrategy(givenType);
+        boolean byName = EnumStrategy.BY_NAME == EnumStrategyResolver.forRegistry(config).findStrategy(givenType);
 
         return byName
             ? byName(value, config)

@@ -20,7 +20,7 @@ import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.enums.EnumByOrdinal;
 import org.jdbi.core.enums.EnumStrategy;
 import org.jdbi.core.enums.Enums;
-import org.jdbi.core.internal.EnumStrategies;
+import org.jdbi.core.internal.EnumStrategyResolver;
 import org.jdbi.core.internal.testing.SqliteDatabaseExtension;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.UnableToProduceResultException;
@@ -200,13 +200,13 @@ public class EnumsConfigTest {
     public void testConflictingQualifiers() {
         QualifiedType<RetentionPolicy> type = QualifiedType.of(RetentionPolicy.class).with(EnumByName.class, EnumByOrdinal.class);
 
-        assertThatThrownBy(() -> sqliteExtension.getJdbi().getConfig(EnumStrategies.class).findStrategy(type))
+        assertThatThrownBy(() -> EnumStrategyResolver.forRegistry(sqliteExtension.getJdbi().getConfig()).findStrategy(type))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testConflictingSourceAnnotations() {
-        assertThatThrownBy(() -> sqliteExtension.getJdbi().getConfig(EnumStrategies.class).findStrategy(QualifiedType.of(BiPolar.class)))
+        assertThatThrownBy(() -> EnumStrategyResolver.forRegistry(sqliteExtension.getJdbi().getConfig()).findStrategy(QualifiedType.of(BiPolar.class)))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
