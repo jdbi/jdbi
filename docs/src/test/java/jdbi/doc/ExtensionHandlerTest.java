@@ -40,15 +40,14 @@ class ExtensionHandlerTest {
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
             .withInitializer(TestingInitializers.something())
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b.configure(Extensions.class, e -> e.register(new TestExtensionFactory())));
 
     Jdbi jdbi;
 
     @BeforeEach
     void setUp() {
         this.jdbi = h2Extension.getJdbi();
-
-        jdbi.configure(Extensions.class, e -> e.register(new TestExtensionFactory()));
     }
 
     @Test

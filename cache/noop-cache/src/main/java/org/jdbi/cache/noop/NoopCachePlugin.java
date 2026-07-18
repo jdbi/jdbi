@@ -24,8 +24,8 @@ import org.jdbi.core.statement.SqlStatements;
 public final class NoopCachePlugin implements JdbiPlugin {
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.configure(SqlStatements.class, config -> config
+    public void configure(Jdbi.Builder builder) {
+        builder.configure(SqlStatements.class, config -> config
                 .templateCache(NoopCache.builder())
                 .sqlParser(new ColonPrefixSqlParser(NoopCache.builder())));
     }

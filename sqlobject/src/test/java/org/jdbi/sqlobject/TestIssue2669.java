@@ -51,16 +51,16 @@ public class TestIssue2669 {
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
             .withInitializer((ds, handle) -> handle.execute("CREATE TABLE foo (key VARCHAR NOT NULL PRIMARY KEY, value VARCHAR)"))
-            .withPlugins(new SqlObjectPlugin());
+            .withPlugins(new SqlObjectPlugin())
+            .withConfig(b -> b
+                .registerColumnMapper(Value.class, ColumnMapper.getDefaultColumnMapper())
+                .registerRowMapper((RowMapperFactory) new ValueMapper()));
 
     private Jdbi jdbi;
 
     @BeforeEach
     public void setUp() {
         this.jdbi = pgExtension.getJdbi();
-
-        jdbi.registerColumnMapper(Value.class, ColumnMapper.getDefaultColumnMapper())
-                .registerRowMapper((RowMapperFactory) new ValueMapper());
     }
 
     @Test

@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Locale;
 
+import org.jdbi.core.Handle;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.Arguments;
@@ -27,6 +28,7 @@ import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMappers;
+import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.mapper.reflect.BeanMapper;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.core.mapper.reflect.FieldMapper;
@@ -45,313 +47,294 @@ public class TestCustomQualifier {
     @Test
     public void qualifiedTypeUsage() {
         // tag::usage[]
-        h2Extension.getJdbi()
-            .registerArgument(new ReversedStringArgumentFactory())
-            .registerColumnMapper(new ReversedStringMapper())
-            .useHandle(handle -> {
-                QualifiedType<String> reversedString =
-                    QualifiedType.of(String.class).with(Reversed.class);
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                .configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory()))
+                .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper())))) {
+            QualifiedType<String> reversedString =
+                QualifiedType.of(String.class).with(Reversed.class);
 
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
-                    .bindByType("name", "abc", reversedString) // <1>
-                    .execute();
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
+                .bindByType("name", "abc", reversedString) // <1>
+                .execute();
 
-                // the value is stored reversed in the database
-                String raw = handle.select("SELECT name FROM something")
-                    .mapTo(String.class)
-                    .one();
-                assertThat(raw).isEqualTo("cba");
+            // the value is stored reversed in the database
+            String raw = handle.select("SELECT name FROM something")
+                .mapTo(String.class)
+                .one();
+            assertThat(raw).isEqualTo("cba");
 
-                // mapping with the qualified type reverses it back
-                String name = handle.select("SELECT name FROM something")
-                    .mapTo(reversedString) // <2>
-                    .one();
-                assertThat(name).isEqualTo("abc");
-            });
+            // mapping with the qualified type reverses it back
+            String name = handle.select("SELECT name FROM something")
+                .mapTo(reversedString) // <2>
+                .one();
+            assertThat(name).isEqualTo("abc");
+        }
         // end::usage[]
     }
 
     @Test
     public void registerArgumentFactory() {
-        h2Extension.getJdbi()
-            .registerArgument(new ReversedStringArgumentFactory())
-            .useHandle(handle -> {
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
-                    .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class))
-                    .execute();
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
+                .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class))
+                .execute();
 
-                assertThat(
-                    handle.select("SELECT name FROM something")
-                        .mapTo(String.class)
-                        .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(
+                handle.select("SELECT name FROM something")
+                    .mapTo(String.class)
+                    .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void configArgumentsRegister() {
-        h2Extension.getJdbi()
-            .configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory()))
-            .useHandle(handle -> {
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
-                    .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class))
-                    .execute();
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
+                .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class))
+                .execute();
 
-                assertThat(
-                    handle.select("SELECT name FROM something")
-                        .mapTo(String.class)
-                        .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(
+                handle.select("SELECT name FROM something")
+                    .mapTo(String.class)
+                    .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void registerColumnMapper() {
-        h2Extension.getJdbi()
-            .registerColumnMapper(new ReversedStringMapper())
-            .useHandle(handle -> {
-                handle.execute("insert into something (id, name) values (1, 'abc')");
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper())))) {
+            handle.execute("insert into something (id, name) values (1, 'abc')");
 
-                assertThat(
-                    handle.select("SELECT name FROM something")
-                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
-                        .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(
+                handle.select("SELECT name FROM something")
+                    .mapTo(QualifiedType.of(String.class).with(Reversed.class))
+                    .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void configColumnMappersRegister() {
-        h2Extension.getJdbi()
-            .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
-            .useHandle(handle -> {
-                handle.execute("insert into something (id, name) values (1, 'abc')");
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper())))) {
+            handle.execute("insert into something (id, name) values (1, 'abc')");
 
-                assertThat(
-                    handle.select("SELECT name FROM something")
-                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
-                        .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(
+                handle.select("SELECT name FROM something")
+                    .mapTo(QualifiedType.of(String.class).with(Reversed.class))
+                    .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void registerColumnMapperByQualifiedType() {
-        h2Extension.getJdbi()
-            .registerColumnMapper(
-                QualifiedType.of(String.class).with(Reversed.class),
-                (r, c, ctx) -> reverse(r.getString(c)))
-            .useHandle(handle -> {
-                handle.execute("insert into something (id, name) values (1, 'abcdef')");
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(ColumnMappers.class, config -> config.register(
+                    QualifiedType.of(String.class).with(Reversed.class),
+                    (r, c, ctx) -> reverse(r.getString(c)))))) {
+            handle.execute("insert into something (id, name) values (1, 'abcdef')");
 
-                assertThat(
-                    handle.select("SELECT name FROM something")
-                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
-                        .one())
-                    .isEqualTo("fedcba");
-            });
+            assertThat(
+                handle.select("SELECT name FROM something")
+                    .mapTo(QualifiedType.of(String.class).with(Reversed.class))
+                    .one())
+                .isEqualTo("fedcba");
+        }
     }
 
     @Test
     public void configColumnMappersRegisterByQualifiedType() {
-        h2Extension.getJdbi()
-            .configure(ColumnMappers.class, config -> config.register(
-                QualifiedType.of(String.class).with(Reversed.class),
-                (r, c, ctx) -> reverse(r.getString(c))))
-            .useHandle(handle -> {
-                handle.execute("insert into something (id, name) values (1, 'abcdef')");
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(ColumnMappers.class, config -> config.register(
+                    QualifiedType.of(String.class).with(Reversed.class),
+                    (r, c, ctx) -> reverse(r.getString(c)))))) {
+            handle.execute("insert into something (id, name) values (1, 'abcdef')");
 
-                assertThat(
-                    handle.select("SELECT name FROM something")
-                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
-                        .one())
-                    .isEqualTo("fedcba");
-            });
+            assertThat(
+                handle.select("SELECT name FROM something")
+                    .mapTo(QualifiedType.of(String.class).with(Reversed.class))
+                    .one())
+                .isEqualTo("fedcba");
+        }
     }
 
     @Test
     public void registerColumnMapperFactory() {
-        h2Extension.getJdbi()
-            .registerColumnMapper(new ReversedStringMapperFactory())
-            .useHandle(handle -> {
-                handle.execute("insert into something (id, name) values (1, 'xyz')");
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(ColumnMappers.class, config -> config.register(new ReversedStringMapperFactory())))) {
+            handle.execute("insert into something (id, name) values (1, 'xyz')");
 
-                assertThat(
-                    handle.select("SELECT name FROM something")
-                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
-                        .one())
-                    .isEqualTo("zyx");
-            });
+            assertThat(
+                handle.select("SELECT name FROM something")
+                    .mapTo(QualifiedType.of(String.class).with(Reversed.class))
+                    .one())
+                .isEqualTo("zyx");
+        }
     }
 
     @Test
     public void configColumnMappersRegisterFactory() {
-        h2Extension.getJdbi()
-            .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapperFactory()))
-            .useHandle(handle -> {
-                handle.execute("insert into something (id, name) values (1, 'xyz')");
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(ColumnMappers.class, config -> config.register(new ReversedStringMapperFactory())))) {
+            handle.execute("insert into something (id, name) values (1, 'xyz')");
 
-                assertThat(
-                    handle.select("SELECT name FROM something")
-                        .mapTo(QualifiedType.of(String.class).with(Reversed.class))
-                        .one())
-                    .isEqualTo("zyx");
-            });
+            assertThat(
+                handle.select("SELECT name FROM something")
+                    .mapTo(QualifiedType.of(String.class).with(Reversed.class))
+                    .one())
+                .isEqualTo("zyx");
+        }
     }
 
     @Test
     public void bindBeanQualifiedGetter() {
-        h2Extension.getJdbi()
-            .registerArgument(new ReversedStringArgumentFactory())
-            .useHandle(handle -> {
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
-                    .bindBean(new QualifiedGetterThing(1, "abc"))
-                    .execute();
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
+                .bindBean(new QualifiedGetterThing(1, "abc"))
+                .execute();
 
-                assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(String.class)
-                    .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(handle.select("SELECT name FROM something")
+                .mapTo(String.class)
+                .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void mapBeanQualifiedGetter() {
-        h2Extension.getJdbi()
-            .registerColumnMapper(new ReversedStringMapper())
-            .registerRowMapper(BeanMapper.factory(QualifiedGetterThing.class))
-            .useHandle(handle -> {
-                handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
+                .configure(RowMappers.class, config -> config.register(BeanMapper.factory(QualifiedGetterThing.class))))) {
+            handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
 
-                assertThat(handle.select("SELECT * FROM something")
-                    .mapTo(QualifiedGetterThing.class)
-                    .one())
-                    .isEqualTo(new QualifiedGetterThing(1, "cba"));
-            });
+            assertThat(handle.select("SELECT * FROM something")
+                .mapTo(QualifiedGetterThing.class)
+                .one())
+                .isEqualTo(new QualifiedGetterThing(1, "cba"));
+        }
     }
 
     @Test
     public void bindBeanQualifiedSetter() {
-        h2Extension.getJdbi()
-            .registerArgument(new ReversedStringArgumentFactory())
-            .useHandle(handle -> {
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
-                    .bindBean(new QualifiedSetterThing(1, "abc"))
-                    .execute();
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
+                .bindBean(new QualifiedSetterThing(1, "abc"))
+                .execute();
 
-                assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(String.class)
-                    .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(handle.select("SELECT name FROM something")
+                .mapTo(String.class)
+                .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void mapBeanQualifiedSetter() {
-        h2Extension.getJdbi()
-            .registerColumnMapper(new ReversedStringMapper())
-            .registerRowMapper(BeanMapper.factory(QualifiedSetterThing.class))
-            .useHandle(handle -> {
-                handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
+                .configure(RowMappers.class, config -> config.register(BeanMapper.factory(QualifiedSetterThing.class))))) {
+            handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
 
-                assertThat(handle.select("SELECT * FROM something")
-                    .mapTo(QualifiedSetterThing.class)
-                    .one())
-                    .isEqualTo(new QualifiedSetterThing(1, "cba"));
-            });
+            assertThat(handle.select("SELECT * FROM something")
+                .mapTo(QualifiedSetterThing.class)
+                .one())
+                .isEqualTo(new QualifiedSetterThing(1, "cba"));
+        }
     }
 
     @Test
     public void bindBeanQualifiedSetterParam() {
-        h2Extension.getJdbi()
-            .registerArgument(new ReversedStringArgumentFactory())
-            .useHandle(handle -> {
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
-                    .bindBean(new QualifiedSetterParamThing(1, "abc"))
-                    .execute();
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
+                .bindBean(new QualifiedSetterParamThing(1, "abc"))
+                .execute();
 
-                assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(String.class)
-                    .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(handle.select("SELECT name FROM something")
+                .mapTo(String.class)
+                .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void mapBeanQualifiedSetterParam() {
-        h2Extension.getJdbi()
-            .registerColumnMapper(new ReversedStringMapper())
-            .registerRowMapper(BeanMapper.factory(QualifiedSetterParamThing.class))
-            .useHandle(handle -> {
-                handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
+                .configure(RowMappers.class, config -> config.register(BeanMapper.factory(QualifiedSetterParamThing.class))))) {
+            handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
 
-                assertThat(handle.select("SELECT * FROM something")
-                    .mapTo(QualifiedSetterParamThing.class)
-                    .one())
-                    .isEqualTo(new QualifiedSetterParamThing(1, "cba"));
-            });
+            assertThat(handle.select("SELECT * FROM something")
+                .mapTo(QualifiedSetterParamThing.class)
+                .one())
+                .isEqualTo(new QualifiedSetterParamThing(1, "cba"));
+        }
     }
 
     @Test
     public void bindMethodsQualifiedMethod() {
-        h2Extension.getJdbi()
-            .registerArgument(new ReversedStringArgumentFactory())
-            .useHandle(handle -> {
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
-                    .bindMethods(new QualifiedMethodThing(1, "abc"))
-                    .execute();
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
+                .bindMethods(new QualifiedMethodThing(1, "abc"))
+                .execute();
 
-                assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(String.class)
-                    .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(handle.select("SELECT name FROM something")
+                .mapTo(String.class)
+                .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void mapConstructorQualifiedParam() {
-        h2Extension.getJdbi()
-            .registerColumnMapper(new ReversedStringMapper())
-            .registerRowMapper(ConstructorMapper.factory(QualifiedConstructorParamThing.class))
-            .useHandle(handle -> {
-                handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
+                .configure(RowMappers.class, config -> config.register(ConstructorMapper.factory(QualifiedConstructorParamThing.class))))) {
+            handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
 
-                assertThat(handle.select("SELECT * FROM something")
-                    .mapTo(QualifiedConstructorParamThing.class)
-                    .one())
-                    .isEqualTo(new QualifiedConstructorParamThing(1, "cba"));
-            });
+            assertThat(handle.select("SELECT * FROM something")
+                .mapTo(QualifiedConstructorParamThing.class)
+                .one())
+                .isEqualTo(new QualifiedConstructorParamThing(1, "cba"));
+        }
     }
 
     @Test
     public void bindFieldsQualified() {
-        h2Extension.getJdbi()
-            .registerArgument(new ReversedStringArgumentFactory())
-            .useHandle(handle -> {
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
-                    .bindFields(new QualifiedFieldThing(1, "abc"))
-                    .execute();
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
+                .bindFields(new QualifiedFieldThing(1, "abc"))
+                .execute();
 
-                assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(String.class)
-                    .one())
-                    .isEqualTo("cba");
-            });
+            assertThat(handle.select("SELECT name FROM something")
+                .mapTo(String.class)
+                .one())
+                .isEqualTo("cba");
+        }
     }
 
     @Test
     public void mapFieldsQualified() {
-        h2Extension.getJdbi()
-            .registerColumnMapper(new ReversedStringMapper())
-            .registerRowMapper(FieldMapper.factory(QualifiedFieldThing.class))
-            .useHandle(handle -> {
-                handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
+                .configure(RowMappers.class, config -> config.register(FieldMapper.factory(QualifiedFieldThing.class))))) {
+            handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
 
-                assertThat(handle.select("SELECT * FROM something")
-                    .mapTo(QualifiedFieldThing.class)
-                    .one())
-                    .isEqualTo(new QualifiedFieldThing(1, "cba"));
-            });
+            assertThat(handle.select("SELECT * FROM something")
+                .mapTo(QualifiedFieldThing.class)
+                .one())
+                .isEqualTo(new QualifiedFieldThing(1, "cba"));
+        }
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -406,37 +389,35 @@ public class TestCustomQualifier {
 
     @Test
     public void bindMultipleQualifiers() {
-        h2Extension.getJdbi()
-            // should use this one - register first so it's consulted last
-            .registerArgument(new ReversedUpperCaseStringArgumentFactory())
-            .registerArgument(new ReversedStringArgumentFactory())
-            .registerArgument(new UpperCaseArgumentFactory())
-            .useHandle(handle -> {
-                handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
-                    .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class, UpperCase.class))
-                    .execute();
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                // should use this one - register first so it's consulted last
+                .configure(Arguments.class, config -> config.register(new ReversedUpperCaseStringArgumentFactory()))
+                .configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory()))
+                .configure(Arguments.class, config -> config.register(new UpperCaseArgumentFactory())))) {
+            handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
+                .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class, UpperCase.class))
+                .execute();
 
-                assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(String.class)
-                    .one())
-                    .isEqualTo("CBA");
-            });
+            assertThat(handle.select("SELECT name FROM something")
+                .mapTo(String.class)
+                .one())
+                .isEqualTo("CBA");
+        }
     }
 
     @Test
     public void mapMultipleQualifiers() {
-        h2Extension.getJdbi()
-            // should use this one - register first so it's consulted last
-            .registerColumnMapper(new ReversedUpperCaseStringMapper())
-            .registerColumnMapper(new ReversedStringMapper())
-            .registerColumnMapper(new UpperCaseStringMapper())
-            .useHandle(handle -> {
-                handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                // should use this one - register first so it's consulted last
+                .configure(ColumnMappers.class, config -> config.register(new ReversedUpperCaseStringMapper()))
+                .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
+                .configure(ColumnMappers.class, config -> config.register(new UpperCaseStringMapper())))) {
+            handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
 
-                assertThat(handle.select("SELECT name FROM something")
-                    .mapTo(QualifiedType.of(String.class).with(Reversed.class, UpperCase.class))
-                    .one())
-                    .isEqualTo("CBA");
-            });
+            assertThat(handle.select("SELECT name FROM something")
+                .mapTo(QualifiedType.of(String.class).with(Reversed.class, UpperCase.class))
+                .one())
+                .isEqualTo("CBA");
+        }
     }
 }

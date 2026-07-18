@@ -52,10 +52,14 @@ public class TestTimingCollector {
 
     @BeforeEach
     public void setUp() {
-        db = h2Extension.getJdbi();
-        db.useHandle(h -> h.execute("CREATE ALIAS custom_insert FOR "
-            + "\"org.jdbi.sqlobject.TestTimingCollector.customInsert\";"));
-        db.setTimingCollector(timingCollector);
+        // Create the alias without the timing collector attached (it must not record this statement), then build a
+        // dedicated Jdbi carrying the collector against the same (shared-handle-kept-alive) database.
+        h2Extension.getSharedHandle().execute("CREATE ALIAS custom_insert FOR "
+            + "\"org.jdbi.sqlobject.TestTimingCollector.customInsert\";");
+        db = Jdbi.builder(h2Extension.getUrl())
+            .installPlugin(new SqlObjectPlugin())
+            .setTimingCollector(timingCollector)
+            .build();
         dao = db.onDemand(DAO.class);
     }
 

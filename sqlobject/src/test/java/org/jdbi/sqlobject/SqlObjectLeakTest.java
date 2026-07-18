@@ -13,6 +13,9 @@
  */
 package org.jdbi.sqlobject;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,6 +41,27 @@ public class SqlObjectLeakTest {
             .withInitializer(TestingInitializers.usersWithData())
             .withConfig(RowMappers.class, r -> r.register(User.class, ConstructorMapper.of(User.class)));
 
+    /**
+     * A second Jdbi carrying a {@code fetchSize(-1)} customizer that makes every statement explode at execution time.
+     * The read-only {@link Jdbi} cannot be mutated per-test, so on-demand and extension DAOs use this dedicated
+     * extension instead. The users table is seeded through the raw {@link javax.sql.DataSource} so the customizer does
+     * not break setup (it would otherwise make the initializer's own statements explode). The leak checker is enabled
+     * by default, so it still verifies handle cleanup on the failing paths.
+     */
+    @RegisterExtension
+    public JdbiExtension explodingExtension = JdbiExtension.h2()
+            .withPlugin(new SqlObjectPlugin())
+            .withInitializer((ds, handle) -> {
+                try (Connection conn = ds.getConnection(); Statement stmt = conn.createStatement()) {
+                    stmt.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, name VARCHAR(255))");
+                    stmt.execute("INSERT INTO users VALUES (1, 'Alice')");
+                    stmt.execute("INSERT INTO users VALUES (2, 'Bob')");
+                } catch (SQLException e) {
+                    throw new IllegalStateException("could not seed users table", e);
+                }
+            })
+            .withConfig(b -> b.addCustomizer(StatementCustomizers.fetchSize(-1)));
+
     @Test
     void testManagedHandleExplodingAttachedDao() {
         assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
@@ -52,20 +76,15 @@ public class SqlObjectLeakTest {
     @Test
     void testExplodingOnDemandDao() {
         assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
-            Jdbi jdbi = h2Extension.getJdbi();
-            jdbi.addCustomizer(StatementCustomizers.fetchSize(-1));
-            UserDao jdbiDao = h2Extension.getJdbi().onDemand(UserDao.class);
+            UserDao jdbiDao = explodingExtension.getJdbi().onDemand(UserDao.class);
             jdbiDao.getUserNames();
         });
     }
 
     @Test
     void testExplodingExtensionDao() {
-        assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
-            Jdbi jdbi = h2Extension.getJdbi();
-            jdbi.addCustomizer(StatementCustomizers.fetchSize(-1));
-            jdbi.withExtension(UserDao.class, UserDao::getUserNames);
-        });
+        assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() ->
+            explodingExtension.getJdbi().withExtension(UserDao.class, UserDao::getUserNames));
     }
 
     public static class User {

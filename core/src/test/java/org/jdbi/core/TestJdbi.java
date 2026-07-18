@@ -31,7 +31,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestJdbi {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+            .withConfig(b -> b.addCustomizer(StatementCustomizers.maxRows(1)));
 
     @Test
     public void testDataSourceConstructor() {
@@ -122,7 +123,7 @@ public class TestJdbi {
 
     @Test
     public void testGlobalStatementCustomizers() {
-        h2Extension.getJdbi().addCustomizer(StatementCustomizers.maxRows(1))
+        h2Extension.getJdbi()
             .useHandle(handle -> {
                 handle.execute("insert into something (id, name) values (?, ?)", 1, "hello");
                 handle.execute("insert into something (id, name) values (?, ?)", 2, "world");

@@ -38,13 +38,14 @@ public class GenericMapMapperFactoryTest {
     private static final String QUERY = "select 1.0 as one, 2.0 as two, 3.0 as three";
 
     @RegisterExtension
-    public JdbiExtension sqliteExtension = JdbiExtension.sqlite().withPlugin(new SqlObjectPlugin());
+    public JdbiExtension sqliteExtension = JdbiExtension.sqlite().withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(new GenericMapMapperFactory()));
 
     private Jdbi jdbi;
 
     @BeforeEach
     public void before() {
-        jdbi = sqliteExtension.getJdbi().registerRowMapper(new GenericMapMapperFactory());
+        jdbi = sqliteExtension.getJdbi();
     }
 
     @Test

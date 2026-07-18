@@ -11,25 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.cache.caffeine;
+package org.jdbi.spring.jta;
 
+import org.jdbi.core.Handles;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.spi.JdbiPlugin;
-import org.jdbi.core.statement.ColonPrefixSqlParser;
 import org.jdbi.core.statement.SqlStatements;
-
-import static org.jdbi.core.statement.CachingSqlParser.PARSED_SQL_CACHE_SIZE;
-import static org.jdbi.core.statement.SqlStatements.SQL_TEMPLATE_CACHE_SIZE;
+import org.jdbi.testing.internal.JdbiLeakChecker;
 
 /**
- * Installing this plugin restores the up-to 3.36.0 behavior of using the Caffeine cache library for SQL statements and the colon prefix parser.
+ * Attaches a {@link JdbiLeakChecker} to a {@link Jdbi} at assembly time, so a Spring-managed (immutable) {@code Jdbi}
+ * can participate in leak checking.
  */
-public final class CaffeineCachePlugin implements JdbiPlugin {
+public class JdbiLeakCheckerPlugin implements JdbiPlugin {
+
+    private final JdbiLeakChecker leakChecker;
+
+    public JdbiLeakCheckerPlugin(JdbiLeakChecker leakChecker) {
+        this.leakChecker = leakChecker;
+    }
 
     @Override
     public void configure(Jdbi.Builder builder) {
-        builder.configure(SqlStatements.class, config -> config
-                .templateCache(CaffeineCacheBuilder.instance().maxSize(SQL_TEMPLATE_CACHE_SIZE))
-                .sqlParser(new ColonPrefixSqlParser(CaffeineCacheBuilder.instance().maxSize(PARSED_SQL_CACHE_SIZE))));
+        builder.configure(Handles.class, h -> h.addListener(leakChecker));
+        builder.configure(SqlStatements.class, s -> s.addContextListener(leakChecker));
     }
 }

@@ -41,16 +41,17 @@ public class TestQualifiedTypes {
                 h.execute("CREATE TABLE data (id serial primary key, comma varchar(50), colon varchar(50))");
                 h.execute("INSERT INTO data (comma,colon) VALUES ('one,two,three,four', 'eins:zwei:drei:vier')");
             })
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> {
+                b.registerRowMapper(Data.class, ConstructorMapper.of(Data.class));
+                QualifiedTypes.registerMappers(b);
+            });
 
     private DataDao dao;
 
     @BeforeEach
     public void setUp() {
-        var jdbi = pgExtension.getJdbi();
-        jdbi.registerRowMapper(Data.class, ConstructorMapper.of(Data.class));
-        QualifiedTypes.registerMappers(jdbi);
-        this.dao = jdbi.onDemand(DataDao.class);
+        this.dao = pgExtension.getJdbi().onDemand(DataDao.class);
     }
 
     @Test

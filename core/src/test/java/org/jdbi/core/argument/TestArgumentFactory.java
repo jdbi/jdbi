@@ -30,12 +30,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestArgumentFactory {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+            .withConfig(b -> b.registerArgument(new NameAF()));
 
     @Test
     public void testRegisterOnJdbi() {
         final Jdbi db = h2Extension.getJdbi();
-        db.registerArgument(new NameAF());
         try (Handle h = db.open()) {
             h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("id", 7)

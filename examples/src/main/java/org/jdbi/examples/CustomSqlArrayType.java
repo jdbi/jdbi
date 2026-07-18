@@ -52,28 +52,28 @@ public final class CustomSqlArrayType {
             Instant.parse("9999-12-31T23:59:59Z"),
         };
 
-        withDatabase(jdbi -> {
-            // create database table
-            jdbi.inTransaction(th -> {
-                th.execute("DROP TABLE IF EXISTS custom_sql");
-                th.execute("CREATE TABLE custom_sql (t TIMESTAMP[])");
-                return null;
-            });
-
+        withDatabase(
             // register the custom array type to map instant to timestamp
-            jdbi.registerArrayType(Instant.class, "timestamp");
+            builder -> builder.registerArrayType(Instant.class, "timestamp"),
+            jdbi -> {
+                // create database table
+                jdbi.inTransaction(th -> {
+                    th.execute("DROP TABLE IF EXISTS custom_sql");
+                    th.execute("CREATE TABLE custom_sql (t TIMESTAMP[])");
+                    return null;
+                });
 
-            CustomSqlObject dao = jdbi.onDemand(CustomSqlObject.class);
+                CustomSqlObject dao = jdbi.onDemand(CustomSqlObject.class);
 
-            // write data (with a sql object)
-            dao.insertInstantArray(testInstants);
+                // write data (with a sql object)
+                dao.insertInstantArray(testInstants);
 
-            // fetch results back
-            List<Instant> result = dao.fetchInstantList();
+                // fetch results back
+                List<Instant> result = dao.fetchInstantList();
 
-            // display results
-            result.forEach(r -> System.out.printf("%s%n", r));
-        });
+                // display results
+                result.forEach(r -> System.out.printf("%s%n", r));
+            });
     }
 
     public interface CustomSqlObject {

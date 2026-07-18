@@ -18,11 +18,7 @@ import java.util.List;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
-import org.jdbi.core.Handles;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.result.ResultIterator;
-import org.jdbi.core.spi.JdbiPlugin;
-import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 import org.jdbi.testing.internal.JdbiLeakChecker;
 import org.junit.jupiter.api.Assertions;
@@ -39,28 +35,24 @@ public class JdbiJtaTest {
     @Autowired
     private SomethingService somethingService;
 
+    // attached to the (immutable) Jdbi at assembly time via JdbiLeakCheckerPlugin in test-context.xml
     @Autowired
-    private Jdbi jdbi;
+    private JdbiLeakChecker jdbiLeakChecker;
 
     @Test
     void testQueryWithoutTxDoesNotLeak() {
-        JdbiLeakChecker jdbiLeakChecker = installJdbiLeakChecker(jdbi);
         somethingService.withoutTransaction(SomethingDao::queryReturningList);
         jdbiLeakChecker.checkForLeaks();
-
     }
 
     @Test
     void testQueryInTxDoesNotLeak() {
-        JdbiLeakChecker jdbiLeakChecker = installJdbiLeakChecker(jdbi);
         somethingService.inTransaction(SomethingDao::queryReturningList);
         jdbiLeakChecker.checkForLeaks();
-
     }
 
     @Test
     void testIteratorInTxDoesNotLeak() {
-        JdbiLeakChecker jdbiLeakChecker = installJdbiLeakChecker(jdbi);
         somethingService.inTransaction(somethingDao -> {
             List<String> result = new ArrayList<>();
             ResultIterator<String> iterator = somethingDao.queryReturningResultIterator();
@@ -72,31 +64,9 @@ public class JdbiJtaTest {
 
     @Test
     void testExceptionInTxDoesNotLeak() {
-        JdbiLeakChecker jdbiLeakChecker = installJdbiLeakChecker(jdbi);
         Assertions.assertThrows(UnableToCreateStatementException.class,
                 () -> somethingService.inTransaction(SomethingDao::exceptionThrowingQuery)
         );
         jdbiLeakChecker.checkForLeaks();
-    }
-
-    public static JdbiLeakChecker installJdbiLeakChecker(Jdbi jdbi) {
-        JdbiLeakChecker jdbiLeakChecker = new JdbiLeakChecker();
-        JdbiLeakCheckerPlugin plugin = new JdbiLeakCheckerPlugin(jdbiLeakChecker);
-        jdbi.installPlugin(plugin);
-        return jdbiLeakChecker;
-    }
-
-    public static class JdbiLeakCheckerPlugin implements JdbiPlugin {
-        private final JdbiLeakChecker leakChecker;
-
-        public JdbiLeakCheckerPlugin(JdbiLeakChecker leakChecker) {
-            this.leakChecker = leakChecker;
-        }
-
-        @Override
-        public void customizeJdbi(Jdbi jdbi) {
-            jdbi.configure(Handles.class, h -> h.addListener(leakChecker));
-            jdbi.configure(SqlStatements.class, h -> h.addContextListener(leakChecker));
-        }
     }
 }

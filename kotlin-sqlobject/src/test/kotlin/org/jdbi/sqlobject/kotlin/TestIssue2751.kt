@@ -32,6 +32,12 @@ class TestIssue2751 {
     var h2Extension: JdbiExtension = JdbiExtension.h2()
         .withInitializer(TestingInitializers.something())
         .withPlugins(KotlinSqlObjectPlugin())
+        .withConfig { b ->
+            b.registerColumnMapper(
+                QualifiedType.of(object : GenericType<List<@JvmSuppressWildcards String>>() {}).with(Stringy::class.java),
+                ListStringMapper()
+            )
+        }
 
     data class TestClass(val param: List<String>)
 
@@ -52,10 +58,6 @@ class TestIssue2751 {
     @Test
     fun testGenericMapperRegistrationSuppressOnType() {
         val jdbi = h2Extension.jdbi
-        val type: QualifiedType<List<String>> = QualifiedType.of(object : GenericType<List<@JvmSuppressWildcards String>>() {})
-            .with(Stringy::class.java)
-
-        jdbi.registerColumnMapper(type, ListStringMapper())
 
         jdbi.useHandle<Exception> { handle -> handle.execute("INSERT INTO something(id, name) VALUES(1, 'a,b,c,d,e,f')") }
 

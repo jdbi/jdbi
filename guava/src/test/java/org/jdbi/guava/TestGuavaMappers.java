@@ -34,15 +34,15 @@ public class TestGuavaMappers {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugin(new GuavaPlugin());
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugin(new GuavaPlugin())
+            .withConfig(b -> b
+                .registerArrayType(Integer.class, "integer")
+                .registerArrayType(UUID.class, "uuid"));
 
     private Handle h;
 
     @BeforeEach
     public void setUp() {
-        pgExtension.getJdbi()
-                .registerArrayType(Integer.class, "integer")
-                .registerArrayType(UUID.class, "uuid");
         h = pgExtension.openHandle();
         h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS arrays");

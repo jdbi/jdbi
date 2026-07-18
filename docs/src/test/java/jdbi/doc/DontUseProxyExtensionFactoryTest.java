@@ -43,7 +43,10 @@ class DontUseProxyExtensionFactoryTest {
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
             .withInitializer(TestingInitializers.something())
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b
+                    .registerRowMapper(new SomethingMapper())
+                    .configure(Extensions.class, e -> e.register(new DontUseProxyExtensionFactory())));
 
     Jdbi jdbi;
 
@@ -72,9 +75,6 @@ class DontUseProxyExtensionFactoryTest {
     @BeforeEach
     void setUp() {
         this.jdbi = h2Extension.getJdbi();
-
-        jdbi.registerRowMapper(new SomethingMapper());
-        jdbi.configure(Extensions.class, e -> e.register(new DontUseProxyExtensionFactory()));
 
         jdbi.useHandle(handle -> {
             handle.execute("INSERT INTO something (id, name) VALUES (1, 'apple')");

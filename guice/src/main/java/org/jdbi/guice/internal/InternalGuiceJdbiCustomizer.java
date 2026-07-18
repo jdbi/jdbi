@@ -68,19 +68,19 @@ public class InternalGuiceJdbiCustomizer implements GuiceJdbiCustomizer {
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void customize(Jdbi jdbi) {
-        rowMappers.forEach(jdbi::registerRowMapper);
-        qualifiedRowMappers.forEach(jdbi::registerRowMapper);
+    public void customize(Jdbi.Builder builder) {
+        rowMappers.forEach(builder::registerRowMapper);
+        qualifiedRowMappers.forEach(builder::registerRowMapper);
 
-        columnMappers.forEach(jdbi::registerColumnMapper);
-        qualifiedColumnMappers.forEach((k, v) -> jdbi.registerColumnMapper((QualifiedType) k, (ColumnMapper) v));
+        columnMappers.forEach(builder::registerColumnMapper);
+        qualifiedColumnMappers.forEach((k, v) -> builder.registerColumnMapper((QualifiedType) k, (ColumnMapper) v));
 
-        jdbi.registerColumnMapper(codecFactory);
-        jdbi.registerArgument(codecFactory);
+        builder.registerColumnMapper(codecFactory);
+        builder.registerArgument(codecFactory);
 
-        plugins.forEach(jdbi::installPlugin);
+        plugins.forEach(builder::installPlugin);
 
-        arrayTypes.forEach(jdbi::registerArrayType);
-        customizers.forEach(c -> c.customize(jdbi));
+        arrayTypes.forEach(builder::registerArrayType);
+        customizers.forEach(c -> c.customize(builder));
     }
 }

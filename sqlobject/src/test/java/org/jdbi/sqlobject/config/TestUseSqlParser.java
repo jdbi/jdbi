@@ -14,7 +14,6 @@
 package org.jdbi.sqlobject.config;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.core.statement.ColonPrefixSqlParser;
@@ -36,17 +35,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestUseSqlParser {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        // this is the default, but be explicit for sake of clarity in test
+        .withConfig(b -> b.setSqlParser(new ColonPrefixSqlParser()));
 
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
-        Jdbi db = h2Extension.getJdbi();
-
-        // this is the default, but be explicit for sake of clarity in test
-        db.setSqlParser(new ColonPrefixSqlParser());
-        handle = db.open();
+        handle = h2Extension.getJdbi().open();
     }
 
     @AfterEach

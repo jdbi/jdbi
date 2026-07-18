@@ -56,7 +56,7 @@ public class TestPluginInstall {
         public JdbiPlugin pluginA() {
             return new JdbiPlugin() {
                 @Override
-                public void customizeJdbi(final Jdbi db) {
+                public void configure(final Jdbi.Builder db) {
                     pluginACalled = true;
                 }
             };
@@ -66,7 +66,7 @@ public class TestPluginInstall {
         public JdbiPlugin pluginB() {
             return new JdbiPlugin() {
                 @Override
-                public void customizeJdbi(final Jdbi db) {
+                public void configure(final Jdbi.Builder db) {
                     pluginBCalled = true;
                 }
             };

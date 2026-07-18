@@ -43,13 +43,14 @@ public class BindListTest {
     private List<Something> expectedSomethings;
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something());
+    public JdbiExtension h2Extension = JdbiExtension.h2()
+        .withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(new SomethingMapper()))
+        .withInitializer(TestingInitializers.something());
 
     @BeforeEach
     public void before() {
         final Jdbi db = h2Extension.getJdbi();
-        db.installPlugin(new SqlObjectPlugin());
-        db.registerRowMapper(new SomethingMapper());
         handle = db.open();
 
         handle.execute("insert into something(id, name) values(1, '1')");

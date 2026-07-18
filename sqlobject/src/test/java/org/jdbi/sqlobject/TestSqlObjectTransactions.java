@@ -20,6 +20,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.core.transaction.DelegatingTransactionHandler;
+import org.jdbi.core.transaction.LocalTransactionHandler;
 import org.jdbi.core.transaction.TransactionHandler;
 import org.jdbi.sqlobject.statement.SqlUpdate;
 import org.jdbi.sqlobject.transaction.Transaction;
@@ -45,10 +46,14 @@ public class TestSqlObjectTransactions {
 
     @BeforeEach
     public void setUp() {
-        this.jdbi = h2Extension.getJdbi();
-        this.jdbi.registerRowMapper(User.class, ConstructorMapper.of(User.class));
-        this.transactionHandler = new CountingTransactionHandler(jdbi.getTransactionHandler());
-        jdbi.setTransactionHandler(transactionHandler);
+        // The transaction handler must wrap the assembled Jdbi's handler, so build a dedicated Jdbi against the same
+        // (shared-handle-kept-alive) database rather than mutating the extension's read-only Jdbi.
+        this.transactionHandler = new CountingTransactionHandler(LocalTransactionHandler.binding());
+        this.jdbi = Jdbi.builder(h2Extension.getUrl())
+                .installPlugin(new SqlObjectPlugin())
+                .registerRowMapper(User.class, ConstructorMapper.of(User.class))
+                .transactionHandler(transactionHandler)
+                .build();
     }
 
     /**

@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
@@ -39,16 +38,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestUseCustomExtensionHandlerFactory {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+            .withConfig(b -> {
+                b.configure(Extensions.class, e -> e.register(new ExtensionFrameworkTestFactory()));
+                b.configure(Extensions.class, c -> c.registerHandlerFactory(customExtensionHandlerFactory()));
+            });
 
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
-        Jdbi db = h2Extension.getJdbi();
-        db.configure(Extensions.class, e -> e.register(new ExtensionFrameworkTestFactory()));
+        handle = h2Extension.openHandle();
+    }
 
-        ExtensionHandlerFactory customExtensionHandlerFactory = new ExtensionHandlerFactory() {
+    private static ExtensionHandlerFactory customExtensionHandlerFactory() {
+        return new ExtensionHandlerFactory() {
 
             @Override
             public boolean accepts(Class<?> extensionType, Method method) {
@@ -69,10 +73,6 @@ public class TestUseCustomExtensionHandlerFactory {
                         .findAny();
             }
         };
-
-        db.configure(Extensions.class, c -> c.registerHandlerFactory(customExtensionHandlerFactory));
-
-        handle = db.open();
     }
 
     @AfterEach

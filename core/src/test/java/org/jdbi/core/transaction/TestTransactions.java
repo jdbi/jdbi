@@ -38,12 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestTransactions {
 
-    @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
-
     int begin, commit, rollback;
-
-    private Handle h;
 
     private final LocalTransactionHandler txSpy = new LocalTransactionHandler() {
         @Override
@@ -65,9 +60,14 @@ public class TestTransactions {
         }
     };
 
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+        .withConfig(b -> b.transactionHandler(txSpy));
+
+    private Handle h;
+
     @BeforeEach
     public void setUp() {
-        h2Extension.getJdbi().setTransactionHandler(txSpy);
         h = h2Extension.openHandle();
     }
 

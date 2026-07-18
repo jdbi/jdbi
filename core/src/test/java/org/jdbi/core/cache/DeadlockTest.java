@@ -38,7 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DeadlockTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+            .withConfig(b -> b.configure(SqlStatements.class, c -> c.templateCache(DefaultJdbiCacheBuilder.builder().maxSize(10))));
 
     static final int THREAD_COUNT = 100;
 
@@ -62,7 +63,6 @@ class DeadlockTest {
 
     @Test
     void testIssue2274() throws Exception {
-        jdbi.configure(SqlStatements.class, c -> c.templateCache(DefaultJdbiCacheBuilder.builder().maxSize(10)));
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT,
                 new ThreadFactoryBuilder().setNameFormat("test-%d").setDaemon(true).build());
 

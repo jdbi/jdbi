@@ -43,14 +43,13 @@ public class TestSqlLocator {
 
             h.execute("insert into something (id, name) values (?, ?)", 2, "Alice");
             h.execute("insert into something (id, name) values (?, ?)", 1, "Bob");
-        });
+        })
+        .withConfig(b -> b.configure(SqlObjects.class, c -> c.sqlLocator(
+            (type, method, config) -> config.get(TestConfig.class).sql)));
 
     @Test
     public void testLocateConfigDriven() throws Exception {
         Jdbi jdbi = pgExtension.getJdbi();
-
-        jdbi.configure(SqlObjects.class, c -> c.sqlLocator(
-            (type, method, config) -> config.get(TestConfig.class).sql));
 
         jdbi.useHandle(h -> {
             h.getConfig(TestConfig.class).sql = "select * from something order by id";

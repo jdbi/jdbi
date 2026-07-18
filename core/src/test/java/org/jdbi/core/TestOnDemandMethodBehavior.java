@@ -148,7 +148,6 @@ public class TestOnDemandMethodBehavior {
 
     @Test
     public void testExceptionThrown() {
-        db.registerExtension(new UselessDaoExtension());
         UselessDao uselessDao = db.onDemand(UselessDao.class);
         assertThatThrownBy(uselessDao::blowUp).isInstanceOf(SQLException.class);
     }

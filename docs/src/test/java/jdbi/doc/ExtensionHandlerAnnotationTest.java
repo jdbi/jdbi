@@ -45,19 +45,20 @@ class ExtensionHandlerAnnotationTest {
 
     @BeforeEach
     void setUp() {
-        this.jdbi = h2Extension.getJdbi();
-
-        // tag::register-factory[]
-        jdbi.configure(Extensions.class, extensions ->  // <1>
-                extensions.register(extensionType ->
-                        Stream.of(extensionType.getMethods())
-                                .anyMatch(method ->
-                                        Stream.of(method.getAnnotations())
-                                                .map(annotation -> annotation.annotationType()
-                                                        .getAnnotation(UseExtensionHandler.class)) // <2>
-                                                .anyMatch(a -> a != null && "test".equals(a.id())) // <3>
-                                )));
-        // end::register-factory[]
+        this.jdbi = Jdbi.builder(h2Extension.getUrl())
+                .installPlugin(new SqlObjectPlugin())
+                // tag::register-factory[]
+                .configure(Extensions.class, extensions ->  // <1>
+                        extensions.register(extensionType ->
+                                Stream.of(extensionType.getMethods())
+                                        .anyMatch(method ->
+                                                Stream.of(method.getAnnotations())
+                                                        .map(annotation -> annotation.annotationType()
+                                                                .getAnnotation(UseExtensionHandler.class)) // <2>
+                                                        .anyMatch(a -> a != null && "test".equals(a.id())) // <3>
+                                        )))
+                // end::register-factory[]
+                .build();
     }
 
     @Test

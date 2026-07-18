@@ -23,7 +23,6 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Multimap;
 import io.vavr.collection.Seq;
 import org.jdbi.core.Handle;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.MapEntryMappers;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
@@ -63,16 +62,14 @@ public class TestVavrMapCollectorWithDB {
 
     @Test
     public void testMapCollectorWithGlobalKeyValueShouldSucceed() {
-        Jdbi jdbiWithKeyColAndValCol = h2Extension.getJdbi()
-            .setMapKeyColumn("key_c")
-            .setMapValueColumn("val_c");
-
-        Boolean executed = jdbiWithKeyColAndValCol.withHandle(h -> {
-            Map<String, String> valueMap = h.createQuery("select val_c, key_c from keyval")
-                .collectInto(new GenericType<Map<String, String>>() {});
-            assertThat(valueMap).hasSameElementsAs(expectedMap);
-            return true;
-        });
+        Boolean executed = h2Extension.getJdbi().withHandle(
+            cfg -> cfg.configure(MapEntryMappers.class, c -> c.keyColumn("key_c").valueColumn("val_c")),
+            h -> {
+                Map<String, String> valueMap = h.createQuery("select val_c, key_c from keyval")
+                    .collectInto(new GenericType<Map<String, String>>() {});
+                assertThat(valueMap).hasSameElementsAs(expectedMap);
+                return true;
+            });
 
         assertThat(executed).isTrue();
     }

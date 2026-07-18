@@ -132,21 +132,19 @@ public class MapEntryMapperTest {
 
         CharSequence sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
             + "from \"user\" u left join phone p on u.id = p.user_id";
-        h2Extension.getJdbi()
-                .setMapKeyColumn("foo")
-                .setMapValueColumn("bar")
-                .useHandle(handle -> {
-                    Map<User, Phone> map = handle.createQuery(sql)
-                            .setMapKeyColumn(null)
-                            .setMapValueColumn(null)
-                            .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
-                            .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
-                            .collectInto(new GenericType<Map<User, Phone>>() {});
-                    assertThat(map).containsOnly(
-                            entry(new User(1, "alice"), new Phone(10, "555-0001")),
-                            entry(new User(2, "bob"), new Phone(20, "555-0002")),
-                            entry(new User(3, "cathy"), new Phone(30, "555-0003")));
-                });
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(MapEntryMappers.class, c -> c.keyColumn("foo").valueColumn("bar")))) {
+            Map<User, Phone> map = handle.createQuery(sql)
+                    .setMapKeyColumn(null)
+                    .setMapValueColumn(null)
+                    .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
+                    .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
+                    .collectInto(new GenericType<Map<User, Phone>>() {});
+            assertThat(map).containsOnly(
+                    entry(new User(1, "alice"), new Phone(10, "555-0001")),
+                    entry(new User(2, "bob"), new Phone(20, "555-0002")),
+                    entry(new User(3, "cathy"), new Phone(30, "555-0003")));
+        }
     }
 
     @Test
