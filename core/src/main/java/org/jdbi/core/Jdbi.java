@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
@@ -58,6 +59,9 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  */
 public class Jdbi implements Configurable<Jdbi> {
     private static final Logger LOG = LoggerFactory.getLogger(Jdbi.class);
+
+    /** A no-op per-handle config scope: the opened handle uses an unmodified copy of this Jdbi's config. */
+    private static final Consumer<ConfigRegistry> NO_CONFIG_SCOPE = config -> {};
 
     private final ConfigRegistry config = new ConfigRegistry();
 
@@ -452,6 +456,29 @@ public class Jdbi implements Configurable<Jdbi> {
      * @see #withHandle(HandleCallback)
      */
     public Handle open() {
+        return open(NO_CONFIG_SCOPE);
+    }
+
+    /**
+     * Obtain a Handle whose configuration is a copy of this Jdbi's, with the given scope applied. Use this to run a
+     * unit of work against a handle that carries per-handle configuration (mappers, arguments, defines, and the like)
+     * without affecting this Jdbi or any other handle:
+     * <pre>{@code
+     * try (Handle h = jdbi.open(config -> config.configure(RowMappers.class, r -> r.register(myMapper)))) {
+     *     ...
+     * }
+     * }</pre>
+     * The scope receives a private copy of this Jdbi's config and configures it in place. You own the returned handle
+     * and are required to close it, ideally with a {@code try-with-resources} block.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @return an open Handle instance carrying the scoped configuration
+     * @see #open()
+     * @see #withHandle(Consumer, HandleCallback)
+     */
+    @Alpha
+    public Handle open(final Consumer<ConfigRegistry> configScope) {
+        Objects.requireNonNull(configScope, "null configScope");
         try {
             final long start = System.nanoTime();
             Connection conn = Objects.requireNonNull(connectionFactory.openConnection(),
@@ -469,7 +496,8 @@ public class Jdbi implements Configurable<Jdbi> {
                         connectionFactory.getCleanableFor(conn), // don't use conn::close, the cleanup must be done by the connection factory!
                         transactionhandler.get(),
                         cache,
-                        conn);
+                        conn,
+                        configScope);
 
                 for (final JdbiPlugin p : plugins) {
                     h = p.customizeHandle(h);
@@ -516,6 +544,42 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
+     * and yields it to a callback. Unlike {@link #withHandle(HandleCallback)}, this always opens a <em>new</em> handle
+     * for the scoped configuration (a handle captures its config at {@code open}), so it does not join a handle already
+     * in scope; the scoped handle is in scope for the duration of the callback and is closed before returning.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @param callback A callback which will receive the scoped Handle
+     * @param <R> type returned by the callback
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @return the value returned by callback
+     *
+     * @throws X any exception thrown by the callback
+     * @see #open(Consumer)
+     */
+    @Alpha
+    public <R, X extends Exception> R withHandle(final Consumer<ConfigRegistry> configScope, final HandleCallback<R, X> callback) throws X {
+        Objects.requireNonNull(configScope, "null configScope");
+        final HandleCallback<R, X> decoratedCallback = handleCallbackDecorator.get().decorate(callback);
+
+        final var previous = handleScope.get();
+        try (Handle h = this.open(configScope)) {
+            h.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(c.isAttachCallbackStatementsForCleanup()));
+
+            handleScope.set(ConstantHandleSupplier.of(h));
+            return decoratedCallback.withHandle(h);
+        } finally {
+            if (previous == null) {
+                handleScope.clear();
+            } else {
+                handleScope.set(previous);
+            }
+        }
+    }
+
+    /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients.
      *
@@ -526,6 +590,22 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <X extends Exception> void useHandle(final HandleConsumer<X> consumer) throws X {
         withHandle(consumer.asCallback());
+    }
+
+    /**
+     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
+     * and yields it to a callback. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens a new handle
+     * for the scoped configuration.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @param consumer A callback which will receive the scoped Handle
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @throws X any exception thrown by the callback
+     */
+    @Alpha
+    public <X extends Exception> void useHandle(final Consumer<ConfigRegistry> configScope, final HandleConsumer<X> consumer) throws X {
+        withHandle(configScope, consumer.asCallback());
     }
 
     /**
@@ -547,6 +627,26 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
+     * and yields it to a callback in a transaction. The transaction is committed if the callback finishes normally,
+     * or rolled back if it raises an exception. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens
+     * a new handle for the scoped configuration.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @param callback A callback which will receive the scoped Handle, in a transaction
+     * @param <R> type returned by the callback
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @return the value returned by callback
+     *
+     * @throws X any exception thrown by the callback
+     */
+    @Alpha
+    public <R, X extends Exception> R inTransaction(final Consumer<ConfigRegistry> configScope, final HandleCallback<R, X> callback) throws X {
+        return withHandle(configScope, handle -> handle.inTransaction(callback));
+    }
+
+    /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients. The handle will be in a transaction when the callback is invoked, and
      * that transaction will be committed if the callback finishes normally, or rolled back if the
@@ -559,6 +659,23 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X {
         useHandle(handle -> handle.useTransaction(callback));
+    }
+
+    /**
+     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
+     * and yields it to a callback in a transaction. The transaction is committed if the callback finishes normally,
+     * or rolled back if it raises an exception. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens
+     * a new handle for the scoped configuration.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @param callback A callback which will receive the scoped Handle, in a transaction
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @throws X any exception thrown by the callback
+     */
+    @Alpha
+    public <X extends Exception> void useTransaction(final Consumer<ConfigRegistry> configScope, final HandleConsumer<X> callback) throws X {
+        useHandle(configScope, handle -> handle.useTransaction(callback));
     }
 
     /**
