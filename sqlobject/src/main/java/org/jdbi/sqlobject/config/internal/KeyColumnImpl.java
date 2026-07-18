@@ -33,6 +33,6 @@ public class KeyColumnImpl implements ExtensionConfigurer {
 
     @Override
     public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        config.get(MapEntryMappers.class).setKeyColumn(name);
+        config.configure(MapEntryMappers.class, c -> c.keyColumn(name));
     }
 }

@@ -173,23 +173,23 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(MapEntryMappers.class).setKeyColumn(keyColumn)}
+     * Convenience method for {@code configure(MapEntryMappers.class, c -> c.keyColumn(keyColumn))}
      *
      * @param keyColumn the key column name
      * @return this
      */
     default This setMapKeyColumn(final String keyColumn) {
-        return configure(MapEntryMappers.class, c -> c.setKeyColumn(keyColumn));
+        return configure(MapEntryMappers.class, c -> c.keyColumn(keyColumn));
     }
 
     /**
-     * Convenience method for {@code getConfig(MapEntryMappers.class).setValueColumn(valueColumn)}
+     * Convenience method for {@code configure(MapEntryMappers.class, c -> c.valueColumn(valueColumn))}
      *
      * @param valueColumn the value column name
      * @return this
      */
     default This setMapValueColumn(final String valueColumn) {
-        return configure(MapEntryMappers.class, c -> c.setValueColumn(valueColumn));
+        return configure(MapEntryMappers.class, c -> c.valueColumn(valueColumn));
     }
 
     /**

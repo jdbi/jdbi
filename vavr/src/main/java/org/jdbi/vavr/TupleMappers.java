@@ -14,70 +14,64 @@
 package org.jdbi.vavr;
 
 import io.vavr.Tuple;
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.mapper.MapEntryConfig;
-import org.jdbi.core.mapper.MapEntryMappers;
 
 /**
  * Mappers similar to {@link org.jdbi.core.mapper.MapEntryMappers} but map entries in vavr are in fact
  * of type {@link io.vavr.Tuple2}.
+ * <p>
+ * This configuration is immutable: {@link #keyColumn}, {@link #valueColumn} and {@link #column} return a new
+ * instance, leaving the receiver unchanged. Only tuple-specific columns are stored here; a caller that wants
+ * to honor the global {@link org.jdbi.core.mapper.MapEntryMappers} column names falls back to them itself
+ * (see {@link VavrTupleRowMapperFactory}).
  */
-public class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryConfig<TupleMappers> {
+public final class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryConfig<TupleMappers> {
 
     private static final int KEY_COLUMN_TUPLE_INDEX = 1;
     private static final int VALUE_COLUMN_TUPLE_INDEX = 2;
 
-    private ConfigRegistry registry;
+    private final String[] columns;
 
-    private final String[] columns = new String[Tuple.MAX_ARITY];
+    public TupleMappers() {
+        this(new String[Tuple.MAX_ARITY]);
+    }
 
-    public TupleMappers() {}
-
-    private TupleMappers(TupleMappers that) {
-        System.arraycopy(that.columns, 0, this.columns, 0, Tuple.MAX_ARITY);
+    private TupleMappers(String[] columns) {
+        this.columns = columns;
     }
 
     @Override
     public String getKeyColumn() {
-        String column = getColumn(KEY_COLUMN_TUPLE_INDEX);
-        if (column == null) {
-            // fallback to global map key config
-            return this.registry.get(MapEntryMappers.class).getKeyColumn();
-        }
-        return column;
+        return getColumn(KEY_COLUMN_TUPLE_INDEX);
     }
 
     @Override
-    public TupleMappers setKeyColumn(String keyColumn) {
-        return setColumn(KEY_COLUMN_TUPLE_INDEX, keyColumn);
+    public TupleMappers keyColumn(String keyColumn) {
+        return column(KEY_COLUMN_TUPLE_INDEX, keyColumn);
     }
 
     @Override
     public String getValueColumn() {
-        String column = getColumn(VALUE_COLUMN_TUPLE_INDEX);
-        if (column == null) {
-            // fallback to global map value config
-            return this.registry.get(MapEntryMappers.class).getValueColumn();
-        }
-        return column;
+        return getColumn(VALUE_COLUMN_TUPLE_INDEX);
     }
 
     @Override
-    public TupleMappers setValueColumn(String valueColumn) {
-        return setColumn(VALUE_COLUMN_TUPLE_INDEX, valueColumn);
+    public TupleMappers valueColumn(String valueColumn) {
+        return column(VALUE_COLUMN_TUPLE_INDEX, valueColumn);
     }
 
     /**
-     * Names a specific column in the mapper.
+     * Returns a copy of this configuration with the given column name for a specific tuple position.
      *
      * @param tupleIndex the 1 based index of the TupleX. as in _1, _2 etc.
      * @param name       the column name to be mapped explicitly
-     * @return Config object for chaining
+     * @return the derived configuration
      */
-    public TupleMappers setColumn(int tupleIndex, String name) {
-        columns[tupleIndex - 1] = name;
-        return this;
+    public TupleMappers column(int tupleIndex, String name) {
+        final String[] newColumns = columns.clone();
+        newColumns[tupleIndex - 1] = name;
+        return new TupleMappers(newColumns);
     }
 
     /**
@@ -92,11 +86,7 @@ public class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryConfig<Tu
 
     @Override
     public TupleMappers createCopy() {
-        return new TupleMappers(this);
-    }
-
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

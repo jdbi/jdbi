@@ -17,35 +17,32 @@ import org.jdbi.core.config.JdbiConfig;
 
 /**
  * Configuration class for MapEntryMapper.
+ * <p>
+ * This configuration is immutable: {@link #keyColumn} and {@link #valueColumn} return a new instance, leaving
+ * the receiver unchanged.
  */
-public class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEntryConfig<MapEntryMappers> {
-    public MapEntryMappers() {}
+public final class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEntryConfig<MapEntryMappers> {
 
-    private MapEntryMappers(MapEntryMappers that) {
-        this.keyColumn = that.keyColumn;
-        this.valueColumn = that.valueColumn;
+    private final String keyColumn;
+    private final String valueColumn;
+
+    public MapEntryMappers() {
+        this(null, null);
     }
 
-    private String keyColumn;
-    private String valueColumn;
+    private MapEntryMappers(String keyColumn, String valueColumn) {
+        this.keyColumn = keyColumn;
+        this.valueColumn = valueColumn;
+    }
 
     @Override
     public String getKeyColumn() {
         return keyColumn;
     }
 
-    /**
-     * Sets the column that map entry keys are loaded from. If set, keys will be loaded from the given column, using the {@link ColumnMapper} registered
-     * for the key type. If unset, keys will be loaded using the {@link RowMapper} registered for the key type, from whichever columns that row mapper
-     * uses.
-     *
-     * @param keyColumn the key column name.
-     * @return this config object, for call chaining
-     */
     @Override
-    public MapEntryMappers setKeyColumn(String keyColumn) {
-        this.keyColumn = keyColumn;
-        return this;
+    public MapEntryMappers keyColumn(String keyColumn) {
+        return new MapEntryMappers(keyColumn, valueColumn);
     }
 
     @Override
@@ -53,22 +50,14 @@ public class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEntryCon
         return valueColumn;
     }
 
-    /**
-     * Sets the column that map entry values are loaded from. If set, values will be loaded from the given column, using the {@link ColumnMapper}
-     * registered for the value type. If unset, values will be loaded using the {@link RowMapper} registered for the value type, from whichever columns
-     * that row mapper uses.
-     *
-     * @param valueColumn the value column name.
-     * @return this config object, for call chaining
-     */
     @Override
-    public MapEntryMappers setValueColumn(String valueColumn) {
-        this.valueColumn = valueColumn;
-        return this;
+    public MapEntryMappers valueColumn(String valueColumn) {
+        return new MapEntryMappers(keyColumn, valueColumn);
     }
 
     @Override
     public MapEntryMappers createCopy() {
-        return new MapEntryMappers(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }
