@@ -171,7 +171,7 @@ public class TestAbstractArgumentFactory {
     @Test
     public void testGenericClassMatches() {
         ConfigRegistry registry = new ConfigRegistry();
-        registry.get(Arguments.class).register(new BoxOfStringArgumentFactory());
+        registry.configure(Arguments.class, c -> c.register(new BoxOfStringArgumentFactory()));
         ArgumentResolver arguments = ArgumentResolver.forRegistry(registry);
         Box<String> genericBoxString = new Box<>("foo");
         StringBox stringBox = new StringBox("bar");
@@ -184,7 +184,7 @@ public class TestAbstractArgumentFactory {
     @Test
     public void testGenericClassNonMatches() {
         ConfigRegistry registry = new ConfigRegistry();
-        registry.get(Arguments.class).register(new BoxOfStringArgumentFactory());
+        registry.configure(Arguments.class, c -> c.register(new BoxOfStringArgumentFactory()));
         ArgumentResolver arguments = ArgumentResolver.forRegistry(registry);
         Box<Integer> genericBoxInteger = new Box<>(10);
         IntegerBox integerBox = new IntegerBox(20);
@@ -242,7 +242,7 @@ public class TestAbstractArgumentFactory {
     @Test
     public void testGenericInterfaceMatches() {
         ConfigRegistry registry = new ConfigRegistry();
-        registry.get(Arguments.class).register(new StringThingArgumentFactory());
+        registry.configure(Arguments.class, c -> c.register(new StringThingArgumentFactory()));
         ArgumentResolver arguments = ArgumentResolver.forRegistry(registry);
         StringThing stringThing = new StringThing("bar");
 
@@ -253,7 +253,7 @@ public class TestAbstractArgumentFactory {
     @Test
     public void testGenericInterfaceNonMatches() {
         ConfigRegistry registry = new ConfigRegistry();
-        registry.get(Arguments.class).register(new StringThingArgumentFactory());
+        registry.configure(Arguments.class, c -> c.register(new StringThingArgumentFactory()));
         ArgumentResolver arguments = ArgumentResolver.forRegistry(registry);
         IntegerThing integerThing = new IntegerThing(20);
 
