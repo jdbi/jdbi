@@ -9025,6 +9025,12 @@ link:{jdbidocs}/core/extension/ExtensionFactory.html#getConfigCustomizerFactorie
 getters that a factory can implement.
 By default, each returns an empty collection.
 
+[NOTE]
+What these getters return is baked into the per-type link:{jdbidocs}/core/extension/ExtensionMetadata.html[ExtensionMetadata^], which Jdbi caches and shares across handles.
+If a getter's result depends on mutable configuration read from the `ConfigRegistry` (for example the contents of another config object), that configuration's mutators must call
+link:{jdbidocs}/core/extension/Extensions.html#invalidateMetadataCache()[Extensions#invalidateMetadataCache()^] so that a later change is not masked by stale cached metadata.
+Configuration applied per instance at attach time (such as through a `ConfigCustomizer`) is not cached and needs no invalidation.
+
 ===== Java Object methods
 
 When the extension framework returns an implementation of an extension type, it usually returns a link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^]
