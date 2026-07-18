@@ -149,7 +149,15 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): sub-step 4 + D7/sub-step 5 + D4a/D5 + D4b.1 + D4b.2 + D6 (window slice) DONE; next is removal (next major)
+## HANDOFF (2026-07-18): sub-step 4 + D7/sub-step 5 + D4a/D5 + D4b.1 + D4b.2 + D6 (window slice) DONE; next is REMOVAL — in THIS branch (4.x)
+
+> **VERSIONING FRAMING (2026-07-18, maintainer-confirmed).** This branch **is** the next major (jdbi 4.x, still
+> `4.0.0-SNAPSHOT`, unreleased). Earlier phases wrote "removal in the next major" as if removal were a *future*
+> release gated behind a 4.x deprecation window — that framing is WRONG. There is no separate future major to wait
+> for: the deprecated mutation surface is pre-release scaffolding, and **removal happens in THIS branch, now.** The
+> `@Deprecated(forRemoval=true)` markers from D4b.2 were a staging convenience, not a compat promise to external 4.x
+> users (4.0 has not shipped). So "at removal" / "next major (removal…)" throughout this doc means **this branch's
+> removal phase**, which is the next work item. The `@Deprecated` markers are deleted along with the methods they mark.
 
 **Latest (2026-07-18):** **D4b.1 DONE** (`674f6c496`, `661334b55`). All 17 in-repo plugins moved their config from
 `customizeJdbi(Jdbi)` to `configure(Jdbi.Builder)`; `Jdbi.installPlugin` now bridges through a throwaway
@@ -170,11 +178,29 @@ assembly API + the `JdbiPlugin.configure` SPI (D5).
 **D6 window slice DONE:** added the additive `@Alpha` `Jdbi.open(Consumer<ConfigRegistry> configScope)` + scoped
 `withHandle`/`useHandle`/`inTransaction`/`useTransaction` — a handle opened with a scope carries a `createCopy()` of
 the Jdbi config with the scope applied (in place, before the extension context + `Handles` listeners are derived).
-The internals are a facade (`createCopy`+apply); the removal-gated pieces stay for the next major: the jdbi/jdbi#2992
-warm-cross-handle metadata fix (handle-boundary `createChild()` COW, unsafe while Jdbi config is still mutable) and
-the handle-config deprecation (`handle.registerX`/`configure`, deferred like the D4b.2 register*/configure deferral).
-**Next is removal (next major):** delete the deprecated Jdbi/plugin mutation surface, drop `Configurable`'s mutators
-from `Jdbi`, swap handle `createCopy`→`createChild` COW, and land #2992 warm caching.
+The internals are a facade (`createCopy`+apply); the removal-gated pieces are the REMOVAL phase below.
+
+### REMOVAL phase (this 4.x branch) — the plan [maintainer-confirmed 2026-07-18]
+The largest, most breaking phase; it lands the jdbi/jdbi#2992 warm-metadata perf prize. Sequenced to deliver the
+prize early, then finish the handle-config removal:
+- **R1 — migrate in-repo Jdbi-mutation call sites to the builder** (behavior-preserving prep). ~90–100 sites across
+  ~59 files: `Jdbi.create(x).registerY(...).installPlugin(p)` / post-`create` `jdbi.registerY(...)` →
+  `Jdbi.builder(x).registerY(...).installPlugin(p)…build()`. Central test support already done (D4b.2).
+- **R2 — remove the Jdbi mutation API; `Jdbi` becomes read-only.** Delete `installPlugin`/`setTransactionHandler`/
+  `setStatementBuilderFactory`/`setHandleCallbackDecorator`/`setHandleScope` + `JdbiPlugin.customizeJdbi` (+ the
+  `applyPlugin` bridge's `customizeJdbi` leg); `Jdbi implements ConfigReader` (read) not `Configurable` (read+mutate).
+  The builder keeps mutating the `ConfigRegistry` directly during assembly, so this only removes *post-build* Jdbi
+  mutation. Root config is then **convention-frozen** (no freeze-flag — consistent with the D4b "no freeze-on-open"
+  decision): nothing idiomatic mutates the root post-build; handles/statements fork COW children.
+- **R3 — handle `createCopy()` → `createChild()` COW off the frozen Jdbi config** (plain `open()` and `open(scope)`).
+  Handles share the Jdbi root's warm resolver `views` instead of each paying a cold copy. **This is the #2992 fix.**
+  Safe now because R2 froze the root. Benchmark the warm-metadata win.
+- **R4 — remove handle-level mutable config** (DECIDED 2026-07-18: retire it now — we target the major here, and it
+  goes away sooner or later). Migrate ~120 in-repo `handle.registerX`/`configure` sites to `jdbi.open(scope)` or
+  per-statement config; `Handle` drops `Configurable`'s mutators (read-only via `ConfigReader`). `open(scope)` (D6)
+  is the per-handle config path that now exists. Per-statement `Configurable` (D7) is unchanged.
+- **R5 — final `Configurable` read/mutate split cleanup + benchmark/verify.** Mutation survives only on the builder
+  (assembly) and statements/templates (per-execution COW); `Jdbi`/`Handle` are read-only.
 
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
@@ -436,7 +462,8 @@ Handle h = jdbi.open();                                              // handle r
 Handle h = jdbi.open(cfg -> cfg.configure(RowMappers.class, r -> r.register(m)));   // per-handle derived config
 ```
 **D6 (window slice) DONE (2026-07-18).** The additive `open(scope)` forward API landed; the removal-gated pieces
-(handle-COW #2992 warm cache, handle-config deprecation) stay for the next major. Decisions (maintainer-confirmed):
+(handle-COW #2992 warm cache, handle-config removal) are the REMOVAL phase in THIS branch (see the plan up top under
+"REMOVAL phase"). Decisions (maintainer-confirmed):
 - **`open(scope)` earns its place — ADDED, additive `@Alpha`.** `Jdbi.open(Consumer<ConfigRegistry> configScope)` +
   scoped `withHandle`/`useHandle`/`inTransaction`/`useTransaction(Consumer<ConfigRegistry>, …)`. Scope type is
   `Consumer<ConfigRegistry>` (not `UnaryOperator`): `ConfigRegistry.configure` mutates a copy in place and returns
@@ -463,7 +490,7 @@ Handle h = jdbi.open(cfg -> cfg.configure(RowMappers.class, r -> r.register(m)))
 - [x] **D1** immutable `JdbiConfig`, drop `createCopy`/`setRegistry`, mutators → withers (breaks custom configs).
 - [x] **D2** `configure` `Consumer` → `UnaryOperator` — break approved; churn minimized via chainable + plural withers.
 - [x] **D3** add `ConfigRegistry.with(Class, UnaryOperator)`.
-- [~] **D4** signed off. **D4a DONE** (`d5565bf13`, additive, no breaks): `Jdbi.builder(...)` factories + `Jdbi.Builder` (`Configurable` + knobs `transactionHandler`/`statementBuilderFactory`/`handleCallbackDecorator`/`handleScope`) + `build()`, a thin assembly facade over `Jdbi.create(...)`. **D4b.1 DONE** (`674f6c496`, `661334b55`): 17 in-repo plugins moved to `configure(Builder)`; `Jdbi.installPlugin` bridges through a throwaway `Builder` so all install sites keep working (no freeze-on-open, no shim — both dropped). **D4b.2 DONE** (`8f69b9f4e`): `@Deprecated(since="4.0.0", forRemoval=true)` on the DIRECTLY-OWNED surface (`installPlugin` + 4 `setX` knobs) + `JdbiPlugin.customizeJdbi`; central test support routed through the builder. The `Configurable.configure` funnel + `register*` as inherited by `Jdbi` were DEFERRED to removal (no override-stubs; they drop with `Configurable`'s mutators). Incidental leaf warnings left (non-fatal); only `TestJdbiBuilder`/`TestPlugins` suppressed. Removal in next major.
+- [~] **D4** signed off. **D4a DONE** (`d5565bf13`, additive, no breaks): `Jdbi.builder(...)` factories + `Jdbi.Builder` (`Configurable` + knobs `transactionHandler`/`statementBuilderFactory`/`handleCallbackDecorator`/`handleScope`) + `build()`, a thin assembly facade over `Jdbi.create(...)`. **D4b.1 DONE** (`674f6c496`, `661334b55`): 17 in-repo plugins moved to `configure(Builder)`; `Jdbi.installPlugin` bridges through a throwaway `Builder` so all install sites keep working (no freeze-on-open, no shim — both dropped). **D4b.2 DONE** (`8f69b9f4e`): `@Deprecated(since="4.0.0", forRemoval=true)` on the DIRECTLY-OWNED surface (`installPlugin` + 4 `setX` knobs) + `JdbiPlugin.customizeJdbi`; central test support routed through the builder. The `Configurable.configure` funnel + `register*` as inherited by `Jdbi` were DEFERRED to removal (no override-stubs; they drop with `Configurable`'s mutators). Incidental leaf warnings left (non-fatal); only `TestJdbiBuilder`/`TestPlugins` suppressed. Removal is the REMOVAL phase in THIS branch (4.x), next.
 - [~] **D5** signed off. **DONE** (`d5565bf13` + `661334b55` + `8f69b9f4e`): added `JdbiPlugin.configure(Jdbi.Builder)` (default no-op), applied by `build()`/`installPlugin` before `customizeJdbi` in install order; all in-repo plugins migrated onto it (D4b.1); `customizeJdbi(Jdbi)` deprecated forRemoval (D4b.2).
 - [~] **D6** window slice DONE (2026-07-18): additive `@Alpha` `Jdbi.open(Consumer<ConfigRegistry>)` + scoped `withHandle`/`useHandle`/`inTransaction`/`useTransaction` (facade = `createCopy()`+apply scope; COW #2992 deferred to removal). Handle-config deprecation (`handle.registerX`/`configure`) DEFERRED to removal (like the D4b.2 register*/configure deferral). `open(scope)` is now the migration target for handle-config removal.
 - [x] **D7** statement-level `Configurable` unchanged (copy-on-write private config).
@@ -519,7 +546,7 @@ neither is needed:
   extensions can also expose a thin `withConfig(Consumer<Jdbi.Builder>)` convenience (wrapping
   `withPlugin(JdbiPlugin.of(...))`) during the D4b.1 extension migration.
 
-### Surface to deprecate (D4b) → remove (next major)
+### Surface to deprecate (D4b) → remove (this 4.x branch, REMOVAL phase)
 - `Jdbi.installPlugin`, `Jdbi.setTransactionHandler`, `setStatementBuilderFactory`, `setHandleCallbackDecorator`,
   `setHandleScope` (builder has all of these).
 - The `Configurable` mutators *as inherited by `Jdbi`*: `configure(Class, UnaryOperator)` and the ~30 `register*`
@@ -572,12 +599,13 @@ migrate-first keeps the tree clean and is recommended.
      ~66 incidental leaf callers (`create(x).installPlugin(p)`, `setX`, test-fixture `customizeJdbi` overrides) are
      left to warn and get swept at removal — consistent with existing convention. Only the two tests whose SUBJECT is
      the deprecated install path (`TestJdbiBuilder`, `TestPlugins`) carry a class-level `@SuppressWarnings`.
-3. **Next major (removal, with D6):** delete the deprecated methods (the `installPlugin` bridge disappears with them);
-   `Jdbi` drops `Configurable`'s MUTATORS for the read-only surface — this is where the deferred `configure`/`register*`
-   removal lands (no per-method deprecation stubs were ever written; the whole mutate surface goes at once), and where
-   the ~66 incidental leaf callers + the pre-existing `create(...).installPlugin(...)` sites are converted to the
-   builder in one sweep. Then handles become `createChild()` COW off the now-immutable `Jdbi` config — the
-   jdbi/jdbi#2992 warm-cross-handle metadata fix (see that note).
+3. **REMOVAL phase (this 4.x branch — see the sequenced R1–R5 plan up top under "REMOVAL phase"):** delete the
+   deprecated methods (the `installPlugin` bridge disappears with them); `Jdbi` drops `Configurable`'s MUTATORS for the
+   read-only surface — this is where the deferred `configure`/`register*` removal lands (no per-method deprecation
+   stubs were ever written; the whole mutate surface goes at once), and where the ~66 incidental leaf callers + the
+   pre-existing `create(...).installPlugin(...)` sites are converted to the builder in one sweep. Then handles become
+   `createChild()` COW off the now-immutable `Jdbi` config — the jdbi/jdbi#2992 warm-cross-handle metadata fix (see
+   that note). Handle-level mutable config is retired in the same phase (R4).
 
 ### Implementation notes / gotchas to carry in
 - **`build()` drains dynamically-added plugins (DONE in `674f6c496`).** `build()` iterates by index via a `while`
