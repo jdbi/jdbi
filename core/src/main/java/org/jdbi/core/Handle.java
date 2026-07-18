@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.Configurable;
 import org.jdbi.core.extension.ExtensionContext;
@@ -75,8 +76,11 @@ public class Handle implements Closeable, Configurable<Handle> {
     // Set for a managed callback handle (withHandle/useHandle/inTransaction/useTransaction): statements created
     // on this handle are attached to it for cleanup, regardless of the SqlStatements.attachAllStatementsForCleanup
     // policy. Held here rather than as per-handle config so an unmodified callback handle keeps sharing the Jdbi
-    // root's copy-on-write config (and its warm resolvers) instead of forking a private copy on open.
-    private volatile boolean forceAttachStatements;
+    // root's copy-on-write config (and its warm resolvers) instead of forking a private copy on open. A plain
+    // field like the handle's other mutable state (statementBuilder, currentExtensionContext): a Handle wraps a
+    // JDBC Connection and is not thread-safe, so it is confined to one thread or handed off with a barrier that
+    // publishes this write along with the rest of its state.
+    private boolean forceAttachStatements;
 
     // the fallback context. It is used when resetting the Handle state.
     private final ExtensionContext defaultExtensionContext;
@@ -921,6 +925,8 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     // package-private: set by the Jdbi callback methods to mark this as a managed callback handle.
+    @SuppressFBWarnings(value = "AT_STALE_THREAD_WRITE_OF_PRIMITIVE",
+            justification = "Handle is thread-confined (wraps a JDBC Connection); set once right after open, before the callback runs")
     void setForceAttachStatements(final boolean forceAttachStatements) {
         this.forceAttachStatements = forceAttachStatements;
     }
