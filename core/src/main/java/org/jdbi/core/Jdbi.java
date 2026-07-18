@@ -16,6 +16,8 @@ package org.jdbi.core;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -150,6 +152,82 @@ public class Jdbi implements Configurable<Jdbi> {
         Objects.requireNonNull(username, "null username");
         Objects.requireNonNull(password, "null password");
         return create(() -> DriverManager.getConnection(url, username, password));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against the given connection factory. The builder is
+     * the preferred way to configure a {@code Jdbi}: register mappers, arguments, and plugins, set the transaction
+     * handler and other knobs, then call {@link Builder#build()}.
+     *
+     * @param connectionFactory provides JDBC connections to {@link Handle} instances
+     * @return a builder for a {@code Jdbi} using the given connection factory
+     */
+    @Alpha
+    public static Builder builder(final ConnectionFactory connectionFactory) {
+        return new Builder(create(connectionFactory));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against the given data source.
+     *
+     * @param dataSource the data source.
+     * @return a builder for a {@code Jdbi} using the given data source
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final DataSource dataSource) {
+        return new Builder(create(dataSource));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against a single database connection.
+     *
+     * @param connection a {@link Connection} object.
+     * @return a builder for a {@code Jdbi} using the given connection
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final Connection connection) {
+        return new Builder(create(connection));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against connections obtained from the given URL.
+     *
+     * @param url a JDBC URL for connections.
+     * @return a builder for a {@code Jdbi} using the given URL
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final String url) {
+        return new Builder(create(url));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against connections obtained from the given URL and properties.
+     *
+     * @param url        a JDBC URL for connections.
+     * @param properties properties passed to {@link DriverManager#getConnection(String, Properties)} for each handle.
+     * @return a builder for a {@code Jdbi} using the given URL and properties
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final String url, final Properties properties) {
+        return new Builder(create(url, properties));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against connections obtained from the given URL, user, and password.
+     *
+     * @param url      a JDBC URL for connections.
+     * @param username the username for the connection.
+     * @param password the password for the connection.
+     * @return a builder for a {@code Jdbi} using the given URL and credentials
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final String url, final String username, final String password) {
+        return new Builder(create(url, username, password));
     }
 
     /**
@@ -592,5 +670,103 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public QueryTemplate buildQueryTemplate(final CharSequence sql) {
         return new QueryTemplate(getConfig().createCopy(), sql);
+    }
+
+    /**
+     * Assembles a {@link Jdbi} instance. Obtain one from {@link Jdbi#builder(ConnectionFactory)} (or an overload),
+     * register mappers, arguments, and plugins, set the transaction handler and other knobs, then call
+     * {@link #build()}. The builder is {@link Configurable}, so all of the {@code register*}/{@code configure}
+     * convenience methods are available during assembly.
+     * <p>
+     * A builder is single-use: {@link #build()} returns the assembled {@code Jdbi} and should be called once.
+     */
+    @Alpha
+    public static final class Builder implements Configurable<Builder> {
+
+        private final Jdbi jdbi;
+        private final List<JdbiPlugin> plugins = new ArrayList<>();
+
+        Builder(final Jdbi jdbi) {
+            this.jdbi = jdbi;
+        }
+
+        @Override
+        public ConfigRegistry getConfig() {
+            return jdbi.getConfig();
+        }
+
+        /**
+         * Installs a {@link JdbiPlugin} to be applied when {@link #build()} is called. Plugins are applied in the
+         * order installed.
+         *
+         * @param plugin the plugin to install
+         * @return this builder
+         */
+        public Builder installPlugin(final JdbiPlugin plugin) {
+            plugins.add(Objects.requireNonNull(plugin, "null plugin"));
+            return this;
+        }
+
+        /**
+         * Sets the {@link TransactionHandler} for the assembled {@code Jdbi}.
+         *
+         * @param handler the transaction handler
+         * @return this builder
+         * @see Jdbi#setTransactionHandler(TransactionHandler)
+         */
+        public Builder transactionHandler(final TransactionHandler handler) {
+            jdbi.setTransactionHandler(handler);
+            return this;
+        }
+
+        /**
+         * Sets the {@link StatementBuilderFactory} for the assembled {@code Jdbi}.
+         *
+         * @param factory the statement builder factory
+         * @return this builder
+         * @see Jdbi#setStatementBuilderFactory(StatementBuilderFactory)
+         */
+        public Builder statementBuilderFactory(final StatementBuilderFactory factory) {
+            jdbi.setStatementBuilderFactory(factory);
+            return this;
+        }
+
+        /**
+         * Sets the {@link HandleCallbackDecorator} for the assembled {@code Jdbi}.
+         *
+         * @param handleCallbackDecorator the handle callback decorator
+         * @return this builder
+         * @see Jdbi#setHandleCallbackDecorator(HandleCallbackDecorator)
+         */
+        public Builder handleCallbackDecorator(final HandleCallbackDecorator handleCallbackDecorator) {
+            jdbi.setHandleCallbackDecorator(handleCallbackDecorator);
+            return this;
+        }
+
+        /**
+         * Sets the {@link HandleScope} for the assembled {@code Jdbi}.
+         *
+         * @param handleScope the handle scope
+         * @return this builder
+         * @see Jdbi#setHandleScope(HandleScope)
+         */
+        public Builder handleScope(final HandleScope handleScope) {
+            jdbi.setHandleScope(handleScope);
+            return this;
+        }
+
+        /**
+         * Applies the installed plugins and returns the assembled {@link Jdbi}. Each plugin's
+         * {@link JdbiPlugin#configure(Builder)} runs, then its {@link JdbiPlugin#customizeJdbi(Jdbi)}, in install order.
+         *
+         * @return the assembled {@code Jdbi}
+         */
+        public Jdbi build() {
+            for (final JdbiPlugin plugin : plugins) {
+                plugin.configure(this);
+                jdbi.installPlugin(plugin);
+            }
+            return jdbi;
+        }
     }
 }
