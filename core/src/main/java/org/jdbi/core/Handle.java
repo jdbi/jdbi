@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.jdbi.core.config.ConfigRegistry;
@@ -84,12 +85,24 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     private final AtomicBoolean closed = new AtomicBoolean();
 
+    /** A no-op per-handle config scope: the handle uses an unmodified copy of the Jdbi config. */
+    private static final Consumer<ConfigRegistry> NO_CONFIG_SCOPE = config -> {};
+
     static Handle createHandle(final Jdbi jdbi,
             final Cleanable connectionCleaner,
             final TransactionHandler transactionHandler,
             final StatementBuilder statementBuilder,
             final Connection connection) throws SQLException {
-        final Handle handle = new Handle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection);
+        return createHandle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection, NO_CONFIG_SCOPE);
+    }
+
+    static Handle createHandle(final Jdbi jdbi,
+            final Cleanable connectionCleaner,
+            final TransactionHandler transactionHandler,
+            final StatementBuilder statementBuilder,
+            final Connection connection,
+            final Consumer<ConfigRegistry> configScope) throws SQLException {
+        final Handle handle = new Handle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection, configScope);
 
         handle.notifyHandleCreated();
         return handle;
@@ -99,13 +112,17 @@ public class Handle implements Closeable, Configurable<Handle> {
             final Cleanable connectionCleaner,
             final TransactionHandler transactionHandler,
             final StatementBuilder statementBuilder,
-            final Connection connection) throws SQLException {
+            final Connection connection,
+            final Consumer<ConfigRegistry> configScope) throws SQLException {
         this.jdbi = jdbi;
         this.connectionCleaner = connectionCleaner;
         this.connection = connection;
 
-        // create a copy to detach config from the jdbi to allow local changes.
-        this.defaultExtensionContext = ExtensionContext.forConfig(jdbi.getConfig().createCopy());
+        // create a copy to detach config from the jdbi to allow local changes, then apply any per-handle scope
+        // before the extension context and handle listeners are derived from it.
+        final ConfigRegistry handleConfig = jdbi.getConfig().createCopy();
+        configScope.accept(handleConfig);
+        this.defaultExtensionContext = ExtensionContext.forConfig(handleConfig);
         this.currentExtensionContext = defaultExtensionContext;
 
         this.statementBuilder = statementBuilder;
