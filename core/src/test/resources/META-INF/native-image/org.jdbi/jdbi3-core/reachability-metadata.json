@@ -70,6 +70,8 @@
     {"type":"org.mockito.internal.matchers.InstanceOf","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]}
   ],
   "resources": [
-    {"glob":"**/*.sql"}
+    {"glob":"*.sql"},
+    {"glob":"org/**/*.sql"},
+    {"glob":"script/**/*.sql"}
   ]
 }

@@ -21,6 +21,6 @@
     {"type":{"proxy":["org.jdbi.v3.stringtemplate4.TestStringTemplateSqlLocator$Wombat"]}}
   ],
   "resources": [
-    {"glob":"**/*.sql.stg"}
+    {"glob":"org/**/*.sql.stg"}
   ]
 }
