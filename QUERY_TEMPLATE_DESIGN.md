@@ -436,7 +436,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): sub-step 3 done incl. SqlStatements; D1 is NOT complete — sub-step 4 remains
+## HANDOFF (2026-07-18): sub-step 4 mostly done (17/19 configs immutable); 2 registration facades + D7 remain
 
 **START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
 config/Handle decoupling; the **public API is signed off** and recorded in "## Config assembly API — PROPOSAL
@@ -449,25 +449,40 @@ configs, `Arguments` (with a bulk `register(Collection)`), the Q1 interceptor tr
 registry back-ref was removed), `Extensions`, **and now `SqlStatements`** are done immutable; dead
 `prePreparedTypes` deleted.
 
-**CORRECTION (2026-07-18): D1 is NOT complete.** An earlier note here claimed "SqlStatements is the last D1
-config / every value is immutable" — that was wrong. Verified by `createCopy()` behavior across all ~34
-`JdbiConfig` impls: ~15 are immutable (`createCopy` returns `this` — the sub-step-3 set above), but **~19 still
-return a real copy and mutate in place**: `JdbiCollectors`, `PojoTypes`, `SqlObjects`, `OnDemandExtensions`,
-`Handles`, `Handlers`, `HandlerDecorators`, `SerializableTransactionRunner`, the four `setRegistry` holdouts
-(`Qualifiers`, `EnumStrategies`, `JdbiImmutables`, `PostgresTypes`), and the module configs
-(`Jackson2/3Config`, `Gson2Config`, `MoshiConfig`, `JsonConfig`, `FreemarkerConfig`, `StringTemplates`). These
-are the plan's **sub-step 4** ("finish converting remaining configs"). Note the four `setRegistry` back-refs
-still exist (sub-step 2 did NOT remove all of them, contrary to the D-contract text): `EnumStrategies` is a
-true resolution dependency (→ convert to a `readAs` resolver), `Qualifiers` is benign (keys the shared
-`ConfigCaches`; registry-independent result), and `JdbiImmutables`/`PostgresTypes` use the ref only at
-registration boundaries (register also into `PojoTypes`/`SqlArrayTypes`).
+**sub-step 4 — MOSTLY DONE (2026-07-18): 17 of 19 remaining configs converted to immutable.** An earlier note
+wrongly claimed "SqlStatements is the last D1 config"; `createCopy()` across all ~34 `JdbiConfig` impls showed
+~19 still mutable. Converted this session (each its own whole-reactor-green commit):
+- `EnumStrategies` → deleted; became the per-registry `EnumStrategyResolver` (`readAs`), removing a real
+  resolution back-ref (it depended on the registry's `Enums`/`Qualifiers`).
+- `JdbiCollectors`, `PojoTypes` → immutable (register returns new; resolvers already existed).
+- `Qualifiers` → immutable; the `setRegistry` back-ref became a `final` registry via a `(ConfigRegistry)`
+  constructor (used only to reach the registry-family's shared, registry-independent qualifier caches).
+- Module data configs → immutable: `JsonConfig`, `Gson2Config`, `MoshiConfig`, `Jackson2Config`,
+  `Jackson3Config`, `FreemarkerConfig`, `StringTemplates`.
+- Behavior/registration configs → immutable: `Handles`, `OnDemandExtensions`, `SqlObjects`, `Handlers`,
+  `HandlerDecorators`, `SerializableTransactionRunner.Configuration`.
 
-Remaining, in order: **sub-step 4** (convert the ~19 configs above; a value that is not immutable & shareable
-cannot be read-through-shared, so this blocks zero-copy) → **D7** (statement-level copy-on-write private
-config) → **sub-step 5** (delete the per-statement `createCopy()`, the perf payoff) → **D4/D5/D6**
-(builder/plugin/open surface).
-All commits are whole-reactor green with static analysis ENABLED — do not fall back to
-`-Dbasepom.check.skip-all` as the validation of record.
+**TWO configs deliberately NOT converted — `JdbiImmutables` and `PostgresTypes`.** They are registration
+*facades* whose `register*` methods write into ANOTHER config (`PojoTypes` / `SqlArrayTypes`) via a per-registry
+`setRegistry` reference. A clean immutable conversion needs an invasive resolver-coupling redesign (relocate the
+store and re-point `PojoResolver`/array-type resolution, with cross-package visibility friction) that is
+disproportionate. Their registry ref is a **registration-boundary** dependency (matching the precedent already
+accepted for `Arguments`), and it is used only during `registerImmutable`/`registerCustomType`, never on the
+statement read path — so they are not a correctness hazard for a read-through-shared child *until* someone
+registers mid-statement (not a real pattern). **Caveat:** `PostgresTypes` is read on the statement path
+(`getLobApi` during blob mapping) and is still mutable, so it MUST be made immutable before sub-step-5 zero-copy
+is safe on the postgres path. `setRegistry` therefore remains on `JdbiConfig` (these two are its only users).
+
+Remaining, in order: **finish the last 2 configs** (`JdbiImmutables`/`PostgresTypes` registration redesign;
+needs a design decision) → **D7** (statement-level copy-on-write private config) → **sub-step 5** (delete the
+per-statement `createCopy()`, the perf payoff) → **D4/D5/D6** (builder/plugin/open surface).
+All commits are whole-reactor green with static analysis ENABLED (validated via full `mvn clean install`) — do
+not fall back to `-Dbasepom.check.skip-all` as the validation of record.
+
+**Build gotcha (2026-07-18):** a partial `mvn install -pl a,b,c` WITHOUT `-am` links against stale local-repo
+artifacts of unlisted dependency modules — this surfaced as a runtime `NoSuchMethodError` for the
+already-removed `RowMappers.getInferenceInterceptors()` from a stale `jdbi-kotlin` jar. Use `-am`, or validate
+with a full `mvn clean install`.
 
 Historical context below (sub-steps 1–2, and the decoupling rationale that superseded the original
 swap-based sub-step-3 sketch). Done earlier (all committed, whole reactor green):
@@ -774,11 +789,10 @@ largest public surface and depend on the value/registry immutability being in pl
 4. **Large configs.** `Extensions` **DONE (`6f7ebbad2`)** and `SqlStatements` **DONE (item 4b, this session)** —
    see the Item 4b Progress entry above for the full write-up. (One deferred follow-on it named: the `define`
    O(n²) regression, whose permanent fix is D7's statement-local define buffer.)
-5. **sub-step 4 — convert the remaining ~19 mutable configs** (see the HANDOFF CORRECTION for the full list and
-   the `setRegistry` analysis). Until a statement-reachable config is immutable & shareable, it cannot be
-   read-through-shared, so this blocks the D7/sub-step-5 zero-copy payoff. `EnumStrategies` → a `readAs`
-   resolver; the module/registration configs → records / hand-written immutable; `JdbiImmutables`/`PostgresTypes`
-   registration-boundary refs and `Qualifiers` (benign) to be resolved as part of it.
+5. **sub-step 4 — MOSTLY DONE (17/19).** See the HANDOFF "sub-step 4" section for the full per-config list and
+   commits. Remaining: `JdbiImmutables` and `PostgresTypes` (registration facades — need a registration
+   redesign; a design decision, and `PostgresTypes` must be done before sub-step-5 zero-copy on the postgres
+   read path).
 5. **Sweep the remaining warm-like/dead constructs** (`PojoWarmingCustomizer`, any `warm(ConfigRegistry)` hooks) —
    assess whether they still pull weight now that resolvers cache per-registry; drop if not (per maintainer:
    we are on 4.x, remove rather than shim when a construct adds baggage).
