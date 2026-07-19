@@ -17,16 +17,17 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.CopyOnWriteHashMap;
 
 import static org.jdbi.core.extension.ExtensionFactory.FactoryFlag.NON_VIRTUAL_FACTORY;
 
 /**
- * Resolves and caches {@link ExtensionMetadata} for a specific {@link ConfigRegistry}.
+ * Resolves and caches {@link ExtensionMetadata} for a specific {@link ConfigView}.
  * <p>
  * A resolver builds the metadata for an extension type from the passed {@link ExtensionFactory} and the
  * global handler/customizer factories registered on the registry's {@link Extensions} (which holds only
- * registration data), memoizing the outcome. It is obtained per registry via {@link #forRegistry(ConfigRegistry)}
+ * registration data), memoizing the outcome. It is obtained per registry via {@link #forRegistry(ConfigView)}
  * and is scoped to that registry: its cache is warm across the extensions attached against a shared registry,
  * yet a forked registry starts with an empty cache and re-resolves against its own registration data.
  * <p>
@@ -42,7 +43,7 @@ public final class ExtensionMetadataResolver {
      * @param config the configuration registry to resolve against
      * @return the registry's memoized extension-metadata resolver
      */
-    public static ExtensionMetadataResolver forRegistry(final ConfigRegistry config) {
+    public static ExtensionMetadataResolver forRegistry(final ConfigView config) {
         return config.readAs(ExtensionMetadataResolver.class, ExtensionMetadataResolver::new);
     }
 

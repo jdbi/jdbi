@@ -37,7 +37,7 @@ final class ConstantHandleSupplier extends AbstractHandleSupplier {
 
     @Override
     public ConfigRegistry getConfig() {
-        return handle.getConfig();
+        return handle.configRegistry();
     }
 
     @Override

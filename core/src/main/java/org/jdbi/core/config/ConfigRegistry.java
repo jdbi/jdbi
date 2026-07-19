@@ -25,7 +25,6 @@ import org.jdbi.core.config.internal.ConfigCaches;
 import org.jdbi.core.internal.JdbiClassUtils;
 import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.RowMappers;
-import org.jdbi.core.statement.ConfigReader;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.meta.Alpha;
 
@@ -34,7 +33,7 @@ import org.jdbi.meta.Alpha;
  *
  * @see Configurable
  */
-public final class ConfigRegistry implements ConfigReader {
+public final class ConfigRegistry implements ConfigView {
 
     private static final Class<?>[] JDBI_CONFIG_TYPES = {ConfigRegistry.class};
 
@@ -86,6 +85,7 @@ public final class ConfigRegistry implements ConfigReader {
      * @param <C>         the config class type.
      * @return the given config class instance that belongs to this registry.
      */
+    @Override
     public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
         // we would computeIfAbsent if not for JDK-8062841 >:(
         final JdbiConfig<?> lookup = configs.get(configClass);
@@ -160,6 +160,7 @@ public final class ConfigRegistry implements ConfigReader {
      * @return the memoized view of the given type for this registry
      */
     @Alpha
+    @Override
     public <T> T readAs(final Class<T> asType, final Function<ConfigRegistry, T> create) {
         if (parent != null) {
             // Un-forked child: its effective config equals the parent's, so reuse the parent's (warm) view.
@@ -189,6 +190,7 @@ public final class ConfigRegistry implements ConfigReader {
      * @see JdbiConfig#createCopy() config objects in the returned registry are copies of the corresponding
      * config objects from this registry.
      */
+    @Override
     public ConfigRegistry createCopy() {
         return new ConfigRegistry(this, false);
     }
@@ -208,6 +210,7 @@ public final class ConfigRegistry implements ConfigReader {
      * @return a copy-on-write child of this registry
      */
     @Alpha
+    @Override
     public ConfigRegistry createChild() {
         return new ConfigRegistry(this, true);
     }

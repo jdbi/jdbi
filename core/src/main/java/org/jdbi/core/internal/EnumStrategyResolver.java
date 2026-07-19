@@ -16,6 +16,7 @@ package org.jdbi.core.internal;
 import java.util.Optional;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.enums.EnumByOrdinal;
 import org.jdbi.core.enums.EnumStrategy;
@@ -26,11 +27,11 @@ import org.jdbi.core.qualifier.Qualifiers;
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
 
 /**
- * Resolves the {@link EnumStrategy} to use for an enum type against a specific {@link ConfigRegistry}.
+ * Resolves the {@link EnumStrategy} to use for an enum type against a specific {@link ConfigView}.
  * <p>
  * This reads the registry's {@link Enums} default strategy and per-type strategy annotations (via
  * {@link Qualifiers}), so the outcome tracks the registry it is obtained from. It is obtained per registry via
- * {@link #forRegistry(ConfigRegistry)}; a forked registry resolves against its own {@code Enums} configuration.
+ * {@link #forRegistry(ConfigView)}; a forked registry resolves against its own {@code Enums} configuration.
  */
 public final class EnumStrategyResolver {
 
@@ -40,7 +41,7 @@ public final class EnumStrategyResolver {
      * @param config the configuration registry to resolve against
      * @return the registry's memoized enum-strategy resolver
      */
-    public static EnumStrategyResolver forRegistry(final ConfigRegistry config) {
+    public static EnumStrategyResolver forRegistry(final ConfigView config) {
         return config.readAs(EnumStrategyResolver.class, EnumStrategyResolver::new);
     }
 

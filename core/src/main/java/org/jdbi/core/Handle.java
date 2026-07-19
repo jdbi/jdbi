@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.extension.ExtensionContext;
 import org.jdbi.core.extension.ExtensionMethod;
 import org.jdbi.core.extension.Extensions;
@@ -86,6 +87,12 @@ public class Handle implements Closeable, ConfigReader {
     private final ExtensionContext defaultExtensionContext;
 
     private ExtensionContext currentExtensionContext;
+
+    // Read-only view handed to callers via getConfig(): a distinct delegate that cannot be cast back to the mutable
+    // ConfigRegistry, so a handle's config is not mutable post-open. It reads through to the current extension
+    // context's config, so it tracks context switches during extension invocation. Statements derive their own
+    // (copy-on-write) config from it via createChild().
+    private final ConfigView configView = ConfigView.readOnly(this::configRegistry);
 
     @GuardedBy("transactionCallbacks")
     private final List<TransactionCallback> transactionCallbacks = new ArrayList<>();
@@ -162,12 +169,23 @@ public class Handle implements Closeable, ConfigReader {
     }
 
     /**
-     * The current configuration object associated with this handle.
+     * A read-only view of the configuration associated with this handle. It is a {@link ConfigView}, not a
+     * {@link ConfigRegistry}: a handle's configuration is fixed at open time. To configure a handle, open it with a
+     * config scope ({@link Jdbi#open(Consumer)}) or configure individual statements (which are copy-on-write).
      *
-     * @return A {@link ConfigRegistry} object that is associated with the handle.
+     * @return the read-only configuration view associated with the handle.
      */
     @Override
-    public ConfigRegistry getConfig() {
+    public ConfigView getConfig() {
+        return configView;
+    }
+
+    /**
+     * The mutable registry backing {@link #getConfig()} (the current extension context's config). Package-private,
+     * for framework code (handle suppliers, the extension machinery) that must reach the live registry; the public
+     * surface is read-only.
+     */
+    ConfigRegistry configRegistry() {
         return currentExtensionContext.getConfig();
     }
 
