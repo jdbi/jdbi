@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-19): through D6 + REMOVAL R1–R5+R7 DONE; next R5-D (bulletproof read-only, DESIGNED) then R6 (docs)
+## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below).
 
 > **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
 > (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
@@ -168,7 +168,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 > read methods so a discarded-wither / dead `configure()` can't compile), then **R6** (upgrade-guide docs).
 > **R5 DONE (2026-07-19): R5-A `dc169f3ef` (read-only `ConfigView` delegate — `getConfig().configure()` won't
 > compile and the returned view can't be cast to `ConfigRegistry`), R5-B `992df4f67` (`@CheckReturnValue` on ~90
-> config withers so a discarded wither fails spotbugs). No hot-path regression. **R5-D DONE (2026-07-19, whole reactor green): extended pure Option 3 — narrowed the whole read-only resolve path (7 factory SPIs + Preparable.prepare + init + ExtensionFactory getters + PojoPropertiesFactory chain + ConfigCache + Codec + JsonMapper family) to `ConfigView`; `readAs` hands a cached `asReadOnlyView()`, closing the leak as a side effect; 138 files/17 modules. See the R5-D bullet.** NEXT: R6 upgrade docs.** **R2 made `Jdbi` read-only**
+> config withers so a discarded wither fails spotbugs). No hot-path regression. **R5-D DONE (2026-07-19, whole reactor green): extended pure Option 3 — narrowed the whole read-only resolve path (7 factory SPIs + Preparable.prepare + init + ExtensionFactory getters + PojoPropertiesFactory chain + ConfigCache + Codec + JsonMapper family) to `ConfigView`; `readAs` hands a cached `asReadOnlyView()`, closing the leak as a side effect; 138 files/17 modules. See the R5-D bullet.** **R6 (upgrade guide) DONE (2026-07-19): see the "## Upgrading to Jdbi v4" section — publication-ready, with verified before/after benchmarks; lift into `docs/src/adoc/index.adoc` at release.** **R2 made `Jdbi` read-only**
 > (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
 > sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
 > `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
@@ -469,23 +469,242 @@ prize early, then finish the handle-config removal:
     - Fan-out like R4 (core-test barrier, then downstream), full `mvn clean install` gate. Best in a clean session.
   - **Fallback — Option 9 (smaller, if Option 3 proves to have an awkward factory that genuinely needs a mutable
     registry):** the readAs-off-ConfigView + find-helper re-abstraction described above (~70 edits, no factory change).
-- **R6 — "Upgrading to jdbi v4" docs section** (maintainer ask 2026-07-18). A user-facing migration guide capturing
-  every break this branch introduces: `Jdbi.create(...).registerX/installPlugin/setX` → `Jdbi.builder(...)…build()`;
-  `JdbiPlugin.customizeJdbi` → `configure(Jdbi.Builder)` (+ `JdbiPlugin.of`); post-build `jdbi.configure/registerX`
-  gone (assemble via builder); handle-level `handle.registerX/configure` gone → `jdbi.open(scope)` or per-statement;
-  the `org.jdbi.v3`→`org.jdbi` package rename; immutable `JdbiConfig` (custom configs: withers not setters,
-  `createCopy` semantics). Best drafted AFTER R2–R4 settle so the final API is captured; seed early, fill per break.
+- **R6 — DONE (2026-07-19): "Upgrading to Jdbi v4" guide drafted below (`## Upgrading to Jdbi v4`), with verified
+  before/after benchmarks.** It is written as publication-ready user-facing prose; **lift it into
+  `docs/src/adoc/index.adoc` as a top-level `== Upgrading to Jdbi v4` section (and retitle the guide from "Jdbi 3"
+  to "Jdbi 4") when v4 is cut.** Kept here for now because the branch is unreleased and the shipped guide still
+  documents 3.x. Covers every break: the `org.jdbi.v3`→`org.jdbi` rename; `Jdbi.create(...).registerX/installPlugin/
+  setX` → `Jdbi.builder(...)…build()` (`Jdbi` is now read-only); `JdbiPlugin.customizeJdbi` → `configure(Jdbi.Builder)`
+  (+`JdbiPlugin.of`) and `customizeHandle`-config → `customizeHandleConfig`; handle-level `handle.registerX/configure`
+  → `jdbi.open(scope)`/per-statement; immutable `JdbiConfig` (withers, `@CheckReturnValue`); factory/mapper SPIs take
+  `ConfigView`; `getConfig()` is read-only; plus the new `QueryTemplate`.
+
+## Upgrading to Jdbi v4
+
+> **NOTE (design doc):** this section is the R6 deliverable, written in Markdown to read here. When v4 is cut,
+> lift it into `docs/src/adoc/index.adoc`, converting the `###` headers to asciidoc `===`/`====`, the fenced
+> code blocks to `[source,java]`/`----`, and the tables to `[cols=...]`/`|===`.
+
+Jdbi 4 is a source-incompatible major release. Its theme is an immutable, copy-on-write configuration model:
+a `Jdbi` and a `Handle` no longer carry mutable configuration you reconfigure after the fact. You assemble all
+configuration once, up front, through a builder; from then on it is read-only and shared. This removes a class
+of order-of-initialization bugs, makes a `Jdbi` safe to publish across threads, and lets Jdbi skip most of the
+per-statement and per-handle configuration copying that 3.x paid on every call (see Performance, below).
+
+Most applications that only *use* Jdbi (open handles, run statements, attach SQL objects) need only two mechanical
+changes: the package rename, and moving configuration into the builder. Applications that *extend* Jdbi with custom
+argument factories, mappers, codecs, or config classes have a few more signatures to update.
+
+### The package rename
+
+Every `org.jdbi.v3.*` package is now `org.jdbi.*` (for example `org.jdbi.v3.core.Jdbi` → `org.jdbi.core.Jdbi`,
+`org.jdbi.v3.sqlobject` → `org.jdbi.sqlobject`). This is a find-and-replace across imports; no types were renamed.
+Because you are editing every file that imports Jdbi anyway, the other source changes below ride along at low cost.
+
+### Assembling a Jdbi: `create(...).registerX(...)` becomes `builder(...)...build()`
+
+`Jdbi` no longer implements `Configurable`; it is read-only. The post-construction mutators are gone:
+`installPlugin`, `registerRowMapper`/`registerColumnMapper`/`registerArgument`/…, `configure(...)`, and the knob
+setters `setTransactionHandler`/`setStatementBuilderFactory`/`setHandleCallbackDecorator`/`setHandleScope`. Move all
+of that into `Jdbi.builder(...)`, which *is* `Configurable`, and finish with `build()`:
+
+```java
+// Jdbi 3
+Jdbi jdbi = Jdbi.create(dataSource);
+jdbi.installPlugin(new SqlObjectPlugin());
+jdbi.registerRowMapper(new UserMapper());
+jdbi.configure(SqlStatements.class, s -> s.setQueryTimeout(5));
+
+// Jdbi 4
+Jdbi jdbi = Jdbi.builder(dataSource)
+        .installPlugin(new SqlObjectPlugin())
+        .registerRowMapper(new UserMapper())
+        .configure(SqlStatements.class, s -> s.queryTimeout(5))
+        .build();
+```
+
+`Jdbi.create(...)` is retained as the zero-configuration shortcut (`Jdbi.create(ds)` equals
+`Jdbi.builder(ds).build()`); reach for it only when you register nothing. `Jdbi.builder(...)` accepts the same
+sources as `create(...)`: a `DataSource`, `Connection`, `ConnectionFactory`, or a JDBC URL (optionally with
+`Properties` or username/password).
+
+### Config setters became withers, and `configure` takes a `UnaryOperator`
+
+Config classes are immutable. A setter that used to mutate in place now *returns a new value*, and `configure`
+takes a `UnaryOperator` that returns the value to install. The `setX(v)` spelling is dropped in favor of a
+prefix-free `x(v)` wither (`register(...)` keeps its name). A discarded wither is a no-op and is flagged at build
+time by `@CheckReturnValue`, so `getConfig(SqlStatements.class).queryTimeout(5)` on its own will not compile clean:
+
+```java
+// Jdbi 3
+jdbi.getConfig(SqlStatements.class).setQueryTimeout(5);          // mutated in place
+
+// Jdbi 4
+builder.configure(SqlStatements.class, s -> s.queryTimeout(5));  // installs the derived value
+```
+
+### Plugins: `customizeJdbi` becomes `configure(Jdbi.Builder)`
+
+`JdbiPlugin.customizeJdbi(Jdbi)` is removed, because a built `Jdbi` can no longer be mutated. Configure the builder
+instead by overriding `configure(Jdbi.Builder)`:
+
+```java
+// Jdbi 3
+public class MyPlugin extends JdbiPlugin.Singleton {
+    @Override public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerRowMapper(new UserMapper());
+    }
+}
+
+// Jdbi 4
+public class MyPlugin extends JdbiPlugin.Singleton {
+    @Override public void configure(Jdbi.Builder builder) {
+        builder.registerRowMapper(new UserMapper());
+    }
+}
+```
+
+For a one-off plugin, `JdbiPlugin.of(builder -> builder.registerRowMapper(new UserMapper()))` is a lambda shorthand.
+The connection-time hooks are unchanged in spirit: `customizeConnection(Connection)` and `customizeHandle(Handle)`
+remain. Anything that configured a handle's configuration from `customizeHandle` should move to the new
+`customizeHandleConfig(Connection, ConfigRegistry)` hook (see the next section).
+
+### Handle configuration: `handle.registerX(...)` is gone
+
+`Handle` no longer implements `Configurable` either; a handle's configuration is a read-only, copy-on-write child
+of the `Jdbi`'s. To vary configuration per handle, open the handle with a config scope:
+
+```java
+// Jdbi 3
+try (Handle h = jdbi.open()) {
+    h.registerRowMapper(new UserMapper());
+    ...
+}
+
+// Jdbi 4 — configure at open
+try (Handle h = jdbi.open(config -> config.configure(RowMappers.class, r -> r.register(new UserMapper())))) {
+    ...
+}
+```
+
+`open`, `withHandle`, `useHandle`, `inTransaction`, and `useTransaction` all have an overload that takes a
+`Consumer<ConfigRegistry>` config scope. Configuration that should apply to a single statement can still be set on
+that statement (statements remain `Configurable`, copy-on-write). A plugin that must configure every handle it sees
+(for example to bind driver-specific types on the live `Connection`) implements
+`JdbiPlugin.customizeHandleConfig(Connection, ConfigRegistry)`, which runs once as each handle is created.
+
+### Custom factories, mappers, and codecs take `ConfigView`
+
+The read-only half of the split is a new `ConfigView` type: `Jdbi.getConfig()` and `Handle.getConfig()` return a
+`ConfigView` (reads and safe derives only), not a mutable `ConfigRegistry`. The resolving SPIs — the ones Jdbi
+calls to *build* an argument or mapper — now receive a `ConfigView` instead of a `ConfigRegistry`. If you implement
+any of these, change the parameter type (a mechanical edit alongside the package rename):
+
+* `ArgumentFactory.build`, `AbstractArgumentFactory.build`, `QualifiedArgumentFactory.build`, and the
+  `Preparable.prepare` variants
+* `RowMapperFactory.build`, `ColumnMapperFactory.build`, `QualifiedColumnMapperFactory.build`
+* `SqlArrayTypeFactory.build`
+* `RowMapper.init` and `ColumnMapper.init`
+* `Codec.getColumnMapper` / `getArgumentFunction`, and the `JsonMapper` family (`forType`/`toJson`/`fromJson`)
+
+```java
+// Jdbi 3
+public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) { ... }
+
+// Jdbi 4
+public Optional<RowMapper<?>> build(Type type, ConfigView config) { ... }
+```
+
+`ConfigView` exposes everything a factory legitimately needs — `get(SomeConfig.class)`, the `findXFor(...)`
+lookups, and `createChild()`/`createCopy()` — but not in-place mutation. A factory has no business reconfiguring
+the registry it is resolving against, so this is now a compile-time guarantee rather than a convention. The hooks
+that are *meant* to configure — `ConfigCustomizer`, `JdbiPlugin.configure(Jdbi.Builder)`, and
+`customizeHandleConfig` — still receive a mutable `ConfigRegistry`.
+
+### New: reusable `QueryTemplate`
+
+Jdbi 4 adds `QueryTemplate`, a handle-independent, reusable query. It renders, parses, and snapshots configuration
+once, then executes against any handle without repeating that work — useful for a hot query run many times:
+
+```java
+QueryTemplate template = jdbi.buildQueryTemplate("SELECT name FROM users WHERE id = :id");
+// reuse across handles/threads:
+String name = template.with(handle).bind("id", id).mapTo(String.class).one();
+```
+
+### Performance
+
+The immutable, copy-on-write model lets Jdbi share warm configuration instead of copying it. Numbers below are
+`gc.alloc.rate.norm` (bytes allocated per operation, a deterministic JMH metric) on H2, JDK 26; "Jdbi 3" columns
+are the same benchmarks with the pre-immutability behavior restored (a per-statement/per-handle `createCopy`).
+
+Per-statement on a warm handle (`QueryTemplateBenchmark`):
+
+| Path | Jdbi 3 (createCopy) | Jdbi 4 |
+|---|---:|---:|
+| Classic `handle.createQuery(...)` | 6104 B/op | 4208 B/op (−31%) |
+| Reused `QueryTemplate` | n/a | 3472 B/op (−43% vs 3.x) |
+
+One handle per request (`HandlePerOpV3Benchmark`, a fresh handle opened per operation):
+
+| Path | Jdbi 3 (cold copy) | Jdbi 4 |
+|---|---:|---:|
+| SQL Object attach, `open` | 134580 B/op | 45719 B/op (−66%; ≈1.3x throughput) |
+| SQL Object attach, `withHandle` | 135124 B/op | 46043 B/op (−66%) |
+| Fluent query, `open` | 13728 B/op | 12260 B/op (−11%) |
+| Fluent query, `withHandle` | 14080 B/op | 12650 B/op (−11%) |
+
+The largest win is the "one handle per request" pattern common in web services: a fresh handle now shares the
+`Jdbi`'s already-resolved mappers and extension metadata instead of rebuilding them on every open.
 
 
-**START HERE (clean restart).** Phase 2 (immutable config) is underway. The redesigned target is the
-config/Handle decoupling (see that section); its **public API is signed off** in "## Config assembly API"
-below (D1–D7 with a sign-off checklist). Where we are: `configure` is now `UnaryOperator`-based; the config
-*values* are being made immutable domain-by-domain (D1). The sub-step-3 curated set is done — `Enums`, five
-scalar-policy configs, `Arguments` (with a bulk `register(Collection)`), the interceptor trio
-(`RowMappers`/`ColumnMappers`/`SqlArrayTypes`, now with `withInferenceInterceptor` + a shared
-`RegistrationLists` helper), the shared `MapEntryConfig` (`MapEntryMappers` + vavr `TupleMappers`, whose
-registry back-ref was removed), `Extensions`, and `SqlStatements` — and sub-step 4 (below) has now converted
-almost all of the rest.
+## What actually remains (2026-07-19)
+
+The design and implementation are complete: the `QueryTemplate` feature, the immutable config model (phase-2
+through D7/sub-step-5), the assembly-API redesign (D1–D6), and the whole REMOVAL phase (R1–R7 + R5-D) are all
+committed and the whole reactor is green with tests and static analysis. The `## Config assembly API`, `## D4b
+proposal`, `## Config/Handle decoupling`, and `## Tasklist` sections below are **historical design records** kept
+for rationale — they are accurate as history, not as an open to-do list. Only release-time work is left:
+
+1. **Ship it.** This branch IS jdbi 4.0.0-SNAPSHOT. The remaining step is cutting the release (version, release
+   notes, the `org.jdbi.v3`→`org.jdbi` rename is already in). No further code changes are required for the feature.
+2. **Promote the upgrade guide.** Lift the `## Upgrading to Jdbi v4` section (above) into
+   `docs/src/adoc/index.adoc` as a top-level `== Upgrading to Jdbi v4` section, and retitle the developer guide
+   from "Jdbi 3" to "Jdbi 4". Kept in this design doc for now because the shipped guide still documents 3.x.
+3. **Merge jdbi/jdbi#2992 by mostly removing it** (share the `ExtensionMetadata` cache): the immutable world +
+   handle-boundary copy-on-write already deliver its payoff (R3/R7), so when #2992 lands on master the merge is
+   largely a deletion. See the memory note `pr-2992-merge-mostly-remove`.
+4. **Delete this design doc** once the feature ships (it is a working document, not part of the shipped tree).
+
+### Future iterations (not scheduled)
+
+- **Pre-bound result mappers on a template.** Today `mapTo(X)` re-resolves the mapper per execution:
+  `MapperResolver.forRegistry(template.config)` (memoized) + `findMapper(QualifiedType.of(X))`, and for a column
+  type the `.map(SingleColumnMapper::new)` allocates a fresh wrapper on every call, plus a `QualifiedType` and
+  `Optional`s. Because a `QueryTemplate` executes against its own fixed config snapshot (not the handle's —
+  `QueryTemplateBinding.getConfig()` returns `template.config`), the mapper for a given result type is deterministic
+  at build time, so pre-resolving it would be correct. The win is modest — the heavy work (building + `init`-ing the
+  mapper) is already cached per registry, so pre-binding only removes a couple of map lookups and ~100–300 B/op of
+  the template path's ~3472 B/op (roughly 3–8%), plus a small throughput bump — worthwhile only for a very hot,
+  single-shape query. The clean shape is **additive**, preserving Step 1's non-generic `QueryTemplate` +
+  `ResultBearing` design: add `template.mapTo(X)` returning a small `MappedQueryTemplate<X>` (or
+  `jdbi.buildQueryTemplate(sql, X)`) that resolves the `RowMapper<X>` once and skips resolution at execute, while the
+  existing per-execution `ResultBearing` path (`reduceRows`/`collectInto`/`stream`) stays unchanged. Not worth the
+  churn for the current release; revisit if profiling shows a hot single-shape query dominated by per-op mapper
+  resolution.
+
+## Historical design records (below)
+
+The remaining sections document how the end state was reached. They are retained for rationale and were accurate
+when written; consult the memory `query-templates-branch` and git history for the authoritative committed state.
+
+### Phase-2 immutable-config history
+
+`configure` is `UnaryOperator`-based; config *values* were made immutable domain-by-domain (D1). The sub-step-3
+curated set — `Enums`, five scalar-policy configs, `Arguments` (with a bulk `register(Collection)`), the interceptor
+trio (`RowMappers`/`ColumnMappers`/`SqlArrayTypes`, with `withInferenceInterceptor` + a shared `RegistrationLists`
+helper), the shared `MapEntryConfig` (`MapEntryMappers` + vavr `TupleMappers`, whose registry back-ref was removed),
+`Extensions`, and `SqlStatements` — plus sub-step 4 (below) converted the rest.
 
 **sub-step 4 — DONE (2026-07-18): every `JdbiConfig` value is now immutable and `setRegistry` is deleted.** An
 earlier note wrongly claimed "SqlStatements is the last D1 config"; `createCopy()` across all ~34 `JdbiConfig`
@@ -922,23 +1141,22 @@ Allocation/op is the deterministic metric in this container (throughput is noisy
 > -Dbasepom.check.skip-all=true` then run `java -jar benchmark/target/benchmarks.jar
 > "<class>.<method>" -f 1 -wi 2 -i 4 -prof gc`.
 
-### 2. Config contract redesign — NEXT (the retarget surfaced its motivation)
+### 2. Config contract redesign — DONE (all items landed via the immutable-config + handle-COW work)
 - [x] Complete the field taxonomy table above (reviewed against current sources 2026-07-17;
       added the `extensionState` slot and the post-retarget note).
-- [ ] Immutable config snapshot type + `configure(callback)` scoped mutation. **Now motivated
-      by the config-mutation footgun:** a customizer that mutates config without the
-      `ConfigMutating` marker silently corrupts the shared template snapshot; an immutable
-      config turns that into a loud error and lets the late path fork copy-on-write instead of
-      falling back to the whole classic path.
-- [ ] Handle config immutable after construction (lets the classic fluent path also skip the
-      per-statement `createCopy()` — extends the retarget's win beyond SQL Object).
-- [ ] Move statement-state fields off config/context onto the statement/binding (per taxonomy).
-- [x] Split defines out of the shared config. `TemplateEngine.render/parse` now take a
-      `RenderContext` (config + a per-execution defines overlay) instead of a raw
-      `ConfigRegistry`. Defines are no longer forced to live in (and be copied with) the
-      heavy config; a template binding's per-execution defines are an overlay applied at
-      render time. The immutable-snapshot/`configure(callback)`/handle-immutable pieces
-      above are still open.
+- [x] Immutable config snapshot type + `configure(callback)` scoped mutation. Landed as immutable
+      `JdbiConfig` values + `configure(Class, UnaryOperator)` + `ConfigRegistry.createChild()`
+      copy-on-write. A customizer that mutates config without the `ConfigMutating` marker no longer
+      corrupts the shared snapshot; the late path forks copy-on-write instead of falling back to the
+      whole classic path.
+- [x] Handle config immutable after construction. `Handle` implements read-only `ConfigReader` (R4)
+      and its config is a `createChild()` copy-on-write child of the frozen `Jdbi` root (R3), so the
+      classic fluent path also skips the per-statement `createCopy()`.
+- [x] Move statement-state fields off config/context onto the statement/binding (per taxonomy).
+      Per-invocation state moved onto an opaque `StatementContext` extension-state slot and the
+      binding; the customizer phase model keeps invariant config in the snapshot.
+- [x] Split defines out of the shared config. `TemplateEngine.render/parse` take a `RenderContext`
+      (config + a per-execution defines overlay) instead of a raw `ConfigRegistry`.
 
 ### 3. Template primitive
 - [x] Real `execute()`: fresh binding/context/statement per call, handle-owned
