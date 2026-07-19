@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-19): through D6 + REMOVAL R1+R2+R3+R7+R4 DONE; next is R5 (read/mutate split) then R6 (docs)
+## HANDOFF (2026-07-19): through D6 + REMOVAL R1–R5+R7 DONE; only R6 (upgrade-guide docs) remains
 
 > **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
 > (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
@@ -165,7 +165,10 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 > migrated (core + 18 downstream) via `withConfig` / statement-level / scoped `open`/`useHandle`, run as two workflow
 > fan-outs (core-test then downstream) with a hard serialization point at core-test. **NEXT: R5** (final `Configurable`
 > read/mutate split cleanup — see the TRUE-IMMUTABILITY note on the R4 bullet: make read-only contexts expose only
-> read methods so a discarded-wither / dead `configure()` can't compile), then **R6** (upgrade-guide docs). **R2 made `Jdbi` read-only**
+> read methods so a discarded-wither / dead `configure()` can't compile), then **R6** (upgrade-guide docs).
+> **R5 DONE (2026-07-19): R5-A `dc169f3ef` (read-only `ConfigView` delegate — `getConfig().configure()` won't
+> compile and the returned view can't be cast to `ConfigRegistry`), R5-B `992df4f67` (`@CheckReturnValue` on ~90
+> config withers so a discarded wither fails spotbugs). No hot-path regression. NEXT and last: R6 upgrade docs.** **R2 made `Jdbi` read-only**
 > (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
 > sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
 > `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
@@ -354,8 +357,28 @@ prize early, then finish the handle-config removal:
   > (`c.attachAllStatementsForCleanup(true)`) whose return value is easy to discard as a no-op (the recurring
   > discard-mutation foot-gun). The read/mutate split (R5) should make read-only contexts expose only read methods,
   > so a mutating call that can't take effect doesn't compile. Capture the right shape when R5 is designed.
-- **R5 — final `Configurable` read/mutate split cleanup + benchmark/verify.** Mutation survives only on the builder
-  (assembly) and statements/templates (per-execution COW); `Jdbi`/`Handle` are read-only.
+- **R5 — final read/mutate split cleanup + benchmark/verify. [DONE 2026-07-19, whole reactor green — 41 modules,
+  4860 tests, static analysis clean.]** Mutation survives only on the builder (assembly) and statements/templates
+  (per-execution COW); `Jdbi`/`Handle` are read-only. Closed both TRUE-IMMUTABILITY foot-guns (maintainer chose
+  "A + annotate B", with the read-only-delegate refinement):
+  - **R5-A (`dc169f3ef`): read-only `ConfigView` delegate.** New `ConfigView extends ConfigReader` (`get` / `readAs` /
+    `createChild` / `createCopy` — reads and safe derivations that hand out *fresh* registries); `ConfigRegistry
+    extends ConfigView` adds the in-place mutators (`configure`, `install`). `ConfigReader.getConfig()` returns
+    `ConfigView`; `Configurable`/`StatementContext` covariantly return `ConfigRegistry`. **`Jdbi.getConfig()` /
+    `Handle.getConfig()` return a `ReadOnlyConfigView` wrapper** (forwards reads to the underlying registry but is not
+    a `ConfigRegistry`), so neither `getConfig().configure(...)` (won't compile) nor `((ConfigRegistry) getConfig())`
+    (ClassCastException) reaches mutation — covariance alone was insufficient (the runtime object was still castable;
+    the maintainer flagged this). Internal framework code uses a package-private `configRegistry()` for the live
+    registry. The 7 resolver `forRegistry(...)` take `ConfigView`; `readAs` still hands the real `ConfigRegistry` to
+    its create-fn (the factory SPIs need it) and is documented `@Alpha`/internal. Only 3 core-test sites broke (moved
+    to statement context / scoped `open()` / `createChild()`). **No hot-path regression** (R5-C): classic 4120 /
+    template 3512 B/op (R4 was 4208 / 3512).
+  - **R5-B (`992df4f67`): `@CheckReturnValue` on immutable-config withers.** A discarded wither
+    (`getConfig(SqlStatements.class).timeout(5)` — a silent no-op) now fails spotbugs (`RV_RETURN_VALUE_IGNORED`).
+    Verified spotbugs enforces `edu.umd.cs.findbugs.annotations.CheckReturnValue` at method level (NOT class level —
+    no `@Target(TYPE)`; errorprone was offered but unneeded). ~90 withers across 27 `JdbiConfig` value classes;
+    `createCopy`/getters/statics/void excluded. Legitimate `configure(X, c -> c.wither(...))` returns the value from
+    the operator, so it is unaffected. No latent discard bug surfaced.
 - **R6 — "Upgrading to jdbi v4" docs section** (maintainer ask 2026-07-18). A user-facing migration guide capturing
   every break this branch introduces: `Jdbi.create(...).registerX/installPlugin/setX` → `Jdbi.builder(...)…build()`;
   `JdbiPlugin.customizeJdbi` → `configure(Jdbi.Builder)` (+ `JdbiPlugin.of`); post-build `jdbi.configure/registerX`
