@@ -416,13 +416,32 @@ prize early, then finish the handle-config removal:
       (use the public find/prepare path or a real registry) and `TestConfigRegistry.readAs` (already on a real
       `ConfigRegistry`, so unaffected). Scope ≈ 16×3 impls + 16 default rewrites + 7 forRegistry reverts + ~2 tests
       ≈ 70 small edits, all in the config/statement packages + resolvers. Validate with a full `mvn clean install`.
-  - **Alternative — Option 3 (more thorough, much larger, NOT recommended unless factory hygiene is also wanted).**
-    Change every factory SPI (`ArgumentFactory`/`RowMapperFactory`/`ColumnMapperFactory`/`CollectorFactory`/
-    `SqlArrayTypeFactory`/`ExtensionFactory` …) from `ConfigRegistry` to `ConfigView`, and have `readAs` hand the
-    create-function a read-only wrapper. This also stops factories from mutating the config they're given (a separate
-    latent issue), but breaks ~100+ SPI implementations across core + downstream + user code. The maintainer's stated
-    concern (cast `getConfig()` back to mutate) is fully met by Option 9; Option 3's extra benefit is factory hygiene,
-    not the cast vector. Note it, don't do it unless asked.
+  - **RECOMMENDED (maintainer leans this way 2026-07-19) — Option 3: narrow the RESOLVING factory SPIs to
+    `ConfigView` (factory hygiene). Supersedes Option 9 — cleaner and stronger, and only marginally larger.**
+    Rationale (measured): this is NOT a new break — the `org.jdbi.v3`→`org.jdbi` rename already forces every factory
+    impl (in-repo + user) to be touched, so a parameter narrowing rides along at near-zero marginal cost; and the SPIs
+    cleave cleanly into resolve-only vs configure (the ONLY config-mutators found are `ConfigCustomizer` impls, which
+    legitimately configure at assembly time). Plan:
+    - **Narrow to `ConfigView`** (resolve-only): `ArgumentFactory`, `AbstractArgumentFactory`, `QualifiedArgumentFactory`,
+      `RowMapperFactory`, `ColumnMapperFactory`, `QualifiedColumnMapperFactory`, `SqlArrayTypeFactory` — change each
+      `build(…, ConfigRegistry)` → `build(…, ConfigView)`. (`CollectorFactory.build(Type)` already takes no config —
+      out of scope.) ~115 impl files (≈70 main + ≈45 test): core 36, postgres 18, vavr 5, kotlin 4, plus 1–2 each in
+      json/guava/sqlite/jpa/jodatime2 — a mechanical fan-out like R4. No resolving factory currently mutates config,
+      so this is safe; any hidden mutation surfaces as a compile error (the guarantee).
+    - **Keep `ConfigRegistry`** (configure hooks — legitimate mutation): `ConfigCustomizer.customize(ConfigRegistry)`,
+      `ConfigCustomizerFactory`, `JdbiPlugin.configure(Builder)`, `JdbiPlugin.customizeHandleConfig(Connection,
+      ConfigRegistry)`.
+    - **`readAs` stays on `ConfigView`** but its create-function receives a read-only view, not the registry:
+      `ConfigRegistry.readAs` does `create.apply(this.asReadOnlyView())` (a cached per-registry wrapper). Resolvers'
+      `forRegistry(...)` take `ConfigView`, hold a `ConfigView`, and pass it to the now-`ConfigView` factory SPIs. So
+      the `readAs` leak is closed as a side effect — `getConfig().readAs(X, c -> (ConfigRegistry) c)` gets a wrapper,
+      not the registry. **This makes Option 9's find-helper re-abstraction unnecessary** (the `ConfigReader` defaults
+      keep calling `forRegistry(getConfig())`, now `forRegistry(ConfigView)`).
+    - **Do NOT change** `StatementContext` (it IS mutable per-statement config), nor the `ExtensionFactory`
+      `getExtensionHandlerFactories(ConfigRegistry)` family unless it proves read-only too (check during impl).
+    - Fan-out like R4 (core-test barrier, then downstream), full `mvn clean install` gate. Best in a clean session.
+  - **Fallback — Option 9 (smaller, if Option 3 proves to have an awkward factory that genuinely needs a mutable
+    registry):** the readAs-off-ConfigView + find-helper re-abstraction described above (~70 edits, no factory change).
 - **R6 — "Upgrading to jdbi v4" docs section** (maintainer ask 2026-07-18). A user-facing migration guide capturing
   every break this branch introduces: `Jdbi.create(...).registerX/installPlugin/setX` → `Jdbi.builder(...)…build()`;
   `JdbiPlugin.customizeJdbi` → `configure(Jdbi.Builder)` (+ `JdbiPlugin.of`); post-build `jdbi.configure/registerX`
