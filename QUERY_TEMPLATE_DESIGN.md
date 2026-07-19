@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-19): through D6 + REMOVAL R1–R5+R7 DONE; only R6 (upgrade-guide docs) remains
+## HANDOFF (2026-07-19): through D6 + REMOVAL R1–R5+R7 DONE; next R5-D (bulletproof read-only, DESIGNED) then R6 (docs)
 
 > **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
 > (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
@@ -168,7 +168,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 > read methods so a discarded-wither / dead `configure()` can't compile), then **R6** (upgrade-guide docs).
 > **R5 DONE (2026-07-19): R5-A `dc169f3ef` (read-only `ConfigView` delegate — `getConfig().configure()` won't
 > compile and the returned view can't be cast to `ConfigRegistry`), R5-B `992df4f67` (`@CheckReturnValue` on ~90
-> config withers so a discarded wither fails spotbugs). No hot-path regression. NEXT and last: R6 upgrade docs.** **R2 made `Jdbi` read-only**
+> config withers so a discarded wither fails spotbugs). No hot-path regression. NEXT: R5-D (bulletproof read-only — close the `readAs` @Alpha leak, DESIGNED, Option 9 recommended ~70 edits, do in a clean session), then R6 upgrade docs.** **R2 made `Jdbi` read-only**
 > (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
 > sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
 > `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
@@ -379,6 +379,50 @@ prize early, then finish the handle-config removal:
     no `@Target(TYPE)`; errorprone was offered but unneeded). ~90 withers across 27 `JdbiConfig` value classes;
     `createCopy`/getters/statics/void excluded. Legitimate `configure(X, c -> c.wither(...))` returns the value from
     the operator, so it is unaffected. No latent discard bug surfaced.
+- **R5-D — make the read-only guarantee bulletproof: close the `readAs` SPI leak. [DESIGNED 2026-07-19,
+  maintainer-requested; NOT yet implemented — start a clean session with this.]**
+  - **The residual leak.** After R5-A, `ConfigView` (what `Jdbi/Handle.getConfig()` returns) still exposes the
+    `@Alpha` `readAs(Class<T>, Function<ConfigRegistry, T>)`, whose create-function is handed the real
+    `ConfigRegistry`. So `jdbi.getConfig().readAs(ConfigRegistry.class, r -> r)` extracts the mutable registry and
+    reopens `configure(...)`. It's obscure and `@Alpha`, but the maintainer wants it closed too ("bulletproof, as
+    long as it doesn't lead to awkward contortions"). The naked cast + `getConfig().configure()` are already closed.
+  - **Why it's on `ConfigView`.** The `ConfigReader` find-helper defaults (`findMapperFor`, `findColumnMapperFor`,
+    `findArgumentFor`, `findCollectorFor`, `findSqlArrayTypeFor`, `findElementTypeFor`, … — **16** overloads that go
+    through a resolver) call `XResolver.forRegistry(getConfig())`, and `forRegistry(ConfigView)` calls
+    `configView.readAs(Resolver::new)`. The resolver needs the real `ConfigRegistry` to pass to the factory SPIs
+    (`ArgumentFactory.build(…, ConfigRegistry)`, `RowMapperFactory.build(…, ConfigRegistry)`, etc.). `readAs` is only
+    ever called from the 7 resolvers' `forRegistry` (confirmed) + two internal config-package sites
+    (`ConfigRegistry.parent` recursion, `ReadOnlyConfigView` delegate).
+  - **RECOMMENDED FIX — Option 9 (minimal, bulletproof for the stated concern, no factory-SPI change).** Take
+    `readAs` OFF the public `ConfigView` and keep it on `ConfigRegistry` only (public/`@Internal`, since the resolver
+    packages call it cross-package). Then `getConfig().readAs(...)` does not compile, and `((ConfigRegistry)
+    getConfig())` is still a CCE — leak closed at compile time. To keep the find-helpers working without `readAs` on
+    the view, restructure them so a `ConfigView` resolves via a real `ConfigRegistry` it holds, not via the view:
+    - `ConfigView` **re-abstracts** the 16 resolver-backed find-helpers (redeclare the `ConfigReader` defaults as
+      abstract on `ConfigView`, forcing implementors to provide a real impl and preventing the registry-leaking
+      default from running on a view).
+    - `ConfigRegistry` implements each as `XResolver.forRegistry(this).findY(...)` — revert `forRegistry(...)` from
+      `ConfigView` back to `ConfigRegistry` (7 resolvers); resolvers keep their `ConfigRegistry` field; SPIs unchanged.
+    - `ReadOnlyConfigView` implements each by delegating to `registry.get().findY(...)` (the wrapped real registry's
+      helper).
+    - `ConfigReader` keeps the 16 helpers as defaults but delegating to `getConfig().findY(...)` (dispatches to the
+      concrete `ConfigView` impl) instead of `forRegistry(getConfig())`. **Recursion check:** `ConfigRegistry` and
+      `ReadOnlyConfigView` MUST override (they do) or `getConfig().findY()` → `this.findY()` loops; Jdbi/Handle are
+      fine (their `getConfig()` returns the wrapper, not themselves). The 3 non-resolver helpers (`getAttributes`,
+      `getAttribute`, `getSqlArrayArgumentStrategy` — plain `getConfig(X).getY()`) stay as `ConfigReader` defaults.
+    - `createChild()`/`createCopy()` stay on `ConfigView`: they return a **fresh, detached** registry (mutating it
+      never affects the source), so they are not a back-channel to *this* config — needed by statements/handles.
+    - Fix the ~2 tests that call `forRegistry(handle.getConfig())` (now a `ConfigView`) — `TestPreparedArguments`
+      (use the public find/prepare path or a real registry) and `TestConfigRegistry.readAs` (already on a real
+      `ConfigRegistry`, so unaffected). Scope ≈ 16×3 impls + 16 default rewrites + 7 forRegistry reverts + ~2 tests
+      ≈ 70 small edits, all in the config/statement packages + resolvers. Validate with a full `mvn clean install`.
+  - **Alternative — Option 3 (more thorough, much larger, NOT recommended unless factory hygiene is also wanted).**
+    Change every factory SPI (`ArgumentFactory`/`RowMapperFactory`/`ColumnMapperFactory`/`CollectorFactory`/
+    `SqlArrayTypeFactory`/`ExtensionFactory` …) from `ConfigRegistry` to `ConfigView`, and have `readAs` hand the
+    create-function a read-only wrapper. This also stops factories from mutating the config they're given (a separate
+    latent issue), but breaks ~100+ SPI implementations across core + downstream + user code. The maintainer's stated
+    concern (cast `getConfig()` back to mutate) is fully met by Option 9; Option 3's extra benefit is factory hygiene,
+    not the cast vector. Note it, don't do it unless asked.
 - **R6 — "Upgrading to jdbi v4" docs section** (maintainer ask 2026-07-18). A user-facing migration guide capturing
   every break this branch introduces: `Jdbi.create(...).registerX/installPlugin/setX` → `Jdbi.builder(...)…build()`;
   `JdbiPlugin.customizeJdbi` → `configure(Jdbi.Builder)` (+ `JdbiPlugin.of`); post-build `jdbi.configure/registerX`
