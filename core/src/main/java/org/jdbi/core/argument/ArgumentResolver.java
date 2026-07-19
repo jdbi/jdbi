@@ -22,15 +22,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.meta.Beta;
 
 /**
- * Resolves arguments for a specific {@link ConfigRegistry}, caching the results.
+ * Resolves arguments for a specific {@link ConfigView}, caching the results.
  * <p>
  * A resolver reads the registered factories from the registry's {@link Arguments} (which holds only
  * registration data) and turns a bound value into an {@link Argument}, memoizing the prepared factory
- * function per type. It is obtained per registry via {@link #forRegistry(ConfigRegistry)} and is scoped
+ * function per type. It is obtained per registry via {@link #forRegistry(ConfigView)} and is scoped
  * to that registry: because it is never shared across registry copies, it safely holds the registry
  * reference, and its prepared-factory cache is warm across the many statements executed against a shared
  * registry, yet a forked registry starts with an empty cache and re-resolves against its own factories.
@@ -43,7 +44,7 @@ public final class ArgumentResolver {
      * @param config the configuration registry to resolve against
      * @return the registry's memoized argument resolver
      */
-    public static ArgumentResolver forRegistry(final ConfigRegistry config) {
+    public static ArgumentResolver forRegistry(final ConfigView config) {
         return config.readAs(ArgumentResolver.class, ArgumentResolver::new);
     }
 

@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import javax.sql.DataSource;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.Configurable;
 import org.jdbi.core.extension.ExtensionCallback;
 import org.jdbi.core.extension.ExtensionConsumer;
@@ -64,6 +65,9 @@ public class Jdbi implements ConfigReader {
     private static final Consumer<ConfigRegistry> NO_CONFIG_SCOPE = config -> {};
 
     private final ConfigRegistry config = new ConfigRegistry();
+    // Read-only view handed to callers via getConfig(): a distinct delegate that cannot be cast back to the mutable
+    // ConfigRegistry, so post-build configuration must go through the builder. Internal code uses `config` directly.
+    private final ConfigView configView = ConfigView.readOnly(this::configRegistry);
 
     private final ConnectionFactory connectionFactory;
     private final AtomicReference<TransactionHandler> transactionhandler = new AtomicReference<>(LocalTransactionHandler.binding());
@@ -325,7 +329,15 @@ public class Jdbi implements ConfigReader {
     }
 
     @Override
-    public ConfigRegistry getConfig() {
+    public ConfigView getConfig() {
+        return configView;
+    }
+
+    /**
+     * The mutable registry backing {@link #getConfig()}. Package-private, for framework code (the extension
+     * machinery, handle suppliers) that must reach the live registry; the public surface is read-only.
+     */
+    ConfigRegistry configRegistry() {
         return config;
     }
 
@@ -735,7 +747,7 @@ public class Jdbi implements ConfigReader {
      * @return a reusable query template
      */
     public QueryTemplate buildQueryTemplate(final CharSequence sql) {
-        return new QueryTemplate(getConfig().createCopy(), sql);
+        return new QueryTemplate(config.createCopy(), sql);
     }
 
     /**
@@ -758,7 +770,9 @@ public class Jdbi implements ConfigReader {
 
         @Override
         public ConfigRegistry getConfig() {
-            return jdbi.getConfig();
+            // The builder configures the Jdbi's registry in place during assembly, so it returns the mutable
+            // registry directly rather than the read-only view exposed by Jdbi.getConfig().
+            return jdbi.config;
         }
 
         /**

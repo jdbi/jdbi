@@ -17,14 +17,15 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 
 /**
- * Resolves {@link PojoProperties} for a specific {@link ConfigRegistry}.
+ * Resolves {@link PojoProperties} for a specific {@link ConfigView}.
  * <p>
  * A resolver reads the registered factories from the registry's {@link PojoTypes} (which holds only
  * registration data) and turns a type into its {@link PojoProperties}. It is obtained per registry via
- * {@link #forRegistry(ConfigRegistry)} and holds the registry reference the factories need; because it is
+ * {@link #forRegistry(ConfigView)} and holds the registry reference the factories need; because it is
  * never shared across registry copies, that reference is always the one this resolver resolves against.
  */
 public final class PojoResolver {
@@ -35,7 +36,7 @@ public final class PojoResolver {
      * @param config the configuration registry to resolve against
      * @return the registry's memoized pojo-properties resolver
      */
-    public static PojoResolver forRegistry(final ConfigRegistry config) {
+    public static PojoResolver forRegistry(final ConfigView config) {
         return config.readAs(PojoResolver.class, PojoResolver::new);
     }
 

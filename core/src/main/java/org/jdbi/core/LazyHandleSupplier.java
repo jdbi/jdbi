@@ -32,7 +32,7 @@ final class LazyHandleSupplier extends AbstractHandleSupplier implements OnDeman
     @Override
     public ConfigRegistry getConfig() {
         ExtensionContext extensionContext = currentExtensionContext();
-        return extensionContext != null ? extensionContext.getConfig() : jdbi.getConfig();
+        return extensionContext != null ? extensionContext.getConfig() : jdbi.configRegistry();
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.jdbi.core.array.SqlArrayType;
 import org.jdbi.core.array.SqlArrayTypes;
 import org.jdbi.core.collector.CollectorResolver;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.ColumnMapper;
@@ -47,11 +48,14 @@ public interface ConfigReader {
     }
 
     /**
-     * Returns the {@code ConfigRegistry}.
+     * Returns a read-only view of the configuration used by this context. It is a {@link ConfigView}, not a
+     * {@link ConfigRegistry}: read-only contexts (a {@code Jdbi} or a {@code Handle}) do not expose configuration
+     * mutation. Mutation lives on {@code ConfigRegistry}, which is available on {@link org.jdbi.core.config.Configurable
+     * Configurable} contexts (statements, the {@code Jdbi.Builder}) whose {@code getConfig()} covariantly returns it.
      *
-     * @return the {@code ConfigRegistry} used by this context.
+     * @return the read-only configuration view used by this context.
      */
-    ConfigRegistry getConfig();
+    ConfigView getConfig();
 
     /**
      * Obtain an argument for given value in this context

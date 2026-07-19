@@ -17,13 +17,14 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
- * Resolves {@link SqlArrayType}s for a specific {@link ConfigRegistry}.
+ * Resolves {@link SqlArrayType}s for a specific {@link ConfigView}.
  * <p>
  * A resolver reads the registered factories from the registry's {@link SqlArrayTypes} (which holds only
  * registration data) and turns an array element type into a {@link SqlArrayType}. It is obtained per registry
- * via {@link #forRegistry(ConfigRegistry)} and holds the registry reference the factories need; because it is
+ * via {@link #forRegistry(ConfigView)} and holds the registry reference the factories need; because it is
  * never shared across registry copies, that reference is always the one this resolver resolves against.
  */
 public final class ArrayTypeResolver {
@@ -34,7 +35,7 @@ public final class ArrayTypeResolver {
      * @param config the configuration registry to resolve against
      * @return the registry's memoized array-type resolver
      */
-    public static ArrayTypeResolver forRegistry(final ConfigRegistry config) {
+    public static ArrayTypeResolver forRegistry(final ConfigView config) {
         return config.readAs(ArrayTypeResolver.class, ArrayTypeResolver::new);
     }
 

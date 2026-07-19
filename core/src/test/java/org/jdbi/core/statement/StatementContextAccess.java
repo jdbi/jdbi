@@ -36,6 +36,6 @@ public final class StatementContextAccess {
      * with the given handle.
      */
     public static StatementContext createContext(final Handle handle) {
-        return StatementContext.create(handle.getConfig(), null, StatementContextAccess.class);
+        return StatementContext.create(handle.getConfig().createChild(), null, StatementContextAccess.class);
     }
 }
