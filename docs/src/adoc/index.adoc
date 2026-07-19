@@ -1,6 +1,6 @@
 // -*- mode: adoc; fill-column: 160; -*-
 // suppress inspection "AsciiDocLinkResolve" for whole file
-= Jdbi 3 Developer Guide
+= Jdbi 4 Developer Guide
 :doctype: book
 :toc: left
 :toclevels: 3
@@ -150,6 +150,9 @@ endif::[]
 
 [TIP]
 Already using Jdbi v2? See <<Upgrading from v2 to v3>>
+
+[TIP]
+Upgrading from Jdbi 3? See <<Upgrading to Jdbi 4>>
 
 === Getting involved
 
@@ -452,6 +455,195 @@ There is no guarantee that Jdbi components of different versions (e.g. `jdbi3-co
 Jdbi versioning is the *public API* exposed to consumers.
 All Jdbi components used in a project or service should use the same version.
 See the section on <<Build tools>> on how to use the BOM module to provide consistent versions for all components.
+
+== Upgrading to Jdbi 4
+
+Jdbi 4 is a source-incompatible major release.
+Its theme is an immutable, copy-on-write configuration model: a `Jdbi` and a `Handle` no longer carry mutable configuration you reconfigure after the fact.
+You assemble all configuration once, up front, through a builder; from then on it is read-only and shared.
+This removes a class of order-of-initialization bugs, makes a `Jdbi` safe to publish across threads, and lets Jdbi skip most of the per-statement and per-handle configuration copying that 3.x paid on every call (see <<Performance in Jdbi 4>>).
+
+Most applications that only _use_ Jdbi (open handles, run statements, attach SQL objects) need only two mechanical changes: the package rename, and moving configuration into the builder.
+Applications that _extend_ Jdbi with custom argument factories, mappers, codecs, or config classes have a few more signatures to update.
+
+=== The package rename
+
+Every `org.jdbi.v3.*` package is now `org.jdbi.*` (for example `org.jdbi.v3.core.Jdbi` -> `org.jdbi.core.Jdbi`, `org.jdbi.v3.sqlobject` -> `org.jdbi.sqlobject`).
+This is a find-and-replace across imports; no types were renamed.
+Because you are editing every file that imports Jdbi anyway, the other source changes below ride along at low cost.
+
+=== Assembling a Jdbi
+
+`Jdbi` no longer implements `Configurable`; it is read-only.
+The post-construction mutators are gone: `installPlugin`, the `registerRowMapper` / `registerColumnMapper` / `registerArgument` / ... family, `configure(...)`, and the knob setters `setTransactionHandler` / `setStatementBuilderFactory` / `setHandleCallbackDecorator` / `setHandleScope`.
+Move all of that into `Jdbi.builder(...)`, which _is_ `Configurable`, and finish with `build()`:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+Jdbi jdbi = Jdbi.create(dataSource);
+jdbi.installPlugin(new SqlObjectPlugin());
+jdbi.registerRowMapper(new UserMapper());
+jdbi.configure(SqlStatements.class, s -> s.setQueryTimeout(5));
+
+// Jdbi 4
+Jdbi jdbi = Jdbi.builder(dataSource)
+        .installPlugin(new SqlObjectPlugin())
+        .registerRowMapper(new UserMapper())
+        .configure(SqlStatements.class, s -> s.queryTimeout(5))
+        .build();
+----
+
+`Jdbi.create(...)` is retained as the zero-configuration shortcut (`Jdbi.create(ds)` equals `Jdbi.builder(ds).build()`); reach for it only when you register nothing.
+`Jdbi.builder(...)` accepts the same sources as `create(...)`: a `DataSource`, `Connection`, `ConnectionFactory`, or a JDBC URL (optionally with `Properties` or username/password).
+
+=== Config setters became withers
+
+Config classes are immutable.
+A setter that used to mutate in place now _returns a new value_, and `configure` takes a `UnaryOperator` that returns the value to install.
+The `setX(v)` spelling is dropped in favor of a prefix-free `x(v)` wither (`register(...)` keeps its name).
+A discarded wither is a no-op and is flagged at build time by `@CheckReturnValue`, so `getConfig(SqlStatements.class).queryTimeout(5)` on its own will not compile clean:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+jdbi.getConfig(SqlStatements.class).setQueryTimeout(5);          // mutated in place
+
+// Jdbi 4
+builder.configure(SqlStatements.class, s -> s.queryTimeout(5));  // installs the derived value
+----
+
+=== Plugins configure the builder
+
+`JdbiPlugin.customizeJdbi(Jdbi)` is removed, because a built `Jdbi` can no longer be mutated.
+Configure the builder instead by overriding `configure(Jdbi.Builder)`:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+public class MyPlugin extends JdbiPlugin.Singleton {
+    @Override public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerRowMapper(new UserMapper());
+    }
+}
+
+// Jdbi 4
+public class MyPlugin extends JdbiPlugin.Singleton {
+    @Override public void configure(Jdbi.Builder builder) {
+        builder.registerRowMapper(new UserMapper());
+    }
+}
+----
+
+For a one-off plugin, `JdbiPlugin.of(builder -> builder.registerRowMapper(new UserMapper()))` is a lambda shorthand.
+The connection-time hooks are unchanged in spirit: `customizeConnection(Connection)` and `customizeHandle(Handle)` remain.
+Anything that configured a handle's configuration from `customizeHandle` should move to the new `customizeHandleConfig(Connection, ConfigRegistry)` hook (see the next section).
+
+=== Per-handle configuration
+
+`Handle` no longer implements `Configurable` either; a handle's configuration is a read-only, copy-on-write child of the `Jdbi`'s.
+To vary configuration per handle, open the handle with a config scope:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+try (Handle h = jdbi.open()) {
+    h.registerRowMapper(new UserMapper());
+    // ...
+}
+
+// Jdbi 4 -- configure at open
+try (Handle h = jdbi.open(config -> config.configure(RowMappers.class, r -> r.register(new UserMapper())))) {
+    // ...
+}
+----
+
+`open`, `withHandle`, `useHandle`, `inTransaction`, and `useTransaction` all have an overload that takes a `Consumer<ConfigRegistry>` config scope.
+Configuration that should apply to a single statement can still be set on that statement (statements remain `Configurable`, copy-on-write).
+A plugin that must configure every handle it sees (for example to bind driver-specific types on the live `Connection`) implements `JdbiPlugin.customizeHandleConfig(Connection, ConfigRegistry)`, which runs once as each handle is created.
+
+=== Custom factories, mappers, and codecs take `ConfigView`
+
+The read-only half of the split is a new `ConfigView` type: `Jdbi.getConfig()` and `Handle.getConfig()` return a `ConfigView` (reads and safe derives only), not a mutable `ConfigRegistry`.
+The resolving SPIs -- the ones Jdbi calls to _build_ an argument or mapper -- now receive a `ConfigView` instead of a `ConfigRegistry`.
+If you implement any of these, change the parameter type (a mechanical edit alongside the package rename):
+
+* `ArgumentFactory.build`, `AbstractArgumentFactory.build`, `QualifiedArgumentFactory.build`, and the `Preparable.prepare` variants
+* `RowMapperFactory.build`, `ColumnMapperFactory.build`, `QualifiedColumnMapperFactory.build`
+* `SqlArrayTypeFactory.build`
+* `RowMapper.init` and `ColumnMapper.init`
+* `Codec.getColumnMapper` / `getArgumentFunction`, and the `JsonMapper` family (`forType` / `toJson` / `fromJson`)
+
+[source,java,indent=0]
+----
+// Jdbi 3
+public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) { ... }
+
+// Jdbi 4
+public Optional<RowMapper<?>> build(Type type, ConfigView config) { ... }
+----
+
+`ConfigView` exposes everything a factory legitimately needs -- `get(SomeConfig.class)`, the `findXFor(...)` lookups, and `createChild()` / `createCopy()` -- but not in-place mutation.
+A factory has no business reconfiguring the registry it is resolving against, so this is now a compile-time guarantee rather than a convention.
+The hooks that are _meant_ to configure -- `ConfigCustomizer`, `JdbiPlugin.configure(Jdbi.Builder)`, and `customizeHandleConfig` -- still receive a mutable `ConfigRegistry`.
+
+=== Performance in Jdbi 4
+
+The immutable, copy-on-write model lets Jdbi share warm configuration instead of copying it.
+The numbers below are `gc.alloc.rate.norm` (bytes allocated per operation, a deterministic JMH metric) on H2; the "Jdbi 3" columns are the same benchmarks with the pre-immutability behavior restored (a per-statement or per-handle `createCopy`).
+
+.Per-statement on a warm handle
+[cols="3,>2,>2"]
+|===
+| Path | Jdbi 3 | Jdbi 4
+
+| Classic `handle.createQuery(...)`
+| 6104 B/op
+| 4208 B/op (-31%)
+
+| Reused `QueryTemplate`
+| n/a
+| 3512 B/op (-43% vs 3.x)
+|===
+
+.One handle per request (a fresh handle opened per operation)
+[cols="3,>2,>2"]
+|===
+| Path | Jdbi 3 | Jdbi 4
+
+| SQL Object attach
+| 134580 B/op
+| 45719 B/op (-66%; ~1.3x throughput)
+
+| Fluent query
+| 13728 B/op
+| 12260 B/op (-11%)
+|===
+
+The largest win is the "one handle per request" pattern common in web services: a fresh handle now shares the `Jdbi`'s already-resolved mappers and extension metadata instead of rebuilding them on every open.
+
+=== New: reusable `QueryTemplate`
+
+Jdbi 4 adds `QueryTemplate`, a handle-independent, reusable query.
+It renders, parses, and snapshots configuration once, then executes against any handle without repeating that work -- useful for a hot query run many times:
+
+[source,java,indent=0]
+----
+QueryTemplate template = jdbi.buildQueryTemplate("SELECT name FROM users WHERE id = :id");
+// reuse across handles/threads:
+String name = template.with(handle).bind("id", id).mapTo(String.class).one();
+----
+
+Fixing the result type with `mapTo(type)` on the template resolves the row mapper once, at build time, so each execution skips even that lookup.
+This yields a further small allocation and throughput improvement for a hot, single-shape query:
+
+[source,java,indent=0]
+----
+MappedQueryTemplate<String> byId =
+    jdbi.buildQueryTemplate("SELECT name FROM users WHERE id = :id").mapTo(String.class);
+// the mapper is already resolved; results() applies it with no per-call lookup:
+String name = byId.with(handle).bind("id", id).results().one();
+----
 
 == API Overview
 

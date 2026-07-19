@@ -668,30 +668,42 @@ for rationale — they are accurate as history, not as an open to-do list. Only 
 
 1. **Ship it.** This branch IS jdbi 4.0.0-SNAPSHOT. The remaining step is cutting the release (version, release
    notes, the `org.jdbi.v3`→`org.jdbi` rename is already in). No further code changes are required for the feature.
-2. **Promote the upgrade guide.** Lift the `## Upgrading to Jdbi v4` section (above) into
-   `docs/src/adoc/index.adoc` as a top-level `== Upgrading to Jdbi v4` section, and retitle the developer guide
-   from "Jdbi 3" to "Jdbi 4". Kept in this design doc for now because the shipped guide still documents 3.x.
+2. **Finish the asciidoc migration.** The `docs/src/adoc/index.adoc` guide is retitled "Jdbi 4 Developer Guide"
+   and now carries a top-level `== Upgrading to Jdbi 4` section (lifted from `## Upgrading to Jdbi v4` below,
+   converted to asciidoc) plus the mapped-template note in the `QueryTemplate` subsection. **Still to do: migrate
+   the ~100+ hand-written inline `[source,java]` snippets that still use the removed mutable API** — `jdbi.registerX(...)`,
+   `handle.registerX(...)`, `jdbi.getConfig(X).setY(...)`, `jdbi.installPlugin(...)`, and factory signatures typed
+   `ConfigRegistry` instead of `ConfigView` (see the Mappers, Arguments, Configuration, and SQL Arrays chapters).
+   These are hand-authored blocks, not `include::` tags, so they are not auto-updated when the migrated test
+   sources compile; the tagged-include examples are already correct. This is a large, mechanical-but-judgment
+   pass (per snippet: builder vs per-statement vs config-scope) that was deliberately deferred from the "minimal"
+   doc update. Track it as its own chunk of release work.
 3. **Merge jdbi/jdbi#2992 by mostly removing it** (share the `ExtensionMetadata` cache): the immutable world +
    handle-boundary copy-on-write already deliver its payoff (R3/R7), so when #2992 lands on master the merge is
    largely a deletion. See the memory note `pr-2992-merge-mostly-remove`.
 4. **Delete this design doc** once the feature ships (it is a working document, not part of the shipped tree).
 
-### Future iterations (not scheduled)
+### Pre-bound result mappers on a template — DONE (2026-07-19)
 
-- **Pre-bound result mappers on a template.** Today `mapTo(X)` re-resolves the mapper per execution:
-  `MapperResolver.forRegistry(template.config)` (memoized) + `findMapper(QualifiedType.of(X))`, and for a column
-  type the `.map(SingleColumnMapper::new)` allocates a fresh wrapper on every call, plus a `QualifiedType` and
-  `Optional`s. Because a `QueryTemplate` executes against its own fixed config snapshot (not the handle's —
-  `QueryTemplateBinding.getConfig()` returns `template.config`), the mapper for a given result type is deterministic
-  at build time, so pre-resolving it would be correct. The win is modest — the heavy work (building + `init`-ing the
-  mapper) is already cached per registry, so pre-binding only removes a couple of map lookups and ~100–300 B/op of
-  the template path's ~3472 B/op (roughly 3–8%), plus a small throughput bump — worthwhile only for a very hot,
-  single-shape query. The clean shape is **additive**, preserving Step 1's non-generic `QueryTemplate` +
-  `ResultBearing` design: add `template.mapTo(X)` returning a small `MappedQueryTemplate<X>` (or
-  `jdbi.buildQueryTemplate(sql, X)`) that resolves the `RowMapper<X>` once and skips resolution at execute, while the
-  existing per-execution `ResultBearing` path (`reduceRows`/`collectInto`/`stream`) stays unchanged. Not worth the
-  churn for the current release; revisit if profiling shows a hot single-shape query dominated by per-op mapper
-  resolution.
+Implemented and shipped in this branch. `QueryTemplate.mapTo(Class/GenericType/QualifiedType/Type)` resolves the
+`RowMapper<T>` once, at build time, against the template's fixed config snapshot (`MapperResolver.forRegistry(config)`
++ `findMapper`), and returns a `MappedQueryTemplate<T>`. `MappedQueryTemplate.with(handle)` returns a
+`BoundMappedQuery<T>` that reuses `QueryTemplateBinding` for all binding/defining/customizing (it implements
+`QueryCustomizerMixin<BoundMappedQuery<T>>` and delegates the ~7 abstract accessors to the wrapped binding, so it
+inherits the whole `BindingsMixin` surface for free) and adds one terminal, `results()`, returning `ResultIterable<T>`
+via `binding.map(preResolvedMapper)` — the mapped analogue of `.mapTo(X)`, so the execution chain is the same length
+(`mt.with(h).bind(..).results().one()`). Resolution is eager, so an unmapped type raises `NoSuchMapperException` at
+build time instead of first execution. The design stayed additive: the non-generic `QueryTemplate` + per-execution
+`ResultBearing` path (`reduceRows`/`collectInto`/`stream`) is untouched. Deliberately did **not** add
+`jdbi.buildQueryTemplate(sql, X)` convenience overloads — `jdbi.buildQueryTemplate(sql).mapTo(X)` is already fluent,
+and one way is better than two.
+
+Verified win (JMH `-prof gc`, H2, `QueryTemplateBenchmark`, single-column `String` result — the `SingleColumnMapper`
+wrapper path that benefits most): `mappedTemplate` 3408 B/op & 1603 ops/ms vs `template` 3512 B/op & 1509 ops/ms =
+**−104 B/op (−3.0% allocation), +6.2% throughput**; vs `classic` 4208 B/op & 1158 ops/ms = −19% allocation, +38%
+throughput. The mapped number is identical to a hand-held pre-resolved mapper (measured), so the API adds zero
+overhead over the theoretical ceiling. Matches the pre-implementation estimate (~100–300 B/op, low end; small
+throughput bump, slightly beaten). Modest but real; a genuine opt-in refinement for a hot, single-shape query.
 
 ## Historical design records (below)
 
