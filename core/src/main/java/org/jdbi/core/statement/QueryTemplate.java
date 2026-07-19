@@ -13,8 +13,15 @@
  */
 package org.jdbi.core.statement;
 
+import java.lang.reflect.Type;
+
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.generic.GenericType;
+import org.jdbi.core.mapper.MapperResolver;
+import org.jdbi.core.mapper.NoSuchMapperException;
+import org.jdbi.core.mapper.RowMapper;
+import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
 
 /**
@@ -77,5 +84,57 @@ public class QueryTemplate {
      */
     public QueryTemplateBinding with(final Handle handle) {
         return new QueryTemplateBinding(handle, this);
+    }
+
+    /**
+     * Fixes this template's result type, resolving the {@link RowMapper} once against the template's
+     * configuration snapshot. The returned {@link MappedQueryTemplate} is also reusable and thread-safe,
+     * and each of its executions skips the per-call mapper lookup that {@code mapTo(type)} on a
+     * {@link QueryTemplateBinding} otherwise repeats.
+     *
+     * @param type the type to map result rows to
+     * @param <T>  the type to map result rows to
+     * @return a mapped template that produces {@code T}
+     * @throws NoSuchMapperException if no row or column mapper is registered for the type
+     */
+    public <T> MappedQueryTemplate<T> mapTo(final Class<T> type) {
+        return mapTo(QualifiedType.of(type));
+    }
+
+    /**
+     * Fixes this template's result type. See {@link #mapTo(Class)}.
+     *
+     * @param type the type to map result rows to
+     * @param <T>  the type to map result rows to
+     * @return a mapped template that produces {@code T}
+     * @throws NoSuchMapperException if no row or column mapper is registered for the type
+     */
+    public <T> MappedQueryTemplate<T> mapTo(final GenericType<T> type) {
+        return mapTo(QualifiedType.of(type));
+    }
+
+    /**
+     * Fixes this template's result type. See {@link #mapTo(Class)}.
+     *
+     * @param type the type to map result rows to
+     * @return a mapped template that produces the given type
+     * @throws NoSuchMapperException if no row or column mapper is registered for the type
+     */
+    public MappedQueryTemplate<?> mapTo(final Type type) {
+        return mapTo(QualifiedType.of(type));
+    }
+
+    /**
+     * Fixes this template's result type. See {@link #mapTo(Class)}.
+     *
+     * @param type the qualified type to map result rows to
+     * @param <T>  the type to map result rows to
+     * @return a mapped template that produces {@code T}
+     * @throws NoSuchMapperException if no row or column mapper is registered for the type
+     */
+    public <T> MappedQueryTemplate<T> mapTo(final QualifiedType<T> type) {
+        final RowMapper<T> mapper = MapperResolver.forRegistry(config).findMapper(type)
+            .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
+        return new MappedQueryTemplate<>(this, mapper);
     }
 }
