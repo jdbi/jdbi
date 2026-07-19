@@ -39,13 +39,13 @@ import static org.jdbi.core.transaction.TransactionIsolationLevel.READ_UNCOMMITT
 public class TestModifiers {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(new SomethingMapper()));
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new SomethingMapper());
     }
 
     @Test

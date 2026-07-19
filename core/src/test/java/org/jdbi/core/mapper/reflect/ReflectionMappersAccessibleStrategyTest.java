@@ -57,27 +57,24 @@ public class ReflectionMappersAccessibleStrategyTest {
 
     @Test
     void testAccessDisabledConstructorBean() {
-        handle.configure(ReflectionMappers.class, ReflectionMappers::disableAccessibleObjectStrategy);
-
-        try (Query query = handle.createQuery("SELECT id as result FROM users order by id")) {
+        try (Query query = handle.createQuery("SELECT id as result FROM users order by id")
+                .configure(ReflectionMappers.class, ReflectionMappers::disableAccessibleObjectStrategy)) {
             assertThatThrownBy(() -> query.map(FieldMapper.of(PrivateConstructorBean.class)).list()).isInstanceOf(IllegalArgumentException.class);
         }
     }
 
     @Test
     void testAccessDisabledFieldBean() {
-        handle.configure(ReflectionMappers.class, ReflectionMappers::disableAccessibleObjectStrategy);
-
-        try (Query query = handle.createQuery("SELECT id as result FROM users order by id")) {
+        try (Query query = handle.createQuery("SELECT id as result FROM users order by id")
+                .configure(ReflectionMappers.class, ReflectionMappers::disableAccessibleObjectStrategy)) {
             assertThatThrownBy(() -> query.map(FieldMapper.of(PrivateFieldBean.class)).list()).isInstanceOf(IllegalArgumentException.class);
         }
     }
 
     @Test
     void testAccessDisabledPublicBean() {
-        handle.configure(ReflectionMappers.class, ReflectionMappers::disableAccessibleObjectStrategy);
-
-        try (Query query = handle.createQuery("SELECT id as result FROM users order by id")) {
+        try (Query query = handle.createQuery("SELECT id as result FROM users order by id")
+                .configure(ReflectionMappers.class, ReflectionMappers::disableAccessibleObjectStrategy)) {
             List<?> fields = query.map(FieldMapper.of(PublicFieldBean.class)).list();
             assertThat(fields).hasSize(2);
             assertThat(fields).extracting("result").containsExactly(1L, 2L);

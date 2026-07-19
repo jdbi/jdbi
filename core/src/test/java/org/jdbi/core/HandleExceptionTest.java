@@ -44,7 +44,7 @@ class HandleExceptionTest {
 
     @Test
     void handleException() {
-        h.configure(SqlStatements.class, c -> c
+        try (Handle h = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c
                 .addExceptionHandler(s -> null)
                 .addExceptionHandler(new SqlExceptionHandler() {
                         @Override
@@ -55,42 +55,43 @@ class HandleExceptionTest {
                             return null;
                         }
                 })
-                .addExceptionHandler(s -> null)); // simple chaining test
-        h.execute("create table exception_test(id int primary key)");
-        final String sql = "insert into exception_test (id) values(1)";
-        h.execute(sql);
-        assertThatThrownBy(() ->
-                h.execute(sql))
-            .isExactlyInstanceOf(RuntimeException.class)
-            .hasMessage("Wahoo");
+                .addExceptionHandler(s -> null)))) { // simple chaining test
+            h.execute("create table exception_test(id int primary key)");
+            final String sql = "insert into exception_test (id) values(1)";
+            h.execute(sql);
+            assertThatThrownBy(() ->
+                    h.execute(sql))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Wahoo");
 
-        assertThatThrownBy(() ->
-                h.createBatch()
-                        .add(sql)
-                        .execute())
-            .isExactlyInstanceOf(RuntimeException.class)
-            .hasMessage("Wahoo");
+            assertThatThrownBy(() ->
+                    h.createBatch()
+                            .add(sql)
+                            .execute())
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Wahoo");
 
 
-        assertThatThrownBy(() ->
-                h.configure(SqlStatements.class, ss -> ss.unusedBindingAllowed(true))
-                        .prepareBatch(sql)
-                        .bind("unused", 1)
-                        .add()
-                        .execute())
-            .isExactlyInstanceOf(RuntimeException.class)
-            .hasMessage("Wahoo");
+            assertThatThrownBy(() ->
+                    h.prepareBatch(sql)
+                            .configure(SqlStatements.class, ss -> ss.unusedBindingAllowed(true))
+                            .bind("unused", 1)
+                            .add()
+                            .execute())
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Wahoo");
 
-        assertThatThrownBy(() ->
-                h.createScript(sql)
-                        .execute())
-            .isExactlyInstanceOf(RuntimeException.class)
-            .hasMessage("Wahoo");
+            assertThatThrownBy(() ->
+                    h.createScript(sql)
+                            .execute())
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Wahoo");
 
-        assertThatThrownBy(() ->
-                h.createCall(sql)
-                        .invoke())
-            .isExactlyInstanceOf(RuntimeException.class)
-            .hasMessage("Wahoo");
+            assertThatThrownBy(() ->
+                    h.createCall(sql)
+                            .invoke())
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Wahoo");
+        }
     }
 }

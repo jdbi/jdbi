@@ -77,8 +77,8 @@ public class TestVavrMapCollectorWithDB {
     @Test
     public void testMapCollectorWithTupleConfigShouldSucceed() {
         Map<String, String> valueMap = h2Extension.getSharedHandle()
-            .configure(TupleMappers.class, c -> c.keyColumn("key_c").valueColumn("val_c"))
             .createQuery("select val_c, key_c from keyval")
+            .configure(TupleMappers.class, c -> c.keyColumn("key_c").valueColumn("val_c"))
             .collectInto(new GenericType<Map<String, String>>() {});
 
         assertThat(valueMap).hasSameElementsAs(expectedMap);
@@ -87,8 +87,8 @@ public class TestVavrMapCollectorWithDB {
     @Test
     public void testMapCollectorWithCorrespondingTupleColsShouldSucceed() {
         var valueMap = h2Extension.getSharedHandle()
-            .configure(TupleMappers.class, c -> c.column(1, "key_c").column(2, "val_c"))
             .createQuery("select val_c, key_c from keyval")
+            .configure(TupleMappers.class, c -> c.column(1, "key_c").column(2, "val_c"))
             .collectInto(new GenericType<Map<String, String>>() {});
 
         assertThat(valueMap).hasSameElementsAs(expectedMap);
@@ -96,8 +96,9 @@ public class TestVavrMapCollectorWithDB {
 
     @Test
     public void testSingleInstanceAssignmentWithSelectedKeyValueShouldSucceed() {
-        Handle handle = h2Extension.getSharedHandle().configure(MapEntryMappers.class, c -> c.keyColumn("key_c").valueColumn("val_c"));
-        Optional<Tuple2<String, String>> valueMap = handle.createQuery("select val_c, key_c from keyval")
+        Optional<Tuple2<String, String>> valueMap = h2Extension.getSharedHandle()
+            .createQuery("select val_c, key_c from keyval")
+            .configure(MapEntryMappers.class, c -> c.keyColumn("key_c").valueColumn("val_c"))
             .mapTo(new GenericType<Tuple2<String, String>>() {})
             .findFirst();
 

@@ -27,14 +27,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestErrorHandling {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2();
+    public JdbiExtension h2Extension = JdbiExtension.h2()
+        .withConfig(b -> b.setTemplateEngine(new StringTemplateEngine()));
 
     Handle handle;
 
     @BeforeEach
     void setup() {
         handle = h2Extension.getSharedHandle();
-        handle.setTemplateEngine(new StringTemplateEngine());
     }
 
     @Test

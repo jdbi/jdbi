@@ -172,10 +172,9 @@ public class TestTelemetry {
         public void truncate() {
             final var create = "create table something(id identity primary key, name varchar(50))";
             final var insert = "insert into something (id, name) values (:id, :name)";
-            try (var h = ext.openHandle()) {
-                h.configure(SqlStatements.class, c -> c
-                    .jfrSqlMaxLength(10)
-                    .jfrParamMaxLength(32));
+            try (var h = ext.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c
+                .jfrSqlMaxLength(10)
+                .jfrParamMaxLength(32)))) {
                 h.execute(create);
                 insertSomething(h, insert, 1, "abcdefghijklmnopqrstuvwxyz");
             }
@@ -198,9 +197,8 @@ public class TestTelemetry {
 
             final var create = "create table something(id identity primary key, name varchar(50))";
             final var insert = "insert into something (id, name) values (:id, :name)";
-            try (var h = ext.openHandle()) {
-                h.configure(SqlStatements.class, c -> c
-                    .includeBindingsInTelemetry(false));
+            try (var h = ext.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c
+                .includeBindingsInTelemetry(false)))) {
                 h.execute(create);
                 insertSomething(h, insert, 1, sensitiveData);
             }

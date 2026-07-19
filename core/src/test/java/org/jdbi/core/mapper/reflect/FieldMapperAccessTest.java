@@ -37,7 +37,12 @@ import static org.jdbi.core.internal.testing.H2DatabaseExtension.USERS_INITIALIZ
 public class FieldMapperAccessTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(USERS_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withInitializer(USERS_INITIALIZER)
+        .withConfig(b -> b
+            .registerRowMapper(getBeanClass(), FieldMapper.of(getBeanClass()))
+            .registerRowMapper(getDerivedBeanClass(), FieldMapper.of(getDerivedBeanClass()))
+            .registerRowMapper(IdBean.class, ConstructorMapper.of(IdBean.class)));
 
     Handle handle;
 
@@ -60,9 +65,6 @@ public class FieldMapperAccessTest {
         this.derivedBeanClass = getDerivedBeanClass();
 
         this.handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(beanClass, FieldMapper.of(beanClass));
-        handle.registerRowMapper(derivedBeanClass, FieldMapper.of(derivedBeanClass));
-        handle.registerRowMapper(IdBean.class, ConstructorMapper.of(IdBean.class));
     }
 
     @Test
@@ -144,9 +146,9 @@ public class FieldMapperAccessTest {
 
     @Test
     void shouldUseRegisteredMapperForUnknownPropertyType() {
-        handle.registerColumnMapper(new ValueTypeMapper()); // valueType is the "unknown property type"
-
-        try (Query query = handle.createQuery("SELECT id as longField, name as valueTypeField FROM users order by id")) {
+        // valueType is the "unknown property type"
+        try (Query query = handle.createQuery("SELECT id as longField, name as valueTypeField FROM users order by id")
+                .registerColumnMapper(new ValueTypeMapper())) {
 
             List<?> fields = query.mapTo(beanClass).list();
             assertThat(fields).hasSize(2);
@@ -177,8 +179,8 @@ public class FieldMapperAccessTest {
 
     @Test
     void shouldThrowOnMismatchedColumnsStrictMatch() {
-        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
-        try (Query query = handle.createQuery("SELECT id as misspelledField, id as longField FROM users order by id")) {
+        try (Query query = handle.createQuery("SELECT id as misspelledField, id as longField FROM users order by id")
+                .configure(ReflectionMappers.class, c -> c.strictMatching(true))) {
             assertThatThrownBy(() -> query.mapTo(beanClass).list()).isInstanceOf(IllegalArgumentException.class);
         }
     }

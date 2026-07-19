@@ -44,8 +44,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         propagateNullOnNested { q -> q.mapTo<Test1Bean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test21Bean::class))
-        propagateNullOnNested { q -> q.mapTo<Test21Bean>() }
+        propagateNullOnNested { q -> q.registerRowMapper(KotlinMapper(Test21Bean::class)).mapTo<Test21Bean>() }
     }
 
     data class Test1Bean(@Nested private val nestedBean: NestedBean?) : TestBean {
@@ -66,8 +65,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         propagateNullOnNestedWithFK { q -> q.mapTo<Test1FKBean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test21FKBean::class))
-        propagateNullOnNestedWithFK { q -> q.mapTo<Test21FKBean>() }
+        propagateNullOnNestedWithFK { q -> q.registerRowMapper(KotlinMapper(Test21FKBean::class)).mapTo<Test21FKBean>() }
     }
 
     data class Test1FKBean(@Nested private val nestedBean: NestedBean?) : TestBean {
@@ -88,8 +86,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         propagateNullOnNestedColumn { q -> q.mapTo<Test2Bean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test22Bean::class))
-        propagateNullOnNestedColumn { q -> q.mapTo<Test22Bean>() }
+        propagateNullOnNestedColumn { q -> q.registerRowMapper(KotlinMapper(Test22Bean::class)).mapTo<Test22Bean>() }
     }
 
     /**
@@ -101,8 +98,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         testPropagateNullOnNestedWithPrefixCaseInsensitive { q -> q.mapTo<Test2Bean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test22Bean::class))
-        testPropagateNullOnNestedWithPrefixCaseInsensitive { q -> q.mapTo<Test22Bean>() }
+        testPropagateNullOnNestedWithPrefixCaseInsensitive { q -> q.registerRowMapper(KotlinMapper(Test22Bean::class)).mapTo<Test22Bean>() }
     }
 
     data class Test2Bean(@Nested("bean") private val nestedBean: NestedBean?) : TestBean {
@@ -123,8 +119,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         propagateNullOnNestedColumnWithFK { q -> q.mapTo<Test2FKBean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test22FKBean::class))
-        propagateNullOnNestedColumnWithFK { q -> q.mapTo<Test22FKBean>() }
+        propagateNullOnNestedColumnWithFK { q -> q.registerRowMapper(KotlinMapper(Test22FKBean::class)).mapTo<Test22FKBean>() }
     }
 
     /**
@@ -136,8 +131,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         testPropagateNullOnNestedWithPrefixCaseInsensitiveWithFK { q -> q.mapTo<Test2FKBean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test22FKBean::class))
-        testPropagateNullOnNestedWithPrefixCaseInsensitiveWithFK { q -> q.mapTo<Test22FKBean>() }
+        testPropagateNullOnNestedWithPrefixCaseInsensitiveWithFK { q -> q.registerRowMapper(KotlinMapper(Test22FKBean::class)).mapTo<Test22FKBean>() }
     }
 
     data class Test2FKBean(@Nested("bean") private val nestedBean: NestedBean?) : TestBean {
@@ -157,8 +151,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         propagateNullOnNestedColumn { q -> q.mapTo<Test3Bean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test23Bean::class))
-        propagateNullOnNestedColumn { q -> q.mapTo<Test23Bean>() }
+        propagateNullOnNestedColumn { q -> q.registerRowMapper(KotlinMapper(Test23Bean::class)).mapTo<Test23Bean>() }
     }
 
     data class Test3Bean(@Nested("bean") private val nestedBean: NestedBean?) : TestBean {
@@ -178,8 +171,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         doubleNestedPropagateNull { q -> q.mapTo<Test4Bean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test24Bean::class))
-        doubleNestedPropagateNull { q -> q.mapTo<Test24Bean>() }
+        doubleNestedPropagateNull { q -> q.registerRowMapper(KotlinMapper(Test24Bean::class)).mapTo<Test24Bean>() }
     }
 
     data class Test4Bean(
@@ -203,8 +195,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         doubleNestedPropagateNullWithFK { q -> q.mapTo<Test4FKBean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test24FKBean::class))
-        doubleNestedPropagateNullWithFK { q -> q.mapTo<Test24FKBean>() }
+        doubleNestedPropagateNullWithFK { q -> q.registerRowMapper(KotlinMapper(Test24FKBean::class)).mapTo<Test24FKBean>() }
     }
 
     data class Test4FKBean(
@@ -229,8 +220,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         doubleNestedPropagateNull { q -> q.mapTo<Test5Bean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test25Bean::class))
-        doubleNestedPropagateNull { q -> q.mapTo<Test25Bean>() }
+        doubleNestedPropagateNull { q -> q.registerRowMapper(KotlinMapper(Test25Bean::class)).mapTo<Test25Bean>() }
     }
 
     data class Test5Bean(
@@ -258,8 +248,7 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         doubleNestedPropagateNullWithFK { q -> q.mapTo<Test5FKBean>() }
 
         // also test the field bean from the Java test
-        handle.registerRowMapper(KotlinMapper(Test25FKBean::class))
-        doubleNestedPropagateNullWithFK { q -> q.mapTo<Test25FKBean>() }
+        doubleNestedPropagateNullWithFK { q -> q.registerRowMapper(KotlinMapper(Test25FKBean::class)).mapTo<Test25FKBean>() }
     }
 
     data class Test5FKBean(
@@ -283,9 +272,8 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         assertThat(e.message).containsIgnoringCase("@PropagateNull does not support a value (id)")
         assertThat(e.message).containsIgnoringCase("nestedBean")
 
-        handle.registerRowMapper(KotlinMapper(Test26Bean::class))
         val e2 = assertThrows<IllegalArgumentException> {
-            testPropagateNullOnNestedWithPrefixCaseInsensitive { q -> q.mapTo<Test26Bean>() }
+            testPropagateNullOnNestedWithPrefixCaseInsensitive { q -> q.registerRowMapper(KotlinMapper(Test26Bean::class)).mapTo<Test26Bean>() }
         }
         assertThat(e2.message).containsIgnoringCase("@PropagateNull does not support a value (id)")
         assertThat(e2.message).containsIgnoringCase("nestedBean")

@@ -29,7 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestDefineNull {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2();
+    public JdbiExtension h2Extension = JdbiExtension.h2()
+        .withConfig(b -> b.setTemplateEngine(new StringTemplateEngine()));
 
     private Handle h;
 
@@ -41,7 +42,6 @@ public class TestDefineNull {
         savedErr = System.err;
         System.setErr(new PrintStream(err));
         h = h2Extension.getSharedHandle();
-        h.setTemplateEngine(new StringTemplateEngine());
     }
 
     @AfterEach

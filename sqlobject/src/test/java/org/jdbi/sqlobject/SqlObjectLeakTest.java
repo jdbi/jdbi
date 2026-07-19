@@ -23,6 +23,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementCustomizers;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
 import org.jdbi.sqlobject.statement.SqlQuery;
@@ -65,8 +66,8 @@ public class SqlObjectLeakTest {
     @Test
     void testManagedHandleExplodingAttachedDao() {
         assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
-            try (Handle handle = h2Extension.openHandle()) {
-                handle.addCustomizer(StatementCustomizers.fetchSize(-1));
+            try (Handle handle = h2Extension.getJdbi().open(
+                    cfg -> cfg.configure(SqlStatements.class, c -> c.addCustomizer(StatementCustomizers.fetchSize(-1))))) {
                 UserDao handleDao = handle.attach(UserDao.class);
                 handleDao.getUserNames();
             }

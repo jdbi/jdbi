@@ -24,7 +24,9 @@ import org.jdbi.core.kotlin.internal.KotlinValueClassArgumentFactory
 import org.jdbi.core.kotlin.internal.KotlinValueClassColumnMapperFactory
 import org.jdbi.core.mapper.ColumnMapper
 import org.jdbi.core.mapper.ColumnMapperFactory
+import org.jdbi.core.mapper.ColumnMappers
 import org.jdbi.core.mapper.RowMapper
+import org.jdbi.core.mapper.RowMappers
 import org.jdbi.core.statement.StatementContext
 import org.jdbi.sqlobject.customizer.Bind
 import org.jdbi.sqlobject.statement.SqlQuery
@@ -67,6 +69,15 @@ class TestValueClasses {
     fun tearDown() {
         handle.close()
     }
+
+    // Config formerly registered on the (now read-only) Handle is applied when opening an isolated, scoped handle
+    // that shares the extension's in-memory database.
+    private fun openWithMappers(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory, rowMapper: RowMapper<*>): Handle =
+        h2Extension.jdbi.open { cfg ->
+            cfg.configure(RowMappers::class.java) { it.register(Something::class.java, rowMapper) }
+            cfg.configure(ColumnMappers::class.java) { it.register(columnMapperFactory) }
+            cfg.configure(org.jdbi.core.argument.Arguments::class.java) { it.register(argumentFactory) }
+        }
 
     @JvmInline
     value class ValueId(val value: Int)
@@ -112,115 +123,105 @@ class TestValueClasses {
     @ParameterizedTest
     @MethodSource("arguments")
     fun testMapper(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory, rowMapper: RowMapper<*>) {
-        handle.registerRowMapper(Something::class.java, rowMapper)
-        handle.registerColumnMapper(columnMapperFactory)
-        handle.registerArgument(argumentFactory)
+        openWithMappers(columnMapperFactory, argumentFactory, rowMapper).use { handle ->
+            handle.execute("insert into something (id, name) values (6, 'Martin')")
 
-        handle.execute("insert into something (id, name) values (6, 'Martin')")
-
-        val dao = handle.attach(Dao::class)
-        val s = dao.retrieveById(ValueId(6))
-        assertThat(s.name).isEqualTo("Martin")
+            val dao = handle.attach(Dao::class)
+            val s = dao.retrieveById(ValueId(6))
+            assertThat(s.name).isEqualTo("Martin")
+        }
     }
 
     @ParameterizedTest
     @MethodSource("arguments")
     fun testListMapper(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory, rowMapper: RowMapper<*>) {
-        handle.registerRowMapper(Something::class.java, rowMapper)
-        handle.registerColumnMapper(columnMapperFactory)
-        handle.registerArgument(argumentFactory)
+        openWithMappers(columnMapperFactory, argumentFactory, rowMapper).use { handle ->
+            val dao = handle.attach(Dao::class)
 
-        val dao = handle.attach(Dao::class)
+            dao.insert(ValueId(2), "Bean")
+            dao.insert(ValueId(6), "Martin")
 
-        dao.insert(ValueId(2), "Bean")
-        dao.insert(ValueId(6), "Martin")
-
-        val s = dao.loadAll()
-        assertThat(s).hasSize(2)
-        assertThat(s).containsExactly(Something(ValueId(2), "Bean"), Something(ValueId(6), "Martin"))
+            val s = dao.loadAll()
+            assertThat(s).hasSize(2)
+            assertThat(s).containsExactly(Something(ValueId(2), "Bean"), Something(ValueId(6), "Martin"))
+        }
     }
 
     @ParameterizedTest
     @MethodSource("arguments")
     fun testListMapperForJava(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory, rowMapper: RowMapper<*>) {
-        handle.registerRowMapper(Something::class.java, rowMapper)
-        handle.registerColumnMapper(columnMapperFactory)
-        handle.registerArgument(argumentFactory)
+        openWithMappers(columnMapperFactory, argumentFactory, rowMapper).use { handle ->
+            val dao = handle.attach(Dao::class)
 
-        val dao = handle.attach(Dao::class)
+            dao.insert(ValueId(2), "Bean")
+            dao.insert(ValueId(6), "Martin")
 
-        dao.insert(ValueId(2), "Bean")
-        dao.insert(ValueId(6), "Martin")
-
-        val s: java.util.List<Something> = dao.loadAllJava()
-        assertThat(s).hasSize(2)
-        assertThat(s).containsExactly(Something(ValueId(2), "Bean"), Something(ValueId(6), "Martin"))
+            val s: java.util.List<Something> = dao.loadAllJava()
+            assertThat(s).hasSize(2)
+            assertThat(s).containsExactly(Something(ValueId(2), "Bean"), Something(ValueId(6), "Martin"))
+        }
     }
 
     @ParameterizedTest
     @MethodSource("arguments")
     fun testValueClassListMapper(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory, rowMapper: RowMapper<*>) {
-        handle.registerRowMapper(Something::class.java, rowMapper)
-        handle.registerColumnMapper(columnMapperFactory)
-        handle.registerArgument(argumentFactory)
+        openWithMappers(columnMapperFactory, argumentFactory, rowMapper).use { handle ->
+            val dao = handle.attach(Dao::class)
 
-        val dao = handle.attach(Dao::class)
+            dao.insert(ValueId(2), "Bean")
+            dao.insert(ValueId(6), "Martin")
 
-        dao.insert(ValueId(2), "Bean")
-        dao.insert(ValueId(6), "Martin")
-
-        val s = dao.loadAllIds()
-        assertThat(s).hasSize(2)
-        assertThat(s).containsExactly(ValueId(2), ValueId(6))
+            val s = dao.loadAllIds()
+            assertThat(s).hasSize(2)
+            assertThat(s).containsExactly(ValueId(2), ValueId(6))
+        }
     }
 
     @ParameterizedTest
     @MethodSource("arguments")
     fun testValueClassListMapperForJava(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory, rowMapper: RowMapper<*>) {
-        handle.registerRowMapper(Something::class.java, rowMapper)
-        handle.registerColumnMapper(columnMapperFactory)
-        handle.registerArgument(argumentFactory)
+        openWithMappers(columnMapperFactory, argumentFactory, rowMapper).use { handle ->
+            val dao = handle.attach(Dao::class)
 
-        val dao = handle.attach(Dao::class)
+            dao.insert(ValueId(2), "Bean")
+            dao.insert(ValueId(6), "Martin")
 
-        dao.insert(ValueId(2), "Bean")
-        dao.insert(ValueId(6), "Martin")
-
-        val s: java.util.List<ValueId> = dao.loadAllIdsJava()
-        assertThat(s).hasSize(2)
-        assertThat(s).containsExactly(ValueId(2), ValueId(6))
+            val s: java.util.List<ValueId> = dao.loadAllIdsJava()
+            assertThat(s).hasSize(2)
+            assertThat(s).containsExactly(ValueId(2), ValueId(6))
+        }
     }
 
     @ParameterizedTest
     @MethodSource("arguments")
     fun testRegularListMapper(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory, rowMapper: RowMapper<*>) {
-        handle.registerRowMapper(Something::class.java, rowMapper)
-        handle.registerColumnMapper(columnMapperFactory)
-        handle.registerArgument(argumentFactory)
+        openWithMappers(columnMapperFactory, argumentFactory, rowMapper).use { handle ->
+            val dao = handle.attach(Dao::class)
 
-        val dao = handle.attach(Dao::class)
+            dao.insert(ValueId(2), "Bean")
+            dao.insert(ValueId(6), "Martin")
 
-        dao.insert(ValueId(2), "Bean")
-        dao.insert(ValueId(6), "Martin")
-
-        val s = dao.loadAllNames()
-        assertThat(s).hasSize(2)
-        assertThat(s).containsExactly("Bean", "Martin")
+            val s = dao.loadAllNames()
+            assertThat(s).hasSize(2)
+            assertThat(s).containsExactly("Bean", "Martin")
+        }
     }
 
     @Test
     fun testValueClassColumn() {
-        handle.registerColumnMapper(ValueId::class.java, ValueIdColumnMapper())
+        h2Extension.jdbi.open { cfg ->
+            cfg.configure(ColumnMappers::class.java) { it.register(ValueId::class.java, ValueIdColumnMapper()) }
+        }.use { handle ->
+            val dao = handle.attach(Dao::class)
 
-        val dao = handle.attach(Dao::class)
+            dao.insert(ValueId(6), "Martin")
 
-        dao.insert(ValueId(6), "Martin")
+            val s = dao.findIdByName("Martin")
+            assertThat(s).isEqualTo(ValueId(6))
 
-        val s = dao.findIdByName("Martin")
-        assertThat(s).isEqualTo(ValueId(6))
-
-        val t = dao.findIdByName("Brian")
-        assertThat(t).isNull()
+            val t = dao.findIdByName("Brian")
+            assertThat(t).isNull()
+        }
     }
 
     @UseStringTemplateSqlLocator

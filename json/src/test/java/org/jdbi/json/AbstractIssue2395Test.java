@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.mapper.reflect.BeanMapper;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.core.mapper.reflect.FieldMapper;
@@ -41,11 +42,6 @@ public abstract class AbstractIssue2395Test {
     @BeforeEach
     void setUp() {
         this.handle = getHandle();
-        // register a mapper for the wrapper class that contains a json field.
-        this.handle.registerRowMapper(ConstructorWrapper.class, ConstructorMapper.of(ConstructorWrapper.class));
-        this.handle.registerRowMapper(FieldWrapper.class, FieldMapper.of(FieldWrapper.class));
-        this.handle.registerRowMapper(BeanWrapper.class, BeanMapper.of(BeanWrapper.class));
-
         this.handle.execute("create table test2395 (id integer not null primary key, name varchar(255), data json)");
     }
 
@@ -57,16 +53,19 @@ public abstract class AbstractIssue2395Test {
                 new JsonData("fourth", "four", 16), new JsonData("fifth", "five", 23), new JsonData("sixth", "six", 42)));
         final ConstructorWrapper data2 = new ConstructorWrapper(2, "bob", Collections.singletonList(new JsonData("toast", "words", 8)));
 
-        CtorDao dao = handle.attach(CtorDao.class);
+        try (Handle handle = this.handle.getJdbi().open(cfg -> cfg.configure(RowMappers.class,
+            r -> r.register(ConstructorWrapper.class, ConstructorMapper.of(ConstructorWrapper.class))))) {
+            CtorDao dao = handle.attach(CtorDao.class);
 
-        dao.write(data1);
-        dao.write(data2);
+            dao.write(data1);
+            dao.write(data2);
 
-        List<ConstructorWrapper> data = dao.readAll();
-        assertThat(data).containsExactly(data1, data2);
+            List<ConstructorWrapper> data = dao.readAll();
+            assertThat(data).containsExactly(data1, data2);
 
-        assertThat(dao.retrieve(1)).isEqualTo(data1);
-        assertThat(dao.retrieve(2)).isEqualTo(data2);
+            assertThat(dao.retrieve(1)).isEqualTo(data1);
+            assertThat(dao.retrieve(2)).isEqualTo(data2);
+        }
     }
 
     @Test
@@ -83,16 +82,19 @@ public abstract class AbstractIssue2395Test {
         data2.name = "bob";
         data2.data = Collections.singletonList(new JsonData("toast", "words", 8));
 
-        FieldDao dao = handle.attach(FieldDao.class);
+        try (Handle handle = this.handle.getJdbi().open(cfg -> cfg.configure(RowMappers.class,
+            r -> r.register(FieldWrapper.class, FieldMapper.of(FieldWrapper.class))))) {
+            FieldDao dao = handle.attach(FieldDao.class);
 
-        dao.write(data1);
-        dao.write(data2);
+            dao.write(data1);
+            dao.write(data2);
 
-        List<FieldWrapper> data = dao.readAll();
-        assertThat(data).containsExactly(data1, data2);
+            List<FieldWrapper> data = dao.readAll();
+            assertThat(data).containsExactly(data1, data2);
 
-        assertThat(dao.retrieve(1)).isEqualTo(data1);
-        assertThat(dao.retrieve(2)).isEqualTo(data2);
+            assertThat(dao.retrieve(1)).isEqualTo(data1);
+            assertThat(dao.retrieve(2)).isEqualTo(data2);
+        }
     }
 
     @Test
@@ -109,16 +111,19 @@ public abstract class AbstractIssue2395Test {
         data2.setName("bob");
         data2.setData(Collections.singletonList(new JsonData("toast", "words", 8)));
 
-        BeanDao dao = handle.attach(BeanDao.class);
+        try (Handle handle = this.handle.getJdbi().open(cfg -> cfg.configure(RowMappers.class,
+            r -> r.register(BeanWrapper.class, BeanMapper.of(BeanWrapper.class))))) {
+            BeanDao dao = handle.attach(BeanDao.class);
 
-        dao.write(data1);
-        dao.write(data2);
+            dao.write(data1);
+            dao.write(data2);
 
-        List<BeanWrapper> data = dao.readAll();
-        assertThat(data).containsExactly(data1, data2);
+            List<BeanWrapper> data = dao.readAll();
+            assertThat(data).containsExactly(data1, data2);
 
-        assertThat(dao.retrieve(1)).isEqualTo(data1);
-        assertThat(dao.retrieve(2)).isEqualTo(data2);
+            assertThat(dao.retrieve(1)).isEqualTo(data1);
+            assertThat(dao.retrieve(2)).isEqualTo(data2);
+        }
     }
 
     public interface CtorDao {

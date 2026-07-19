@@ -36,12 +36,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestBindMethodsList {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(FieldMapper.factory(TestBindBeanList.Thing.class)));
 
     @BeforeEach
     public void setUp() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(FieldMapper.factory(TestBindBeanList.Thing.class));
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
     }
 

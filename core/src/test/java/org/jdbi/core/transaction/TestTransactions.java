@@ -24,6 +24,7 @@ import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.RenderContext;
+import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.TemplateEngine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -202,10 +203,12 @@ public class TestTransactions {
 
     @Test
     public void testTemplateEngineThrowsError() {
-        assertThatThrownBy(() -> h.setTemplateEngine(new BoomEngine()).inTransaction(h2 -> h2.execute("select 1")))
-            .isOfAnyClassIn(Error.class)
-            .hasMessage("boom");
-        assertThat(h.isInTransaction()).isFalse();
+        try (Handle boomHandle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.templateEngine(new BoomEngine())))) {
+            assertThatThrownBy(() -> boomHandle.inTransaction(h2 -> h2.execute("select 1")))
+                .isOfAnyClassIn(Error.class)
+                .hasMessage("boom");
+            assertThat(boomHandle.isInTransaction()).isFalse();
+        }
     }
 
     @Test

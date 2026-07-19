@@ -35,7 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestExtensionCustomizers {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+            .withConfig(b -> b.configure(Extensions.class, c -> c.register(new ExtensionFrameworkTestFactory())));
 
     private Handle testHandle;
 
@@ -44,7 +45,6 @@ public class TestExtensionCustomizers {
     @BeforeEach
     public void setUp() {
         testHandle = h2Extension.getSharedHandle();
-        testHandle.configure(Extensions.class, c -> c.register(new ExtensionFrameworkTestFactory()));
 
         INVOCATIONS.get().clear();
     }
@@ -107,23 +107,24 @@ public class TestExtensionCustomizers {
 
     @Test
     public void testRegisteredDecorator() {
-        testHandle.configure(Extensions.class, c -> c.registerHandlerCustomizer(
+        try (Handle testHandle = h2Extension.getJdbi().open(cfg -> cfg.configure(Extensions.class, c -> c.registerHandlerCustomizer(
                 (base, sqlObjectType, method) ->
                         (config, target) -> (handleSupplier, args) -> {
                             invoked("custom");
                             return base.attachTo(config, target).invoke(handleSupplier, args);
-                        }));
+                        })))) {
 
-        testHandle.attach(Dao.class).orderedFooBar();
+            testHandle.attach(Dao.class).orderedFooBar();
+        }
 
         assertThat(INVOCATIONS.get()).containsExactlyInAnyOrder("custom", "foo", "bar", "method");
     }
 
     @Test
     public void testRegisteredDecoratorReturnsBase() {
-        testHandle.configure(Extensions.class, c -> c.registerHandlerCustomizer((base, sqlObjectType, method) -> base));
-
-        testHandle.attach(Dao.class).orderedFooBar();
+        try (Handle testHandle = h2Extension.getJdbi().open(cfg -> cfg.configure(Extensions.class, c -> c.registerHandlerCustomizer((base, sqlObjectType, method) -> base)))) {
+            testHandle.attach(Dao.class).orderedFooBar();
+        }
 
         assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
     }

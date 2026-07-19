@@ -60,8 +60,8 @@ public class TestVavrOptionMapperWithDB {
     @Test
     public void testOptionMappedWithoutGenericParameterShouldFail() {
         assertThatThrownBy(() -> h2Extension.getSharedHandle()
-            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
             .createQuery("select name from something")
+            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
             .collectInto(new GenericType<Set<Option>>() {}))
                 .isInstanceOf(NoSuchMapperException.class)
                 .hasMessageContaining("raw");
@@ -79,8 +79,8 @@ public class TestVavrOptionMapperWithDB {
     @Test
     public void testOptionMappedWithinObjectIfPresentShouldContainValue() {
         final SomethingWithOption result = h2Extension.getSharedHandle()
-            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
             .createQuery("select id, name from something where id = 1")
+            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
             .mapTo(SomethingWithOption.class)
             .one();
 
@@ -91,8 +91,8 @@ public class TestVavrOptionMapperWithDB {
     @Test
     public void testOptionWithinObjectIfMissingShouldBeNone() {
         final SomethingWithOption result = h2Extension.getSharedHandle()
-            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
             .createQuery("select id, name from something where id = 2")
+            .registerRowMapper(ConstructorMapper.factory(SomethingWithOption.class))
             .mapTo(SomethingWithOption.class)
             .one();
 
@@ -104,9 +104,9 @@ public class TestVavrOptionMapperWithDB {
     public void testOptionWithRowMapper() {
         GenericType<Option<Something>> vavrType = new GenericType<>() {};
         final Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(Something.class, BeanMapper.of(Something.class));
 
-        try (Query query = handle.createQuery("SELECT * FROM something WHERE id = :id")) {
+        try (Query query = handle.createQuery("SELECT * FROM something WHERE id = :id")
+                .registerRowMapper(Something.class, BeanMapper.of(Something.class))) {
             Option<Something> result = query.bind("id", 1)
                 .mapTo(vavrType)
                 .one();

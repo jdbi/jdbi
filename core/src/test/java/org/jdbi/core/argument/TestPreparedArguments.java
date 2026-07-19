@@ -33,7 +33,7 @@ public class TestPreparedArguments {
 
         // Changing the handle's config forks a private registry with its own resolver; a resolver is scoped
         // to the registry it was obtained from, so re-fetch it from the (now forked) config.
-        h.configure(Arguments.class, c -> c.preparedArgumentsEnabled(false));
+        h.getConfig().configure(Arguments.class, c -> c.preparedArgumentsEnabled(false));
 
         assertThat(ArgumentResolver.forRegistry(h.getConfig()).prepareFor(int.class))
                 .isEmpty();

@@ -13,11 +13,11 @@
  */
 package org.jdbi.core.kotlin
 
-import org.jdbi.core.Handle
 import org.jdbi.core.HandleCallback
 import org.jdbi.core.Jdbi
 import org.jdbi.core.mapper.JoinRow
 import org.jdbi.core.mapper.JoinRowMapper
+import org.jdbi.core.statement.Query
 import org.jdbi.testing.junit.JdbiExtension
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -45,37 +45,37 @@ class Issue1944Test {
 
     data class Product(val id: Int?, val primaryName: String?, val tagId: Int?)
 
-    // The mappers are registered on the handle rather than the read-only Jdbi. Registering a KotlinMapper needs the
+    // The mappers are registered on the statement rather than the read-only Jdbi. Registering a KotlinMapper needs the
     // KotlinRowMapperInterceptor that KotlinPlugin installs; on a Jdbi.Builder the plugin's configure() hook only runs
     // at build() time, so the interceptor is not yet present when register* is called on the builder.
     @Test
     fun testWithKotlinMapperFactory(jdbi: Jdbi) {
-        doTest(jdbi) { handle ->
+        doTest(jdbi) { query ->
             // the required mapper for Tag is implicit and will be created on the fly without a prefix by the KotlinMapperFactory
-            handle.registerRowMapper(KotlinMapper(Product::class.java, "p"))
-            handle.registerRowMapper(JoinRowMapper.forTypes(Tag::class.java, Product::class.java))
+            query.registerRowMapper(KotlinMapper(Product::class.java, "p"))
+            query.registerRowMapper(JoinRowMapper.forTypes(Tag::class.java, Product::class.java))
         }
     }
 
     @Test
     fun testWithoutKotlinMapperFactory(jdbi: Jdbi) {
-        doTest(jdbi) { handle ->
-            handle.registerRowMapper(KotlinMapper(Product::class.java, "p"))
-            handle.registerRowMapper(KotlinMapper(Tag::class.java))
-            handle.registerRowMapper(JoinRowMapper.forTypes(Tag::class.java, Product::class.java))
+        doTest(jdbi) { query ->
+            query.registerRowMapper(KotlinMapper(Product::class.java, "p"))
+            query.registerRowMapper(KotlinMapper(Tag::class.java))
+            query.registerRowMapper(JoinRowMapper.forTypes(Tag::class.java, Product::class.java))
         }
     }
 
     @Test
     fun testNativeKotlin(jdbi: Jdbi) {
-        doTest(jdbi) { handle ->
-            handle.registerRowMapper(KotlinMapper(Product::class, "p"))
-            handle.registerRowMapper(KotlinMapper(Tag::class))
-            handle.registerRowMapper(JoinRowMapper.forTypes(Tag::class.java, Product::class.java))
+        doTest(jdbi) { query ->
+            query.registerRowMapper(KotlinMapper(Product::class, "p"))
+            query.registerRowMapper(KotlinMapper(Tag::class))
+            query.registerRowMapper(JoinRowMapper.forTypes(Tag::class.java, Product::class.java))
         }
     }
 
-    fun doTest(jdbi: Jdbi, registerMappers: (Handle) -> Unit) {
+    fun doTest(jdbi: Jdbi, registerMappers: (Query) -> Unit) {
         val sql = """
             SELECT
               t.id, t.name,
@@ -85,8 +85,9 @@ class Issue1944Test {
 
         val rows = jdbi.withHandle(
             HandleCallback<List<JoinRow>, RuntimeException> { handle ->
-                registerMappers(handle)
-                handle.createQuery(sql).mapTo<JoinRow>().list()
+                val query = handle.createQuery(sql)
+                registerMappers(query)
+                query.mapTo<JoinRow>().list()
             }
         )
 

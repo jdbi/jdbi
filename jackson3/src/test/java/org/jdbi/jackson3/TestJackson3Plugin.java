@@ -127,8 +127,8 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
 
     @Test
     public void testSerializationView() {
-        h.configure(Jackson3Config.class, c -> c.serializationView(ViewTest.ViewB.class));
         assertThat(h.createQuery("select :vt::json ->> 'a'")
+                .configure(Jackson3Config.class, c -> c.serializationView(ViewTest.ViewB.class))
                 .bindByType("vt", viewValue, viewJsonType)
                 .mapTo(Integer.class)
                 .one())
@@ -137,8 +137,8 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
 
     @Test
     public void testDeserializationView() {
-        h.configure(Jackson3Config.class, c -> c.deserializationView(ViewTest.ViewA.class));
         assertThat(h.createQuery("select '{\"a\":42,\"b\":43}'::json")
+                .configure(Jackson3Config.class, c -> c.deserializationView(ViewTest.ViewA.class))
                 .mapTo(viewJsonType)
                 .one())
             .extracting(ViewTest::getA, ViewTest::getB)

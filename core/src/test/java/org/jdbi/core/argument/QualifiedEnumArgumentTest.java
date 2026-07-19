@@ -30,9 +30,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
-        sqliteExtension.getJdbi().useHandle(h -> {
-            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
+        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
             h.createUpdate("insert into enums (id, name) values (1, :name)")
@@ -64,9 +62,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void enumCanBeAnnotatedAsByName() {
-        sqliteExtension.getJdbi().useHandle(h -> {
-            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
+        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
             h.createUpdate("insert into enums(id, name) values(1, :name)")
@@ -98,9 +94,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void methodCallOverridesClassForName() {
-        sqliteExtension.getJdbi().useHandle(h -> {
-            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
+        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
             h.createUpdate("insert into enums(id, name) values(1, :name)")

@@ -44,9 +44,9 @@ public class PrimitiveMapperFactoryTest {
 
     @Test
     public void forbidNullPrimitives() {
-        assertThatThrownBy(() -> h2Extension.getJdbi().withHandle(h ->
-            h.configure(ColumnMappers.class, mappers -> mappers.coalesceNullPrimitivesToDefaults(false))
-                .createQuery("select null as foo")
+        assertThatThrownBy(() -> h2Extension.getJdbi().withHandle(
+            cfg -> cfg.configure(ColumnMappers.class, mappers -> mappers.coalesceNullPrimitivesToDefaults(false)),
+            h -> h.createQuery("select null as foo")
                 .mapTo(int.class)
                 .one()
         ))
@@ -57,9 +57,9 @@ public class PrimitiveMapperFactoryTest {
 
     @Test
     public void doesntApplyToBoxed() {
-        Integer value = h2Extension.getJdbi().withHandle(h ->
-            h.configure(ColumnMappers.class, mappers -> mappers.coalesceNullPrimitivesToDefaults(false))
-                .createQuery("select null")
+        Integer value = h2Extension.getJdbi().withHandle(
+            cfg -> cfg.configure(ColumnMappers.class, mappers -> mappers.coalesceNullPrimitivesToDefaults(false)),
+            h -> h.createQuery("select null")
                 .mapTo(Integer.class)
                 .one()
         );

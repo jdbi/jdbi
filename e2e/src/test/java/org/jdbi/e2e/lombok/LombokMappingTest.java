@@ -30,13 +30,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LombokMappingTest {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiH2Extension.h2().withInitializer((ds, h) -> {
-        h.execute("create table test_table (table_name varchar, is_view boolean)");
-        h.execute("insert into test_table (table_name, is_view) values ('abc', 1)");
-        h.execute("insert into test_table (table_name, is_view) values ('def', 0)");
-        h.registerRowMapper(BooleanObjectTable.class, BeanMapper.of(BooleanObjectTable.class));
-        h.registerRowMapper(BooleanPrimitiveTable.class, BeanMapper.of(BooleanPrimitiveTable.class));
-    });
+    public JdbiExtension h2Extension = JdbiH2Extension.h2()
+        .withConfig(b -> b
+            .registerRowMapper(BooleanObjectTable.class, BeanMapper.of(BooleanObjectTable.class))
+            .registerRowMapper(BooleanPrimitiveTable.class, BeanMapper.of(BooleanPrimitiveTable.class)))
+        .withInitializer((ds, h) -> {
+            h.execute("create table test_table (table_name varchar, is_view boolean)");
+            h.execute("insert into test_table (table_name, is_view) values ('abc', 1)");
+            h.execute("insert into test_table (table_name, is_view) values ('def', 0)");
+        });
 
     private Handle handle;
 

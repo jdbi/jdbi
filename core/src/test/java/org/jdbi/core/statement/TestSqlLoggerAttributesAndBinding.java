@@ -43,8 +43,7 @@ public class TestSqlLoggerAttributesAndBinding {
     @BeforeEach
     public void before() {
         logger = new TalkativeSqlLogger();
-        h = h2Extension.openHandle();
-        h.configure(SqlStatements.class, c -> c.sqlLogger(logger));
+        h = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(logger)));
     }
 
     @AfterEach
@@ -76,9 +75,8 @@ public class TestSqlLoggerAttributesAndBinding {
 
     @Test
     public void testPreparedBatch() {
-        h.configure(SqlStatements.class, c -> c.sqlLogger(SqlLogger.NOP_SQL_LOGGER));
-        h.createUpdate(CREATE).define("x", "foo").execute();
-        h.configure(SqlStatements.class, c -> c.sqlLogger(logger));
+        // silence logging for the table-creation statement only (per-statement config); the handle keeps `logger`.
+        h.createUpdate(CREATE).configure(SqlStatements.class, c -> c.sqlLogger(SqlLogger.NOP_SQL_LOGGER)).define("x", "foo").execute();
 
         int id = 0;
 

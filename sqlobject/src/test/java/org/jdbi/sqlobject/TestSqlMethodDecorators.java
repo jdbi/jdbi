@@ -103,23 +103,24 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testRegisteredDecorator() {
-        testHandle.configure(HandlerDecorators.class, c -> c.register(
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(HandlerDecorators.class, c -> c.register(
                 (base, sqlObjectType, method) ->
                         (target, args, handleSupplier) -> {
                             invoked("custom");
                             return base.invoke(target, args, handleSupplier);
-                        }));
-
-        testHandle.attach(Dao.class).orderedFooBar();
+                        })))) {
+            handle.attach(Dao.class).orderedFooBar();
+        }
 
         assertThat(INVOCATIONS.get()).containsExactly("custom", "foo", "bar", "method");
     }
 
     @Test
     public void testRegisteredDecoratorReturnsBase() {
-        testHandle.configure(HandlerDecorators.class, c -> c.register((base, sqlObjectType, method) -> base));
-
-        testHandle.attach(Dao.class).orderedFooBar();
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(HandlerDecorators.class, c -> c.register((base, sqlObjectType, method) -> base)))) {
+            handle.attach(Dao.class).orderedFooBar();
+        }
 
         assertThat(INVOCATIONS.get()).containsExactly("foo", "bar", "method");
     }

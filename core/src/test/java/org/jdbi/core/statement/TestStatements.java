@@ -93,24 +93,21 @@ public class TestStatements {
     public void testStatementWithOptionalResults() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.configure(ResultProducers.class, c -> c.allowNoResults(true));
-        assertThat(h.createQuery("commit").mapTo(Integer.class).findFirst()).isEmpty();
+        assertThat(h.createQuery("commit").configure(ResultProducers.class, c -> c.allowNoResults(true)).mapTo(Integer.class).findFirst()).isEmpty();
     }
 
     @Test
     public void testStatementWithOptionalBeanResults() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.configure(ResultProducers.class, c -> c.allowNoResults(true));
-        assertThat(h.createQuery("commit").mapToBean(Object.class).findFirst()).isEmpty();
+        assertThat(h.createQuery("commit").configure(ResultProducers.class, c -> c.allowNoResults(true)).mapToBean(Object.class).findFirst()).isEmpty();
     }
 
     @Test
     public void testStatementWithOptionalMapResults() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.configure(ResultProducers.class, c -> c.allowNoResults(true));
-        assertThat(h.createQuery("commit").mapToMap().findFirst()).isEmpty();
+        assertThat(h.createQuery("commit").configure(ResultProducers.class, c -> c.allowNoResults(true)).mapToMap().findFirst()).isEmpty();
     }
 
     @Test
@@ -127,8 +124,8 @@ public class TestStatements {
     public void testPermittedUnusedBinding() {
         Handle h = h2Extension.getSharedHandle();
 
-        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.unusedBindingAllowed(true))
-            .createQuery("select * from something")
+        assertThatCode(() -> h.createQuery("select * from something")
+            .configure(SqlStatements.class, s -> s.unusedBindingAllowed(true))
             .bind("id", 1)
             .collectRows(Collectors.counting())).doesNotThrowAnyException();
     }
@@ -137,8 +134,8 @@ public class TestStatements {
     public void testPermittedUsedAndUnusedBinding() {
         Handle h = h2Extension.getSharedHandle();
 
-        assertThatCode(() -> h.configure(SqlStatements.class, s -> s.unusedBindingAllowed(true))
-            .createQuery("select * from something where id = :id")
+        assertThatCode(() -> h.createQuery("select * from something where id = :id")
+            .configure(SqlStatements.class, s -> s.unusedBindingAllowed(true))
             .bind("id", 1)
             .bind("name", "jack")
             .collectRows(Collectors.counting())).doesNotThrowAnyException();
@@ -187,8 +184,7 @@ public class TestStatements {
         Handle h = h2Extension.getSharedHandle();
 
         h.execute("CREATE ALIAS TO_DEGREES FOR \"java.lang.Math.toDegrees\"");
-        h.configure(SqlStatements.class, stmts -> stmts.unusedBindingAllowed(true));
-        try (Call call = h.createCall("? = CALL TO_DEGREES(?)")) {
+        try (Call call = h.createCall("? = CALL TO_DEGREES(?)").configure(SqlStatements.class, stmts -> stmts.unusedBindingAllowed(true))) {
             call.registerOutParameter(0, Types.DOUBLE)
                 .bind(1, 100.0d)
                 .bind(2, "foo");

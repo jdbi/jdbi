@@ -20,6 +20,7 @@ import org.jdbi.core.Something;
 import org.jdbi.core.ValueType;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
+import org.jdbi.core.argument.Arguments;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.ValueTypeMapper;
 import org.jdbi.sqlobject.config.RegisterColumnMapper;
@@ -92,13 +93,15 @@ public class TestBindBean {
     @Test
     public void testArgumentFactoryRegisteredForProperty() {
         handle.execute("create table beans (id integer, value_type varchar, fromField varchar, fromGetter varchar)");
-        handle.registerArgument(new ValueTypeArgumentFactory());
 
-        BeanDao beanDao = handle.attach(BeanDao.class);
+        try (Handle scoped = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, a -> a.register(new ValueTypeArgumentFactory())))) {
+            BeanDao beanDao = scoped.attach(BeanDao.class);
 
-        beanDao.insert(new Bean(1, ValueType.valueOf("foo")));
-        assertThat(beanDao.getById(1)).extracting(Bean::getId, Bean::getValueType)
-                .containsExactly(1, ValueType.valueOf("foo"));
+            beanDao.insert(new Bean(1, ValueType.valueOf("foo")));
+            assertThat(beanDao.getById(1)).extracting(Bean::getId, Bean::getValueType)
+                    .containsExactly(1, ValueType.valueOf("foo"));
+        }
     }
 
     public static class Bean {

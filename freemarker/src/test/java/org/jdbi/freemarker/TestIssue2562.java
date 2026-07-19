@@ -36,7 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestIssue2562 {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(User.class, ConstructorMapper.of(User.class)));
 
     private Handle handle;
     private UserSearchDao dao;
@@ -45,7 +46,6 @@ public class TestIssue2562 {
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(User.class, ConstructorMapper.of(User.class));
         handle.execute("CREATE TABLE users (user_id identity primary key, name varchar(64))");
         dao = handle.attach(UserSearchDao.class);
 

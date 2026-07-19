@@ -162,11 +162,10 @@ public class MapEntryMapperTest {
                 .add(30, 3, "555-0003")
                 .execute();
 
-        h.registerRowMapper(ConstructorMapper.factory(User.class, "u"));
-        h.registerRowMapper(ConstructorMapper.factory(Phone.class, "p"));
-
         Map<User, Phone> map =
                 h.createQuery("SELECT u.id u_id, u.name u_name, p.id p_id, p.phone p_phone FROM \"user\" u LEFT JOIN phone p ON u.id = p.user_id")
+                        .registerRowMapper(ConstructorMapper.factory(User.class, "u"))
+                        .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
                         .mapTo(new GenericType<Map.Entry<User, Phone>>() {})
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 

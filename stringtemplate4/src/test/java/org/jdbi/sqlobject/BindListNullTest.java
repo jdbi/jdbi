@@ -22,6 +22,7 @@ import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.core.statement.ColonPrefixSqlParser;
 import org.jdbi.core.statement.ParsedSql;
 import org.jdbi.core.statement.SqlParser;
+import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.sqlobject.customizer.BindList;
 import org.jdbi.sqlobject.statement.SqlQuery;
@@ -91,25 +92,27 @@ public class BindListNullTest {
     @Test
     public void testSomethingByIterableHandleVoidWithNull() {
         final List<String> log = new ArrayList<>();
-        handle.setSqlParser(new LoggingParser(log));
-        final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlParser(new LoggingParser(log))))) {
+            final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
-        final List<Something> out = s.get(null);
+            final List<Something> out = s.get(null);
 
-        assertThat(out).isEmpty();
-        assertThat(log).hasSize(1).allMatch(e -> e.contains(" where id in ();"));
+            assertThat(out).isEmpty();
+            assertThat(log).hasSize(1).allMatch(e -> e.contains(" where id in ();"));
+        }
     }
 
     @Test
     public void testSomethingByIterableHandleVoidWithEmptyList() {
         final List<String> log = new ArrayList<>();
-        handle.setSqlParser(new LoggingParser(log));
-        final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlParser(new LoggingParser(log))))) {
+            final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
-        final List<Something> out = s.get(new ArrayList<>());
+            final List<Something> out = s.get(new ArrayList<>());
 
-        assertThat(out).isEmpty();
-        assertThat(log).hasSize(1).allMatch(e -> e.contains(" where id in ();"));
+            assertThat(out).isEmpty();
+            assertThat(log).hasSize(1).allMatch(e -> e.contains(" where id in ();"));
+        }
     }
 
     public interface SomethingByIterableHandleVoid {

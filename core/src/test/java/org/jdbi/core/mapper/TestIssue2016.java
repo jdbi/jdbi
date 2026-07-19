@@ -32,7 +32,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestIssue2016 {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+        .withConfig(b -> b
+            .registerRowMapper(Tag.class, new TagMapper())
+            .registerRowMapper(ModBusTag.class, BeanMapper.of(ModBusTag.class))
+            .registerRowMapper(SNMPTag.class, BeanMapper.of(SNMPTag.class))
+            .registerRowMapper(EIPTag.class, BeanMapper.of(EIPTag.class))
+            .registerRowMapper(S7Tag.class, BeanMapper.of(S7Tag.class))
+            .registerRowMapper(ICMPTag.class, BeanMapper.of(ICMPTag.class)));
 
     private Handle h;
 
@@ -43,13 +51,6 @@ public class TestIssue2016 {
 
     @Test
     public void testIssue2016() {
-        h.registerRowMapper(Tag.class, new TagMapper());
-        h.registerRowMapper(ModBusTag.class, BeanMapper.of(ModBusTag.class));
-        h.registerRowMapper(SNMPTag.class, BeanMapper.of(SNMPTag.class));
-        h.registerRowMapper(EIPTag.class, BeanMapper.of(EIPTag.class));
-        h.registerRowMapper(S7Tag.class, BeanMapper.of(S7Tag.class));
-        h.registerRowMapper(ICMPTag.class, BeanMapper.of(ICMPTag.class));
-
         h.execute("create table protocols (id integer, protocol VARCHAR(32), state VARCHAR(32))");
         h.execute("insert into protocols (id, protocol, state) values (1, 'ModBus', 'on')");
         h.execute("insert into protocols (id, protocol, state) values (2, 'ModBus', 'off')");
