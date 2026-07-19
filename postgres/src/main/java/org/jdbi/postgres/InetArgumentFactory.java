@@ -19,7 +19,7 @@ import java.sql.Types;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ObjectArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * Postgres version of argument factory for {@code InetAddress}.
@@ -30,7 +30,7 @@ public class InetArgumentFactory extends AbstractArgumentFactory<InetAddress> {
     }
 
     @Override
-    protected Argument build(InetAddress value, ConfigRegistry config) {
+    protected Argument build(InetAddress value, ConfigView config) {
         return ObjectArgument.of(value.getHostAddress(), Types.OTHER);
     }
 

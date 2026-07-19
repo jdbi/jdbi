@@ -17,23 +17,23 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.squareup.moshi.JsonAdapter;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.result.UnableToProduceResultException;
 import org.jdbi.json.JsonMapper;
 
 class MoshiJsonMapper implements JsonMapper {
     @Override
-    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+    public TypedJsonMapper forType(Type type, ConfigView config) {
         return new TypedJsonMapper() {
             private final JsonAdapter<Object> adapter = config.get(MoshiConfig.class).getMoshi().adapter(type);
 
             @Override
-            public String toJson(Object value, ConfigRegistry config) {
+            public String toJson(Object value, ConfigView config) {
                 return adapter.toJson(value);
             }
 
             @Override
-            public Object fromJson(String json, ConfigRegistry config) {
+            public Object fromJson(String json, ConfigView config) {
                 try {
                     return adapter.fromJson(json);
                 } catch (IOException e) {

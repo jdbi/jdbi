@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 import org.jdbi.core.array.SqlArrayType;
 import org.jdbi.core.array.SqlArrayTypeFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 
 /**
@@ -30,7 +30,7 @@ import org.jdbi.core.generic.GenericTypes;
  */
 final class PostgresCustomTypeArrayFactory implements SqlArrayTypeFactory {
     @Override
-    public Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config) {
+    public Optional<SqlArrayType<?>> build(Type elementType, ConfigView config) {
         final String typeName = config.get(PostgresTypes.class).sqlArrayTypeName(GenericTypes.getErasedType(elementType));
         return Optional.ofNullable(typeName).map(name -> SqlArrayType.of(name, Function.identity()));
     }

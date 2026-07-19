@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.ExtensionHandler;
 import org.jdbi.core.internal.RegistrationLists;
@@ -31,7 +31,7 @@ import org.jdbi.core.internal.RegistrationLists;
  * decorator will be the outermost decorator around the method handler.
  *
  * @deprecated Use {@link org.jdbi.core.extension.ExtensionHandlerCustomizer} instances which are returned directly
- * from the {@link org.jdbi.core.extension.ExtensionFactory#getExtensionHandlerCustomizers(ConfigRegistry)}.
+ * from the {@link org.jdbi.core.extension.ExtensionFactory#getExtensionHandlerCustomizers(ConfigView)}.
  */
 @Deprecated(since = "3.38.0", forRemoval = true)
 public final class HandlerDecorators implements JdbiConfig<HandlerDecorators> {

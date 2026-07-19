@@ -20,7 +20,7 @@ import java.util.function.Function;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.argument.ArgumentResolver;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.JdbiOptionals;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.statement.UnableToCreateStatementException;
@@ -42,7 +42,7 @@ public class JsonArgumentFactory implements ArgumentFactory.Preparable {
     );
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         TypedJsonMapper mapper = config.get(JsonConfig.class).getJsonMapper().forType(type, config);
         ArgumentResolver a = ArgumentResolver.forRegistry(config);
         // look for specialized json support first, revert to simple String binding if absent

@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.result.ResultBearing;
@@ -37,7 +37,7 @@ import org.jdbi.core.statement.StatementContext;
  * Factory for a RowMapper that can map resultset rows to column name/generic value {@link Map}s.
  * <p>
  * Each row in the resultset becomes a distinct {@link Map}, in which the keys are all distinct column names and the values are the corresponding cell contents.
- * All values are mapped to the same generic type {@code T} (e.g. {@link java.math.BigDecimal}) by a {@link ColumnMapper} from the {@link ConfigRegistry}.
+ * All values are mapped to the same generic type {@code T} (e.g. {@link java.math.BigDecimal}) by a {@link ColumnMapper} from the {@link ConfigView}.
  * <p>
  * This differs from {@link MapMapper} by supporting a concrete type instead of only {@link Object}, and from {@code collecting} into a {@link Map}
  * in that the latter maps an entire resultset to a single {@link Map} and can only keep 1 key and 1 value from each row.
@@ -53,7 +53,7 @@ import org.jdbi.core.statement.StatementContext;
 public class GenericMapMapperFactory implements RowMapperFactory {
 
     @Override
-    public Optional<RowMapper<?>> build(Type mapType, ConfigRegistry config) {
+    public Optional<RowMapper<?>> build(Type mapType, ConfigView config) {
         return Optional.of(mapType)
             .filter(ParameterizedType.class::isInstance)
             .map(ParameterizedType.class::cast)
@@ -69,11 +69,11 @@ public class GenericMapMapperFactory implements RowMapperFactory {
      * Returns a {@link RowMapper} for a map with the given value type. The key type is {@link String}.
      *
      * @param valueType A {@link Class} instance representing the value type for the {@link Map}
-     * @param config    A {@link ConfigRegistry} instance
+     * @param config    A {@link ConfigView} instance
      * @param <T>       The value type
      * @return A {@link RowMapper} for a map from string to the given value type
      */
-    public static <T> RowMapper<Map<String, T>> getMapperForValueType(Class<T> valueType, ConfigRegistry config) {
+    public static <T> RowMapper<Map<String, T>> getMapperForValueType(Class<T> valueType, ConfigView config) {
         return config.findColumnMapperFor(valueType)
             .map(GenericMapMapper::new)
             .orElseThrow(() -> new RuntimeException("no column mapper found for type " + valueType));
@@ -83,11 +83,11 @@ public class GenericMapMapperFactory implements RowMapperFactory {
      * Returns a {@link RowMapper} for a map with the given value type. The key type is {@link String}.
      *
      * @param valueType A {@link Class} instance representing the value type for the {@link Map}
-     * @param config    A {@link ConfigRegistry} instance
+     * @param config    A {@link ConfigView} instance
      * @param <T>       The value type
      * @return A {@link RowMapper} for a map from string to the given value type
      */
-    public static <T> RowMapper<Map<String, T>> getMapperForValueType(GenericType<T> valueType, ConfigRegistry config) {
+    public static <T> RowMapper<Map<String, T>> getMapperForValueType(GenericType<T> valueType, ConfigView config) {
         return config.findColumnMapperFor(valueType)
             .map(GenericMapMapper::new)
             .orElseThrow(() -> new RuntimeException("no column mapper found for type " + valueType));

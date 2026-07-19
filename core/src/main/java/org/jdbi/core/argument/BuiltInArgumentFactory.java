@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.statement.SqlStatement;
@@ -51,14 +51,14 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
     );
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         return FACTORIES.stream()
             .flatMap(factory -> factory.prepare(type, config).stream())
             .findFirst();
     }
 
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
         return FACTORIES.stream()
             .flatMap(factory -> factory.build(expectedType, value, config).stream())
             .findFirst();
@@ -67,13 +67,13 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
     private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory.Preparable {
         private final EnumArgumentFactory delegate = new EnumArgumentFactory();
         @Override
-        public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
             return EnumArgumentFactory.ifEnum(type).map(clazz ->
                     value -> build(type, value, config)
                         .orElseThrow(() -> new UnableToCreateStatementException("No enum value to bind after prepare")));
         }
         @Override
-        public Optional<Argument> build(Type expectedType, Object rawValue, ConfigRegistry config) {
+        public Optional<Argument> build(Type expectedType, Object rawValue, ConfigView config) {
             return delegate.build(QualifiedType.of(expectedType).with(EnumByName.class), rawValue, config);
         }
     }

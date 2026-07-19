@@ -21,7 +21,7 @@ import java.util.Optional;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
@@ -90,7 +90,7 @@ public class TestIssue2669 {
     public static class ValueMapper
             implements RowMapperFactory, RowMapper<Value> {
         @Override
-        public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+        public Optional<RowMapper<?>> build(Type type, ConfigView config) {
             if (type.equals(Value.class)) {
                 return Optional.of(this);
             }

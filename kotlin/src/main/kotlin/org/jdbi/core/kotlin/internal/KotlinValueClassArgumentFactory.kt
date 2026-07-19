@@ -16,7 +16,7 @@ package org.jdbi.core.kotlin.internal
 import org.jdbi.core.argument.Argument
 import org.jdbi.core.argument.ArgumentFactory
 import org.jdbi.core.argument.ArgumentResolver
-import org.jdbi.core.config.ConfigRegistry
+import org.jdbi.core.config.ConfigView
 import org.jdbi.meta.Alpha
 import java.lang.reflect.Type
 import java.util.Optional
@@ -27,7 +27,7 @@ import kotlin.reflect.full.memberProperties
  */
 @Alpha
 class KotlinValueClassArgumentFactory : ArgumentFactory {
-    override fun build(type: Type, value: Any?, config: ConfigRegistry): Optional<Argument> {
+    override fun build(type: Type, value: Any?, config: ConfigView): Optional<Argument> {
         val clazz = (type as? Class<*>)?.kotlin?.also {
             if (!it.isValue) return Optional.empty()
         } ?: return Optional.empty()

@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.meta.Beta;
@@ -48,7 +47,7 @@ public final class ArgumentResolver {
         return config.readAs(ArgumentResolver.class, ArgumentResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
     private final Map<QualifiedType<?>, Function<Object, Argument>> preparedFactories = new ConcurrentHashMap<>();
     private final Set<QualifiedType<?>> didPrepare = ConcurrentHashMap.newKeySet();
 
@@ -57,7 +56,7 @@ public final class ArgumentResolver {
     // registry (immutable-config step), each fork has its own fresh resolver and this guard is moot.
     private volatile int factoryCount = -1;
 
-    private ArgumentResolver(final ConfigRegistry registry) {
+    private ArgumentResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

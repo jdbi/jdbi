@@ -22,7 +22,7 @@ import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 
 import static java.lang.String.format;
@@ -65,7 +65,7 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
         };
     }
 
-    private static RowMapper<?> getKeyMapper(Type keyType, ConfigRegistry config) {
+    private static RowMapper<?> getKeyMapper(Type keyType, ConfigView config) {
         String column = config.get(MapEntryMappers.class).getKeyColumn();
         if (column == null) {
             return config.findRowMapperFor(keyType)
@@ -77,7 +77,7 @@ public class MapEntryMapper<K, V> implements RowMapper<Map.Entry<K, V>> {
         }
     }
 
-    private static RowMapper<?> getValueMapper(Type valueType, ConfigRegistry config) {
+    private static RowMapper<?> getValueMapper(Type valueType, ConfigView config) {
         String column = config.get(MapEntryMappers.class).getValueColumn();
         if (column == null) {
             return config.findRowMapperFor(valueType)

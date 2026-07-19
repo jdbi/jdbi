@@ -15,7 +15,7 @@ package org.jdbi.core.enums.internal;
 
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.enums.EnumStrategy;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.internal.EnumStrategyResolver;
@@ -27,14 +27,14 @@ import org.jdbi.core.qualifier.QualifiedType;
 public class EnumMapperFactory implements QualifiedColumnMapperFactory {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public Optional<ColumnMapper<?>> build(QualifiedType<?> givenType, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(QualifiedType<?> givenType, ConfigView config) {
         return Optional.of(givenType.getType())
             .map(GenericTypes::getErasedType)
             .filter(Enum.class::isAssignableFrom)
             .map(clazz -> makeEnumArgument((QualifiedType<Enum>) givenType, (Class<Enum>) clazz, config));
     }
 
-    private static <E extends Enum<E>> ColumnMapper<?> makeEnumArgument(QualifiedType<E> givenType, Class<E> enumClass, ConfigRegistry config) {
+    private static <E extends Enum<E>> ColumnMapper<?> makeEnumArgument(QualifiedType<E> givenType, Class<E> enumClass, ConfigView config) {
         boolean byName = EnumStrategy.BY_NAME == EnumStrategyResolver.forRegistry(config).findStrategy(givenType);
 
         return byName

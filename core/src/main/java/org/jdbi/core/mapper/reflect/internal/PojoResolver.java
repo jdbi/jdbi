@@ -16,7 +16,6 @@ package org.jdbi.core.mapper.reflect.internal;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 
@@ -40,9 +39,9 @@ public final class PojoResolver {
         return config.readAs(PojoResolver.class, PojoResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
 
-    private PojoResolver(final ConfigRegistry registry) {
+    private PojoResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

@@ -168,7 +168,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 > read methods so a discarded-wither / dead `configure()` can't compile), then **R6** (upgrade-guide docs).
 > **R5 DONE (2026-07-19): R5-A `dc169f3ef` (read-only `ConfigView` delegate — `getConfig().configure()` won't
 > compile and the returned view can't be cast to `ConfigRegistry`), R5-B `992df4f67` (`@CheckReturnValue` on ~90
-> config withers so a discarded wither fails spotbugs). No hot-path regression. NEXT: R5-D (bulletproof read-only — close the `readAs` @Alpha leak, DESIGNED, Option 9 recommended ~70 edits, do in a clean session), then R6 upgrade docs.** **R2 made `Jdbi` read-only**
+> config withers so a discarded wither fails spotbugs). No hot-path regression. **R5-D DONE (2026-07-19, whole reactor green): extended pure Option 3 — narrowed the whole read-only resolve path (7 factory SPIs + Preparable.prepare + init + ExtensionFactory getters + PojoPropertiesFactory chain + ConfigCache + Codec + JsonMapper family) to `ConfigView`; `readAs` hands a cached `asReadOnlyView()`, closing the leak as a side effect; 138 files/17 modules. See the R5-D bullet.** NEXT: R6 upgrade docs.** **R2 made `Jdbi` read-only**
 > (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
 > sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
 > `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
@@ -379,8 +379,35 @@ prize early, then finish the handle-config removal:
     no `@Target(TYPE)`; errorprone was offered but unneeded). ~90 withers across 27 `JdbiConfig` value classes;
     `createCopy`/getters/statics/void excluded. Legitimate `configure(X, c -> c.wither(...))` returns the value from
     the operator, so it is unaffected. No latent discard bug surfaced.
-- **R5-D — make the read-only guarantee bulletproof: close the `readAs` SPI leak. [DESIGNED 2026-07-19,
-  maintainer-requested; NOT yet implemented — start a clean session with this.]**
+- **R5-D — DONE (2026-07-19, whole reactor green): factory hygiene closes the `readAs` leak (extended pure Option 3).**
+  Maintainer chose (via `AskUserQuestion`) to **extend pure Option 3 through the whole read-only transitive closure**,
+  not the Option 9 fallback, after impl surfaced that the closure reaches further than the design's "~115 factory
+  impls" estimate. Shipped: `ConfigView.readAs` create-fn narrowed `Function<ConfigRegistry,T>` →
+  `Function<ConfigView,T>`; `ConfigRegistry.readAs` hands the create-fn a cached `asReadOnlyView()` (a
+  `ReadOnlyConfigView(() -> this)`, package-private for the same-package `TestConfigRegistry`), never `this` — so
+  `getConfig().readAs(ConfigRegistry.class, r -> r)` no longer type-checks and `r -> (ConfigRegistry) r` throws CCE.
+  The **read/resolve path is now uniformly `ConfigView`; `ConfigRegistry` appears only where mutation is intended**
+  (`ConfigCustomizer`, `StatementContext`, `configure`/`install`, `JdbiPlugin.configure(Builder)`/`customizeHandleConfig`,
+  the kotlin `Configurer`). Narrowed to `ConfigView` (all verified read-only): the 7 factory SPIs +
+  `AbstractArgumentFactory`; `ArgumentFactory.Preparable.prepare` + `QualifiedArgumentFactory(.Preparable)`;
+  `RowMapper.init`/`ColumnMapper.init`; the `ExtensionFactory` getter family
+  (`getExtensionHandler{Factories,Customizers}`/`getConfigCustomizerFactories`); the `PojoPropertiesFactory` chain
+  (`BuilderSpec`/`BuilderPojoProperties`/`BeanPropertiesFactory`/Modifiable); `ConfigCache`/`ConfigCaches`; `Codec`
+  (`getColumnMapper`/`getArgumentFunction`); and the `JsonMapper` family (`forType`/`toJson`/`fromJson` +
+  jackson2/jackson3/gson2/moshi). All 7 resolvers hold a `ConfigView` and pass it to the narrowed SPIs. **138 files
+  across 17 modules** (bigger than the estimate precisely because of `init`/`ExtensionFactory`/`PojoProperties`/
+  `ConfigCache`/`Codec`/`JsonMapper`). No mutable-registry factory was found, so the Option 9 fallback was unneeded.
+  `TestConfigRegistry` readAs assertions updated to compare against `X.asReadOnlyView()`. **GOTCHAS:** (1) always
+  `clean`-compile core — incremental compilation gave a FALSE `BUILD SUCCESS` with ~40 stale factory impls
+  un-recompiled; (2) grep for override sites must match `prepare(`/`create(`/`forType`/etc., not just `build(`, and
+  must NOT exclude the kotlin module (it lives under `org/jdbi/core/kotlin`, so a `grep -v /core/` wrongly drops it);
+  (3) blanket `ConfigRegistry`→`ConfigView` per file over-reaches into non-factory files (`BindingsMixin`,
+  `Configurable`) and test bodies (`new ConfigRegistry()`) — narrow only override signatures, or revert and redo
+  surgically; (4) ktlint's `function-signature` rule demands the shorter `ConfigView` signature collapse its body onto
+  one line, and `ktlint:format` does NOT auto-fix it (manual join + dedent).
+
+- **[superseded design of R5-D — kept for rationale] DESIGNED 2026-07-19,
+  maintainer-requested; NOT yet implemented — start a clean session with this.**
   - **The residual leak.** After R5-A, `ConfigView` (what `Jdbi/Handle.getConfig()` returns) still exposes the
     `@Alpha` `readAs(Class<T>, Function<ConfigRegistry, T>)`, whose create-function is handed the real
     `ConfigRegistry`. So `jdbi.getConfig().readAs(ConfigRegistry.class, r -> r)` extracts the mutable registry and

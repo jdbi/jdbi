@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.core.collector.CollectorResolver;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
@@ -32,7 +32,7 @@ import org.jdbi.core.mapper.ColumnMapperFactory;
 public class SqlArrayMapperFactory implements ColumnMapperFactory {
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         final Class<?> erasedType = GenericTypes.getErasedType(type);
 
         if (erasedType.isArray()) {
@@ -48,7 +48,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
                         .map(elementMapper -> new CollectorColumnMapper(elementMapper, collector)));
     }
 
-    private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, ConfigRegistry config) {
+    private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, ConfigView config) {
         Optional<ColumnMapper<?>> mapper = config.findColumnMapperFor(elementType);
 
         if (!mapper.isPresent() && elementType == Object.class) {

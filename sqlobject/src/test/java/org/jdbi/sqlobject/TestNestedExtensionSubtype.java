@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.extension.ExtensionFactory;
 import org.jdbi.core.extension.HandleSupplier;
 import org.jdbi.core.mapper.ColumnMapper;
@@ -110,7 +110,7 @@ class TestNestedExtensionSubtype {
 
     public static class SuperIntFactory implements ColumnMapperFactory {
         @Override
-        public Optional<ColumnMapper<?>> build(final Type type, final ConfigRegistry config) {
+        public Optional<ColumnMapper<?>> build(final Type type, final ConfigView config) {
             if (SuperInt.class.equals(type)) {
                 return Optional.of((r, c, ctx) -> new SuperInt(r.getInt(c)));
             } else if (SubInt.class.equals(type)) {

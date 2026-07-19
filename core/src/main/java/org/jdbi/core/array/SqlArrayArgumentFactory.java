@@ -22,7 +22,7 @@ import java.util.function.Function;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.argument.NullArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.IterableLike;
 
 /**
@@ -40,7 +40,7 @@ import org.jdbi.core.internal.IterableLike;
  */
 public class SqlArrayArgumentFactory implements ArgumentFactory.Preparable {
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         return IterableLike.elementTypeOf(type)
             .flatMap(ArrayTypeResolver.forRegistry(config)::findFor)
             .map(arrayType -> value -> arrayArgument(value, arrayType));

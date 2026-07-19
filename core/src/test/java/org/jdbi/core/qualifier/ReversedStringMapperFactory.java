@@ -16,14 +16,14 @@ package org.jdbi.core.qualifier;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
 
 @Reversed
 public final class ReversedStringMapperFactory implements ColumnMapperFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         if (String.class.equals(type)) {
             return Optional.of((rs, col, ctx) -> Reverser.reverse(rs.getString(col)));
         }

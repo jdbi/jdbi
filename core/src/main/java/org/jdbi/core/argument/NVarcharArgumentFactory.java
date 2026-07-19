@@ -15,7 +15,7 @@ package org.jdbi.core.argument;
 
 import java.sql.Types;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.NVarchar;
 
 /**
@@ -28,7 +28,7 @@ class NVarcharArgumentFactory extends AbstractArgumentFactory<String> {
     }
 
     @Override
-    protected Argument build(String value, ConfigRegistry config) {
+    protected Argument build(String value, ConfigView config) {
         return (pos, stmt, ctx) -> stmt.setNString(pos, value);
     }
 }

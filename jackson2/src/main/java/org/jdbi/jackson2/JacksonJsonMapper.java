@@ -21,13 +21,13 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.result.UnableToProduceResultException;
 import org.jdbi.json.JsonMapper;
 
 class JacksonJsonMapper implements JsonMapper {
     @Override
-    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+    public TypedJsonMapper forType(Type type, ConfigView config) {
         return new TypedJsonMapper() {
             private final Jackson2Config jacksonConfig = config.get(Jackson2Config.class);
             private final ObjectMapper mapper = jacksonConfig.getMapper();
@@ -39,7 +39,7 @@ class JacksonJsonMapper implements JsonMapper {
                             : mapper.writer();
 
             @Override
-            public String toJson(Object value, ConfigRegistry config) {
+            public String toJson(Object value, ConfigView config) {
                 final Class<?> view = config.get(Jackson2Config.class).getSerializationView();
                 final ObjectWriter viewWriter =
                           view == null
@@ -53,7 +53,7 @@ class JacksonJsonMapper implements JsonMapper {
             }
 
             @Override
-            public Object fromJson(String json, ConfigRegistry config) {
+            public Object fromJson(String json, ConfigView config) {
                 final Class<?> view = config.get(Jackson2Config.class).getDeserializationView();
                 final ObjectReader viewReader =
                           view == null

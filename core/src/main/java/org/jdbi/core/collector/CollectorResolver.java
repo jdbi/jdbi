@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collector;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.CopyOnWriteHashMap;
 
@@ -44,7 +43,7 @@ public final class CollectorResolver {
         return config.readAs(CollectorResolver.class, CollectorResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
     private final Map<Type, Optional<CollectorFactory>> factoryCache = new CopyOnWriteHashMap<>();
 
     // Registration only ever adds factories, so a change in factory count means a factory was registered
@@ -52,7 +51,7 @@ public final class CollectorResolver {
     // registry (immutable-config step), each fork has its own fresh resolver and this guard is moot.
     private volatile int factoryCount = -1;
 
-    private CollectorResolver(final ConfigRegistry registry) {
+    private CollectorResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

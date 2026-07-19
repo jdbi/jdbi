@@ -19,7 +19,7 @@ import java.util.Map;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ObjectArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * An argument factory which binds Java's {@link Map} to Postgres' hstore type.
@@ -33,7 +33,7 @@ public class HStoreArgumentFactory extends AbstractArgumentFactory<Map> {
     }
 
     @Override
-    protected Argument build(Map value, ConfigRegistry config) {
+    protected Argument build(Map value, ConfigView config) {
         return ObjectArgument.of(value);
     }
 }

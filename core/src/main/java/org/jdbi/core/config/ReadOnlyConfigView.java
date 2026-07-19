@@ -41,7 +41,7 @@ final class ReadOnlyConfigView implements ConfigView {
     }
 
     @Override
-    public <T> T readAs(final Class<T> asType, final Function<ConfigRegistry, T> create) {
+    public <T> T readAs(final Class<T> asType, final Function<ConfigView, T> create) {
         return registry.get().readAs(asType, create);
     }
 

@@ -16,7 +16,7 @@ package org.jdbi.sqlobject.kotlin
 import org.jdbi.core.argument.AbstractArgumentFactory
 import org.jdbi.core.argument.Argument
 import org.jdbi.core.argument.Arguments
-import org.jdbi.core.config.ConfigRegistry
+import org.jdbi.core.config.ConfigView
 import org.jdbi.sqlobject.SqlObject
 import org.jdbi.sqlobject.statement.SqlQuery
 import org.jdbi.sqlobject.statement.SqlUpdate
@@ -48,7 +48,7 @@ class TestListArgument {
     }
 
     class StringListArgumentFactory : AbstractArgumentFactory<List<String>>(Types.VARCHAR) {
-        override fun build(value: List<String>?, config: ConfigRegistry): Argument? = Argument { position, statement, _ ->
+        override fun build(value: List<String>?, config: ConfigView): Argument? = Argument { position, statement, _ ->
             if (value != null) {
                 statement.setString(position, value.joinToString(","))
             } else {
@@ -74,7 +74,7 @@ class TestListArgument {
     value class MagicValue(val value: String)
 
     class MagicListArgumentFactory : AbstractArgumentFactory<List<MagicValue>>(Types.VARCHAR) {
-        override fun build(value: List<MagicValue>?, config: ConfigRegistry): Argument? = Argument { position, statement, _ ->
+        override fun build(value: List<MagicValue>?, config: ConfigView): Argument? = Argument { position, statement, _ ->
             if (value != null) {
                 statement.setString(position, value.joinToString(",") { x -> x.value })
             } else {

@@ -15,9 +15,9 @@ package org.jdbi.core.mapper.reflect.internal;
 
 import java.lang.reflect.Type;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 @FunctionalInterface
 public interface PojoPropertiesFactory {
-    PojoProperties<?> create(Type type, ConfigRegistry config);
+    PojoProperties<?> create(Type type, ConfigView config);
 }

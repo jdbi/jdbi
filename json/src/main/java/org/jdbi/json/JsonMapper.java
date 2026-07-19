@@ -15,7 +15,7 @@ package org.jdbi.json;
 
 import java.lang.reflect.Type;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * Deserializes JSON to Java objects, and serializes Java objects to JSON.
@@ -28,19 +28,19 @@ import org.jdbi.core.config.ConfigRegistry;
 @SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface JsonMapper {
     @Deprecated(since = "3.40.0", forRemoval = true)
-    default String toJson(Type type, Object value, ConfigRegistry config) {
+    default String toJson(Type type, Object value, ConfigView config) {
         return forType(type, config).toJson(value, config);
     }
 
     @Deprecated(since = "3.40.0", forRemoval = true)
-    default Object fromJson(Type type, String json, ConfigRegistry config) {
+    default Object fromJson(Type type, String json, ConfigView config) {
         return forType(type, config).fromJson(json, config);
     }
 
-    TypedJsonMapper forType(Type type, ConfigRegistry config);
+    TypedJsonMapper forType(Type type, ConfigView config);
 
     interface TypedJsonMapper {
-        String toJson(Object value, ConfigRegistry config);
-        Object fromJson(String json, ConfigRegistry config);
+        String toJson(Object value, ConfigView config);
+        Object fromJson(String json, ConfigView config);
     }
 }

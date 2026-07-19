@@ -17,16 +17,16 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 class UntypedNullArgumentFactory implements ArgumentFactory.Preparable {
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         return Optional.empty(); // always dynamic
     }
 
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
         return value == null
                 ? Optional.of(config.get(Arguments.class).getUntypedNullArgument())
                 : Optional.empty();

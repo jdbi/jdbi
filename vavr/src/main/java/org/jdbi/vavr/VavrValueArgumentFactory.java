@@ -27,7 +27,7 @@ import io.vavr.control.Validation;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.argument.ArgumentResolver;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 import static org.jdbi.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
@@ -44,7 +44,7 @@ class VavrValueArgumentFactory implements ArgumentFactory.Preparable {
     private static final Supplier<Type> OBJECT_SUPPLIER = () -> Object.class;
 
     @Override
-    public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type type, Object value, ConfigView config) {
         if (acceptType(type)) {
             Object nestedValue = unwrapValue((Value<?>) value);
             Type nestedType = findGenericType(type, nestedValue);
@@ -55,7 +55,7 @@ class VavrValueArgumentFactory implements ArgumentFactory.Preparable {
     }
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         if (acceptType(type)) {
             return ArgumentResolver.forRegistry(config)
                 .prepareFor(findGenericType(type, null))

@@ -20,7 +20,7 @@ import java.time.Duration;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ObjectArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.postgresql.util.PGInterval;
 
 /**
@@ -48,7 +48,7 @@ public class DurationArgumentFactory extends AbstractArgumentFactory<Duration> {
     }
 
     @Override
-    public Argument build(Duration duration, ConfigRegistry config) {
+    public Argument build(Duration duration, ConfigView config) {
         Duration d = duration;
         final boolean isNegative = d.isNegative();
         if (isNegative) {

@@ -22,7 +22,7 @@ import java.util.Optional;
 import org.jdbi.core.Handle;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.testing.SqliteDatabaseExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -167,7 +167,7 @@ public class TestSqlLoggerToString {
     private static class FooArgumentFactory implements ArgumentFactory {
 
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, Object value, ConfigView config) {
             if (value instanceof Foo) {
                 return Optional.of((position, statement, ctx) -> statement.setObject(1, value));
             } else {
@@ -179,7 +179,7 @@ public class TestSqlLoggerToString {
     private static class ToStringFooArgumentFactory implements ArgumentFactory {
 
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, Object value, ConfigView config) {
             if (value instanceof Foo) {
                 return Optional.of(new Argument() {
                     @Override

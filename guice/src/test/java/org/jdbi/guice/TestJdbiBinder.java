@@ -30,7 +30,7 @@ import com.google.inject.Scopes;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.StatementContext;
@@ -195,7 +195,7 @@ public class TestJdbiBinder {
             }
 
             @Override
-            public void init(ConfigRegistry registry) {
+            public void init(ConfigView registry) {
                 myStringMapper = registry.findColumnMapperFor(MyString.class).orElseThrow(IllegalStateException::new);
             }
         }

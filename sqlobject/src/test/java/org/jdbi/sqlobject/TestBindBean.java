@@ -21,7 +21,7 @@ import org.jdbi.core.ValueType;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.Arguments;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ValueTypeMapper;
 import org.jdbi.sqlobject.config.RegisterColumnMapper;
 import org.jdbi.sqlobject.config.RegisterConstructorMapper;
@@ -132,7 +132,7 @@ public class TestBindBean {
         }
 
         @Override
-        protected Argument build(ValueType value, ConfigRegistry config) {
+        protected Argument build(ValueType value, ConfigView config) {
             return (pos, stmt, ctx) -> stmt.setString(pos, value.getValue());
         }
     }

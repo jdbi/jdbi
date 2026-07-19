@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.SqlStatements;
@@ -236,7 +236,7 @@ public class TestMapperInit {
         }
 
         @Override
-        public void init(ConfigRegistry registry) {
+        public void init(ConfigView registry) {
             initializedCount.incrementAndGet();
         }
     }
@@ -254,7 +254,7 @@ public class TestMapperInit {
         }
 
         @Override
-        public void init(ConfigRegistry registry) {
+        public void init(ConfigView registry) {
             stringValueMapper = registry.findColumnMapperFor(StringValue.class).orElseGet(() -> fail("No mapper found!"));
         }
     }

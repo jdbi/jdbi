@@ -19,7 +19,7 @@ import java.util.Optional;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.argument.ArgumentResolver;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.UtilityClassException;
 
 import static org.jdbi.core.generic.GenericTypes.findGenericParameter;
@@ -50,7 +50,7 @@ public class GuavaArguments {
     private static class Factory implements ArgumentFactory {
 
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
             if (value instanceof com.google.common.base.Optional<?> maybeValue) {
                 Object nestedValue = maybeValue.orNull();
                 Type nestedType = findOptionalType(expectedType, nestedValue);

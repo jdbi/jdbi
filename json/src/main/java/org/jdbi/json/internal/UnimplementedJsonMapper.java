@@ -15,7 +15,7 @@ package org.jdbi.json.internal;
 
 import java.lang.reflect.Type;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 import org.jdbi.json.JsonConfig;
 import org.jdbi.json.JsonMapper;
@@ -28,7 +28,7 @@ public class UnimplementedJsonMapper implements JsonMapper {
     );
 
     @Override
-    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+    public TypedJsonMapper forType(Type type, ConfigView config) {
         throw new UnableToCreateStatementException(NO_IMPL_INSTALLED);
     }
 }

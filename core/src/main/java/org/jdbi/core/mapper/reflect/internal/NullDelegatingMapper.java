@@ -17,7 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.StringJoiner;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.StatementContext;
 
@@ -38,7 +38,7 @@ public final class NullDelegatingMapper<T> implements RowMapper<T> {
     }
 
     @Override
-    public void init(ConfigRegistry registry) {
+    public void init(ConfigView registry) {
         delegate.init(registry);
     }
 

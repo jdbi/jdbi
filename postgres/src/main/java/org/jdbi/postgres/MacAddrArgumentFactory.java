@@ -17,7 +17,7 @@ import java.sql.Types;
 
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.postgresql.util.PGobject;
 
 /**
@@ -30,7 +30,7 @@ class MacAddrArgumentFactory extends AbstractArgumentFactory<String> {
     }
 
     @Override
-    protected Argument build(String value, ConfigRegistry config) {
+    protected Argument build(String value, ConfigView config) {
         return (pos, stmt, ctx) -> {
             PGobject obj = new PGobject();
             obj.setType("macaddr");

@@ -49,6 +49,11 @@ public final class ConfigRegistry implements ConfigView {
     // until the child's first install(), at which point the child materialises its own configs and detaches.
     private ConfigRegistry parent;
 
+    // Cached read-only view of this registry, handed to readAs create-functions (e.g. resolvers) so a resolver
+    // passes a ConfigView -- never this mutable registry -- to the factory SPIs it invokes. Lazily created; the
+    // wrapper is stateless (it forwards to this), so a benign race that builds two equivalent wrappers is harmless.
+    private ConfigView readOnlyView;
+
     /**
      * Creates a new config registry.
      */
@@ -161,7 +166,7 @@ public final class ConfigRegistry implements ConfigView {
      */
     @Alpha
     @Override
-    public <T> T readAs(final Class<T> asType, final Function<ConfigRegistry, T> create) {
+    public <T> T readAs(final Class<T> asType, final Function<ConfigView, T> create) {
         if (parent != null) {
             // Un-forked child: its effective config equals the parent's, so reuse the parent's (warm) view.
             return parent.readAs(asType, create);
@@ -171,9 +176,20 @@ public final class ConfigRegistry implements ConfigView {
         if (existing != null) {
             return existing;
         }
-        final T created = create.apply(this);
+        // Hand the create-function a read-only view, not this registry, so a view (e.g. a resolver) cannot reach
+        // in-place mutation, and readAs cannot be abused to extract the mutable registry from a read-only context.
+        final T created = create.apply(asReadOnlyView());
         final T previous = asType.cast(views.putIfAbsent(asType, created));
         return previous != null ? previous : created;
+    }
+
+    // Package-private: the read-only view handed to readAs create-functions. Exposed to same-package tests
+    // that assert readAs binds a view to the intended registry.
+    ConfigView asReadOnlyView() {
+        if (readOnlyView == null) {
+            readOnlyView = ConfigView.readOnly(() -> this);
+        }
+        return readOnlyView;
     }
 
     private Function<ConfigRegistry, JdbiConfig<?>> configFactory(Class<? extends JdbiConfig<?>> configClass) {

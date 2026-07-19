@@ -15,7 +15,7 @@ package org.jdbi.core.mapper;
 
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 
@@ -42,7 +42,7 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigView config) {
         return maps.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();

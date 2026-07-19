@@ -31,7 +31,7 @@ import io.vavr.Tuple7;
 import io.vavr.Tuple8;
 import io.vavr.collection.Array;
 import io.vavr.control.Option;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.MapEntryMappers;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.jdbi.core.mapper.RowMapper;
@@ -45,7 +45,7 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
 
     @Override
     @SuppressWarnings({"unchecked", "PMD.AvoidDeeplyNestedIfStmts"})
-    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<RowMapper<?>> build(Type type, ConfigView config) {
         Class<?> erasedType = getErasedType(type);
 
         boolean emptyTupleType = Tuple0.class.equals(erasedType) || Tuple.class.equals(erasedType);
@@ -110,7 +110,7 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
         return Optional.empty();
     }
 
-    Array<Tuple3<Type, Integer, Option<String>>> resolveKeyValueColumns(ConfigRegistry config, Array<Tuple2<Type, Integer>> tupleTypes) {
+    Array<Tuple3<Type, Integer, Option<String>>> resolveKeyValueColumns(ConfigView config, Array<Tuple2<Type, Integer>> tupleTypes) {
         Array<Tuple3<Type, Integer, Option<String>>> withConfiguredColumnName;
         Tuple2<Type, Integer> keyType = tupleTypes.get(0);
         Tuple2<Type, Integer> valueType = tupleTypes.get(1);
@@ -157,22 +157,22 @@ class VavrTupleRowMapperFactory implements RowMapperFactory {
         throw new IllegalArgumentException("unknown tuple type " + tupleClass);
     }
 
-    Optional<RowMapper<?>> getColumnMapper(Type type, int tupleIndex, ConfigRegistry config) {
+    Optional<RowMapper<?>> getColumnMapper(Type type, int tupleIndex, ConfigView config) {
         int colIndex = tupleIndex;
         return config.findColumnMapperFor(type)
                 .map(cm -> new SingleColumnMapper<>(cm, colIndex));
     }
 
-    private Optional<RowMapper<?>> getRowMapper(Type type, ConfigRegistry config) {
+    private Optional<RowMapper<?>> getRowMapper(Type type, ConfigView config) {
         return config.findRowMapperFor(type);
     }
 
-    private Optional<RowMapper<?>> getColumnMapperForDefinedColumn(Type type, String col, ConfigRegistry config) {
+    private Optional<RowMapper<?>> getColumnMapperForDefinedColumn(Type type, String col, ConfigView config) {
         return config.findColumnMapperFor(type)
                 .map(cm -> new SingleColumnMapper<>(cm, col));
     }
 
-    Option<String> getConfiguredColumnName(int tupleIndex, ConfigRegistry config) {
+    Option<String> getConfiguredColumnName(int tupleIndex, ConfigView config) {
         return Option.of(config.get(TupleMappers.class)
                 .getColumn(tupleIndex));
     }

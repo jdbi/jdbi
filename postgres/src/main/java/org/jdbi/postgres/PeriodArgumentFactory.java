@@ -19,7 +19,7 @@ import java.time.Period;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ObjectArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.postgresql.util.PGInterval;
 
 /**
@@ -32,7 +32,7 @@ public class PeriodArgumentFactory extends AbstractArgumentFactory<Period> {
     }
 
     @Override
-    public Argument build(Period period, ConfigRegistry config) {
+    public Argument build(Period period, ConfigView config) {
         PGInterval interval = new PGInterval(period.getYears(), period.getMonths(), period.getDays(), 0, 0, 0);
         return ObjectArgument.of(interval, Types.OTHER);
     }

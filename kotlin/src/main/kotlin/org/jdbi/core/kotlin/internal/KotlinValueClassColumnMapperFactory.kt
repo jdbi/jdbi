@@ -13,7 +13,7 @@
  */
 package org.jdbi.core.kotlin.internal
 
-import org.jdbi.core.config.ConfigRegistry
+import org.jdbi.core.config.ConfigView
 import org.jdbi.core.mapper.ColumnMapper
 import org.jdbi.core.mapper.ColumnMapperFactory
 import org.jdbi.core.mapper.NoSuchMapperException
@@ -29,7 +29,7 @@ import kotlin.reflect.full.primaryConstructor
  */
 @Alpha
 class KotlinValueClassColumnMapperFactory : ColumnMapperFactory {
-    override fun build(type: Type, config: ConfigRegistry): Optional<ColumnMapper<*>> {
+    override fun build(type: Type, config: ConfigView): Optional<ColumnMapper<*>> {
         val clazz = (type as? Class<*>)?.kotlin?.also {
             if (!it.isValue) return Optional.empty()
         } ?: return Optional.empty()

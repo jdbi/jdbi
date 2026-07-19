@@ -13,7 +13,7 @@
  */
 package org.jdbi.core.kotlin
 
-import org.jdbi.core.config.ConfigRegistry
+import org.jdbi.core.config.ConfigView
 import org.jdbi.core.generic.GenericTypes.getErasedType
 import org.jdbi.core.mapper.RowMapper
 import org.jdbi.core.mapper.RowMapperFactory
@@ -31,7 +31,7 @@ import java.util.Optional
  */
 class KotlinMapperFactory : RowMapperFactory {
 
-    override fun build(type: Type, config: ConfigRegistry): Optional<RowMapper<*>> {
+    override fun build(type: Type, config: ConfigView): Optional<RowMapper<*>> {
         val erasedType = getErasedType(type)
 
         // TODO: Validate if we should only handle 'data' classes with the Kotlin mapper

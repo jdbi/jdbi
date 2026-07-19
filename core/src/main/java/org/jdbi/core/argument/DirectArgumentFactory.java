@@ -16,11 +16,11 @@ package org.jdbi.core.argument;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 public class DirectArgumentFactory implements ArgumentFactory {
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
         return value instanceof Argument argument
                 ? Optional.of(argument)
                 : Optional.empty();

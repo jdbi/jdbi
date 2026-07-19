@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.jdbi.core.config.ConfigCustomizer;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.meta.Alpha;
 
 /**
@@ -97,7 +97,7 @@ public interface ExtensionFactory {
      * @since 3.38.0
      */
     @Alpha
-    default Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigRegistry config) {
+    default Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigView config) {
         return Collections.emptySet();
     }
 
@@ -113,7 +113,7 @@ public interface ExtensionFactory {
      * @since 3.38.0
      */
     @Alpha
-    default Collection<ExtensionHandlerCustomizer> getExtensionHandlerCustomizers(ConfigRegistry config) {
+    default Collection<ExtensionHandlerCustomizer> getExtensionHandlerCustomizers(ConfigView config) {
         return Collections.emptySet();
     }
 
@@ -130,7 +130,7 @@ public interface ExtensionFactory {
      * @since 3.38.0
      */
     @Alpha
-    default Collection<ConfigCustomizerFactory> getConfigCustomizerFactories(ConfigRegistry config) {
+    default Collection<ConfigCustomizerFactory> getConfigCustomizerFactories(ConfigView config) {
         return Collections.emptySet();
     }
 

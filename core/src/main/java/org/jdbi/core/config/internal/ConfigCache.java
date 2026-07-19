@@ -13,7 +13,7 @@
  */
 package org.jdbi.core.config.internal;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.Configurable;
 import org.jdbi.core.statement.StatementContext;
 
@@ -25,7 +25,7 @@ import org.jdbi.core.statement.StatementContext;
 @SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ConfigCache<K, V> {
 
-    V get(K key, ConfigRegistry config);
+    V get(K key, ConfigView config);
 
     default V get(K key, Configurable<?> configurable) {
         return get(key, configurable.getConfig());

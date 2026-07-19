@@ -18,7 +18,7 @@ import java.sql.Types;
 
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.postgres.BlobInputStreamArgumentFactory.LobInputStreamArgument;
 import org.postgresql.util.ReaderInputStream;
 
@@ -28,7 +28,7 @@ class ClobReaderArgumentFactory extends AbstractArgumentFactory<Reader> {
     }
 
     @Override
-    protected Argument build(Reader value, ConfigRegistry config) {
+    protected Argument build(Reader value, ConfigView config) {
         return new LobInputStreamArgument(new ReaderInputStream(value));
     }
 }

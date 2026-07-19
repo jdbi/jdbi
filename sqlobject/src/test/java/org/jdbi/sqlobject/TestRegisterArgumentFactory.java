@@ -19,7 +19,7 @@ import java.util.Optional;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.sqlobject.customizer.Bind;
 import org.jdbi.sqlobject.statement.SqlQuery;
@@ -82,14 +82,14 @@ public class TestRegisterArgumentFactory {
 
     public static class LazyAF implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, Object value, ConfigView config) {
             return Optional.empty();
         }
     }
 
     public static class NameAF implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
             if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
                 return Optional.of((position, statement, ctx1) -> statement.setString(position, nameValue.getFullName()));

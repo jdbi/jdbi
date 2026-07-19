@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import io.vavr.control.Option;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
@@ -28,13 +28,13 @@ import static org.jdbi.core.generic.GenericTypes.getErasedType;
 class VavrOptionColumnMapperFactory implements ColumnMapperFactory {
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         return Optional.of(type)
             .filter(t -> getErasedType(t) == Option.class)
             .map(t -> create(t, config));
     }
 
-    private static ColumnMapper<?> create(Type type, ConfigRegistry config) {
+    private static ColumnMapper<?> create(Type type, ConfigView config) {
         final ColumnMapper<?> mapper = config.findColumnMapperFor(
                 GenericTypes.findGenericParameter(type, Option.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw vavr Option type")))

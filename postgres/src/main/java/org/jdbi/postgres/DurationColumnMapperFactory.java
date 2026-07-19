@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
 import org.postgresql.util.PGInterval;
@@ -33,7 +33,7 @@ import org.postgresql.util.PGInterval;
  */
 public class DurationColumnMapperFactory implements ColumnMapperFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         if (type != Duration.class) {
             return Optional.empty();
         }

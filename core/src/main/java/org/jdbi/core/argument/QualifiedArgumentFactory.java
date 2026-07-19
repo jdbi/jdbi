@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 import org.jdbi.meta.Beta;
@@ -49,7 +50,7 @@ public interface QualifiedArgumentFactory {
      * @see Arguments#findFor(QualifiedType, Object)
      * @see QualifiedType
      */
-    Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry config);
+    Optional<Argument> build(QualifiedType<?> type, Object value, ConfigView config);
 
     /**
      * Adapts an {@link ArgumentFactory} into a QualifiedArgumentFactory. The returned factory only
@@ -66,7 +67,7 @@ public interface QualifiedArgumentFactory {
         return new QualifiedArgumentFactory() {
             private volatile Set<Annotation> qualifiers;
 
-            private Set<Annotation> qualifiers(ConfigRegistry cfg) {
+            private Set<Annotation> qualifiers(ConfigView cfg) {
                 Set<Annotation> q = qualifiers;
                 if (q == null) {
                     q = cfg.get(Qualifiers.class).findFor(factory.getClass());
@@ -76,7 +77,7 @@ public interface QualifiedArgumentFactory {
             }
 
             @Override
-            public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {
+            public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigView cfg) {
                 return type.getQualifiers().equals(qualifiers(cfg))
                     ? factory.build(type.getType(), value, cfg)
                     : Optional.empty();
@@ -99,7 +100,7 @@ public interface QualifiedArgumentFactory {
      */
     @Beta
     interface Preparable extends QualifiedArgumentFactory {
-        Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config);
+        Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigView config);
 
         /**
          * Adapts an {@link ArgumentFactory.Preparable} into a QualifiedArgumentFactory.Preparable.
@@ -113,7 +114,7 @@ public interface QualifiedArgumentFactory {
             return new Preparable() {
                 private volatile Set<Annotation> qualifiers;
 
-                private Set<Annotation> qualifiers(ConfigRegistry cfg) {
+                private Set<Annotation> qualifiers(ConfigView cfg) {
                     Set<Annotation> q = qualifiers;
                     if (q == null) {
                         q = cfg.get(Qualifiers.class).findFor(factory.getClass());
@@ -123,14 +124,14 @@ public interface QualifiedArgumentFactory {
                 }
 
                 @Override
-                public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {
+                public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigView cfg) {
                     return type.getQualifiers().equals(qualifiers(cfg))
                             ? factory.build(type.getType(), value, cfg)
                             : Optional.empty();
                 }
 
                 @Override
-                public Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry cfg) {
+                public Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigView cfg) {
                     return type.getQualifiers().equals(qualifiers(cfg))
                             ? factory.prepare(type.getType(), cfg)
                             : Optional.empty();

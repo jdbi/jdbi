@@ -16,7 +16,6 @@ package org.jdbi.core.array;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.ConfigView;
 
 /**
@@ -39,9 +38,9 @@ public final class ArrayTypeResolver {
         return config.readAs(ArrayTypeResolver.class, ArrayTypeResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
 
-    private ArrayTypeResolver(final ConfigRegistry registry) {
+    private ArrayTypeResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

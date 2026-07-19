@@ -16,15 +16,15 @@ package org.jdbi.core.mapper.reflect.internal;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 public class BuilderSpec<T, B> {
     Type type;
-    ConfigRegistry config;
+    ConfigView config;
     Class<T> defn;
     Supplier<B> builder;
 
-    BuilderSpec(Type type, ConfigRegistry config, Class<T> defn, Supplier<B> builder) {
+    BuilderSpec(Type type, ConfigView config, Class<T> defn, Supplier<B> builder) {
         this.type = type;
         this.config = config;
         this.defn = defn;

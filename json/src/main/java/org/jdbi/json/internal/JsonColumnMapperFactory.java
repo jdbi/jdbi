@@ -16,7 +16,7 @@ package org.jdbi.json.internal;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.JdbiOptionals;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
@@ -38,7 +38,7 @@ public class JsonColumnMapperFactory implements ColumnMapperFactory {
     );
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         // look for specialized json support first, revert to simple String mapping if absent
         ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(
                 () -> config.findColumnMapperFor(QualifiedType.of(String.class).with(EncodedJson.class)),

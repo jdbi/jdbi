@@ -44,17 +44,17 @@ public interface ConfigView extends ConfigReader {
     /**
      * Returns a memoized, read-only view of this registry of the given type (for example a resolver that carries
      * resolution caches), creating it on first request. See {@link ConfigRegistry#readAs} for the memoization and
-     * scoping semantics. This is an internal building block for resolvers, which need the mutable
-     * {@link ConfigRegistry} to pass to the factory SPIs; the {@code create} function must not retain or mutate the
-     * registry it is given.
+     * scoping semantics. This is an internal building block for resolvers; the {@code create} function is handed a
+     * read-only {@code ConfigView} (never the mutable registry) to pass to the factory SPIs, and must not retain it
+     * beyond the view it builds.
      *
      * @param asType the view type, which also keys the memo
-     * @param create builds the view from the registry, if not already present
+     * @param create builds the view from a read-only view of the registry, if not already present
      * @param <T>    the view type
      * @return the memoized view of the given type for this registry
      */
     @Alpha
-    <T> T readAs(Class<T> asType, Function<ConfigRegistry, T> create);
+    <T> T readAs(Class<T> asType, Function<ConfigView, T> create);
 
     /**
      * Returns a copy-on-write child of this registry (see {@link ConfigRegistry#createChild()}). The returned child

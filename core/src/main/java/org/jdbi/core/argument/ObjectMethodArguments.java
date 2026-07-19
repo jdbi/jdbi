@@ -28,6 +28,7 @@ import org.jdbi.core.annotation.internal.JdbiAnnotations;
 import org.jdbi.core.argument.internal.ObjectPropertyNamedArgumentFinder;
 import org.jdbi.core.argument.internal.TypedValue;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.internal.ConfigCache;
 import org.jdbi.core.config.internal.ConfigCaches;
 import org.jdbi.core.internal.exceptions.Unchecked;
@@ -50,7 +51,7 @@ public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
         super(prefix, object);
     }
 
-    private static Map<String, Function<Object, TypedValue>> load(ConfigRegistry config, Class<?> type) {
+    private static Map<String, Function<Object, TypedValue>> load(ConfigView config, Class<?> type) {
         final HashMap<String, Function<Object, TypedValue>> methodMap = new HashMap<>();
         if (Modifier.isPublic(type.getModifiers())) {
             Arrays.stream(type.getMethods())

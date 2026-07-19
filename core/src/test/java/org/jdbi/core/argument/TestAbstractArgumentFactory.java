@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.statement.StatementContext;
@@ -56,7 +57,7 @@ public class TestAbstractArgumentFactory {
         }
 
         @Override
-        protected Argument build(SimpleType value, ConfigRegistry config) {
+        protected Argument build(SimpleType value, ConfigView config) {
             return (pos, stmt, statementContext) -> stmt.setString(pos, value.value);
         }
     }
@@ -112,7 +113,7 @@ public class TestAbstractArgumentFactory {
         }
 
         @Override
-        protected Argument build(Box<String> value, ConfigRegistry config) {
+        protected Argument build(Box<String> value, ConfigView config) {
             return (pos, stmt, statementContext) -> stmt.setString(pos, value.value);
         }
     }
@@ -234,7 +235,7 @@ public class TestAbstractArgumentFactory {
         }
 
         @Override
-        protected Argument build(final Thing<String> value, final ConfigRegistry config) {
+        protected Argument build(final Thing<String> value, final ConfigView config) {
             return (position, stmt, ctx1) -> stmt.setString(position, value.getKey());
         }
     }

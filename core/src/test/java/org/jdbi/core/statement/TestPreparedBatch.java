@@ -27,7 +27,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
@@ -329,7 +329,7 @@ public class TestPreparedBatch {
 
     public static class WrappedIntArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, Object value, ConfigView config) {
             return type == WrappedInt.class
                     ? Optional.of((p, s, c) -> s.setInt(p, ((WrappedInt) value).i))
                     : Optional.empty();

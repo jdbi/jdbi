@@ -18,7 +18,7 @@ import java.sql.Types;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ObjectArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.postgresql.util.PGobject;
 
 /**
@@ -31,7 +31,7 @@ class PGobjectArgumentFactory extends AbstractArgumentFactory<PGobject> {
     }
 
     @Override
-    protected Argument build(PGobject value, ConfigRegistry config) {
+    protected Argument build(PGobject value, ConfigView config) {
         return ObjectArgument.of(value, Types.OTHER);
     }
 

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.ExtensionHandlerFactory;
 import org.jdbi.core.internal.RegistrationLists;
@@ -31,7 +31,7 @@ import org.jdbi.core.internal.RegistrationLists;
  * method, the last-registered factory takes precedence.
  *
  * @deprecated Use {@link ExtensionHandlerFactory} instances that are returned
- * from the {@link org.jdbi.core.extension.ExtensionFactory#getExtensionHandlerFactories(ConfigRegistry)} method.
+ * from the {@link org.jdbi.core.extension.ExtensionFactory#getExtensionHandlerFactories(ConfigView)} method.
  */
 @Deprecated(since = "3.38.0", forRemoval = true)
 public final class Handlers implements JdbiConfig<Handlers> {

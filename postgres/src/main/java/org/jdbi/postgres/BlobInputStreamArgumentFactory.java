@@ -20,7 +20,7 @@ import java.sql.Types;
 
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 
 class BlobInputStreamArgumentFactory extends AbstractArgumentFactory<InputStream> {
@@ -29,7 +29,7 @@ class BlobInputStreamArgumentFactory extends AbstractArgumentFactory<InputStream
     }
 
     @Override
-    protected Argument build(InputStream value, ConfigRegistry config) {
+    protected Argument build(InputStream value, ConfigView config) {
         return new LobInputStreamArgument(value);
     }
 

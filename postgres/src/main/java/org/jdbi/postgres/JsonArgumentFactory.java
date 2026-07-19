@@ -17,7 +17,7 @@ import java.sql.Types;
 
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.json.EncodedJson;
 
 @EncodedJson
@@ -27,7 +27,7 @@ class JsonArgumentFactory extends AbstractArgumentFactory<String> {
     }
 
     @Override
-    protected Argument build(String value, ConfigRegistry config) {
+    protected Argument build(String value, ConfigView config) {
         return (p, s, c) -> s.setObject(p, value, Types.OTHER);
     }
 }

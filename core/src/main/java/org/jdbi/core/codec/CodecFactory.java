@@ -25,7 +25,7 @@ import java.util.function.Function;
 import com.google.errorprone.annotations.ThreadSafe;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.QualifiedArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.QualifiedColumnMapperFactory;
@@ -82,17 +82,17 @@ public class CodecFactory implements QualifiedColumnMapperFactory, QualifiedArgu
 
     @Override
     @SuppressWarnings("unchecked")
-    public final Optional<Function<Object, Argument>> prepare(final QualifiedType<?> type, final ConfigRegistry config) {
+    public final Optional<Function<Object, Argument>> prepare(final QualifiedType<?> type, final ConfigView config) {
         return Optional.of(type).map(this::resolveType).map(key -> (Function<Object, Argument>) key.getArgumentFunction(config));
     }
 
     @Override
-    public final Optional<Argument> build(final QualifiedType<?> type, final Object value, final ConfigRegistry config) {
+    public final Optional<Argument> build(final QualifiedType<?> type, final Object value, final ConfigView config) {
         return prepare(type, config).map(f -> f.apply(value));
     }
 
     @Override
-    public final Optional<ColumnMapper<?>> build(final QualifiedType<?> type, final ConfigRegistry config) {
+    public final Optional<ColumnMapper<?>> build(final QualifiedType<?> type, final ConfigView config) {
         return Optional.of(type).map(this::resolveType).map(c -> c.getColumnMapper(config));
     }
 

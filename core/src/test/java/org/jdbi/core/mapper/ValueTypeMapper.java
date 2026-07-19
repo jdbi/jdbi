@@ -20,7 +20,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import org.jdbi.core.ValueType;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
@@ -35,7 +35,7 @@ public class ValueTypeMapper implements ColumnMapper<ValueType> {
 
     public static class Factory implements ColumnMapperFactory {
         @Override
-        public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+        public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
             return ValueType.class.isAssignableFrom(getErasedType(type))
                     ? Optional.of(new ValueTypeMapper())
                     : Optional.empty();

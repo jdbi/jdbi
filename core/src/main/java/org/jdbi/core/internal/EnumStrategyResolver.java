@@ -15,7 +15,6 @@ package org.jdbi.core.internal;
 
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.enums.EnumByOrdinal;
@@ -45,9 +44,9 @@ public final class EnumStrategyResolver {
         return config.readAs(EnumStrategyResolver.class, EnumStrategyResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
 
-    private EnumStrategyResolver(final ConfigRegistry registry) {
+    private EnumStrategyResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

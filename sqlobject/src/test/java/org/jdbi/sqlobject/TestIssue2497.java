@@ -27,7 +27,7 @@ import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.argument.Arguments;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.sqlobject.TestIssue2497.Parameters.Thing;
 import org.jdbi.sqlobject.customizer.Bind;
@@ -73,7 +73,7 @@ public class TestIssue2497 {
         }
 
         @Override
-        protected Argument build(List<Integer> value, ConfigRegistry config) {
+        protected Argument build(List<Integer> value, ConfigView config) {
             return (position, statement, ctx) -> statement.setObject(position, value.toArray(new Integer[0]));
         }
     }
@@ -108,7 +108,7 @@ public class TestIssue2497 {
         }
 
         @Override
-        protected Argument build(List<String> value, ConfigRegistry config) {
+        protected Argument build(List<String> value, ConfigView config) {
             return (position, statement, ctx) -> {
                 if (value == null) {
                     statement.setNull(position, Types.NULL);
@@ -212,7 +212,7 @@ public class TestIssue2497 {
         }
 
         @Override
-        protected Argument build(List<Thing> value, ConfigRegistry config) {
+        protected Argument build(List<Thing> value, ConfigView config) {
             return (position, statement, ctx) -> {
                 if (value == null) {
                     statement.setNull(position, Types.NULL);
@@ -268,7 +268,7 @@ public class TestIssue2497 {
     public static final class SuluArgumentFactory implements ArgumentFactory {
 
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, Object value, ConfigView config) {
             return Optional.of(type)
                 .filter(t -> t == Sulu.class)
                 .map(t -> (position, statement, ctx) -> {

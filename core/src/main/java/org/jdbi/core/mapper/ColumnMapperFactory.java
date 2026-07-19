@@ -16,7 +16,7 @@ package org.jdbi.core.mapper;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * Factory interface used to produce column mappers.
@@ -31,7 +31,7 @@ public interface ColumnMapperFactory {
      * @return a column mapper for the given type if this factory supports it, or <code>Optional.empty()</code> otherwise.
      * @see ColumnMappers for composition
      */
-    Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config);
+    Optional<ColumnMapper<?>> build(Type type, ConfigView config);
 
     /**
      * Create a ColumnMapperFactory from a given {@link ColumnMapper} that

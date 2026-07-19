@@ -16,7 +16,7 @@ package org.jdbi.core.mapper;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 import static org.jdbi.core.generic.GenericTypes.findGenericParameter;
 
@@ -44,7 +44,7 @@ class InferredRowMapperFactory implements RowMapperFactory {
     }
 
     @Override
-    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<RowMapper<?>> build(Type type, ConfigView config) {
         return maps.equals(type)
                 ? Optional.of(mapper)
                 : Optional.empty();

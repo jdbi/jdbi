@@ -21,7 +21,7 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 import static org.jdbi.core.generic.GenericTypes.findGenericParameter;
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
@@ -52,7 +52,7 @@ class OptionalArgumentFactory extends DelegatingArgumentFactory {
     }
 
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
         if (value instanceof Optional<?> maybeValue) {
             Object nestedValue = maybeValue.orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
@@ -63,7 +63,7 @@ class OptionalArgumentFactory extends DelegatingArgumentFactory {
     }
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         if (Optional.class.equals(getErasedType(type))) {
             return ArgumentResolver.forRegistry(config)
                     .prepareFor(findOptionalType(type, null))
