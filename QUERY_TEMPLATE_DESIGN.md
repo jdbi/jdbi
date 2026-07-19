@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below).
+## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below). **LATEST: see "## SESSION 2026-07-19b" (dev-guide inline-example migration DONE; classic-path-vs-QueryTemplate maintenance analysis + single-use benchmark) just above "## What actually remains".**
 
 > **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
 > (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
@@ -658,6 +658,105 @@ The largest win is the "one handle per request" pattern common in web services: 
 `Jdbi`'s already-resolved mappers and extension metadata instead of rebuilding them on every open.
 
 
+## SESSION 2026-07-19b — dev-guide migration DONE + classic-path maintenance analysis
+
+**Developer guide (`docs/src/adoc/index.adoc`) inline-example migration: DONE** (this makes "## What actually
+remains" item 2's inline-snippet pass complete). One file, +154/−125; `mvn -pl docs generate-resources` renders
+clean (no include/xref/table warnings). API of every rewritten snippet verified against source. Patterns:
+- Register-then-query examples → per-statement registration folded into the statement
+  (`handle.createQuery(sql).registerRowMapper(...).mapTo(X)`); statements remain `Configurable`.
+- Global-registry / self-typed-overload examples + all `jdbi.installPlugin(...)` one-liners → `Jdbi.builder(dataSource)…build()`.
+- Callback config (script-semicolons, callback attach-for-cleanup) → scoped `withHandle(configScope, cb)` / `useHandle(configScope, cb)`.
+- Configuration + JdbiConfig chapters rewritten for read-only `ConfigView`/`ConfigReader`; module config withers fixed
+  (`Jackson2Config.mapper`, `Gson2Config.gson`, `MoshiConfig.moshi`, `TupleMappers.column`); Guice `customize(Jdbi.Builder)`,
+  `HandleCallbackDecorator` plugin, template-engine/SqlParser examples migrated. Fixed 3 pre-existing snippet bugs
+  (2 missing `)` on `JoinRowMapper.forTypes`, 1 `.`→`,` in the codec builder).
+- Version text: heading → "Introduction to Jdbi 4" / "fourth major release"; dependency coordinates → `jdbi-core`/`jdbi-bom`/`jdbi-sqlobject`.
+- **Deliberately left** (scope): the module-overview glossary + `jdbi3-*` inside external URLs — a blanket swap is unsafe
+  (`jdbi3-guava-cache` is a separate external repo, not renamed; `jdbi3-gson`→`jdbi-gson2` is a name change). Needs
+  per-module verification. Tagged `include::` examples were already correct and untouched.
+
+**R2 polish (`Jdbi.builder(ext.getUrl())` → `ext.builder()`): investigated, no change warranted.** Every rebuild
+site is intentionally bare — isolation-intent (trackers / init-counting / shared-handle avoidance, each commented),
+custom transaction-handler rebuilds (the R4-decided "rebuild from connection source" pattern), or doc-module example
+sources. `ext.builder()` / `withConfig(Consumer<Jdbi.Builder>)` remain as public test-support API (currently no in-repo caller).
+
+**Classic query path vs `QueryTemplate` — should the classic path be retired? (maintainer question)**
+
+*Maintenance footprint.* The binding/defining/result surface is ALREADY shared by both paths: `BindingsMixin`
+(1706 LOC), `Customizable`/`QueryCustomizerMixin`, `ResultBearing`/`ResultIterable`, `ArgumentBinder`, `ParsedSql`,
+render/parse, the `StatementCustomizer` lifecycle, `SqlLoggerUtil`, `StatementBuilder`, `StatementContext`. The only
+real duplication is the execute pipeline: `SqlStatement.internalExecute()` (~50 LOC + helpers) vs
+`QueryTemplateBinding.executeStatement()` (~57 LOC + `callCustomizers`) — same sequence, same collaborators.
+- **Divergence the split already caused:** the classic path emits JFR `JdbiStatementEvent`s (`attachJfrEvent`);
+  `QueryTemplateBinding` does NOT. So template queries — including every SQL Object query method (the handler builds a
+  `QueryTemplate` per attach) — silently lose JFR statement instrumentation. Concrete argument to unify the engine.
+- **Hard constraint:** `QueryTemplate` is query-only. `Update`/`Call` use `internalExecute`; `Batch`/`PreparedBatch`
+  have their own batch execute; `Script` too. There is NO template for these, so the classic `SqlStatement`/`internalExecute`
+  engine is REQUIRED regardless of what happens to `Query`. Retiring the query path cannot delete the classic engine.
+
+*Benchmark (`QueryTemplateBenchmark`; added `singleUseTemplate`/`singleUseMappedTemplate`; H2, JMH `-prof gc`, single-row SELECT):*
+
+| Path | B/op | ops/ms |
+|---|---:|---:|
+| classic `handle.createQuery` (one-shot) | 4168 | 1147 |
+| reused `template` (warm) | 3512 | 1495 |
+| reused `mappedTemplate` (warm) | 3408 | 1587 |
+| `singleUseTemplate` (build + execute once) | 6576 | 828 |
+| `singleUseMappedTemplate` (build + map + execute once) | 6544 | 846 |
+
+A **single-use template costs +58% allocation and −28% throughput vs classic** (6576 vs 4168 B/op; 828 vs 1147 ops/ms).
+Building a reusable template object + config snapshot + binding for a query run once is strictly more work than a
+throwaway statement. So the classic one-shot path is the *efficient* path for the dominant "have a handle, run once"
+case — a real reason to keep it, not only ergonomics. (Reused template still wins, as designed: 3512 < 4168.)
+
+*Conclusion / recommendation.* The two-path concern is about the ~60-line duplicated ENGINE, not the surface.
+1. **Unify the engine (phase-5 tail, still `[ ]` at the "Reimplement Handle.createQuery … on the primitive" item):**
+   one execute pipeline shared by `Query`/`Update`/`Call` and `QueryTemplateBinding`. Removes the duplication AND fixes the JFR gap.
+2. **Keep the classic `Query`/`createQuery` surface:** after unification it is ~62 LOC of delegation, and
+   `SqlStatement`/`BaseStatement` must exist anyway for `Update`/`Call`/`Batch`/`Script`. Marginal maintenance ≈ zero.
+3. **Design caveat for phase-5:** do NOT implement `handle.createQuery` as `buildQueryTemplate(sql).with(handle)` — the
+   benchmark shows that regresses the one-shot path 4168 → 6576 B/op. The shared primitive must support a one-shot mode
+   (no reusable-template allocation, no eager config snapshot).
+4. **Does unification preserve the reused-template win (3512 vs 4208)? Yes.** That win is an *input-side* property, not
+   an engine property: the template (a) shares one immutable config read-only vs the classic per-statement `createChild()`
+   COW fork, and (b) reuses its once-rendered/parsed `ParsedSql` vs classic's per-call re-render/parse (the ~700 B/op gap
+   is mostly (b) — see the "remainder = per-call SQL re-render/parse" note). Unification shares only the downstream
+   create→customize→bind→execute→resultset sequence, which is identical regardless of who supplies `(config, ParsedSql)`.
+   So parameterize the shared core over `(config, ParsedSql, Binding, customizers)`: the template feeds its cached
+   snapshot/parse (keeps the win), the one-shot path feeds a COW child + lazy parse (keeps its cost). The template's
+   parse-once edge is structural (a one-shot statement has no reuse handle to cache a parse on), so it cannot be erased
+   by unification. Confirm empirically when phase-5 lands by re-running all five `QueryTemplateBenchmark` methods: expect
+   `classic` ≈ 4200, `template` ≈ 3500, and `singleUseTemplate` NOT leaking into the classic number.
+
+Net: retiring the classic query *surface* saves ~62 LOC at the cost of a large breaking change + a 58%/28% one-shot
+regression — a bad trade. Retiring the duplicated *engine* (unify) is the win worth taking.
+
+**Generalize the primitive beyond queries (maintainer direction, 2026-07-19b).** The earlier "QueryTemplate is
+query-only" framing undersells it: the shared execution primitive is essentially today's `internalExecute()`, which
+Query, Update, AND Call already share; `QueryTemplateBinding.executeStatement()` is a query-specialized *fork* of it.
+Fit by statement type (verified against the execute paths):
+- **Update — strongest.** `Update.execute(producer)` is `producer.produce(this::internalExecute, ctx)`, identical in
+  shape to `Query.execute`; only the terminal `ResultProducer` differs (updateCount/generatedKeys vs results).
+- **PreparedBatch — good.** Already parses once and loops `addBatch()` → one `executeBatch()`; reuse win is across
+  repeated batch executions; the add-loop is its terminal.
+- **Call — moderate.** Runs through `internalExecute()` too; extras are `createCall` (CallableStatement) as the
+  creation step and a post-execute out-parameter terminal — both parameterizable (classic already overrides `createStatement`).
+- **Batch (plain) and Script — the odd ones out.** Plain `Batch` is multiple ad-hoc SQLs, rendered but not parsed (no
+  named params), on a plain `Statement` — nothing to snapshot/bind; `Script` is one-shot statement-splitting DDL. Batch
+  is closer to Script than to the parameterized types.
+
+So phase-5 = generalize ONE primitive that returns the *executed statement*, parameterized over (config source:
+shared-snapshot vs COW-child; ParsedSql source: cached vs lazy; statement creation: `create`/`createCall`/plain;
+terminal: resultset / updateCount / out-params / `executeBatch`). Two ORTHOGONAL decisions fall out:
+1. **Generalize the engine primitive to every parameterized type — high value, part of phase-5.** Collapses the
+   duplication AND fixes the JFR-instrumentation gap uniformly (route all execution through the one primitive).
+2. **Expose reusable *template types* per statement kind (`buildUpdateTemplate`/`buildCallTemplate`/`buildBatchTemplate`)
+   — additive, demand-driven.** Update-template first; Call/Batch when a hot loop justifies it.
+Caution to document when update-templates land: for BULK update loops, `PreparedBatch` usually beats N reused-update
+executions (JDBC batching amortizes the round-trip, which dominates per-exec allocation) — the update-template win is
+for repeated *single* updates (per-request upsert), not "insert 10k rows".
+
 ## What actually remains (2026-07-19)
 
 The design and implementation are complete: the `QueryTemplate` feature, the immutable config model (phase-2
@@ -668,19 +767,14 @@ for rationale — they are accurate as history, not as an open to-do list. Only 
 
 1. **Ship it.** This branch IS jdbi 4.0.0-SNAPSHOT. The remaining step is cutting the release (version, release
    notes, the `org.jdbi.v3`→`org.jdbi` rename is already in). No further code changes are required for the feature.
-2. **Finish the asciidoc migration.** The `docs/src/adoc/index.adoc` guide is retitled "Jdbi 4 Developer Guide"
-   and now carries a top-level `== Upgrading to Jdbi 4` section (lifted from `## Upgrading to Jdbi v4` below,
-   converted to asciidoc) plus the mapped-template note in the `QueryTemplate` subsection. **Still to do: migrate
-   the ~100+ hand-written inline `[source,java]` snippets that still use the removed mutable API** — `jdbi.registerX(...)`,
-   `handle.registerX(...)`, `jdbi.getConfig(X).setY(...)`, `jdbi.installPlugin(...)`, and factory signatures typed
-   `ConfigRegistry` instead of `ConfigView` (see the Mappers, Arguments, Configuration, and SQL Arrays chapters).
-   These are hand-authored blocks, not `include::` tags, so they are not auto-updated when the migrated test
-   sources compile; the tagged-include examples are already correct. This is a large, mechanical-but-judgment
-   pass (per snippet: builder vs per-statement vs config-scope) that was deliberately deferred from the "minimal"
-   doc update. Track it as its own chunk of release work. The same pass should sweep the remaining version-string
-   danglers left by the minimal retitle: the `== Introduction to Jdbi 3` heading and the "Jdbi 3 is the third
-   major release" prose, and the `jdbi3-core` / `jdbi3-bom` Maven artifact IDs in the dependency snippets (left
-   unchanged because the v4 artifact IDs are a release decision, not something to guess here).
+2. **Finish the asciidoc migration. [inline-snippet pass DONE 2026-07-19b — see the SESSION 2026-07-19b section above.]**
+   The `docs/src/adoc/index.adoc` guide is retitled, carries `== Upgrading to Jdbi 4`, and the ~50 hand-authored
+   `[source,java]` snippets that used the removed mutable API were migrated (builder / per-statement / config-scope
+   per snippet); the `== Introduction to Jdbi 3` heading + "third major release" prose and the `jdbi3-core`/`jdbi3-bom`
+   dependency coordinates were fixed to Jdbi 4 / `jdbi-*`. **Only leftover (deliberately deferred):** the module-overview
+   glossary `jdbi3-*` names and `jdbi3-*` inside external URLs — a blanket swap is unsafe (`jdbi3-guava-cache` is a
+   separate external repo, not renamed; `jdbi3-gson`→`jdbi-gson2` is a name change), so it needs a per-module
+   verification pass against the module repos. Tagged `include::` examples were already correct.
 3. **Merge jdbi/jdbi#2992 by mostly removing it** (share the `ExtensionMetadata` cache): the immutable world +
    handle-boundary copy-on-write already deliver its payoff (R3/R7), so when #2992 lands on master the merge is
    largely a deletion. See the memory note `pr-2992-merge-mostly-remove`.
