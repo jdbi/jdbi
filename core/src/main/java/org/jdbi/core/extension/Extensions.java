@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.annotation.UseExtensionHandler;
 import org.jdbi.core.extension.annotation.UseExtensionHandlerCustomizer;
@@ -89,6 +90,7 @@ public final class Extensions implements JdbiConfig<Extensions> {
      * @param factory the factory to register
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public Extensions register(ExtensionFactory factory) {
         return new Extensions(RegistrationLists.prepend(extensionFactories, new ExtensionFactoryDelegate(factory)),
                 extensionHandlerFactories, extensionHandlerCustomizers, configCustomizerFactories, allowProxy, failFast);
@@ -102,6 +104,7 @@ public final class Extensions implements JdbiConfig<Extensions> {
      *
      * @since 3.38.0
      */
+    @CheckReturnValue
     @Alpha
     public Extensions registerHandlerFactory(ExtensionHandlerFactory extensionHandlerFactory) {
         return internalRegisterHandlerFactory(FilteringExtensionHandlerFactory.forDelegate(extensionHandlerFactory));
@@ -115,6 +118,7 @@ public final class Extensions implements JdbiConfig<Extensions> {
      *
      * @since 3.38.0
      */
+    @CheckReturnValue
     @Alpha
     public Extensions registerHandlerCustomizer(ExtensionHandlerCustomizer extensionHandlerCustomizer) {
         return new Extensions(extensionFactories, extensionHandlerFactories,
@@ -130,6 +134,7 @@ public final class Extensions implements JdbiConfig<Extensions> {
      *
      * @since 3.38.0
      */
+    @CheckReturnValue
     @Alpha
     public Extensions registerConfigCustomizerFactory(ConfigCustomizerFactory configCustomizerFactory) {
         return new Extensions(extensionFactories, extensionHandlerFactories, extensionHandlerCustomizers,
@@ -233,6 +238,7 @@ public final class Extensions implements JdbiConfig<Extensions> {
      * @param allowProxy whether to allow use of Proxy types
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Beta
     public Extensions allowProxy(boolean allowProxy) {
         return new Extensions(extensionFactories, extensionHandlerFactories, extensionHandlerCustomizers,
@@ -256,6 +262,7 @@ public final class Extensions implements JdbiConfig<Extensions> {
      * @return a copy of this configuration that fails fast
      * @since 3.39.0
      */
+    @CheckReturnValue
     @Alpha
     public Extensions failFast() {
         return new Extensions(extensionFactories, extensionHandlerFactories, extensionHandlerCustomizers,

@@ -13,6 +13,7 @@
  */
 package org.jdbi.jackson3;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import tools.jackson.databind.ObjectMapper;
 
@@ -41,6 +42,7 @@ public final class Jackson3Config implements JdbiConfig<Jackson3Config> {
      * @param mapper the mapper to use
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson3Config mapper(final ObjectMapper mapper) {
         return new Jackson3Config(mapper, serializationView, deserializationView, useStaticType);
     }
@@ -60,6 +62,7 @@ public final class Jackson3Config implements JdbiConfig<Jackson3Config> {
      * @param view the view class
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson3Config view(final Class<?> view) {
         return serializationView(view).deserializationView(view);
     }
@@ -69,6 +72,7 @@ public final class Jackson3Config implements JdbiConfig<Jackson3Config> {
      * @param serializationView the serialization view
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson3Config serializationView(final Class<?> serializationView) {
         return new Jackson3Config(mapper, serializationView, deserializationView, useStaticType);
     }
@@ -87,6 +91,7 @@ public final class Jackson3Config implements JdbiConfig<Jackson3Config> {
      * @param deserializationView the serialization view
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson3Config deserializationView(final Class<?> deserializationView) {
         return new Jackson3Config(mapper, serializationView, deserializationView, useStaticType);
     }
@@ -107,6 +112,7 @@ public final class Jackson3Config implements JdbiConfig<Jackson3Config> {
      * @param useStaticType whether to prefer using static type information
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson3Config useStaticType(final boolean useStaticType) {
         return new Jackson3Config(mapper, serializationView, deserializationView, useStaticType);
     }

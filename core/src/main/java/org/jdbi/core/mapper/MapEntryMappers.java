@@ -13,6 +13,7 @@
  */
 package org.jdbi.core.mapper;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -40,6 +41,7 @@ public final class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEn
         return keyColumn;
     }
 
+    @CheckReturnValue
     @Override
     public MapEntryMappers keyColumn(String keyColumn) {
         return new MapEntryMappers(keyColumn, valueColumn);
@@ -50,6 +52,7 @@ public final class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEn
         return valueColumn;
     }
 
+    @CheckReturnValue
     @Override
     public MapEntryMappers valueColumn(String valueColumn) {
         return new MapEntryMappers(keyColumn, valueColumn);

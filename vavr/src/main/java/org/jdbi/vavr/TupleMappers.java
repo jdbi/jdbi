@@ -13,6 +13,7 @@
  */
 package org.jdbi.vavr;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import io.vavr.Tuple;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.mapper.MapEntryConfig;
@@ -47,6 +48,7 @@ public final class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryCon
     }
 
     @Override
+    @CheckReturnValue
     public TupleMappers keyColumn(String keyColumn) {
         return column(KEY_COLUMN_TUPLE_INDEX, keyColumn);
     }
@@ -57,6 +59,7 @@ public final class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryCon
     }
 
     @Override
+    @CheckReturnValue
     public TupleMappers valueColumn(String valueColumn) {
         return column(VALUE_COLUMN_TUPLE_INDEX, valueColumn);
     }
@@ -68,6 +71,7 @@ public final class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryCon
      * @param name       the column name to be mapped explicitly
      * @return the derived configuration
      */
+    @CheckReturnValue
     public TupleMappers column(int tupleIndex, String name) {
         final String[] newColumns = columns.clone();
         newColumns[tupleIndex - 1] = name;

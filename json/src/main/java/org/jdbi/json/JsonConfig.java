@@ -13,6 +13,7 @@
  */
 package org.jdbi.json;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.json.internal.UnimplementedJsonMapper;
 
@@ -27,6 +28,7 @@ public final class JsonConfig implements JdbiConfig<JsonConfig> {
         this.mapper = mapper;
     }
 
+    @CheckReturnValue
     public JsonConfig jsonMapper(JsonMapper jsonMapper) {
         return new JsonConfig(jsonMapper);
     }

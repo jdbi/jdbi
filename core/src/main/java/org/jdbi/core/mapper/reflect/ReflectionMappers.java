@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.mapper.CaseStrategy;
 import org.jdbi.meta.Alpha;
@@ -72,6 +73,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * @param columnNameMatchers the column name matchers to use
      * @return the derived configuration
      */
+    @CheckReturnValue
     public ReflectionMappers columnNameMatchers(List<ColumnNameMatcher> columnNameMatchers) {
         return new ReflectionMappers(columnNameMatchers, strictMatching, caseChange, makeAccessible);
     }
@@ -95,6 +97,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * @param strictMatching whether to enable strict matching
      * @return the derived configuration
      */
+    @CheckReturnValue
     public ReflectionMappers strictMatching(boolean strictMatching) {
         return new ReflectionMappers(columnNameMatchers, strictMatching, caseChange, makeAccessible);
     }
@@ -117,6 +120,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * @return the derived configuration
      * @see CaseStrategy
      */
+    @CheckReturnValue
     public ReflectionMappers caseChange(UnaryOperator<String> caseChange) {
         return new ReflectionMappers(columnNameMatchers, strictMatching, caseChange, makeAccessible);
     }
@@ -131,6 +135,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * @see AccessibleObjectStrategy
      *
      */
+    @CheckReturnValue
     @Alpha
     public ReflectionMappers accessibleObjectStrategy(Consumer<AccessibleObject> makeAccessible) {
         return new ReflectionMappers(columnNameMatchers, strictMatching, caseChange, makeAccessible);
@@ -141,6 +146,7 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      *
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Alpha
     public ReflectionMappers disableAccessibleObjectStrategy() {
         return accessibleObjectStrategy(DO_NOT_MAKE_ACCESSIBLE);

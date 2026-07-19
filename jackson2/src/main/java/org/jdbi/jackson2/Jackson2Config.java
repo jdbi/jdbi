@@ -14,6 +14,7 @@
 package org.jdbi.jackson2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -41,6 +42,7 @@ public final class Jackson2Config implements JdbiConfig<Jackson2Config> {
      * @param mapper the mapper to use
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson2Config mapper(ObjectMapper mapper) {
         return new Jackson2Config(mapper, serializationView, deserializationView, useStaticType);
     }
@@ -60,6 +62,7 @@ public final class Jackson2Config implements JdbiConfig<Jackson2Config> {
      * @param view the view class
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson2Config view(Class<?> view) {
         return serializationView(view).deserializationView(view);
     }
@@ -69,6 +72,7 @@ public final class Jackson2Config implements JdbiConfig<Jackson2Config> {
      * @param serializationView the serialization view
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson2Config serializationView(Class<?> serializationView) {
         return new Jackson2Config(mapper, serializationView, deserializationView, useStaticType);
     }
@@ -87,6 +91,7 @@ public final class Jackson2Config implements JdbiConfig<Jackson2Config> {
      * @param deserializationView the serialization view
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson2Config deserializationView(Class<?> deserializationView) {
         return new Jackson2Config(mapper, serializationView, deserializationView, useStaticType);
     }
@@ -107,6 +112,7 @@ public final class Jackson2Config implements JdbiConfig<Jackson2Config> {
      * @param useStaticType whether to prefer using static type information
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Jackson2Config useStaticType(boolean useStaticType) {
         return new Jackson2Config(mapper, serializationView, deserializationView, useStaticType);
     }

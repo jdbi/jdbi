@@ -16,6 +16,7 @@ package org.jdbi.postgres;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.postgresql.PGConnection;
@@ -50,6 +51,7 @@ public final class PostgresTypes implements JdbiConfig<PostgresTypes> {
      * @param typeName the Postgres custom type name
      * @return a copy of this configuration with the custom type registered
      */
+    @CheckReturnValue
     public PostgresTypes registerCustomType(Class<? extends PGobject> clazz, String typeName) {
         final Map<Class<? extends PGobject>, String> updated = new HashMap<>(types);
         updated.put(clazz, typeName);

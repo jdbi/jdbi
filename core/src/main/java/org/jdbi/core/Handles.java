@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.internal.RegistrationLists;
 
@@ -69,6 +70,7 @@ public final class Handles implements JdbiConfig<Handles> {
      *                             discipline.
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Handles forceEndTransactions(boolean forceEndTransactions) {
         return new Handles(forceEndTransactions, handleListeners);
     }
@@ -81,6 +83,7 @@ public final class Handles implements JdbiConfig<Handles> {
      *
      * @return a copy of this configuration with the listener registered
      */
+    @CheckReturnValue
     public Handles addListener(final HandleListener handleListener) {
         return new Handles(forceEndTransactions, RegistrationLists.appendDistinct(handleListeners, handleListener));
     }
@@ -92,6 +95,7 @@ public final class Handles implements JdbiConfig<Handles> {
      *
      * @return a copy of this configuration with the listener removed
      */
+    @CheckReturnValue
     public Handles removeListener(final HandleListener handleListener) {
         if (!handleListeners.contains(handleListener)) {
             return this;

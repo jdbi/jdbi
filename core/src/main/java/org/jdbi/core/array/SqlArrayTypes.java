@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.enums.internal.EnumSqlArrayTypeFactory;
 import org.jdbi.core.interceptor.JdbiInterceptionChainHolder;
@@ -94,6 +95,7 @@ public final class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * @param argumentStrategy the argument strategy to set
      * @return the derived configuration
      */
+    @CheckReturnValue
     public SqlArrayTypes argumentStrategy(SqlArrayArgumentStrategy argumentStrategy) {
         return new SqlArrayTypes(factories, inferenceInterceptors, argumentStrategy);
     }
@@ -105,6 +107,7 @@ public final class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * @param interceptor the inference interceptor to add
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Alpha
     public SqlArrayTypes withInferenceInterceptor(final JdbiInterceptor<SqlArrayType<?>, SqlArrayTypeFactory> interceptor) {
         final JdbiInterceptionChainHolder<SqlArrayType<?>, SqlArrayTypeFactory> newInterceptors = new JdbiInterceptionChainHolder<>(inferenceInterceptors);
@@ -120,6 +123,7 @@ public final class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      *                    {@link java.sql.Connection#createArrayOf(String, Object[])} to create SQL arrays.
      * @return a copy of this configuration with the array type registered
      */
+    @CheckReturnValue
     public SqlArrayTypes register(Class<?> elementType, String sqlTypeName) {
         return register(SqlArrayTypeFactory.of(elementType, sqlTypeName, Function.identity()));
     }
@@ -135,6 +139,7 @@ public final class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * @return a copy of this configuration with the array type registered
      * @throws UnsupportedOperationException if the argument is not a concretely parameterized type
      */
+    @CheckReturnValue
     public SqlArrayTypes register(SqlArrayType<?> arrayType) {
         SqlArrayTypeFactory factory = inferenceInterceptors.process(arrayType);
 
@@ -148,6 +153,7 @@ public final class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
      * @param factory the factory
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public SqlArrayTypes register(SqlArrayTypeFactory factory) {
         return new SqlArrayTypes(RegistrationLists.prepend(factories, factory), inferenceInterceptors, argumentStrategy);
     }

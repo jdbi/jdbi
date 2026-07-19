@@ -15,6 +15,7 @@ package org.jdbi.core.mapper;
 
 import java.util.function.UnaryOperator;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 public final class MapMappers implements JdbiConfig<MapMappers> {
@@ -47,6 +48,7 @@ public final class MapMappers implements JdbiConfig<MapMappers> {
      * @return the derived configuration
      * @see CaseStrategy
      */
+    @CheckReturnValue
     public MapMappers caseChange(UnaryOperator<String> caseChange) {
         return new MapMappers(caseChange);
     }
