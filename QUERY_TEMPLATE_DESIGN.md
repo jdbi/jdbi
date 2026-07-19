@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-18): through D6 + REMOVAL R1+R2+R3+R7 DONE; next is R4 (handle-config removal) then R5/R6
+## HANDOFF (2026-07-19): through D6 + REMOVAL R1+R2+R3+R7+R4 DONE; next is R5 (read/mutate split) then R6 (docs)
 
 > **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
 > (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
@@ -159,12 +159,13 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 > sharing for the fluent path. **R7 quantified it** (new `HandlePerOpV3Benchmark`, handle-per-op): SQL Object attach
 > **134.6 → 45.6 KB/op (−66%, 2.95×), 1.3× thrpt**; `withHandle` matches `open` (proving the flag fix); fluent −10%;
 > no regression on warm-handle paths (classic 4208 / template 3512 unchanged). See the R3 + R7 bullets.
-> **NEXT: R4** — remove handle-level mutable config: `Handle` drops `Configurable`'s mutators → `implements
-> ConfigReader`. SCOPED (maintainer-confirmed): main source is 2 edits, the only real break is
-> `PostgresPlugin.customizeHandle`, solved the immutability-consistent way via a new construction-time
-> `JdbiPlugin.customizeHandleConfig(Connection, ConfigRegistry)` SPI (OPTION 2, NOT an escape hatch). Test migration
-> is ~400–430 sites / ~70 files (core 200/37 exact) → `ext.withConfig(...)` / scoped `open(scope)`, run as a
-> workflow fan-out with a hard serialization point at core-test. Then R5 (final read/mutate split), R6 (upgrade docs). **R2 made `Jdbi` read-only**
+> **R4 DONE (2026-07-19, `1abd58572`, whole reactor green — 4860 tests, 0 failures, checks clean).** `Handle`
+> implements read-only `ConfigReader`; the `JdbiPlugin.customizeHandleConfig(Connection, ConfigRegistry)` construction-
+> time SPI (OPTION 2) replaced `PostgresPlugin.customizeHandle`'s config mutation with no escape hatch; 92 test files
+> migrated (core + 18 downstream) via `withConfig` / statement-level / scoped `open`/`useHandle`, run as two workflow
+> fan-outs (core-test then downstream) with a hard serialization point at core-test. **NEXT: R5** (final `Configurable`
+> read/mutate split cleanup — see the TRUE-IMMUTABILITY note on the R4 bullet: make read-only contexts expose only
+> read methods so a discarded-wither / dead `configure()` can't compile), then **R6** (upgrade-guide docs). **R2 made `Jdbi` read-only**
 > (`implements ConfigReader`, removed `installPlugin`/`setX` knobs/`JdbiPlugin.customizeJdbi`), migrated ~150 test
 > sites + the cache/kotlin/guice/spring/examples main-source consumers, and added the test-extension conveniences
 > `withConfig(Consumer<Jdbi.Builder>)` + `builder()`. The Jdbi root config is now frozen after `build()`, so **R3
@@ -277,9 +278,22 @@ prize early, then finish the handle-config removal:
     (unchanged from the D7 baseline); `H2SqlObjectV3Benchmark.attach` (warm reused handle) 30092 B/op, logically
     unaffected (single handle → no per-handle re-warming). The ~89 KB/op the cold attach saves is exactly the
     ExtensionMetadata resolution that a fresh handle no longer repeats.
-- **R4 — remove handle-level mutable config.** `Handle` drops `Configurable`'s mutators → `implements ConfigReader`
-  (read-only, like `Jdbi` after R2). **SCOPED 2026-07-18 (compiler-driven, isolated worktree); decisions
-  maintainer-confirmed. NOT yet implemented.**
+- **R4 — remove handle-level mutable config. [DONE 2026-07-19, `1abd58572`, whole reactor green — 41 modules,
+  4860 tests, 0 failures, static analysis clean.]** `Handle` drops `Configurable`'s mutators → `implements
+  ConfigReader` (read-only, like `Jdbi` after R2). Landed exactly as scoped below: 5 main-source files (Handle,
+  Jdbi, JdbiPlugin, PostgresPlugin, a ResultIterable javadoc fix) + 92 test files across core and 18 downstream
+  modules. OPTION 2 shipped: the new `JdbiPlugin.customizeHandleConfig(Connection, ConfigRegistry)` SPI is applied
+  in the `Handle` ctor (after the caller scope, before the extension context); `PostgresPlugin` moved `PostgresTypes`
+  there and `VectorEnabler` to `customizeConnection` — no escape hatch. Test migration used the decision tree below
+  (setUp→`withConfig`, method-local→statement-level or scoped `open`/`useHandle`). **Gotchas that bit during
+  execution:** (1) javac caps errors ~100, so the first core-test scan under-counted 29 files/200 sites — the real
+  set was 46 files once earlier packages compiled (always re-scan after fixing a batch); (2) a non-clean core build
+  left stale annotation-processor output → spurious `ImmutablesTest` "Couldn't locate ImmutableTrain" (ALWAYS `clean`
+  for core, as the build note says); (3) `TestRegisterJoinRowMapper` reuses `JoinRowMapperTest#setUp` with an
+  injected extension — hoisting that setUp's mapper registration to the field (rule A) silently broke the reuse;
+  it compiled and only failed at test-run, so the full-reactor test run is the essential gate, not test-compile.
+  Scope notes (as-built) below.
+  <br>**[original scoping, as-built]**
   - **API change is trivial:** `Handle implements Closeable, Configurable<Handle>` → `implements Closeable,
     ConfigReader` (drop `import ...config.Configurable`, add `import org.jdbi.core.statement.ConfigReader`). `Handle`
     has NO self-mutation, NO `Configurable` overrides, and nothing treats it as `Configurable<?>`; `getConfig()` /
