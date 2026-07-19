@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
+import org.jdbi.core.statement.MappedStatementTemplate;
 import org.jdbi.core.statement.StatementTemplate;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -53,6 +54,7 @@ public class StatementTemplateBenchmark {
     private Handle handle;
     private long rowOne;
     private StatementTemplate template;
+    private MappedStatementTemplate<String> mappedTemplate;
 
     @Setup(Level.Trial)
     public void setup() {
@@ -63,6 +65,9 @@ public class StatementTemplateBenchmark {
         rowOne = 1L;
         // Built once; reused across every benchmark invocation.
         template = jdbi.buildStatementTemplate(SELECT);
+        // A template that resolves its result mapper once at build time, so each execution skips
+        // the per-call mapper lookup the plain template repeats.
+        mappedTemplate = template.mapTo(String.class);
     }
 
     @TearDown(Level.Trial)
@@ -83,6 +88,14 @@ public class StatementTemplateBenchmark {
         return template.with(handle)
             .bind("id", rowOne)
             .mapTo(String.class)
+            .one();
+    }
+
+    @Benchmark
+    public String mappedTemplate() {
+        return mappedTemplate.with(handle)
+            .bind("id", rowOne)
+            .results()
             .one();
     }
 }
