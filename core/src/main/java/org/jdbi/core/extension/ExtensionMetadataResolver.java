@@ -47,10 +47,10 @@ public final class ExtensionMetadataResolver {
         return config.readAs(ExtensionMetadataResolver.class, ExtensionMetadataResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
     private final Map<Class<?>, ExtensionMetadata> metadataCache = new CopyOnWriteHashMap<>();
 
-    private ExtensionMetadataResolver(final ConfigRegistry registry) {
+    private ExtensionMetadataResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

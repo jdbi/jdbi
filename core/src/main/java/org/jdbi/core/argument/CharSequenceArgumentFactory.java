@@ -16,7 +16,7 @@ package org.jdbi.core.argument;
 import java.sql.Types;
 import java.util.Objects;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * An {@link ArgumentFactory} for arguments that implement {@link CharSequence}.<p>
@@ -36,7 +36,7 @@ public class CharSequenceArgumentFactory extends AbstractArgumentFactory<CharSeq
     }
 
     @Override
-    protected Argument build(CharSequence value, ConfigRegistry config) {
+    protected Argument build(CharSequence value, ConfigView config) {
         return (position, statement, ctx) -> statement.setString(position, Objects.toString(value, null));
     }
 

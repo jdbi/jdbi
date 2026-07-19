@@ -26,7 +26,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
@@ -41,10 +41,10 @@ import static org.jdbi.core.generic.GenericTypes.getErasedType;
  * </ul>
  */
 class OptionalColumnMapperFactory implements ColumnMapperFactory {
-    private static final Map<Class<?>, BiFunction<Type, ConfigRegistry, ColumnMapper<?>>> STRATEGIES;
+    private static final Map<Class<?>, BiFunction<Type, ConfigView, ColumnMapper<?>>> STRATEGIES;
 
     static {
-        Map<Class<?>, BiFunction<Type, ConfigRegistry, ColumnMapper<?>>> s = new HashMap<>();
+        Map<Class<?>, BiFunction<Type, ConfigView, ColumnMapper<?>>> s = new HashMap<>();
 
         s.put(Optional.class, OptionalColumnMapperFactory::create);
         s.put(OptionalInt.class, singleton(create(ResultSet::getInt, OptionalInt::empty, OptionalInt::of)));
@@ -55,12 +55,12 @@ class OptionalColumnMapperFactory implements ColumnMapperFactory {
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         return Optional.ofNullable(STRATEGIES.get(getErasedType(type)))
                 .map(strategy -> strategy.apply(type, config));
     }
 
-    static BiFunction<Type, ConfigRegistry, ColumnMapper<?>> singleton(ColumnMapper<?> instance) {
+    static BiFunction<Type, ConfigView, ColumnMapper<?>> singleton(ColumnMapper<?> instance) {
         return (t, c) -> instance;
     }
 
@@ -70,7 +70,7 @@ class OptionalColumnMapperFactory implements ColumnMapperFactory {
                 .orElseGet(empty);
     }
 
-    private static ColumnMapper<?> create(Type type, ConfigRegistry config) {
+    private static ColumnMapper<?> create(Type type, ConfigView config) {
         final ColumnMapper<?> mapper = config.findColumnMapperFor(
                 GenericTypes.findGenericParameter(type, Optional.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Optional type")))

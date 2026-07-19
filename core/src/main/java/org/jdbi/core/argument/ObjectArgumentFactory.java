@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * Argument factory that matches a specified type and binds
@@ -54,14 +54,14 @@ public class ObjectArgumentFactory implements ArgumentFactory.Preparable {
     }
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type expectedType, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type expectedType, ConfigView config) {
         return Optional.of(expectedType)
                 .filter(type::equals)
                 .map(t -> o -> ObjectArgument.of(o, sqlType));
     }
 
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
         return Objects.equals(type, expectedType) || type.isInstance(value)
                 ? Optional.of(ObjectArgument.of(value, sqlType))
                 : Optional.empty();

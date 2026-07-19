@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.PreparedBatch;
 import org.junit.jupiter.api.Test;
@@ -92,7 +92,7 @@ public class TestArgumentFactory {
     public static class NameAF implements ArgumentFactory {
 
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
             if (expectedType == Name.class || value instanceof Name) {
                 Name nameValue = (Name) value;
                 return ArgumentResolver.forRegistry(config).findFor(String.class, nameValue.getFullName());

@@ -23,7 +23,7 @@ import java.util.OptionalLong;
 
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.reflect.BeanMapper;
@@ -303,7 +303,7 @@ public class TestOptional {
     static class NameArgumentFactory implements ArgumentFactory {
 
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
             if (expectedType == Name.class) {
                 Name nameValue = (Name) value;
                 return Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));

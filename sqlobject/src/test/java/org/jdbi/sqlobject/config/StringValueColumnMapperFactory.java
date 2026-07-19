@@ -16,13 +16,13 @@ package org.jdbi.sqlobject.config;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
 
 public class StringValueColumnMapperFactory implements ColumnMapperFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         return StringValue.class.equals(type)
                 ? Optional.of(new StringValueColumnMapper())
                 : Optional.empty();

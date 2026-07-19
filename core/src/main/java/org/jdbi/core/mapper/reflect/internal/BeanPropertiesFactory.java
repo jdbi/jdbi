@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.leangen.geantyref.GenericTypeReflector;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.internal.ConfigCache;
 import org.jdbi.core.config.internal.ConfigCaches;
 import org.jdbi.core.generic.GenericTypes;
@@ -53,7 +53,7 @@ public class BeanPropertiesFactory {
 
     private BeanPropertiesFactory() {}
 
-    public static PojoProperties<?> propertiesFor(Type t, ConfigRegistry config) {
+    public static PojoProperties<?> propertiesFor(Type t, ConfigView config) {
         return new BeanPojoProperties<>(t, config);
     }
 
@@ -69,9 +69,9 @@ public class BeanPropertiesFactory {
 
     static class BeanPojoProperties<T> extends PojoProperties<T> {
 
-        private final ConfigRegistry config;
+        private final ConfigView config;
 
-        BeanPojoProperties(Type type, ConfigRegistry config) {
+        BeanPojoProperties(Type type, ConfigView config) {
             super(type);
             this.config = config;
         }

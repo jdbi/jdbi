@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
@@ -67,7 +67,7 @@ public class TestRegisterRowMapperFactory {
 
     public static class MyFactory implements RowMapperFactory {
         @Override
-        public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+        public Optional<RowMapper<?>> build(Type type, ConfigView config) {
             Class<?> erasedType = getErasedType(type);
             MapWith mapWith = erasedType.getAnnotation(MapWith.class);
             return mapWith == null

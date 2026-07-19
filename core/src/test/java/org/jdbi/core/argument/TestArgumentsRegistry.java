@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.jdbi.core.Handle;
 import org.jdbi.core.HandleAccess;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.StatementContextAccess;
 import org.junit.jupiter.api.BeforeEach;
@@ -159,7 +160,7 @@ public class TestArgumentsRegistry {
 
     private static class WeirdClassArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
             return getErasedType(expectedType) == Weird.class
                     ? Optional.of(new WeirdArgument())
                     : Optional.empty();
@@ -168,7 +169,7 @@ public class TestArgumentsRegistry {
 
     private static class WeirdValueArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
             return value instanceof Weird
                     ? Optional.of(new WeirdArgument())
                     : Optional.empty();
@@ -177,7 +178,7 @@ public class TestArgumentsRegistry {
 
     private static class OtherWeirdArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
             return getErasedType(expectedType) == Weird.class
                     ? Optional.of(new OtherWeirdArgument())
                     : Optional.empty();

@@ -175,7 +175,7 @@ public class TestConfigRegistry {
 
         assertThat(second).isSameAs(first);
         assertThat(builds).hasValue(1);
-        assertThat(first.registry).isSameAs(parent);
+        assertThat(first.registry).isSameAs(parent.asReadOnlyView());
     }
 
     @Test
@@ -187,7 +187,7 @@ public class TestConfigRegistry {
         View childView = child1.readAs(View.class, r -> countingView(builds, r));
 
         assertThat(childView).isNotSameAs(parentView);
-        assertThat(childView.registry).isSameAs(child1);
+        assertThat(childView.registry).isSameAs(child1.asReadOnlyView());
         assertThat(builds).hasValue(2);
         // the parent's view is unchanged and still memoized
         assertThat(parent.readAs(View.class, r -> countingView(builds, r))).isSameAs(parentView);
@@ -234,7 +234,7 @@ public class TestConfigRegistry {
 
         // delegated to the parent: same (warm) view, no rebuild, bound to the parent
         assertThat(childView).isSameAs(parentView);
-        assertThat(childView.registry).isSameAs(parent);
+        assertThat(childView.registry).isSameAs(parent.asReadOnlyView());
         assertThat(builds).hasValue(1);
     }
 
@@ -247,7 +247,7 @@ public class TestConfigRegistry {
         child1.configure(RowMappers.class, r -> r.register(FACTORY)); // forks
         View childView = child1.readAs(View.class, r -> countingView(builds, r));
 
-        assertThat(childView.registry).isSameAs(child1);
+        assertThat(childView.registry).isSameAs(child1.asReadOnlyView());
         assertThat(builds).hasValue(2);
     }
 
@@ -263,15 +263,15 @@ public class TestConfigRegistry {
         assertThat(builds).hasValue(2);
     }
 
-    private static View countingView(AtomicInteger builds, ConfigRegistry registry) {
+    private static View countingView(AtomicInteger builds, ConfigView registry) {
         builds.incrementAndGet();
         return new View(registry);
     }
 
     private static final class View {
-        private final ConfigRegistry registry;
+        private final ConfigView registry;
 
-        View(ConfigRegistry registry) {
+        View(ConfigView registry) {
             this.registry = registry;
         }
     }

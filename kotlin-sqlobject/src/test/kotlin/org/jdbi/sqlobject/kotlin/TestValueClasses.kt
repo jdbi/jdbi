@@ -18,7 +18,7 @@ import org.jdbi.core.Handle
 import org.jdbi.core.argument.AbstractArgumentFactory
 import org.jdbi.core.argument.Argument
 import org.jdbi.core.argument.ArgumentFactory
-import org.jdbi.core.config.ConfigRegistry
+import org.jdbi.core.config.ConfigView
 import org.jdbi.core.kotlin.KotlinMapper
 import org.jdbi.core.kotlin.internal.KotlinValueClassArgumentFactory
 import org.jdbi.core.kotlin.internal.KotlinValueClassColumnMapperFactory
@@ -265,14 +265,13 @@ class TestValueClasses {
     data class Something(val id: ValueId, val name: String)
 
     class ValueIdArgumentFactory : AbstractArgumentFactory<ValueId>(Types.INTEGER) {
-        override fun build(value: ValueId?, config: ConfigRegistry): Argument? =
-            Argument { position: Int, statement: PreparedStatement, ctx: StatementContext ->
-                if (value != null) {
-                    statement.setInt(position, value.value)
-                } else {
-                    statement.setNull(position, Types.INTEGER)
-                }
+        override fun build(value: ValueId?, config: ConfigView): Argument? = Argument { position: Int, statement: PreparedStatement, ctx: StatementContext ->
+            if (value != null) {
+                statement.setInt(position, value.value)
+            } else {
+                statement.setNull(position, Types.INTEGER)
             }
+        }
 
         override fun toString(): String = "ValueIdArgumentFactory"
     }
@@ -280,7 +279,7 @@ class TestValueClasses {
     // value type as a column
 
     class ValueIdColumnMapperFactory : ColumnMapperFactory {
-        override fun build(type: Type?, config: ConfigRegistry?): Optional<ColumnMapper<*>> {
+        override fun build(type: Type?, config: ConfigView?): Optional<ColumnMapper<*>> {
             if (type == ValueId::class.java) {
                 return Optional.of(ValueIdColumnMapper())
             }

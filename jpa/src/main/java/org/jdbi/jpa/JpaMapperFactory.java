@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import javax.persistence.Entity;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
 
@@ -29,7 +29,7 @@ import static org.jdbi.core.generic.GenericTypes.getErasedType;
  */
 public class JpaMapperFactory implements RowMapperFactory {
     @Override
-    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<RowMapper<?>> build(Type type, ConfigView config) {
         Class<?> clazz = getErasedType(type);
         return clazz.isAnnotationPresent(Entity.class)
                 ? Optional.of(new JpaMapper<>(clazz))

@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.CopyOnWriteHashMap;
@@ -47,7 +46,7 @@ public final class MapperResolver {
         return config.readAs(MapperResolver.class, MapperResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
     private final Map<Type, Optional<RowMapper<?>>> rowCache = new CopyOnWriteHashMap<>();
     private final Map<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> columnCache = new CopyOnWriteHashMap<>();
 
@@ -57,7 +56,7 @@ public final class MapperResolver {
     private volatile int rowFactoryCount = -1;
     private volatile int columnFactoryCount = -1;
 
-    private MapperResolver(final ConfigRegistry registry) {
+    private MapperResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

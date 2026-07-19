@@ -18,7 +18,7 @@ import org.jdbi.core.Handle
 import org.jdbi.core.argument.AbstractArgumentFactory
 import org.jdbi.core.argument.Argument
 import org.jdbi.core.argument.ArgumentFactory
-import org.jdbi.core.config.ConfigRegistry
+import org.jdbi.core.config.ConfigView
 import org.jdbi.core.kotlin.internal.KotlinValueClassArgumentFactory
 import org.jdbi.core.kotlin.internal.KotlinValueClassColumnMapperFactory
 import org.jdbi.core.mapper.ColumnMapper
@@ -56,14 +56,13 @@ class KotlinValueTypeTest {
     value class MagicType(val first: String)
 
     class MagicTypeArgumentFactory : AbstractArgumentFactory<MagicType>(Types.VARCHAR) {
-        override fun build(value: MagicType?, config: ConfigRegistry): Argument =
-            Argument { position: Int, statement: PreparedStatement, ctx: StatementContext ->
-                if (value != null) {
-                    statement.setString(position, value.first)
-                } else {
-                    statement.setNull(position, Types.VARCHAR)
-                }
+        override fun build(value: MagicType?, config: ConfigView): Argument = Argument { position: Int, statement: PreparedStatement, ctx: StatementContext ->
+            if (value != null) {
+                statement.setString(position, value.first)
+            } else {
+                statement.setNull(position, Types.VARCHAR)
             }
+        }
     }
 
     class MagicTypeColumnMapper : ColumnMapper<MagicType?> {
@@ -74,7 +73,7 @@ class KotlinValueTypeTest {
     }
 
     class MagicTypeColumnMapperFactory : ColumnMapperFactory {
-        override fun build(type: Type?, config: ConfigRegistry?): Optional<ColumnMapper<*>> {
+        override fun build(type: Type?, config: ConfigView?): Optional<ColumnMapper<*>> {
             if (type == MagicType::class.java) {
                 return Optional.of(MagicTypeColumnMapper())
             }

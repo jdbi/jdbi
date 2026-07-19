@@ -21,7 +21,7 @@ import java.util.UUID;
 import org.jdbi.core.Handle;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,7 +84,7 @@ public class ArgumentsTest {
         }
 
         @Override
-        protected Argument build(UUID value, ConfigRegistry config) {
+        protected Argument build(UUID value, ConfigView config) {
             return (position, statement, ctx) -> statement.setString(position, value.toString()); // <2>
         }
     }

@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.meta.Beta;
 
@@ -41,7 +41,7 @@ public interface ArgumentFactory {
      * @see StatementContext#findArgumentFor(Type, Object)
      * @see Arguments#findFor(Type, Object)
      */
-    Optional<Argument> build(Type type, Object value, ConfigRegistry config);
+    Optional<Argument> build(Type type, Object value, ConfigView config);
 
     /**
      * ArgumentFactory extension interface that allows preparing arguments for efficient batch binding.
@@ -50,10 +50,10 @@ public interface ArgumentFactory {
     @SuppressWarnings("PMD.ImplicitFunctionalInterface")
     interface Preparable extends ArgumentFactory {
         @Override
-        default Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        default Optional<Argument> build(Type type, Object value, ConfigView config) {
             return prepare(type, config).map(p -> p.apply(value));
         }
 
-        Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config);
+        Optional<Function<Object, Argument>> prepare(Type type, ConfigView config);
     }
 }

@@ -16,7 +16,7 @@ package org.jdbi.json;
 import java.lang.reflect.Type;
 
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,17 +43,17 @@ public class JsonPluginTest {
         Object result = jdbi.withHandle(
             cfg -> cfg.configure(JsonConfig.class, c -> c.jsonMapper(new JsonMapper() {
                 @Override
-                public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+                public TypedJsonMapper forType(Type type, ConfigView config) {
                     assertThat(type).isEqualTo(Foo.class);
                     return new TypedJsonMapper() {
                         @Override
-                        public String toJson(Object value, ConfigRegistry config) {
+                        public String toJson(Object value, ConfigView config) {
                             assertThat(value).isEqualTo(instance);
                             return json;
                         }
 
                         @Override
-                        public Object fromJson(String readJson, ConfigRegistry config) {
+                        public Object fromJson(String readJson, ConfigView config) {
                             assertThat(readJson).isEqualTo(json);
                             return instance;
                         }

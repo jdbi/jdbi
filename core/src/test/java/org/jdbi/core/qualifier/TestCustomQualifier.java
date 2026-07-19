@@ -24,7 +24,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.Arguments;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMappers;
@@ -349,7 +349,7 @@ public class TestCustomQualifier {
         }
 
         @Override
-        protected Argument build(String value, ConfigRegistry config) {
+        protected Argument build(String value, ConfigView config) {
             return (pos, stmt, ctx) -> stmt.setString(pos, value.toUpperCase(Locale.ROOT));
         }
     }
@@ -372,7 +372,7 @@ public class TestCustomQualifier {
         }
 
         @Override
-        protected Argument build(String value, ConfigRegistry config) {
+        protected Argument build(String value, ConfigView config) {
             return (pos, stmt, ctx) -> stmt.setString(pos, reverse(value).toUpperCase(Locale.ROOT));
         }
     }

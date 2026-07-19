@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 
 /**
@@ -33,7 +33,7 @@ public interface SqlArrayTypeFactory {
      * @return an {@link SqlArrayType} for the given {@code elementType} if this factory supports it; empty otherwise.
      * @see ArrayTypeResolver#findFor(Type)
      */
-    Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config);
+    Optional<SqlArrayType<?>> build(Type elementType, ConfigView config);
 
     /**
      * Create a SqlArrayTypeFactory for the given {@code elementType} that binds using a

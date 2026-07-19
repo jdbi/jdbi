@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jdbi.core.HandleCallback;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.extension.ConfigCustomizerFactory;
 import org.jdbi.core.extension.ExtensionFactory;
 import org.jdbi.core.extension.ExtensionHandler;
@@ -53,13 +53,13 @@ abstract class AbstractSqlObjectFactory implements ExtensionFactory {
     }
 
     @Override
-    public Collection<ExtensionHandlerCustomizer> getExtensionHandlerCustomizers(ConfigRegistry config) {
+    public Collection<ExtensionHandlerCustomizer> getExtensionHandlerCustomizers(ConfigView config) {
         final HandlerDecorators handlerDecorators = config.get(HandlerDecorators.class);
         return Collections.singleton(handlerDecorators::customize);
     }
 
     @Override
-    public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigRegistry config) {
+    public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigView config) {
         final Handlers handlers = config.get(Handlers.class);
         List<ExtensionHandlerFactory> factories = new ArrayList<>();
 
@@ -69,7 +69,7 @@ abstract class AbstractSqlObjectFactory implements ExtensionFactory {
     }
 
     @Override
-    public Collection<ConfigCustomizerFactory> getConfigCustomizerFactories(ConfigRegistry config) {
+    public Collection<ConfigCustomizerFactory> getConfigCustomizerFactories(ConfigView config) {
         return Collections.singleton(SqlObjectCustomizerFactory.FACTORY);
     }
 

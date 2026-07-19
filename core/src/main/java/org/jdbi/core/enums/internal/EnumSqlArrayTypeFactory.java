@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import org.jdbi.core.array.SqlArrayType;
 import org.jdbi.core.array.SqlArrayTypeFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.enums.EnumStrategy;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.internal.EnumStrategyResolver;
@@ -28,14 +28,14 @@ import org.jdbi.core.qualifier.QualifiedType;
 public class EnumSqlArrayTypeFactory implements SqlArrayTypeFactory {
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config) {
+    public Optional<SqlArrayType<?>> build(Type elementType, ConfigView config) {
         return Optional.of(elementType)
             .map(GenericTypes::getErasedType)
             .filter(Enum.class::isAssignableFrom)
             .map(clazz -> makeSqlArrayType((Class<Enum>) clazz, config));
     }
 
-    private <E extends Enum<E>> SqlArrayType<E> makeSqlArrayType(Class<E> enumClass, ConfigRegistry config) {
+    private <E extends Enum<E>> SqlArrayType<E> makeSqlArrayType(Class<E> enumClass, ConfigView config) {
         boolean byName = EnumStrategy.BY_NAME == EnumStrategyResolver.forRegistry(config).findStrategy(QualifiedType.of(enumClass));
 
         return byName

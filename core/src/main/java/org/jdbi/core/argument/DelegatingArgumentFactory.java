@@ -20,7 +20,7 @@ import java.util.function.Function;
 
 import org.jdbi.core.argument.internal.StatementBinder;
 import org.jdbi.core.argument.internal.strategies.LoggableBinderArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
 
@@ -28,12 +28,12 @@ abstract class DelegatingArgumentFactory implements ArgumentFactory.Preparable {
     private final IdentityHashMap<Class<?>, Function<Object, Argument>> builders = new IdentityHashMap<>();
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         return Optional.ofNullable(builders.get(getErasedType(type)));
     }
 
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
         Class<?> expectedClass = getErasedType(expectedType);
 
         if (value != null && expectedClass == Object.class) {

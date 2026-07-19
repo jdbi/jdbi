@@ -15,7 +15,7 @@ package org.jdbi.core.mapper;
 
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 
@@ -34,7 +34,7 @@ public interface QualifiedColumnMapperFactory {
      * @see ColumnMappers for composition
      * @see QualifiedType
      */
-    Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config);
+    Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigView config);
 
     /**
      * Adapts a {@link ColumnMapperFactory} into a QualifiedColumnMapperFactory. The returned

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import org.jdbi.core.Handle;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.sqlobject.config.RegisterArgumentFactory;
 import org.jdbi.sqlobject.customizer.Bind;
@@ -228,7 +228,7 @@ public class TestBindMethods {
         }
 
         @Override
-        protected Argument build(final Number value, final ConfigRegistry config) {
+        protected Argument build(final Number value, final ConfigView config) {
             return new BigIntNumberArgument(value);
         }
     }

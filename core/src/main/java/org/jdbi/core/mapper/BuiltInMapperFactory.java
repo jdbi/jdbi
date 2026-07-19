@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * @deprecated will be replaced by an opt-out plugin to give the core no hardwired behavior
@@ -38,7 +38,7 @@ public class BuiltInMapperFactory implements ColumnMapperFactory {
 
     @Deprecated
     @Override
-    public Optional<ColumnMapper<?>> build(final Type type, final ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(final Type type, final ConfigView config) {
         return FACTORIES.stream()
             .flatMap(factory -> factory.build(type, config).stream())
             .findFirst();
