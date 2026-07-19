@@ -28,6 +28,7 @@ import java.util.function.Function;
 
 import jakarta.annotation.Nullable;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.cache.JdbiCache;
@@ -134,6 +135,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param value the value for the attribute
      * @return a copy of this configuration with the attribute defined
      */
+    @CheckReturnValue
     public SqlStatements define(final String key, final Object value) {
         final Map<String, Object> newAttributes = new HashMap<>(attributes);
         newAttributes.put(key, value);
@@ -146,6 +148,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param values map of attributes to define.
      * @return a copy of this configuration with the attributes defined, or this configuration if {@code values} is null or empty
      */
+    @CheckReturnValue
     public SqlStatements defineMap(final Map<String, ?> values) {
         if (values == null || values.isEmpty()) {
             return this;
@@ -190,6 +193,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param customizer instance to be used to customize a statement
      * @return a copy of this configuration with the customizer registered
      */
+    @CheckReturnValue
     public SqlStatements addCustomizer(final StatementCustomizer customizer) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
                 queryTimeout, allowUnusedBindings, attachAllStatementsForCleanup, attachCallbackStatementsForCleanup,
@@ -197,6 +201,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
                 contextListeners, jfrSqlMaxLength, jfrParamMaxLength, includeBindingsInTelemetry);
     }
 
+    @CheckReturnValue
     public SqlStatements addContextListener(final StatementContextListener listener) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
                 queryTimeout, allowUnusedBindings, attachAllStatementsForCleanup, attachCallbackStatementsForCleanup,
@@ -225,6 +230,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param templateEngine the new template engine.
      * @return the derived configuration
      */
+    @CheckReturnValue
     public SqlStatements templateEngine(final TemplateEngine templateEngine) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
                 queryTimeout, allowUnusedBindings, attachAllStatementsForCleanup, attachCallbackStatementsForCleanup,
@@ -239,6 +245,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param cacheBuilder the cache builder to use to create the cache.
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Beta
     public SqlStatements templateCache(final JdbiCacheBuilder cacheBuilder) {
         return new SqlStatements(attributes, templateEngine, cacheBuilder.build(), sqlParser, sqlLogger,
@@ -259,6 +266,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param sqlParser the new SQL parser.
      * @return the derived configuration
      */
+    @CheckReturnValue
     public SqlStatements sqlParser(final SqlParser sqlParser) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
                 queryTimeout, allowUnusedBindings, attachAllStatementsForCleanup, attachCallbackStatementsForCleanup,
@@ -283,6 +291,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return the derived configuration
      * @deprecated use {@link #sqlLogger} instead
      */
+    @CheckReturnValue
     @Deprecated(since = "3.2.0", forRemoval = true)
     public SqlStatements setTimingCollector(final TimingCollector timingCollector) {
         final SqlLogger logger = timingCollector == null ? SqlLogger.NOP_SQL_LOGGER : new SqlLogger() {
@@ -307,6 +316,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param sqlLogger The logger. Using <code>null</code> turns off all logging
      * @return the derived configuration
      */
+    @CheckReturnValue
     public SqlStatements sqlLogger(final SqlLogger sqlLogger) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser,
                 sqlLogger == null ? SqlLogger.NOP_SQL_LOGGER : sqlLogger,
@@ -328,6 +338,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      *                {@code setQueryTimeout(int)})
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Beta
     public SqlStatements queryTimeout(@Nullable final Integer seconds) {
         if (seconds != null && seconds < 0) {
@@ -352,6 +363,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @return the derived configuration
      * @see org.jdbi.core.argument.Argument
      */
+    @CheckReturnValue
     public SqlStatements unusedBindingAllowed(final boolean unusedBindingAllowed) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
                 queryTimeout, unusedBindingAllowed, attachAllStatementsForCleanup, attachCallbackStatementsForCleanup,
@@ -381,6 +393,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      *
      * @since 3.38.0
      */
+    @CheckReturnValue
     @Beta
     public SqlStatements attachAllStatementsForCleanup(final boolean attachAllStatementsForCleanup) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
@@ -414,6 +427,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      *
      * @since 3.43.0
      */
+    @CheckReturnValue
     public SqlStatements scriptStatementsNeedSemicolon(final boolean scriptStatementsNeedSemicolon) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
                 queryTimeout, allowUnusedBindings, attachAllStatementsForCleanup, attachCallbackStatementsForCleanup,
@@ -445,6 +459,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      *
      * @since 3.38.0
      */
+    @CheckReturnValue
     public SqlStatements attachCallbackStatementsForCleanup(final boolean attachCallbackStatementsForCleanup) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
                 queryTimeout, allowUnusedBindings, attachAllStatementsForCleanup, attachCallbackStatementsForCleanup,
@@ -458,6 +473,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param jfrSqlMaxLength the maximum length of rendered SQL
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Beta
     public SqlStatements jfrSqlMaxLength(final int jfrSqlMaxLength) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
@@ -488,6 +504,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param jfrParamMaxLength the maximum length of rendered parameters
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Beta
     public SqlStatements jfrParamMaxLength(final int jfrParamMaxLength) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
@@ -510,6 +527,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param includeBindingsInTelemetry whether to include bindings in telemetry data
      * @return the derived configuration
      */
+    @CheckReturnValue
     public SqlStatements includeBindingsInTelemetry(final boolean includeBindingsInTelemetry) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,
                 queryTimeout, allowUnusedBindings, attachAllStatementsForCleanup, attachCallbackStatementsForCleanup,
@@ -524,6 +542,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      * @param handler the handler to register
      * @return a copy of this configuration with the handler registered
      */
+    @CheckReturnValue
     @Beta
     public SqlStatements addExceptionHandler(final SqlExceptionHandler handler) {
         return new SqlStatements(attributes, templateEngine, templateCache, sqlParser, sqlLogger,

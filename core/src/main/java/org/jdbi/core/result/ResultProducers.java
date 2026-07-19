@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.function.Supplier;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.result.internal.EmptyResultSet;
 import org.jdbi.core.statement.StatementContext;
@@ -140,6 +141,7 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
      * @param allowNoResults True if an empty {@link ResultSet} object should be returned, false if a {@link NoResultsException} should be thrown.
      * @return the derived configuration
      */
+    @CheckReturnValue
     public ResultProducers allowNoResults(boolean allowNoResults) {
         return new ResultProducers(allowNoResults);
     }

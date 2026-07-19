@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.array.SqlArrayArgumentFactory;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.internal.RegistrationLists;
@@ -88,6 +89,7 @@ public final class Arguments implements JdbiConfig<Arguments> {
      * @param factory the factory to add
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public Arguments register(final ArgumentFactory factory) {
         return register(QualifiedArgumentFactory.adapt(factory));
     }
@@ -98,6 +100,7 @@ public final class Arguments implements JdbiConfig<Arguments> {
      * @param factory the qualified factory to add
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public Arguments register(final QualifiedArgumentFactory factory) {
         return new Arguments(RegistrationLists.prepend(factories, factory),
                 untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
@@ -111,6 +114,7 @@ public final class Arguments implements JdbiConfig<Arguments> {
      * @param factories the factories to add
      * @return a copy of this configuration with the factories registered
      */
+    @CheckReturnValue
     public Arguments register(final Collection<? extends ArgumentFactory> factories) {
         if (factories.isEmpty()) {
             return this;
@@ -134,6 +138,7 @@ public final class Arguments implements JdbiConfig<Arguments> {
      * @param untypedNullArgument the argument to bind
      * @return a copy of this configuration with the untyped null argument set
      */
+    @CheckReturnValue
     public Arguments untypedNullArgument(final Argument untypedNullArgument) {
         if (untypedNullArgument == null) {
             throw new IllegalArgumentException("the Argument itself may not be null");
@@ -165,6 +170,7 @@ public final class Arguments implements JdbiConfig<Arguments> {
      * @param bindingNullToPrimitivesPermitted if true, {@code null} can be bound to a variable declared as a primitive type.
      * @return a copy of this configuration with the policy set
      */
+    @CheckReturnValue
     public Arguments bindingNullToPrimitivesPermitted(final boolean bindingNullToPrimitivesPermitted) {
         return new Arguments(factories, untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }
@@ -185,6 +191,7 @@ public final class Arguments implements JdbiConfig<Arguments> {
      * @param preparedArgumentsEnabled whether to enable preparable argument factories
      * @return a copy of this configuration with the policy set
      */
+    @CheckReturnValue
     public Arguments preparedArgumentsEnabled(final boolean preparedArgumentsEnabled) {
         return new Arguments(factories, untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }

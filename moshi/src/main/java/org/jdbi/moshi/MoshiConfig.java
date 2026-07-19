@@ -14,6 +14,7 @@
 package org.jdbi.moshi;
 
 import com.squareup.moshi.Moshi;
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -37,6 +38,7 @@ public final class MoshiConfig implements JdbiConfig<MoshiConfig> {
      * @param moshi the mapper to use
      * @return the derived configuration
      */
+    @CheckReturnValue
     public MoshiConfig moshi(Moshi moshi) {
         return new MoshiConfig(moshi);
     }

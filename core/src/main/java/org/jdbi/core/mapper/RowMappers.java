@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.interceptor.JdbiInterceptionChainHolder;
@@ -68,6 +69,7 @@ public final class RowMappers implements JdbiConfig<RowMappers> {
      * @param interceptor the inference interceptor to add
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Alpha
     public RowMappers withInferenceInterceptor(final JdbiInterceptor<RowMapper<?>, RowMapperFactory> interceptor) {
         final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> newInterceptors = new JdbiInterceptionChainHolder<>(inferenceInterceptors);
@@ -88,6 +90,7 @@ public final class RowMappers implements JdbiConfig<RowMappers> {
      * @return a copy of this configuration with the mapper registered
      * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
      */
+    @CheckReturnValue
     public RowMappers register(RowMapper<?> mapper) {
         RowMapperFactory factory = inferenceInterceptors.process(mapper);
 
@@ -102,6 +105,7 @@ public final class RowMappers implements JdbiConfig<RowMappers> {
      * @param mapper the row mapper
      * @return this
      */
+    @CheckReturnValue
     public <T> RowMappers register(GenericType<T> type, RowMapper<T> mapper) {
         return this.register(RowMapperFactory.of(type.getType(), mapper));
     }
@@ -113,6 +117,7 @@ public final class RowMappers implements JdbiConfig<RowMappers> {
      * @param mapper the row mapper
      * @return this
      */
+    @CheckReturnValue
     public RowMappers register(Type type, RowMapper<?> mapper) {
         return this.register(RowMapperFactory.of(type, mapper));
     }
@@ -125,6 +130,7 @@ public final class RowMappers implements JdbiConfig<RowMappers> {
      * @param factory the row mapper factory
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public RowMappers register(RowMapperFactory factory) {
         return new RowMappers(RegistrationLists.prepend(factories, factory), inferenceInterceptors);
     }
@@ -137,6 +143,7 @@ public final class RowMappers implements JdbiConfig<RowMappers> {
      * @param factories the row mapper factories to add
      * @return a copy of this configuration with the factories registered
      */
+    @CheckReturnValue
     public RowMappers register(Collection<? extends RowMapperFactory> factories) {
         if (factories.isEmpty()) {
             return this;

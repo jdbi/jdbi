@@ -13,6 +13,7 @@
  */
 package org.jdbi.stringtemplate4;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -44,6 +45,7 @@ public final class StringTemplates implements JdbiConfig<StringTemplates> {
      * @param failOnMissingAttribute whether a missing attribute throws an exception
      * @return the derived configuration
      */
+    @CheckReturnValue
     public StringTemplates failOnMissingAttribute(boolean failOnMissingAttribute) {
         return new StringTemplates(failOnMissingAttribute);
     }

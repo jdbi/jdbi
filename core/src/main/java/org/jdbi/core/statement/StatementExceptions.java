@@ -15,6 +15,7 @@ package org.jdbi.core.statement;
 
 import java.util.function.Function;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.meta.Beta;
 
@@ -51,6 +52,7 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
      * @param lengthLimit the limit hint.
      * @return the derived configuration
      */
+    @CheckReturnValue
     public StatementExceptions lengthLimit(int lengthLimit) {
         return new StatementExceptions(messageRendering, lengthLimit);
     }
@@ -71,6 +73,7 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
      * @return the derived configuration
      * @see MessageRendering
      */
+    @CheckReturnValue
     public StatementExceptions messageRendering(Function<StatementException, String> messageRendering) {
         return new StatementExceptions(messageRendering, lengthLimit);
     }

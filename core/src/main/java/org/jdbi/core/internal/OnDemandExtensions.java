@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.Extensions;
@@ -41,6 +42,7 @@ public final class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> 
         this.onDemandExtensionFactory = onDemandExtensionFactory;
     }
 
+    @CheckReturnValue
     public OnDemandExtensions factory(Factory onDemandExtensionFactory) {
         return new OnDemandExtensions(onDemandExtensionFactory);
     }

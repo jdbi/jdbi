@@ -16,6 +16,7 @@ package org.jdbi.core.mapper.reflect.internal;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -35,6 +36,7 @@ public final class PojoTypes implements JdbiConfig<PojoTypes> {
         this.factories = factories;
     }
 
+    @CheckReturnValue
     public PojoTypes register(final Class<?> key, final PojoPropertiesFactory factory) {
         final Map<Class<?>, PojoPropertiesFactory> updated = new HashMap<>(factories);
         updated.put(key, factory);

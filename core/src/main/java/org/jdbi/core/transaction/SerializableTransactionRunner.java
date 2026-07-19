@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.Handle;
 import org.jdbi.core.HandleCallback;
 import org.jdbi.core.config.JdbiConfig;
@@ -158,6 +159,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
          * @param maxRetries The maximum number of retry attempts before aborting.
          * @return the derived configuration
          */
+        @CheckReturnValue
         public Configuration maxRetries(int maxRetries) {
             if (maxRetries < 0) {
                 throw new IllegalArgumentException("\"" + maxRetries + " retries\" makes no sense. Set a number >= 0 (default " + DEFAULT_MAX_RETRIES + ").");
@@ -171,6 +173,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
          * @param serializationFailureSqlState the SQL state to consider as a serialization failure.
          * @return the derived configuration
          */
+        @CheckReturnValue
         public Configuration serializationFailureSqlState(String serializationFailureSqlState) {
             return new Configuration(maxRetries, serializationFailureSqlState, onFailure, onSuccess);
         }
@@ -182,6 +185,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
          * @param onFailure A consumer to handle failures. Will never be called with Exceptions that have not been configured.
          * @return the derived configuration
          */
+        @CheckReturnValue
         public Configuration onFailure(Consumer<List<Exception>> onFailure) {
             return new Configuration(maxRetries, serializationFailureSqlState, onFailure, onSuccess);
         }
@@ -194,6 +198,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
          * @param onSuccess A consumer to handle the list of failures after the run has been completed successfully.
          * @return the derived configuration
          */
+        @CheckReturnValue
         public Configuration onSuccess(Consumer<List<Exception>> onSuccess) {
             return new Configuration(maxRetries, serializationFailureSqlState, onFailure, onSuccess);
         }

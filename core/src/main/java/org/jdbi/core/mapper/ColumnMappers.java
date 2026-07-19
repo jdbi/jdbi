@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.array.SqlArrayMapperFactory;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.enums.internal.EnumMapperFactory;
@@ -88,6 +89,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param interceptor the inference interceptor to add
      * @return the derived configuration
      */
+    @CheckReturnValue
     @Alpha
     public ColumnMappers withInferenceInterceptor(final JdbiInterceptor<ColumnMapper<?>, QualifiedColumnMapperFactory> interceptor) {
         final JdbiInterceptionChainHolder<ColumnMapper<?>, QualifiedColumnMapperFactory> newInterceptors = new JdbiInterceptionChainHolder<>(inferenceInterceptors);
@@ -106,6 +108,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @return a copy of this configuration with the mapper registered
      * @throws UnsupportedOperationException if the ColumnMapper is not a concretely parameterized type
      */
+    @CheckReturnValue
     public ColumnMappers register(ColumnMapper<?> mapper) {
         QualifiedColumnMapperFactory factory = inferenceInterceptors.process(mapper);
 
@@ -121,6 +124,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param mapper the column mapper
      * @return this
      */
+    @CheckReturnValue
     public <T> ColumnMappers register(GenericType<T> type, ColumnMapper<T> mapper) {
         return this.register(ColumnMapperFactory.of(type.getType(), mapper));
     }
@@ -133,6 +137,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param mapper the column mapper
      * @return this
      */
+    @CheckReturnValue
     public ColumnMappers register(Type type, ColumnMapper<?> mapper) {
         return this.register(ColumnMapperFactory.of(type, mapper));
     }
@@ -145,6 +150,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param mapper the column mapper
      * @return this
      */
+    @CheckReturnValue
     public <T> ColumnMappers register(QualifiedType<T> type, ColumnMapper<T> mapper) {
         return this.register(QualifiedColumnMapperFactory.of(type, mapper));
     }
@@ -157,6 +163,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param factory the column mapper factory
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public ColumnMappers register(ColumnMapperFactory factory) {
         return register(QualifiedColumnMapperFactory.adapt(factory));
     }
@@ -169,6 +176,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param factory the qualified column mapper factory
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public ColumnMappers register(QualifiedColumnMapperFactory factory) {
         return new ColumnMappers(RegistrationLists.prepend(factories, factory), inferenceInterceptors, coalesceNullPrimitivesToDefaults);
     }
@@ -181,6 +189,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param factories the column mapper factories to add
      * @return a copy of this configuration with the factories registered
      */
+    @CheckReturnValue
     public ColumnMappers register(Collection<? extends ColumnMapperFactory> factories) {
         if (factories.isEmpty()) {
             return this;
@@ -216,6 +225,7 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * @param coalesceNullPrimitivesToDefaults If true, then use the JDBC default value, otherwise throw an exception.
      * @return a copy of this configuration with the policy set
      */
+    @CheckReturnValue
     public ColumnMappers coalesceNullPrimitivesToDefaults(boolean coalesceNullPrimitivesToDefaults) {
         return new ColumnMappers(factories, inferenceInterceptors, coalesceNullPrimitivesToDefaults);
     }

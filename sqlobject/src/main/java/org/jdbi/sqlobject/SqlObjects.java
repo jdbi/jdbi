@@ -15,6 +15,7 @@ package org.jdbi.sqlobject;
 
 import java.util.Objects;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.sqlobject.locator.AnnotationSqlLocator;
@@ -53,6 +54,7 @@ public final class SqlObjects implements JdbiConfig<SqlObjects> {
      * @param sqlLocator the new SQL locator.
      * @return the derived configuration
      */
+    @CheckReturnValue
     public SqlObjects sqlLocator(SqlLocator sqlLocator) {
         return new SqlObjects(Objects.requireNonNull(sqlLocator), defaultParameterCustomizerFactory);
     }
@@ -73,6 +75,7 @@ public final class SqlObjects implements JdbiConfig<SqlObjects> {
      * @param defaultParameterCustomizerFactory the new default parameter customizer factory.
      * @return the derived configuration
      */
+    @CheckReturnValue
     public SqlObjects defaultParameterCustomizerFactory(ParameterCustomizerFactory defaultParameterCustomizerFactory) {
         return new SqlObjects(sqlLocator, defaultParameterCustomizerFactory);
     }

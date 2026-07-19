@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collector;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.internal.RegistrationLists;
 
@@ -61,6 +62,7 @@ public final class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
      * @param factory A collector factory
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public JdbiCollectors register(final CollectorFactory factory) {
         return new JdbiCollectors(RegistrationLists.prepend(factories, factory));
     }
@@ -73,6 +75,7 @@ public final class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
      * @since 3.38.0
      * @see org.jdbi.core.config.Configurable#registerCollector(CollectorFactory)
      */
+    @CheckReturnValue
     public JdbiCollectors registerCollector(final Type collectionType, final Collector<?, ?, ?> collector) {
         return register(CollectorFactory.collectorFactory(collectionType, collector));
     }

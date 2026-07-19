@@ -15,6 +15,7 @@ package org.jdbi.freemarker;
 
 import java.util.Optional;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import org.jdbi.core.config.JdbiConfig;
@@ -38,6 +39,7 @@ public final class FreemarkerConfig implements JdbiConfig<FreemarkerConfig> {
         return configuration;
     }
 
+    @CheckReturnValue
     public FreemarkerConfig freemarkerConfiguration(Configuration freemarkerConfiguration) {
         return new FreemarkerConfig(freemarkerConfiguration);
     }

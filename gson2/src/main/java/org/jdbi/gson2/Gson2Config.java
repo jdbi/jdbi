@@ -14,6 +14,7 @@
 package org.jdbi.gson2;
 
 import com.google.gson.Gson;
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -35,6 +36,7 @@ public final class Gson2Config implements JdbiConfig<Gson2Config> {
      * @param gson the mapper to use
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Gson2Config gson(Gson gson) {
         return new Gson2Config(gson);
     }

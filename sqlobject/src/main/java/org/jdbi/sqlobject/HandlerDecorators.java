@@ -16,6 +16,7 @@ package org.jdbi.sqlobject;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.ExtensionHandler;
@@ -50,6 +51,7 @@ public final class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
      * @param decorator the decorator to register
      * @return a copy of this configuration with the decorator registered
      */
+    @CheckReturnValue
     public HandlerDecorators register(HandlerDecorator decorator) {
         return new HandlerDecorators(RegistrationLists.append(decorators, decorator));
     }

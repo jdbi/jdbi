@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.extension.ExtensionHandlerFactory;
@@ -53,6 +54,7 @@ public final class Handlers implements JdbiConfig<Handlers> {
      * @param factory the factory to register
      * @return a copy of this configuration with the factory registered
      */
+    @CheckReturnValue
     public Handlers register(HandlerFactory factory) {
         return new Handlers(RegistrationLists.prepend(factories, factory));
     }
