@@ -26,6 +26,7 @@ import org.jdbi.core.Jdbi;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
+import org.jdbi.core.argument.Arguments;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.sqlobject.TestIssue2497.Parameters.Thing;
@@ -50,9 +51,8 @@ public class TestIssue2497 {
     @Test
     public void testMapToArrayArgument() {
         final Jdbi db = h2Extension.getJdbi();
-        try (Handle h = db.open()) {
+        try (Handle h = db.open(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListArrayArgumentFactory())))) {
             h.execute("create table foo (id identity primary key, v integer array)");
-            h.registerArgument(new ListArrayArgumentFactory());
             h.execute("insert into foo (id, v) values (1, ?)", List.of(1, 2));
             h.execute("insert into foo (id, v) values (2, ?)", List.of(4, 3, 2));
             h.execute("insert into foo (id, v) values (3, ?)", List.of(5, 6));
@@ -81,8 +81,7 @@ public class TestIssue2497 {
     @Test
     public void testMapToStringArgument() {
         final Jdbi db = h2Extension.getJdbi();
-        try (Handle h = db.open()) {
-            h.registerArgument(new ListStringFactory());
+        try (Handle h = db.open(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListStringFactory())))) {
             h.execute("insert into something (id, name) values (1, ?)", List.of("Hello", "World"));
             h.execute("insert into something (id, name) values (2, ?)", List.of("The", "quick", "brown", "fox"));
             h.execute("insert into something (id, name) values (3, ?)", List.of("Now", "is", "the", "time"));
@@ -124,8 +123,7 @@ public class TestIssue2497 {
     public void testMapToObjectArgument() {
         final Jdbi db = h2Extension.getJdbi();
 
-        try (Handle h = db.open()) {
-            h.registerArgument(new ListObjectFactory());
+        try (Handle h = db.open(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListObjectFactory())))) {
             h.execute("insert into something (id, name) values (1, ?)",
                 List.of(Parameters.thing("Hello"), Parameters.thing("World")));
             h.execute("insert into something (id, name) values (2, ?)",
@@ -155,12 +153,12 @@ public class TestIssue2497 {
 
         List<Sulu> sulus = Arrays.asList(new Sulu(1, "George", "Takei"),
             new Sulu(2, "John", "Cho"));
-        db.useExtension(SuluDao.class, s -> {
-            Handle h = s.getHandle();
-            h.registerArgument(new SuluArgumentFactory());
-            SuluDao dao = h.attach(SuluDao.class);
-            dao.insertSulus(sulus);
-        });
+        db.useHandle(
+            cfg -> cfg.configure(Arguments.class, a -> a.register(new SuluArgumentFactory())),
+            h -> {
+                SuluDao dao = h.attach(SuluDao.class);
+                dao.insertSulus(sulus);
+            });
 
         db.useExtension(SuluDao.class, s -> {
             assertThat(s.findName(1)).isEqualTo("George Takei");
@@ -176,12 +174,13 @@ public class TestIssue2497 {
             new Sulu(1, "George", "Takei"),
             new Sulu(2, "John", "Cho"));
 
-        db.withHandle(h -> {
-            h.registerArgument(new SuluArgumentFactory());
-            SuluDao dao = h.attach(SuluDao.class);
-            dao.insertSulus(sulus);
-            return null;
-        });
+        db.withHandle(
+            cfg -> cfg.configure(Arguments.class, a -> a.register(new SuluArgumentFactory())),
+            h -> {
+                SuluDao dao = h.attach(SuluDao.class);
+                dao.insertSulus(sulus);
+                return null;
+            });
 
         db.useExtension(SuluDao.class, s -> {
             assertThat(s.findName(1)).isEqualTo("George Takei");

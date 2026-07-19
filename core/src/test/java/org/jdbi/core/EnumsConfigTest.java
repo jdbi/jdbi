@@ -117,9 +117,7 @@ public class EnumsConfigTest {
 
     @Test
     public void ordinalsAreBoundCorrectly() {
-        sqliteExtension.getJdbi().useHandle(h -> {
-            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
+        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
             h.createUpdate("create table enums(id int, ordinal int)").execute();
 
             h.createUpdate("insert into enums (id, ordinal) values (1, :ordinal)")
@@ -137,9 +135,7 @@ public class EnumsConfigTest {
 
     @Test
     public void ordinalsAreMappedCorrectly() {
-        sqliteExtension.getJdbi().useHandle(h -> {
-            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
+        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
             Foobar name = h.createQuery("select :ordinal")
                 .bind("ordinal", Foobar.FOO.ordinal())
                 .mapTo(Foobar.class)
@@ -161,9 +157,7 @@ public class EnumsConfigTest {
 
     @Test
     public void badOrdinalThrows() {
-        sqliteExtension.getJdbi().useHandle(h -> {
-            h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
+        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
             assertThatThrownBy(h.createQuery("select 3").mapTo(Foobar.class)::one)
                 .isInstanceOf(UnableToProduceResultException.class)
                 .hasMessageContaining("no Foobar value could be matched to the ordinal 3");

@@ -23,6 +23,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.HandleAccess;
 import org.jdbi.core.SampleBean;
 import org.jdbi.core.ValueType;
+import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.ValueTypeMapper;
 import org.jdbi.core.statement.StatementContext;
@@ -179,7 +180,7 @@ public class BeanMapperMockTest {
 
     @Test
     public void shouldUseRegisteredMapperForUnknownPropertyType() throws Exception {
-        handle.registerColumnMapper(new ValueTypeMapper());
+        ctx.getConfig().configure(ColumnMappers.class, c -> c.register(new ValueTypeMapper()));
 
         mockColumns("longField", "valueTypeField");
         Long expected = 123L;

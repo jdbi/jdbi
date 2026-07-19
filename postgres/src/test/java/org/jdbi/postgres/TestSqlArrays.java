@@ -62,16 +62,16 @@ public class TestSqlArrays {
         .withInitializer((ds, h) -> h.useTransaction(th -> {
             th.execute("DROP TABLE IF EXISTS uuids");
             th.execute("CREATE TABLE uuids (u UUID[], i INT[], t TIMESTAMPTZ[])");
-        }));
+        }))
+        // register array type to every handle
+        .withConfig(b -> b.registerArrayType(Instant.class, "timestamptz"));
 
     private Handle handle;
     private ArrayObject ao;
 
     @BeforeEach
     public void setUp() {
-        handle = pgExtension.openHandle()
-            // register array type to the handle
-            .registerArrayType(Instant.class, "timestamptz");
+        handle = pgExtension.openHandle();
 
         // attach the array object to the handle as well.
         ao = handle.attach(ArrayObject.class);
@@ -201,8 +201,8 @@ public class TestSqlArrays {
 
     @Test
     public void testReusedArrayWithString() throws Exception {
-        handle.registerArrayType(String.class, "text");
         assertThat(handle.createQuery("select :array = :array")
+                .registerArrayType(String.class, "text")
                 .bindArray("array", String.class, Collections.singletonList("element"))
                 .mapTo(boolean.class)
                 .one()).isTrue();

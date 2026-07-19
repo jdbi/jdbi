@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.config.Configurable;
 import org.jdbi.core.extension.ExtensionContext;
 import org.jdbi.core.extension.ExtensionMethod;
 import org.jdbi.core.extension.Extensions;
@@ -38,6 +37,7 @@ import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.statement.Batch;
 import org.jdbi.core.statement.Call;
 import org.jdbi.core.statement.Cleanable;
+import org.jdbi.core.statement.ConfigReader;
 import org.jdbi.core.statement.MetaData;
 import org.jdbi.core.statement.PreparedBatch;
 import org.jdbi.core.statement.Query;
@@ -61,7 +61,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * a JDBC Connection object.  Handle provides essential methods for transaction
  * management, statement creation, and other operations tied to the database session.
  */
-public class Handle implements Closeable, Configurable<Handle> {
+public class Handle implements Closeable, ConfigReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
@@ -130,11 +130,14 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.connection = connection;
 
         // A copy-on-write child of the (frozen post-build) Jdbi config: an unmodified handle shares the root's
-        // warm resolver views instead of paying a cold copy, and a local change (a per-handle scope, or later
-        // handle.configure) forks a private snapshot without touching the root. The scope is applied before the
-        // extension context and handle listeners are derived from it.
+        // warm resolver views instead of paying a cold copy, and a local change (a per-handle config scope, or a
+        // plugin's customizeHandleConfig) forks a private snapshot without touching the root. Both are applied
+        // during construction, before the extension context and handle listeners are derived from the config.
         final ConfigRegistry handleConfig = jdbi.getConfig().createChild();
         configScope.accept(handleConfig);
+        // Plugins contribute per-connection config (e.g. binding database types to this connection) during
+        // construction, after the caller's scope and before the extension context is derived from the config.
+        jdbi.customizeHandleConfig(connection, handleConfig);
         this.defaultExtensionContext = ExtensionContext.forConfig(handleConfig);
         this.currentExtensionContext = defaultExtensionContext;
 

@@ -31,14 +31,14 @@ import static org.jdbi.core.statement.EmptyHandling.NULL_KEYWORD;
 public class TestBindList {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withConfig(b -> b.registerRowMapper(FieldMapper.factory(Thing.class)));
 
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(FieldMapper.factory(Thing.class));
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 1, "foo1", "bar1", "baz1");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 2, "foo2", "bar2", "baz2");
@@ -84,16 +84,16 @@ public class TestBindList {
 
     @Test
     public void testBindListWithHashPrefixParser() {
-        handle
-                .registerRowMapper(FieldMapper.factory(Thing.class))
-                .setSqlParser(new HashPrefixSqlParser());
+        final HashPrefixSqlParser hashParser = new HashPrefixSqlParser();
 
         handle.createUpdate("insert into thing (<columns>) values (<values>)")
+                .configure(SqlStatements.class, c -> c.sqlParser(hashParser))
                 .defineList("columns", "id", "foo")
                 .bindList("values", 3, "abc")
                 .execute();
 
         List<Thing> list = handle.createQuery("select id, foo from thing where id in (<ids>)")
+                .configure(SqlStatements.class, c -> c.sqlParser(hashParser))
                 .bindList("ids", 1, 3)
                 .mapTo(Thing.class)
                 .list();

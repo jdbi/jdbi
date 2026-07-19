@@ -55,12 +55,13 @@ public class TestStatementsTimeout {
 
     @Test
     public void testTimeout() {
-        h.configure(SqlStatements.class, c -> c.queryTimeout(2));
-
-        assertThatCode(h.createQuery("select pg_sleep(1)").mapTo(String.class)::one)
+        assertThatCode(h.createQuery("select pg_sleep(1)")
+                .configure(SqlStatements.class, c -> c.queryTimeout(2))
+                .mapTo(String.class)::one)
             .doesNotThrowAnyException();
 
-        try (Query query = h.createQuery("select pg_sleep(3)")) {
+        try (Query query = h.createQuery("select pg_sleep(3)")
+                .configure(SqlStatements.class, c -> c.queryTimeout(2))) {
             ResultIterable<String> iterable = query.mapTo(String.class);
 
             assertThatThrownBy(iterable::one)

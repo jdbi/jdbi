@@ -30,16 +30,18 @@ import static org.jdbi.core.internal.testing.H2DatabaseExtension.SOMETHING_INITI
 public class BeanMapperNestedTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(SOMETHING_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withInitializer(SOMETHING_INITIALIZER)
+        .withConfig(b -> b
+            .registerRowMapper(BeanMapper.factory(NestedBean.class))
+            .registerRowMapper(BeanMapper.factory(NestedPrefixBean.class))
+            .registerRowMapper(BeanMapper.factory(StrangePrefixBean.class)));
 
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
         this.handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(BeanMapper.factory(NestedBean.class));
-        handle.registerRowMapper(BeanMapper.factory(NestedPrefixBean.class));
-        handle.registerRowMapper(BeanMapper.factory(StrangePrefixBean.class));
 
         handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
     }
@@ -56,22 +58,22 @@ public class BeanMapperNestedTest {
 
     @Test
     public void testNestedStrict() {
-        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(ReflectionMappers.class, c -> c.strictMatching(true)))) {
+            assertThat(handle
+                .createQuery("select id, name from something")
+                .mapTo(NestedBean.class)
+                .one())
+                .extracting("nested.id", "nested.name")
+                .containsExactly(1, "foo");
 
-        assertThat(handle
-            .createQuery("select id, name from something")
-            .mapTo(NestedBean.class)
-            .one())
-            .extracting("nested.id", "nested.name")
-            .containsExactly(1, "foo");
-
-        assertThatThrownBy(() -> {
-            try (Query query = handle.createQuery("select id, name, 1 as other from something")) {
-                query.mapTo(NestedBean.class).one();
-            }
-        })
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match properties for columns: [other]");
+            assertThatThrownBy(() -> {
+                try (Query query = handle.createQuery("select id, name, 1 as other from something")) {
+                    query.mapTo(NestedBean.class).one();
+                }
+            })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("could not match properties for columns: [other]");
+        }
     }
 
     @Test
@@ -96,31 +98,31 @@ public class BeanMapperNestedTest {
 
     @Test
     public void testNestedPrefixStrict() {
-        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(ReflectionMappers.class, c -> c.strictMatching(true)))) {
+            assertThat(handle
+                .createQuery("select id nested_id, name nested_name, integerValue from something")
+                .mapTo(NestedPrefixBean.class)
+                .one())
+                .extracting("nested.id", "nested.name", "integerValue")
+                .containsExactly(1, "foo", 5);
 
-        assertThat(handle
-            .createQuery("select id nested_id, name nested_name, integerValue from something")
-            .mapTo(NestedPrefixBean.class)
-            .one())
-            .extracting("nested.id", "nested.name", "integerValue")
-            .containsExactly(1, "foo", 5);
+            assertThatThrownBy(() -> {
+                try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as other from something")) {
+                    query.mapTo(NestedPrefixBean.class)
+                        .one();
+                }
+            })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("could not match properties for columns: [other]");
 
-        assertThatThrownBy(() -> {
-            try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as other from something")) {
-                query.mapTo(NestedPrefixBean.class)
-                    .one();
-            }
-        })
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match properties for columns: [other]");
-
-        assertThatThrownBy(() -> {
-            try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as nested_other from something")) {
-                query.mapTo(NestedPrefixBean.class).one();
-            }
-        })
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match properties for columns: [nested_other]");
+            assertThatThrownBy(() -> {
+                try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as nested_other from something")) {
+                    query.mapTo(NestedPrefixBean.class).one();
+                }
+            })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("could not match properties for columns: [nested_other]");
+        }
     }
 
     @Test

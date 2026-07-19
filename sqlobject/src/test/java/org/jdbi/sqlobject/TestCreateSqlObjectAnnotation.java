@@ -44,7 +44,6 @@ public class TestCreateSqlObjectAnnotation {
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new SomethingMapper());
     }
 
     @Test

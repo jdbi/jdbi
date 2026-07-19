@@ -35,7 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestReducing {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+        .withConfig(b -> b.registerRowMapper(new SomethingMapper()));
 
     @BeforeEach
     public void setUp() {
@@ -46,7 +47,6 @@ public class TestReducing {
         h.execute("INSERT INTO something_location (id, location) VALUES (1, 'outside')");
         h.execute("INSERT INTO something_location (id, location) VALUES (2, 'tree')");
         h.execute("INSERT INTO something_location (id, location) VALUES (2, 'pie')");
-        h.registerRowMapper(new SomethingMapper());
     }
 
     @Test

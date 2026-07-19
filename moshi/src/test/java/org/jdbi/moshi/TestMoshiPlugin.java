@@ -57,15 +57,13 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
 
     @Test
     public void typeCanBeOverridden() {
-        pgExtension.getJdbi().useHandle(h -> {
+        Moshi moshi = new Moshi.Builder()
+            .add(new OptionalAdapter())
+            .add(SuperUser.class, new SuperUserAdapter())
+            .add(SubUser.class, new SubUserAdapter())
+            .build();
+        pgExtension.getJdbi().useHandle(cfg -> cfg.configure(MoshiConfig.class, c -> c.moshi(moshi)), h -> {
             h.createUpdate("create table users(usr json)").execute();
-
-            Moshi moshi = new Moshi.Builder()
-                .add(new OptionalAdapter())
-                .add(SuperUser.class, new SuperUserAdapter())
-                .add(SubUser.class, new SubUserAdapter())
-                .build();
-            h.configure(MoshiConfig.class, c -> c.moshi(moshi));
 
             h.createUpdate("insert into users(usr) values(:user)")
                 // declare that the subuser should be mapped as a superuser

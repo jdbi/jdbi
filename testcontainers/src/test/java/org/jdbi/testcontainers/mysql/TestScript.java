@@ -21,7 +21,6 @@ import org.jdbi.core.statement.Script;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -40,12 +39,8 @@ public class TestScript {
     static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_VERSION).withUrlParam("rewriteBatchedStatements", "true");
 
     @RegisterExtension
-    JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer);
-
-    @BeforeEach
-    public void setUp() {
-        extension.getSharedHandle().configure(SqlStatements.class, c -> c.scriptStatementsNeedSemicolon(false));
-    }
+    JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer)
+            .withConfig(b -> b.configure(SqlStatements.class, c -> c.scriptStatementsNeedSemicolon(false)));
 
     @Test
     void testIssue2554Script() {

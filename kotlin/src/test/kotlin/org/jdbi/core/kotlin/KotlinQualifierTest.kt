@@ -33,14 +33,16 @@ class KotlinQualifierTest {
     @RegisterExtension
     @JvmField
     val h2Extension: JdbiExtension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(KotlinPlugin())
+        .withConfig { b ->
+            b.registerArgument(ReversedStringArgumentFactory())
+                .registerColumnMapper(ReversedStringMapper())
+        }
 
     private lateinit var handle: Handle
 
     @BeforeEach
     fun setup() {
         handle = h2Extension.sharedHandle
-            .registerArgument(ReversedStringArgumentFactory())
-            .registerColumnMapper(ReversedStringMapper())
     }
 
     @Test

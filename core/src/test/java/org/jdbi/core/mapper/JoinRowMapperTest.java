@@ -30,7 +30,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JoinRowMapperTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withConfig(b -> b
+            // tag::mapperSetup[]
+            .registerRowMapper(ConstructorMapper.factory(User.class))
+            .registerRowMapper(ConstructorMapper.factory(Article.class))
+            // end::mapperSetup[]
+        );
 
     private Handle h;
 
@@ -61,11 +67,6 @@ public class JoinRowMapperTest {
             .bind(0, 3).bind(1, 1).add()
             .bind(0, 3).bind(1, 3).add()
             .execute();
-
-        // tag::mapperSetup[]
-        h.registerRowMapper(ConstructorMapper.factory(User.class));
-        h.registerRowMapper(ConstructorMapper.factory(Article.class));
-        // end::mapperSetup[]
     }
 
     @Test

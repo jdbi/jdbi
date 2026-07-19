@@ -427,6 +427,16 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
+     * Applies each installed plugin's {@link JdbiPlugin#customizeHandleConfig} to a new handle's config during
+     * construction, in install order. Called from the {@link Handle} constructor.
+     */
+    void customizeHandleConfig(final Connection connection, final ConfigRegistry config) throws SQLException {
+        for (final JdbiPlugin p : plugins) {
+            p.customizeHandleConfig(connection, config);
+        }
+    }
+
+    /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients.
      *

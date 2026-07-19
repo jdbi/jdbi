@@ -399,10 +399,6 @@ public interface ResultIterable<T> extends Iterable<T> {
      * <pre>{@code
      *     jdbi.registerCollector(List.class, Collectors.toCollection(LinkedList::new));
      * }</pre>
-     * or
-     * <pre>{@code
-     *     handle.registerCollector(List.class, Collectors.toCollection(LinkedList::new));
-     * }</pre>
      * <br>
      * If no collector is registered, then this method behaves like {@link #list()}.
      *
@@ -421,10 +417,6 @@ public interface ResultIterable<T> extends Iterable<T> {
      * <p>
      * <pre>{@code
      *     jdbi.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
-     * }</pre>
-     * or
-     * <pre>{@code
-     *     handle.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
      * }</pre>
      * <br>
      * If no collector is registered, then this method behaves like {@link #set()}.

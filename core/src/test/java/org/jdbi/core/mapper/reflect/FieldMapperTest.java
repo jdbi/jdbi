@@ -21,6 +21,7 @@ import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.Nested;
 import org.jdbi.core.mapper.PropagateNull;
 import org.jdbi.core.mapper.RowMapper;
+import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.mapper.reflect.ConstructorMapperTest.ClassPropagateNullThing;
 import org.jdbi.core.statement.Query;
 import org.junit.jupiter.api.Test;
@@ -66,8 +67,8 @@ public class FieldMapperTest {
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NestedThing.class))
             .select("SELECT id, name FROM something")
+            .registerRowMapper(FieldMapper.factory(NestedThing.class))
             .mapTo(NestedThing.class)
             .one())
             .extracting("nested.i", "nested.s")
@@ -76,28 +77,27 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedStrict() {
-        Handle handle = h2Extension.getSharedHandle();
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+            .configure(ReflectionMappers.class, c -> c.strictMatching(true))
+            .configure(RowMappers.class, r -> r.register(FieldMapper.factory(NestedThing.class))))) {
 
-        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
-        handle.registerRowMapper(FieldMapper.factory(NestedThing.class));
+            handle.execute("insert into something (id, name) values (1, 'foo')");
 
-        handle.execute("insert into something (id, name) values (1, 'foo')");
+            assertThat(handle
+                .select("select id, name from something")
+                .mapTo(NestedThing.class)
+                .one())
+                .extracting("nested.i", "nested.s")
+                .containsExactly(1, "foo");
 
-        assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NestedThing.class))
-            .select("select id, name from something")
-            .mapTo(NestedThing.class)
-            .one())
-            .extracting("nested.i", "nested.s")
-            .containsExactly(1, "foo");
-
-        assertThatThrownBy(() -> {
-            try (Query query = handle.createQuery("select id, name, 1 as other from something")) {
-                query.mapTo(NestedThing.class).one();
-            }
-        })
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match fields for columns: [other]");
+            assertThatThrownBy(() -> {
+                try (Query query = handle.createQuery("select id, name, 1 as other from something")) {
+                    query.mapTo(NestedThing.class).one();
+                }
+            })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("could not match fields for columns: [other]");
+        }
     }
 
     static class NestedThing {
@@ -111,8 +111,8 @@ public class FieldMapperTest {
         Handle handle = h2Extension.getSharedHandle();
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue, 2 as i, '3' as s")
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .mapTo(NullableNestedThing.class)
             .one())
             .extracting("testValue", "nested.i", "nested.s")
@@ -124,8 +124,8 @@ public class FieldMapperTest {
         Handle handle = h2Extension.getSharedHandle();
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue, '3' as s")
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .mapTo(NullableNestedThing.class)
             .one())
             .extracting("testValue", "nested.i", "nested.s")
@@ -137,8 +137,8 @@ public class FieldMapperTest {
         Handle handle = h2Extension.getSharedHandle();
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 42 as testValue")
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .mapTo(NullableNestedThing.class)
             .one())
             .extracting("testValue", "nested")
@@ -150,8 +150,8 @@ public class FieldMapperTest {
         Handle handle = h2Extension.getSharedHandle();
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .select("SELECT 's' s, 1 i")
+            .registerRowMapper(FieldMapper.factory(NullableNestedThing.class))
             .mapTo(NullableNestedThing.class)
             .one())
             .extracting("testValue", "nested.s", "nested.i")
@@ -161,10 +161,9 @@ public class FieldMapperTest {
     @Test
     public void testNoRecognizedColumns() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(FieldMapper.factory(NullableNestedThing.class));
 
         assertThatThrownBy(() -> {
-            try (Query query = handle.select("SELECT 'foo' bar")) {
+            try (Query query = handle.select("SELECT 'foo' bar").registerRowMapper(FieldMapper.factory(NullableNestedThing.class))) {
                 query.mapTo(NullableNestedThing.class).one();
             }
         })
@@ -197,8 +196,8 @@ public class FieldMapperTest {
         handle.execute("insert into something (id, name) values (1, 'foo')");
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NestedPrefixThing.class))
             .select("select id nested_id, name nested_name from something")
+            .registerRowMapper(FieldMapper.factory(NestedPrefixThing.class))
             .mapTo(NestedPrefixThing.class)
             .one())
             .extracting("nested.i", "nested.s")
@@ -207,35 +206,35 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedPrefixStrict() {
-        Handle handle = h2Extension.getSharedHandle();
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+            .configure(ReflectionMappers.class, c -> c.strictMatching(true))
+            .configure(RowMappers.class, r -> r.register(FieldMapper.factory(NestedPrefixThing.class))))) {
 
-        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
-        handle.registerRowMapper(FieldMapper.factory(NestedPrefixThing.class));
+            handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
 
-        handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!
+            assertThat(handle
+                .createQuery("select id nested_id, name nested_name, integerValue from something")
+                .mapTo(NestedPrefixThing.class)
+                .one())
+                .extracting("nested.i", "nested.s", "integerValue")
+                .containsExactly(1, "foo", 5);
 
-        assertThat(handle
-            .createQuery("select id nested_id, name nested_name, integerValue from something")
-            .mapTo(NestedPrefixThing.class)
-            .one())
-            .extracting("nested.i", "nested.s", "integerValue")
-            .containsExactly(1, "foo", 5);
+            assertThatThrownBy(() -> {
+                try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as other from something")) {
+                    query.mapTo(NestedPrefixThing.class).one();
+                }
+            })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("could not match fields for columns: [other]");
 
-        assertThatThrownBy(() -> {
-            try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as other from something")) {
-                query.mapTo(NestedPrefixThing.class).one();
-            }
-        })
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match fields for columns: [other]");
-
-        assertThatThrownBy(() -> {
-            try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as nested_other from something")) {
-                query.mapTo(NestedPrefixThing.class).one();
-            }
-        })
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("could not match fields for columns: [nested_other]");
+            assertThatThrownBy(() -> {
+                try (Query query = handle.createQuery("select id nested_id, name nested_name, 1 as nested_other from something")) {
+                    query.mapTo(NestedPrefixThing.class).one();
+                }
+            })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("could not match fields for columns: [nested_other]");
+        }
     }
 
     static class NestedPrefixThing {
@@ -251,8 +250,8 @@ public class FieldMapperTest {
         Handle handle = h2Extension.getSharedHandle();
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(PropagateNullThing.class))
             .select("SELECT null as testValue, 'foo' as s")
+            .registerRowMapper(FieldMapper.factory(PropagateNullThing.class))
             .mapTo(PropagateNullThing.class)
             .one())
             .isNull();
@@ -263,8 +262,8 @@ public class FieldMapperTest {
         Handle handle = h2Extension.getSharedHandle();
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(PropagateNullThing.class))
             .select("SELECT 42 as testValue, 'foo' as s")
+            .registerRowMapper(FieldMapper.factory(PropagateNullThing.class))
             .mapTo(PropagateNullThing.class)
             .one())
             .extracting("testValue", "s")
@@ -276,8 +275,8 @@ public class FieldMapperTest {
         Handle handle = h2Extension.getSharedHandle();
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
+            .registerRowMapper(FieldMapper.factory(NestedPropagateNullThing.class))
             .mapTo(NestedPropagateNullThing.class)
             .one())
             .extracting("integerValue", "nested")
@@ -289,8 +288,8 @@ public class FieldMapperTest {
         Handle handle = h2Extension.getSharedHandle();
 
         assertThat(handle
-            .registerRowMapper(FieldMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
+            .registerRowMapper(FieldMapper.factory(NestedPropagateNullThing.class))
             .mapTo(NestedPropagateNullThing.class)
             .one())
             .extracting("integerValue", "nested.testValue", "nested.s")

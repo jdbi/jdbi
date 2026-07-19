@@ -19,9 +19,9 @@ import java.util.Map;
 
 import com.pgvector.PGbit;
 import com.pgvector.PGvector;
-import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.argument.ArgumentFactory;
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.JdbiClassUtils;
 import org.jdbi.core.internal.UtilityClassException;
@@ -168,14 +168,18 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
     }
 
     @Override
-    public Handle customizeHandle(Handle handle) throws SQLException {
-        Connection conn = handle.getConnection();
+    public Connection customizeConnection(Connection conn) throws SQLException {
         if (PGVECTOR_AVAILABLE) {
             VectorEnabler.enable(conn);
         }
-        PGConnection pgConnection = conn.unwrap(PGConnection.class);
-        return handle.configure(PostgresTypes.class, pt ->
-            pt.addTypesToConnection(pgConnection).lobApi(new PgLobApiImpl(conn)));
+        return conn;
+    }
+
+    @Override
+    public void customizeHandleConfig(Connection connection, ConfigRegistry config) throws SQLException {
+        PGConnection pgConnection = connection.unwrap(PGConnection.class);
+        config.configure(PostgresTypes.class, pt ->
+            pt.addTypesToConnection(pgConnection).lobApi(new PgLobApiImpl(connection)));
     }
 
     static final class VectorEnabler {

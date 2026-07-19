@@ -28,14 +28,14 @@ public class ConstructorMapperPgTest {
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
     @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg)
+        .withConfig(b -> b.registerRowMapper(ConstructorMapper.factory(ConstructorBean.class)));
 
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
-        handle = pgExtension.getSharedHandle()
-            .registerRowMapper(ConstructorMapper.factory(ConstructorBean.class));
+        handle = pgExtension.getSharedHandle();
 
         handle.execute("CREATE TABLE bean (s varchar primary key, i integer)");
     }

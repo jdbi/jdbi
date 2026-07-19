@@ -41,27 +41,27 @@ public class TestMapMapper {
 
     @Test
     public void testCaseDefaultNop() {
-        h.configure(MapMappers.class, c -> c.caseChange(CaseStrategy.NOP));
-
-        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
+        Map<String, Object> noOne = h.createQuery("select * from Foo")
+            .configure(MapMappers.class, c -> c.caseChange(CaseStrategy.NOP))
+            .mapToMap().one();
 
         assertThat(noOne).containsOnlyKeys("Id", "FirstName");
     }
 
     @Test
     public void testCaseLower() {
-        h.configure(MapMappers.class, c -> c.caseChange(CaseStrategy.LOCALE_LOWER));
-
-        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
+        Map<String, Object> noOne = h.createQuery("select * from Foo")
+            .configure(MapMappers.class, c -> c.caseChange(CaseStrategy.LOCALE_LOWER))
+            .mapToMap().one();
 
         assertThat(noOne).containsOnlyKeys("id", "firstname");
     }
 
     @Test
     public void testCaseUpper() {
-        h.configure(MapMappers.class, c -> c.caseChange(CaseStrategy.LOCALE_UPPER));
-
-        Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
+        Map<String, Object> noOne = h.createQuery("select * from Foo")
+            .configure(MapMappers.class, c -> c.caseChange(CaseStrategy.LOCALE_UPPER))
+            .mapToMap().one();
 
         assertThat(noOne).containsOnlyKeys("ID", "FIRSTNAME");
     }

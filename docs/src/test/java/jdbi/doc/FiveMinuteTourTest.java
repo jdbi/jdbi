@@ -123,9 +123,8 @@ public class FiveMinuteTourTest {
     @Test
     public void registerCustomMapper() {
         // tag::registerCustomMapper[]
-        handle.registerRowMapper(new ContactMapper());
-
         List<Contact> contacts = handle.createQuery("select * from contacts")
+                                       .registerRowMapper(new ContactMapper())
                                        .mapTo(Contact.class)
                                        .list();
         assertThat(contacts).extracting("id", "name")
@@ -136,7 +135,6 @@ public class FiveMinuteTourTest {
 
     @Test
     public void positionalParameters() {
-        handle.registerRowMapper(new ContactMapper());
         // tag::positionalParameters[]
         handle.createUpdate("insert into contacts (id, name) values (?, ?)")
               .bind(0, 3)
@@ -153,7 +151,6 @@ public class FiveMinuteTourTest {
 
     @Test
     public void namedParameters() {
-        handle.registerRowMapper(new ContactMapper());
         // tag::namedParameters[]
         handle.createUpdate("insert into contacts (id, name) values (:id, :name)")
               .bind("id", 3)

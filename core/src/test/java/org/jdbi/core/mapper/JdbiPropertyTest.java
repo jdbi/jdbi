@@ -159,8 +159,8 @@ public class JdbiPropertyTest {
 
     @Test
     public void immutablesBindDefineIgnore() {
-        handle.registerImmutable(TestImmutables.class);
         assertThat(handle.select("select :id")
+                .registerImmutable(TestImmutables.class)
                 .bindPojo(ImmutableTestImmutables.builder().build())
                 .defineNamedBindings()
                 .addCustomizer(new UnboundDetector())

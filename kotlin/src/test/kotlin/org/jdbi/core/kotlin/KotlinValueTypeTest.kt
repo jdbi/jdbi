@@ -109,16 +109,16 @@ class KotlinValueTypeTest {
     @ParameterizedTest
     @MethodSource("arguments")
     fun testValueClass(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory) {
-        handle.registerArgument(argumentFactory)
-        handle.registerColumnMapper(columnMapperFactory)
         val expected = MagicType("does this work?")
 
         handle.createUpdate("INSERT INTO something(id, first) VALUES(:id, :first)")
+            .registerArgument(argumentFactory)
             .bind("id", 1)
             .bind("first", expected)
             .execute()
 
         val result = handle.createQuery("SELECT first FROM something")
+            .registerColumnMapper(columnMapperFactory)
             .mapTo<MagicType>()
             .single()
 
@@ -128,18 +128,18 @@ class KotlinValueTypeTest {
     @ParameterizedTest
     @MethodSource("arguments")
     fun testValueClassList(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory) {
-        handle.registerArgument(argumentFactory)
-        handle.registerColumnMapper(columnMapperFactory)
         val expected = MagicType("does this work?")
 
         for (i in 1..10) {
             handle.createUpdate("INSERT INTO something(id, first) VALUES(:id, :first)")
+                .registerArgument(argumentFactory)
                 .bind("id", i)
                 .bind("first", expected)
                 .execute()
         }
 
         val result = handle.createQuery("SELECT first FROM something ORDER BY id")
+            .registerColumnMapper(columnMapperFactory)
             .mapTo<MagicType>()
             .list()
 
@@ -152,15 +152,14 @@ class KotlinValueTypeTest {
     @ParameterizedTest
     @MethodSource("arguments")
     fun testValueClassNull(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory) {
-        handle.registerArgument(argumentFactory)
-        handle.registerColumnMapper(columnMapperFactory)
-
         handle.createUpdate("INSERT INTO something(id, first) VALUES(:id, :first)")
+            .registerArgument(argumentFactory)
             .bind("id", 1)
             .bindNull("first", Types.VARCHAR)
             .execute()
 
         val result = handle.createQuery("SELECT first FROM something")
+            .registerColumnMapper(columnMapperFactory)
             .mapTo<MagicType>()
             .single()
 
@@ -172,20 +171,18 @@ class KotlinValueTypeTest {
     @ParameterizedTest
     @MethodSource("arguments")
     fun testValueBean(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory) {
-        handle.registerArgument(argumentFactory)
-        handle.registerColumnMapper(columnMapperFactory)
-
-        // Not automatically registered b/c using installKotlinMapperFactory = false
-        handle.registerRowMapper(KotlinMapperFactory())
-
         val expected = MagicType("does this work?")
 
         handle.createUpdate("INSERT INTO something(id, first) VALUES(:id, :first)")
+            .registerArgument(argumentFactory)
             .bind("id", 1)
             .bind("first", expected)
             .execute()
 
         val result = handle.createQuery("SELECT id, first from something")
+            .registerColumnMapper(columnMapperFactory)
+            // Not automatically registered b/c using installKotlinMapperFactory = false
+            .registerRowMapper(KotlinMapperFactory())
             .mapTo<TheThings>()
             .single()
 
@@ -195,22 +192,20 @@ class KotlinValueTypeTest {
     @ParameterizedTest
     @MethodSource("arguments")
     fun testValueBeanList(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory) {
-        handle.registerArgument(argumentFactory)
-        handle.registerColumnMapper(columnMapperFactory)
-
-        // Not automatically registered b/c using installKotlinMapperFactory = false
-        handle.registerRowMapper(KotlinMapperFactory())
-
         val expected = MagicType("does this work?")
 
         for (i in 1..10) {
             handle.createUpdate("INSERT INTO something(id, first) VALUES(:id, :first)")
+                .registerArgument(argumentFactory)
                 .bind("id", i)
                 .bind("first", expected)
                 .execute()
         }
 
         val result = handle.createQuery("SELECT id, first from something")
+            .registerColumnMapper(columnMapperFactory)
+            // Not automatically registered b/c using installKotlinMapperFactory = false
+            .registerRowMapper(KotlinMapperFactory())
             .mapTo<TheThings>()
             .list()
 
@@ -229,19 +224,18 @@ class KotlinValueTypeTest {
 
     @Test
     fun testMultiValueClasses() {
-        handle.registerArgument(KotlinValueClassArgumentFactory())
-        handle.registerColumnMapper(KotlinValueClassColumnMapperFactory())
-        handle.registerRowMapper(KotlinMapperFactory())
-
         val expected = MagicType("does this work?")
         val other = SpaceType("no it does not.")
         val ktBean = MoreThings(1, expected, other)
 
         handle.createUpdate("INSERT INTO something(id, first, other) VALUES(:id, :first, :other)")
+            .registerArgument(KotlinValueClassArgumentFactory())
             .bindKotlin(ktBean)
             .execute()
 
         val result = handle.createQuery("SELECT id, first, other from something")
+            .registerColumnMapper(KotlinValueClassColumnMapperFactory())
+            .registerRowMapper(KotlinMapperFactory())
             .mapTo<MoreThings>()
             .single()
 

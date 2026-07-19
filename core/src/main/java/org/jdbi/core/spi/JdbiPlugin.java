@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
+import org.jdbi.core.config.ConfigRegistry;
 
 /**
  * A plugin is given an opportunity to customize instances of various {@code Jdbi}
@@ -56,6 +57,19 @@ public interface JdbiPlugin {
      * @param builder the builder to contribute to
      */
     default void configure(Jdbi.Builder builder) {}
+
+    /**
+     * Contributes per-connection configuration to a new handle's config while the handle is still being constructed.
+     * This is the hook for configuration that can only be computed once a JDBC {@link Connection} is available (for
+     * example, binding database types to the live connection), applied during construction rather than by mutating a
+     * finished handle. It runs after any caller-supplied config scope and before the handle's extension context is
+     * derived. Prefer this over {@link #customizeHandle(Handle)} for anything that modifies the handle's config.
+     *
+     * @param connection the JDBC connection backing the new handle
+     * @param config the new handle's config, still open for modification during construction
+     * @throws SQLException something went wrong with the database
+     */
+    default void customizeHandleConfig(Connection connection, ConfigRegistry config) throws SQLException {}
 
     /**
      * Configure customizations for a new Handle instance.

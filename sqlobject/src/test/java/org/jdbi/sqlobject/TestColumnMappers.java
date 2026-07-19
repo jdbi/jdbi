@@ -22,6 +22,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.ValueType;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.ColumnMapper;
+import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.ValueTypeMapper;
 import org.jdbi.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.sqlobject.config.RegisterColumnMapper;
@@ -308,9 +309,10 @@ public class TestColumnMappers {
         ColumnMapper<Iterable<Calendar>> mapper = mock(ColumnMapper.class);
         GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};
 
-        h.registerColumnMapper(iterableOfCalendarType, mapper);
-
-        assertThat(h.getConfig().findColumnMapperFor(iterableOfCalendarType))
-            .contains(mapper);
+        try (Handle scoped = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(ColumnMappers.class, c -> c.register(iterableOfCalendarType, mapper)))) {
+            assertThat(scoped.getConfig().findColumnMapperFor(iterableOfCalendarType))
+                .contains(mapper);
+        }
     }
 }

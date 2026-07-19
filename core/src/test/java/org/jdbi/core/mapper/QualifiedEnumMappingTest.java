@@ -39,9 +39,8 @@ public class QualifiedEnumMappingTest {
 
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
-        h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
         Object byName = h.createQuery("select :name")
+            .configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL))
             .bind("name", Foobar.FOO.name())
             .mapTo(QualifiedType.of(Foobar.class).with(EnumByName.class))
             .one();
@@ -63,9 +62,8 @@ public class QualifiedEnumMappingTest {
 
     @Test
     public void enumCanBeAnnotatedAsByName() {
-        h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
         ByName byName = h.createQuery("select :name")
+            .configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL))
             .bind("name", ByName.ALPHABETIC.name())
             .mapTo(ByName.class)
             .one();
@@ -87,9 +85,8 @@ public class QualifiedEnumMappingTest {
 
     @Test
     public void methodCallOverridesClassForName() {
-        h.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL));
-
         Object byName = h.createQuery("select :name")
+            .configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL))
             .bind("name", ByOrdinal.NUMERIC.name())
             .mapTo(QualifiedType.of(ByOrdinal.class).with(EnumByName.class))
             .one();

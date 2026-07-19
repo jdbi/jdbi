@@ -231,7 +231,6 @@ public class TestPreparedBatch {
     public void testMultipleExecuteBindFields() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.registerRowMapper(ConstructorMapper.factory(PublicSomething.class));
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bindFields(new PublicSomething(1, "Eric")).add();
@@ -243,7 +242,9 @@ public class TestPreparedBatch {
         b.bindFields(new PublicSomething(3, "Keith")).add();
         b.execute();
 
-        final List<PublicSomething> r = h.createQuery("select * from something order by id").mapTo(PublicSomething.class).list();
+        final List<PublicSomething> r = h.createQuery("select * from something order by id")
+            .registerRowMapper(ConstructorMapper.factory(PublicSomething.class))
+            .mapTo(PublicSomething.class).list();
         assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
@@ -251,16 +252,17 @@ public class TestPreparedBatch {
     public void testNestedNotPrepareable() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.registerArgument(new WrappedIntArgumentFactory());
-        h.registerRowMapper(ConstructorMapper.factory(WrappedIntPublicSomething.class));
-        h.registerColumnMapper(new WrappedIntColumnMapperFactory());
-        final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)")
+            .registerArgument(new WrappedIntArgumentFactory());
 
         b.bindFields(new WrappedIntPublicSomething(new WrappedInt(2), "Sally")).add();
         b.bindFields(new WrappedIntPublicSomething(new WrappedInt(3), "Erica")).add();
         b.execute();
 
-        final List<WrappedIntPublicSomething> r = h.createQuery("select * from something order by id").mapTo(WrappedIntPublicSomething.class).list();
+        final List<WrappedIntPublicSomething> r = h.createQuery("select * from something order by id")
+            .registerRowMapper(ConstructorMapper.factory(WrappedIntPublicSomething.class))
+            .registerColumnMapper(new WrappedIntColumnMapperFactory())
+            .mapTo(WrappedIntPublicSomething.class).list();
         assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(new WrappedInt(2), "Sally"), tuple(new WrappedInt(3), "Erica"));
     }
 

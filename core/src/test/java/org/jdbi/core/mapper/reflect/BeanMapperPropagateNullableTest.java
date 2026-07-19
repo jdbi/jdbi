@@ -43,8 +43,8 @@ public class BeanMapperPropagateNullableTest {
     @Test
     public void propagateNull() {
         assertThat(handle
-            .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
             .select("SELECT null as testValue, 'foo' as s")
+            .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
             .mapTo(PropagateNullThing.class)
             .one())
             .isNull();
@@ -53,8 +53,8 @@ public class BeanMapperPropagateNullableTest {
     @Test
     public void propagateNotNull() {
         assertThat(handle
-            .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
             .select("SELECT 42 as testValue, 'foo' as s")
+            .registerRowMapper(BeanMapper.factory(PropagateNullThing.class))
             .mapTo(PropagateNullThing.class)
             .one())
             .extracting("testValue", "s")
@@ -64,8 +64,8 @@ public class BeanMapperPropagateNullableTest {
     @Test
     public void nestedPropagateNull() {
         assertThat(handle
-            .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
+            .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
             .mapTo(NestedPropagateNullThing.class)
             .one())
             .extracting("integerValue", "nested")
@@ -75,8 +75,8 @@ public class BeanMapperPropagateNullableTest {
     @Test
     public void nestedPropagateNotNull() {
         assertThat(handle
-            .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
             .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
+            .registerRowMapper(BeanMapper.factory(NestedPropagateNullThing.class))
             .mapTo(NestedPropagateNullThing.class)
             .one())
             .extracting("integerValue", "nested.testValue", "nested.s")

@@ -31,14 +31,14 @@ import static org.assertj.core.api.Assertions.tuple;
 public class TestBindBeanList {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withConfig(b -> b.registerRowMapper(FieldMapper.factory(Thing.class)));
 
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(FieldMapper.factory(Thing.class));
         handle.execute("create table thing (id identity primary key, foo varchar(50), bar varchar(50), baz varchar(50))");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 1, "foo1", "bar1", "baz1");
         handle.execute("insert into thing (id, foo, bar, baz) values (?, ?, ?, ?)", 2, "foo2", "bar2", "baz2");

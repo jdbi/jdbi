@@ -22,6 +22,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.Nested;
 import org.jdbi.core.mapper.PropagateNull;
+import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.statement.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,19 +37,21 @@ import static org.assertj.core.api.Assertions.fail;
 public class ConstructorMapperTest {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
-
-    private Handle handle;
-
-    @BeforeEach
-    public void setUp() {
-        handle = h2Extension.getSharedHandle()
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withConfig(b -> b
             .registerRowMapper(ConstructorMapper.factory(ConstructorBean.class))
             .registerRowMapper(ConstructorMapper.factory(ConstructorPropertiesBean.class))
             .registerRowMapper(ConstructorMapper.factory(NamedParameterBean.class))
             .registerRowMapper(ConstructorMapper.factory(NullableNestedBean.class))
             .registerRowMapper(ConstructorMapper.factory(NullableParameterBean.class))
-            .registerRowMapper(ConstructorMapper.factory(StaticFactoryMethodBean.class));
+            .registerRowMapper(ConstructorMapper.factory(StaticFactoryMethodBean.class))
+            .registerRowMapper(ConstructorMapper.factory(TypeUseNullableParameterBean.class)));
+
+    private Handle handle;
+
+    @BeforeEach
+    public void setUp() {
+        handle = h2Extension.getSharedHandle();
 
         handle.execute("CREATE TABLE bean (s varchar, i integer)");
 
@@ -174,8 +177,8 @@ public class ConstructorMapperTest {
     @Test
     public void nestedParameters() {
         assertThat(handle
-                .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
                 .select("select s, i from bean")
+                .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
                 .mapTo(NestedBean.class)
                 .one())
                         .extracting("nested.s", "nested.i")
@@ -184,23 +187,24 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedParametersStrict() {
-        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
-        handle.registerRowMapper(ConstructorMapper.factory(NestedBean.class));
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                .configure(ReflectionMappers.class, c -> c.strictMatching(true))
+                .configure(RowMappers.class, r -> r.register(ConstructorMapper.factory(NestedBean.class))))) {
 
-        assertThat(handle
-                .registerRowMapper(ConstructorMapper.factory(NestedBean.class))
-                .select("select s, i from bean")
-                .mapTo(NestedBean.class)
-                .one())
-                        .extracting("nested.s", "nested.i")
-                        .containsExactly("3", 2);
+            assertThat(handle
+                    .select("select s, i from bean")
+                    .mapTo(NestedBean.class)
+                    .one())
+                            .extracting("nested.s", "nested.i")
+                            .containsExactly("3", 2);
 
-        assertThatThrownBy(() -> handle
-                .createQuery("select s, i, 1 as other from bean")
-                .mapTo(NestedBean.class)
-                .one())
-                        .isInstanceOf(IllegalArgumentException.class)
-                        .hasMessageContaining("could not match parameters for columns: [other]");
+            assertThatThrownBy(() -> handle
+                    .createQuery("select s, i, 1 as other from bean")
+                    .mapTo(NestedBean.class)
+                    .one())
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("could not match parameters for columns: [other]");
+        }
     }
 
     static class NestedBean {
@@ -256,8 +260,8 @@ public class ConstructorMapperTest {
     @Test
     public void nestedPrefixParameters() {
         NestedPrefixBean result = handle
-                .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
                 .select("select i nested_i, s nested_s from bean")
+                .registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class))
                 .mapTo(NestedPrefixBean.class)
                 .one();
         assertThat(result.nested.s).isEqualTo("3");
@@ -266,29 +270,31 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedPrefixParametersStrict() {
-        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
-        handle.registerRowMapper(ConstructorMapper.factory(NestedPrefixBean.class));
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+                .configure(ReflectionMappers.class, c -> c.strictMatching(true))
+                .configure(RowMappers.class, r -> r.register(ConstructorMapper.factory(NestedPrefixBean.class))))) {
 
-        assertThat(handle
-                .createQuery("select i nested_i, s nested_s from bean")
-                .mapTo(NestedPrefixBean.class)
-                .one())
-                        .extracting("nested.s", "nested.i")
-                        .containsExactly("3", 2);
+            assertThat(handle
+                    .createQuery("select i nested_i, s nested_s from bean")
+                    .mapTo(NestedPrefixBean.class)
+                    .one())
+                            .extracting("nested.s", "nested.i")
+                            .containsExactly("3", 2);
 
-        assertThatThrownBy(() -> handle
-                .createQuery("select i nested_i, s nested_s, 1 as other from bean")
-                .mapTo(NestedPrefixBean.class)
-                .one())
-                        .isInstanceOf(IllegalArgumentException.class)
-                        .hasMessageContaining("could not match parameters for columns: [other]");
+            assertThatThrownBy(() -> handle
+                    .createQuery("select i nested_i, s nested_s, 1 as other from bean")
+                    .mapTo(NestedPrefixBean.class)
+                    .one())
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("could not match parameters for columns: [other]");
 
-        assertThatThrownBy(() -> handle
-                .createQuery("select i nested_i, s nested_s, 1 as nested_other from bean")
-                .mapTo(NestedPrefixBean.class)
-                .one())
-                        .isInstanceOf(IllegalArgumentException.class)
-                        .hasMessageContaining("could not match parameters for columns: [nested_other]");
+            assertThatThrownBy(() -> handle
+                    .createQuery("select i nested_i, s nested_s, 1 as nested_other from bean")
+                    .mapTo(NestedPrefixBean.class)
+                    .one())
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("could not match parameters for columns: [nested_other]");
+        }
     }
 
     static class NestedPrefixBean {
@@ -302,8 +308,8 @@ public class ConstructorMapperTest {
     @Test
     public void propagateNull() {
         assertThat(handle
-                .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
                 .select("SELECT null as testValue, 'foo' as s")
+                .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
                 .mapTo(PropagateNullThing.class)
                 .one())
                         .isNull();
@@ -312,8 +318,8 @@ public class ConstructorMapperTest {
     @Test
     public void propagateNotNull() {
         assertThat(handle
-                .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
                 .select("SELECT 42 as testValue, 'foo' as s")
+                .registerRowMapper(ConstructorMapper.factory(PropagateNullThing.class))
                 .mapTo(PropagateNullThing.class)
                 .one())
                         .extracting("testValue", "s")
@@ -323,8 +329,8 @@ public class ConstructorMapperTest {
     @Test
     public void nestedPropagateNull() {
         assertThat(handle
-                .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
                 .select("SELECT 42 as integerValue, null as testValue, 'foo' as s")
+                .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
                 .mapTo(NestedPropagateNullThing.class)
                 .one())
                         .extracting("integerValue", "nested")
@@ -334,8 +340,8 @@ public class ConstructorMapperTest {
     @Test
     public void nestedPropagateNotNull() {
         assertThat(handle
-                .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
                 .select("SELECT 42 as integerValue, 60 as testValue, 'foo' as s")
+                .registerRowMapper(ConstructorMapper.factory(NestedPropagateNullThing.class))
                 .mapTo(NestedPropagateNullThing.class)
                 .one())
                         .extracting("integerValue", "nested.testValue", "nested.s")
@@ -477,8 +483,8 @@ public class ConstructorMapperTest {
     @Test
     public void testClassWithGenerics() {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThing.class))
             .select("select s, i from bean")
+            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThing.class))
             .mapTo(ClassWithGenericThing.class)
             .one())
                     .extracting("s", "i")
@@ -505,8 +511,8 @@ public class ConstructorMapperTest {
     @Test
     public void testClassWithGenericsJdbiConstructor() {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThingJdbiConstructor.class))
             .select("select s, i from bean")
+            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThingJdbiConstructor.class))
             .mapTo(ClassWithGenericThingJdbiConstructor.class)
             .one())
                     .extracting("s", "i")
@@ -533,8 +539,8 @@ public class ConstructorMapperTest {
     @Test
     public void testClassWithGenericsCanonicalConstructor() {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThingAlternateJdbiConstructor.class))
             .select("select s, i from bean")
+            .registerRowMapper(ConstructorMapper.factory(ClassWithGenericThingAlternateJdbiConstructor.class))
             .mapTo(ClassWithGenericThingAlternateJdbiConstructor.class)
             .one())
                     .extracting("s", "i")
@@ -575,8 +581,8 @@ public class ConstructorMapperTest {
     @ValueSource(classes = {OneFactoryMethod.class, MultipleFactoryMethodsWhereOneIsAnnotated.class})
     public void testStaticMethodFactory(Class<?> factoryMethodClass) {
         assertThat(handle
-            .registerRowMapper(ConstructorMapper.factory(ClassWithJustOneString.class, factoryMethodClass))
             .select("select s, i from bean")
+            .registerRowMapper(ConstructorMapper.factory(ClassWithJustOneString.class, factoryMethodClass))
             .mapTo(ClassWithJustOneString.class)
             .one())
             .extracting("si")
@@ -609,7 +615,6 @@ public class ConstructorMapperTest {
     @Test
     public void testTypeUseNullableParameterPresent() {
         TypeUseNullableParameterBean bean = handle
-            .registerRowMapper(ConstructorMapper.factory(TypeUseNullableParameterBean.class))
             .select("select s, i from bean")
             .mapTo(TypeUseNullableParameterBean.class)
             .one();
@@ -620,7 +625,6 @@ public class ConstructorMapperTest {
     @Test
     public void testTypeUseNullableParameterAbsent() {
         TypeUseNullableParameterBean bean = handle
-            .registerRowMapper(ConstructorMapper.factory(TypeUseNullableParameterBean.class))
             .select("select i from bean")
             .mapTo(TypeUseNullableParameterBean.class)
             .one();
@@ -630,7 +634,6 @@ public class ConstructorMapperTest {
 
     @Test
     public void testTypeUseNonNullableAbsent() {
-        handle.registerRowMapper(ConstructorMapper.factory(TypeUseNullableParameterBean.class));
         assertThatThrownBy(() -> selectOne("select s from bean", TypeUseNullableParameterBean.class))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("parameter '[i]' has no matching columns in the result set");

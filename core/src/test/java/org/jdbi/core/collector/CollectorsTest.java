@@ -118,15 +118,16 @@ public class CollectorsTest {
         queryString(r -> assertThat(r.list())
                 .isNotInstanceOf(LinkedList.class));
 
-        // register list type
-        handle.registerCollector(List.class, Collectors.toCollection(LinkedList::new));
-
         // look up default list type manually
         GenericType<List<String>> type = new GenericType<List<String>>() {};
-        Collector<?, ?, ?> collector = CollectorResolver.forRegistry(handle.getConfig()).findFor(type.getType())
-                .orElseGet(Assertions::fail);
 
         try (Query query = baseQuery()) {
+            // register list type
+            query.registerCollector(List.class, Collectors.toCollection(LinkedList::new));
+
+            Collector<?, ?, ?> collector = CollectorResolver.forRegistry(query.getConfig()).findFor(type.getType())
+                    .orElseGet(Assertions::fail);
+
             assertThat(query
                     .mapTo(String.class)
                     // old school, collect using a collector
@@ -140,10 +141,10 @@ public class CollectorsTest {
     void collectIntoRegisteredListTypeDirectly() {
         queryString(r -> assertThat(r.list()).isNotInstanceOf(LinkedList.class));
 
-        // register list type
-        handle.registerCollector(List.class, Collectors.toCollection(LinkedList::new));
-
         try (Query query = baseQuery()) {
+            // register list type
+            query.registerCollector(List.class, Collectors.toCollection(LinkedList::new));
+
             assertThat((List<String>) query
                     // use the registered list type
                     .collectInto(GenericTypes.parameterizeClass(List.class, String.class)))
@@ -157,11 +158,11 @@ public class CollectorsTest {
     void listIntoRegisteredListType() {
         queryString(r -> assertThat(r.collectIntoList()).isNotInstanceOf(LinkedList.class));
 
-        // register list type
-        handle.configure(JdbiCollectors.class, c ->
-                c.registerCollector(List.class, Collectors.toCollection(LinkedList::new)));
-
         try (Query query = baseQuery()) {
+            // register list type
+            query.configure(JdbiCollectors.class, c ->
+                    c.registerCollector(List.class, Collectors.toCollection(LinkedList::new)));
+
             assertThat(query
                     .mapTo(String.class)
                     // use the registered list type
@@ -189,10 +190,10 @@ public class CollectorsTest {
     void collectIntoRegisteredSetTypeDirectly() {
         queryString(r -> assertThat(r.set()).isNotInstanceOf(LinkedHashSet.class));
 
-        // register list type
-        handle.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
-
         try (Query query = baseQuery()) {
+            // register list type
+            query.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
+
             assertThat((Set<String>) query
                     // use the registered set type
                     .collectInto(GenericTypes.parameterizeClass(Set.class, String.class)))
@@ -205,10 +206,10 @@ public class CollectorsTest {
     void setIntoRegisteredSetType() {
         queryString(r -> assertThat(r.collectIntoSet()).isNotInstanceOf(LinkedHashSet.class));
 
-        // register set type
-        handle.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
-
         try (Query query = baseQuery()) {
+            // register set type
+            query.registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new));
+
             assertThat(query
                     .mapTo(String.class)
                     // use the registered set type
@@ -235,42 +236,44 @@ public class CollectorsTest {
     @Test
     void testMultiTypes() {
 
-        // register list type
-        handle.registerCollector(new GenericType<List<String>>() {}.getType(), Collectors.toCollection(LinkedList::new));
-        handle.registerCollector(new GenericType<List<Object>>() {}.getType(), Collectors.toCollection(Vector::new));
+        // register list types
+        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(JdbiCollectors.class, c -> c
+            .registerCollector(new GenericType<List<String>>() {}.getType(), Collectors.toCollection(LinkedList::new))
+            .registerCollector(new GenericType<List<Object>>() {}.getType(), Collectors.toCollection(Vector::new))))) {
 
-        try (Query query = baseQuery()) {
-            final List<String> result = query
-                    // use the registered list type
-                    .mapTo(String.class)
-                    .collectInto(GenericTypes.parameterizeClass(List.class, String.class));
+            try (Query query = handle.createQuery("select * from collection")) {
+                final List<String> result = query
+                        // use the registered list type
+                        .mapTo(String.class)
+                        .collectInto(GenericTypes.parameterizeClass(List.class, String.class));
 
-            assertThat(result)
-                    .isInstanceOf(LinkedList.class)
-                    .containsExactly("a", "b", "c");
-        }
+                assertThat(result)
+                        .isInstanceOf(LinkedList.class)
+                        .containsExactly("a", "b", "c");
+            }
 
-        try (Query query = baseQuery()) {
-            final List<String> result = query
-                    // use the registered list type
-                    .mapTo(String.class)
-                    .collectInto(List.class);
+            try (Query query = handle.createQuery("select * from collection")) {
+                final List<String> result = query
+                        // use the registered list type
+                        .mapTo(String.class)
+                        .collectInto(List.class);
 
-            assertThat(result)
-                    .isInstanceOf(Vector.class)
-                    .containsExactly("a", "b", "c");
-        }
+                assertThat(result)
+                        .isInstanceOf(Vector.class)
+                        .containsExactly("a", "b", "c");
+            }
 
-        try (Query query = baseQuery()) {
-            final List<String> result = query
-                    // use the registered list type
-                    .mapTo(String.class)
-                    .collectIntoList();
+            try (Query query = handle.createQuery("select * from collection")) {
+                final List<String> result = query
+                        // use the registered list type
+                        .mapTo(String.class)
+                        .collectIntoList();
 
-            assertThat(result)
-                    // same as List<Object>
-                    .isInstanceOf(Vector.class)
-                    .containsExactly("a", "b", "c");
+                assertThat(result)
+                        // same as List<Object>
+                        .isInstanceOf(Vector.class)
+                        .containsExactly("a", "b", "c");
+            }
         }
     }
 

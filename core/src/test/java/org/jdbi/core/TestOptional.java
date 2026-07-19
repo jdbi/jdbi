@@ -63,10 +63,11 @@ public class TestOptional {
     @Test
     public void testMapRowToOptional() {
         GenericType<Optional<Something>> optionalType = new GenericType<>() {};
-        handle.registerRowMapper(Something.class, BeanMapper.of(Something.class));
 
         try (Query query = handle.createQuery("SELECT * FROM something WHERE id = :id")) {
-            Optional<Something> result = query.bind("id", 2)
+            Optional<Something> result = query
+                .registerRowMapper(Something.class, BeanMapper.of(Something.class))
+                .bind("id", 2)
                 .mapTo(optionalType)
                 .one();
 
@@ -178,8 +179,8 @@ public class TestOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() {
-        handle.registerArgument(new NameArgumentFactory());
         assertThat(handle.createQuery(SELECT_BY_NAME)
+            .registerArgument(new NameArgumentFactory())
             .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
             .mapToBean(Something.class)
             .list()).hasSize(1);
@@ -218,8 +219,8 @@ public class TestOptional {
 
     @Test
     public void testBindOptionalOfCustomType() {
-        handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
+            .registerArgument(new NameArgumentFactory())
             .bind("name", Optional.of(new Name("eric")))
             .mapToBean(Something.class)
             .list();
