@@ -13,9 +13,11 @@
  */
 package org.jdbi.core.statement;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import com.google.common.collect.Maps;
 import org.jdbi.core.Handle;
@@ -250,6 +252,99 @@ public class TestQueryTemplates {
     }
 
     private static final class Unmapped {}
+
+    @Test
+    public void testMappedTemplateMapRowMapper() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
+
+        // map(RowMapper) bakes a mapper the caller already holds, without consulting the registry --
+        // and exercises the genuine row-mapper branch (not the column-mapper wrapper).
+        final var somethings = h.getJdbi()
+            .buildQueryTemplate("select id, name from something order by id")
+            .map((rs, ctx) -> new Something(rs.getInt("id"), rs.getString("name")));
+
+        assertThat(somethings.with(h).results().list())
+            .containsExactly(new Something(1, "eric"), new Something(2, "brian"));
+    }
+
+    @Test
+    public void testMappedTemplateMapColumnMapper() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.execute("insert into something (id, name) values (1, 'eric')");
+
+        final var names = h.getJdbi()
+            .buildQueryTemplate("select name from something order by id")
+            .map((rs, col, ctx) -> rs.getString(col));
+
+        assertThat(names.with(h).results().one()).isEqualTo("eric");
+    }
+
+    @Test
+    public void testMappedTemplateRawType() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.execute("insert into something (id, name) values (1, 'eric')");
+
+        final Type type = String.class;
+        final var names = h.getJdbi()
+            .buildQueryTemplate("select name from something order by id")
+            .mapTo(type);
+
+        assertThat(names.with(h).results().one()).isEqualTo("eric");
+    }
+
+    @Test
+    public void testMappedTemplateStream() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
+
+        final var names = h.getJdbi()
+            .buildQueryTemplate("select name from something order by id")
+            .mapTo(String.class);
+
+        try (Stream<String> stream = names.with(h).results().stream()) {
+            assertThat(stream.collect(toList())).containsExactly("eric", "brian");
+        }
+    }
+
+    @Test
+    public void testMappedTemplateMatchesPlainPath() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
+
+        // The mapped path must return exactly what the plain per-execution mapTo(X) path returns.
+        final var template = h.getJdbi().buildQueryTemplate("select name from something order by id");
+        final var mapped = template.mapTo(String.class);
+
+        assertThat(mapped.with(h).results().list())
+            .isEqualTo(template.with(h).mapTo(String.class).list());
+    }
+
+    @Test
+    public void testMappedTemplateReuseAcrossHandles() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        h.execute("insert into something (id, name) values (2, 'brian')");
+
+        // One template, executed against two independent handles.
+        final var byId = h.getJdbi()
+            .buildQueryTemplate("select name from something where id = :id")
+            .mapTo(String.class);
+
+        try (Handle other = h.getJdbi().open()) {
+            assertThat(byId.with(h).bind("id", 1).results().one()).isEqualTo("eric");
+            assertThat(byId.with(other).bind("id", 2).results().one()).isEqualTo("brian");
+        }
+    }
 
     @Test
     public void testFold() {

@@ -91,9 +91,10 @@ public class BoundMappedQuery<T> implements QueryCustomizerMixin<BoundMappedQuer
     }
 
     /**
-     * Runs the query and returns its rows as a {@link ResultIterable} of the fixed result type, using the
-     * mapper resolved once by the owning {@link MappedQueryTemplate}. This is the mapped analogue of
-     * {@link QueryTemplateBinding#mapTo(Class)}; the mapper is already known, so no lookup happens here.
+     * The mapped analogue of the terminal {@code mapTo(type)} step: the result type is already fixed by the
+     * owning {@link MappedQueryTemplate}, so this takes no type argument and performs no mapper lookup. It
+     * runs the query and returns its rows as a {@link ResultIterable} of that type, using the mapper resolved
+     * once at build time (compare {@link org.jdbi.core.result.ResultBearing#mapTo(Class)} on the unmapped path).
      *
      * @return a {@link ResultIterable} of the template's result type
      */

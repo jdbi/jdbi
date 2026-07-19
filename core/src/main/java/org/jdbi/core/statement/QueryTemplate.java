@@ -18,9 +18,11 @@ import java.lang.reflect.Type;
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericType;
+import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.MapperResolver;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.jdbi.core.mapper.RowMapper;
+import org.jdbi.core.mapper.SingleColumnMapper;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
 
@@ -136,5 +138,30 @@ public class QueryTemplate {
         final RowMapper<T> mapper = MapperResolver.forRegistry(config).findMapper(type)
             .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
         return new MappedQueryTemplate<>(this, mapper);
+    }
+
+    /**
+     * Fixes this template's result type to the given row mapper, without consulting the mapper
+     * registry. Use this to bake in a mapper you already hold; use {@link #mapTo(Class)} to resolve
+     * one from a registered type.
+     *
+     * @param mapper the row mapper each execution maps rows with
+     * @param <T>    the type the mapper produces
+     * @return a mapped template that produces {@code T}
+     */
+    public <T> MappedQueryTemplate<T> map(final RowMapper<T> mapper) {
+        return new MappedQueryTemplate<>(this, mapper);
+    }
+
+    /**
+     * Fixes this template's result type to the given column mapper, applied to the first column of
+     * each row. See {@link #map(RowMapper)}.
+     *
+     * @param mapper the column mapper each execution maps the first column with
+     * @param <T>    the type the mapper produces
+     * @return a mapped template that produces {@code T}
+     */
+    public <T> MappedQueryTemplate<T> map(final ColumnMapper<T> mapper) {
+        return map(new SingleColumnMapper<>(mapper));
     }
 }

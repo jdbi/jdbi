@@ -603,7 +603,7 @@ The numbers below are `gc.alloc.rate.norm` (bytes allocated per operation, a det
 
 | Reused `QueryTemplate`
 | n/a
-| 3512 B/op (-43% vs 3.x)
+| 3512 B/op (-43% vs classic 3.x)
 |===
 
 .One handle per request (a fresh handle opened per operation)

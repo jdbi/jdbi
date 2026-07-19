@@ -34,11 +34,13 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 /**
- * Compares the classic per-statement {@code Handle.createQuery} path against a reused
- * {@link QueryTemplate} for the same single-row SELECT. The interesting metric is
- * {@code gc.alloc.rate.norm} (bytes allocated per operation, deterministic): the classic path
- * pays a full {@code ConfigRegistry.createCopy()} plus SQL render/parse on every call, while the
- * template snapshots configuration once at build time and reuses it.
+ * Compares three paths for the same single-row SELECT: the classic per-statement
+ * {@code Handle.createQuery}, a reused {@link QueryTemplate}, and a reused
+ * {@link org.jdbi.core.statement.MappedQueryTemplate} that also pre-resolves the result mapper. The
+ * interesting metric is {@code gc.alloc.rate.norm} (bytes allocated per operation, deterministic): the
+ * classic path pays a full {@code ConfigRegistry.createCopy()} plus SQL render/parse on every call, while
+ * the template snapshots configuration once at build time and reuses it, and the mapped template skips the
+ * per-execution mapper lookup on top of that.
  */
 @State(Scope.Thread)
 @BenchmarkMode(Mode.Throughput)
@@ -91,6 +93,9 @@ public class QueryTemplateBenchmark {
             .one();
     }
 
+    // Single-column String result: this isolates the per-execution mapper lookup the plain template
+    // repeats (a warm cache hit plus a fresh SingleColumnMapper/QualifiedType/Optional), not mapper
+    // construction, which is already cached per registry regardless of mapper complexity.
     @Benchmark
     public String mappedTemplate() {
         return mappedTemplate.with(handle)

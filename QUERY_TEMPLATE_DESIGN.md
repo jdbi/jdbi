@@ -643,7 +643,7 @@ Per-statement on a warm handle (`QueryTemplateBenchmark`):
 | Path | Jdbi 3 (createCopy) | Jdbi 4 |
 |---|---:|---:|
 | Classic `handle.createQuery(...)` | 6104 B/op | 4208 B/op (−31%) |
-| Reused `QueryTemplate` | n/a | 3472 B/op (−43% vs 3.x) |
+| Reused `QueryTemplate` | n/a | 3512 B/op (−43% vs classic 3.x) |
 
 One handle per request (`HandlePerOpV3Benchmark`, a fresh handle opened per operation):
 
@@ -677,7 +677,10 @@ for rationale — they are accurate as history, not as an open to-do list. Only 
    These are hand-authored blocks, not `include::` tags, so they are not auto-updated when the migrated test
    sources compile; the tagged-include examples are already correct. This is a large, mechanical-but-judgment
    pass (per snippet: builder vs per-statement vs config-scope) that was deliberately deferred from the "minimal"
-   doc update. Track it as its own chunk of release work.
+   doc update. Track it as its own chunk of release work. The same pass should sweep the remaining version-string
+   danglers left by the minimal retitle: the `== Introduction to Jdbi 3` heading and the "Jdbi 3 is the third
+   major release" prose, and the `jdbi3-core` / `jdbi3-bom` Maven artifact IDs in the dependency snippets (left
+   unchanged because the v4 artifact IDs are a release decision, not something to guess here).
 3. **Merge jdbi/jdbi#2992 by mostly removing it** (share the `ExtensionMetadata` cache): the immutable world +
    handle-boundary copy-on-write already deliver its payoff (R3/R7), so when #2992 lands on master the merge is
    largely a deletion. See the memory note `pr-2992-merge-mostly-remove`.
