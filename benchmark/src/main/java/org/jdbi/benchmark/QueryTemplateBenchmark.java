@@ -103,4 +103,29 @@ public class QueryTemplateBenchmark {
             .results()
             .one();
     }
+
+    // Builds a fresh QueryTemplate and executes it exactly once, then discards it. This is the
+    // "template used only once" case: it measures whether paying the template's build-time render,
+    // parse, and config snapshot up front costs more than the classic path pays lazily at execute
+    // ({@link #classic()}), when there is no reuse to amortize the build over.
+    @Benchmark
+    public String singleUseTemplate() {
+        return jdbi.buildQueryTemplate(SELECT)
+            .with(handle)
+            .bind("id", rowOne)
+            .mapTo(String.class)
+            .one();
+    }
+
+    // As {@link #singleUseTemplate()} but also resolves the result mapper at build time, so the whole
+    // build-plus-map-plus-execute-once chain is measured against the classic path.
+    @Benchmark
+    public String singleUseMappedTemplate() {
+        return jdbi.buildQueryTemplate(SELECT)
+            .mapTo(String.class)
+            .with(handle)
+            .bind("id", rowOne)
+            .results()
+            .one();
+    }
 }
