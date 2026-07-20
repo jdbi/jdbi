@@ -710,8 +710,10 @@ Two marker interfaces override that default:
 * A customizer or factory that implements `ConfigMutating` changes configuration per invocation. It runs on the classic per-statement path, applied on every call.
 * A customizer or factory that implements `StatementScoped` operates on the live `Query`, `Call`, or `PreparedBatch` rather than on configuration, for example to register an out parameter. It runs per invocation against each statement, while the configuration snapshot stays shared. Jdbi's own `@OutParameter` is implemented this way.
 
-A type- or method-level customizer that touches the live statement without implementing `StatementScoped` is handed a configuration surface that does not support statement operations, and the invocation fails.
+A type- or method-level customizer that touches the live statement without implementing `StatementScoped` is handed a configuration surface that does not support statement operations, and the invocation fails with a message naming the marker to add.
 Parameter-level customizers already bind per invocation and need neither marker.
+
+Because a configure-phase customizer bakes its work into the shared template once, a `StatementCustomizer` it registers is a single instance that runs on every, possibly concurrent, execution. Keep such a customizer stateless or thread-safe, or declare `StatementScoped` so a fresh customizer is applied per invocation.
 
 The `warm(ConfigRegistry)` pre-initialization hook is removed from `SqlStatementCustomizer` and `SqlStatementParameterCustomizer` (and from the `AttachedExtensionHandler` extension SPI).
 Remove any override; it is no longer called.

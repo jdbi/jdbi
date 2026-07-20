@@ -29,7 +29,14 @@ import org.jdbi.core.statement.StatementCustomizers;
  *
  * <p>Only configuration operations are supported here. Binding a parameter or reading the statement
  * context has no meaning before any invocation, so those throw; such work belongs to a bind-phase
- * (parameter) customizer instead.
+ * (parameter) customizer instead, or the customizer must opt out of the once-per-template model by
+ * declaring {@link org.jdbi.sqlobject.customizer.StatementScoped} (to act on the live statement every
+ * invocation) or {@link org.jdbi.sqlobject.customizer.ConfigMutating} (to reconfigure every invocation).
+ *
+ * <p>A {@link StatementCustomizer} registered here via {@link #addCustomizer} is baked into the shared
+ * template once, so the <em>same</em> customizer instance runs on every, possibly concurrent, execution.
+ * It must therefore be stateless or thread-safe; a customizer that keeps per-execution state must instead
+ * be applied per invocation by declaring {@code StatementScoped} on its factory.
  */
 final class ConfigureStatement implements QueryCustomizerMixin<ConfigureStatement> {
 
@@ -64,18 +71,23 @@ final class ConfigureStatement implements QueryCustomizerMixin<ConfigureStatemen
     @Override
     public Binding getBinding() {
         throw new UnsupportedOperationException(
-            "A configure-phase customizer cannot bind parameters; move binding work to a parameter customizer.");
+            "A configure-phase customizer runs once when the template is built and cannot bind parameters. "
+                + "Bind from a parameter customizer, or declare StatementScoped on the customizer/factory to act "
+                + "on the live statement on every invocation.");
     }
 
     @Override
     public StatementContext getContext() {
         throw new UnsupportedOperationException(
-            "A configure-phase customizer has no statement context; it runs once when the template is built.");
+            "A configure-phase customizer runs once when the template is built and has no per-invocation statement "
+                + "context. To act on each execution, declare StatementScoped (to touch the live statement) or "
+                + "ConfigMutating (to reconfigure per invocation) on the customizer or its factory.");
     }
 
     @Override
     public ConfigureStatement attachToHandleForCleanup() {
         throw new UnsupportedOperationException(
-            "A configure-phase customizer has no handle; it runs once when the template is built.");
+            "A configure-phase customizer runs once when the template is built and has no handle. To act on each "
+                + "execution's statement, declare StatementScoped on the customizer or its factory.");
     }
 }
