@@ -915,6 +915,66 @@ both are new-in-v4, both were undocumented, so the note covers the pair. Only th
 `## Upgrading to Jdbi v4` / `## SESSION 2026-07-19b` benchmark copies still carry the old `QueryTemplate`
 name; those die with this doc at release, so no separate sweep is needed.
 
+## SESSION 2026-07-20c — config off the Handle (STEP 2) + review findings #5–#12
+
+The last structural piece and the 6-agent review's tracked findings all landed on `query-templates` (whole
+reactor green each step — tests + static analysis). This subsumes the temporary `STEP2-HANDOFF.md`, now deleted.
+
+**Config is off the Handle.** A `Handle` carries no configuration of its own — only its connection and
+transaction. All config lives at the `Jdbi` level (immutable, shared) or the statement level (defines overlay +
+copy-on-write). Removed the scoped-open API (`Jdbi.open(Consumer)` + scoped `withHandle`/`useHandle`/
+`inTransaction`/`useTransaction`) and the `Handle` ctor `configScope`; the handle config is now
+`jdbi.getConfig().createChild()`, never mutated. `~63` scoped-open call sites (Java + Kotlin) moved to a new
+`openWithConfig(Consumer<Jdbi.Builder>)` test helper (`toBuilder()`-derived) on `DatabaseExtension` +
+`JdbiExtension`; raw-`Jdbi` sites use `jdbi.toBuilder().configure(...).build()`. `TestOpenWithConfigScope`
+deleted. The `customizeHandleConfig(Connection, ConfigRegistry)` SPI was renamed **`customizeHandleConnection(Connection, ConfigView)`** — read-only, per-connection side effects only (Postgres binds its types to the live
+connection; it never forks the handle config). Upgrade guide `=== Per-handle configuration` documents the three
+replacements: `toBuilder()` (long-lived variant), a Jdbi-level config object reading a `ScopedValue`
+(per-request ambient context — `RequestTaggingLogger` example), and per-statement `configure()`.
+
+**`JdbiConfig.createCopy()` removed.** Under the immutable-config model every impl returned `this`, so the SPI
+was pure boilerplate. Deleted it + ~31 impls; the one caller (the full-copy `ConfigRegistry` ctor) shares the
+immutable value by reference. The last mutable test/example configs (`ExampleConfig`, `BindTimeConfig`,
+`TestSqlLocator.TestConfig`, `GeneratorConfig`, `TestConfigRegistry.TestConfig`) migrated to the immutable
+pattern (`final` fields + withers, install via `configure()`), and the "Creating a custom JdbiConfig type" guide
+section was rewritten (no `createCopy`/`setConfig`). `ConfigRegistry.createCopy()` (registry-level snapshot)
+stays.
+
+**Review findings — outcomes** (commit SHAs): #5 `340438f7e` `installPlugin` applies the plugin **immediately**
+(not queued to `build()`) so caller config registered after a plugin wins again (3.x order); `build()` just
+returns the jdbi; guice installs plugins before its bound config. #6 `785f776ba` `DefaultJdbiCache` completes the
+node future exceptionally before removing it on loader failure (concurrent-waiter regression test). #7
+`00564af09` KEPT the broad `catch (RuntimeException)` in the `StatementTemplate` ctor — narrowing broke Freemarker
+and any engine that throws its own type for a missing per-execution attribute; documented why the fallback is
+safe (a real fault re-surfaces at execution). #8/#10 `8fcd934f0` immutability javadoc + `ConfigRegistry`
+`readAs`/fields comment accuracy. #9 `f6f431f40` configure-phase customizer exceptions name the fix
+(`StatementScoped`/`ConfigMutating`) + the shared-instance caveat. #11 `df7433709` verified + test: forking
+customizers (`setFetchSize`/`setQueryTimeout`) don't defeat SQL reuse (the reuse gate keys on the defines overlay
+being empty, not on fork state). #12 **audit only, no code**: no dead caches — `SqlStatements.templateCache`
+(render memo) and `CachingSqlParser.parsedSqlCache` (parse memo) serve the classic path, resolver (`readAs`) and
+reflection (`ConfigCaches`) caches memoize resolution/reflection; templates/immutable-config removed per-statement
+config *copying*, not caches, so removal would regress the classic path (the "decoupled pure SQL→parsed memo" the
+plan wanted to keep IS `parsedSqlCache`).
+
+**Landmines — do NOT re-attempt:**
+- `StatementTemplate.with(handle)` must NOT parent the statement from the raw handle config — tried and reverted
+  (it discarded SQL Object's CONFIGURE-baked customizers `@AllowUnusedBindings`/`@Timestamped`/`@MaxRows`; 6
+  failures). For SQL Object the template is built FROM the handle's config, and with config now off the handle,
+  template-config parenting is correct by construction (the B1 concern is gone).
+- The test leak checker must register its `Handles`/`SqlStatements` listeners **before** plugins are installed
+  (`JdbiExtension` + the 3 core `DatabaseExtension`s), so it sees a context created before a plugin listener adds
+  a cleanable. This used to work by accident because plugins were queued to `build()`; now that `installPlugin`
+  applies immediately (#5), the order is explicit. (An opentelemetry `TestTelemetry` leak-checker failure caught
+  this.)
+
+**Reviewed and judged NOT bugs (do not re-chase):** B1 "`with(handle)` uses build-time config" — not a SQL
+Object bug (template built from the handle), resolved by config-off-the-handle. `MemoizingSupplier` JMM race —
+not reachable (the template supplier is confined to one attach on one thread; onDemand re-attaches per call).
+`toBuilder()` sharing `handleScope` — worth a look only if touching `toBuilder`.
+
+**Open (not blocking the feature):** the #6 `DefaultJdbiCache` fix is independent of query-templates and may be
+better placed on the pre-existing `cache-throwing-loader-fix` branch — see the memory note.
+
 ## What actually remains (2026-07-19)
 
 The design and implementation are complete: the `QueryTemplate` feature, the immutable config model (phase-2
