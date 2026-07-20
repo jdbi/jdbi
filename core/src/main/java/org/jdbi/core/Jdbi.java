@@ -748,7 +748,7 @@ public class Jdbi implements ConfigReader {
      * @return a reusable statement template
      */
     public StatementTemplate buildStatementTemplate(final CharSequence sql) {
-        return new StatementTemplate(config.createCopy(), sql);
+        return new StatementTemplate(config.createChild(), sql);
     }
 
     /**
