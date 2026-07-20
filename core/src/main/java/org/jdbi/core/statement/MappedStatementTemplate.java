@@ -13,6 +13,7 @@
  */
 package org.jdbi.core.statement;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import org.jdbi.core.Handle;
 import org.jdbi.core.mapper.RowMapper;
 
@@ -33,6 +34,7 @@ import org.jdbi.core.mapper.RowMapper;
  *
  * @param <T> the result type this template maps rows to
  */
+@ThreadSafe
 public class MappedStatementTemplate<T> {
     private final StatementTemplate template;
     private final RowMapper<T> mapper;
@@ -43,11 +45,10 @@ public class MappedStatementTemplate<T> {
     }
 
     /**
-     * Binds this template to a handle for a single execution. The returned binding is thread-confined;
-     * obtain a fresh one for each execution.
+     * Binds this template to a handle for a single execution.
      *
      * @param handle the handle to execute against
-     * @return a fresh, thread-confined binding
+     * @return a fresh binding for this execution
      */
     public BoundMappedQuery<T> with(final Handle handle) {
         return new BoundMappedQuery<>(template.with(handle), mapper);
