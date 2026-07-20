@@ -73,10 +73,12 @@ public class SqlCallHandler extends CustomizingStatementHandler {
             // Classic path: a fresh Call per invocation, each with its own configuration copy.
             return super.statementFactory(config, locatedSql);
         }
-        // Fast path: build one template per attach, baking configure-phase customizers into its
-        // configuration snapshot once. Every call binds against a fresh, thread-confined binding.
+        // Fast path: build one template per attach over a copy-on-write child of the attach
+        // configuration, baking configure-phase customizers in once. A method with no configure-phase
+        // customizers leaves the child unforked, so it shares the attach config's warm resolver views;
+        // baking a customizer forks a private snapshot. Every call binds a fresh, thread-confined binding.
         final Supplier<StatementTemplate> template = MemoizingSupplier.of(() -> {
-            final ConfigRegistry templateConfig = config.createCopy();
+            final ConfigRegistry templateConfig = config.createChild();
             applyConfigureCustomizers(new ConfigureStatement(templateConfig));
             return new StatementTemplate(templateConfig, locatedSql.get());
         });

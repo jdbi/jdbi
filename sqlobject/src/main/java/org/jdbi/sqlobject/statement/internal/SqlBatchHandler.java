@@ -207,12 +207,14 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
     @Override
     public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
         final Supplier<String> sqlSupplier = locateSql(config);
-        // Fast path: build one template per attach, baking configure-phase customizers into its
-        // configuration snapshot once. Each chunk binds a fresh PreparedBatch against that snapshot,
-        // skipping the per-chunk render, parse, and configuration copy. A method with a
-        // configuration-mutating customizer stays on the classic per-chunk path (template is null).
+        // Fast path: build one template per attach over a copy-on-write child of the attach
+        // configuration, baking configure-phase customizers in once. Each chunk binds a fresh
+        // PreparedBatch against that child, skipping the per-chunk render, parse, and configuration
+        // copy; a method with no configure-phase customizers leaves the child unforked so it shares
+        // the attach config's warm resolver views. A method with a configuration-mutating customizer
+        // stays on the classic per-chunk path (template is null).
         final Supplier<StatementTemplate> template = late ? null : MemoizingSupplier.of(() -> {
-            final ConfigRegistry templateConfig = config.createCopy();
+            final ConfigRegistry templateConfig = config.createChild();
             applyConfigureCustomizers(new ConfigureStatement(templateConfig));
             return new StatementTemplate(templateConfig, sqlSupplier.get());
         });
