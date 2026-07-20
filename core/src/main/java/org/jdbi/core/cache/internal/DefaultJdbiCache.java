@@ -16,12 +16,14 @@ package org.jdbi.core.cache.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.jdbi.core.cache.JdbiCache;
 import org.jdbi.core.cache.JdbiCacheLoader;
+import org.jdbi.core.internal.exceptions.Sneaky;
 
 final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
 
@@ -67,7 +69,7 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
             if (!node.value.isCompletedExceptionally()) {
                 refresh(node);
             }
-            return node.value.join();
+            return join(node);
         }
 
         // Node with Future atomically loaded into cache, but needs a value still
@@ -100,7 +102,22 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
                 }
                 node.value.complete(value);
             }
+            return join(node);
+        }
+    }
+
+    /**
+     * Join on a node's value, discarding the {@link CompletionException} wrapper that
+     * {@link CompletableFuture#join()} adds around a loader failure. Every caller then sees the same exception the
+     * loader threw regardless of which thread won the race to compute the key.
+     */
+    // PreserveStackTrace: the wrapper carries only CompletableFuture plumbing; the rethrown cause keeps its own stack.
+    @SuppressWarnings("PMD.PreserveStackTrace")
+    private V join(final DoubleLinkedList.Node<K, CompletableFuture<V>> node) {
+        try {
             return node.value.join();
+        } catch (CompletionException e) {
+            throw Sneaky.throwAnyway(e.getCause());
         }
     }
 
