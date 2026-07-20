@@ -50,9 +50,4 @@ public final class StringTemplates implements JdbiConfig<StringTemplates> {
         return new StringTemplates(failOnMissingAttribute);
     }
 
-    @Override
-    public StringTemplates createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

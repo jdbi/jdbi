@@ -281,13 +281,6 @@ public final class Extensions implements JdbiConfig<Extensions> {
         return failFast;
     }
 
-
-    @Override
-    public Extensions createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
-
     /**
      * Throw if proxy creation is disallowed.
      */

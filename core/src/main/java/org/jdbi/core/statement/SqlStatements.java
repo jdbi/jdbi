@@ -569,11 +569,6 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         }
     }
 
-    @Override
-    public SqlStatements createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 
     Collection<StatementCustomizer> getCustomizers() {
         return customizers;

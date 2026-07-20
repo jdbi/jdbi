@@ -185,31 +185,36 @@ public class NonpublicSubclassTest {
     public static class GeneratorConfigurerTypeImpl implements ExtensionConfigurer {
         @Override
         public void configureForType(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-            config.get(GeneratorConfig.class).configuredType = true;
+            config.configure(GeneratorConfig.class, c -> c.configuredType(true));
         }
     }
 
     public static class GeneratorConfigurerMethodImpl implements ExtensionConfigurer {
         @Override
         public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
-            config.get(GeneratorConfig.class).configuredMethod = true;
+            config.configure(GeneratorConfig.class, c -> c.configuredMethod(true));
         }
     }
 
     public static class GeneratorConfig implements JdbiConfig<GeneratorConfig> {
-        boolean configuredType = false;
-        boolean configuredMethod = false;
+        final boolean configuredType;
+        final boolean configuredMethod;
 
-        public GeneratorConfig() {}
-
-        public GeneratorConfig(GeneratorConfig other) {
-            configuredMethod = other.configuredMethod;
-            configuredType = other.configuredType;
+        public GeneratorConfig() {
+            this(false, false);
         }
 
-        @Override
-        public GeneratorConfig createCopy() {
-            return new GeneratorConfig(this);
+        private GeneratorConfig(boolean configuredType, boolean configuredMethod) {
+            this.configuredType = configuredType;
+            this.configuredMethod = configuredMethod;
+        }
+
+        GeneratorConfig configuredType(boolean configuredType) {
+            return new GeneratorConfig(configuredType, this.configuredMethod);
+        }
+
+        GeneratorConfig configuredMethod(boolean configuredMethod) {
+            return new GeneratorConfig(this.configuredType, configuredMethod);
         }
     }
 }

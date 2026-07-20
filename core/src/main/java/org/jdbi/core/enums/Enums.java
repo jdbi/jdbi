@@ -49,9 +49,4 @@ public final class Enums implements JdbiConfig<Enums> {
         return new Enums(enumStrategy);
     }
 
-    @Override
-    public Enums createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

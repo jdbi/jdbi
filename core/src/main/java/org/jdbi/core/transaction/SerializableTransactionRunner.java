@@ -203,10 +203,5 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
             return new Configuration(maxRetries, serializationFailureSqlState, onFailure, onSuccess);
         }
 
-        @Override
-        public Configuration createCopy() {
-            // Immutable: safe to share across registries.
-            return this;
-        }
     }
 }

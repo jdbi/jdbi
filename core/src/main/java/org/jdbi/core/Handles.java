@@ -118,9 +118,4 @@ public final class Handles implements JdbiConfig<Handles> {
         return new CopyOnWriteArraySet<>(handleListeners);
     }
 
-    @Override
-    public Handles createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

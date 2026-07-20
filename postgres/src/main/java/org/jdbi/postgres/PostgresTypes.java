@@ -75,9 +75,4 @@ public final class PostgresTypes implements JdbiConfig<PostgresTypes> {
         return this;
     }
 
-    @Override
-    public PostgresTypes createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

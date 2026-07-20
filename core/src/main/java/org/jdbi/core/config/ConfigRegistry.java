@@ -41,8 +41,10 @@ public final class ConfigRegistry implements ConfigView {
     // delegate to the parent (see get()/readAs()) -- so it holds neither. They are allocated exactly when a
     // registry has no parent: the root and full-copy constructors, and fork() when a child detaches. Thus the
     // invariant parent == null <=> configs != null && views != null holds, and createChild() allocates only the
-    // registry shell. A parent-less registry is either the (safely published, then frozen) root or a
-    // thread-confined copy/fork, so these fields need no further synchronization.
+    // registry shell. The map references are assigned in a constructor (root / full copy) or in fork() on a
+    // thread-confined registry, so the reference is safely published; the maps themselves are ConcurrentHashMaps
+    // because a shared root is not frozen -- concurrent get()/readAs on it lazily create config values and views
+    // after publication -- so these fields need no further synchronization.
     private Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs;
     private final Map<Class<? extends JdbiConfig<?>>, Function<ConfigRegistry, JdbiConfig<?>>> configFactories;
 
@@ -83,12 +85,13 @@ public final class ConfigRegistry implements ConfigView {
             parent = source;
         } else {
             // Full snapshot: copy the effective config set, walking any copy-on-write parent chain so that a
-            // nearer (child) value wins. Values are immutable, so createCopy() returns the same instance.
+            // nearer (child) value wins. Values are immutable, so they are shared by reference; only the maps
+            // (and thus which values are installed) are independent of the source.
             configs = new ConcurrentHashMap<>(32);
             views = new ConcurrentHashMap<>(4);
             for (ConfigRegistry r = source; r != null; r = r.parent) {
                 if (r.configs != null) {
-                    r.configs.forEach((type, config) -> configs.putIfAbsent(type, config.createCopy()));
+                    r.configs.forEach(configs::putIfAbsent);
                 }
             }
         }
@@ -172,12 +175,15 @@ public final class ConfigRegistry implements ConfigView {
     }
 
     /**
-     * Returns a memoized, read-only view of this registry of the given type, creating it on first request.
-     * Views (for example resolvers that carry resolution caches) are scoped to this registry: a copy of the
-     * registry does not inherit them, so a view built against one registry is never observed by another.
+     * Returns a memoized, read-only view of this registry of the given type (for example a resolver that carries
+     * resolution caches), creating it on first request. Views are memoized on the parent-less registry: a full
+     * {@link #createCopy() copy} does not inherit them (it rebuilds its own), but an unforked copy-on-write
+     * {@link #createChild() child} shares its parent's views by delegating {@code readAs} to it. A view can
+     * therefore be read concurrently through several child registries on different threads, so it must be
+     * thread-safe. It may hold a reference back to the (parent-less) registry it was built against, which outlives
+     * those children.
      * <p>
-     * A view is safe to hold a reference back to this registry, because it is never shared across registry
-     * copies. The {@code create} function must not call {@code readAs} re-entrantly for the same type.
+     * The {@code create} function must not call {@code readAs} re-entrantly for the same type.
      *
      * @param asType the view type, which also keys the memo
      * @param create builds the view from this registry, if not already present
@@ -220,11 +226,11 @@ public final class ConfigRegistry implements ConfigView {
     }
 
     /**
-     * Returns a copy of this config registry.
+     * Returns an isolated copy of this config registry: a fresh registry with its own maps, snapshotting the
+     * effective config set. Because config values are immutable they are shared by reference, so the copy is cheap
+     * and installing a different value into one registry never affects the other.
      *
-     * @return a copy of this config registry
-     * @see JdbiConfig#createCopy() config objects in the returned registry are copies of the corresponding
-     * config objects from this registry.
+     * @return an isolated copy of this config registry
      */
     @Override
     public ConfigRegistry createCopy() {
