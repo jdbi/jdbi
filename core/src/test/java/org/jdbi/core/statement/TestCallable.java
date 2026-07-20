@@ -101,6 +101,22 @@ public class TestCallable {
     }
 
     @Test
+    public void testCallViaTemplate() {
+        final StatementTemplate template = h.getJdbi().buildStatementTemplate("CALL TO_DEGREES(?, ?)");
+
+        try (Call call = template.call(h)) {
+            OutParameters ret = call.registerOutParameter(0, Types.DOUBLE).bind(1, 100.0d).invoke();
+            assertThat(ret.getDoubleValue(0)).isEqualTo(Math.toDegrees(100.0d), Offset.offset(0.001));
+        }
+
+        // The same template is reusable for another invocation.
+        try (Call call = template.call(h)) {
+            OutParameters ret = call.registerOutParameter(0, Types.DOUBLE).bind(1, 200.0d).invoke();
+            assertThat(ret.getDoubleValue(0)).isEqualTo(Math.toDegrees(200.0d), Offset.offset(0.001));
+        }
+    }
+
+    @Test
     public void testStatementWithNamedParam() {
         try (Call call = h.createCall("CALL TO_DEGREES(:x, :y)")) {
             OutParameters ret = call

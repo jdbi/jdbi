@@ -88,6 +88,30 @@ public class StatementTemplate {
     }
 
     /**
+     * Binds this template to a handle as a stored-procedure {@link Call} for a single execution. Register out
+     * parameters and bind inputs, then {@link Call#invoke()}. The returned call is thread-confined; obtain a
+     * fresh one for each execution.
+     *
+     * @param handle the handle to execute against
+     * @return a fresh, thread-confined {@link Call}
+     */
+    public Call call(final Handle handle) {
+        return new Call(handle, config, sql, renderedSql, parsedSql);
+    }
+
+    /**
+     * Binds this template to a handle as a {@link PreparedBatch} for a single execution. Add batches with the
+     * usual {@link PreparedBatch} methods, then execute. The returned batch is thread-confined; obtain a fresh
+     * one for each execution.
+     *
+     * @param handle the handle to execute against
+     * @return a fresh, thread-confined {@link PreparedBatch}
+     */
+    public PreparedBatch prepareBatch(final Handle handle) {
+        return new PreparedBatch(handle, config, sql, renderedSql, parsedSql);
+    }
+
+    /**
      * Fixes this template's result type. The returned {@link MappedStatementTemplate} is also reusable and
      * thread-safe, and resolves the row mapper up front so its executions need not look one up.
      *
