@@ -77,12 +77,23 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
         synchronized (node) {
             // Double-check in case of race
             if (!node.value.isDone()) {
+                final V value;
+                try {
+                    value = loader == null ? null : loader.create(key);
+                } catch (RuntimeException | Error e) {
+                    // The loader failed. Drop the placeholder node so a later call retries with a
+                    // fresh node, instead of finding this permanently-incomplete node and re-adding
+                    // it to the expunge queue (which would throw "Can not add node twice!"). The node
+                    // was never added to the expunge queue, since the value is computed first.
+                    cache.remove(key, node);
+                    throw e;
+                }
                 if (maxSize > 0) {
                     synchronized (expungeQueue) {
                         expungeQueue.addHead(node);
                     }
                 }
-                node.value.complete(loader == null ? null : loader.create(key));
+                node.value.complete(value);
             }
             return node.value.join();
         }

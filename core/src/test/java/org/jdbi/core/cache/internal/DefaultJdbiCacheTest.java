@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DefaultJdbiCacheTest extends JdbiCacheTest {
 
@@ -156,6 +157,28 @@ public class DefaultJdbiCacheTest extends JdbiCacheTest {
         for (int i = 0; i < max; i++) {
             cache.get(keys[i]);
         }
+    }
+
+    /**
+     * A loader that throws must not corrupt the cache: the placeholder node is dropped so a later call
+     * for the same key retries the loader instead of failing with "Can not add node twice!".
+     */
+    @Test
+    void testThrowingLoaderDoesNotCorruptCache() {
+        JdbiCache<String, String> cache = setupBuilder().maxSize(10).build();
+
+        assertThatThrownBy(() -> cache.getWithLoader("key", k -> {
+            throw new IllegalStateException("first");
+        })).isInstanceOf(IllegalStateException.class).hasMessage("first");
+
+        // Same key again: the loader runs again (the cache was not corrupted by the first failure).
+        assertThatThrownBy(() -> cache.getWithLoader("key", k -> {
+            throw new IllegalStateException("second");
+        })).isInstanceOf(IllegalStateException.class).hasMessage("second");
+
+        // A subsequent successful load for the same key populates and returns the value.
+        assertThat(cache.getWithLoader("key", k -> "value")).isEqualTo("value");
+        assertThat(cache.getWithLoader("key", k -> "ignored")).isEqualTo("value");
     }
 
 }
