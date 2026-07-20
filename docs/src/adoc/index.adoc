@@ -655,6 +655,30 @@ MappedStatementTemplate<String> byId =
 String name = byId.with(handle).bind("id", id).results().one();
 ----
 
+=== SQL Object updates report statement type `Query`
+
+`@SqlUpdate`, `@SqlCall`, and `@SqlBatch` now execute through the same reusable statement machinery as `@SqlQuery`.
+One effect is observable: a `@SqlUpdate` method runs through a `Query`, so `StatementContext.describeJdbiStatementType()` and the `type` field of the `JdbiStatementEvent` JFR event report `Query` where Jdbi 3 reported `Update`.
+Return values and behavior are unchanged; only the reported type string differs.
+Monitoring that matches the literal `Update` type for `@SqlUpdate` methods needs updating.
+`@SqlCall` still reports `Call` and `@SqlBatch` still reports `PreparedBatch`.
+
+=== Authoring SQL Object statement customizers
+
+If you implement a custom `SqlStatementCustomizer` or `SqlStatementCustomizerFactory`, Jdbi 4 distinguishes when a customizer runs so it can bake invariant configuration into a reusable template once instead of re-applying it on every call.
+A type- or method-level customizer is treated as invariant configuration by default and applied once, against a build-time configuration surface.
+Two marker interfaces override that default:
+
+* A customizer or factory that implements `ConfigMutating` changes configuration per invocation. It runs on the classic per-statement path, applied on every call.
+* A customizer or factory that implements `StatementScoped` operates on the live `Query`, `Call`, or `PreparedBatch` rather than on configuration, for example to register an out parameter. It runs per invocation against each statement, while the configuration snapshot stays shared. Jdbi's own `@OutParameter` is implemented this way.
+
+A type- or method-level customizer that touches the live statement without implementing `StatementScoped` is handed a configuration surface that does not support statement operations, and the invocation fails.
+Parameter-level customizers already bind per invocation and need neither marker.
+
+The `warm(ConfigRegistry)` pre-initialization hook is removed from `SqlStatementCustomizer` and `SqlStatementParameterCustomizer` (and from the `AttachedExtensionHandler` extension SPI).
+Remove any override; it is no longer called.
+When `Extensions.failFast()` is set, Jdbi resolves a SQL Object method's result mapper while attaching, so an unregistered mapper still fails at attach time rather than on first use.
+
 == API Overview
 
 Jdbi's API comes in two flavors:
