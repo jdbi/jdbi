@@ -34,8 +34,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     private final String sql;
 
     // Non-null only for a statement built from a reusable template: the SQL was rendered and parsed once at
-    // build time. parseSql() reuses them unless this execution mutated its configuration (which forks the
-    // copy-on-write child); a one-shot statement renders and parses lazily on every execution.
+    // build time. parseSql() reuses them unless this execution supplied per-execution defines (which change
+    // the rendering); a one-shot statement renders and parses lazily on every execution.
     private final String cachedRenderedSql;
     private final ParsedSql cachedParsedSql;
 
@@ -117,10 +117,13 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     // Disambiguates the identically-signed define() inherited from Configurable (default) and
-    // BindingsMixin (abstract). Classic statements store defines in their configuration.
+    // BindingsMixin (abstract). A per-statement define is per-render state, stored on the context's defines
+    // overlay rather than the configuration, so it neither forks the copy-on-write config nor invalidates
+    // memoized resolvers. Configuration-level defaults still come from Configurable#define (jdbi/handle level).
     @Override
     public This define(final String key, final Object value) {
-        return configure(SqlStatements.class, c -> c.define(key, value));
+        getContext().define(key, value);
+        return typedThis;
     }
 
     // Disambiguates addCustomizer, which SqlStatement inherits from both Configurable (as a default)
@@ -221,9 +224,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     ParsedSql parseSql() {
         final StatementContext ctx = getContext();
 
-        if (cachedParsedSql != null && ctx.getConfig().isUnforked()) {
-            // Reusable-template fast path: the SQL was rendered and parsed once at build time and this
-            // execution has not mutated its configuration (which would fork the copy-on-write child), so
+        if (cachedParsedSql != null && ctx.getDefinedAttributes().isEmpty()) {
+            // Reusable-template fast path: the SQL was rendered and parsed once at build time, and this
+            // execution supplied no per-execution defines (the only per-execution input to rendering), so
             // reuse them instead of re-rendering and re-parsing.
             ctx.setRenderedSql(cachedRenderedSql);
             ctx.setParsedSql(cachedParsedSql);
@@ -232,7 +235,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         final SqlStatements statements = getConfig(SqlStatements.class);
 
-        final String renderedSql = statements.preparedRender(sql, RenderContext.of(ctx.getConfig()));
+        final String renderedSql = statements.preparedRender(sql, ctx.renderContext());
         ctx.setRenderedSql(renderedSql);
 
         final ParsedSql parsedSql = statements.getSqlParser().parse(renderedSql, ctx);

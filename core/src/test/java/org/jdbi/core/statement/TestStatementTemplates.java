@@ -22,6 +22,8 @@ import java.util.stream.Stream;
 import com.google.common.collect.Maps;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
+import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.NoSuchMapperException;
@@ -396,6 +398,33 @@ public class TestStatementTemplates {
         template.prepareBatch(h).add(Map.of("id", 3, "name", "keith")).execute();
 
         assertThat(h.createQuery("select count(*) from something").mapTo(int.class).one()).isEqualTo(3);
+    }
+
+    // Regression guard: a per-execution define() is statement state (a defines overlay), not configuration.
+    // Before the overlay redesign, define() forked the statement's copy-on-write config child, which cleared
+    // the registry's memoized resolver views and forced every mapper/argument/collector to re-resolve cold.
+    // It must now leave the config (and its warm resolvers) untouched while still affecting rendering.
+    @Test
+    public void defineKeepsResolverViewsWarm() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        final Query query = h.createQuery("select <col> from something");
+        final ConfigRegistry config = query.getContext().getConfig();
+
+        // Warm a memoized resolver view on the statement's config.
+        final Object warmView = config.readAs(WarmthProbe.class, WarmthProbe::new);
+
+        query.define("col", "name");
+
+        // The define did not fork the config, so the memoized view is the same warm instance, not rebuilt cold.
+        assertThat(config.readAs(WarmthProbe.class, WarmthProbe::new)).isSameAs(warmView);
+        // ...and the define still takes effect for rendering.
+        assertThat(query.getContext().getAttribute("col")).isEqualTo("name");
+    }
+
+    // A distinct memoized-view type used only to observe whether define() invalidates the resolver cache.
+    private static final class WarmthProbe {
+        WarmthProbe(final ConfigView config) {}
     }
 
 }

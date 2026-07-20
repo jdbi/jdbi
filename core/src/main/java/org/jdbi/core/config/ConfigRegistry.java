@@ -251,19 +251,6 @@ public final class ConfigRegistry implements ConfigView {
         return new ConfigRegistry(this, true);
     }
 
-    /**
-     * Reports whether this registry is an un-forked copy-on-write child (see {@link #createChild()}): one that
-     * has not yet been mutated and whose reads still delegate to its parent. A child forks (returning {@code
-     * false} thereafter) on its first {@link Configurable#configure} call. Intended for internal use by
-     * statement execution to decide whether a snapshot rendered against the parent is still valid.
-     *
-     * @return {@code true} if this is an un-forked child, {@code false} for a root, a full copy, or a forked child
-     */
-    @Alpha
-    public boolean isUnforked() {
-        return parent != null;
-    }
-
     @Override
     public ConfigRegistry getConfig() {
         return this;
