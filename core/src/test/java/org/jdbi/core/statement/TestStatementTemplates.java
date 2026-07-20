@@ -362,4 +362,21 @@ public class TestStatementTemplates {
         assertThat(rs).containsOnly(entry("Brian", 1), entry("Keith", 2));
     }
 
+    @Test
+    public void testTemplateDrivesUpdateAndQuery() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        // One reusable template, run as an update: which terminal you call picks how it executes.
+        final var insert = h.getJdbi()
+            .buildStatementTemplate("insert into something (id, name) values (:id, :name)");
+        assertThat(insert.with(h).bind("id", 1).bind("name", "eric").execute()).isEqualTo(1);
+        assertThat(insert.with(h).bind("id", 2).bind("name", "brian").execute()).isEqualTo(1);
+
+        // A query template, run for results, sees both rows.
+        final var names = h.getJdbi()
+            .buildStatementTemplate("select name from something order by id")
+            .mapTo(String.class);
+        assertThat(names.with(h).results().list()).containsExactly("eric", "brian");
+    }
+
 }

@@ -20,21 +20,20 @@ import org.jdbi.core.result.ResultIterable;
 /**
  * A single, thread-confined execution of a {@link MappedStatementTemplate} against a specific handle. Bind
  * parameters (and optionally override defined attributes or set query customizers), then obtain the
- * results with {@link #results()}. This mirrors {@link StatementTemplateBinding}, except the result mapper is
+ * results with {@link #results()}. This mirrors a plain template {@link Query}, except the result mapper is
  * fixed by the owning {@link MappedStatementTemplate}, so {@link #results()} takes no type argument and
  * performs no mapper lookup.
  *
- * <p>All binding, defining, and customizing operations are delegated to an underlying
- * {@link StatementTemplateBinding}, so they behave identically to a plain template execution; only the
- * terminal result step differs.
+ * <p>All binding, defining, and customizing operations are delegated to an underlying {@link Query}, so
+ * they behave identically to a plain template execution; only the terminal result step differs.
  *
  * @param <T> the result type this query maps rows to
  */
 public class BoundMappedQuery<T> implements QueryCustomizerMixin<BoundMappedQuery<T>> {
-    private final StatementTemplateBinding binding;
+    private final Query binding;
     private final RowMapper<T> mapper;
 
-    BoundMappedQuery(final StatementTemplateBinding binding, final RowMapper<T> mapper) {
+    BoundMappedQuery(final Query binding, final RowMapper<T> mapper) {
         this.binding = binding;
         this.mapper = mapper;
     }

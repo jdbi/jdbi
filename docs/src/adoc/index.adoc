@@ -624,14 +624,22 @@ The largest win is the "one handle per request" pattern common in web services: 
 
 === New: reusable `StatementTemplate`
 
-Jdbi 4 adds `StatementTemplate`, a handle-independent, reusable query.
-It renders, parses, and snapshots configuration once, then executes against any handle without repeating that work -- useful for a hot query run many times:
+Jdbi 4 adds `StatementTemplate`, a handle-independent, reusable SQL statement.
+It renders, parses, and snapshots configuration once, then executes against any handle without repeating that work -- useful for a hot statement run many times:
 
 [source,java,indent=0]
 ----
 StatementTemplate template = jdbi.buildStatementTemplate("SELECT name FROM users WHERE id = :id");
 // reuse across handles/threads:
 String name = template.with(handle).bind("id", id).mapTo(String.class).one();
+----
+
+`with(handle)` returns a `Query`, and which terminal you call selects how the statement runs: a result operation such as `mapTo(type)` reads rows, while `execute()` runs it as an update and returns the modified-row count.
+
+[source,java,indent=0]
+----
+StatementTemplate insert = jdbi.buildStatementTemplate("INSERT INTO users (id, name) VALUES (:id, :name)");
+int rows = insert.with(handle).bind("id", id).bind("name", name).execute();
 ----
 
 Fixing the result type with `mapTo(type)` on the template resolves the row mapper once, at build time, so each execution skips even that lookup.

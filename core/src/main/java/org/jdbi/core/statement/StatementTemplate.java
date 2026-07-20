@@ -27,15 +27,13 @@ import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
 
 /**
- * A reusable, immutable, thread-safe query definition. Built once from a {@link org.jdbi.core.Jdbi}
- * (see {@code Jdbi.buildStatementTemplate}) and executed many times by binding it to a {@link Handle}
- * with {@link #with(Handle)}.
+ * A reusable, immutable, thread-safe SQL statement definition. Built once from a {@link org.jdbi.core.Jdbi}
+ * (see {@code Jdbi.buildStatementTemplate}) and executed many times by binding it to a {@link Handle} with
+ * {@link #with(Handle)}.
  *
- * <p>The SQL is rendered and parsed a single time when the template is built; the resulting
- * {@link ParsedSql} and the configuration are shared read-only. Each execution binds its own
- * parameters and applies a result operation through the {@link ResultBearing} methods on the
- * {@link StatementTemplateBinding} returned by {@link #with(Handle)}, exactly as with a
- * {@link Query}.
+ * <p>Each execution binds its own parameters on the {@link Query} returned by {@link #with(Handle)} and then
+ * chooses a terminal: a {@link ResultBearing} operation such as {@link Query#mapTo(Class)} to read rows, or
+ * {@link Query#execute()} to run it as an update and get the modified-row count.
  */
 public class StatementTemplate {
     final ConfigRegistry config;
@@ -78,21 +76,20 @@ public class StatementTemplate {
     }
 
     /**
-     * Binds this template to a handle for a single execution. The returned binding is thread-confined;
-     * obtain a fresh one for each execution.
+     * Binds this template to a handle for a single execution, returning a {@link Query} to bind parameters on
+     * and run &mdash; as a query, or as an update via {@link Query#execute()}. The returned query is
+     * thread-confined; obtain a fresh one for each execution.
      *
      * @param handle the handle to execute against
-     * @return a fresh, thread-confined binding
+     * @return a fresh, thread-confined {@link Query}
      */
-    public StatementTemplateBinding with(final Handle handle) {
-        return new StatementTemplateBinding(handle, this);
+    public Query with(final Handle handle) {
+        return new Query(handle, config, sql, renderedSql, parsedSql);
     }
 
     /**
-     * Fixes this template's result type, resolving the {@link RowMapper} once against the template's
-     * configuration snapshot. The returned {@link MappedStatementTemplate} is also reusable and thread-safe,
-     * and each of its executions skips the per-call mapper lookup that {@code mapTo(type)} on a
-     * {@link StatementTemplateBinding} otherwise repeats.
+     * Fixes this template's result type. The returned {@link MappedStatementTemplate} is also reusable and
+     * thread-safe, and resolves the row mapper up front so its executions need not look one up.
      *
      * @param type the type to map result rows to
      * @param <T>  the type to map result rows to

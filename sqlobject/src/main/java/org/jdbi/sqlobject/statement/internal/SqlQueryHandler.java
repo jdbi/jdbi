@@ -24,8 +24,8 @@ import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.statement.Customizable;
-import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.sqlobject.statement.UseRowMapper;
 import org.jdbi.sqlobject.statement.UseRowReducer;
 

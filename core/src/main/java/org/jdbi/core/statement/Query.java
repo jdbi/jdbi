@@ -16,6 +16,7 @@ package org.jdbi.core.statement;
 import java.sql.SQLException;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultProducer;
 import org.jdbi.core.result.ResultProducers;
@@ -39,6 +40,16 @@ public class Query extends SqlStatement<Query> implements ResultBearing, QueryCu
         super(handle, sql);
     }
 
+    /**
+     * Reuse-mode constructor used by a reusable template ({@code StatementTemplate.with(handle)}): the SQL was
+     * rendered and parsed once against {@code config}, so this execution reuses them (see
+     * {@link SqlStatement#parseSql()}) instead of re-rendering and re-parsing.
+     */
+    Query(final Handle handle, final ConfigView config, final CharSequence sql,
+          final String renderedSql, final ParsedSql parsedSql) {
+        super(handle, config, sql, renderedSql, parsedSql);
+    }
+
     @Override
     public <R> R execute(final ResultProducer<R> producer) {
         try {
@@ -52,6 +63,39 @@ public class Query extends SqlStatement<Query> implements ResultBearing, QueryCu
     @Override
     public <R> R scanResultSet(final ResultSetScanner<R> resultSetScanner) {
         return execute(ResultProducers.returningResults()).scanResultSet(resultSetScanner);
+    }
+
+    /**
+     * Executes this statement as a data-manipulation statement and returns the update count. This lets a
+     * reusable {@link StatementTemplate} drive an {@code INSERT}/{@code UPDATE}/{@code DELETE} through the
+     * same binding surface as a {@code SELECT}: which terminal you call selects how the statement is run.
+     * Equivalent to {@code execute(ResultProducers.returningUpdateCount())}.
+     *
+     * @return the number of rows modified
+     */
+    public int execute() {
+        return execute(ResultProducers.returningUpdateCount());
+    }
+
+    /**
+     * Executes this statement as a data-manipulation statement and returns the update count as a
+     * {@code long}. See {@link #execute()}.
+     *
+     * @return the number of rows modified
+     */
+    public long executeLarge() {
+        return execute(ResultProducers.returningLargeUpdateCount());
+    }
+
+    /**
+     * Executes this statement as a data-manipulation statement and returns any auto-generated keys. See
+     * {@link #execute()} and {@link Update#executeAndReturnGeneratedKeys(String...)}.
+     *
+     * @param generatedKeyColumnNames optional list of generated key column names
+     * @return a {@link ResultBearing} over the generated keys
+     */
+    public ResultBearing executeAndReturnGeneratedKeys(final String... generatedKeyColumnNames) {
+        return execute(ResultProducers.returningGeneratedKeys(generatedKeyColumnNames));
     }
 
     @Override

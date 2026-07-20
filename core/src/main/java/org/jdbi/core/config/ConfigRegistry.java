@@ -37,13 +37,19 @@ public final class ConfigRegistry implements ConfigView {
 
     private static final Class<?>[] JDBI_CONFIG_TYPES = {ConfigRegistry.class};
 
-    private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>(32);
+    // Lazily allocated: an un-forked copy-on-write child (parent != null) never touches these maps -- reads
+    // delegate to the parent (see get()/readAs()) -- so it holds neither. They are allocated exactly when a
+    // registry has no parent: the root and full-copy constructors, and fork() when a child detaches. Thus the
+    // invariant parent == null <=> configs != null && views != null holds, and createChild() allocates only the
+    // registry shell. A parent-less registry is either the (safely published, then frozen) root or a
+    // thread-confined copy/fork, so these fields need no further synchronization.
+    private Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs;
     private final Map<Class<? extends JdbiConfig<?>>, Function<ConfigRegistry, JdbiConfig<?>>> configFactories;
 
     // Per-registry memoized read-only views of this registry (e.g. resolvers). Deliberately NOT copied by
     // the copy constructor, and cleared by install(): a change to any config value invalidates memoized
     // resolvers, so a registry never serves a view built against a superseded config.
-    private final Map<Class<?>, Object> views = new ConcurrentHashMap<>(4);
+    private Map<Class<?>, Object> views;
 
     // Non-null only for an un-forked copy-on-write child (see createChild()): reads delegate to this parent
     // until the child's first install(), at which point the child materialises its own configs and detaches.
@@ -59,6 +65,8 @@ public final class ConfigRegistry implements ConfigView {
      */
     public ConfigRegistry() {
         configFactories = new ConcurrentHashMap<>();
+        configs = new ConcurrentHashMap<>(32);
+        views = new ConcurrentHashMap<>(4);
         get(ConfigCaches.class);
         get(SqlStatements.class);
         get(Arguments.class);
@@ -71,13 +79,17 @@ public final class ConfigRegistry implements ConfigView {
         configFactories = source.configFactories;
         if (asChild) {
             // Copy-on-write child: share the parent's config values (and warm resolver views) by delegation
-            // until the first install().
+            // until the first install(). Holds no maps of its own until fork().
             parent = source;
         } else {
             // Full snapshot: copy the effective config set, walking any copy-on-write parent chain so that a
             // nearer (child) value wins. Values are immutable, so createCopy() returns the same instance.
+            configs = new ConcurrentHashMap<>(32);
+            views = new ConcurrentHashMap<>(4);
             for (ConfigRegistry r = source; r != null; r = r.parent) {
-                r.configs.forEach((type, config) -> configs.putIfAbsent(type, config.createCopy()));
+                if (r.configs != null) {
+                    r.configs.forEach((type, config) -> configs.putIfAbsent(type, config.createCopy()));
+                }
             }
         }
     }
@@ -93,14 +105,17 @@ public final class ConfigRegistry implements ConfigView {
     @Override
     public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
         // we would computeIfAbsent if not for JDK-8062841 >:(
-        final JdbiConfig<?> lookup = configs.get(configClass);
-        if (lookup != null) {
-            return configClass.cast(lookup);
+        if (configs != null) {
+            final JdbiConfig<?> lookup = configs.get(configClass);
+            if (lookup != null) {
+                return configClass.cast(lookup);
+            }
         }
         if (parent != null) {
             // Un-forked child: read (and lazily create the shared default) through the parent.
             return parent.get(configClass);
         }
+        // parent == null, so this registry owns its configs map (see the field comment).
         C config = configClass.cast(configFactory(configClass).apply(this));
         return Optional.ofNullable(configClass.cast(configs.putIfAbsent(configClass, config))).orElse(config);
     }
@@ -118,6 +133,7 @@ public final class ConfigRegistry implements ConfigView {
         if (parent != null) {
             fork();
         }
+        // parent == null here, so configs and views are allocated (root/full-copy ctor, or fork() just now).
         // A changed config value invalidates any memoized resolver built against the previous value.
         views.clear();
         configs.put(configClass, config);
@@ -129,8 +145,12 @@ public final class ConfigRegistry implements ConfigView {
      * and never touch the (shared) parent.
      */
     private void fork() {
+        configs = new ConcurrentHashMap<>(32);
+        views = new ConcurrentHashMap<>(4);
         for (ConfigRegistry r = parent; r != null; r = r.parent) {
-            r.configs.forEach(configs::putIfAbsent);
+            if (r.configs != null) {
+                r.configs.forEach(configs::putIfAbsent);
+            }
         }
         parent = null;
     }
@@ -229,6 +249,19 @@ public final class ConfigRegistry implements ConfigView {
     @Override
     public ConfigRegistry createChild() {
         return new ConfigRegistry(this, true);
+    }
+
+    /**
+     * Reports whether this registry is an un-forked copy-on-write child (see {@link #createChild()}): one that
+     * has not yet been mutated and whose reads still delegate to its parent. A child forks (returning {@code
+     * false} thereafter) on its first {@link Configurable#configure} call. Intended for internal use by
+     * statement execution to decide whether a snapshot rendered against the parent is still valid.
+     *
+     * @return {@code true} if this is an un-forked child, {@code false} for a root, a full copy, or a forked child
+     */
+    @Alpha
+    public boolean isUnforked() {
+        return parent != null;
     }
 
     @Override
