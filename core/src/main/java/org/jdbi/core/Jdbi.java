@@ -64,7 +64,7 @@ public class Jdbi implements ConfigReader {
     /** A no-op per-handle config scope: the opened handle uses an unmodified copy of this Jdbi's config. */
     private static final Consumer<ConfigRegistry> NO_CONFIG_SCOPE = config -> {};
 
-    private final ConfigRegistry config = new ConfigRegistry();
+    private final ConfigRegistry config;
     // Read-only view handed to callers via getConfig(): a distinct delegate that cannot be cast back to the mutable
     // ConfigRegistry, so post-build configuration must go through the builder. Internal code uses `config` directly.
     private final ConfigView configView = ConfigView.readOnly(this::configRegistry);
@@ -78,8 +78,12 @@ public class Jdbi implements ConfigReader {
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
     private Jdbi(final ConnectionFactory connectionFactory) {
-        Objects.requireNonNull(connectionFactory, "null connectionFactory");
-        this.connectionFactory = connectionFactory;
+        this(connectionFactory, new ConfigRegistry());
+    }
+
+    private Jdbi(final ConnectionFactory connectionFactory, final ConfigRegistry config) {
+        this.connectionFactory = Objects.requireNonNull(connectionFactory, "null connectionFactory");
+        this.config = config;
     }
 
     /**
@@ -339,6 +343,35 @@ public class Jdbi implements ConfigReader {
      */
     ConfigRegistry configRegistry() {
         return config;
+    }
+
+    /**
+     * Returns a {@link Builder} seeded from this Jdbi: a copy of this instance's configuration, and the same
+     * connection source, transaction handler, statement-builder factory, handle callback decorator, handle scope,
+     * and installed plugins. Reconfigure it and call {@link Builder#build()} to obtain an independent {@code Jdbi}
+     * that shares this instance's connection source but has its own configuration &mdash; useful for deriving a
+     * long-lived variant (for example, per-tenant) without disturbing this instance:
+     * <pre>{@code
+     * Jdbi tenantJdbi = jdbi.toBuilder()
+     *     .configure(SqlStatements.class, s -> s.setSqlLogger(tenantLogger))
+     *     .build();
+     * }</pre>
+     * The seeded plugins are already applied &mdash; their configuration is baked into the copied config and their
+     * per-handle hooks run on handles from the built instance &mdash; so {@link Builder#build()} does not re-run
+     * their {@link JdbiPlugin#configure(Builder)} hook. To vary configuration for a single unit of work rather than
+     * a long-lived instance, prefer {@link #open(java.util.function.Consumer)} or per-statement configuration.
+     *
+     * @return a builder seeded from this Jdbi's configuration and connection source
+     */
+    @Alpha
+    public Builder toBuilder() {
+        final Jdbi derived = new Jdbi(connectionFactory, config.createCopy());
+        derived.transactionhandler.set(transactionhandler.get());
+        derived.statementBuilderFactory.set(statementBuilderFactory.get());
+        derived.handleCallbackDecorator.set(handleCallbackDecorator.get());
+        derived.handleScope = handleScope;
+        derived.plugins.addAll(plugins);
+        return new Builder(derived);
     }
 
     /**

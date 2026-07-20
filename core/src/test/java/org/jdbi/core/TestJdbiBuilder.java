@@ -140,4 +140,62 @@ public class TestJdbiBuilder {
 
         assertThat(configureCount).hasValue(1);
     }
+
+    @Test
+    public void toBuilderCopiesConfigurationAndKnobs() {
+        final RowMapper<String> mapper = (rs, ctx) -> "base";
+        final TransactionHandler handler = LocalTransactionHandler.binding();
+        final Jdbi base = Jdbi.builder(url())
+                .registerRowMapper(String.class, mapper)
+                .transactionHandler(handler)
+                .build();
+
+        final Jdbi derived = base.toBuilder().build();
+
+        assertThat(derived.getTransactionHandler()).isSameAs(handler);
+        try (Handle h = derived.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("base");
+        }
+    }
+
+    @Test
+    public void toBuilderConfigurationIsIndependentOfSource() {
+        final Jdbi base = Jdbi.builder(url())
+                .registerRowMapper(String.class, (rs, ctx) -> "base")
+                .build();
+
+        final Jdbi derived = base.toBuilder()
+                .registerRowMapper(String.class, (rs, ctx) -> "derived")
+                .build();
+
+        try (Handle b = base.open(); Handle d = derived.open()) {
+            assertThat(b.createQuery("select 1").mapTo(String.class).one()).isEqualTo("base");
+            assertThat(d.createQuery("select 1").mapTo(String.class).one()).isEqualTo("derived");
+        }
+    }
+
+    @Test
+    public void toBuilderDoesNotReapplySeededPlugins() {
+        final AtomicInteger configureCount = new AtomicInteger();
+        final RowMapper<String> mapper = (rs, ctx) -> "from-plugin";
+        final JdbiPlugin plugin = new JdbiPlugin() {
+            @Override
+            public void configure(final Jdbi.Builder builder) {
+                configureCount.incrementAndGet();
+                builder.registerRowMapper(String.class, mapper);
+            }
+        };
+
+        final Jdbi base = Jdbi.builder(url()).installPlugin(plugin).build();
+        assertThat(configureCount).hasValue(1);
+
+        final Jdbi derived = base.toBuilder().build();
+
+        // The seeded plugin is already applied: its configuration is carried in the copied config, so build()
+        // does not re-run configure(), but its effect is present on the derived instance.
+        assertThat(configureCount).hasValue(1);
+        try (Handle h = derived.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("from-plugin");
+        }
+    }
 }
