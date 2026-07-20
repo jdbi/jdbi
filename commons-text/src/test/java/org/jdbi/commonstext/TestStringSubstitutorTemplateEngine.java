@@ -13,8 +13,6 @@
  */
 package org.jdbi.commonstext;
 
-import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.statement.RenderContext;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.StatementContextAccess;
 import org.jdbi.core.statement.TemplateEngine;
@@ -25,13 +23,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestStringSubstitutorTemplateEngine {
 
     private final StatementContext ctx = StatementContextAccess.createContext();
-    private final ConfigRegistry cfg = ctx.getConfig();
 
     @Test
     public void testDefaults() {
         ctx.define("name", "foo");
 
-        assertThat(new StringSubstitutorTemplateEngine().render("create table ${name};", RenderContext.of(cfg)))
+        assertThat(new StringSubstitutorTemplateEngine().render("create table ${name};", StatementContextAccess.renderContext(ctx)))
             .isEqualTo("create table foo;");
     }
 
@@ -39,7 +36,7 @@ public class TestStringSubstitutorTemplateEngine {
     public void testMissingAttribute() {
         final TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
 
-        assertThat(engine.render("select * from foo where x=<x>", RenderContext.of(cfg)))
+        assertThat(engine.render("select * from foo where x=<x>", StatementContextAccess.renderContext(ctx)))
             .isEqualTo("select * from foo where x=<x>");
     }
 
@@ -49,7 +46,7 @@ public class TestStringSubstitutorTemplateEngine {
 
         final TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
 
-        assertThat(engine.render("select * from foo where x=<x>", RenderContext.of(cfg)))
+        assertThat(engine.render("select * from foo where x=<x>", StatementContextAccess.renderContext(ctx)))
             .isEqualTo("select * from foo where x=<x>");
     }
 
@@ -59,7 +56,7 @@ public class TestStringSubstitutorTemplateEngine {
 
         final TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>');
 
-        assertThat(engine.render("create table <name>;", RenderContext.of(cfg)))
+        assertThat(engine.render("create table <name>;", StatementContextAccess.renderContext(ctx)))
             .isEqualTo("create table foo;");
     }
 
@@ -69,7 +66,7 @@ public class TestStringSubstitutorTemplateEngine {
 
         final TemplateEngine engine = StringSubstitutorTemplateEngine.between('<', '>', '@');
 
-        assertThat(engine.render("create table @<name>;", RenderContext.of(cfg)))
+        assertThat(engine.render("create table @<name>;", StatementContextAccess.renderContext(ctx)))
             .isEqualTo("create table <name>;");
     }
 }
