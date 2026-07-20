@@ -50,6 +50,21 @@ public interface DatabaseExtension<T extends DatabaseExtension<T>> {
         return getJdbi().open();
     }
 
+    /**
+     * Opens a handle from a {@link Jdbi} derived from this extension's (via {@link Jdbi#toBuilder()}) with the given
+     * per-test configuration applied at the Jdbi level. Replaces the removed per-handle {@code Jdbi.open(Consumer)}
+     * config scope: configuration belongs at the Jdbi level, not on the handle. The derived Jdbi shares this
+     * extension's connection source, plugins, and leak checker.
+     *
+     * @param configurer applied to the derived builder before it is built
+     * @return a handle opened from the configured Jdbi
+     */
+    default Handle openWithConfig(Consumer<Jdbi.Builder> configurer) {
+        Jdbi.Builder builder = getJdbi().toBuilder();
+        configurer.accept(builder);
+        return builder.build().open();
+    }
+
     default <C extends JdbiConfig<C>> T withConfig(Class<C> configClass, UnaryOperator<C> configurer) {
         return withPlugin(ConfiguringPlugin.of(configClass, configurer));
     }
