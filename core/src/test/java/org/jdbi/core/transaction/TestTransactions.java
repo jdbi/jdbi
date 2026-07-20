@@ -203,7 +203,7 @@ public class TestTransactions {
 
     @Test
     public void testTemplateEngineThrowsError() {
-        try (Handle boomHandle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.templateEngine(new BoomEngine())))) {
+        try (Handle boomHandle = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.templateEngine(new BoomEngine())))) {
             assertThatThrownBy(() -> boomHandle.inTransaction(h2 -> h2.execute("select 1")))
                 .isOfAnyClassIn(Error.class)
                 .hasMessage("boom");

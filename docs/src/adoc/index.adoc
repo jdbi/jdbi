@@ -537,33 +537,17 @@ public class MyPlugin extends JdbiPlugin.Singleton {
 
 For a one-off plugin, `JdbiPlugin.of(builder -> builder.registerRowMapper(new UserMapper()))` is a lambda shorthand.
 The connection-time hooks are unchanged in spirit: `customizeConnection(Connection)` and `customizeHandle(Handle)` remain.
-Anything that configured a handle's configuration from `customizeHandle` should move to the new `customizeHandleConfig(Connection, ConfigRegistry)` hook (see the next section).
+Per-connection setup that needs the live `Connection` and reads `Jdbi`-level config -- binding driver-specific types, say -- moves to the renamed `customizeHandleConnection(Connection, ConfigView)` hook (formerly `customizeHandleConfig`; see the next section).
 
 === Per-handle configuration
 
-`Handle` no longer implements `Configurable` either; a handle's configuration is a read-only, copy-on-write child of the `Jdbi`'s.
-To vary configuration per handle, open the handle with a config scope:
+`Handle` no longer implements `Configurable`, and in Jdbi 4 a handle carries no configuration of its own: it is only a connection plus its transaction state.
+All configuration lives at the `Jdbi` level (immutable and shared) or at the statement level (copy-on-write).
+`Handle.getConfig()` returns a read-only `ConfigView` of the `Jdbi`'s configuration.
+There is no `Jdbi.open(Consumer)` config scope, and the scoped `withHandle`/`useHandle`/`inTransaction`/`useTransaction` overloads that took a `Consumer<ConfigRegistry>` have been removed.
+Three replacements cover what a config scope was used for.
 
-[source,java,indent=0]
-----
-// Jdbi 3
-try (Handle h = jdbi.open()) {
-    h.registerRowMapper(new UserMapper());
-    // ...
-}
-
-// Jdbi 4 -- configure at open
-try (Handle h = jdbi.open(config -> config.configure(RowMappers.class, r -> r.register(new UserMapper())))) {
-    // ...
-}
-----
-
-`open`, `withHandle`, `useHandle`, `inTransaction`, and `useTransaction` all have an overload that takes a `Consumer<ConfigRegistry>` config scope.
-Configuration that should apply to a single statement can still be set on that statement (statements remain `Configurable`, copy-on-write).
-A plugin that must configure every handle it sees (for example to bind driver-specific types on the live `Connection`) implements `JdbiPlugin.customizeHandleConfig(Connection, ConfigRegistry)`, which runs once as each handle is created.
-
-A config scope is right for configuration that varies per unit of work (a request-scoped SQL logger, say).
-For a long-lived variant that differs in a fixed way -- one `Jdbi` per tenant, for instance -- derive a new instance from an existing one with `Jdbi.toBuilder()` instead, so the variant is built once and shares the original's connection source:
+*A long-lived variant* -- one `Jdbi` per tenant, or a bounded set of configurations -- is derived once with `Jdbi.toBuilder()`, so it is built ahead of time and shares the original's connection source:
 
 [source,java,indent=0]
 ----
@@ -571,6 +555,41 @@ Jdbi tenantJdbi = jdbi.toBuilder()
     .configure(SqlStatements.class, s -> s.setSqlLogger(tenantLogger))
     .build();
 ----
+
+*Per-request ambient context* -- a request id or tenant that changes on every unit of work -- belongs in a `Jdbi`-level configuration object that reads the ambient value itself, rather than in a per-handle scope.
+A `SqlLogger` that tags each statement with the current request id, for example, reads a `ScopedValue` (final in Java 25 and safe across structured-concurrency forks; a `ThreadLocal` works before then):
+
+[source,java,indent=0]
+----
+static final ScopedValue<String> REQUEST_ID = ScopedValue.newInstance();
+
+class RequestTaggingLogger implements SqlLogger {
+    @Override
+    public void logAfterExecution(StatementContext ctx) {
+        String requestId = REQUEST_ID.isBound() ? REQUEST_ID.get() : "-";
+        LOG.debug("[{}] {}", requestId, ctx.getRenderedSql());
+    }
+}
+
+// installed once, on the shared Jdbi
+jdbi.configure(SqlStatements.class, s -> s.setSqlLogger(new RequestTaggingLogger()));
+
+// bound per request; every handle and statement in the scope logs with this id
+ScopedValue.where(REQUEST_ID, requestId).run(() -> jdbi.useHandle(handle -> ...));
+----
+
+*A single statement* keeps its configuration on that statement, which remains `Configurable` (copy-on-write):
+
+[source,java,indent=0]
+----
+try (Query query = handle.createQuery("select * from users")) {
+    query.configure(RowMappers.class, r -> r.register(new UserMapper()));
+    // ...
+}
+----
+
+A plugin that must contribute per-connection state to every handle -- binding driver-specific types on the live `Connection`, say -- implements `JdbiPlugin.customizeHandleConnection(Connection, ConfigView)`, which runs once as each handle is created.
+It receives a read-only `ConfigView`: it can read `Jdbi`-level configuration and act on the `Connection`, but it cannot mutate the handle's config, which is never forked.
 
 === Custom factories, mappers, and codecs take `ConfigView`
 
@@ -595,7 +614,8 @@ public Optional<RowMapper<?>> build(Type type, ConfigView config) { ... }
 
 `ConfigView` exposes everything a factory legitimately needs -- `get(SomeConfig.class)`, the `findXFor(...)` lookups, and `createChild()` / `createCopy()` -- but not in-place mutation.
 A factory has no business reconfiguring the registry it is resolving against, so this is now a compile-time guarantee rather than a convention.
-The hooks that are _meant_ to configure -- `ConfigCustomizer`, `JdbiPlugin.configure(Jdbi.Builder)`, and `customizeHandleConfig` -- still receive a mutable `ConfigRegistry`.
+The hooks that are _meant_ to configure -- `ConfigCustomizer` and `JdbiPlugin.configure(Jdbi.Builder)` -- still receive a mutable `ConfigRegistry` (or the mutable builder).
+`JdbiPlugin.customizeHandleConfig` was renamed to `customizeHandleConnection` and now takes a `ConfigView`: it contributes per-connection side effects while reading `Jdbi`-level config, but no longer mutates a handle's config.
 
 === Performance in Jdbi 4
 

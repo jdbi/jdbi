@@ -53,8 +53,9 @@ public abstract class AbstractIssue2395Test {
                 new JsonData("fourth", "four", 16), new JsonData("fifth", "five", 23), new JsonData("sixth", "six", 42)));
         final ConstructorWrapper data2 = new ConstructorWrapper(2, "bob", Collections.singletonList(new JsonData("toast", "words", 8)));
 
-        try (Handle handle = this.handle.getJdbi().open(cfg -> cfg.configure(RowMappers.class,
-            r -> r.register(ConstructorWrapper.class, ConstructorMapper.of(ConstructorWrapper.class))))) {
+        try (Handle handle = this.handle.getJdbi().toBuilder()
+            .configure(RowMappers.class, r -> r.register(ConstructorWrapper.class, ConstructorMapper.of(ConstructorWrapper.class)))
+            .build().open()) {
             CtorDao dao = handle.attach(CtorDao.class);
 
             dao.write(data1);
@@ -82,8 +83,9 @@ public abstract class AbstractIssue2395Test {
         data2.name = "bob";
         data2.data = Collections.singletonList(new JsonData("toast", "words", 8));
 
-        try (Handle handle = this.handle.getJdbi().open(cfg -> cfg.configure(RowMappers.class,
-            r -> r.register(FieldWrapper.class, FieldMapper.of(FieldWrapper.class))))) {
+        try (Handle handle = this.handle.getJdbi().toBuilder()
+            .configure(RowMappers.class, r -> r.register(FieldWrapper.class, FieldMapper.of(FieldWrapper.class)))
+            .build().open()) {
             FieldDao dao = handle.attach(FieldDao.class);
 
             dao.write(data1);
@@ -111,8 +113,9 @@ public abstract class AbstractIssue2395Test {
         data2.setName("bob");
         data2.setData(Collections.singletonList(new JsonData("toast", "words", 8)));
 
-        try (Handle handle = this.handle.getJdbi().open(cfg -> cfg.configure(RowMappers.class,
-            r -> r.register(BeanWrapper.class, BeanMapper.of(BeanWrapper.class))))) {
+        try (Handle handle = this.handle.getJdbi().toBuilder()
+            .configure(RowMappers.class, r -> r.register(BeanWrapper.class, BeanMapper.of(BeanWrapper.class)))
+            .build().open()) {
             BeanDao dao = handle.attach(BeanDao.class);
 
             dao.write(data1);

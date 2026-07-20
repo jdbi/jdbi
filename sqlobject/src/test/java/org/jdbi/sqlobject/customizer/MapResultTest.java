@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.extension.Extensions;
 import org.jdbi.core.extension.UnableToCreateExtensionException;
@@ -83,9 +84,12 @@ public class MapResultTest {
 
     @Test
     public void testGoodMethodFailsWhenRequested() {
-        assertThatThrownBy(() -> jdbi.withHandle(
-                cfg -> cfg.configure(Extensions.class, Extensions::failFast),
-                handle -> handle.attach(MapDao.class).getValues(1)))
+        assertThatThrownBy(() -> {
+            try (Handle handle = pgExtension.openWithConfig(
+                    cfg -> cfg.configure(Extensions.class, Extensions::failFast))) {
+                handle.attach(MapDao.class).getValues(1);
+            }
+        })
                 .isInstanceOf(UnableToCreateExtensionException.class)
                 .hasMessageContaining("getValuesMissingAnnotation")
                 .hasMessageContaining(

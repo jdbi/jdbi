@@ -50,8 +50,7 @@ public class TestIssue2497 {
 
     @Test
     public void testMapToArrayArgument() {
-        final Jdbi db = h2Extension.getJdbi();
-        try (Handle h = db.open(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListArrayArgumentFactory())))) {
+        try (Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListArrayArgumentFactory())))) {
             h.execute("create table foo (id identity primary key, v integer array)");
             h.execute("insert into foo (id, v) values (1, ?)", List.of(1, 2));
             h.execute("insert into foo (id, v) values (2, ?)", List.of(4, 3, 2));
@@ -80,8 +79,7 @@ public class TestIssue2497 {
 
     @Test
     public void testMapToStringArgument() {
-        final Jdbi db = h2Extension.getJdbi();
-        try (Handle h = db.open(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListStringFactory())))) {
+        try (Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListStringFactory())))) {
             h.execute("insert into something (id, name) values (1, ?)", List.of("Hello", "World"));
             h.execute("insert into something (id, name) values (2, ?)", List.of("The", "quick", "brown", "fox"));
             h.execute("insert into something (id, name) values (3, ?)", List.of("Now", "is", "the", "time"));
@@ -121,9 +119,7 @@ public class TestIssue2497 {
 
     @Test
     public void testMapToObjectArgument() {
-        final Jdbi db = h2Extension.getJdbi();
-
-        try (Handle h = db.open(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListObjectFactory())))) {
+        try (Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(Arguments.class, a -> a.register(new ListObjectFactory())))) {
             h.execute("insert into something (id, name) values (1, ?)",
                 List.of(Parameters.thing("Hello"), Parameters.thing("World")));
             h.execute("insert into something (id, name) values (2, ?)",
@@ -153,12 +149,11 @@ public class TestIssue2497 {
 
         List<Sulu> sulus = Arrays.asList(new Sulu(1, "George", "Takei"),
             new Sulu(2, "John", "Cho"));
-        db.useHandle(
-            cfg -> cfg.configure(Arguments.class, a -> a.register(new SuluArgumentFactory())),
-            h -> {
-                SuluDao dao = h.attach(SuluDao.class);
-                dao.insertSulus(sulus);
-            });
+        try (Handle h = h2Extension.openWithConfig(
+            cfg -> cfg.configure(Arguments.class, a -> a.register(new SuluArgumentFactory())))) {
+            SuluDao dao = h.attach(SuluDao.class);
+            dao.insertSulus(sulus);
+        }
 
         db.useExtension(SuluDao.class, s -> {
             assertThat(s.findName(1)).isEqualTo("George Takei");
@@ -174,13 +169,11 @@ public class TestIssue2497 {
             new Sulu(1, "George", "Takei"),
             new Sulu(2, "John", "Cho"));
 
-        db.withHandle(
-            cfg -> cfg.configure(Arguments.class, a -> a.register(new SuluArgumentFactory())),
-            h -> {
-                SuluDao dao = h.attach(SuluDao.class);
-                dao.insertSulus(sulus);
-                return null;
-            });
+        try (Handle h = h2Extension.openWithConfig(
+            cfg -> cfg.configure(Arguments.class, a -> a.register(new SuluArgumentFactory())))) {
+            SuluDao dao = h.attach(SuluDao.class);
+            dao.insertSulus(sulus);
+        }
 
         db.useExtension(SuluDao.class, s -> {
             assertThat(s.findName(1)).isEqualTo("George Takei");

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -103,24 +102,12 @@ public class Handle implements Closeable, ConfigReader {
 
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    /** A no-op per-handle config scope: the handle uses an unmodified copy of the Jdbi config. */
-    private static final Consumer<ConfigRegistry> NO_CONFIG_SCOPE = config -> {};
-
     static Handle createHandle(final Jdbi jdbi,
             final Cleanable connectionCleaner,
             final TransactionHandler transactionHandler,
             final StatementBuilder statementBuilder,
             final Connection connection) throws SQLException {
-        return createHandle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection, NO_CONFIG_SCOPE);
-    }
-
-    static Handle createHandle(final Jdbi jdbi,
-            final Cleanable connectionCleaner,
-            final TransactionHandler transactionHandler,
-            final StatementBuilder statementBuilder,
-            final Connection connection,
-            final Consumer<ConfigRegistry> configScope) throws SQLException {
-        final Handle handle = new Handle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection, configScope);
+        final Handle handle = new Handle(jdbi, connectionCleaner, transactionHandler, statementBuilder, connection);
 
         handle.notifyHandleCreated();
         return handle;
@@ -130,21 +117,20 @@ public class Handle implements Closeable, ConfigReader {
             final Cleanable connectionCleaner,
             final TransactionHandler transactionHandler,
             final StatementBuilder statementBuilder,
-            final Connection connection,
-            final Consumer<ConfigRegistry> configScope) throws SQLException {
+            final Connection connection) throws SQLException {
         this.jdbi = jdbi;
         this.connectionCleaner = connectionCleaner;
         this.connection = connection;
 
-        // A copy-on-write child of the (frozen post-build) Jdbi config: an unmodified handle shares the root's
-        // warm resolver views instead of paying a cold copy, and a local change (a per-handle config scope, or a
-        // plugin's customizeHandleConfig) forks a private snapshot without touching the root. Both are applied
-        // during construction, before the extension context and handle listeners are derived from the config.
+        // A copy-on-write child of the (frozen post-build) Jdbi config: an unmodified handle shares the root's warm
+        // resolver views instead of paying a cold copy. The handle carries no configuration of its own -- all
+        // configuration lives at the Jdbi level (immutable, shared) or at the statement level -- so this child is
+        // never mutated. It is derived before the extension context and handle listeners are read from the config.
         final ConfigRegistry handleConfig = jdbi.getConfig().createChild();
-        configScope.accept(handleConfig);
-        // Plugins contribute per-connection config (e.g. binding database types to this connection) during
-        // construction, after the caller's scope and before the extension context is derived from the config.
-        jdbi.customizeHandleConfig(connection, handleConfig);
+        // Plugins contribute per-connection side effects (e.g. binding database types to this connection) during
+        // construction, before the extension context is derived from the config. They receive a read-only view so
+        // they can read Jdbi-level config but cannot mutate the handle's config.
+        jdbi.customizeHandleConnection(connection, ConfigView.readOnly(() -> handleConfig));
         this.defaultExtensionContext = ExtensionContext.forConfig(handleConfig);
         this.currentExtensionContext = defaultExtensionContext;
 
@@ -170,8 +156,9 @@ public class Handle implements Closeable, ConfigReader {
 
     /**
      * A read-only view of the configuration associated with this handle. It is a {@link ConfigView}, not a
-     * {@link ConfigRegistry}: a handle's configuration is fixed at open time. To configure a handle, open it with a
-     * config scope ({@link Jdbi#open(Consumer)}) or configure individual statements (which are copy-on-write).
+     * {@link ConfigRegistry}: a handle carries no configuration of its own. All configuration lives at the
+     * {@link Jdbi} level (build a configured {@code Jdbi} with {@link Jdbi#builder()} or {@link Jdbi#toBuilder()}) or
+     * at the statement level (configure individual statements, which are copy-on-write).
      *
      * @return the read-only configuration view associated with the handle.
      */

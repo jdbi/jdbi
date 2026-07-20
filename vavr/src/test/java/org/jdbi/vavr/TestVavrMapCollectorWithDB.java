@@ -62,14 +62,14 @@ public class TestVavrMapCollectorWithDB {
 
     @Test
     public void testMapCollectorWithGlobalKeyValueShouldSucceed() {
-        Boolean executed = h2Extension.getJdbi().withHandle(
-            cfg -> cfg.configure(MapEntryMappers.class, c -> c.keyColumn("key_c").valueColumn("val_c")),
-            h -> {
-                Map<String, String> valueMap = h.createQuery("select val_c, key_c from keyval")
-                    .collectInto(new GenericType<Map<String, String>>() {});
-                assertThat(valueMap).hasSameElementsAs(expectedMap);
-                return true;
-            });
+        final boolean executed;
+        try (Handle h = h2Extension.openWithConfig(
+            cfg -> cfg.configure(MapEntryMappers.class, c -> c.keyColumn("key_c").valueColumn("val_c")))) {
+            Map<String, String> valueMap = h.createQuery("select val_c, key_c from keyval")
+                .collectInto(new GenericType<Map<String, String>>() {});
+            assertThat(valueMap).hasSameElementsAs(expectedMap);
+            executed = true;
+        }
 
         assertThat(executed).isTrue();
     }

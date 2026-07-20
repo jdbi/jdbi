@@ -44,7 +44,7 @@ class HandleExceptionTest {
 
     @Test
     void handleException() {
-        try (Handle h = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c
+        try (Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c
                 .addExceptionHandler(s -> null)
                 .addExceptionHandler(new SqlExceptionHandler() {
                         @Override

@@ -237,7 +237,7 @@ public class CollectorsTest {
     void testMultiTypes() {
 
         // register list types
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(JdbiCollectors.class, c -> c
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(JdbiCollectors.class, c -> c
             .registerCollector(new GenericType<List<String>>() {}.getType(), Collectors.toCollection(LinkedList::new))
             .registerCollector(new GenericType<List<Object>>() {}.getType(), Collectors.toCollection(Vector::new))))) {
 

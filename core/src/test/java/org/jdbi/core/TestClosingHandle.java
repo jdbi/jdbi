@@ -154,7 +154,7 @@ public class TestClosingHandle {
 
     @Test
     public void testCloseWithOpenTransactionCheckDisabled() {
-        Handle h = h2Extension.getJdbi().open(cfg -> cfg.configure(Handles.class, c -> c.forceEndTransactions(false)));
+        Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(Handles.class, c -> c.forceEndTransactions(false)));
 
         h.begin();
 
