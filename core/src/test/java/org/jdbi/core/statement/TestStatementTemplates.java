@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Maps;
@@ -371,6 +372,32 @@ public class TestStatementTemplates {
                 .isInstanceOf(NoSuchMapperException.class);
             // ...but the template supplies the mapper from its own (Jdbi-level) configuration.
             assertThat(template.with(bare).results().one()).isEqualTo(new Widget("eric"));
+        }
+    }
+
+    @Test
+    public void perStatementCustomizerDoesNotDefeatSqlReuse() {
+        final AtomicInteger renders = new AtomicInteger();
+        // A Jdbi whose template engine counts renders, so we can observe whether a statement re-renders its SQL.
+        final Jdbi jdbi = h2Extension.getJdbi().toBuilder()
+            .configure(SqlStatements.class, s -> s.templateEngine((sql, ctx) -> {
+                renders.incrementAndGet();
+                return sql;
+            }))
+            .build();
+        final var template = jdbi.buildStatementTemplate("select :n");
+        final int afterBuild = renders.get(); // rendered once, when the template is built
+
+        try (Handle h = jdbi.open()) {
+            // setQueryTimeout forks the statement's config (via addCustomizer) but supplies no per-execution
+            // define, so the pre-rendered SQL is reused: parseSql keys reuse on the defines overlay being empty,
+            // not on whether config was forked.
+            assertThat(template.with(h).setQueryTimeout(10).bind("n", 1).mapTo(Integer.class).one()).isEqualTo(1);
+            assertThat(renders).hasValue(afterBuild);
+
+            // Contrast: a per-execution define does re-render, since the overlay is no longer empty.
+            assertThat(template.with(h).define("unused", "x").bind("n", 2).mapTo(Integer.class).one()).isEqualTo(2);
+            assertThat(renders.get()).isGreaterThan(afterBuild);
         }
     }
 
