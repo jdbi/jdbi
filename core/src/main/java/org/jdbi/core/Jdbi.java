@@ -346,20 +346,20 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
-     * Returns a {@link Builder} seeded from this Jdbi: a copy of this instance's configuration, and the same
-     * connection source, transaction handler, statement-builder factory, handle callback decorator, handle scope,
-     * and installed plugins. Reconfigure it and call {@link Builder#build()} to obtain an independent {@code Jdbi}
-     * that shares this instance's connection source but has its own configuration &mdash; useful for deriving a
-     * long-lived variant (for example, per-tenant) without disturbing this instance:
+     * Returns a {@link Builder} seeded from this Jdbi: a copy of its configuration and the same connection source,
+     * transaction handler, statement-builder factory, handle callback decorator, handle scope, and plugins.
+     * Reconfigure it and {@link Builder#build()} to obtain an independent {@code Jdbi} that shares this connection
+     * source but carries its own configuration &mdash; use it to derive a long-lived variant, such as one Jdbi per
+     * tenant, without disturbing this instance:
      * <pre>{@code
      * Jdbi tenantJdbi = jdbi.toBuilder()
      *     .configure(SqlStatements.class, s -> s.setSqlLogger(tenantLogger))
      *     .build();
      * }</pre>
-     * The seeded plugins are already applied &mdash; their configuration is baked into the copied config and their
-     * per-handle hooks run on handles from the built instance &mdash; so {@link Builder#build()} does not re-run
-     * their {@link JdbiPlugin#configure(Builder)} hook. To vary configuration for a single unit of work rather than
-     * a long-lived instance, prefer {@link #open(java.util.function.Consumer)} or per-statement configuration.
+     * Seeded plugins are already applied, so {@link Builder#build()} does not run their
+     * {@link JdbiPlugin#configure(Builder)} again, though their per-handle hooks still run on handles from the new
+     * instance. To vary configuration for a single unit of work instead, use {@link #open(java.util.function.Consumer)}
+     * or per-statement configuration.
      *
      * @return a builder seeded from this Jdbi's configuration and connection source
      */
@@ -772,10 +772,9 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
-     * Builds a reusable, thread-safe {@link StatementTemplate} over the given SQL, prepared once against a
-     * snapshot of this Jdbi's configuration and then executed many times against any handle via
-     * {@link StatementTemplate#with(Handle)}. Reusing a template is cheaper than building an equivalent
-     * statement on each call.
+     * Builds a reusable {@link StatementTemplate} over the given SQL, prepared once against this Jdbi's
+     * configuration and executed many times against any handle via {@link StatementTemplate#with(Handle)}.
+     * Reusing a template is cheaper than building an equivalent statement on each call.
      *
      * @param sql the SQL for the template
      * @return a reusable statement template

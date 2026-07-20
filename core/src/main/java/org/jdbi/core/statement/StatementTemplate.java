@@ -15,6 +15,7 @@ package org.jdbi.core.statement;
 
 import java.lang.reflect.Type;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericType;
@@ -27,14 +28,16 @@ import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
 
 /**
- * A reusable, immutable, thread-safe SQL statement definition. Built once from a {@link org.jdbi.core.Jdbi}
- * (see {@code Jdbi.buildStatementTemplate}) and executed many times by binding it to a {@link Handle} with
- * {@link #with(Handle)}.
+ * An immutable, reusable SQL statement definition, built once from a {@link org.jdbi.core.Jdbi} (see
+ * {@code Jdbi.buildStatementTemplate}) and executed many times. It renders and parses its SQL once and reuses
+ * that work on every execution, and is safe to share across threads.
  *
- * <p>Each execution binds its own parameters on the {@link Query} returned by {@link #with(Handle)} and then
- * chooses a terminal: a {@link ResultBearing} operation such as {@link Query#mapTo(Class)} to read rows, or
- * {@link Query#execute()} to run it as an update and get the modified-row count.
+ * <p>To execute, bind the template to a {@link Handle}: {@link #with(Handle)} returns a {@link Query} &mdash; a
+ * {@link ResultBearing} to map to rows, or run as an update via {@link Query#execute()} &mdash; {@link #call(Handle)}
+ * returns a {@link Call}, and {@link #prepareBatch(Handle)} a {@link PreparedBatch}. Each returns a fresh,
+ * single-use statement confined to the calling thread.
  */
+@ThreadSafe
 public class StatementTemplate {
     final ConfigRegistry config;
     final String sql;
@@ -46,11 +49,10 @@ public class StatementTemplate {
     final ParsedSql parsedSql;
 
     /**
-     * Builds a template over the given SQL and configuration snapshot. The configuration is used
-     * read-only and is not copied; callers pass a snapshot the template may retain (for example,
-     * {@code jdbi.getConfig().createCopy()}).
+     * Builds a template over the given SQL, rendered and parsed once against the given configuration, which the
+     * template retains and reads on every execution.
      *
-     * @param config the configuration snapshot to render, parse, and execute against
+     * @param config the configuration to render, parse, and execute against
      * @param sql    the SQL to render and parse once
      */
     public StatementTemplate(final ConfigRegistry config, final CharSequence sql) {
@@ -76,44 +78,40 @@ public class StatementTemplate {
     }
 
     /**
-     * Binds this template to a handle for a single execution, returning a {@link Query} to bind parameters on
-     * and run &mdash; as a query, or as an update via {@link Query#execute()}. The returned query is
-     * thread-confined; obtain a fresh one for each execution.
+     * Binds this template to a handle, returning a {@link Query} to bind parameters on and run &mdash; as a query,
+     * or as an update via {@link Query#execute()}.
      *
      * @param handle the handle to execute against
-     * @return a fresh, thread-confined {@link Query}
+     * @return a fresh query for this execution
      */
     public Query with(final Handle handle) {
         return new Query(handle, config, sql, renderedSql, parsedSql);
     }
 
     /**
-     * Binds this template to a handle as a stored-procedure {@link Call} for a single execution. Register out
-     * parameters and bind inputs, then {@link Call#invoke()}. The returned call is thread-confined; obtain a
-     * fresh one for each execution.
+     * Binds this template to a handle as a stored-procedure {@link Call}: register out parameters, bind inputs,
+     * then {@link Call#invoke()}.
      *
      * @param handle the handle to execute against
-     * @return a fresh, thread-confined {@link Call}
+     * @return a fresh call for this execution
      */
     public Call call(final Handle handle) {
         return new Call(handle, config, sql, renderedSql, parsedSql);
     }
 
     /**
-     * Binds this template to a handle as a {@link PreparedBatch} for a single execution. Add batches with the
-     * usual {@link PreparedBatch} methods, then execute. The returned batch is thread-confined; obtain a fresh
-     * one for each execution.
+     * Binds this template to a handle as a {@link PreparedBatch}: add batches, then execute.
      *
      * @param handle the handle to execute against
-     * @return a fresh, thread-confined {@link PreparedBatch}
+     * @return a fresh prepared batch for this execution
      */
     public PreparedBatch prepareBatch(final Handle handle) {
         return new PreparedBatch(handle, config, sql, renderedSql, parsedSql);
     }
 
     /**
-     * Fixes this template's result type. The returned {@link MappedStatementTemplate} is also reusable and
-     * thread-safe, and resolves the row mapper up front so its executions need not look one up.
+     * Fixes this template's result type, resolving the row mapper once at build time so executions need not
+     * look one up.
      *
      * @param type the type to map result rows to
      * @param <T>  the type to map result rows to
