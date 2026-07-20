@@ -231,8 +231,9 @@ public class DefaultJdbiCacheTest extends JdbiCacheTest {
         a.join(TimeUnit.SECONDS.toMillis(5));
         b.join(TimeUnit.SECONDS.toMillis(5));
 
-        // B observed the failure; it did not resurrect the removed node with a value.
-        assertThat(bOutcome.get()).isInstanceOf(Throwable.class);
+        // B observed the loader's failure (unwrapped, not a CompletionException); it did not resurrect the
+        // removed node with a value.
+        assertThat(bOutcome.get()).isInstanceOf(IllegalStateException.class);
 
         // The cache holds no orphaned entry: a fresh successful load is the only cached value.
         assertThat(cache.getWithLoader("key", k -> "value")).isEqualTo("value");
