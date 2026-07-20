@@ -69,6 +69,10 @@ public class InternalGuiceJdbiCustomizer implements GuiceJdbiCustomizer {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void customize(Jdbi.Builder builder) {
+        // Install plugins first so the module's own bound configuration, registered below, takes precedence over
+        // anything a plugin contributes (a plugin is applied when installed, and later registrations win).
+        plugins.forEach(builder::installPlugin);
+
         rowMappers.forEach(builder::registerRowMapper);
         qualifiedRowMappers.forEach(builder::registerRowMapper);
 
@@ -77,8 +81,6 @@ public class InternalGuiceJdbiCustomizer implements GuiceJdbiCustomizer {
 
         builder.registerColumnMapper(codecFactory);
         builder.registerArgument(codecFactory);
-
-        plugins.forEach(builder::installPlugin);
 
         arrayTypes.forEach(builder::registerArrayType);
         customizers.forEach(c -> c.customize(builder));

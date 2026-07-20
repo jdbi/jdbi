@@ -16,8 +16,6 @@ package org.jdbi.core;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -680,7 +678,6 @@ public class Jdbi implements ConfigReader {
     public static final class Builder implements Configurable<Builder> {
 
         private final Jdbi jdbi;
-        private final List<JdbiPlugin> plugins = new ArrayList<>();
 
         Builder(final Jdbi jdbi) {
             this.jdbi = jdbi;
@@ -694,17 +691,17 @@ public class Jdbi implements ConfigReader {
         }
 
         /**
-         * Installs a {@link JdbiPlugin} to be applied when {@link #build()} is called. Plugins are applied in the
-         * order installed.
+         * Installs a {@link JdbiPlugin}, running its {@link JdbiPlugin#configure(Builder)} immediately (a plugin is
+         * applied at most once). Applying it now, rather than deferring to {@link #build()}, means configuration the
+         * caller registers <em>after</em> installing a plugin takes precedence over the plugin's, matching the
+         * install-order semantics of Jdbi 3.
          *
          * @param plugin the plugin to install
          * @return this builder
          */
         public Builder installPlugin(final JdbiPlugin plugin) {
             Objects.requireNonNull(plugin, "null plugin");
-            if (!plugins.contains(plugin)) {
-                plugins.add(plugin);
-            }
+            jdbi.applyPlugin(this, plugin);
             return this;
         }
 
@@ -753,20 +750,12 @@ public class Jdbi implements ConfigReader {
         }
 
         /**
-         * Applies the installed plugins and returns the assembled {@link Jdbi}. Each plugin's
-         * {@link JdbiPlugin#configure(Builder)} runs, in install order. A plugin may itself install further plugins
-         * (via {@link #installPlugin(JdbiPlugin)} from its {@code configure} hook); those are drained and applied in
-         * turn, each at most once.
+         * Returns the assembled {@link Jdbi}. Plugins have already run their {@link JdbiPlugin#configure(Builder)}
+         * as they were installed (see {@link #installPlugin(JdbiPlugin)}), so this simply hands back the instance.
          *
          * @return the assembled {@code Jdbi}
          */
         public Jdbi build() {
-            // Drain by index: a plugin's configure() may install further plugins, growing the list mid-drain.
-            // applyPlugin() installs-if-absent so a plugin pulled in by two others is still applied once.
-            int i = 0;
-            while (i < plugins.size()) {
-                jdbi.applyPlugin(this, plugins.get(i++));
-            }
             return jdbi;
         }
     }
