@@ -543,6 +543,10 @@ For a one-off plugin, `JdbiPlugin.of(builder -> builder.registerRowMapper(new Us
 The connection-time hooks are unchanged in spirit: `customizeConnection(Connection)` and `customizeHandle(Handle)` remain.
 Per-connection setup that needs the live `Connection` and reads `Jdbi`-level config -- binding driver-specific types, say -- moves to the renamed `customizeHandleConnection(Connection, ConfigView)` hook (formerly `customizeHandleConfig`; see the next section).
 
+`installPlugin` applies a plugin immediately, so configuration you register on the builder _after_ installing a plugin takes precedence over the plugin's, as it did in Jdbi 3. Install plugins before registering the configuration that should win. (The Guice module and Spring `JdbiFactoryBean` follow this order internally, so module-bound mappers and defines override plugin defaults.)
+
+Spring `JdbiFactoryBean` no longer exposes `autoInstallPlugins`; set the plugins explicitly with `setPlugins(...)`. A bean definition that still sets the `autoInstallPlugins` property fails with `NotWritablePropertyException` and must drop it.
+
 === Per-handle configuration
 
 `Handle` no longer implements `Configurable`, and in Jdbi 4 a handle carries no configuration of its own: it is only a connection plus its transaction state.

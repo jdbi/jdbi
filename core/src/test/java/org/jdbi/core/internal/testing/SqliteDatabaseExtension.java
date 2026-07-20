@@ -115,13 +115,15 @@ public final class SqliteDatabaseExtension implements DatabaseExtension<SqliteDa
     public Jdbi.Builder builder() throws Exception {
         final Jdbi.Builder builder = Jdbi.builder(uri);
 
-        installTestPlugins(builder);
-        plugins.forEach(builder::installPlugin);
-
+        // Register the leak checker before installing plugins so its listeners run first: it must see a context
+        // created before a plugin listener adds a cleanable to it (installPlugin applies a plugin immediately).
         if (enableLeakchecker) {
             builder.configure(Handles.class, c -> c.addListener(leakChecker));
             builder.configure(SqlStatements.class, c -> c.addContextListener(leakChecker));
         }
+
+        installTestPlugins(builder);
+        plugins.forEach(builder::installPlugin);
 
         return builder;
     }

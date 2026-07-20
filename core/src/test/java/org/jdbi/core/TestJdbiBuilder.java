@@ -82,7 +82,7 @@ public class TestJdbiBuilder {
     }
 
     @Test
-    public void buildDrainsPluginsInstalledDuringConfigure() {
+    public void appliesSubPluginInstalledDuringConfigure() {
         final RowMapper<String> mapper = (rs, ctx) -> "from-sub";
         final JdbiPlugin sub = JdbiPlugin.of(b -> b.registerRowMapper(String.class, mapper));
         final JdbiPlugin parent = new JdbiPlugin() {
@@ -139,6 +139,22 @@ public class TestJdbiBuilder {
         Jdbi.builder(url()).installPlugin(first).installPlugin(second).build();
 
         assertThat(configureCount).hasValue(1);
+    }
+
+    @Test
+    public void callerConfigRegisteredAfterPluginTakesPrecedence() {
+        // A plugin registers a mapper for String; the caller registers a different one AFTER installing the
+        // plugin. installPlugin applies the plugin immediately, so the caller's later registration wins -- the
+        // install-order precedence of Jdbi 3, not the "plugins always last" inversion of the deferred model.
+        final JdbiPlugin plugin = JdbiPlugin.of(b -> b.registerRowMapper(String.class, (rs, ctx) -> "from-plugin"));
+        final Jdbi jdbi = Jdbi.builder(url())
+                .installPlugin(plugin)
+                .registerRowMapper(String.class, (rs, ctx) -> "from-caller")
+                .build();
+
+        try (Handle h = jdbi.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("from-caller");
+        }
     }
 
     @Test

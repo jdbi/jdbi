@@ -367,11 +367,14 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
      */
     public final Jdbi.Builder builder() throws Exception {
         final Jdbi.Builder builder = Jdbi.builder(getDataSource());
-        plugins.forEach(builder::installPlugin);
+        // Register the leak checker before installing plugins, so its handle/context listeners run first: it must
+        // see a context created before a plugin listener adds a cleanable to it. (installPlugin applies a plugin
+        // immediately, so a plugin installed first would otherwise register its listeners ahead of the checker.)
         if (enableLeakchecker) {
             builder.configure(Handles.class, h -> h.addListener(leakChecker));
             builder.configure(SqlStatements.class, s -> s.addContextListener(leakChecker));
         }
+        plugins.forEach(builder::installPlugin);
         return builder;
     }
 
