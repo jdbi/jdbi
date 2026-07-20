@@ -207,27 +207,27 @@ This is a quick overview of the existing modules and their function:
 ===== Common modules
 
 [glossary]
-jdbi3-core::
+jdbi-core::
 The core Jdbi library.
 Required by all other components.
-jdbi3-sqlobject::
+jdbi-sqlobject::
 SQL Object extension for declarative database access.
 
 ===== Testing support
 
 [glossary]
-jdbi3-testing::
+jdbi-testing::
 Testing framework support.
 Currently, only supports modern JUnit (5+).
 
-jdbi3-testcontainers::
+jdbi-testcontainers::
 Support for arbitrary databases running in https://testcontainers.org/[Testcontainers^].
 Currently, only supports modern JUnit (5+).
 
 ===== Telemetry support
 
 [glossary]
-jdbi3-opentelemetry::
+jdbi-opentelemetry::
 OpenTelemetry tracing support
 
 ===== External data types and libraries
@@ -235,11 +235,11 @@ OpenTelemetry tracing support
 The core module contains support for the https://immutables.github.io/[Immutables^] library.
 
 [glossary]
-jdbi3-guava::
+jdbi-guava::
 Support for https://guava.dev/[Google Guava^] collection and Optional types.
-jdbi3-jodatime2::
+jdbi-jodatime2::
 Support for https://www.joda.org/joda-time/[JodaTime v2^] data types.
-jdbi3-vavr::
+jdbi-vavr::
 Support for https://www.vavr.io/[Vavr^] Tuples, Collections and Value arguments.
 
 ===== JSON Mapping
@@ -247,23 +247,23 @@ Support for https://www.vavr.io/[Vavr^] Tuples, Collections and Value arguments.
 Support for various JSON libraries to map data from the database onto JSON types and vice versa.
 
 [glossary]
-jdbi3-jackson2::
+jdbi-jackson2::
 Support for https://github.com/FasterXML/jackson[Jackson v2^].
-jdbi3-jackson3::
+jdbi-jackson3::
 Support for https://github.com/FasterXML/jackson[Jackson v3^].
-jdbi3-gson::
+jdbi-gson2::
 Support for https://github.com/google/gson[Google Gson^].
-jdbi3-moshi::
+jdbi-moshi::
 Support for https://github.com/square/moshi[Square Moshi^].
 
 ===== Frameworks
 
 [glossary]
-jdbi3-guice::
+jdbi-guice::
 Support dependency injection and modules with https://github.com/google/guice[Google Guice^].
-jdbi3-spring::
+jdbi-spring::
 Provides support for all https://spring.io/[Spring Framework^] versions that are under OSS support.
-jdbi3-jpa::
+jdbi-jpa::
 Some support for https://www.oracle.com/java/technologies/persistence-jsp.html[JPA^] annotations.
 
 ===== Database specific types and functions
@@ -272,13 +272,13 @@ While Jdbi supports _any_ data source that has a `JDBC` driver "out of the box",
 Some databases have additional data types and mappings, and support is added using the following modules:
 
 [glossary]
-jdbi3-postgres::
+jdbi-postgres::
 Support for https://www.postgresql.org/[Postgres^] data types.
-jdbi3-sqlite::
+jdbi-sqlite::
 Support for https://www.sqlite.org/index.html[sqlite^] data types.
-jdbi3-oracle12::
+jdbi-oracle12::
 Support Oracle returning DML statements.
-jdbi3-postgis::
+jdbi-postgis::
 Support for https://postgis.net/[PostGIS^] types.
 
 ===== SQL rendering
@@ -288,19 +288,19 @@ Unless explicitly configured, Jdbi uses a simple render engine that replaces `<.
 It is possible to replace this engine with other template engines.
 
 [glossary]
-jdbi3-stringtemplate4::
+jdbi-stringtemplate4::
 Use the https://www.stringtemplate.org/[StringTemplate 4^] template engine to render SQL statements.
-jdbi3-commons-text::
+jdbi-commons-text::
 Use https://commons.apache.org/proper/commons-text/[Apache Commons Text^] to render SQL statements.
-jdbi3-freemarker::
+jdbi-freemarker::
 Use https://freemarker.apache.org/[Apache Freemarker^] to render SQL statements.
 
 ===== Cache support
 
 [glossary]
-jdbi3-caffeine-cache::
+jdbi-caffeine-cache::
 Use the https://github.com/ben-manes/caffeine[Caffeine^] caching library for SQL template and parse caching.
-jdbi3-noop-cache::
+jdbi-noop-cache::
 Turn off SQL template and parse caching for testing and debugging.
 jdbi3-guava-cache::
 Use the https://github.com/google/guava/wiki/CachesExplained[Guava Cache^] caching library for SQL template and parse caching.
@@ -316,9 +316,9 @@ For Jdbi, Java is a first class citizen.
 We provide additonal modules for other JVM languages such as <<Kotlin>> that allow more idiomatic access to Jdbi functionality.
 
 [glossary]
-jdbi3-kotlin::
+jdbi-kotlin::
 Automatically map Kotlin data classes.
-jdbi3-kotlin-sqlobject::
+jdbi-kotlin-sqlobject::
 Kotlin support for the SQL Object extension.
 
 ==== External modules
@@ -424,7 +424,7 @@ Jdbi components are declared without versions:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-core")
+    implementation("org.jdbi:jdbi-core")
 }
 ----
 
@@ -451,7 +451,7 @@ These classes and interfaces may be used across the Jdbi code base and can chang
 
 ==== Mixing Jdbi component versions
 
-There is no guarantee that Jdbi components of different versions (e.g. `jdbi3-core` version 1.2.3 and `jdbi-sqlobject` version 1.3.1) work together.
+There is no guarantee that Jdbi components of different versions (e.g. `jdbi-core` version 1.2.3 and `jdbi-sqlobject` version 1.3.1) work together.
 Jdbi versioning is the *public API* exposed to consumers.
 All Jdbi components used in a project or service should use the same version.
 See the section on <<Build tools>> on how to use the BOM module to provide consistent versions for all components.
@@ -3831,7 +3831,7 @@ link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^]) to locate SQL s
 
 | link:{jdbidocs}/json/JsonConfig.html[JsonConfig^] | jsonMapper
 | link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] | see description
-| Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi3-gson2`, `jdbi3-jackson2`, `jdbi3-jackson3`, or `jdbi3-moshi` plugin, this is automatically set to the provided implementation.
+| Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi-gson2`, `jdbi-jackson2`, `jdbi-jackson3`, or `jdbi-moshi` plugin, this is automatically set to the provided implementation.
 
 If none of these modules is loaded, it defaults to an implementation that throws an exception whenever serialization or deserialization is attempted.
 
@@ -4020,7 +4020,7 @@ For Apache Maven:
 <dependencies>
     <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-sqlobject</artifactId>
+        <artifactId>jdbi-sqlobject</artifactId>
         <version>{project_version}</version>
     </dependency>
 </dependencies>
@@ -5977,10 +5977,10 @@ Also, arrays cannot be qualified.
 
 These features currently make use of qualified types:
 
-- `@NVarchar` and `@MacAddr` (the latter in `jdbi3-postgres`) bind and map Strings as `nvarchar` and `macaddr`
+- `@NVarchar` and `@MacAddr` (the latter in `jdbi-postgres`) bind and map Strings as `nvarchar` and `macaddr`
 respectively, instead of the usual `varchar`.
-- `jdbi3-postgres` offers <<postgres-hstore,HStore>>.
-- <<jdbi3-json,JSON>>
+- `jdbi-postgres` offers <<postgres-hstore,HStore>>.
+- <<jdbi-json,JSON>>
 - link:{jdbidocs}/core/mapper/reflect/BeanMapper.html[BeanMapper^], link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^], link:{jdbidocs}/sqlobject/config/RegisterBeanMapper.html[@RegisterBeanMapper^], `mapTobean()`, and
 link:{jdbidocs}/core/statement/SqlStatement.html#bindBean(java.lang.Object)[bindBean()^] respect qualifiers on getters, setters, and setter parameters.
 - `ConstructorMapper` and link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] respect qualifiers on constructor parameters.
@@ -6174,9 +6174,9 @@ Jdbi provides link:{jdbidocs}/core/cache/package-summary.html[a cache SPI^] for 
 
 The following cache implementations are included:
 
-- `jdbi3-caffeine-cache` - Using the https://github.com/ben-manes/caffeine[Caffeine^] cache library.
+- `jdbi-caffeine-cache` - Using the https://github.com/ben-manes/caffeine[Caffeine^] cache library.
 This used to be the default cache up to version 3.36.0
-- `jdbi3-noop-cache`, - Disables caching.
+- `jdbi-noop-cache`, - Disables caching.
 This is useful for testing and debugging.
 
 A cache module can provide a plugin to enable it.
@@ -6225,7 +6225,7 @@ These are only intended for Jdbi internal use and not part of the official, publ
 
 === JUnit
 
-The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/junit/JdbiExtension.html[JdbiExtension^] for JUnit based tests.
+The `jdbi-testing` artifact provides link:{jdbidocs}/testing/junit/JdbiExtension.html[JdbiExtension^] for JUnit based tests.
 
 It supports both the https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^] and https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] annotations.
 
@@ -6458,7 +6458,7 @@ Configuration to limit large amounts of data recorded is available on the `SqlSt
 
 The link:https://opentelemetry.io/[OpenTelemetry^] project provides a SDK to implement distributed tracing.
 Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^]
-from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data similarly as JFR events above.
+from the `jdbi-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data similarly as JFR events above.
 Additionally, it will add the trace id to JFR events.
 
 == Third-Party Integration
@@ -6481,7 +6481,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-guava</artifactId>
+    <artifactId>jdbi-guava</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6491,7 +6491,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-guava:{project_version}")
+    implementation("org.jdbi:jdbi-guava:{project_version}")
 }
 ----
 
@@ -6526,17 +6526,17 @@ Jdbi jdbi = Jdbi.builder(dataSource)
     .build();
 ----
 
-[[jdbi3-json]]
+[[jdbi-json]]
 === JSON
 
-The `jdbi3-json` module adds a link:{jdbidocs}/json/Json.html[@Json^] type qualifier that allows to store arbitrary Java objects as JSON data in your database.
+The `jdbi-json` module adds a link:{jdbidocs}/json/Json.html[@Json^] type qualifier that allows to store arbitrary Java objects as JSON data in your database.
 
 The actual JSON (de)serialization code is not included.
 For that, you must install a backing plugin (see below).
 
 [TIP]
 Backing plugins will install the `JsonPlugin` for you.
-You do *not* need to install it yourself or include the `jdbi3-json` dependency directly.
+You do *not* need to install it yourself or include the `jdbi-json` dependency directly.
 
 The feature has been tested with Postgres `json` columns and `varchar` columns in H2 and Sqlite.
 
@@ -6550,7 +6550,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-jackson2</artifactId>
+    <artifactId>jdbi-jackson2</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6560,7 +6560,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-jackson2:{project_version}")
+    implementation("org.jdbi:jdbi-jackson2:{project_version}")
 }
 ----
 
@@ -6586,7 +6586,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-jackson3</artifactId>
+    <artifactId>jdbi-jackson3</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6596,7 +6596,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-jackson3:{project_version}")
+    implementation("org.jdbi:jdbi-jackson3:{project_version}")
 }
 ----
 
@@ -6622,7 +6622,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-gson2</artifactId>
+    <artifactId>jdbi-gson2</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6632,7 +6632,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-gson2:{project_version}")
+    implementation("org.jdbi:jdbi-gson2:{project_version}")
 }
 ----
 
@@ -6656,7 +6656,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-moshi</artifactId>
+    <artifactId>jdbi-moshi</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6666,7 +6666,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-moshi:{project_version}")
+    implementation("org.jdbi:jdbi-moshi:{project_version}")
 }
 ----
 
@@ -6775,7 +6775,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-jodatime2</artifactId>
+    <artifactId>jdbi-jodatime2</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6785,7 +6785,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-jodatime2:{project_version}")
+    implementation("org.jdbi:jdbi-jodatime2:{project_version}")
 }
 ----
 
@@ -6819,7 +6819,7 @@ They are most useful in larger projects.
 For a long time, Java used the https://javax-inject.github.io/javax-inject/[JSR-330^] annotations in the `javax.inject` namespace to define dependency injections.
 The https://jakarta.ee/release/9/[Java Enterprise Edition 9^] specification updated the dependency injection specification to https://jakarta.ee/specifications/dependency-injection/2.0/[version 2.0^], which changed the namespace to `jakarta.inject`.
 
-The `jdbi3-guice` module supports all Google Guice releases since 5.x including 6.x (which uses `javax.inject` annotations) and 7.x (which uses `jakarta.inject`).
+The `jdbi-guice` module supports all Google Guice releases since 5.x including 6.x (which uses `javax.inject` annotations) and 7.x (which uses `jakarta.inject`).
 
 ==== Definition modules
 
@@ -7501,7 +7501,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-jpa</artifactId>
+    <artifactId>jdbi-jpa</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7511,7 +7511,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-jpa:{project_version}")
+    implementation("org.jdbi:jdbi-jpa:{project_version}")
 }
 ----
 
@@ -7565,17 +7565,17 @@ Honestly though... just tear off the bandage and switch to Jdbi proper.
 
 === Kotlin
 
-https://kotlinlang.org/[Kotlin^] support is provided by *jdbi3-kotlin* and *jdbi3-kotlin-sqlobject* modules.
+https://kotlinlang.org/[Kotlin^] support is provided by *jdbi-kotlin* and *jdbi-kotlin-sqlobject* modules.
 
 Kotlin API documentation:
 
-* link:apidocs-kotlin/jdbi3-kotlin/index.html[jdbi3-kotlin^]
-* link:apidocs-kotlin/jdbi3-kotlin-sqlobject/index.html[jdbi3-kotlin-sqlobject^]
+* link:apidocs-kotlin/jdbi-kotlin/index.html[jdbi-kotlin^]
+* link:apidocs-kotlin/jdbi-kotlin-sqlobject/index.html[jdbi-kotlin-sqlobject^]
 
 
 ==== ResultSet Mapping
 
-The *jdbi3-kotlin* plugin adds mapping support for Kotlin data classes.
+The *jdbi-kotlin* plugin adds mapping support for Kotlin data classes.
 
 Data classes where all fields are present in the constructor and classes with writable properties are supported.
 Nullable types are supported.
@@ -7590,7 +7590,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-kotlin</artifactId>
+    <artifactId>jdbi-kotlin</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7600,7 +7600,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-kotlin:{project_version}")
+    implementation("org.jdbi:jdbi-kotlin:{project_version}")
 }
 ----
 
@@ -7747,7 +7747,7 @@ val result = handle.createQuery("SELECT id, planet, moon FROM orbits")
 
 ==== SqlObject
 
-The *jdbi3-kotlin-sqlobject* plugin adds automatic parameter binding by name for Kotlin methods in SqlObjects as well as support for Kotlin default methods.
+The *jdbi-kotlin-sqlobject* plugin adds automatic parameter binding by name for Kotlin methods in SqlObjects as well as support for Kotlin default methods.
 
 To use it, add a dependency:
 
@@ -7757,7 +7757,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-kotlin-sqlobject</artifactId>
+    <artifactId>jdbi-kotlin-sqlobject</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7767,7 +7767,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-kotlin-sqlobject:{project_version}")
+    implementation("org.jdbi:jdbi-kotlin-sqlobject:{project_version}")
 }
 ----
 
@@ -7966,7 +7966,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-oracle12</artifactId>
+    <artifactId>jdbi-oracle12</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7976,7 +7976,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-oracle12:{project_version}")
+    implementation("org.jdbi:jdbi-oracle12:{project_version}")
 }
 ----
 
@@ -7988,7 +7988,7 @@ to get the returned DML.
 
 === PostgreSQL
 
-The *jdbi3-postgres* plugin provides enhanced integration with the
+The *jdbi-postgres* plugin provides enhanced integration with the
 https://jdbc.postgresql.org/[PostgreSQL JDBC Driver^].
 
 To use this feature, add a dependency:
@@ -7999,7 +7999,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-postgres</artifactId>
+    <artifactId>jdbi-postgres</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8009,7 +8009,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-postgres:{project_version}")
+    implementation("org.jdbi:jdbi-postgres:{project_version}")
 }
 ----
 
@@ -8163,7 +8163,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-spring</artifactId>
+    <artifactId>jdbi-spring</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8173,7 +8173,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-spring:{project_version}")
+    implementation("org.jdbi:jdbi-spring:{project_version}")
 }
 ----
 
@@ -8339,7 +8339,7 @@ public class UserService {
 
 === SQLite
 
-The *jdbi3-sqlite* plugin provides support for using the https://github.com/xerial/sqlite-jdbc[SQLite JDBC Driver^] with Jdbi.
+The *jdbi-sqlite* plugin provides support for using the https://github.com/xerial/sqlite-jdbc[SQLite JDBC Driver^] with Jdbi.
 
 The plugin configures support for some data types, e.g. link:{jdkdocs}/java.base/java/net/URL.html[URL^].
 
@@ -8351,7 +8351,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-sqlite</artifactId>
+    <artifactId>jdbi-sqlite</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8361,7 +8361,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-sqlite:{project_version}")
+    implementation("org.jdbi:jdbi-sqlite:{project_version}")
 }
 ----
 
@@ -8386,7 +8386,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-stringtemplate4</artifactId>
+    <artifactId>jdbi-stringtemplate4</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8396,7 +8396,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-stringtemplate4:{project_version}")
+    implementation("org.jdbi:jdbi-stringtemplate4:{project_version}")
 }
 ----
 
@@ -8535,7 +8535,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-freemarker</artifactId>
+    <artifactId>jdbi-freemarker</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8545,7 +8545,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-freemarker:{project_version}")
+    implementation("org.jdbi:jdbi-freemarker:{project_version}")
 }
 ----
 
@@ -8682,7 +8682,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-vavr</artifactId>
+    <artifactId>jdbi-vavr</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8692,7 +8692,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-vavr:{project_version}")
+    implementation("org.jdbi:jdbi-vavr:{project_version}")
 }
 ----
 
@@ -9966,7 +9966,7 @@ Most users will not need to implement the *ResultProducer* interface.
 === Jdbi SQL object code generator
 
 Jdbi includes an experimental SqlObject code generator.
-If you include the `jdbi3-generator` artifact as an annotation processor and annotate your SqlObject definitions with `@GenerateSqlObject`, the generator will produce an implementing class and avoids using
+If you include the `jdbi-generator` artifact as an annotation processor and annotate your SqlObject definitions with `@GenerateSqlObject`, the generator will produce an implementing class and avoids using
 link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] instances.
 
 === GraalVM Native Image
@@ -10095,8 +10095,8 @@ And then measure again to be sure it made a difference.
 === API Reference
 
 * link:apidocs/index.html[Javadoc^]
-* link:apidocs-kotlin/jdbi3-kotlin/index.html[jdbi3-kotlin^]
-* link:apidocs-kotlin/jdbi3-kotlin-sqlobject/index.html[jdbi3-kotlin-sqlobject^]
+* link:apidocs-kotlin/jdbi-kotlin/index.html[jdbi-kotlin^]
+* link:apidocs-kotlin/jdbi-kotlin-sqlobject/index.html[jdbi-kotlin-sqlobject^]
 
 === Related Projects
 
@@ -10119,7 +10119,7 @@ General:
 
 * Maven artifacts renamed and split out:
 * Old: `org.jdbi:jdbi`
-* New: `org.jdbi:jdbi3-core`, `org.jdbi:jdbi3-sqlobject`, etc.
+* New: `org.jdbi:jdbi-core`, `org.jdbi:jdbi-sqlobject`, etc.
 * Root package renamed: `org.skife.jdbi.v2` -> `org.jdbi`
 
 Core API:
