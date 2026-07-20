@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below). **LATEST: see "## SESSION 2026-07-20" — the phase-5 engine unification is DONE (one `SqlStatement.internalExecute` for classic + template, `QueryTemplateBinding` deleted, JFR now on the template path, `ConfigRegistry` lazy maps) and `QueryTemplate` is renamed to `StatementTemplate` with terminal-picks-kind (query or update from `with(handle)`); whole reactor green (41 modules). The prior "## SESSION 2026-07-19b" recommended this unification.**
+## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below). **LATEST: see "## SESSION 2026-07-20" — the phase-5 engine unification is DONE (one `SqlStatement.internalExecute` for classic + template, `QueryTemplateBinding` deleted, JFR now on the template path, `ConfigRegistry` lazy maps) and `QueryTemplate` is renamed to `StatementTemplate` with terminal-picks-kind (query or update from `with(handle)`) plus `call(handle)`/`prepareBatch(handle)` accessors so one template materializes as any parameterized kind (Tier 1 DONE). The ONE remaining piece to "finish v4" is Tier 2: SQL Object `@SqlUpdate`/`@SqlCall`/`@SqlBatch` adopting templates (handoff written in the SESSION 2026-07-20 section — its own benchmark-validated session). Whole reactor green (41 modules). The prior "## SESSION 2026-07-19b" recommended this unification.**
 
 > **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
 > (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
@@ -809,16 +809,42 @@ is unaffected (slightly better).
 - `StatementTemplate.with(handle)` returns a `Query` that now also carries the update terminals
   (`execute()`→int, `executeLarge()`→long, `executeAndReturnGeneratedKeys(String...)`), so which terminal
   you call picks query vs update — the "one template, terminal picks the kind" shape.
-- DELIBERATELY NOT added (API minimalism, demand-driven): reusable `Call`/`PreparedBatch` template
-  accessors, and SQL Object `@SqlUpdate`/`@SqlCall` template adoption — trivial follow-ons if a hot-loop
-  case appears. `Script`/plain `Batch` stay out of scope (no named params / one-shot DDL).
+- `Script`/plain `Batch` stay out of scope (no named params / one-shot DDL).
 - Docs (`index.adoc`): prose generalized query→statement + an update-via-template example added.
 
+**Tier 1 — reusable Call/PreparedBatch template accessors — DONE (same session, committed).** The
+maintainer directed "v4 finishes the work, not minimal." `Call` and `PreparedBatch` each got the same
+package-private reuse-mode ctor `(Handle, ConfigView, CharSequence, String renderedSql, ParsedSql)` that
+`Query` has, and `StatementTemplate` gained `call(handle)` → `Call` and `prepareBatch(handle)` →
+`PreparedBatch` (alongside `with(handle)` → `Query` for query/update). So one template materializes as any
+parameterized kind. Update needs nothing extra — `with(handle).…execute()` already runs an update.
+Tests: `TestStatementTemplates.testPreparedBatchViaTemplate` (H2), `TestCallable.testCallViaTemplate`
+(PG stored proc, reusable). `index.adoc` documents `call()`/`prepareBatch()`.
+
+**Tier 2 — SQL Object adopts templates for `@SqlUpdate`/`@SqlCall`/`@SqlBatch` — HANDOFF (do as its own
+focused, benchmark-validated session).** Today only `@SqlQuery` builds a `StatementTemplate` per attach
+(`SqlQueryHandler`, memoized, CONFIGURE customizers baked into the snapshot, per-invocation `with(handle)`
++ BIND customizers); `@SqlUpdate`/`@SqlCall`/`@SqlBatch` still build a classic statement per invocation
+(`SqlUpdateHandler`/`SqlCallHandler`/`SqlBatchHandler.createStatement` → `handle.createUpdate/createCall/
+prepareBatch`). Bring them onto the template the way `SqlQueryHandler` does, so each per-request
+invocation skips render+parse+config-snapshot:
+  - **`@SqlUpdate`:** mirror `SqlQueryHandler` — memoize a `StatementTemplate` per attach; per invocation
+    `template.with(handle)` (returns a `Query`, which now has `execute()`/`executeLarge()`/
+    `executeAndReturnGeneratedKeys`), route the existing update returners through it. Respect the phase
+    model (CONFIGURE baked once; BIND per-invocation; `ConfigMutating`/LATE → classic fallback).
+  - **`@SqlCall`:** same, but `template.call(handle)` (needs `createCall`); returner is `Call.invoke()`.
+  - **`@SqlBatch`:** `SqlBatchHandler` fully overrides `attachTo` for chunked execution — use
+    `template.prepareBatch(handle)` for the per-chunk binding; keep the chunking loop. Most involved.
+  - **VALIDATE, don't assume:** A/B benchmark each (extend the sqlobject benchmarks — an attach/per-op
+    variant). The 19b analysis: reusable *update* templates win for per-request single updates, but bulk
+    loops still favor `PreparedBatch` — measure that the SQL Object per-invocation path actually benefits
+    before committing. Watch the `Customizable<?>` `statementFactory` seam (SqlQueryHandler L58-72) and
+    `configureReturner`'s `ResultBearing`/type casts.
+
 **Follow-ons noted:** (1) the abandoned JFR lazy-gate is genuinely not worth doing (event is
-scalar-replaced when disabled); (2) reusable Call/Batch/Update templates + SQL Object adoption remain
-demand-driven; (3) `## Upgrading to Jdbi v4` and the `## SESSION 2026-07-19b` benchmark tables still say
-`QueryTemplate` / `QueryTemplateBenchmark` — sweep those names to `StatementTemplate` when the guide is
-lifted into `index.adoc` at release.
+scalar-replaced when disabled); (2) `## Upgrading to Jdbi v4` and the `## SESSION 2026-07-19b` benchmark
+tables still say `QueryTemplate` / `QueryTemplateBenchmark` — sweep those names to `StatementTemplate`
+when the guide is lifted into `index.adoc` at release.
 
 ## What actually remains (2026-07-19)
 

@@ -642,6 +642,8 @@ StatementTemplate insert = jdbi.buildStatementTemplate("INSERT INTO users (id, n
 int rows = insert.with(handle).bind("id", id).bind("name", name).execute();
 ----
 
+For stored procedures and batches, `template.call(handle)` returns a `Call` and `template.prepareBatch(handle)` returns a `PreparedBatch` bound to the same reusable template.
+
 Fixing the result type with `mapTo(type)` on the template resolves the row mapper once, at build time, so each execution skips even that lookup.
 This yields a further small allocation and throughput improvement for a hot, single-shape query:
 

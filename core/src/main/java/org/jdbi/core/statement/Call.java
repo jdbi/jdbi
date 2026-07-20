@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.argument.Argument;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.exceptions.Sneaky;
 import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.internal.ResultSetSupplier;
@@ -55,6 +56,15 @@ public class Call extends SqlStatement<Call> {
      */
     public Call(Handle handle, String sql) {
         super(handle, sql);
+    }
+
+    /**
+     * Reuse-mode constructor used by a reusable template ({@code StatementTemplate.call(handle)}): the SQL was
+     * rendered and parsed once against {@code config} and is reused (see {@link SqlStatement#parseSql()})
+     * unless this execution mutates its configuration.
+     */
+    Call(Handle handle, ConfigView config, CharSequence sql, String renderedSql, ParsedSql parsedSql) {
+        super(handle, config, sql, renderedSql, parsedSql);
     }
 
     @Override

@@ -379,4 +379,23 @@ public class TestStatementTemplates {
         assertThat(names.with(h).results().list()).containsExactly("eric", "brian");
     }
 
+    @Test
+    public void testPreparedBatchViaTemplate() {
+        final Handle h = h2Extension.getSharedHandle();
+
+        final var template = h.getJdbi()
+            .buildStatementTemplate("insert into something (id, name) values (:id, :name)");
+
+        final int[] counts = template.prepareBatch(h)
+            .add(Map.of("id", 1, "name", "eric"))
+            .add(Map.of("id", 2, "name", "brian"))
+            .execute();
+        assertThat(counts).containsExactly(1, 1);
+
+        // Reused for a second batch execution against the same template.
+        template.prepareBatch(h).add(Map.of("id", 3, "name", "keith")).execute();
+
+        assertThat(h.createQuery("select count(*) from something").mapTo(int.class).one()).isEqualTo(3);
+    }
+
 }
