@@ -81,10 +81,15 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
                 try {
                     value = loader == null ? null : loader.create(key);
                 } catch (RuntimeException | Error e) {
-                    // The loader failed. Drop the placeholder node so a later call retries with a
-                    // fresh node, instead of finding this permanently-incomplete node and re-adding
-                    // it to the expunge queue (which would throw "Can not add node twice!"). The node
-                    // was never added to the expunge queue, since the value is computed first.
+                    // The loader failed. Complete the node's future exceptionally, then drop the node so a later
+                    // call retries with a fresh one. Completing it (rather than leaving it permanently incomplete)
+                    // is what prevents a thread already blocked on this node's monitor from re-running the loader
+                    // when it wakes: on success that thread would complete and expunge-enqueue a node no longer in
+                    // the cache map, orphaning it -- the orphan later evicts the live entry (one-arg remove(key))
+                    // and inflates the expunge queue. With the future completed, the waiter sees isDone() and
+                    // rethrows this failure instead. The node was never added to the expunge queue (the value is
+                    // computed first), so only the cache map needs cleaning up here.
+                    node.value.completeExceptionally(e);
                     cache.remove(key, node);
                     throw e;
                 }
