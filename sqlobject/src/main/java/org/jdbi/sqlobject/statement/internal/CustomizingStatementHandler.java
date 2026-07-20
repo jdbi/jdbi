@@ -43,6 +43,7 @@ import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.sqlobject.customizer.SqlStatementParameterCustomizer;
+import org.jdbi.sqlobject.customizer.StatementScoped;
 import org.jdbi.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.sqlobject.statement.UseRowMapper;
 import org.jdbi.sqlobject.statement.UseRowReducer;
@@ -105,11 +106,19 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
     }
 
     /**
-     * A customizer is {@link Phase#LATE} if it (or the factory that produced it) declares
-     * {@link ConfigMutating}; otherwise it runs in the given default phase.
+     * Determines when a customizer runs. A customizer that (or whose factory) declares
+     * {@link ConfigMutating} mutates configuration per invocation and runs {@link Phase#LATE} (classic
+     * path); one that declares {@link StatementScoped} operates on the live statement and runs
+     * {@link Phase#BIND} even at type/method level; otherwise it runs in the given default phase.
      */
     private static Phase phaseFor(SqlStatementCustomizerFactory factory, Object customizer, Phase defaultPhase) {
-        return factory instanceof ConfigMutating || customizer instanceof ConfigMutating ? Phase.LATE : defaultPhase;
+        if (factory instanceof ConfigMutating || customizer instanceof ConfigMutating) {
+            return Phase.LATE;
+        }
+        if (factory instanceof StatementScoped || customizer instanceof StatementScoped) {
+            return Phase.BIND;
+        }
+        return defaultPhase;
     }
 
     private static Stream<Annotation> annotationsFor(AnnotatedElement... elements) {

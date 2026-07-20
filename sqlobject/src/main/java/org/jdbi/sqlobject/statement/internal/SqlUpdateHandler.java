@@ -15,16 +15,19 @@ package org.jdbi.sqlobject.statement.internal;
 
 import java.lang.reflect.Method;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericTypes;
+import org.jdbi.core.internal.MemoizingSupplier;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.statement.Customizable;
-import org.jdbi.core.statement.Update;
+import org.jdbi.core.statement.Query;
+import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.sqlobject.UnableToCreateSqlObjectException;
 import org.jdbi.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.sqlobject.statement.UseRowMapper;
@@ -35,6 +38,7 @@ import static java.lang.String.format;
 public class SqlUpdateHandler extends CustomizingStatementHandler {
 
     private final WarmableResultTransformer resultTransformer;
+    private final boolean late;
 
     public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -55,17 +59,17 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
 
             this.resultTransformer = new WarmableResultTransformer() {
                 @Override
-                public Object apply(Update update) {
-                    var ctx = update.getContext();
+                public Object apply(Query query) {
+                    var ctx = query.getContext();
                     var elementType = resultReturner.elementType(ctx.getConfig());
-                    ResultBearing resultBearing = update.executeAndReturnGeneratedKeys(columnNames);
+                    ResultBearing resultBearing = query.executeAndReturnGeneratedKeys(columnNames);
 
                     UseRowMapper useRowMapper = method.getAnnotation(UseRowMapper.class);
                     ResultIterable<?> iterable = useRowMapper == null
                         ? resultBearing.mapTo(elementType)
                         : resultBearing.map(rowMapperFor(useRowMapper));
 
-                    return resultReturner.mappedResult(iterable, update.getContext());
+                    return resultReturner.mappedResult(iterable, query.getContext());
                 }
 
                 @Override
@@ -74,16 +78,19 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
                 }
             };
         } else if (isLong(method.getReturnType())) {
-            this.resultTransformer = Update::executeLarge;
+            this.resultTransformer = Query::executeLarge;
         } else if (isNumeric(method.getReturnType())) {
-            this.resultTransformer = Update::execute;
+            this.resultTransformer = Query::execute;
         } else if (isBoolean(method.getReturnType())) {
-            this.resultTransformer = update -> update.execute() > 0;
+            this.resultTransformer = query -> query.execute() > 0;
         } else {
             throw new UnableToCreateSqlObjectException(format(
                     "%s.%s method is annotated with @SqlUpdate and should return void, boolean, int, long, or have a @GetGeneratedKeys annotation, but is returning: %s",
                     method.getDeclaringClass().getSimpleName(), method.getName(), returnType));
         }
+
+        // A method whose customizer must mutate configuration per invocation runs on the classic path.
+        this.late = hasLateCustomizers();
     }
 
     @Override
@@ -92,14 +99,40 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
     }
 
     @Override
-    Update createStatement(Handle handle, String locatedSql) {
-        return handle.createUpdate(locatedSql);
+    Function<Handle, ? extends Customizable<?>> statementFactory(ConfigRegistry config, Supplier<String> locatedSql) {
+        if (late) {
+            // Classic path: a fresh Query per call, each with its own configuration copy.
+            return super.statementFactory(config, locatedSql);
+        }
+        // Fast path: build one template per attach, baking configure-phase customizers into its
+        // configuration snapshot once. Every call binds against a fresh, thread-confined binding.
+        final Supplier<StatementTemplate> template = MemoizingSupplier.of(() -> {
+            final ConfigRegistry templateConfig = config.createCopy();
+            applyConfigureCustomizers(new ConfigureStatement(templateConfig));
+            return new StatementTemplate(templateConfig, locatedSql.get());
+        });
+        return handle -> template.get().with(handle);
+    }
+
+    @Override
+    void applyPerInvocationCustomizers(Customizable<?> stmt, Object[] args) {
+        if (late) {
+            super.applyPerInvocationCustomizers(stmt, args);
+        } else {
+            // Configure-phase customizers are baked into the template; only bind per invocation.
+            applyCustomizers(stmt, args, Phase.BIND);
+        }
+    }
+
+    @Override
+    Query createStatement(Handle handle, String locatedSql) {
+        return handle.createQuery(locatedSql);
     }
 
     @Override
     void configureReturner(Customizable<?> stmt, SqlObjectStatementState state) {
-        final Update u = (Update) stmt;
-        state.setReturner(() -> resultTransformer.apply(u));
+        final Query query = (Query) stmt;
+        state.setReturner(() -> resultTransformer.apply(query));
     }
 
     private boolean isNumeric(Class<?> type) {
@@ -118,7 +151,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
     }
 
     @SuppressWarnings("PMD.ImplicitFunctionalInterface")
-    private interface WarmableResultTransformer extends Function<Update, Object> {
+    private interface WarmableResultTransformer extends Function<Query, Object> {
         default void warm(ConfigRegistry config) {}
     }
 }
