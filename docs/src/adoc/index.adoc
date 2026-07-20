@@ -601,7 +601,7 @@ The numbers below are `gc.alloc.rate.norm` (bytes allocated per operation, a det
 | 6104 B/op
 | 4208 B/op (-31%)
 
-| Reused `QueryTemplate`
+| Reused `StatementTemplate`
 | n/a
 | 3512 B/op (-43% vs classic 3.x)
 |===
@@ -622,16 +622,24 @@ The numbers below are `gc.alloc.rate.norm` (bytes allocated per operation, a det
 
 The largest win is the "one handle per request" pattern common in web services: a fresh handle now shares the `Jdbi`'s already-resolved mappers and extension metadata instead of rebuilding them on every open.
 
-=== New: reusable `QueryTemplate`
+=== New: reusable `StatementTemplate`
 
-Jdbi 4 adds `QueryTemplate`, a handle-independent, reusable query.
-It renders, parses, and snapshots configuration once, then executes against any handle without repeating that work -- useful for a hot query run many times:
+Jdbi 4 adds `StatementTemplate`, a handle-independent, reusable SQL statement.
+It renders, parses, and snapshots configuration once, then executes against any handle without repeating that work -- useful for a hot statement run many times:
 
 [source,java,indent=0]
 ----
-QueryTemplate template = jdbi.buildQueryTemplate("SELECT name FROM users WHERE id = :id");
+StatementTemplate template = jdbi.buildStatementTemplate("SELECT name FROM users WHERE id = :id");
 // reuse across handles/threads:
 String name = template.with(handle).bind("id", id).mapTo(String.class).one();
+----
+
+`with(handle)` returns a `Query`, and which terminal you call selects how the statement runs: a result operation such as `mapTo(type)` reads rows, while `execute()` runs it as an update and returns the modified-row count.
+
+[source,java,indent=0]
+----
+StatementTemplate insert = jdbi.buildStatementTemplate("INSERT INTO users (id, name) VALUES (:id, :name)");
+int rows = insert.with(handle).bind("id", id).bind("name", name).execute();
 ----
 
 Fixing the result type with `mapTo(type)` on the template resolves the row mapper once, at build time, so each execution skips even that lookup.
@@ -639,8 +647,8 @@ This yields a further small allocation and throughput improvement for a hot, sin
 
 [source,java,indent=0]
 ----
-MappedQueryTemplate<String> byId =
-    jdbi.buildQueryTemplate("SELECT name FROM users WHERE id = :id").mapTo(String.class);
+MappedStatementTemplate<String> byId =
+    jdbi.buildStatementTemplate("SELECT name FROM users WHERE id = :id").mapTo(String.class);
 // the mapper is already resolved; results() applies it with no per-call lookup:
 String name = byId.with(handle).bind("id", id).results().one();
 ----

@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below). **LATEST: see "## SESSION 2026-07-19b" (dev-guide inline-example migration DONE; classic-path-vs-QueryTemplate maintenance analysis + single-use benchmark) just above "## What actually remains".**
+## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below). **LATEST: see "## SESSION 2026-07-20" — the phase-5 engine unification is DONE (one `SqlStatement.internalExecute` for classic + template, `QueryTemplateBinding` deleted, JFR now on the template path, `ConfigRegistry` lazy maps) and `QueryTemplate` is renamed to `StatementTemplate` with terminal-picks-kind (query or update from `with(handle)`); whole reactor green (41 modules). The prior "## SESSION 2026-07-19b" recommended this unification.**
 
 > **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
 > (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
@@ -756,6 +756,69 @@ terminal: resultset / updateCount / out-params / `executeBatch`). Two ORTHOGONAL
 Caution to document when update-templates land: for BULK update loops, `PreparedBatch` usually beats N reused-update
 executions (JDBC batching amortizes the round-trip, which dominates per-exec allocation) — the update-template win is
 for repeated *single* updates (per-request upsert), not "insert 10k rows".
+
+## SESSION 2026-07-20 — engine unified + `QueryTemplate` renamed to `StatementTemplate`
+
+The phase-5 engine unification recommended in SESSION 2026-07-19b is DONE, and the reusable-template
+type is generalized + renamed. Whole reactor green (41 modules, ~4888 test executions; static analysis
+clean on the changed modules core/sqlobject/benchmark; docs render clean). All on `query-templates`.
+
+**Stage A — one execution engine (maintainability win + JFR fix).**
+- `QueryTemplateBinding` DELETED (−239 LOC). Its query-specialized fork of the pipeline is gone; the
+  reusable template now executes through the SAME `SqlStatement.internalExecute()` as the classic path.
+- `StatementTemplate.with(handle)` returns a real `Query` built in "reuse mode": a package-private
+  `SqlStatement`/`Query` ctor takes `(ConfigView parentConfig snapshot, cached renderedSql, cached
+  ParsedSql)`. `BaseStatement` ctor generalized to `BaseStatement(Handle, ConfigView parentConfig)`; the
+  2-arg ctor delegates with `handle.getConfig()`. `StatementContext.config` stays final (child computed
+  before ctx creation).
+- `parseSql()` carries the ONE input difference (~5 lines): reuse the cached ParsedSql iff
+  `cachedParsedSql != null && ctx.getConfig().isUnforked()`; else render+parse. Exact because both the
+  fluent `configure` and `StatementContext.define` fork the COW child via `ConfigRegistry.install()`.
+- Shared prologue `SqlStatement.prepareStatement(ParsedSql)` (create + addCleanable + customize) extracted
+  from `internalExecute`; `PreparedBatch.internalBatchExecute` reuses it and keeps its bespoke
+  bind-loop / `executeBatch` / reset. (Did NOT hoist `ctx.setStatement` into prepareStatement — batch
+  never called it; behavior kept identical.)
+- Template's inlined result-set terminal collapsed to `execute(returningResults()).scanResultSet(...)`
+  (identical to `Query.scanResultSet`; `returningResults` already does the EmptyResultSet/NoResults logic).
+- JFR now fires for template/SQL-Object queries (previously silently absent) — new `TestStatementJfr`
+  proves a template execution emits a `JdbiStatementEvent` (type "Query"). The template also now honors
+  `handle.isAttachStatementsForCleanup()` (leak-prevention) and self-closes on failure, and the latent
+  cross-thread config-mutation bug (a config-mutating customizer via `ctx.define` on the shared snapshot)
+  is fixed by the createChild + isUnforked model.
+- **Stage 0 (`ConfigRegistry`):** `configs`/`views` maps are now lazily allocated — an unforked
+  `createChild()` is just the registry shell (reads delegate to the parent; `fork()`/full-copy/root
+  allocate). Invariant `parent == null <=> maps != null`. Added public `@Alpha isUnforked()`. Makes
+  `createChild` ~free and speeds the classic one-shot path too.
+
+**JFR-when-disabled investigation (maintainer asked) — NO fix needed / abandoned.** A clean same-machine
+A/B on master (H2 fluent/sqlobject `selectOne`, `-prof gc`) that gated the `JdbiStatementEvent`
+allocation recovered ~0 B/op (delta −12/−35, noise): C2 already scalar-replaces the disabled event, as
+JFR intends. An earlier "256-268 B/op = JFR" reading was an ARTIFACT of *deleting* the JFR lines (which
+shrank `internalExecute` and shifted inlining of unrelated allocations), not the event itself. A
+prototyped `JfrSupport` lazy-gate (probe `isEnabled()` + `NoStatementEvent` singleton) on a master
+worktree was validated correct but abandoned as pointless; worktree/branch removed. Net: no measured
+evidence the unified template regressed — unification is cost-neutral-to-positive and the classic path
+is unaffected (slightly better).
+
+**Stage B — `StatementTemplate` + terminal-picks-kind.**
+- Renamed `QueryTemplate`→`StatementTemplate`, `MappedQueryTemplate`→`MappedStatementTemplate`,
+  `buildQueryTemplate`→`buildStatementTemplate`, `QueryTemplateBenchmark`→`StatementTemplateBenchmark`,
+  `TestQueryTemplates`→`TestStatementTemplates` (a single substring rename `QueryTemplate`→
+  `StatementTemplate` across 12 files; `git mv` the 4 files; fixed 2 import-order checkstyle nits the
+  rename introduced in `Jdbi`/`SqlQueryHandler`).
+- `StatementTemplate.with(handle)` returns a `Query` that now also carries the update terminals
+  (`execute()`→int, `executeLarge()`→long, `executeAndReturnGeneratedKeys(String...)`), so which terminal
+  you call picks query vs update — the "one template, terminal picks the kind" shape.
+- DELIBERATELY NOT added (API minimalism, demand-driven): reusable `Call`/`PreparedBatch` template
+  accessors, and SQL Object `@SqlUpdate`/`@SqlCall` template adoption — trivial follow-ons if a hot-loop
+  case appears. `Script`/plain `Batch` stay out of scope (no named params / one-shot DDL).
+- Docs (`index.adoc`): prose generalized query→statement + an update-via-template example added.
+
+**Follow-ons noted:** (1) the abandoned JFR lazy-gate is genuinely not worth doing (event is
+scalar-replaced when disabled); (2) reusable Call/Batch/Update templates + SQL Object adoption remain
+demand-driven; (3) `## Upgrading to Jdbi v4` and the `## SESSION 2026-07-19b` benchmark tables still say
+`QueryTemplate` / `QueryTemplateBenchmark` — sweep those names to `StatementTemplate` when the guide is
+lifted into `index.adoc` at release.
 
 ## What actually remains (2026-07-19)
 

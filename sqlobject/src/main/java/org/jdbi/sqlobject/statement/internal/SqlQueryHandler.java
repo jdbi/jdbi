@@ -24,8 +24,8 @@ import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.statement.Customizable;
-import org.jdbi.core.statement.QueryTemplate;
 import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.sqlobject.statement.UseRowMapper;
 import org.jdbi.sqlobject.statement.UseRowReducer;
 
@@ -63,10 +63,10 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
         }
         // Fast path: build one template per attach, baking configure-phase customizers into its
         // configuration snapshot once. Every call binds against a fresh, thread-confined binding.
-        final Supplier<QueryTemplate> template = MemoizingSupplier.of(() -> {
+        final Supplier<StatementTemplate> template = MemoizingSupplier.of(() -> {
             final ConfigRegistry templateConfig = config.createCopy();
             applyConfigureCustomizers(new ConfigureStatement(templateConfig));
-            return new QueryTemplate(templateConfig, locatedSql.get());
+            return new StatementTemplate(templateConfig, locatedSql.get());
         });
         return handle -> template.get().with(handle);
     }

@@ -17,27 +17,27 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.mapper.RowMapper;
 
 /**
- * A {@link QueryTemplate} whose result type is fixed: the {@link RowMapper} is resolved once, at build
+ * A {@link StatementTemplate} whose result type is fixed: the {@link RowMapper} is resolved once, at build
  * time, from the template's configuration snapshot. Because the template already holds its mapper, each
  * execution skips the per-call mapper lookup that {@code mapTo(type)} otherwise repeats.
  *
- * <p>Obtain one from {@link QueryTemplate#mapTo(Class)} (or a {@code GenericType} / {@code QualifiedType}
+ * <p>Obtain one from {@link StatementTemplate#mapTo(Class)} (or a {@code GenericType} / {@code QualifiedType}
  * overload), then execute it by binding to a {@link Handle} with {@link #with(Handle)}, exactly as with a
- * plain {@link QueryTemplate}:
+ * plain {@link StatementTemplate}:
  *
  * <pre>{@code
- * MappedQueryTemplate<String> byId =
- *     jdbi.buildQueryTemplate("SELECT name FROM users WHERE id = :id").mapTo(String.class);
+ * MappedStatementTemplate<String> byId =
+ *     jdbi.buildStatementTemplate("SELECT name FROM users WHERE id = :id").mapTo(String.class);
  * String name = byId.with(handle).bind("id", id).results().one();
  * }</pre>
  *
  * @param <T> the result type this template maps rows to
  */
-public class MappedQueryTemplate<T> {
-    private final QueryTemplate template;
+public class MappedStatementTemplate<T> {
+    private final StatementTemplate template;
     private final RowMapper<T> mapper;
 
-    MappedQueryTemplate(final QueryTemplate template, final RowMapper<T> mapper) {
+    MappedStatementTemplate(final StatementTemplate template, final RowMapper<T> mapper) {
         this.template = template;
         this.mapper = mapper;
     }

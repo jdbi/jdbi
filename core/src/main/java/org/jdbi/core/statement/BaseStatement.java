@@ -20,6 +20,7 @@ import java.util.Collection;
 import org.jdbi.core.CloseException;
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.Configurable;
 import org.jdbi.meta.Beta;
 
@@ -32,10 +33,16 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     private final StatementContext ctx;
 
     BaseStatement(Handle handle) {
+        this(handle, handle.getConfig());
+    }
+
+    BaseStatement(Handle handle, ConfigView parentConfig) {
         this.handle = handle;
-        // Copy-on-write: a statement that adds no config of its own shares the handle's registry (and its warm
-        // resolvers); the first per-statement configure() forks a private snapshot, leaving the handle untouched.
-        final ConfigRegistry config = handle.getConfig().createChild();
+        // Copy-on-write: a statement that adds no config of its own shares parentConfig (and its warm resolvers);
+        // the first per-statement configure() forks a private snapshot, leaving parentConfig untouched. A one-shot
+        // statement passes the handle's config; a statement built from a reusable template passes the template's
+        // shared snapshot, so an unmodified execution reuses the template's warm resolvers and pre-parsed SQL.
+        final ConfigRegistry config = parentConfig.createChild();
         this.ctx = StatementContext.create(config, handle.getExtensionMethod(), getClass());
 
         if (handle.isAttachStatementsForCleanup()) {

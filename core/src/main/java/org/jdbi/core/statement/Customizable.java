@@ -21,9 +21,9 @@ import org.jdbi.meta.Beta;
  * use: reading the {@link StatementContext}, registering a {@link StatementCustomizer}, setting the
  * query timeout, and attaching to the handle for cleanup.
  *
- * <p>Both the classic {@link SqlStatement} and a {@link QueryTemplateBinding} implement this interface,
- * so a single customizer can be applied to either without knowing which concrete kind of statement it
- * was handed.
+ * <p>Every statement implements this interface (through {@link SqlStatement}), including a query obtained
+ * from a reusable {@link StatementTemplate}, so a single customizer can be applied to any of them without
+ * knowing which concrete kind of statement it was handed.
  *
  * @param <This> the fluent self type returned by mutating methods
  */

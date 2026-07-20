@@ -221,19 +221,11 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         final StatementContext ctx = getContext();
 
         ParsedSql parsedSql = parseSql();
-        String sql = parsedSql.getSql();
         ParsedParameters parsedParameters = parsedSql.getParameters();
 
         try {
             final SqlStatements stmtConfig = getConfig(SqlStatements.class);
-            try {
-                stmt = createStatement(sql);
-
-                getContext().addCleanable(() -> cleanupStatement(stmt));
-                stmtConfig.customize(stmt);
-            } catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, ctx);
-            }
+            prepareStatement(parsedSql);
 
             if (bindings.isEmpty()) {
                 return new ExecutedBatch(stmt, new int[0]);

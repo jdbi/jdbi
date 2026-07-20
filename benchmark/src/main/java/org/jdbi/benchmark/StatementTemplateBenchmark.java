@@ -18,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.statement.MappedQueryTemplate;
-import org.jdbi.core.statement.QueryTemplate;
+import org.jdbi.core.statement.MappedStatementTemplate;
+import org.jdbi.core.statement.StatementTemplate;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -35,8 +35,8 @@ import org.openjdk.jmh.annotations.Warmup;
 
 /**
  * Compares three paths for the same single-row SELECT: the classic per-statement
- * {@code Handle.createQuery}, a reused {@link QueryTemplate}, and a reused
- * {@link org.jdbi.core.statement.MappedQueryTemplate} that also pre-resolves the result mapper. The
+ * {@code Handle.createQuery}, a reused {@link StatementTemplate}, and a reused
+ * {@link org.jdbi.core.statement.MappedStatementTemplate} that also pre-resolves the result mapper. The
  * interesting metric is {@code gc.alloc.rate.norm} (bytes allocated per operation, deterministic): the
  * classic path pays a full {@code ConfigRegistry.createCopy()} plus SQL render/parse on every call, while
  * the template snapshots configuration once at build time and reuses it, and the mapped template skips the
@@ -48,15 +48,15 @@ import org.openjdk.jmh.annotations.Warmup;
 @Fork(1)
 @Warmup(iterations = 3, time = 2)
 @Measurement(iterations = 5, time = 2)
-public class QueryTemplateBenchmark {
+public class StatementTemplateBenchmark {
 
     private static final String SELECT = "SELECT name FROM tbl WHERE id = :id";
 
     private Jdbi jdbi;
     private Handle handle;
     private long rowOne;
-    private QueryTemplate template;
-    private MappedQueryTemplate<String> mappedTemplate;
+    private StatementTemplate template;
+    private MappedStatementTemplate<String> mappedTemplate;
 
     @Setup(Level.Trial)
     public void setup() {
@@ -66,7 +66,7 @@ public class QueryTemplateBenchmark {
         handle.execute("insert into tbl (id, name) values (1, 'eric')");
         rowOne = 1L;
         // Built once; reused across every benchmark invocation.
-        template = jdbi.buildQueryTemplate(SELECT);
+        template = jdbi.buildStatementTemplate(SELECT);
         // A template that resolves its result mapper once at build time, so each execution skips
         // the per-call mapper lookup the plain template repeats.
         mappedTemplate = template.mapTo(String.class);
@@ -104,13 +104,13 @@ public class QueryTemplateBenchmark {
             .one();
     }
 
-    // Builds a fresh QueryTemplate and executes it exactly once, then discards it. This is the
+    // Builds a fresh StatementTemplate and executes it exactly once, then discards it. This is the
     // "template used only once" case: it measures whether paying the template's build-time render,
     // parse, and config snapshot up front costs more than the classic path pays lazily at execute
     // ({@link #classic()}), when there is no reuse to amortize the build over.
     @Benchmark
     public String singleUseTemplate() {
-        return jdbi.buildQueryTemplate(SELECT)
+        return jdbi.buildStatementTemplate(SELECT)
             .with(handle)
             .bind("id", rowOne)
             .mapTo(String.class)
@@ -121,7 +121,7 @@ public class QueryTemplateBenchmark {
     // build-plus-map-plus-execute-once chain is measured against the classic path.
     @Benchmark
     public String singleUseMappedTemplate() {
-        return jdbi.buildQueryTemplate(SELECT)
+        return jdbi.buildStatementTemplate(SELECT)
             .mapTo(String.class)
             .with(handle)
             .bind("id", rowOne)

@@ -39,10 +39,10 @@ import org.jdbi.core.internal.OnDemandExtensions;
 import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.statement.ConfigReader;
 import org.jdbi.core.statement.DefaultStatementBuilder;
-import org.jdbi.core.statement.QueryTemplate;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementBuilder;
 import org.jdbi.core.statement.StatementBuilderFactory;
+import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.core.transaction.LocalTransactionHandler;
 import org.jdbi.core.transaction.TransactionHandler;
 import org.jdbi.core.transaction.TransactionIsolationLevel;
@@ -739,15 +739,16 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
-     * Builds a reusable, thread-safe {@link QueryTemplate} over the given SQL. The SQL is rendered
-     * and parsed once against a snapshot of this Jdbi's configuration; the returned template can then
-     * be executed many times against any handle via {@link QueryTemplate#with(Handle)}.
+     * Builds a reusable, thread-safe {@link StatementTemplate} over the given SQL, prepared once against a
+     * snapshot of this Jdbi's configuration and then executed many times against any handle via
+     * {@link StatementTemplate#with(Handle)}. Reusing a template is cheaper than building an equivalent
+     * statement on each call.
      *
-     * @param sql the SQL to render and parse once
-     * @return a reusable query template
+     * @param sql the SQL for the template
+     * @return a reusable statement template
      */
-    public QueryTemplate buildQueryTemplate(final CharSequence sql) {
-        return new QueryTemplate(config.createCopy(), sql);
+    public StatementTemplate buildStatementTemplate(final CharSequence sql) {
+        return new StatementTemplate(config.createCopy(), sql);
     }
 
     /**

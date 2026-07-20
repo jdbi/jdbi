@@ -23,7 +23,7 @@ import org.jdbi.core.statement.StatementCustomizers;
 
 /**
  * The build-time surface that configure-phase customizers are applied to when a {@link
- * org.jdbi.core.statement.QueryTemplate} is built for a SQL Object method. Their effects land on the
+ * org.jdbi.core.statement.StatementTemplate} is built for a SQL Object method. Their effects land on the
  * template's method-level configuration once: configuration mutations and registered statement
  * customizers are frozen into the shared snapshot, and every execution of the template inherits them.
  *

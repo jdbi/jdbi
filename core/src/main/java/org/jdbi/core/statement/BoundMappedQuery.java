@@ -18,23 +18,22 @@ import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.ResultIterable;
 
 /**
- * A single, thread-confined execution of a {@link MappedQueryTemplate} against a specific handle. Bind
+ * A single, thread-confined execution of a {@link MappedStatementTemplate} against a specific handle. Bind
  * parameters (and optionally override defined attributes or set query customizers), then obtain the
- * results with {@link #results()}. This mirrors {@link QueryTemplateBinding}, except the result mapper is
- * fixed by the owning {@link MappedQueryTemplate}, so {@link #results()} takes no type argument and
+ * results with {@link #results()}. This mirrors a plain template {@link Query}, except the result mapper is
+ * fixed by the owning {@link MappedStatementTemplate}, so {@link #results()} takes no type argument and
  * performs no mapper lookup.
  *
- * <p>All binding, defining, and customizing operations are delegated to an underlying
- * {@link QueryTemplateBinding}, so they behave identically to a plain template execution; only the
- * terminal result step differs.
+ * <p>All binding, defining, and customizing operations are delegated to an underlying {@link Query}, so
+ * they behave identically to a plain template execution; only the terminal result step differs.
  *
  * @param <T> the result type this query maps rows to
  */
 public class BoundMappedQuery<T> implements QueryCustomizerMixin<BoundMappedQuery<T>> {
-    private final QueryTemplateBinding binding;
+    private final Query binding;
     private final RowMapper<T> mapper;
 
-    BoundMappedQuery(final QueryTemplateBinding binding, final RowMapper<T> mapper) {
+    BoundMappedQuery(final Query binding, final RowMapper<T> mapper) {
         this.binding = binding;
         this.mapper = mapper;
     }
@@ -92,7 +91,7 @@ public class BoundMappedQuery<T> implements QueryCustomizerMixin<BoundMappedQuer
 
     /**
      * The mapped analogue of the terminal {@code mapTo(type)} step: the result type is already fixed by the
-     * owning {@link MappedQueryTemplate}, so this takes no type argument and performs no mapper lookup. It
+     * owning {@link MappedStatementTemplate}, so this takes no type argument and performs no mapper lookup. It
      * runs the query and returns its rows as a {@link ResultIterable} of that type, using the mapper resolved
      * once at build time (compare {@link org.jdbi.core.result.ResultBearing#mapTo(Class)} on the unmapped path).
      *
