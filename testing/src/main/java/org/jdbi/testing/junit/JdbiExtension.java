@@ -265,6 +265,21 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
     }
 
     /**
+     * Opens a handle from a {@link Jdbi} derived from this extension's (via {@link Jdbi#toBuilder()}) with the given
+     * per-test configuration applied at the Jdbi level. Replaces the removed per-handle {@code Jdbi.open(Consumer)}
+     * config scope: configuration belongs at the Jdbi level, not on the handle. The derived Jdbi shares this
+     * extension's connection source and installed plugins.
+     *
+     * @param configurer applied to the derived builder before it is built
+     * @return a handle opened from the configured Jdbi. The handle must be closed to release the database connection.
+     */
+    public final Handle openWithConfig(final Consumer<Jdbi.Builder> configurer) {
+        final Jdbi.Builder builder = getJdbi().toBuilder();
+        configurer.accept(builder);
+        return builder.build().open();
+    }
+
+    /**
      * Set a {@link JdbiConfig} parameter when creating the {@link Jdbi} instance. Any {@link JdbiConfig} type can be referenced in this method call.
      *
      * <pre>{@code

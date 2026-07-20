@@ -134,7 +134,7 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testRegistered() {
-        try (Handle h = h2Extension.getJdbi().open(
+        try (Handle h = h2Extension.openWithConfig(
                 cfg -> cfg.configure(RowMappers.class, r -> r.register(new SomethingMapper())))) {
             Spiffy s = h.attach(Spiffy.class);
 

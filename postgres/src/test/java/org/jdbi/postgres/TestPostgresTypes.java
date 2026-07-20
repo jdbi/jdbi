@@ -132,6 +132,17 @@ public class TestPostgresTypes {
     }
 
     @Test
+    public void testOpenHandleDoesNotForkConfig() {
+        // Opening a Postgres handle runs PostgresPlugin.customizeHandleConnection, which only reads the Jdbi-level
+        // config (to bind the registered types to the connection) and does not fork the handle's config. So the
+        // handle's config stays an unforked copy-on-write child of the root and shares the Jdbi's config instances.
+        final Jdbi jdbi = pgExtension.getJdbi();
+        try (Handle h = jdbi.open()) {
+            assertThat(h.getConfig().get(PostgresTypes.class)).isSameAs(jdbi.getConfig().get(PostgresTypes.class));
+        }
+    }
+
+    @Test
     public void testReadViaFluentAPI() {
         FooBarPGType result = handle.createQuery("SELECT get_foo_bar(1)")
             .mapTo(FooBarPGType.class)

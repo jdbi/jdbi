@@ -50,7 +50,7 @@ public class TestArgumentFactory {
 
     @Test
     public void testRegisterOnHandle() {
-        try (Handle h = h2Extension.getJdbi().open(cfg -> cfg.configure(Arguments.class, c -> c.register(new NameAF())))) {
+        try (Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(Arguments.class, c -> c.register(new NameAF())))) {
             h.createUpdate("insert into something (id, name) values (:id, :name)")
                 .bind("id", 7)
                 .bind("name", new Name("Brian", "McCallister"))

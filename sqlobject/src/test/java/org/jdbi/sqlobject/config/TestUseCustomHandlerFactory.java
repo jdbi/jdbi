@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jdbi.core.Handle;
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.sqlobject.Handler;
@@ -48,8 +47,6 @@ public class TestUseCustomHandlerFactory {
 
     @BeforeEach
     public void setUp() {
-        Jdbi db = h2Extension.getJdbi();
-
         HandlerFactory defaultHandlerFactory = new HandlerFactory() {
 
             @Override
@@ -67,7 +64,7 @@ public class TestUseCustomHandlerFactory {
             }
         };
 
-        handle = db.open(cfg -> cfg.configure(Handlers.class, c -> c.register(defaultHandlerFactory)));
+        handle = h2Extension.openWithConfig(cfg -> cfg.configure(Handlers.class, c -> c.register(defaultHandlerFactory)));
     }
 
     @AfterEach

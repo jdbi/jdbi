@@ -92,7 +92,7 @@ public class BindListNullTest {
     @Test
     public void testSomethingByIterableHandleVoidWithNull() {
         final List<String> log = new ArrayList<>();
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlParser(new LoggingParser(log))))) {
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlParser(new LoggingParser(log))))) {
             final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
             final List<Something> out = s.get(null);
@@ -105,7 +105,7 @@ public class BindListNullTest {
     @Test
     public void testSomethingByIterableHandleVoidWithEmptyList() {
         final List<String> log = new ArrayList<>();
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlParser(new LoggingParser(log))))) {
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlParser(new LoggingParser(log))))) {
             final SomethingByIterableHandleVoid s = handle.attach(SomethingByIterableHandleVoid.class);
 
             final List<Something> out = s.get(new ArrayList<>());

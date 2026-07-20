@@ -107,7 +107,7 @@ public class TestExtensionCustomizers {
 
     @Test
     public void testRegisteredDecorator() {
-        try (Handle testHandle = h2Extension.getJdbi().open(cfg -> cfg.configure(Extensions.class, c -> c.registerHandlerCustomizer(
+        try (Handle testHandle = h2Extension.openWithConfig(cfg -> cfg.configure(Extensions.class, c -> c.registerHandlerCustomizer(
                 (base, sqlObjectType, method) ->
                         (config, target) -> (handleSupplier, args) -> {
                             invoked("custom");
@@ -122,7 +122,7 @@ public class TestExtensionCustomizers {
 
     @Test
     public void testRegisteredDecoratorReturnsBase() {
-        try (Handle testHandle = h2Extension.getJdbi().open(cfg -> cfg.configure(Extensions.class, c -> c.registerHandlerCustomizer((base, sqlObjectType, method) -> base)))) {
+        try (Handle testHandle = h2Extension.openWithConfig(cfg -> cfg.configure(Extensions.class, c -> c.registerHandlerCustomizer((base, sqlObjectType, method) -> base)))) {
             testHandle.attach(Dao.class).orderedFooBar();
         }
 

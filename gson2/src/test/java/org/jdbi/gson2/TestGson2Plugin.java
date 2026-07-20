@@ -23,6 +23,7 @@ import com.google.gson.stream.JsonWriter;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import net.dongliu.gson.GsonJava8TypeAdapterFactory;
+import org.jdbi.core.Handle;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.json.AbstractJsonMapperTest;
 import org.jdbi.json.Json;
@@ -59,7 +60,7 @@ public class TestGson2Plugin extends AbstractJsonMapperTest {
             .registerTypeAdapter(SuperUser.class, new SuperUserAdapter())
             .registerTypeAdapter(SubUser.class, new SubUserAdapter())
             .create();
-        pgExtension.getJdbi().useHandle(cfg -> cfg.configure(Gson2Config.class, c -> c.gson(gson)), h -> {
+        try (Handle h = pgExtension.openWithConfig(cfg -> cfg.configure(Gson2Config.class, c -> c.gson(gson)))) {
             h.createUpdate("create table users(usr json)").execute();
 
             h.createUpdate("insert into users(usr) values(:user)")
@@ -74,7 +75,7 @@ public class TestGson2Plugin extends AbstractJsonMapperTest {
             assertThat(subuser.name)
                 .describedAs("instead of being bound via getClass(), the object was bound according to the type param")
                 .isEqualTo("super");
-        });
+        }
     }
 
     public static class User {

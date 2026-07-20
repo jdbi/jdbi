@@ -66,7 +66,7 @@ public class SqlObjectLeakTest {
     @Test
     void testManagedHandleExplodingAttachedDao() {
         assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> {
-            try (Handle handle = h2Extension.getJdbi().open(
+            try (Handle handle = h2Extension.openWithConfig(
                     cfg -> cfg.configure(SqlStatements.class, c -> c.addCustomizer(StatementCustomizers.fetchSize(-1))))) {
                 UserDao handleDao = handle.attach(UserDao.class);
                 handleDao.getUserNames();

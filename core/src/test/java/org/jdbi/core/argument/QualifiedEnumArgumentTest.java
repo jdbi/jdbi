@@ -13,6 +13,7 @@
  */
 package org.jdbi.core.argument;
 
+import org.jdbi.core.Handle;
 import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.enums.EnumByOrdinal;
 import org.jdbi.core.enums.EnumStrategy;
@@ -30,7 +31,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void methodCallCanBeAnnotatedAsByName() {
-        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
+        try (Handle h = sqliteExtension.openWithConfig(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)))) {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
             h.createUpdate("insert into enums (id, name) values (1, :name)")
@@ -41,7 +42,7 @@ public class QualifiedEnumArgumentTest {
                 .mapTo(String.class)
                 .one();
             assertThat(inserted).isEqualTo(Foobar.FOO.name());
-        });
+        }
     }
 
     @Test
@@ -62,7 +63,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void enumCanBeAnnotatedAsByName() {
-        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
+        try (Handle h = sqliteExtension.openWithConfig(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)))) {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
             h.createUpdate("insert into enums(id, name) values(1, :name)")
@@ -73,7 +74,7 @@ public class QualifiedEnumArgumentTest {
                 .mapTo(String.class)
                 .one();
             assertThat(inserted).isEqualTo(ByName.ALPHABETIC.name());
-        });
+        }
     }
 
     @Test
@@ -94,7 +95,7 @@ public class QualifiedEnumArgumentTest {
 
     @Test
     public void methodCallOverridesClassForName() {
-        sqliteExtension.getJdbi().useHandle(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), h -> {
+        try (Handle h = sqliteExtension.openWithConfig(cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)))) {
             h.createUpdate("create table enums(id int, name varchar)").execute();
 
             h.createUpdate("insert into enums(id, name) values(1, :name)")
@@ -105,7 +106,7 @@ public class QualifiedEnumArgumentTest {
                 .mapTo(String.class)
                 .one();
             assertThat(inserted).isEqualTo(ByOrdinal.NUMERIC.name());
-        });
+        }
     }
 
     @Test

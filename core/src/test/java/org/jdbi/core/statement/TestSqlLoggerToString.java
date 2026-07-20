@@ -46,7 +46,7 @@ public class TestSqlLoggerToString {
 
     @BeforeEach
     public void before() {
-        handle = sqliteExtension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new SqlLogger() {
+        handle = sqliteExtension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new SqlLogger() {
             @Override
             public void logBeforeExecution(StatementContext context) {
                 context.getBinding().findForPosition(0).ifPresent(value -> positional = Objects.toString(value));

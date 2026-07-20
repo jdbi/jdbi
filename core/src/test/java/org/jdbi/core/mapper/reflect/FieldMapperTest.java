@@ -77,7 +77,7 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedStrict() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
             .configure(ReflectionMappers.class, c -> c.strictMatching(true))
             .configure(RowMappers.class, r -> r.register(FieldMapper.factory(NestedThing.class))))) {
 
@@ -206,7 +206,7 @@ public class FieldMapperTest {
 
     @Test
     public void testNestedPrefixStrict() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
             .configure(ReflectionMappers.class, c -> c.strictMatching(true))
             .configure(RowMappers.class, r -> r.register(FieldMapper.factory(NestedPrefixThing.class))))) {
 

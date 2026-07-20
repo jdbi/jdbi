@@ -15,7 +15,7 @@ package org.jdbi.json;
 
 import java.lang.reflect.Type;
 
-import org.jdbi.core.Jdbi;
+import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.testing.junit.JdbiExtension;
@@ -36,11 +36,11 @@ public class JsonPluginTest {
 
     @Test
     public void factoryChainWorks() {
-        Jdbi jdbi = h2Extension.getJdbi();
         Object instance = new Foo();
         String json = "foo";
 
-        Object result = jdbi.withHandle(
+        final Object result;
+        try (Handle h = h2Extension.openWithConfig(
             cfg -> cfg.configure(JsonConfig.class, c -> c.jsonMapper(new JsonMapper() {
                 @Override
                 public TypedJsonMapper forType(Type type, ConfigView config) {
@@ -59,19 +59,18 @@ public class JsonPluginTest {
                         }
                     };
                 }
-            })),
-            h -> {
-                h.createUpdate("insert into foo(bar) values(:foo)")
-                    .bindByType("foo", instance, QualifiedType.of(Foo.class).with(Json.class))
-                    .execute();
+            })))) {
+            h.createUpdate("insert into foo(bar) values(:foo)")
+                .bindByType("foo", instance, QualifiedType.of(Foo.class).with(Json.class))
+                .execute();
 
-                assertThat(h.createQuery("select bar from foo").mapTo(String.class).one())
-                    .isEqualTo(json);
+            assertThat(h.createQuery("select bar from foo").mapTo(String.class).one())
+                .isEqualTo(json);
 
-                return h.createQuery("select bar from foo")
-                    .mapTo(QualifiedType.of(Foo.class).with(Json.class))
-                    .one();
-            });
+            result = h.createQuery("select bar from foo")
+                .mapTo(QualifiedType.of(Foo.class).with(Json.class))
+                .one();
+        }
 
         assertThat(result).isSameAs(instance);
     }

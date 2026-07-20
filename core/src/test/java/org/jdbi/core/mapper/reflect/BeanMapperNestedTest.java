@@ -58,7 +58,7 @@ public class BeanMapperNestedTest {
 
     @Test
     public void testNestedStrict() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(ReflectionMappers.class, c -> c.strictMatching(true)))) {
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(ReflectionMappers.class, c -> c.strictMatching(true)))) {
             assertThat(handle
                 .createQuery("select id, name from something")
                 .mapTo(NestedBean.class)
@@ -98,7 +98,7 @@ public class BeanMapperNestedTest {
 
     @Test
     public void testNestedPrefixStrict() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(ReflectionMappers.class, c -> c.strictMatching(true)))) {
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(ReflectionMappers.class, c -> c.strictMatching(true)))) {
             assertThat(handle
                 .createQuery("select id nested_id, name nested_name, integerValue from something")
                 .mapTo(NestedPrefixBean.class)

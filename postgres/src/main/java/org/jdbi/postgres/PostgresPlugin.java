@@ -21,7 +21,7 @@ import com.pgvector.PGbit;
 import com.pgvector.PGvector;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.JdbiClassUtils;
 import org.jdbi.core.internal.UtilityClassException;
@@ -176,7 +176,7 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
     }
 
     @Override
-    public void customizeHandleConfig(Connection connection, ConfigRegistry config) throws SQLException {
+    public void customizeHandleConnection(Connection connection, ConfigView config) throws SQLException {
         // Register the configured custom types on this physical connection. This is a driver-level side effect
         // on the connection using the Jdbi-level type registrations; it stores no per-handle configuration (the
         // handle's config child stays unforked), and the Large Object API is now resolved per statement from the

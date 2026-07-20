@@ -13,6 +13,7 @@
  */
 package org.jdbi.sqlobject.customizer;
 
+import org.jdbi.core.Handle;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 import org.jdbi.sqlobject.SqlObject;
@@ -45,18 +46,23 @@ public class TestAllowUnusedBindings {
 
     @Test
     public void testDisallowed() {
-        assertThatThrownBy(() -> h2Extension.getJdbi().withHandle(
-                cfg -> cfg.configure(SqlStatements.class, c -> c.unusedBindingAllowed(true)),
-                handle -> handle.attach(UnusedBindingDao.class).disallowed("43")))
+        assertThatThrownBy(() -> {
+            try (Handle handle = h2Extension.openWithConfig(
+                    cfg -> cfg.configure(SqlStatements.class, c -> c.unusedBindingAllowed(true)))) {
+                handle.attach(UnusedBindingDao.class).disallowed("43");
+            }
+        })
             .isInstanceOf(UnableToCreateStatementException.class)
             .hasMessageContaining("named parameter");
     }
 
     @Test
     public void testUnannotated() {
-        boolean result = h2Extension.getJdbi().withHandle(
-            cfg -> cfg.configure(SqlStatements.class, c -> c.unusedBindingAllowed(true)),
-            handle -> handle.attach(UnusedBindingDao.class).unannotated("42"));
+        final boolean result;
+        try (Handle handle = h2Extension.openWithConfig(
+            cfg -> cfg.configure(SqlStatements.class, c -> c.unusedBindingAllowed(true)))) {
+            result = handle.attach(UnusedBindingDao.class).unannotated("42");
+        }
         assertThat(result).isTrue();
     }
 

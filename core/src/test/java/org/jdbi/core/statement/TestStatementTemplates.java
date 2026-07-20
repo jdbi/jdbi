@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Maps;
 import org.jdbi.core.Handle;
+import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.ConfigView;
@@ -345,6 +346,54 @@ public class TestStatementTemplates {
         try (Handle other = h.getJdbi().open()) {
             assertThat(byId.with(h).bind("id", 1).results().one()).isEqualTo("eric");
             assertThat(byId.with(other).bind("id", 2).results().one()).isEqualTo("brian");
+        }
+    }
+
+    @Test
+    public void testTemplateConfigIsHandleIndependent() {
+        // A statement template captures its Jdbi-level configuration at build time. A handle carries no
+        // configuration of its own -- only its connection and transaction state -- so with(handle) uses the
+        // template's configuration regardless of which handle, or which Jdbi's handle, it runs on. This is what
+        // makes a template built from one Jdbi correct to execute against any handle from a compatible connection.
+        final Handle shared = h2Extension.getSharedHandle();
+        shared.execute("insert into something (id, name) values (1, 'eric')");
+
+        // A Jdbi that knows how to map the name column to a Widget, derived so it shares the connection source.
+        final Jdbi configured = shared.getJdbi().toBuilder()
+            .registerColumnMapper(Widget.class, (rs, col, ctx) -> new Widget(rs.getString(col)))
+            .build();
+        final var template = configured.buildStatementTemplate("select name from something where id = 1")
+            .mapTo(Widget.class);
+
+        try (Handle bare = shared.getJdbi().open()) {
+            // The bare handle's Jdbi has no Widget mapper, so it cannot map the type on its own...
+            assertThatThrownBy(() -> bare.createQuery("select name from something where id = 1").mapTo(Widget.class).one())
+                .isInstanceOf(NoSuchMapperException.class);
+            // ...but the template supplies the mapper from its own (Jdbi-level) configuration.
+            assertThat(template.with(bare).results().one()).isEqualTo(new Widget("eric"));
+        }
+    }
+
+    static final class Widget {
+        final String name;
+
+        Widget(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            return o instanceof Widget && ((Widget) o).name.equals(name);
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "Widget[" + name + ']';
         }
     }
 

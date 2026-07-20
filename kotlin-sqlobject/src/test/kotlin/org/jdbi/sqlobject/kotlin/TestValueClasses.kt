@@ -73,7 +73,7 @@ class TestValueClasses {
     // Config formerly registered on the (now read-only) Handle is applied when opening an isolated, scoped handle
     // that shares the extension's in-memory database.
     private fun openWithMappers(columnMapperFactory: ColumnMapperFactory, argumentFactory: ArgumentFactory, rowMapper: RowMapper<*>): Handle =
-        h2Extension.jdbi.open { cfg ->
+        h2Extension.openWithConfig { cfg ->
             cfg.configure(RowMappers::class.java) { it.register(Something::class.java, rowMapper) }
             cfg.configure(ColumnMappers::class.java) { it.register(columnMapperFactory) }
             cfg.configure(org.jdbi.core.argument.Arguments::class.java) { it.register(argumentFactory) }
@@ -209,7 +209,7 @@ class TestValueClasses {
 
     @Test
     fun testValueClassColumn() {
-        h2Extension.jdbi.open { cfg ->
+        h2Extension.openWithConfig { cfg ->
             cfg.configure(ColumnMappers::class.java) { it.register(ValueId::class.java, ValueIdColumnMapper()) }
         }.use { handle ->
             val dao = handle.attach(Dao::class)

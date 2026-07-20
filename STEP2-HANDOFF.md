@@ -17,7 +17,18 @@ Authoritative design/rationale lives in `QUERY_TEMPLATE_DESIGN.md`. This file is
 2. **Postgres per-connection path moved off handle config (STEP 1 spike, PROVEN — full postgres module 183 tests green).** LOB API resolved per statement from `ctx.getConnection()` in `BlobInputStream{Argument,ColumnMapper}Factory`; removed `PostgresTypes.lob` field + `lobApi()` + public `getLobApi()`; `PostgresPlugin.customizeHandleConfig` reduced to a non-forking connection side-effect (`config.get(PostgresTypes.class).addTypesToConnection(pgConn)`), so opening a Postgres handle no longer forks the handle config.
 3. **Test helper added:** `DatabaseExtension.openWithConfig(Consumer<Jdbi.Builder>)` (core test sources) — `toBuilder()`-derived, the terse 1:1 replacement for the removed `Jdbi.open(Consumer)` scope. Not yet used by callers (that's STEP 2).
 
-## IMMEDIATE NEXT WORK — STEP 2: remove config-on-the-handle (one coupled green pass)
+## STEP 2 — DONE (uncommitted, full reactor green: tests + static analysis)
+Completed this session (all 41 modules green under both `-Dbasepom.check.skip-all=true` and `-DskipTests`):
+- (a) Migrated ~63 scoped-open call sites (Java + Kotlin) to `ext.openWithConfig(...)`; added `JdbiExtension.openWithConfig` (testing module) mirroring `DatabaseExtension.openWithConfig`. Raw-`Jdbi` sites (no extension handy) use `jdbi.toBuilder().configure(...).build().open()`. Deleted `TestOpenWithConfigScope` (tested only the removed feature).
+- (b) Removed the 5 scoped overloads + `NO_CONFIG_SCOPE` from `Jdbi.java`; inlined `open()`; dropped the `configScope` param from the `Handle` ctor/`createHandle`. Handle config = `jdbi.getConfig().createChild()`, never mutated.
+- (c) `customizeHandleConfig(Connection, ConfigRegistry)` → **renamed** `customizeHandleConnection(Connection, ConfigView)` (read-only; the name no longer implied config mutation — maintainer asked for the rename). `Jdbi`/`JdbiPlugin`/`PostgresPlugin` updated.
+- (d) Upgrade-guide `=== Per-handle configuration` rewritten (toBuilder / ScopedValue `RequestTaggingLogger` / per-statement); `customizeHandleConnection` + ConfigView notes updated; stale `customizeHandle`→`customizeHandleConfig` pointer fixed.
+- (e) Regression tests: `TestStatementTemplates.testTemplateConfigIsHandleIndependent` (template built from one Jdbi maps correctly on a bare handle from a Jdbi without the mapper) + `TestPostgresTypes.testOpenHandleDoesNotForkConfig` (handle's `PostgresTypes` instance is identical to the root's → unforked child). No `isUnforked()` anymore, so identity is the observable.
+- Also fixed a PRE-EXISTING red test from the defines redesign: `TestStringSubstitutorTemplateEngine` built `RenderContext.of(cfg)` (drops the defines overlay). Added `StatementContextAccess.renderContext(ctx)` (overlay-aware) and repointed the 5 usages.
+
+REMAINING: commit (not yet done — awaiting go-ahead), then the review findings #5–#12 below. `git rm STEP2-HANDOFF.md` only after the findings are also done.
+
+## (historical) STEP 2 plan — remove config-on-the-handle (one coupled green pass)
 Goal end-state (maintainer-confirmed): config lives ONLY at Jdbi level (immutable/shared) + statement level (defines overlay + per-execution state). The handle is connection + transaction only and holds NO config. Then `StatementTemplate.with(handle)` parenting from the template's (Jdbi-level) config is correct by construction (the B1 "handle config ignored" concern disappears — see "Locked decisions").
 
 Removing the API breaks all callers until migrated, so (a) and (b) land together as one green commit.

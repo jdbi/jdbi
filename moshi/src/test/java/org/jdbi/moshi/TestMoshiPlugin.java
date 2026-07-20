@@ -27,6 +27,7 @@ import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import org.jdbi.core.Handle;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.json.AbstractJsonMapperTest;
 import org.jdbi.json.Json;
@@ -62,7 +63,7 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
             .add(SuperUser.class, new SuperUserAdapter())
             .add(SubUser.class, new SubUserAdapter())
             .build();
-        pgExtension.getJdbi().useHandle(cfg -> cfg.configure(MoshiConfig.class, c -> c.moshi(moshi)), h -> {
+        try (Handle h = pgExtension.openWithConfig(cfg -> cfg.configure(MoshiConfig.class, c -> c.moshi(moshi)))) {
             h.createUpdate("create table users(usr json)").execute();
 
             h.createUpdate("insert into users(usr) values(:user)")
@@ -77,7 +78,7 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
             assertThat(subuser.name)
                 .describedAs("instead of being bound via getClass(), the object was bound according to the qualified type param")
                 .isEqualTo("super");
-        });
+        }
     }
 
     public static class User {

@@ -132,7 +132,7 @@ public class MapEntryMapperTest {
 
         CharSequence sql = "select u.id u_id, u.name u_name, p.id p_id, p.phone p_phone "
             + "from \"user\" u left join phone p on u.id = p.user_id";
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(MapEntryMappers.class, c -> c.keyColumn("foo").valueColumn("bar")))) {
             Map<User, Phone> map = handle.createQuery(sql)
                     .setMapKeyColumn(null)

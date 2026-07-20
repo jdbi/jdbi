@@ -13,6 +13,7 @@
  */
 package org.jdbi.sqlobject;
 
+import org.jdbi.core.Handle;
 import org.jdbi.core.enums.EnumByName;
 import org.jdbi.core.enums.EnumByOrdinal;
 import org.jdbi.core.enums.EnumStrategy;
@@ -48,53 +49,52 @@ public class SqlObjectEnumQualifierTest {
 
     @Test
     public void byNameOverridesDefaultInBindingAndMapping() {
-        sqliteExtension.getJdbi().useHandle(
-            cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)),
-            h -> {
-                h.execute("create table enums(name varchar)");
+        try (Handle h = sqliteExtension.openWithConfig(
+            cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)))) {
+            h.execute("create table enums(name varchar)");
 
-                FooByNameDao dao = h.attach(FooByNameDao.class);
+            FooByNameDao dao = h.attach(FooByNameDao.class);
 
-                dao.insert(Foo.BAR);
-                assertThat(h.createQuery("select name from enums").mapTo(String.class).one()).isEqualTo("BAR");
+            dao.insert(Foo.BAR);
+            assertThat(h.createQuery("select name from enums").mapTo(String.class).one()).isEqualTo("BAR");
 
-                Foo value = dao.select();
-                assertThat(value).isEqualTo(Foo.BAR);
-            });
+            Foo value = dao.select();
+            assertThat(value).isEqualTo(Foo.BAR);
+        }
     }
 
     @Test
     public void useEnumStrategyOrdinalAnnotation() {
-        sqliteExtension.getJdbi().useHandle(
-            cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_NAME)), // dao annotations will override
-            h -> {
-                h.execute("create table enums(ordinal int)");
+        // the dao annotations will override the default strategy
+        try (Handle h = sqliteExtension.openWithConfig(
+            cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_NAME)))) {
+            h.execute("create table enums(ordinal int)");
 
-                UseEnumStrategyOrdinalDao dao = h.attach(UseEnumStrategyOrdinalDao.class);
+            UseEnumStrategyOrdinalDao dao = h.attach(UseEnumStrategyOrdinalDao.class);
 
-                dao.insert(Foo.BAR);
-                assertThat(h.createQuery("select ordinal from enums").mapTo(Integer.class).one()).isZero();
+            dao.insert(Foo.BAR);
+            assertThat(h.createQuery("select ordinal from enums").mapTo(Integer.class).one()).isZero();
 
-                Foo value = dao.select();
-                assertThat(value).isEqualTo(Foo.BAR);
-            });
+            Foo value = dao.select();
+            assertThat(value).isEqualTo(Foo.BAR);
+        }
     }
 
     @Test
     public void useEnumStrategyNameAnnotation() {
-        sqliteExtension.getJdbi().useHandle(
-            cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)), // dao annotations will override
-            h -> {
-                h.execute("create table enums(name varchar)");
+        // the dao annotations will override the default strategy
+        try (Handle h = sqliteExtension.openWithConfig(
+            cfg -> cfg.configure(Enums.class, c -> c.defaultStrategy(EnumStrategy.BY_ORDINAL)))) {
+            h.execute("create table enums(name varchar)");
 
-                UseEnumStrategyNameDao dao = h.attach(UseEnumStrategyNameDao.class);
+            UseEnumStrategyNameDao dao = h.attach(UseEnumStrategyNameDao.class);
 
-                dao.insert(Foo.BAR);
-                assertThat(h.createQuery("select name from enums").mapTo(String.class).one()).isEqualTo("BAR");
+            dao.insert(Foo.BAR);
+            assertThat(h.createQuery("select name from enums").mapTo(String.class).one()).isEqualTo("BAR");
 
-                Foo value = dao.select();
-                assertThat(value).isEqualTo(Foo.BAR);
-            });
+            Foo value = dao.select();
+            assertThat(value).isEqualTo(Foo.BAR);
+        }
     }
 
     public enum Foo {

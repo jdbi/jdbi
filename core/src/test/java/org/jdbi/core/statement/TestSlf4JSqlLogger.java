@@ -51,7 +51,7 @@ class TestSlf4JSqlLogger {
 
     @Test
     void testLogAfterExecutionForBatch() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new Slf4JSqlLogger(logger))))) {
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new Slf4JSqlLogger(logger))))) {
             handle.execute(CREATE);
 
             try (Batch batch = handle.createBatch()) {
@@ -63,7 +63,7 @@ class TestSlf4JSqlLogger {
 
     @Test
     void testLogWithInfoLevelAfterExecutionForBatch() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new Slf4JSqlLogger(logger, Level.INFO))))) {
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new Slf4JSqlLogger(logger, Level.INFO))))) {
             handle.execute(CREATE);
 
             try (Batch batch = handle.createBatch()) {
@@ -75,7 +75,7 @@ class TestSlf4JSqlLogger {
 
     @Test
     void testLogExceptionForBatch() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new Slf4JSqlLogger(logger))))) {
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new Slf4JSqlLogger(logger))))) {
             try (Batch batch = handle.createBatch()) {
                 batch.add(INSERT);
 

@@ -59,7 +59,7 @@ class TestListArgument {
 
     @Test
     fun testSingleInsert() {
-        h2Extension.jdbi.open { cfg -> cfg.configure(Arguments::class.java) { it.register(StringListArgumentFactory()) } }.use { handle ->
+        h2Extension.openWithConfig { cfg -> cfg.configure(Arguments::class.java) { it.register(StringListArgumentFactory()) } }.use { handle ->
             val dao = handle.attach(SomethingDao::class)
 
             dao.insertList(1, listOf("one", "two"))
@@ -85,7 +85,7 @@ class TestListArgument {
 
     @Test
     fun testSingleInsertWithMagicValue() {
-        h2Extension.jdbi.open { cfg -> cfg.configure(Arguments::class.java) { it.register(MagicListArgumentFactory()) } }.use { handle ->
+        h2Extension.openWithConfig { cfg -> cfg.configure(Arguments::class.java) { it.register(MagicListArgumentFactory()) } }.use { handle ->
             val dao = handle.attach(SomethingDao::class)
 
             dao.inserValueList(1, listOf(MagicValue("one"), MagicValue("two")))

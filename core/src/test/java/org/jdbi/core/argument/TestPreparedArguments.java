@@ -33,7 +33,7 @@ public class TestPreparedArguments {
 
         // A config scope on a freshly opened handle disables prepared arguments; the resolver is scoped to that
         // handle's private registry, so it resolves against the disabled configuration.
-        try (Handle disabled = h2Extension.getJdbi().open(cfg -> cfg.configure(Arguments.class, c -> c.preparedArgumentsEnabled(false)))) {
+        try (Handle disabled = h2Extension.openWithConfig(cfg -> cfg.configure(Arguments.class, c -> c.preparedArgumentsEnabled(false)))) {
             assertThat(ArgumentResolver.forRegistry(disabled.getConfig()).prepareFor(int.class))
                     .isEmpty();
         }
