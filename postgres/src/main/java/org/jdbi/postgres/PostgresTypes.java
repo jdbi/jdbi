@@ -33,15 +33,13 @@ import org.postgresql.util.PGobject;
  */
 public final class PostgresTypes implements JdbiConfig<PostgresTypes> {
     private final Map<Class<? extends PGobject>, String> types;
-    private final PgLobApi lob;
 
     public PostgresTypes() {
-        this(Map.of(), null);
+        this(Map.of());
     }
 
-    private PostgresTypes(final Map<Class<? extends PGobject>, String> types, final PgLobApi lob) {
+    private PostgresTypes(final Map<Class<? extends PGobject>, String> types) {
         this.types = types;
-        this.lob = lob;
     }
 
     /**
@@ -55,19 +53,7 @@ public final class PostgresTypes implements JdbiConfig<PostgresTypes> {
     public PostgresTypes registerCustomType(Class<? extends PGobject> clazz, String typeName) {
         final Map<Class<? extends PGobject>, String> updated = new HashMap<>(types);
         updated.put(clazz, typeName);
-        return new PostgresTypes(Map.copyOf(updated), lob);
-    }
-
-    PostgresTypes lobApi(PgLobApi newLob) {
-        return new PostgresTypes(types, newLob);
-    }
-
-    /**
-     * Provide access to Large Object streaming via Postgres specific API.
-     * @return the postgres large object api
-     */
-    public PgLobApi getLobApi() {
-        return lob;
+        return new PostgresTypes(Map.copyOf(updated));
     }
 
     /**

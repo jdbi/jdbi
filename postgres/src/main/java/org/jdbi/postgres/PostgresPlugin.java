@@ -177,9 +177,12 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
 
     @Override
     public void customizeHandleConfig(Connection connection, ConfigRegistry config) throws SQLException {
+        // Register the configured custom types on this physical connection. This is a driver-level side effect
+        // on the connection using the Jdbi-level type registrations; it stores no per-handle configuration (the
+        // handle's config child stays unforked), and the Large Object API is now resolved per statement from the
+        // connection (see BlobInputStream{Argument,ColumnMapper}Factory), so nothing connection-bound is cached here.
         PGConnection pgConnection = connection.unwrap(PGConnection.class);
-        config.configure(PostgresTypes.class, pt ->
-            pt.addTypesToConnection(pgConnection).lobApi(new PgLobApiImpl(connection)));
+        config.get(PostgresTypes.class).addTypesToConnection(pgConnection);
     }
 
     static final class VectorEnabler {

@@ -35,9 +35,9 @@ class BlobInputStreamColumnMapperFactory implements ColumnMapperFactory {
     static class LobColumnMapper implements ColumnMapper<InputStream> {
         @Override
         public InputStream map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
-            return ctx.getConfig(PostgresTypes.class)
-                    .getLobApi()
-                    .readLob(r.getLong(columnNumber));
+            // The Large Object API is bound to this execution's physical connection, resolved from the
+            // statement context rather than stored per-handle in configuration.
+            return new PgLobApiImpl(ctx.getConnection()).readLob(r.getLong(columnNumber));
         }
     }
 }
