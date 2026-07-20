@@ -16,12 +16,14 @@ package org.jdbi.core.cache.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.jdbi.core.cache.JdbiCache;
 import org.jdbi.core.cache.JdbiCacheLoader;
+import org.jdbi.core.internal.exceptions.Sneaky;
 
 final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
 
@@ -67,7 +69,7 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
             if (!node.value.isCompletedExceptionally()) {
                 refresh(node);
             }
-            return node.value.join();
+            return join(node);
         }
 
         // Node with Future atomically loaded into cache, but needs a value still
@@ -77,14 +79,45 @@ final class DefaultJdbiCache<K, V> implements JdbiCache<K, V> {
         synchronized (node) {
             // Double-check in case of race
             if (!node.value.isDone()) {
+                final V value;
+                try {
+                    value = loader == null ? null : loader.create(key);
+                } catch (RuntimeException | Error e) {
+                    // The loader failed. Complete the node's future exceptionally, then drop the node so a later
+                    // call retries with a fresh one. Completing it (rather than leaving it permanently incomplete)
+                    // is what prevents a thread already blocked on this node's monitor from re-running the loader
+                    // when it wakes: on success that thread would complete and expunge-enqueue a node no longer in
+                    // the cache map, orphaning it -- the orphan later evicts the live entry (one-arg remove(key))
+                    // and inflates the expunge queue. With the future completed, the waiter sees isDone() and
+                    // rethrows this failure instead. The node was never added to the expunge queue (the value is
+                    // computed first), so only the cache map needs cleaning up here.
+                    node.value.completeExceptionally(e);
+                    cache.remove(key, node);
+                    throw e;
+                }
                 if (maxSize > 0) {
                     synchronized (expungeQueue) {
                         expungeQueue.addHead(node);
                     }
                 }
-                node.value.complete(loader == null ? null : loader.create(key));
+                node.value.complete(value);
             }
+            return join(node);
+        }
+    }
+
+    /**
+     * Join on a node's value, discarding the {@link CompletionException} wrapper that
+     * {@link CompletableFuture#join()} adds around a loader failure. Every caller then sees the same exception the
+     * loader threw regardless of which thread won the race to compute the key.
+     */
+    // PreserveStackTrace: the wrapper carries only CompletableFuture plumbing; the rethrown cause keeps its own stack.
+    @SuppressWarnings("PMD.PreserveStackTrace")
+    private V join(final DoubleLinkedList.Node<K, CompletableFuture<V>> node) {
+        try {
             return node.value.join();
+        } catch (CompletionException e) {
+            throw Sneaky.throwAnyway(e.getCause());
         }
     }
 
