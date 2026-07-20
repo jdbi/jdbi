@@ -13,9 +13,7 @@
  */
 package org.jdbi.core.extension;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.meta.Alpha;
-import org.jdbi.meta.Beta;
 
 /**
  * Extension handler with a target object attached.
@@ -31,13 +29,4 @@ public interface AttachedExtensionHandler {
      * @throws Exception Any exception from the underlying code
      */
     Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception;
-
-    /**
-     * Called after the method handler is constructed to pre-initialize any important
-     * configuration data structures.
-     *
-     * @param config the method configuration to use for warming up
-     */
-    @Beta
-    default void warm(ConfigRegistry config) {}
 }

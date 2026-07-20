@@ -49,11 +49,6 @@ public class BindFactory implements SqlStatementCustomizerFactory {
                 name.ifPresent(n -> stmt.bindByType(n, arg, qualifiedType));
             }
 
-            @Override
-            public void warm(ConfigRegistry config) {
-                config.findMapperFor(qualifiedType(config));
-            }
-
             private QualifiedType<?> qualifiedType(ConfigRegistry config) {
                 return QualifiedType.of(type).withAnnotations(
                         config.get(Qualifiers.class).findFor(param));

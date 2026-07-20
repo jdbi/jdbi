@@ -138,7 +138,11 @@ abstract class ResultReturner {
 
     protected abstract QualifiedType<?> elementType(ConfigRegistry config);
 
-    protected void warm(ConfigRegistry config) {
+    /**
+     * Resolves the result mapper for this returner's element type against the given configuration,
+     * so an unresolvable mapper is reported eagerly. A no-op when there is no element type (void).
+     */
+    protected void resolveResultType(ConfigRegistry config) {
         Optional.ofNullable(elementType(config))
             .ifPresent(type -> config.findMapperFor(type));
     }
@@ -327,8 +331,8 @@ abstract class ResultReturner {
         }
 
         @Override
-        protected void warm(ConfigRegistry config) {
-            super.warm(config);
+        protected void resolveResultType(ConfigRegistry config) {
+            super.resolveResultType(config);
             CollectorResolver.forRegistry(config).findFor(returnType.getType());
         }
 

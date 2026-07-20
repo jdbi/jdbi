@@ -15,7 +15,6 @@ package org.jdbi.sqlobject.customizer;
 
 import java.sql.SQLException;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.statement.Customizable;
 
 /**
@@ -32,12 +31,4 @@ public interface SqlStatementParameterCustomizer {
      * @throws SQLException will abort statement creation
      */
     void apply(Customizable<?> stmt, Object arg) throws SQLException;
-
-    /**
-     * Called after the customizer is instantiated but before any statement is available,
-     * to pre-initialize any configuration data structures.
-     *
-     * @param config the configuration registry to warm
-     */
-    default void warm(ConfigRegistry config) {}
 }

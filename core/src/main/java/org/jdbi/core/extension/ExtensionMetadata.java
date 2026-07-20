@@ -317,15 +317,13 @@ public final class ExtensionMetadata {
             ConfigRegistry methodConfig = createMethodConfiguration(method, config);
             this.extensionContext = ExtensionContext.forExtensionMethod(methodConfig, extensionType, method);
 
-            this.extensionInvoker = extensionHandler.attachTo(methodConfig, target);
-
             try {
-                this.extensionInvoker.warm(methodConfig);
+                // A statement handler eagerly resolves its result mapper while attaching when fail-fast is
+                // enabled, so a wiring error (for example an unregistered mapper) surfaces here at attach
+                // time rather than on first invocation.
+                this.extensionInvoker = extensionHandler.attachTo(methodConfig, target);
             } catch (Exception e) {
-                // if fail fast is requested, fail right at warmup time.
-                if (config.get(Extensions.class).isFailFast()) {
-                    throw new UnableToCreateExtensionException(e, "While inspecting %s: %s", method, e.getMessage());
-                }
+                throw new UnableToCreateExtensionException(e, "While inspecting %s: %s", method, e.getMessage());
             }
         }
 

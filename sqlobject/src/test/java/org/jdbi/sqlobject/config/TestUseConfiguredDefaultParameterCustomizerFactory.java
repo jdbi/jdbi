@@ -60,9 +60,8 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
         SomethingDao h = handle.attach(SomethingDao.class);
         h.findByNameAndIdNoBindAnnotation(1, "Joy");
 
-        // factory is called twice for each parameters, once in
-        // warm() and once in apply()
-        assertThat(invocationCounter.get()).isEqualTo(4);
+        // the configured factory is invoked once per unannotated parameter, when the method runs
+        assertThat(invocationCounter.get()).isEqualTo(2);
     }
 
     @Test
@@ -70,8 +69,8 @@ public class TestUseConfiguredDefaultParameterCustomizerFactory {
         SomethingDao h = handle.attach(SomethingDao.class);
         h.findByNameAndIdWithBindAnnotation(1, "Joy");
 
-        // called twice for each parameter
-        assertThat(invocationCounter.get()).isEqualTo(2);
+        // @Bind takes precedence, so the configured default factory is never consulted
+        assertThat(invocationCounter.get()).isZero();
     }
 
     @RegisterRowMapper(SomethingMapper.class)
