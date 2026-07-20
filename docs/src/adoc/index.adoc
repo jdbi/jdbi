@@ -562,6 +562,16 @@ try (Handle h = jdbi.open(config -> config.configure(RowMappers.class, r -> r.re
 Configuration that should apply to a single statement can still be set on that statement (statements remain `Configurable`, copy-on-write).
 A plugin that must configure every handle it sees (for example to bind driver-specific types on the live `Connection`) implements `JdbiPlugin.customizeHandleConfig(Connection, ConfigRegistry)`, which runs once as each handle is created.
 
+A config scope is right for configuration that varies per unit of work (a request-scoped SQL logger, say).
+For a long-lived variant that differs in a fixed way -- one `Jdbi` per tenant, for instance -- derive a new instance from an existing one with `Jdbi.toBuilder()` instead, so the variant is built once and shares the original's connection source:
+
+[source,java,indent=0]
+----
+Jdbi tenantJdbi = jdbi.toBuilder()
+    .configure(SqlStatements.class, s -> s.setSqlLogger(tenantLogger))
+    .build();
+----
+
 === Custom factories, mappers, and codecs take `ConfigView`
 
 The read-only half of the split is a new `ConfigView` type: `Jdbi.getConfig()` and `Handle.getConfig()` return a `ConfigView` (reads and safe derives only), not a mutable `ConfigRegistry`.
