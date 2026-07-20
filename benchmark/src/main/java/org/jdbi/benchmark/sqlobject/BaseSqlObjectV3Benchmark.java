@@ -15,6 +15,8 @@ package org.jdbi.benchmark.sqlobject;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
@@ -24,6 +26,7 @@ import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.customizer.Bind;
 import org.jdbi.sqlobject.customizer.BindBean;
 import org.jdbi.sqlobject.statement.GetGeneratedKeys;
+import org.jdbi.sqlobject.statement.SqlBatch;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.jdbi.sqlobject.statement.SqlUpdate;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -32,10 +35,13 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.TearDown;
 
 public abstract class BaseSqlObjectV3Benchmark extends AbstractSqlObjectBenchmark {
+    private static final int BATCH_ROWS = 10;
+
     private Jdbi jdbi;
     protected Handle handle;
     private DaoV3 dao;
     private long rowOne;
+    private List<TestContent> batchContent;
 
     protected abstract Jdbi.Builder createJdbi();
     protected abstract void createTable();
@@ -54,6 +60,7 @@ public abstract class BaseSqlObjectV3Benchmark extends AbstractSqlObjectBenchmar
 
         handle = jdbi.open();
         dao = handle.attach(DaoV3.class);
+        batchContent = Collections.nCopies(BATCH_ROWS, TestContent.TEST_CONTENT);
         createTable();
         insertRow();
     }
@@ -114,6 +121,11 @@ public abstract class BaseSqlObjectV3Benchmark extends AbstractSqlObjectBenchmar
     }
 
     @Benchmark
+    public int[] sqlobjectInsertBatch() {
+        return dao.insertTestDataBatch(batchContent);
+    }
+
+    @Benchmark
     public TestData fluentSelectOne() {
         return handle.createQuery(SELECT)
                      .bind("id", rowOne)
@@ -140,6 +152,9 @@ public abstract class BaseSqlObjectV3Benchmark extends AbstractSqlObjectBenchmar
 
         @SqlUpdate(INSERT)
         int insertTestDataRowCountValues(@Bind("name") String name, @Bind("description") String description);
+
+        @SqlBatch(INSERT)
+        int[] insertTestDataBatch(@BindBean List<TestContent> content);
 
         @SqlQuery(SELECT)
         TestData getTestData(@Bind("id") long id);

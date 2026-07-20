@@ -149,7 +149,7 @@ Implementation notes: base `CustomizingStatementHandler` becomes non-generic ove
 `QueryTemplateBinding` for the fast path); per-invocation `args`/`returner` move off
 `SqlObjectStatementConfiguration` (deleted) onto an opaque `@Alpha` `StatementContext` slot.
 
-## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below). **LATEST: see "## SESSION 2026-07-20" — the phase-5 engine unification is DONE (one `SqlStatement.internalExecute` for classic + template, `QueryTemplateBinding` deleted, JFR now on the template path, `ConfigRegistry` lazy maps) and `QueryTemplate` is renamed to `StatementTemplate` with terminal-picks-kind (query or update from `with(handle)`) plus `call(handle)`/`prepareBatch(handle)` accessors so one template materializes as any parameterized kind (Tier 1 DONE). The ONE remaining piece to "finish v4" is Tier 2: SQL Object `@SqlUpdate`/`@SqlCall`/`@SqlBatch` adopting templates (handoff written in the SESSION 2026-07-20 section — its own benchmark-validated session). Whole reactor green (41 modules). The prior "## SESSION 2026-07-19b" recommended this unification.**
+## HANDOFF (2026-07-19): the whole feature is implemented — phase-2 through D6, and REMOVAL R1–R7 + R5-D + R6 are all DONE, whole reactor green. Remaining work is release-time only (see "What actually remains" below). **LATEST: see "## SESSION 2026-07-20" — the phase-5 engine unification is DONE (one `SqlStatement.internalExecute` for classic + template, `QueryTemplateBinding` deleted, JFR now on the template path, `ConfigRegistry` lazy maps) and `QueryTemplate` is renamed to `StatementTemplate` with terminal-picks-kind (query or update from `with(handle)`) plus `call(handle)`/`prepareBatch(handle)` accessors so one template materializes as any parameterized kind (Tier 1 DONE). Tier 2 (SQL Object `@SqlUpdate`/`@SqlCall`/`@SqlBatch` adopting templates) is now also DONE (2026-07-20, see the SESSION 2026-07-20 section, Tier 2 bullet — benchmark-validated: modest-but-real per-op update win, no batch regression). All four parameterized SQL Object statement kinds share one template engine. Whole core+sqlobject+benchmark reactor green with checks + tests. The feature is now fully implemented; only release-time work remains (see "What actually remains"). The prior "## SESSION 2026-07-19b" recommended this unification.**
 
 > **REMOVAL PROGRESS:** R1 (`60014fa30`) + R2 (`2c9c4aa6f`) + R3 (`640246519`, review `09e26deca`) + R7
 > (`0b3dbf9a1`) DONE, whole reactor green. **R3 landed the #2992 handle-COW payoff** (`Handle` config =
@@ -821,30 +821,87 @@ parameterized kind. Update needs nothing extra — `with(handle).…execute()` a
 Tests: `TestStatementTemplates.testPreparedBatchViaTemplate` (H2), `TestCallable.testCallViaTemplate`
 (PG stored proc, reusable). `index.adoc` documents `call()`/`prepareBatch()`.
 
-**Tier 2 — SQL Object adopts templates for `@SqlUpdate`/`@SqlCall`/`@SqlBatch` — HANDOFF (do as its own
-focused, benchmark-validated session).** Today only `@SqlQuery` builds a `StatementTemplate` per attach
-(`SqlQueryHandler`, memoized, CONFIGURE customizers baked into the snapshot, per-invocation `with(handle)`
-+ BIND customizers); `@SqlUpdate`/`@SqlCall`/`@SqlBatch` still build a classic statement per invocation
-(`SqlUpdateHandler`/`SqlCallHandler`/`SqlBatchHandler.createStatement` → `handle.createUpdate/createCall/
-prepareBatch`). Bring them onto the template the way `SqlQueryHandler` does, so each per-request
-invocation skips render+parse+config-snapshot:
-  - **`@SqlUpdate`:** mirror `SqlQueryHandler` — memoize a `StatementTemplate` per attach; per invocation
-    `template.with(handle)` (returns a `Query`, which now has `execute()`/`executeLarge()`/
-    `executeAndReturnGeneratedKeys`), route the existing update returners through it. Respect the phase
-    model (CONFIGURE baked once; BIND per-invocation; `ConfigMutating`/LATE → classic fallback).
-  - **`@SqlCall`:** same, but `template.call(handle)` (needs `createCall`); returner is `Call.invoke()`.
-  - **`@SqlBatch`:** `SqlBatchHandler` fully overrides `attachTo` for chunked execution — use
-    `template.prepareBatch(handle)` for the per-chunk binding; keep the chunking loop. Most involved.
-  - **VALIDATE, don't assume:** A/B benchmark each (extend the sqlobject benchmarks — an attach/per-op
-    variant). The 19b analysis: reusable *update* templates win for per-request single updates, but bulk
-    loops still favor `PreparedBatch` — measure that the SQL Object per-invocation path actually benefits
-    before committing. Watch the `Customizable<?>` `statementFactory` seam (SqlQueryHandler L58-72) and
-    `configureReturner`'s `ResultBearing`/type casts.
+**Tier 2 — SQL Object adopts templates for `@SqlUpdate`/`@SqlCall`/`@SqlBatch` — DONE (2026-07-20, whole
+core+sqlobject+benchmark reactor green with checks + tests).** `@SqlQuery` had been the only handler that
+built a `StatementTemplate` per attach; now all four parameterized SQL Object statement kinds do, so each
+per-request invocation skips render + parse + config-snapshot. Each handler mirrors `SqlQueryHandler`:
+memoize a `StatementTemplate` per attach, bake the CONFIGURE-phase customizers into its snapshot once, and
+per invocation bind a fresh thread-confined statement applying only BIND-phase customizers; a method with a
+`ConfigMutating` (LATE) customizer falls back to the classic per-invocation path.
+  - **`@SqlUpdate`** (`SqlUpdateHandler`): `statementFactory` override builds the template; per invocation
+    `template.with(handle)` returns a `Query` and the update returners run through its `execute()` /
+    `executeLarge()` / `executeAndReturnGeneratedKeys(...)`. **Both** paths (fast and classic-fallback) now
+    yield a `Query` — `createStatement` returns `handle.createQuery(locatedSql)` — so the single
+    `resultTransformer`/`configureReturner` is uniform and the `Update` type is no longer referenced by the
+    handler. **Observability change (accepted):** `@SqlUpdate` now reports statement type `"Query"` (was
+    `"Update"`) in the JFR `JdbiStatementEvent.type` and `StatementContext.describeJdbiStatementType()`.
+    That property is `@Beta`, this is the unreleased 4.0.0 major, and it is the direct consequence of the
+    Tier 1 "terminal picks the kind" model ("Update needs nothing extra"). No test asserted the old
+    `"Update"` type. (The other test breakages the adoption surfaced were real bugs — see the phase-model
+    refinement and cache-fix bullets below.)
+  - **`@SqlCall`** (`SqlCallHandler`): same pattern via `template.call(handle)` → `Call`; returner is
+    `Call.invoke()`. Both paths yield a `Call` (classic-fallback keeps `handle.createCall`).
+  - **`@SqlBatch`** (`SqlBatchHandler`): it fully overrides `attachTo` for chunked execution, so the
+    template is a memoized `Supplier<StatementTemplate>` built in `attachTo` (null when LATE). Each chunk's
+    `PreparedBatch` comes from `template.prepareBatch(handle)` (helper `newPreparedBatch`) and per-row
+    customizers apply BIND-only on the fast path (all phases on the classic path); the chunking loop and
+    `transactional` wrapping are unchanged.
+
+**Phase model refinement — the right axis is what a customizer touches, not where the annotation sits.**
+Making all four kinds share the template engine surfaced two cases the old CONFIGURE/BIND/LATE model got
+wrong, both fixed in the direction of unification (maintainer: "phases are not set in stone; find the right
+model"):
+  - **`@OutParameter` (and `@OutParameterList`)** is a *method-level* customizer that operates on the live
+    `Call` (`((Call) stmt).registerOutParameter(...)`). The old model classified type/method customizers as
+    CONFIGURE and applied them to the build-time `ConfigureStatement` surface → `ClassCastException`. Root
+    cause: annotation *position* (type/method vs parameter) is the wrong proxy for *what the customizer
+    touches* (configuration vs the live statement). Fix: a new public marker
+    `org.jdbi.sqlobject.customizer.StatementScoped` (symmetric with `ConfigMutating`) declares a customizer
+    that acts on the executable statement and must run per invocation → `phaseFor` returns `BIND` for it even
+    at type/method level. `OutParameterFactory`/`OutParameterListFactory` declare it. `ConfigMutating` still
+    wins → `LATE`. This is invariant-but-statement-scoped work: applying it per invocation is correct (it is
+    idempotent), it just cannot be baked into a shared config snapshot.
+  - **Issue #1516** (`TestSqlBatchWithCustomizer`): a method-level customizer that does
+    `stmt.addCustomizer(...)` is CONFIGURE (bakeable) and is now baked once, so its `beforeExecution` fires
+    once per batch execution with a non-null statement. The old classic path re-applied it per row, so the
+    test asserted `count == rowCount` (3). #1516's actual bug was a *null statement* (NPE) for `@SqlBatch`,
+    not per-element invocation — so the unified behavior (registered once, fires once, non-null stmt) fully
+    satisfies the issue. The test was updated to assert `count == 1` and to assert the statement is non-null
+    (the real regression guard).
+
+**Latent `DefaultJdbiCache` exception-safety bug — fixed (required by the template pre-parse).** A throwing
+cache loader left the placeholder node in the CHM and already added to the expunge queue, so the next `get`
+for the same key crashed with `IllegalStateException: Can not add node twice!` instead of retrying. This is
+pre-existing (confirmed by a unit probe and by reasoning: calling any parse-failing SQL twice on the classic
+path already crashed on the second call). The `StatementTemplate` constructor pre-parses at build time and
+swallows a parse failure (SQL may depend on per-execution attributes), so a genuinely-invalid statement
+(`TestPositionalBinder`'s mixed named/positional params) parsed twice — once at build, once at execution —
+surfaced the bug on the first call. Fix in `DefaultJdbiCache.doGet`: compute the value *before* `addHead`, and
+on loader failure `cache.remove(key, node)` so a later call retries with a fresh node. Regression test
+`DefaultJdbiCacheTest.testThrowingLoaderDoesNotCorruptCache` (throw twice, then a successful load).
+  - **Tests:** `TestSqlObjectTemplateAdoption` (H2, 4 tests) — a "configure applied once per attach" counter
+    proves template reuse for update + batch, and `ConfigMutating` (reusing `TestConfigMutatingCustomizer.
+    DefineViaConfig`) proves the classic fallback for update + batch. `TestSqlCall` gained
+    `sqlCallReusesTemplateAcrossInvocations` (the old `testFoo` never actually invoked the `@SqlCall`
+    handler). Previously-failing suites now pass on the unified path: `TestOutParameterAnnotation` (15),
+    `TestPostgresRefcursorProc`, `TestPositionalBinder` (5), `TestSqlBatchWithCustomizer` (1). All existing
+    SQL Object suites exercise the fast path (it is now the default) and stay green.
+  - **A/B benchmark (R7 method: revert only the 3 handler files to HEAD, rebuild, rerun, restore; H2, JDK
+    26, `-prof gc`, 2 forks × 4 iters; `gc.alloc.rate.norm`, OUT→IN):** `sqlobjectInsertRowCountBindBean`
+    7770→7408 B/op (**−361, −4.6%, +8% thrpt**), `sqlobjectInsertGeneratedKeyBindBean` 8500→8246 (**−254,
+    −3.0%**), `sqlobjectInsertGeneratedKeyValues` 8724→8557 (**−167, −1.9%**), `sqlobjectInsertRowCountValues`
+    7705→7679 (−26, noise). `sqlobjectInsertBatch` (10 rows) 52561→52501 (−60, ~0% — no regression; the
+    one-time render/parse/snapshot saving amortizes across the rows, matching the 19b prediction that bulk
+    batch does not benefit but must not regress). Controls flat: `fluentSelectOne` 4121→4121 (byte-identical),
+    `sqlobjectSelectOne` 4592→4581. New benchmark `BaseSqlObjectV3Benchmark.sqlobjectInsertBatch` (+ DAO
+    `insertTestDataBatch`) added for the batch A/B. Net: modest-but-real per-op update win, no batch
+    regression, and all four kinds now share one template engine (uniform JFR + maintainability).
 
 **Follow-ons noted:** (1) the abandoned JFR lazy-gate is genuinely not worth doing (event is
 scalar-replaced when disabled); (2) `## Upgrading to Jdbi v4` and the `## SESSION 2026-07-19b` benchmark
 tables still say `QueryTemplate` / `QueryTemplateBenchmark` — sweep those names to `StatementTemplate`
-when the guide is lifted into `index.adoc` at release.
+when the guide is lifted into `index.adoc` at release; also note the `@SqlUpdate` `"Update"`→`"Query"`
+statement-type change in the upgrade guide's observability/QueryTemplate area at release.
 
 ## What actually remains (2026-07-19)
 
@@ -890,6 +947,35 @@ wrapper path that benefits most): `mappedTemplate` 3408 B/op & 1603 ops/ms vs `t
 throughput. The mapped number is identical to a hand-held pre-resolved mapper (measured), so the API adds zero
 overhead over the theoretical ceiling. Matches the pre-implementation estimate (~100–300 B/op, low end; small
 throughput bump, slightly beaten). Modest but real; a genuine opt-in refinement for a hot, single-shape query.
+
+### Future: fold the `warm` path into an eager template build — candidate cleanup (not scheduled)
+
+`ExtensionHandler.warm(config)` (implemented by `CustomizingStatementHandler`/`ResultReturner`/customizers) is a
+bolt-on: at attach time `ExtensionMetadata.ExtensionHandlerInvoker` calls `extensionInvoker.warm(methodConfig)`,
+which eagerly resolves the result mapper (`ResultReturner.warm` → `config.findMapperFor(type)`) and argument
+factories; `Extensions.isFailFast()` only gates whether a resolution failure rethrows (the resolution runs
+either way). It runs once per attach (the invoker is created once per attach in `ExtensionFactoryDelegate` and
+cached), and in practice only the SQL Object statement handlers implement it. It does two jobs: **fail-fast
+validation** (surface an unresolvable mapper at wiring time) and **cache pre-warming** (pay resolution before the
+first call).
+
+Both jobs are a natural fit for an **eager, mapped template built at attach**. Today the SQL Object handlers build
+the template *lazily* (first call) via `MemoizingSupplier` and resolve the result mapper *eagerly* through the
+separate `warm` traversal — an inconsistent split. If instead each handler built a `MappedStatementTemplate` at
+attach (`StatementTemplate.mapTo(elementType)` already resolves the mapper up front and throws
+`NoSuchMapperException` at build), the template build would *be* the warm step: render + parse + config snapshot +
+mapper resolution, all once, in the place that already owns "prepare up front." Fail-fast falls out (gate the
+build's `NoSuchMapperException` on `isFailFast()`); pre-warming falls out (everything resolved into the shared
+snapshot). The parallel `warm()` traversal could then be dropped on the template path.
+
+Caveats that keep it from being a trivial deletion: (1) `warm` also pre-resolves `@Bind` parameter customizers by
+static parameter type — to fully match, the eager build would need to prime argument resolution too (the types are
+static, so this is doable, but it is the one piece the mapped template does not subsume for free); (2) the
+`ConfigMutating`/LATE classic-fallback path builds no template, so it would still rely on `warm` (or accept
+first-call errors); (3) `warm` is a general `ExtensionHandler` SPI (default no-op) — since only statement handlers
+use it, the hook can stay while the template path stops needing it, and retiring the SPI is a larger
+extension-framework change. Net: `warm` is **not inherently necessary** — it predates the template model and the
+model can absorb it; this is a good post-release phase-6 simplification, not blocking.
 
 ## Historical design records (below)
 

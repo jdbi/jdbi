@@ -20,8 +20,11 @@ import org.jdbi.core.statement.Call;
 import org.jdbi.sqlobject.customizer.OutParameter;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
+import org.jdbi.sqlobject.customizer.StatementScoped;
 
-public class OutParameterFactory implements SqlStatementCustomizerFactory {
+// StatementScoped: registers the out parameter on the live Call for each invocation, so it cannot be
+// baked into a reusable template's configuration snapshot.
+public class OutParameterFactory implements SqlStatementCustomizerFactory, StatementScoped {
     @Override
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         final OutParameter outParam = (OutParameter) annotation;

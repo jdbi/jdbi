@@ -19,19 +19,27 @@ import java.lang.reflect.Type;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericTypes;
+import org.jdbi.core.internal.MemoizingSupplier;
 import org.jdbi.core.statement.Call;
 import org.jdbi.core.statement.Customizable;
 import org.jdbi.core.statement.OutParameters;
+import org.jdbi.core.statement.StatementTemplate;
 
 public class SqlCallHandler extends CustomizingStatementHandler {
     private final BiFunction<OutParameters, Call, ?> resultTransformer;
+    private final boolean late;
 
     public SqlCallHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
         resultTransformer = createResultTransformer(sqlObjectType, method);
+
+        // A method whose customizer must mutate configuration per invocation runs on the classic path.
+        this.late = hasLateCustomizers();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -56,6 +64,32 @@ public class SqlCallHandler extends CustomizingStatementHandler {
             return (outParameters, call) -> outParameters;
         } else {
             throw new IllegalArgumentException("@SqlCall methods may only return null or OutParameters at present");
+        }
+    }
+
+    @Override
+    Function<Handle, ? extends Customizable<?>> statementFactory(ConfigRegistry config, Supplier<String> locatedSql) {
+        if (late) {
+            // Classic path: a fresh Call per invocation, each with its own configuration copy.
+            return super.statementFactory(config, locatedSql);
+        }
+        // Fast path: build one template per attach, baking configure-phase customizers into its
+        // configuration snapshot once. Every call binds against a fresh, thread-confined binding.
+        final Supplier<StatementTemplate> template = MemoizingSupplier.of(() -> {
+            final ConfigRegistry templateConfig = config.createCopy();
+            applyConfigureCustomizers(new ConfigureStatement(templateConfig));
+            return new StatementTemplate(templateConfig, locatedSql.get());
+        });
+        return handle -> template.get().call(handle);
+    }
+
+    @Override
+    void applyPerInvocationCustomizers(Customizable<?> stmt, Object[] args) {
+        if (late) {
+            super.applyPerInvocationCustomizers(stmt, args);
+        } else {
+            // Configure-phase customizers are baked into the template; only bind per invocation.
+            applyCustomizers(stmt, args, Phase.BIND);
         }
     }
 
