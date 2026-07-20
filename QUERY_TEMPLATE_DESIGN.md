@@ -898,10 +898,22 @@ on loader failure `cache.remove(key, node)` so a later call retries with a fresh
     regression, and all four kinds now share one template engine (uniform JFR + maintainability).
 
 **Follow-ons noted:** (1) the abandoned JFR lazy-gate is genuinely not worth doing (event is
-scalar-replaced when disabled); (2) `## Upgrading to Jdbi v4` and the `## SESSION 2026-07-19b` benchmark
+scalar-replaced when disabled); (2) ~~`## Upgrading to Jdbi v4` and the `## SESSION 2026-07-19b` benchmark
 tables still say `QueryTemplate` / `QueryTemplateBenchmark` — sweep those names to `StatementTemplate`
 when the guide is lifted into `index.adoc` at release; also note the `@SqlUpdate` `"Update"`→`"Query"`
-statement-type change in the upgrade guide's observability/QueryTemplate area at release.
+statement-type change in the upgrade guide's observability/QueryTemplate area at release.~~
+
+**Follow-on (2) DONE (2026-07-20b).** The guide was already lifted into `docs/src/adoc/index.adoc`
+(`== Upgrading to Jdbi 4`) with the `QueryTemplate`→`StatementTemplate` names already swept (no
+`QueryTemplate` remains anywhere in tracked sources except this design doc). The two 2026-07-20 upgrade
+notes are now written and render clean: a `=== SQL Object updates report statement type \`Query\`` subsection
+(the `@SqlUpdate` `Update`→`Query` `describeJdbiStatementType()`/`JdbiStatementEvent.type` change; notes
+that `@SqlCall`/`@SqlBatch` types are unchanged) and a `=== Authoring SQL Object statement customizers`
+subsection documenting the `ConfigMutating` (per-invocation config mutation, classic path) and
+`StatementScoped` (operates on the live statement, per invocation, shared config) marker interfaces —
+both are new-in-v4, both were undocumented, so the note covers the pair. Only the design-doc's own
+`## Upgrading to Jdbi v4` / `## SESSION 2026-07-19b` benchmark copies still carry the old `QueryTemplate`
+name; those die with this doc at release, so no separate sweep is needed.
 
 ## What actually remains (2026-07-19)
 
@@ -948,7 +960,7 @@ throughput. The mapped number is identical to a hand-held pre-resolved mapper (m
 overhead over the theoretical ceiling. Matches the pre-implementation estimate (~100–300 B/op, low end; small
 throughput bump, slightly beaten). Modest but real; a genuine opt-in refinement for a hot, single-shape query.
 
-### Future: fold the `warm` path into an eager template build — candidate cleanup (not scheduled)
+### DONE (2026-07-20b): removed the `warm` path — see the "DONE 2026-07-20b" block below
 
 `ExtensionHandler.warm(config)` (implemented by `CustomizingStatementHandler`/`ResultReturner`/customizers) is a
 bolt-on: at attach time `ExtensionMetadata.ExtensionHandlerInvoker` calls `extensionInvoker.warm(methodConfig)`,
@@ -976,6 +988,45 @@ first-call errors); (3) `warm` is a general `ExtensionHandler` SPI (default no-o
 use it, the hook can stay while the template path stops needing it, and retiring the SPI is a larger
 extension-framework change. Net: `warm` is **not inherently necessary** — it predates the template model and the
 model can absorb it; this is a good post-release phase-6 simplification, not blocking.
+
+**DONE 2026-07-20b — the `warm` SPI was removed (nicer model than the doc's "eager `MappedStatementTemplate`
+build"; whole reactor green: compile + static analysis + all tests, 41 modules, net −47 LOC).** A first read
+recommended AGAINST the doc's specific mechanism (fold into an eager `MappedStatementTemplate` build), and that
+objection stands on its own terms: `MappedStatementTemplate` (one `ResultIterable<T>`) is far narrower than
+`ResultReturner` (collectors/reducers/consumers/`Function`/`Consumer`/`@UseRowMapper`/`@UseRowReducer` + per-config
+element type), so `@SqlQuery` can't adopt it without gutting the returner; and building the template eagerly at
+attach would render+parse every method including never-called ones (wide-DAO attach cost). The maintainer pushed
+back — "we're unifying the paths and dropping classic requirements; `warm` is a wart, there must be a nicer way" —
+and there is. The deciding fact is what `warm` actually *guarantees*: `MapResultTest.testGoodMethodFailsWhenRequested`
+shows the only fail-fast value is **result-mapper resolution** (`config.findMapperFor` throws `NoSuchMapperException`);
+`ArgumentResolver.prepareFor` returns an `Optional` and never throws, so the argument-side `warm`
+(`PojoWarmingCustomizer`, `BindFactory.warm`) is pure cache-priming with no correctness role. So:
+- **Deleted the `warm(ConfigRegistry)` SPI** from `AttachedExtensionHandler` (was `@Beta` on an `@Alpha` interface),
+  `SqlStatementCustomizer`, `SqlStatementParameterCustomizer`, and the internal `BoundCustomizer`. The
+  `ExtensionHandlerInvoker` ctor no longer calls `warm`.
+- **Replaced it with one fail-fast-gated resolution at attach.** `CustomizingStatementHandler.attachTo` calls a new
+  package-private overridable `void validate(ConfigRegistry)` (default no-op) when `Extensions.isFailFast()` is on;
+  `SqlQueryHandler`/`SqlUpdateHandler`/`SqlBatchHandler` override it to resolve their result mapper
+  (`ResultReturner.warm` renamed `resolveResultType`). The invoker wraps `attachTo` so a resolution failure surfaces
+  as `UnableToCreateExtensionException` at attach, exactly as before. **Path-independent:** fail-fast never depended on
+  a template, only on resolving the mapper, so the LATE/classic path fails fast identically — my earlier "classic still
+  needs `warm`" was an artifact of keeping the SPI and asking "who calls it" instead of "what does it guarantee."
+- **Templates stay lazy** (`MemoizingSupplier`) — the fail-fast resolution is cheap and needs no template, so the
+  wide-DAO attach-cost regression never arises. The doc's "build eagerly" step was not needed.
+- **Deleted `PojoWarmingCustomizer`** and `BindFactory.warm` (argument-side priming: no fail-fast value; the first call
+  primes the arg cache anyway). `SqlBatchHandler` no longer builds a throwaway `super.attachTo` invoker (it existed only
+  to run the customizer `warm` traversal). `AttachedExtensionHandler` is now a pure `@FunctionalInterface` (invoke only).
+- **Behavior change (intended, minor):** the configured *default parameter customizer factory* and result mappers are
+  no longer resolved eagerly at attach when fail-fast is OFF (the default); they resolve on first invocation as any
+  cache does. Surfaced by `TestUseConfiguredDefaultParameterCustomizerFactory`, whose comments literally documented the
+  old "once in warm(), once in apply()" double-call — updated to the new once-per-invocation counts (no-`@Bind` 4→2;
+  `@Bind` 2→0, since an annotated param never consults the default factory). `MapResultTest` fail-fast is preserved.
+- **Upgrade-guide note added** for the removed customizer `warm` hook (see the "Authoring SQL Object statement
+  customizers" subsection).
+Net: the wart is gone, not relocated — no per-path conditional, no per-customizer `warm` traversal, one small internal
+`validate` for the one thing (result mapper) that has fail-fast value. `GOTCHA that bit me: validating with
+`mvn -o -pl sqlobject test` links the STALE installed core and made `MapResultTest` spuriously fail (old core still
+called the now-no-op `warm`); the full-reactor `mvn clean verify` is authoritative.
 
 ## Historical design records (below)
 
