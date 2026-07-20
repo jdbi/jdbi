@@ -68,8 +68,13 @@ public class StatementTemplate {
             parsed = stmtConfig.getSqlParser()
                 .parse(rendered, StatementContext.create(config, null, StatementTemplate.class));
         } catch (final RuntimeException ignored) {
-            // The SQL references attributes that are only defined per execution, so it cannot be
-            // rendered once here; each execution renders and parses with its own defined attributes.
+            // Rendering/parsing once here is a best-effort fast path. It most often fails because the SQL
+            // references attributes that are only defined per execution; template engines signal that
+            // differently (the default engine throws UnableToCreateStatementException, Freemarker an
+            // IllegalStateException, and so on), so the whole family of runtime failures is treated the same:
+            // fall back to rendering and parsing with the per-execution attributes on each execution. This does
+            // not hide a genuine template or parser fault -- that fault simply re-surfaces when an execution
+            // renders and parses the SQL for real.
             rendered = null;
             parsed = null;
         }
