@@ -51,8 +51,8 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
     }
 
     @Override
-    protected void warm(ConfigRegistry config) {
-        resultReturner.warm(config);
+    void validate(ConfigRegistry config) {
+        resultReturner.resolveResultType(config);
     }
 
     @Override

@@ -37,7 +37,7 @@ import static java.lang.String.format;
 
 public class SqlUpdateHandler extends CustomizingStatementHandler {
 
-    private final WarmableResultTransformer resultTransformer;
+    private final ResultTransformer resultTransformer;
     private final boolean late;
 
     public SqlUpdateHandler(Class<?> sqlObjectType, Method method) {
@@ -57,7 +57,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
             String[] columnNames = getGeneratedKeys.value();
             var resultReturner = ResultReturner.forMethod(sqlObjectType, method);
 
-            this.resultTransformer = new WarmableResultTransformer() {
+            this.resultTransformer = new ResultTransformer() {
                 @Override
                 public Object apply(Query query) {
                     var ctx = query.getContext();
@@ -73,8 +73,8 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
                 }
 
                 @Override
-                public void warm(ConfigRegistry config) {
-                    resultReturner.warm(config);
+                public void resolveResultType(ConfigRegistry config) {
+                    resultReturner.resolveResultType(config);
                 }
             };
         } else if (isLong(method.getReturnType())) {
@@ -94,8 +94,8 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
     }
 
     @Override
-    protected void warm(ConfigRegistry config) {
-        this.resultTransformer.warm(config);
+    void validate(ConfigRegistry config) {
+        this.resultTransformer.resolveResultType(config);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
     }
 
     @SuppressWarnings("PMD.ImplicitFunctionalInterface")
-    private interface WarmableResultTransformer extends Function<Query, Object> {
-        default void warm(ConfigRegistry config) {}
+    private interface ResultTransformer extends Function<Query, Object> {
+        default void resolveResultType(ConfigRegistry config) {}
     }
 }

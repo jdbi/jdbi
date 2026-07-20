@@ -31,7 +31,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.extension.AttachedExtensionHandler;
 import org.jdbi.core.extension.ExtensionHandler;
-import org.jdbi.core.extension.HandleSupplier;
+import org.jdbi.core.extension.Extensions;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.RowReducer;
@@ -150,11 +150,6 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
                         }
 
                         @Override
-                        public void warm(ConfigRegistry config) {
-                            c.warm(config);
-                        }
-
-                        @Override
                         public void apply(Customizable<?> stmt, Object[] args) throws SQLException {
                             c.apply(stmt, args[i]);
                         }
@@ -199,11 +194,6 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
             }
 
             @Override
-            public void warm(ConfigRegistry config) {
-                create(config).warm(config);
-            }
-
-            @Override
             public void apply(Customizable<?> stmt, Object[] args) throws SQLException {
                 create(stmt.getConfig()).apply(stmt, args[i]);
             }
@@ -233,31 +223,30 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
     public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
         final Supplier<String> locatedSql = locateSql(config);
         final Function<Handle, ? extends Customizable<?>> statementFactory = statementFactory(config, locatedSql);
-        return new AttachedExtensionHandler() {
-            @Override
-            public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
-                final Handle h = handleSupplier.getHandle();
-                final Customizable<?> stmt = statementFactory.apply(h);
+        if (config.get(Extensions.class).isFailFast()) {
+            validate(config);
+        }
+        return (handleSupplier, args) -> {
+            final Handle h = handleSupplier.getHandle();
+            final Customizable<?> stmt = statementFactory.apply(h);
 
-                // clean the statement when the handle closes
-                stmt.attachToHandleForCleanup();
+            // clean the statement when the handle closes
+            stmt.attachToHandleForCleanup();
 
-                final SqlObjectStatementState state = new SqlObjectStatementState(args);
-                stmt.getContext().setExtensionState(state);
-                configureReturner(stmt, state);
-                applyPerInvocationCustomizers(stmt, safeVarargs(args));
-                return state.getReturner().get();
-            }
-
-            @Override
-            public void warm(ConfigRegistry config) {
-                statementCustomizers.forEach(s -> s.warm(config));
-                CustomizingStatementHandler.this.warm(config);
-            }
+            final SqlObjectStatementState state = new SqlObjectStatementState(args);
+            stmt.getContext().setExtensionState(state);
+            configureReturner(stmt, state);
+            applyPerInvocationCustomizers(stmt, safeVarargs(args));
+            return state.getReturner().get();
         };
     }
 
-    protected void warm(ConfigRegistry config) {}
+    /**
+     * Resolves the result-producing types this handler needs, so a wiring error (for example an
+     * unregistered result mapper) surfaces while attaching rather than on first invocation. Called only
+     * when {@link Extensions#isFailFast()} is enabled; handlers that produce mapped results override it.
+     */
+    void validate(ConfigRegistry config) {}
 
     /**
      * Builds the per-invocation factory that produces the statement to execute. The default creates a
@@ -355,8 +344,6 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
 
         void apply(Customizable<?> stmt, Object[] args) throws SQLException;
 
-        void warm(ConfigRegistry config);
-
         static BoundCustomizer of(SqlStatementCustomizer inner, Phase phase) {
             return new BoundCustomizer() {
                 @Override
@@ -367,11 +354,6 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
                 @Override
                 public void apply(Customizable<?> stmt, Object[] args) throws SQLException {
                     inner.apply(stmt);
-                }
-
-                @Override
-                public void warm(ConfigRegistry config) {
-                    inner.warm(config);
                 }
             };
         }

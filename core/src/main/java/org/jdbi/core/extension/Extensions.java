@@ -256,8 +256,9 @@ public final class Extensions implements JdbiConfig<Extensions> {
     }
 
     /**
-     * Fail fast if any method in an Extension object is misconfigured and can not be warmed. Default is to
-     * fail when a method is used for the first time.
+     * Fail fast if any method in an Extension object is misconfigured, for example if its result type has
+     * no registered mapper. The error surfaces when the extension is attached rather than when a method is
+     * used for the first time, which is the default.
      *
      * @return a copy of this configuration that fails fast
      * @since 3.39.0

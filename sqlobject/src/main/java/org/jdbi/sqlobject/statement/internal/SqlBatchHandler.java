@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.extension.AttachedExtensionHandler;
+import org.jdbi.core.extension.Extensions;
 import org.jdbi.core.extension.HandleSupplier;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.internal.IterableLike;
@@ -199,8 +200,12 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
     }
 
     @Override
+    void validate(ConfigRegistry config) {
+        resultReturner.resolveResultType(config);
+    }
+
+    @Override
     public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
-        final AttachedExtensionHandler superInvoker = super.attachTo(config, target);
         final Supplier<String> sqlSupplier = locateSql(config);
         // Fast path: build one template per attach, baking configure-phase customizers into its
         // configuration snapshot once. Each chunk binds a fresh PreparedBatch against that snapshot,
@@ -211,6 +216,9 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
             applyConfigureCustomizers(new ConfigureStatement(templateConfig));
             return new StatementTemplate(templateConfig, sqlSupplier.get());
         });
+        if (config.get(Extensions.class).isFailFast()) {
+            validate(config);
+        }
         return new AttachedExtensionHandler() {
             @Override
             public Object invoke(HandleSupplier handleSupplier, Object... args) {
@@ -334,12 +342,6 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
                 ResultIterable<Object> iterable = ResultIterable.of(result);
 
                 return resultReturner.mappedResult(iterable, result.getContext());
-            }
-
-            @Override
-            public void warm(ConfigRegistry config) {
-                superInvoker.warm(config);
-                resultReturner.warm(config);
             }
         };
     }
