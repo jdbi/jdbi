@@ -58,9 +58,4 @@ public final class MapEntryMappers implements JdbiConfig<MapEntryMappers>, MapEn
         return new MapEntryMappers(keyColumn, valueColumn);
     }
 
-    @Override
-    public MapEntryMappers createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

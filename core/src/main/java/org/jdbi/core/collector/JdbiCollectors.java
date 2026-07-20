@@ -89,9 +89,4 @@ public final class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
         return factories;
     }
 
-    @Override
-    public JdbiCollectors createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

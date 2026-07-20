@@ -16,19 +16,14 @@ package org.jdbi.core.config;
 /**
  * Interface for classes that hold configuration. Implementations of this interface must have a public
  * constructor that optionally takes the {@link ConfigRegistry}.
- *
- * Implementors should ensure that implementations are thread-safe for access and caching purposes, but not
- * necessarily for reconfiguration.
+ * <p>
+ * Implementations must be immutable and thread-safe. A config value is shared across registries -- an unforked
+ * copy-on-write child registry reads its parent's values by reference -- so it may be read concurrently from many
+ * threads and must never be mutated in place: in-place mutation would corrupt the shared ancestor. Reconfiguration
+ * produces a new instance (a "wither" returns a derived value instead of modifying the receiver), which
+ * {@link Configurable#configure} installs into the target registry. Because values are immutable, a registry
+ * shares them by reference rather than copying them, so there is no per-value copy hook.
  *
  * @param <This> A "This" type. Should always be the configuration class.
  */
-@SuppressWarnings("PMD.ImplicitFunctionalInterface")
-public interface JdbiConfig<This extends JdbiConfig<This>> {
-    /**
-     * Returns a copy of this configuration object.
-     * Changes to the copy should not modify the original, and vice-versa.
-     *
-     * @return a copy of this configuration object.
-     */
-    This createCopy();
-}
+public interface JdbiConfig<This extends JdbiConfig<This>> {}

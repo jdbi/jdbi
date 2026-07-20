@@ -78,11 +78,6 @@ public class StatementExceptions implements JdbiConfig<StatementExceptions> {
         return new StatementExceptions(messageRendering, lengthLimit);
     }
 
-    @Override
-    public StatementExceptions createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 
     /**
      * Control exception message generation.

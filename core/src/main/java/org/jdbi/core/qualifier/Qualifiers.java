@@ -81,10 +81,4 @@ public final class Qualifiers implements JdbiConfig<Qualifiers> {
                 .collect(CollectionCollectors.toUnmodifiableSet());
     }
 
-    @Override
-    public Qualifiers createCopy() {
-        // Immutable: safe to share across registries in the same family (they share the qualifier caches, and
-        // the cached result is a pure function of the annotated elements).
-        return this;
-    }
 }

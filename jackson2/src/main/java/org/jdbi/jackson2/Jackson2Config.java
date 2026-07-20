@@ -124,9 +124,4 @@ public final class Jackson2Config implements JdbiConfig<Jackson2Config> {
         return useStaticType;
     }
 
-    @Override
-    public Jackson2Config createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

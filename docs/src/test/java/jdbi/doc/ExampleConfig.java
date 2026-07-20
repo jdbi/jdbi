@@ -18,41 +18,35 @@ import org.jdbi.core.config.JdbiConfig;
 // tag::exampleConfig[]
 public class ExampleConfig implements JdbiConfig<ExampleConfig> {
 
-    private String color;
-    private int number;
+    // A JdbiConfig is immutable: its fields are final, and a "wither" returns a new instance instead of mutating.
+    private final String color;
+    private final int number;
 
+    // Public no-argument constructor providing the defaults.
     public ExampleConfig() {
-        color = "purple";
-        number = 42;
+        this("purple", 42);
     }
 
-    private ExampleConfig(ExampleConfig other) {
-        this.color = other.color;
-        this.number = other.number;
-    }
-
-    public ExampleConfig setColor(String color) {
+    // Private all-arguments constructor used by the withers.
+    private ExampleConfig(String color, int number) {
         this.color = color;
-        return this;
+        this.number = number;
+    }
+
+    public ExampleConfig color(String color) {
+        return new ExampleConfig(color, this.number);
     }
 
     public String getColor() {
         return color;
     }
 
-    public ExampleConfig setNumber(int number) {
-        this.number = number;
-        return this;
+    public ExampleConfig number(int number) {
+        return new ExampleConfig(this.color, number);
     }
 
     public int getNumber() {
         return number;
     }
-
-    @Override
-    public ExampleConfig createCopy() {
-        return new ExampleConfig(this);
-    }
-
 }
 // end::exampleConfig[]

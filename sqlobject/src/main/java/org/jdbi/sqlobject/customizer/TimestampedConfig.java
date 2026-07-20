@@ -53,9 +53,4 @@ public final class TimestampedConfig implements JdbiConfig<TimestampedConfig> {
         return new TimestampedConfig(timezone);
     }
 
-    @Override
-    public TimestampedConfig createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

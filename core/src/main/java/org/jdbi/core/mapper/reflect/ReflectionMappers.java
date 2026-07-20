@@ -161,9 +161,4 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
         return accessibleObject;
     }
 
-    @Override
-    public ReflectionMappers createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

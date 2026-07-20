@@ -65,9 +65,4 @@ public final class Handlers implements JdbiConfig<Handlers> {
                 .findFirst();
     }
 
-    @Override
-    public Handlers createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

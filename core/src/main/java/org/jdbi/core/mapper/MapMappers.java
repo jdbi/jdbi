@@ -53,9 +53,4 @@ public final class MapMappers implements JdbiConfig<MapMappers> {
         return new MapMappers(caseChange);
     }
 
-    @Override
-    public MapMappers createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

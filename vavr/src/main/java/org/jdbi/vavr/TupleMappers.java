@@ -88,9 +88,4 @@ public final class TupleMappers implements JdbiConfig<TupleMappers>, MapEntryCon
         return columns[tupleIndex - 1];
     }
 
-    @Override
-    public TupleMappers createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

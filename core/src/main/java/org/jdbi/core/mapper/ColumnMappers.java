@@ -230,9 +230,4 @@ public final class ColumnMappers implements JdbiConfig<ColumnMappers> {
         return new ColumnMappers(factories, inferenceInterceptors, coalesceNullPrimitivesToDefaults);
     }
 
-    @Override
-    public ColumnMappers createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

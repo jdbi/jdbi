@@ -37,10 +37,6 @@ public final class ConfigCaches implements JdbiConfig<ConfigCaches> {
     /**
      * Does not actually create a copy!!
      */
-    @Override
-    public ConfigCaches createCopy() {
-        return this;
-    }
 
     public static <K, V> ConfigCache<K, V> declare(Function<K, V> computer) {
         return declare(Function.identity(), computer);

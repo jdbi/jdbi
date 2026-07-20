@@ -50,9 +50,4 @@ public final class Gson2Config implements JdbiConfig<Gson2Config> {
         return gson;
     }
 
-    @Override
-    public Gson2Config createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

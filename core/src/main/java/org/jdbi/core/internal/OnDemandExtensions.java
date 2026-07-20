@@ -95,11 +95,6 @@ public final class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> 
         }
     }
 
-    @Override
-    public OnDemandExtensions createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 
     @FunctionalInterface
     public interface Factory {

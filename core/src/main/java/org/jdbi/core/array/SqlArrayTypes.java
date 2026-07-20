@@ -167,9 +167,4 @@ public final class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
         return factories;
     }
 
-    @Override
-    public SqlArrayTypes createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

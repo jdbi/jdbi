@@ -128,11 +128,6 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
         }, ctx);
     }
 
-    @Override
-    public ResultProducers createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 
     /**
      * Normally a query that doesn't return a result set throws an exception.

@@ -38,15 +38,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestInheritedAnnotations {
 
-    @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
-
     private final MockClock mockClock = MockClock.now();
+
+    @RegisterExtension
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin())
+        .withConfig(BindTimeConfig.class, c -> c.clock(mockClock));
 
     @BeforeEach
     public void setUp() {
-        h2Extension.getJdbi().getConfig(BindTimeConfig.class).setClock(mockClock);
-
         Handle handle = h2Extension.getSharedHandle();
         handle.execute("CREATE TABLE characters (id INT, name VARCHAR, created TIMESTAMP, modified TIMESTAMP)");
     }

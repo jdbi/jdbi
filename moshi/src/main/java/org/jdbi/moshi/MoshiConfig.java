@@ -52,9 +52,4 @@ public final class MoshiConfig implements JdbiConfig<MoshiConfig> {
         return moshi;
     }
 
-    @Override
-    public MoshiConfig createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }
