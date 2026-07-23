@@ -13,7 +13,10 @@
  */
 package org.jdbi.v3.json;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Set;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 
@@ -29,15 +32,15 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 public interface JsonMapper {
     @Deprecated(since = "3.40.0", forRemoval = true)
     default String toJson(Type type, Object value, ConfigRegistry config) {
-        return forType(type, config).toJson(value, config);
+        return forType(type, Collections.emptySet(), config).toJson(value, config);
     }
 
     @Deprecated(since = "3.40.0", forRemoval = true)
     default Object fromJson(Type type, String json, ConfigRegistry config) {
-        return forType(type, config).fromJson(json, config);
+        return forType(type, Collections.emptySet(), config).fromJson(json, config);
     }
 
-    TypedJsonMapper forType(Type type, ConfigRegistry config);
+    TypedJsonMapper forType(Type type, Set<? extends Annotation> annotations, ConfigRegistry config);
 
     interface TypedJsonMapper {
         String toJson(Object value, ConfigRegistry config);
