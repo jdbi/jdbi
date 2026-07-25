@@ -647,6 +647,40 @@ try (Query query = handle.createQuery("select * from users")) {
 A plugin that must contribute per-connection state to every handle -- binding driver-specific types on the live `Connection`, say -- implements `JdbiPlugin.customizeHandleConnection(Connection, ConfigView)`, which runs once as each handle is created.
 It receives a read-only `ConfigView`: it can read `Jdbi`-level configuration and act on the `Connection`, but it cannot mutate the handle's config, which is never forked.
 
+=== Configuring Jdbi from Spring beans
+
+A Spring service that configured Jdbi at the point of use -- `handle.registerRowMapper(...)`, `handle.configure(...)`, or a `register`/`configure` call on the shared `Jdbi` bean after it was built -- has no equivalent in Jdbi 4: a built `Jdbi` and its handles are read-only.
+Move that configuration to build time, where the `Jdbi.Builder` is `Configurable`.
+
+The `jdbi-spring` module's `JdbiFactoryBean` builds the `Jdbi`, so contribute mappers, arguments, and defines through a plugin it installs rather than on the bean afterwards.
+When those values are themselves Spring beans, autowire them into a `JdbiPlugin` and register them from `configure(Jdbi.Builder)`:
+
+[source,java,indent=0]
+----
+@Component
+public class MapperPlugin extends JdbiPlugin.Singleton {
+    private final UserMapper userMapper;   // an autowired Spring bean
+
+    @Autowired
+    public MapperPlugin(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    @Override
+    public void configure(Jdbi.Builder builder) {
+        builder.registerRowMapper(userMapper);
+    }
+}
+
+@Bean
+public JdbiFactoryBean jdbi(DataSource dataSource, MapperPlugin mapperPlugin) {
+    return new JdbiFactoryBean(dataSource)
+        .setPlugins(List.of(new SqlObjectPlugin(), mapperPlugin));
+}
+----
+
+Register everything a request will need before `build()`; there is no point-of-use configuration left to fall back on.
+
 === Custom factories, mappers, and codecs take `ConfigView`
 
 The read-only half of the split is a new `ConfigView` type: `Jdbi.getConfig()` and `Handle.getConfig()` return a `ConfigView` (reads and safe derives only), not a mutable `ConfigRegistry`.
