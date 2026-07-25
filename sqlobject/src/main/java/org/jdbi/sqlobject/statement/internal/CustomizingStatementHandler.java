@@ -225,6 +225,9 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
         final Function<Handle, ? extends Customizable<?>> statementFactory = statementFactory(config, locatedSql);
         if (config.get(Extensions.class).isFailFast()) {
             validate(config);
+            if (buildsReusableTemplate()) {
+                dryRunConfigurePhase(config);
+            }
         }
         return (handleSupplier, args) -> {
             final Handle h = handleSupplier.getHandle();
@@ -247,6 +250,25 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
      * when {@link Extensions#isFailFast()} is enabled; handlers that produce mapped results override it.
      */
     void validate(ConfigRegistry config) {}
+
+    /**
+     * @return true if this handler bakes configure-phase customizers into a reusable template at build time
+     * (the fast path), so those customizers are dry-run at attach under fail-fast. The default is false: a
+     * handler that applies every customizer to a real statement on each call has nothing to check.
+     */
+    boolean buildsReusableTemplate() {
+        return false;
+    }
+
+    /**
+     * Dry-runs the configure phase at attach against a throwaway config, so a customizer that must touch the
+     * live statement but does not declare {@link org.jdbi.sqlobject.customizer.StatementScoped} fails here
+     * rather than on the first invocation. The throwaway child config absorbs anything the configure
+     * customizers install.
+     */
+    void dryRunConfigurePhase(final ConfigRegistry config) {
+        applyConfigureCustomizers(new ConfigureStatement(config.createChild()));
+    }
 
     /**
      * Builds the per-invocation factory that produces the statement to execute. The default creates a

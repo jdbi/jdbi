@@ -62,6 +62,11 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
     }
 
     @Override
+    boolean buildsReusableTemplate() {
+        return !late;
+    }
+
+    @Override
     Function<Handle, ? extends Customizable<?>> statementFactory(ConfigRegistry config, Supplier<String> locatedSql) {
         if (late) {
             // Classic path: a fresh Query per call, each with its own configuration copy.

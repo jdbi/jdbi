@@ -205,6 +205,11 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
     }
 
     @Override
+    boolean buildsReusableTemplate() {
+        return !late;
+    }
+
+    @Override
     public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
         final Supplier<String> sqlSupplier = locateSql(config);
         // Fast path: build one template per attach over a copy-on-write child of the attach
@@ -220,6 +225,9 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
         });
         if (config.get(Extensions.class).isFailFast()) {
             validate(config);
+            if (buildsReusableTemplate()) {
+                dryRunConfigurePhase(config);
+            }
         }
         return new AttachedExtensionHandler() {
             @Override

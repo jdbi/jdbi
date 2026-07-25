@@ -68,6 +68,11 @@ public class SqlCallHandler extends CustomizingStatementHandler {
     }
 
     @Override
+    boolean buildsReusableTemplate() {
+        return !late;
+    }
+
+    @Override
     Function<Handle, ? extends Customizable<?>> statementFactory(ConfigRegistry config, Supplier<String> locatedSql) {
         if (late) {
             // Classic path: a fresh Call per invocation, each with its own configuration copy.

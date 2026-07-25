@@ -23,12 +23,15 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.extension.Extensions;
+import org.jdbi.core.extension.UnableToCreateExtensionException;
 import org.jdbi.core.statement.Customizable;
 import org.jdbi.sqlobject.TestConfigMutatingCustomizer.DefineViaConfig;
 import org.jdbi.sqlobject.customizer.Bind;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizingAnnotation;
+import org.jdbi.sqlobject.customizer.StatementScoped;
 import org.jdbi.sqlobject.statement.SqlBatch;
 import org.jdbi.sqlobject.statement.SqlUpdate;
 import org.jdbi.testing.junit.JdbiExtension;
@@ -37,6 +40,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * {@code @SqlUpdate}, {@code @SqlCall}, and {@code @SqlBatch} adopt a reusable {@link
@@ -110,6 +115,37 @@ public class TestSqlObjectTemplateAdoption {
         assertThat(handle.createQuery("select count(*) from something").mapTo(int.class).one()).isEqualTo(3);
     }
 
+    @Test
+    public void failFastReportsMissingStatementScopedAtAttach() {
+        // A method customizer that touches the live statement without declaring StatementScoped is baked into
+        // the template's configure phase, where no live statement exists. Under fail-fast the mistake surfaces
+        // at attach rather than on first invocation.
+        assertThatThrownBy(() -> {
+            try (Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(Extensions.class, Extensions::failFast))) {
+                h.attach(TouchesLiveStatementDao.class);
+            }
+        })
+                .isInstanceOf(UnableToCreateExtensionException.class)
+                .hasMessageContaining("StatementScoped");
+    }
+
+    @Test
+    public void withoutFailFastMissingStatementScopedFailsOnFirstInvocation() {
+        // Default (lazy) behaviour is unchanged: attach succeeds, the template builds on first use, and the
+        // same mistake surfaces then.
+        TouchesLiveStatementDao dao = handle.attach(TouchesLiveStatementDao.class);
+        assertThatThrownBy(() -> dao.rename(1, "Bob")).hasMessageContaining("StatementScoped");
+    }
+
+    @Test
+    public void failFastAllowsCorrectlyMarkedStatementScopedCustomizer() {
+        // A StatementScoped customizer runs per invocation on the real statement, so the attach-time probe
+        // skips it: attach succeeds under fail-fast.
+        try (Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(Extensions.class, Extensions::failFast))) {
+            assertThatCode(() -> h.attach(StatementScopedDao.class)).doesNotThrowAnyException();
+        }
+    }
+
     public interface UpdateDao {
         @CountConfigure
         @SqlUpdate("update something set name = :name where id = :id")
@@ -147,5 +183,44 @@ public class TestSqlObjectTemplateAdoption {
     // A configure-phase customizer that only records that it ran, so the test can prove it is baked once.
     private static void countConfigureApplication(Customizable<?> stmt) {
         CONFIGURE_APPLICATIONS.incrementAndGet();
+    }
+
+    public interface TouchesLiveStatementDao {
+        @TouchLiveStatement
+        @SqlUpdate("update something set name = :name where id = :id")
+        int rename(@Bind("id") int id, @Bind("name") String name);
+    }
+
+    public interface StatementScopedDao {
+        @TouchLiveStatementScoped
+        @SqlUpdate("update something set name = :name where id = :id")
+        int rename(@Bind("id") int id, @Bind("name") String name);
+    }
+
+    // Reads the per-invocation statement context but does not declare StatementScoped, so it is treated as a
+    // configure-phase customizer and, wrongly, baked into the template.
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    @SqlStatementCustomizingAnnotation(TouchLiveStatement.Factory.class)
+    public @interface TouchLiveStatement {
+        class Factory implements SqlStatementCustomizerFactory {
+            @Override
+            public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+                return stmt -> stmt.getContext();
+            }
+        }
+    }
+
+    // The same live-statement access, correctly declared StatementScoped so it runs per invocation.
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    @SqlStatementCustomizingAnnotation(TouchLiveStatementScoped.Factory.class)
+    public @interface TouchLiveStatementScoped {
+        class Factory implements SqlStatementCustomizerFactory, StatementScoped {
+            @Override
+            public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
+                return stmt -> stmt.getContext();
+            }
+        }
     }
 }
