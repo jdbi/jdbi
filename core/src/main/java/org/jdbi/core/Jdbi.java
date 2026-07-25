@@ -44,6 +44,7 @@ import org.jdbi.core.transaction.LocalTransactionHandler;
 import org.jdbi.core.transaction.TransactionHandler;
 import org.jdbi.core.transaction.TransactionIsolationLevel;
 import org.jdbi.meta.Alpha;
+import org.jdbi.meta.Beta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -662,6 +663,7 @@ public class Jdbi implements ConfigReader {
      * @param sql the SQL for the template
      * @return a reusable statement template
      */
+    @Beta
     public StatementTemplate buildStatementTemplate(final CharSequence sql) {
         return new StatementTemplate(config.createChild(), sql);
     }

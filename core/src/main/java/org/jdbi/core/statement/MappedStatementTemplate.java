@@ -16,6 +16,7 @@ package org.jdbi.core.statement;
 import com.google.errorprone.annotations.ThreadSafe;
 import org.jdbi.core.Handle;
 import org.jdbi.core.mapper.RowMapper;
+import org.jdbi.meta.Beta;
 
 /**
  * A {@link StatementTemplate} whose result type is fixed: the {@link RowMapper} is resolved once, at build
@@ -34,6 +35,7 @@ import org.jdbi.core.mapper.RowMapper;
  *
  * @param <T> the result type this template maps rows to
  */
+@Beta
 @ThreadSafe
 public class MappedStatementTemplate<T> {
     private final StatementTemplate template;

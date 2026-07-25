@@ -26,6 +26,7 @@ import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.SingleColumnMapper;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
+import org.jdbi.meta.Beta;
 
 /**
  * An immutable, reusable SQL statement definition, built once from a {@link org.jdbi.core.Jdbi} (see
@@ -37,6 +38,7 @@ import org.jdbi.core.result.ResultBearing;
  * returns a {@link Call}, and {@link #prepareBatch(Handle)} a {@link PreparedBatch}. Each returns a fresh,
  * single-use statement confined to the calling thread.
  */
+@Beta
 @ThreadSafe
 public class StatementTemplate {
     final ConfigRegistry config;

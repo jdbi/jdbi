@@ -16,6 +16,7 @@ package org.jdbi.core.statement;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.ResultIterable;
+import org.jdbi.meta.Beta;
 
 /**
  * A single, thread-confined execution of a {@link MappedStatementTemplate} against a specific handle. Bind
@@ -29,6 +30,7 @@ import org.jdbi.core.result.ResultIterable;
  *
  * @param <T> the result type this query maps rows to
  */
+@Beta
 public class BoundMappedQuery<T> implements QueryCustomizerMixin<BoundMappedQuery<T>> {
     private final Query binding;
     private final RowMapper<T> mapper;
