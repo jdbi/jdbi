@@ -20,6 +20,8 @@ import java.util.function.Supplier;
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.MemoizingSupplier;
+import org.jdbi.core.mapper.NoSuchMapperException;
+import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultIterable;
@@ -34,6 +36,10 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
     private final UseRowMapper useRowMapper;
     private final UseRowReducer useRowReducer;
     private final boolean late;
+    // Fast-path result mapper, resolved once against the baked template configuration and reused across
+    // invocations to skip a per-call registry lookup. Unused on the late path, where configuration can
+    // change per invocation and the mapper is resolved each call.
+    private volatile RowMapper<?> resolvedMapper;
 
     public SqlQueryHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -94,11 +100,28 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
                 return resultReturner.reducedResult(results.reduceRows(rowReducerFor(useRowReducer)), ctx);
             }
 
-            ResultIterable<?> iterable = useRowMapper == null
-                    ? results.mapTo(elementType)
-                    : results.map(rowMapperFor(useRowMapper));
+            ResultIterable<?> iterable;
+            if (useRowMapper != null) {
+                iterable = results.map(rowMapperFor(useRowMapper));
+            } else if (late) {
+                // Classic path: configuration can change per invocation, so resolve the mapper each call.
+                iterable = results.mapTo(elementType);
+            } else {
+                // Fast path: the mapper is fixed by the baked template configuration; resolve it once.
+                iterable = results.map(resolveMapper(ctx, elementType));
+            }
             return resultReturner.mappedResult(iterable, ctx);
         });
+    }
+
+    private RowMapper<?> resolveMapper(StatementContext ctx, QualifiedType<?> elementType) {
+        RowMapper<?> mapper = resolvedMapper;
+        if (mapper == null) {
+            mapper = ctx.findMapperFor(elementType)
+                    .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + elementType));
+            resolvedMapper = mapper;
+        }
+        return mapper;
     }
 
     @Override
