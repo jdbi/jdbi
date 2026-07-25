@@ -11,22 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;
+
 
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.OracleContainer;
+import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Tag("slow")
 @Testcontainers
-@EnabledOnOs(architectures = {"x86_64", "amd64"})
-class OracleXeJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
+class MySQLJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
+    static final String MYSQL_VERSION = System.getProperty("jdbi.test.mysql-version", "mysql");
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new OracleContainer("gvenzl/oracle-xe:slim-faststart");
+    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_VERSION);
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {

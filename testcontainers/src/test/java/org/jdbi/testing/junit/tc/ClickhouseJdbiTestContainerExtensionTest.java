@@ -11,31 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;
 
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
+import org.testcontainers.clickhouse.ClickHouseContainer;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.TrinoContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Tag("slow")
 @Testcontainers
-class TrinoJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
+class ClickhouseJdbiTestContainerExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new TrinoContainer("trinodb/trino");
+    static JdbcDatabaseContainer<?> dbContainer = new ClickHouseContainer("clickhouse/clickhouse-server:latest")
+        .withUsername("test")
+        .withPassword("test");
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {
         return dbContainer;
     }
 
-    @BeforeEach
-    public void beforeEach() throws Exception {
-        // we still love you, trino. But you are a mess.
-        Thread.sleep(5_000);
+    @Override
+    protected String getTableCreateStatement() {
+        // I'm different!
+        return super.getTableCreateStatement() + " Engine = Memory";
     }
 }

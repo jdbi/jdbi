@@ -15,4 +15,4 @@
  * Jdbi test support for <a href="https://testcontainers.org/">Testcontainer based JDBC containers</a>. Any
  * database that is supported can be used as a test database in <a href="https://junit.org/junit5/">JUnit 5</a> tests.
  */
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;

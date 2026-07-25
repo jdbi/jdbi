@@ -11,20 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;
 
 import org.junit.jupiter.api.Tag;
-import org.testcontainers.containers.CockroachContainer;
 import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Tag("slow")
 @Testcontainers
-class CockroachJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
+class MSSQLJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new CockroachContainer("cockroachdb/cockroach:latest");
+    static JdbcDatabaseContainer<?> dbContainer = new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2022-latest")
+        .acceptLicense();
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {

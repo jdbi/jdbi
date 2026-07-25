@@ -11,22 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;
+
 
 import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.oracle.OracleContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.tidb.TiDBContainer;
 
 @Tag("slow")
 @Testcontainers
-class OracleFreeJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
+class TiDBJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new OracleContainer(
-        DockerImageName.parse("gvenzl/oracle-free:slim-faststart"));
+    static JdbcDatabaseContainer<?> dbContainer = new TiDBContainer("pingcap/tidb");
+
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {
