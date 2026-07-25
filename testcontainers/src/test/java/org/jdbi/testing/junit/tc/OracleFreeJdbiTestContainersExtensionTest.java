@@ -11,22 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;
 
 import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.oracle.OracleContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @Tag("slow")
 @Testcontainers
-public class TimescaleJdbiTestContainerExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
+class OracleFreeJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new PostgreSQLContainer<>(
-        DockerImageName.parse("timescale/timescaledb:latest-pg13").asCompatibleSubstituteFor("postgres"));
+    static JdbcDatabaseContainer<?> dbContainer = new OracleContainer(
+        DockerImageName.parse("gvenzl/oracle-free:slim-faststart"));
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {

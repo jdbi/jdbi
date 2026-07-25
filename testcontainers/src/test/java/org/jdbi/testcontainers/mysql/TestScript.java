@@ -20,7 +20,7 @@ import org.jdbi.core.locator.ClasspathSqlLocator;
 import org.jdbi.core.statement.Script;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.testing.junit.JdbiExtension;
-import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
+import org.jdbi.testing.junit.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

@@ -17,7 +17,7 @@ import com.pgvector.PGhalfvec;
 import com.pgvector.PGsparsevec;
 import com.pgvector.PGvector;
 import org.jdbi.testing.junit.JdbiExtension;
-import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
+import org.jdbi.testing.junit.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

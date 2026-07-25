@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;
 
 import java.sql.Connection;
 import java.sql.SQLException;

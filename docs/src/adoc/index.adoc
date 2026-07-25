@@ -6165,7 +6165,7 @@ While Jdbi makes an effort to support all databases provided by the Testcontaine
 - Using a custom docker image that is incompatible with the default Jdbi testcontainer support.
 - Require specific behavior in tests that is different from the Jdbi testcontainer support.
 
-The link:{jdbidocs}/testing/junit/tc/TestcontainersDatabaseInformation.html#of(java.lang.String,java.lang.String,java.lang.String,java.util.function.BiFunction)[TestcontainersDatabaseInformation#of()^] method allows creation of custom database information instances which then can be passed into link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html#instance(org.jdbi.testing.junit.tc.TestcontainersDatabaseInformation,org.testcontainers.containers.JdbcDatabaseContainer)[JdbiTestcontainersExtension#instance(TestcontainersDatabaseInformation, JdbcDatabaseContainer)^] to create extensions with custom behavior.
+The link:{jdbidocs}/testing/junit/tc/TestcontainersDatabaseInformation.html#of(java.lang.String,java.lang.String,java.lang.String,java.util.function.BiFunction)[TestcontainersDatabaseInformation#of()^] method allows creation of custom database information instances which then can be passed into link:{jdbidocs}/testing/junit/tc/JdbiTestcontainersExtension.html#instance(org.jdbi.testing.junit.tc.TestcontainersDatabaseInformation,org.testcontainers.containers.JdbcDatabaseContainer)[JdbiTestcontainersExtension#instance(TestcontainersDatabaseInformation, JdbcDatabaseContainer)^] to create extensions with custom behavior.
 
 This is an example that uses a custom user with a special database image:
 
@@ -6193,11 +6193,11 @@ private static final TestcontainersDatabaseInformation CUSTOM_MYSQL =
 }
 ----
 
-The Javadoc for the link:{jdbidocs}/testing/junit/tc/TestcontainersDatabaseInformation.html[TestcontainersDatabaseInformation^] class has additional details on how to create custom link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] instances.
+The Javadoc for the link:{jdbidocs}/testing/junit/tc/TestcontainersDatabaseInformation.html[TestcontainersDatabaseInformation^] class has additional details on how to create custom link:{jdbidocs}/testing/junit/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] instances.
 
 ==== Controlling the extension shutdown timeout
 
-Some testcontainer based database may take a long time to create a new schema so when tests run very fast, shutting down the link:{jdbidocs}/testing/junit5/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] at the end of a test may interrupt this process and log spurious messages in the logs.
+Some testcontainer based database may take a long time to create a new schema so when tests run very fast, shutting down the link:{jdbidocs}/testing/junit/tc/JdbiTestcontainersExtension.html[JdbiTestcontainersExtension^] at the end of a test may interrupt this process and log spurious messages in the logs.
 Those messages are benign and can be safely ignored.
 If it is necessary (e.g. because there is a "no messages" policy in place at your organization), the shutdown time can be extended by setting the wait time to a higher value than the default of 10 seconds:
 

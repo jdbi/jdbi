@@ -11,31 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;
 
 import org.junit.jupiter.api.Tag;
-import org.testcontainers.clickhouse.ClickHouseContainer;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.YugabyteDBYSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Tag("slow")
 @Testcontainers
-class ClickhouseJdbiTestContainerExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
+@EnabledOnOs(architectures = { "x86_64", "amd64" })
+class YugabyteJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new ClickHouseContainer("clickhouse/clickhouse-server:latest")
-        .withUsername("test")
-        .withPassword("test");
+    static JdbcDatabaseContainer<?> dbContainer = new YugabyteDBYSQLContainer("yugabytedb/yugabyte");
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {
         return dbContainer;
-    }
-
-    @Override
-    protected String getTableCreateStatement() {
-        // I'm different!
-        return super.getTableCreateStatement() + " Engine = Memory";
     }
 }

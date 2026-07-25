@@ -11,22 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testing.junit5.tc;
+package org.jdbi.testing.junit.tc;
 
 
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 @Tag("slow")
 @Testcontainers
-class MySQLJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
-    static final String MYSQL_VERSION = System.getProperty("jdbi.test.mysql-version", "mysql");
+@EnabledOnOs(architectures = { "x86_64", "amd64" })
+class PostGisJdbiTestContainersExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_VERSION);
+    static JdbcDatabaseContainer<?> dbContainer = new PostgreSQLContainer<>(
+        DockerImageName.parse("postgis/postgis:13-3.3-alpine").asCompatibleSubstituteFor("postgres"));
 
     @Override
     JdbcDatabaseContainer<?> getDbContainer() {

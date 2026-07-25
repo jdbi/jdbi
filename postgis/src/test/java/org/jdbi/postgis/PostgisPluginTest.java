@@ -18,7 +18,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.postgres.PostgresPlugin;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.testing.junit.JdbiExtension;
-import org.jdbi.testing.junit5.tc.JdbiTestcontainersExtension;
+import org.jdbi.testing.junit.tc.JdbiTestcontainersExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
