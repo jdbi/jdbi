@@ -463,13 +463,38 @@ Its theme is an immutable, copy-on-write configuration model: a `Jdbi` and a `Ha
 You assemble all configuration once, up front, through a builder; from then on it is read-only and shared.
 This removes a class of order-of-initialization bugs, makes a `Jdbi` safe to publish across threads, and lets Jdbi skip most of the per-statement and per-handle configuration copying that 3.x paid on every call (see <<Performance in Jdbi 4>>).
 
-Most applications that only _use_ Jdbi (open handles, run statements, attach SQL objects) need only two mechanical changes: the package rename, and moving configuration into the builder.
+Most applications that only _use_ Jdbi (open handles, run statements, attach SQL objects) need only three mechanical changes: the Maven coordinate rename, the package rename, and moving configuration into the builder.
 Applications that _extend_ Jdbi with custom argument factories, mappers, codecs, or config classes have a few more signatures to update.
+
+=== The Maven coordinates
+
+Every module's artifactId changed from `jdbi3-*` to `jdbi-*`; the `org.jdbi` group id is unchanged.
+For example `jdbi3-core` is now `jdbi-core`, `jdbi3-bom` is now `jdbi-bom`, and `jdbi3-sqlobject` is now `jdbi-sqlobject`.
+Update your dependencies (and the BOM import) first, before the package rename: the imports below will not resolve until the new artifacts are on the classpath.
+
+[source,xml,indent=0]
+----
+<!-- Jdbi 3 -->
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-core</artifactId>
+</dependency>
+
+<!-- Jdbi 4 -->
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi-core</artifactId>
+</dependency>
+----
+
+Modules released separately from the core distribution keep their own coordinates: `jdbi3-guava-cache`, for instance, is a distinct project and is unaffected by this rename.
 
 === The package rename
 
 Every `org.jdbi.v3.*` package is now `org.jdbi.*` (for example `org.jdbi.v3.core.Jdbi` -> `org.jdbi.core.Jdbi`, `org.jdbi.v3.sqlobject` -> `org.jdbi.sqlobject`).
-This is a find-and-replace across imports; no types were renamed.
+No types were renamed, so for almost every import this is a pure `org.jdbi.v3.` -> `org.jdbi.` find-and-replace.
+The one wrinkle is the test extensions: the `junit5` package segment became `junit`, so `org.jdbi.v3.testing.junit5.JdbiExtension` is now `org.jdbi.testing.junit.JdbiExtension` and `org.jdbi.v3.testing.junit5.tc.JdbiTestcontainersExtension` is now `org.jdbi.testing.junit.tc.JdbiTestcontainersExtension`.
+Dropping only the `v3.` prefix leaves those imports in a `junit5` package that no longer exists.
 Because you are editing every file that imports Jdbi anyway, the other source changes below ride along at low cost.
 
 === Assembling a Jdbi
@@ -485,14 +510,18 @@ Jdbi jdbi = Jdbi.create(dataSource);
 jdbi.installPlugin(new SqlObjectPlugin());
 jdbi.registerRowMapper(new UserMapper());
 jdbi.configure(SqlStatements.class, s -> s.setQueryTimeout(5));
+jdbi.setTransactionHandler(new SerializableTransactionRunner());
 
 // Jdbi 4
 Jdbi jdbi = Jdbi.builder(dataSource)
         .installPlugin(new SqlObjectPlugin())
         .registerRowMapper(new UserMapper())
         .configure(SqlStatements.class, s -> s.queryTimeout(5))
+        .transactionHandler(new SerializableTransactionRunner())
         .build();
 ----
+
+The knob setters also lose their `set` prefix on the builder, matching the config withers below: `setTransactionHandler(h)` becomes `transactionHandler(h)`, `setStatementBuilderFactory(f)` becomes `statementBuilderFactory(f)`, `setHandleCallbackDecorator(d)` becomes `handleCallbackDecorator(d)`, and `setHandleScope(s)` becomes `handleScope(s)`.
 
 `Jdbi.create(...)` is retained as the zero-configuration shortcut (`Jdbi.create(ds)` equals `Jdbi.builder(ds).build()`); reach for it only when you register nothing.
 `Jdbi.builder(...)` accepts the same sources as `create(...)`: a `DataSource`, `Connection`, `ConnectionFactory`, or a JDBC URL (optionally with `Properties` or username/password).
@@ -516,6 +545,25 @@ builder.configure(SqlStatements.class, s -> s.queryTimeout(5));  // installs the
 Because config values are immutable, `JdbiConfig.createCopy()` was removed: a registry now shares config values by reference instead of copying them.
 A custom `JdbiConfig` no longer implements `createCopy()`; make its fields `final` and add withers instead (see _Creating a custom JdbiConfig type_).
 (The registry-level `ConfigRegistry.createCopy()`, which snapshots a registry's map of values, is unaffected.)
+
+=== The `JdbiImmutables` config class was removed
+
+The `JdbiImmutables` config object is gone. It held no state of its own, so its registration methods moved directly onto `Configurable`, and therefore onto `Jdbi.Builder`.
+Register Immutables value types on the builder instead of reaching through the config class:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+jdbi.getConfig(JdbiImmutables.class).registerImmutable(MyValueType.class);
+
+// Jdbi 4
+Jdbi jdbi = Jdbi.builder(dataSource)
+        .registerImmutable(MyValueType.class)
+        .build();
+----
+
+`registerModifiable(...)` moved the same way.
+Because the class no longer exists (it was not renamed), this surfaces as a compile error rather than a deprecation.
 
 === Plugins configure the builder
 
