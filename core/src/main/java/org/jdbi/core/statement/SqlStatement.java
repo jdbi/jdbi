@@ -1616,7 +1616,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         StringBuilder names = new StringBuilder();
 
-        StatementContext ctx = getContext();
+        final StatementContext ctx = getContext();
         for (int valueIndex = 0; valueIndex < values.size(); valueIndex++) {
             if (valueIndex > 0) {
                 names.append(',');
@@ -1794,7 +1794,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         beforeTemplating();
 
-        ParsedSql parsedSql = parseSql();
+        final ParsedSql parsedSql = parseSql();
 
         final SqlStatements stmtConfig = getConfig(SqlStatements.class);
         try {
@@ -1846,29 +1846,29 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     ParsedSql parseSql() {
-        StatementContext ctx = getContext();
+        final StatementContext ctx = getContext();
         SqlStatements statements = getConfig(SqlStatements.class);
 
         String renderedSql = statements.preparedRender(sql, ctx);
         ctx.setRenderedSql(renderedSql);
 
-        ParsedSql parsedSql = statements.getSqlParser().parse(renderedSql, ctx);
+        final ParsedSql parsedSql = statements.getSqlParser().parse(renderedSql, ctx);
         ctx.setParsedSql(parsedSql);
 
         return parsedSql;
     }
 
     @SuppressWarnings("unchecked")
-    <T> RowMapper<T> mapperForType(Class<T> type) {
+    <T> RowMapper<T> mapperForType(final Class<T> type) {
         return (RowMapper<T>) mapperForType((Type) type);
     }
 
     @SuppressWarnings("unchecked")
-    <T> RowMapper<T> mapperForType(GenericType<T> type) {
+    <T> RowMapper<T> mapperForType(final GenericType<T> type) {
         return (RowMapper<T>) mapperForType(type.getType());
     }
 
-    RowMapper<?> mapperForType(Type type) {
+    RowMapper<?> mapperForType(final Type type) {
         return getConfig(Mappers.class).findFor(type)
             .orElseThrow(() -> new UnsupportedOperationException("No mapper registered for " + type));
     }
@@ -1889,7 +1889,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         callCustomizers(c -> c.afterExecution(stmt, getContext()));
     }
 
-    private void attachJfrEvent(OptionalEvent statementEvent, StatementContext ctx) {
+    private void attachJfrEvent(final OptionalEvent statementEvent, final StatementContext ctx) {
         if (statementEvent.shouldCommit()) {
             new Object() {
                 void attach() {
