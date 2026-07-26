@@ -15,6 +15,8 @@ package org.jdbi.core.spi;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.core.Handle;
@@ -26,11 +28,45 @@ import org.jdbi.core.Jdbi;
  */
 public interface JdbiPlugin {
     /**
+     * Returns a plugin whose {@link #configure(Jdbi.Builder)} applies the given consumer to the builder. This is a
+     * lambda shorthand for bundling a bit of build-time configuration without declaring an anonymous {@code JdbiPlugin}:
+     * <pre>{@code
+     * builder.installPlugin(JdbiPlugin.of(b -> b.registerRowMapper(mapper).registerArgument(argument)));
+     * }</pre>
+     * The returned plugin implements only {@code configure(Builder)}; it does not customize handles or connections.
+     *
+     * @param configureConsumer applied to the {@link Jdbi.Builder} during assembly
+     * @return a plugin that runs the given consumer at build time
+     */
+    static JdbiPlugin of(Consumer<Jdbi.Builder> configureConsumer) {
+        Objects.requireNonNull(configureConsumer, "null configureConsumer");
+        return new JdbiPlugin() {
+            @Override
+            public void configure(Jdbi.Builder builder) {
+                configureConsumer.accept(builder);
+            }
+        };
+    }
+
+    /**
+     * Contributes configuration and knobs to a {@link Jdbi.Builder} during assembly. This method is invoked by
+     * {@link Jdbi.Builder#build()} for each installed plugin, in install order, before {@link #customizeJdbi(Jdbi)}.
+     * It is the preferred hook for plugins that only add configuration (mappers, arguments, and the like), because
+     * it runs while the {@code Jdbi} is still being assembled rather than mutating it after construction.
+     *
+     * @param builder the builder to contribute to
+     */
+    default void configure(Jdbi.Builder builder) {}
+
+    /**
      * Configure customizations global to any object managed by this Jdbi.
      * This method is invoked immediately when the plugin is installed.
      * @param jdbi the jdbi to customize
      * @throws SQLException something went wrong with the database
+     * @deprecated contribute configuration from {@link #configure(Jdbi.Builder)} instead; this hook is applied after
+     *             the {@code Jdbi} is constructed and is going away.
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     default void customizeJdbi(Jdbi jdbi) throws SQLException {}
 
     /**

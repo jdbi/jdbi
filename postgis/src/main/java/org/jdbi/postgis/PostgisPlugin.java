@@ -48,10 +48,10 @@ import org.locationtech.jts.geom.Polygon;
 public class PostgisPlugin extends JdbiPlugin.Singleton {
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
+    public void configure(Jdbi.Builder builder) {
         final Codec<Geometry> codec = new PostgisCodec();
 
-        jdbi.registerCodecFactory(CodecFactory.builder()
+        builder.registerCodecFactory(CodecFactory.builder()
             .addCodec(Geometry.class, codec)
             .addCodec(GeometryCollection.class, codec)
             .addCodec(LinearRing.class, codec)

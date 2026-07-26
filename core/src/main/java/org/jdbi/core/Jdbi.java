@@ -16,10 +16,13 @@ package org.jdbi.core;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
@@ -56,6 +59,9 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  */
 public class Jdbi implements Configurable<Jdbi> {
     private static final Logger LOG = LoggerFactory.getLogger(Jdbi.class);
+
+    /** A no-op per-handle config scope: the opened handle uses an unmodified copy of this Jdbi's config. */
+    private static final Consumer<ConfigRegistry> NO_CONFIG_SCOPE = config -> {};
 
     private final ConfigRegistry config = new ConfigRegistry();
 
@@ -153,6 +159,82 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against the given connection factory. The builder is
+     * the preferred way to configure a {@code Jdbi}: register mappers, arguments, and plugins, set the transaction
+     * handler and other knobs, then call {@link Builder#build()}.
+     *
+     * @param connectionFactory provides JDBC connections to {@link Handle} instances
+     * @return a builder for a {@code Jdbi} using the given connection factory
+     */
+    @Alpha
+    public static Builder builder(final ConnectionFactory connectionFactory) {
+        return new Builder(create(connectionFactory));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against the given data source.
+     *
+     * @param dataSource the data source.
+     * @return a builder for a {@code Jdbi} using the given data source
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final DataSource dataSource) {
+        return new Builder(create(dataSource));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against a single database connection.
+     *
+     * @param connection a {@link Connection} object.
+     * @return a builder for a {@code Jdbi} using the given connection
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final Connection connection) {
+        return new Builder(create(connection));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against connections obtained from the given URL.
+     *
+     * @param url a JDBC URL for connections.
+     * @return a builder for a {@code Jdbi} using the given URL
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final String url) {
+        return new Builder(create(url));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against connections obtained from the given URL and properties.
+     *
+     * @param url        a JDBC URL for connections.
+     * @param properties properties passed to {@link DriverManager#getConnection(String, Properties)} for each handle.
+     * @return a builder for a {@code Jdbi} using the given URL and properties
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final String url, final Properties properties) {
+        return new Builder(create(url, properties));
+    }
+
+    /**
+     * Returns a {@link Builder} that assembles a {@link Jdbi} against connections obtained from the given URL, user, and password.
+     *
+     * @param url      a JDBC URL for connections.
+     * @param username the username for the connection.
+     * @param password the password for the connection.
+     * @return a builder for a {@code Jdbi} using the given URL and credentials
+     * @see #builder(ConnectionFactory)
+     */
+    @Alpha
+    public static Builder builder(final String url, final String username, final String password) {
+        return new Builder(create(url, username, password));
+    }
+
+    /**
      * Convenience method used to obtain a handle from a specific data source
      *
      * @param dataSource the JDBC data source.
@@ -227,12 +309,30 @@ public class Jdbi implements Configurable<Jdbi> {
      * provided {@link Handle} instances.
      * @param plugin the plugin to install
      * @return this
+     * @deprecated assemble with {@link #builder(ConnectionFactory)} and {@link Builder#installPlugin(JdbiPlugin)};
+     *             post-construction plugin installation is going away.
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public Jdbi installPlugin(final JdbiPlugin plugin) {
+        Objects.requireNonNull(plugin, "null plugin");
+        // Bridge onto the assembly funnel so a plugin that contributes via configure(Builder) is applied even on
+        // this post-construction path. The Builder is a facade over this same instance (shared config), so build()
+        // applies the plugin's hooks to this Jdbi and returns it. Removed wholesale when this method is dropped.
+        return new Builder(this).installPlugin(plugin).build();
+    }
+
+    /**
+     * Applies a single plugin to this instance during assembly: it is registered once for the per-handle and
+     * per-connection hooks, then its {@link JdbiPlugin#configure(Builder)} and {@link JdbiPlugin#customizeJdbi(Jdbi)}
+     * hooks run in that order. The install-if-absent guard makes a plugin pulled in more than once apply only once.
+     * Shared by {@link Builder#build()} and the {@link #installPlugin(JdbiPlugin)} bridge.
+     */
+    @SuppressWarnings("deprecation") // customizeJdbi is deprecated for removal but still honored during the window
+    private void applyPlugin(final Builder builder, final JdbiPlugin plugin) {
         if (plugins.addIfAbsent(plugin)) {
+            plugin.configure(builder);
             Unchecked.consumer(plugin::customizeJdbi).accept(this);
         }
-        return this;
     }
 
     /**
@@ -243,7 +343,9 @@ public class Jdbi implements Configurable<Jdbi> {
      *
      * @param factory the new statement builder factory.
      * @return this
+     * @deprecated set this with {@link Builder#statementBuilderFactory(StatementBuilderFactory)} during assembly instead.
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public Jdbi setStatementBuilderFactory(final StatementBuilderFactory factory) {
         this.statementBuilderFactory.set(factory);
         return this;
@@ -275,7 +377,9 @@ public class Jdbi implements Configurable<Jdbi> {
      * @param handler The TransactionHandler to use for all Handle instances obtained
      *                from this Jdbi
      * @return this
+     * @deprecated set this with {@link Builder#transactionHandler(TransactionHandler)} during assembly instead.
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public Jdbi setTransactionHandler(final TransactionHandler handler) {
         Objects.requireNonNull(handler, "null transaction handler");
         this.transactionhandler.set(handler);
@@ -299,8 +403,10 @@ public class Jdbi implements Configurable<Jdbi> {
      * @param handleCallbackDecorator The {@link HandleCallbackDecorator} to use for all {@link #useHandle}, {@link #withHandle},
      *                {@link #useTransaction(HandleConsumer)} and {@link #inTransaction(HandleCallback)} from this Jdbi. Must not be null
      * @return this
+     * @deprecated set this with {@link Builder#handleCallbackDecorator(HandleCallbackDecorator)} during assembly instead.
      */
     @Alpha
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public Jdbi setHandleCallbackDecorator(final HandleCallbackDecorator handleCallbackDecorator) {
         Objects.requireNonNull(handleCallbackDecorator, "null handler");
         this.handleCallbackDecorator.set(handleCallbackDecorator);
@@ -332,8 +438,10 @@ public class Jdbi implements Configurable<Jdbi> {
      * Set the {@link HandleScope} object. The Jdbi instance uses this to provide handles in a given scope.
      * <br>
      * @param handleScope A {@link HandleScope} object. Must not be null!
+     * @deprecated set this with {@link Builder#handleScope(HandleScope)} during assembly instead.
      */
     @Alpha
+    @Deprecated(since = "4.0.0", forRemoval = true)
     public final void setHandleScope(final HandleScope handleScope) {
         this.handleScope = handleScope;
     }
@@ -348,6 +456,29 @@ public class Jdbi implements Configurable<Jdbi> {
      * @see #withHandle(HandleCallback)
      */
     public Handle open() {
+        return open(NO_CONFIG_SCOPE);
+    }
+
+    /**
+     * Obtain a Handle whose configuration is a copy of this Jdbi's, with the given scope applied. Use this to run a
+     * unit of work against a handle that carries per-handle configuration (mappers, arguments, defines, and the like)
+     * without affecting this Jdbi or any other handle:
+     * <pre>{@code
+     * try (Handle h = jdbi.open(config -> config.configure(RowMappers.class, r -> r.register(myMapper)))) {
+     *     ...
+     * }
+     * }</pre>
+     * The scope receives a private copy of this Jdbi's config and configures it in place. You own the returned handle
+     * and are required to close it, ideally with a {@code try-with-resources} block.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @return an open Handle instance carrying the scoped configuration
+     * @see #open()
+     * @see #withHandle(Consumer, HandleCallback)
+     */
+    @Alpha
+    public Handle open(final Consumer<ConfigRegistry> configScope) {
+        Objects.requireNonNull(configScope, "null configScope");
         try {
             final long start = System.nanoTime();
             Connection conn = Objects.requireNonNull(connectionFactory.openConnection(),
@@ -365,7 +496,8 @@ public class Jdbi implements Configurable<Jdbi> {
                         connectionFactory.getCleanableFor(conn), // don't use conn::close, the cleanup must be done by the connection factory!
                         transactionhandler.get(),
                         cache,
-                        conn);
+                        conn,
+                        configScope);
 
                 for (final JdbiPlugin p : plugins) {
                     h = p.customizeHandle(h);
@@ -412,6 +544,42 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
+     * and yields it to a callback. Unlike {@link #withHandle(HandleCallback)}, this always opens a <em>new</em> handle
+     * for the scoped configuration (a handle captures its config at {@code open}), so it does not join a handle already
+     * in scope; the scoped handle is in scope for the duration of the callback and is closed before returning.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @param callback A callback which will receive the scoped Handle
+     * @param <R> type returned by the callback
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @return the value returned by callback
+     *
+     * @throws X any exception thrown by the callback
+     * @see #open(Consumer)
+     */
+    @Alpha
+    public <R, X extends Exception> R withHandle(final Consumer<ConfigRegistry> configScope, final HandleCallback<R, X> callback) throws X {
+        Objects.requireNonNull(configScope, "null configScope");
+        final HandleCallback<R, X> decoratedCallback = handleCallbackDecorator.get().decorate(callback);
+
+        final var previous = handleScope.get();
+        try (Handle h = this.open(configScope)) {
+            h.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(c.isAttachCallbackStatementsForCleanup()));
+
+            handleScope.set(ConstantHandleSupplier.of(h));
+            return decoratedCallback.withHandle(h);
+        } finally {
+            if (previous == null) {
+                handleScope.clear();
+            } else {
+                handleScope.set(previous);
+            }
+        }
+    }
+
+    /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients.
      *
@@ -422,6 +590,22 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <X extends Exception> void useHandle(final HandleConsumer<X> consumer) throws X {
         withHandle(consumer.asCallback());
+    }
+
+    /**
+     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
+     * and yields it to a callback. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens a new handle
+     * for the scoped configuration.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @param consumer A callback which will receive the scoped Handle
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @throws X any exception thrown by the callback
+     */
+    @Alpha
+    public <X extends Exception> void useHandle(final Consumer<ConfigRegistry> configScope, final HandleConsumer<X> consumer) throws X {
+        withHandle(configScope, consumer.asCallback());
     }
 
     /**
@@ -443,6 +627,26 @@ public class Jdbi implements Configurable<Jdbi> {
     }
 
     /**
+     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
+     * and yields it to a callback in a transaction. The transaction is committed if the callback finishes normally,
+     * or rolled back if it raises an exception. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens
+     * a new handle for the scoped configuration.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @param callback A callback which will receive the scoped Handle, in a transaction
+     * @param <R> type returned by the callback
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @return the value returned by callback
+     *
+     * @throws X any exception thrown by the callback
+     */
+    @Alpha
+    public <R, X extends Exception> R inTransaction(final Consumer<ConfigRegistry> configScope, final HandleCallback<R, X> callback) throws X {
+        return withHandle(configScope, handle -> handle.inTransaction(callback));
+    }
+
+    /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients. The handle will be in a transaction when the callback is invoked, and
      * that transaction will be committed if the callback finishes normally, or rolled back if the
@@ -455,6 +659,23 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X {
         useHandle(handle -> handle.useTransaction(callback));
+    }
+
+    /**
+     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
+     * and yields it to a callback in a transaction. The transaction is committed if the callback finishes normally,
+     * or rolled back if it raises an exception. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens
+     * a new handle for the scoped configuration.
+     *
+     * @param configScope applied to the new handle's private config copy during {@code open}
+     * @param callback A callback which will receive the scoped Handle, in a transaction
+     * @param <X> exception type thrown by the callback, if any.
+     *
+     * @throws X any exception thrown by the callback
+     */
+    @Alpha
+    public <X extends Exception> void useTransaction(final Consumer<ConfigRegistry> configScope, final HandleConsumer<X> callback) throws X {
+        useHandle(configScope, handle -> handle.useTransaction(callback));
     }
 
     /**
@@ -592,5 +813,110 @@ public class Jdbi implements Configurable<Jdbi> {
      */
     public StatementTemplate buildStatementTemplate(final CharSequence sql) {
         return new StatementTemplate(getConfig().createCopy(), sql);
+    }
+
+    /**
+     * Assembles a {@link Jdbi} instance. Obtain one from {@link Jdbi#builder(ConnectionFactory)} (or an overload),
+     * register mappers, arguments, and plugins, set the transaction handler and other knobs, then call
+     * {@link #build()}. The builder is {@link Configurable}, so all of the {@code register*}/{@code configure}
+     * convenience methods are available during assembly.
+     * <p>
+     * A builder is single-use: {@link #build()} returns the assembled {@code Jdbi} and should be called once.
+     */
+    @Alpha
+    public static final class Builder implements Configurable<Builder> {
+
+        private final Jdbi jdbi;
+        private final List<JdbiPlugin> plugins = new ArrayList<>();
+
+        Builder(final Jdbi jdbi) {
+            this.jdbi = jdbi;
+        }
+
+        @Override
+        public ConfigRegistry getConfig() {
+            return jdbi.getConfig();
+        }
+
+        /**
+         * Installs a {@link JdbiPlugin} to be applied when {@link #build()} is called. Plugins are applied in the
+         * order installed.
+         *
+         * @param plugin the plugin to install
+         * @return this builder
+         */
+        public Builder installPlugin(final JdbiPlugin plugin) {
+            Objects.requireNonNull(plugin, "null plugin");
+            if (!plugins.contains(plugin)) {
+                plugins.add(plugin);
+            }
+            return this;
+        }
+
+        /**
+         * Sets the {@link TransactionHandler} for the assembled {@code Jdbi}.
+         *
+         * @param handler the transaction handler
+         * @return this builder
+         * @see Jdbi#setTransactionHandler(TransactionHandler)
+         */
+        public Builder transactionHandler(final TransactionHandler handler) {
+            jdbi.setTransactionHandler(handler);
+            return this;
+        }
+
+        /**
+         * Sets the {@link StatementBuilderFactory} for the assembled {@code Jdbi}.
+         *
+         * @param factory the statement builder factory
+         * @return this builder
+         * @see Jdbi#setStatementBuilderFactory(StatementBuilderFactory)
+         */
+        public Builder statementBuilderFactory(final StatementBuilderFactory factory) {
+            jdbi.setStatementBuilderFactory(factory);
+            return this;
+        }
+
+        /**
+         * Sets the {@link HandleCallbackDecorator} for the assembled {@code Jdbi}.
+         *
+         * @param handleCallbackDecorator the handle callback decorator
+         * @return this builder
+         * @see Jdbi#setHandleCallbackDecorator(HandleCallbackDecorator)
+         */
+        public Builder handleCallbackDecorator(final HandleCallbackDecorator handleCallbackDecorator) {
+            jdbi.setHandleCallbackDecorator(handleCallbackDecorator);
+            return this;
+        }
+
+        /**
+         * Sets the {@link HandleScope} for the assembled {@code Jdbi}.
+         *
+         * @param handleScope the handle scope
+         * @return this builder
+         * @see Jdbi#setHandleScope(HandleScope)
+         */
+        public Builder handleScope(final HandleScope handleScope) {
+            jdbi.setHandleScope(handleScope);
+            return this;
+        }
+
+        /**
+         * Applies the installed plugins and returns the assembled {@link Jdbi}. Each plugin's
+         * {@link JdbiPlugin#configure(Builder)} runs, then its {@link JdbiPlugin#customizeJdbi(Jdbi)}, in install order.
+         * A plugin may itself install further plugins (via {@link #installPlugin(JdbiPlugin)} from its
+         * {@code configure}/{@code customizeJdbi} hook); those are drained and applied in turn, each at most once.
+         *
+         * @return the assembled {@code Jdbi}
+         */
+        public Jdbi build() {
+            // Drain by index: a plugin's configure()/customizeJdbi() may install further plugins, growing the list
+            // mid-drain. applyPlugin() installs-if-absent so a plugin pulled in by two others is still applied once.
+            int i = 0;
+            while (i < plugins.size()) {
+                jdbi.applyPlugin(this, plugins.get(i++));
+            }
+            return jdbi;
+        }
     }
 }

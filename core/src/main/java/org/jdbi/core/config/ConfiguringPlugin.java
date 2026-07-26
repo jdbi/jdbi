@@ -32,7 +32,7 @@ public final class ConfiguringPlugin<C extends JdbiConfig<C>> implements JdbiPlu
     }
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.configure(configClass, configurer);
+    public void configure(Jdbi.Builder builder) {
+        builder.configure(configClass, configurer);
     }
 }

@@ -321,9 +321,10 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
             withConfig(SqlStatements.class, s -> s.addContextListener(leakChecker));
         }
 
-        final Jdbi jdbiInstance = Jdbi.create(ds);
+        final Jdbi.Builder builder = Jdbi.builder(ds);
+        plugins.forEach(builder::installPlugin);
+        final Jdbi jdbiInstance = builder.build();
 
-        plugins.forEach(jdbiInstance::installPlugin);
         final Handle sharedHandleInstance = jdbiInstance.open();
 
         this.jdbi = jdbiInstance;

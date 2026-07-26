@@ -28,8 +28,8 @@ import org.jdbi.json.JsonPlugin;
 public class MoshiPlugin extends JdbiPlugin.Singleton {
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.installPlugin(new JsonPlugin());
-        jdbi.configure(JsonConfig.class, c -> c.jsonMapper(new MoshiJsonMapper()));
+    public void configure(Jdbi.Builder builder) {
+        builder.installPlugin(new JsonPlugin());
+        builder.configure(JsonConfig.class, c -> c.jsonMapper(new MoshiJsonMapper()));
     }
 }

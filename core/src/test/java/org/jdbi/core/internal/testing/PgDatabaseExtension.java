@@ -106,16 +106,17 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
 
         info = pg.createDatabaseInfo();
 
-        jdbi = Jdbi.create(info.asDataSource());
+        final Jdbi.Builder builder = Jdbi.builder(info.asDataSource());
 
-        installTestPlugins(jdbi);
+        installTestPlugins(builder);
 
         if (enableLeakchecker) {
-            jdbi.configure(Handles.class, c -> c.addListener(leakChecker));
-            jdbi.configure(SqlStatements.class, c -> c.addContextListener(leakChecker));
+            builder.configure(Handles.class, c -> c.addListener(leakChecker));
+            builder.configure(SqlStatements.class, c -> c.addContextListener(leakChecker));
         }
 
-        plugins.forEach(jdbi::installPlugin);
+        plugins.forEach(builder::installPlugin);
+        jdbi = builder.build();
         sharedHandle = jdbi.open();
 
         initializerMaybe.ifPresent(i -> i.initialize(sharedHandle));

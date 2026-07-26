@@ -44,13 +44,13 @@ public interface DatabaseExtension<T extends DatabaseExtension<T>> {
     }
 
     @SuppressWarnings("unchecked")
-    default void installTestPlugins(Jdbi jdbi) throws Exception {
+    default void installTestPlugins(Jdbi.Builder builder) throws Exception {
         // cache plugin tests
         String cachePluginName = System.getProperty("jdbi.test.cache-plugin");
         if (cachePluginName != null) {
             Class<? extends JdbiPlugin> cachePluginClass = (Class<? extends JdbiPlugin>) Class.forName(cachePluginName);
             JdbiPlugin cachePlugin = cachePluginClass.getConstructor().newInstance();
-            jdbi.installPlugin(cachePlugin);
+            builder.installPlugin(cachePlugin);
         }
     }
 

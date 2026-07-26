@@ -21,8 +21,8 @@ import org.jdbi.core.spi.JdbiPlugin;
  */
 public class GuavaPlugin extends JdbiPlugin.Singleton {
     @Override
-    public void customizeJdbi(Jdbi db) {
-        db.registerArgument(GuavaArguments.factory());
-        db.registerCollector(GuavaCollectors.factory());
+    public void configure(Jdbi.Builder builder) {
+        builder.registerArgument(GuavaArguments.factory());
+        builder.registerCollector(GuavaCollectors.factory());
     }
 }
