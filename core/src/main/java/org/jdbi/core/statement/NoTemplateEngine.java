@@ -18,7 +18,7 @@ package org.jdbi.core.statement;
  */
 public class NoTemplateEngine implements TemplateEngine {
     @Override
-    public String render(final String template, final StatementContext ctx) {
+    public String render(final String template, final RenderContext renderContext) {
         return template;
     }
 }

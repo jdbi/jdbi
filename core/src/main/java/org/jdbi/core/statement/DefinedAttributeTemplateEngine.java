@@ -21,7 +21,6 @@ import java.util.function.Function;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Token;
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.lexer.DefineStatementLexer;
 import org.jdbi.core.statement.internal.ErrorListener;
 
@@ -41,9 +40,9 @@ import static org.jdbi.core.internal.lexer.DefineStatementLexer.QUOTED_TEXT;
  */
 public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
     @Override
-    public Optional<Function<StatementContext, String>> parse(final String template, final ConfigRegistry config) {
+    public Optional<Function<RenderContext, String>> parse(final String template, final RenderContext renderContext) {
         final StringBuilder buf = new StringBuilder();
-        final List<BiConsumer<StatementContext, StringBuilder>> preparation = new ArrayList<>();
+        final List<BiConsumer<RenderContext, StringBuilder>> preparation = new ArrayList<>();
         final Runnable pushBuf = () -> {
             if (buf.length() > 0) {
                 final String bit = buf.toString();
@@ -66,10 +65,10 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
                     pushBuf.run();
                     final String text = t.getText();
                     final String key = text.substring(1, text.length() - 1);
-                    preparation.add((ctx, b) -> {
-                        final Object value = ctx.getAttribute(key);
+                    preparation.add((cfg, b) -> {
+                        final Object value = cfg.getAttribute(key);
                         if (value == null) {
-                            throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'", ctx);
+                            throw new UnableToCreateStatementException("Undefined attribute for token '" + text + "'");
                         }
                         b.append(value);
                     });
@@ -83,13 +82,13 @@ public class DefinedAttributeTemplateEngine implements TemplateEngine.Parsing {
             t = lexer.nextToken();
         }
         pushBuf.run();
-        return Optional.of(ctx -> {
+        return Optional.of(cfg -> {
             try {
                 final StringBuilder result = new StringBuilder();
-                preparation.forEach(a -> a.accept(ctx, result));
+                preparation.forEach(a -> a.accept(cfg, result));
                 return result.toString();
             } catch (final RuntimeException e) {
-                throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, ctx);
+                throw new UnableToCreateStatementException("Error rendering SQL template: '" + template + "'", e, null);
             }
         });
     }

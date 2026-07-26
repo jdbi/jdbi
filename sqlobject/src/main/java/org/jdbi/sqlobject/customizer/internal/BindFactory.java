@@ -24,7 +24,7 @@ import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
-import org.jdbi.core.statement.SqlStatement;
+import org.jdbi.core.statement.Customizable;
 import org.jdbi.sqlobject.customizer.Bind;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.sqlobject.customizer.SqlStatementParameterCustomizer;
@@ -44,7 +44,7 @@ public class BindFactory implements SqlStatementCustomizerFactory {
 
         return new SqlStatementParameterCustomizer() {
             @Override
-            public void apply(SqlStatement<?> stmt, Object arg) throws SQLException {
+            public void apply(Customizable<?> stmt, Object arg) throws SQLException {
                 QualifiedType<?> qualifiedType = qualifiedType(stmt.getConfig());
                 stmt.bindByType(index, arg, qualifiedType);
                 name.ifPresent(n -> stmt.bindByType(n, arg, qualifiedType));

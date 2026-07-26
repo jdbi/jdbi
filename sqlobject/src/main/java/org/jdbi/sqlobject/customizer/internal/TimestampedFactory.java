@@ -15,11 +15,14 @@ package org.jdbi.sqlobject.customizer.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.function.Function;
 
+import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.statement.StatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.sqlobject.customizer.Timestamped;
@@ -33,9 +36,17 @@ public class TimestampedFactory implements SqlStatementCustomizerFactory {
     public SqlStatementCustomizer createForMethod(Annotation annotation, Class<?> sqlObjectType, Method method) {
         final String parameterName = ((Timestamped) annotation).value();
 
+        // Configure-phase customizer: the timezone is read once (invariant), but a fresh timestamp
+        // must be bound on every execution, so register a statement customizer that binds it at
+        // binding time rather than binding a value now.
         return stmt -> {
-            ZoneId zone = stmt.getConfig(TimestampedConfig.class).getTimezone();
-            stmt.bind(parameterName, OffsetDateTime.now(timeSource.apply(zone)));
+            final ZoneId zone = stmt.getConfig().get(TimestampedConfig.class).getTimezone();
+            stmt.addCustomizer(new StatementCustomizer() {
+                @Override
+                public void beforeBinding(PreparedStatement preparedStatement, StatementContext ctx) {
+                    ctx.getBinding().addNamed(parameterName, OffsetDateTime.now(timeSource.apply(zone)));
+                }
+            });
         };
     }
 

@@ -16,7 +16,7 @@ package org.jdbi.sqlobject.customizer;
 import java.sql.SQLException;
 
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.statement.SqlStatement;
+import org.jdbi.core.statement.Customizable;
 
 /**
  * Used with {@link SqlStatementCustomizerFactory} to
@@ -31,7 +31,7 @@ public interface SqlStatementCustomizer {
      * @param q the statement being customized
      * @throws SQLException will abort statement creation
      */
-    void apply(SqlStatement<?> q) throws SQLException;
+    void apply(Customizable<?> q) throws SQLException;
 
     /**
      * Called after the customizer is instantiated but before any statement is available,

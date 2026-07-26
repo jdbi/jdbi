@@ -16,6 +16,7 @@ package org.jdbi.core.statement;
 import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,12 +46,13 @@ public class MessageFormatTemplateEngine implements TemplateEngine {
     public MessageFormatTemplateEngine() {}
 
     @Override
-    public String render(String template, StatementContext ctx) {
+    public String render(String template, RenderContext renderContext) {
         MessageFormat msgFormat = new MessageFormat(template);
 
-        validateKeys(ctx.getAttributes().keySet(), msgFormat.getFormats().length);
+        Map<String, Object> attributes = renderContext.getAttributes();
+        validateKeys(attributes.keySet(), msgFormat.getFormats().length);
 
-        Object[] args = ctx.getAttributes()
+        Object[] args = attributes
             .entrySet()
             .stream()
             .map(x -> new AbstractMap.SimpleImmutableEntry<>(Integer.valueOf(x.getKey()), x.getValue()))

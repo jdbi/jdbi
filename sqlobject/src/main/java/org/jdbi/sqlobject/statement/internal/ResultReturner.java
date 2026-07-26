@@ -378,8 +378,7 @@ abstract class ResultReturner {
 
         @SuppressWarnings("unchecked")
         private Consumer<Object> findConsumer(StatementContext ctx) {
-            return (Consumer<Object>) ctx.getConfig(SqlObjectStatementConfiguration.class)
-                .getArgs()[consumerIndex];
+            return (Consumer<Object>) SqlObjectStatementState.from(ctx).getArgs()[consumerIndex];
         }
 
         static ResultReturner of(Method method, int consumerIndex) {
@@ -474,8 +473,7 @@ abstract class ResultReturner {
 
         @SuppressWarnings("unchecked")
         private Function<Object, R> findFunction(StatementContext ctx) {
-            return (Function<Object, R>) ctx.getConfig(SqlObjectStatementConfiguration.class)
-                .getArgs()[functionIndex];
+            return (Function<Object, R>) SqlObjectStatementState.from(ctx).getArgs()[functionIndex];
         }
 
 

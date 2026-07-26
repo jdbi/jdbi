@@ -18,8 +18,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.sql.PreparedStatement;
 import java.time.OffsetDateTime;
 
+import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.statement.StatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizingAnnotation;
@@ -31,7 +34,14 @@ public @interface BindTime {
     class Factory implements SqlStatementCustomizerFactory {
         @Override
         public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
-            return stmt -> stmt.bind("now", OffsetDateTime.now(stmt.getConfig(BindTimeConfig.class).getClock()));
+            // A configure-phase customizer registers a statement customizer that binds a fresh value
+            // per execution, reading the clock from the execution's configuration.
+            return stmt -> stmt.addCustomizer(new StatementCustomizer() {
+                @Override
+                public void beforeBinding(PreparedStatement preparedStatement, StatementContext ctx) {
+                    ctx.getBinding().addNamed("now", OffsetDateTime.now(ctx.getConfig().get(BindTimeConfig.class).getClock()));
+                }
+            });
         }
     }
 }
