@@ -30,7 +30,7 @@ import org.jdbi.core.statement.StatementContext;
 public class MapArguments implements NamedArgumentFinder {
     private final Map<String, ?> args;
 
-    public MapArguments(Map<String, ?> args) {
+    public MapArguments(final Map<String, ?> args) {
         this.args = args;
     }
 

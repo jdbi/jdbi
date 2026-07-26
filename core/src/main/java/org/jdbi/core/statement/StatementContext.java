@@ -119,7 +119,7 @@ public class StatementContext implements Closeable {
      */
     @Beta
     public String describeJdbiStatementType() {
-        if (jdbiStatementType instanceof Class<?> clazz) {
+        if (jdbiStatementType instanceof final Class<?> clazz) {
             return clazz.getSimpleName();
         }
         return jdbiStatementType.getTypeName();
@@ -170,7 +170,7 @@ public class StatementContext implements Closeable {
      * @param key   the key for the attribute
      * @param value the value for the attribute
      */
-    public void define(String key, Object value) {
+    public void define(final String key, final Object value) {
         getConfig(SqlStatements.class).define(key, value);
     }
 
@@ -355,7 +355,7 @@ public class StatementContext implements Closeable {
         return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
     }
 
-    StatementContext setRawSql(String rawSql) {
+    StatementContext setRawSql(final String rawSql) {
         this.rawSql = rawSql;
         return this;
     }
@@ -369,7 +369,7 @@ public class StatementContext implements Closeable {
         return rawSql;
     }
 
-    void setRenderedSql(String renderedSql) {
+    void setRenderedSql(final String renderedSql) {
         this.renderedSql = renderedSql;
     }
 
@@ -385,7 +385,7 @@ public class StatementContext implements Closeable {
         return renderedSql;
     }
 
-    void setParsedSql(ParsedSql parsedSql) {
+    void setParsedSql(final ParsedSql parsedSql) {
         this.parsedSql = parsedSql;
     }
 
@@ -401,7 +401,7 @@ public class StatementContext implements Closeable {
         return parsedSql;
     }
 
-    void setStatement(PreparedStatement stmt) {
+    void setStatement(final PreparedStatement stmt) {
         statement = stmt;
     }
 
@@ -417,7 +417,7 @@ public class StatementContext implements Closeable {
         return statement;
     }
 
-    StatementContext setConnection(Connection connection) {
+    StatementContext setConnection(final Connection connection) {
         this.connection = connection;
         return this;
     }
@@ -431,7 +431,7 @@ public class StatementContext implements Closeable {
         return connection;
     }
 
-    StatementContext setBinding(Binding b) {
+    StatementContext setBinding(final Binding b) {
         this.binding = b;
         return this;
     }
@@ -449,7 +449,7 @@ public class StatementContext implements Closeable {
      * Sets whether the current statement returns generated keys.
      * @param returningGeneratedKeys return generated keys?
      */
-    public void setReturningGeneratedKeys(boolean returningGeneratedKeys) {
+    public void setReturningGeneratedKeys(final boolean returningGeneratedKeys) {
         if (isConcurrentUpdatable() && returningGeneratedKeys) {
             throw new IllegalArgumentException("Cannot create a result set that is concurrent updatable and is returning generated keys.");
         }
@@ -478,7 +478,7 @@ public class StatementContext implements Closeable {
      * Set the generated key column names.
      * @param generatedKeysColumnNames the generated key column names
      */
-    public void setGeneratedKeysColumnNames(String[] generatedKeysColumnNames) {
+    public void setGeneratedKeysColumnNames(final String[] generatedKeysColumnNames) {
         this.generatedKeysColumnNames = Arrays.copyOf(generatedKeysColumnNames, generatedKeysColumnNames.length);
     }
 
@@ -528,7 +528,7 @@ public class StatementContext implements Closeable {
      *
      * @param executionMoment Sets the start of query execution.
      */
-    public void setExecutionMoment(Instant executionMoment) {
+    public void setExecutionMoment(final Instant executionMoment) {
         this.executionMoment = executionMoment;
     }
 
@@ -548,7 +548,7 @@ public class StatementContext implements Closeable {
      *
      * @param completionMoment Sets the end of query execution.
      */
-    public void setCompletionMoment(Instant completionMoment) {
+    public void setCompletionMoment(final Instant completionMoment) {
         this.completionMoment = completionMoment;
     }
 
@@ -568,7 +568,7 @@ public class StatementContext implements Closeable {
      *
      * @param exceptionMoment Sets the end of query execution.
      */
-    public void setExceptionMoment(Instant exceptionMoment) {
+    public void setExceptionMoment(final Instant exceptionMoment) {
         this.exceptionMoment = exceptionMoment;
     }
 
@@ -592,7 +592,7 @@ public class StatementContext implements Closeable {
      * Instrument the telemetry trace id. Only intended for internal instrumentation to call.
      */
     @Alpha
-    public void setTraceId(String traceId) {
+    public void setTraceId(final String traceId) {
         this.traceId = traceId;
     }
 
@@ -609,7 +609,7 @@ public class StatementContext implements Closeable {
      * @param unit the time unit to convert to
      * @return the elapsed time in the given unit
      */
-    public long getElapsedTime(ChronoUnit unit) {
+    public long getElapsedTime(final ChronoUnit unit) {
         return unit.between(executionMoment, completionMoment == null ? exceptionMoment : completionMoment);
     }
 
@@ -623,7 +623,7 @@ public class StatementContext implements Closeable {
      *
      * @param cleanable the Cleanable to clean on close
      */
-    public void addCleanable(Cleanable cleanable) {
+    public void addCleanable(final Cleanable cleanable) {
 
         synchronized (cleanables) {
             cleanables.add(cleanable);
@@ -650,9 +650,9 @@ public class StatementContext implements Closeable {
             Collections.reverse(cleanablesCopy);
             cleanablesCopy.forEach(this::notifyCleanableRemoved);
 
-            ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
+            final ThrowableSuppressor throwableSuppressor = new ThrowableSuppressor();
 
-            for (Cleanable cleanable : cleanablesCopy) {
+            for (final Cleanable cleanable : cleanablesCopy) {
                 throwableSuppressor.suppressAppend(cleanable::close);
             }
 
@@ -677,22 +677,22 @@ public class StatementContext implements Closeable {
     }
 
     private void notifyContextCreated() {
-        Collection<StatementContextListener> listeners = getListeners();
+        final Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.contextCreated(this));
     }
 
     private void notifyContextCleaned() {
-        Collection<StatementContextListener> listeners = getListeners();
+        final Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.contextCleaned(this));
     }
 
-    private void notifyCleanableRemoved(Cleanable cleanable) {
-        Collection<StatementContextListener> listeners = getListeners();
+    private void notifyCleanableRemoved(final Cleanable cleanable) {
+        final Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.cleanableRemoved(this, cleanable));
     }
 
-    private void notifyCleanableAdded(Cleanable cleanable) {
-        Collection<StatementContextListener> listeners = getListeners();
+    private void notifyCleanableAdded(final Cleanable cleanable) {
+        final Collection<StatementContextListener> listeners = getListeners();
         listeners.forEach(customizer -> customizer.cleanableAdded(this, cleanable));
     }
 }

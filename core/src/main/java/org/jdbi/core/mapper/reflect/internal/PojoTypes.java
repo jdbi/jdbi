@@ -39,7 +39,7 @@ public class PojoTypes implements JdbiConfig<PojoTypes> {
         this.registry = registry;
     }
 
-    public PojoTypes register(Class<?> key, PojoPropertiesFactory factory) {
+    public PojoTypes register(final Class<?> key, final PojoPropertiesFactory factory) {
         factories.put(key, factory);
         return this;
     }

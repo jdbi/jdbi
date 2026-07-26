@@ -27,7 +27,7 @@ import org.jdbi.core.result.UnableToProduceResultException;
  * Statement providing convenience result handling for SQL queries.
  */
 public class Query extends SqlStatement<Query> implements ResultBearing {
-    public Query(Handle handle, CharSequence sql) {
+    public Query(final Handle handle, final CharSequence sql) {
         super(handle, sql);
     }
 
@@ -36,7 +36,7 @@ public class Query extends SqlStatement<Query> implements ResultBearing {
      *
      * @see Query#Query(Handle, CharSequence)
      */
-    public Query(Handle handle, String sql) {
+    public Query(final Handle handle, final String sql) {
         super(handle, sql);
     }
 
@@ -47,17 +47,17 @@ public class Query extends SqlStatement<Query> implements ResultBearing {
      * @param producer the result producer.
      * @return value returned by the result producer.
      */
-    public <R> R execute(ResultProducer<R> producer) {
+    public <R> R execute(final ResultProducer<R> producer) {
         try {
             return producer.produce(this::internalExecute, getContext());
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             cleanUpForException(e);
             throw new UnableToProduceResultException(e, getContext());
         }
     }
 
     @Override
-    public <R> R scanResultSet(ResultSetScanner<R> resultSetScanner) {
+    public <R> R scanResultSet(final ResultSetScanner<R> resultSetScanner) {
         return execute(ResultProducers.returningResults()).scanResultSet(resultSetScanner);
     }
 
