@@ -38,7 +38,7 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
      * @param prefix an optional prefix (we insert a '.' as a separator)
      * @param obj the object bind on
      */
-    protected ObjectPropertyNamedArgumentFinder(String prefix, Object obj) {
+    protected ObjectPropertyNamedArgumentFinder(final String prefix, final Object obj) {
         this.prefix = prefix == null || prefix.isEmpty() ? "" : prefix + ".";
         this.obj = obj;
     }
@@ -48,11 +48,11 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
         if (name.startsWith(prefix)) {
             final String actualName = name.substring(prefix.length());
 
-            int separator = actualName.indexOf('.');
+            final int separator = actualName.indexOf('.');
 
             if (separator != -1) {
-                String parentName = actualName.substring(0, separator);
-                String childName = actualName.substring(separator + 1);
+                final String parentName = actualName.substring(0, separator);
+                final String childName = actualName.substring(separator + 1);
 
                 return childArgumentFinders
                     .computeIfAbsent(parentName.endsWith("?") ? parentName.substring(0, parentName.length() - 1) : parentName, pn ->
@@ -73,7 +73,7 @@ public abstract class ObjectPropertyNamedArgumentFinder implements NamedArgument
         return Optional.empty();
     }
 
-    private NamedArgumentFinder getValueNested(TypedValue typedValue, String parentName, String childName) {
+    private NamedArgumentFinder getValueNested(final TypedValue typedValue, final String parentName, final String childName) {
         if (Objects.nonNull(typedValue.getValue())) {
             return getNestedArgumentFinder(typedValue);
         }

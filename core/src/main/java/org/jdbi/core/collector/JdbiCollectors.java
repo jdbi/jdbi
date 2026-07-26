@@ -53,7 +53,7 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
      * @param factory A collector factory
      * @return this
      */
-    public JdbiCollectors register(CollectorFactory factory) {
+    public JdbiCollectors register(final CollectorFactory factory) {
         factories.add(0, factory);
         factoryCache = new ConcurrentHashMap<>();
         return this;
@@ -67,7 +67,7 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
      * @since 3.38.0
      * @see org.jdbi.core.config.Configurable#registerCollector(CollectorFactory)
      */
-    public JdbiCollectors registerCollector(Type collectionType, Collector<?, ?, ?> collector) {
+    public JdbiCollectors registerCollector(final Type collectionType, final Collector<?, ?, ?> collector) {
         return register(CollectorFactory.collectorFactory(collectionType, collector));
     }
 

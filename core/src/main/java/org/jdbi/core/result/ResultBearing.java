@@ -51,13 +51,13 @@ public interface ResultBearing {
      * @param ctx the statement context
      * @return a ResultBearing
      */
-    static ResultBearing of(Supplier<ResultSet> resultSetSupplier, StatementContext ctx) {
+    static ResultBearing of(final Supplier<ResultSet> resultSetSupplier, final StatementContext ctx) {
         return new ResultBearing() {
             @Override
-            public <R> R scanResultSet(ResultSetScanner<R> resultSetScanner) {
+            public <R> R scanResultSet(final ResultSetScanner<R> resultSetScanner) {
                 try {
                     return resultSetScanner.scanResultSet(resultSetSupplier, ctx);
-                } catch (SQLException e) {
+                } catch (final SQLException e) {
                     throw new ResultSetException("Error reading result set", e, ctx);
                 }
             }
@@ -83,7 +83,7 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<T> mapTo(Class<T> type) {
+    default <T> ResultIterable<T> mapTo(final Class<T> type) {
         return mapTo(QualifiedType.of(type));
     }
 
@@ -98,7 +98,7 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<T> mapTo(GenericType<T> type) {
+    default <T> ResultIterable<T> mapTo(final GenericType<T> type) {
         return mapTo(QualifiedType.of(type));
     }
 
@@ -112,7 +112,7 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default ResultIterable<?> mapTo(Type type) {
+    default ResultIterable<?> mapTo(final Type type) {
         return mapTo(QualifiedType.of(type));
     }
 
@@ -126,9 +126,9 @@ public interface ResultBearing {
      * @see Configurable#registerColumnMapper(org.jdbi.core.mapper.ColumnMapperFactory)
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<T> mapTo(QualifiedType<T> type) {
+    default <T> ResultIterable<T> mapTo(final QualifiedType<T> type) {
         return scanResultSet((resultSetSupplier, ctx) -> {
-            RowMapper<T> rowMapper = ctx.findMapperFor(type)
+            final RowMapper<T> rowMapper = ctx.findMapperFor(type)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + type));
             return ResultIterable.of(resultSetSupplier, rowMapper, ctx);
         });
@@ -141,7 +141,7 @@ public interface ResultBearing {
      * @param <T>  the bean type to map the result set rows to
      * @return a {@link ResultIterable} of the given type.
      */
-    default <T> ResultIterable<T> mapToBean(Class<T> type) {
+    default <T> ResultIterable<T> mapToBean(final Class<T> type) {
         return map(BeanMapper.of(type));
     }
 
@@ -163,7 +163,7 @@ public interface ResultBearing {
      * @return a {@link Map} of String and the given type.
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<Map<String, T>> mapToMap(Class<T> valueType) {
+    default <T> ResultIterable<Map<String, T>> mapToMap(final Class<T> valueType) {
         return scanResultSet((resultSetSupplier, ctx) ->
                 ResultIterable.of(resultSetSupplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
@@ -176,7 +176,7 @@ public interface ResultBearing {
      * @return a {@link Map} of String and the given type.
      * @see Configurable#registerColumnMapper(ColumnMapper)
      */
-    default <T> ResultIterable<Map<String, T>> mapToMap(GenericType<T> valueType) {
+    default <T> ResultIterable<Map<String, T>> mapToMap(final GenericType<T> valueType) {
         return scanResultSet((resultSetSupplier, ctx) ->
                 ResultIterable.of(resultSetSupplier, GenericMapMapperFactory.getMapperForValueType(valueType, ctx.getConfig()), ctx));
     }
@@ -188,7 +188,7 @@ public interface ResultBearing {
      * @param <T>    the type to map the result set rows to
      * @return a {@link ResultIterable} of type {@code <T>}.
      */
-    default <T> ResultIterable<T> map(ColumnMapper<T> mapper) {
+    default <T> ResultIterable<T> map(final ColumnMapper<T> mapper) {
         return map(new SingleColumnMapper<>(mapper));
     }
 
@@ -199,7 +199,7 @@ public interface ResultBearing {
      * @param <T>    the type to map the result set rows to
      * @return a {@link ResultIterable} of type {@code <T>}.
      */
-    default <T> ResultIterable<T> map(RowMapper<T> mapper) {
+    default <T> ResultIterable<T> map(final RowMapper<T> mapper) {
         return scanResultSet((resultSetSupplier, ctx) -> ResultIterable.of(resultSetSupplier, mapper, ctx));
     }
 
@@ -211,7 +211,7 @@ public interface ResultBearing {
      * @param <T>    the type to map the result set rows to
      * @return a {@link ResultIterable} of type {@code <T>}.
      */
-    default <T> ResultIterable<T> map(RowViewMapper<T> mapper) {
+    default <T> ResultIterable<T> map(final RowViewMapper<T> mapper) {
         return map((RowMapper<T>) mapper);
     }
 

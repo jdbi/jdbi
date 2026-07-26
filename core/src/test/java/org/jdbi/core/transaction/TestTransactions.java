@@ -47,19 +47,19 @@ public class TestTransactions {
 
     private final LocalTransactionHandler txSpy = new LocalTransactionHandler() {
         @Override
-        public void begin(Handle handle) {
+        public void begin(final Handle handle) {
             begin++;
             super.begin(handle);
         }
 
         @Override
-        public void commit(Handle handle) {
+        public void commit(final Handle handle) {
             commit++;
             super.commit(handle);
         }
 
         @Override
-        public void rollback(Handle handle) {
+        public void rollback(final Handle handle) {
             rollback++;
             super.rollback(handle);
         }
@@ -78,7 +78,7 @@ public class TestTransactions {
 
     @Test
     public void testCallback() {
-        String woot = h.inTransaction(x -> "Woot!");
+        final String woot = h.inTransaction(x -> "Woot!");
 
         assertThat(woot).isEqualTo("Woot!");
     }
@@ -105,9 +105,9 @@ public class TestTransactions {
     @Test
     public void testNoBeginTransaction() throws Exception {
 
-        Jdbi jdbi = Jdbi.create(() -> {
+        final Jdbi jdbi = Jdbi.create(() -> {
             // create connection with auto-commit == false
-            Connection connection = DriverManager.getConnection(h2Extension.getUri());
+            final Connection connection = DriverManager.getConnection(h2Extension.getUri());
             connection.setAutoCommit(false);
             return connection;
         });
@@ -118,7 +118,7 @@ public class TestTransactions {
             handle.commit();
         });
 
-        int result = h.createQuery("SELECT count(1) from something")
+        final int result = h.createQuery("SELECT count(1) from something")
             .mapTo(Integer.class)
             .one();
         assertThat(result).isEqualTo(1);
@@ -212,13 +212,13 @@ public class TestTransactions {
     public void commitThrowsDoesntCommit() throws SQLException {
         h.execute("create table commitTable (id int primary key)");
 
-        var forwardAnswer = AdditionalAnswers.delegatesTo(h.getConnection());
+        final var forwardAnswer = AdditionalAnswers.delegatesTo(h.getConnection());
         var c = Mockito.mock(Connection.class, Mockito.withSettings()
                 .defaultAnswer(forwardAnswer));
 
-        var jdbi = Jdbi.create(c);
+        final var jdbi = Jdbi.create(c);
 
-        var expectedExn = new SQLException("woof");
+        final var expectedExn = new SQLException("woof");
         Mockito.doThrow(expectedExn).when(c).commit();
         assertThatThrownBy(() -> jdbi.useTransaction(txn -> txn.execute("insert into commitTable(id) values (1)")))
             .hasCause(expectedExn);
