@@ -30,19 +30,25 @@ import org.jdbi.core.internal.CollectionCollectors;
 
 /**
  * Utility class for type qualifiers supported by Jdbi core.
+ * <p>
+ * This configuration is immutable and shareable. It holds a final reference to its registry, used only to
+ * reach the registry-family's shared qualifier caches; the cached results are a pure function of the
+ * annotated elements, so sharing the value across a registry family is safe. Instances constructed without a
+ * registry (the public no-argument constructor) compute directly without caching.
  */
-public class Qualifiers implements JdbiConfig<Qualifiers> {
+public final class Qualifiers implements JdbiConfig<Qualifiers> {
     private static final ConfigCache<AnnotatedElement[], Set<Annotation>> QUALIFIER_CACHE = ConfigCaches.declare(
             elements -> elements.length == 1 ? elements[0] : new HashSet<>(Arrays.asList(elements)),
             (Function<AnnotatedElement[], Set<Annotation>>) Qualifiers::getQualifiers);
     private static final ConfigCache<AnnotatedElement, QualifiedType<?>> QUALIFIED_TYPE_CACHE = ConfigCaches.declare(
             type -> QualifiedType.of((Type) type).withAnnotations(getQualifiers(type)));
-    private ConfigRegistry registry;
+    private final ConfigRegistry registry;
 
-    public Qualifiers() {}
+    public Qualifiers() {
+        this.registry = null;
+    }
 
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
+    public Qualifiers(final ConfigRegistry registry) {
         this.registry = registry;
     }
 
@@ -77,6 +83,8 @@ public class Qualifiers implements JdbiConfig<Qualifiers> {
 
     @Override
     public Qualifiers createCopy() {
-        return new Qualifiers();
+        // Immutable: safe to share across registries in the same family (they share the qualifier caches, and
+        // the cached result is a pure function of the annotated elements).
+        return this;
     }
 }

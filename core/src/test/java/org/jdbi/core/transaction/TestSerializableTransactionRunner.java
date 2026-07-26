@@ -54,10 +54,10 @@ public class TestSerializableTransactionRunner {
     @BeforeEach
     public void setUp() {
         h2Extension.getJdbi().setTransactionHandler(new SerializableTransactionRunner());
-        h2Extension.getJdbi().getConfig(SerializableTransactionRunner.Configuration.class)
-            .setMaxRetries(MAX_RETRIES)
-            .setOnFailure(onFailure)
-            .setOnSuccess(onSuccess);
+        h2Extension.getJdbi().configure(SerializableTransactionRunner.Configuration.class, config -> config
+            .maxRetries(MAX_RETRIES)
+            .onFailure(onFailure)
+            .onSuccess(onSuccess));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class TestSerializableTransactionRunner {
 
     @Test
     public void testNonsenseRetryCount() {
-        assertThatThrownBy(() -> h2Extension.getJdbi().configure(SerializableTransactionRunner.Configuration.class, config -> config.setMaxRetries(-1)))
+        assertThatThrownBy(() -> h2Extension.getJdbi().configure(SerializableTransactionRunner.Configuration.class, config -> config.maxRetries(-1)))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Set a number >= 0");
     }

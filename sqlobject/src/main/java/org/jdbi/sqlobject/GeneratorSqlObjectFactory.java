@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.extension.ExtensionMetadata;
-import org.jdbi.core.extension.Extensions;
+import org.jdbi.core.extension.ExtensionMetadataResolver;
 import org.jdbi.core.extension.HandleSupplier;
 import org.jdbi.core.internal.JdbiClassUtils;
 import org.jdbi.core.internal.JdbiClassUtils.MethodHandleHolder;
@@ -71,7 +71,7 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
 
         ConfigRegistry config = handleSupplier.getConfig();
 
-        final ExtensionMetadata extensionMetaData = config.get(Extensions.class).findMetadata(extensionType, this);
+        final ExtensionMetadata extensionMetaData = ExtensionMetadataResolver.forRegistry(config).findMetadata(extensionType, this);
         final ConfigRegistry instanceConfig = extensionMetaData.createInstanceConfiguration(config);
 
         return (E) attachedTypeCache.computeIfAbsent(extensionType, GeneratorSqlObjectFactory::getGeneratedClass)

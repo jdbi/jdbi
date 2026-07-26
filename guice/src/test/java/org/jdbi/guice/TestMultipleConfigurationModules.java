@@ -32,7 +32,7 @@ import com.google.inject.name.Names;
 import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
+import org.jdbi.core.mapper.MapperResolver;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.guice.internal.JdbiGlobal;
@@ -163,10 +163,10 @@ public class TestMultipleConfigurationModules {
         assertThat(inj).isNotNull();
         Jdbi jdbi = inj.getInstance(Key.get(Jdbi.class, Foo.class));
 
-        ColumnMappers mappers = jdbi.getConfig(ColumnMappers.class);
+        MapperResolver mappers = MapperResolver.forRegistry(jdbi.getConfig());
 
-        assertThat(mappers.findFor(A_TYPE)).isPresent();
-        assertThat(mappers.findFor(B_TYPE)).isPresent();
+        assertThat(mappers.findColumnMapper(A_TYPE)).isPresent();
+        assertThat(mappers.findColumnMapper(B_TYPE)).isPresent();
     }
 
     @Test
@@ -202,10 +202,10 @@ public class TestMultipleConfigurationModules {
         assertThat(inj).isNotNull();
         Jdbi jdbi = inj.getInstance(Key.get(Jdbi.class, Foo.class));
 
-        ColumnMappers mappers = jdbi.getConfig(ColumnMappers.class);
+        MapperResolver mappers = MapperResolver.forRegistry(jdbi.getConfig());
 
-        assertThat(mappers.findFor(A_TYPE)).isPresent();
-        assertThat(mappers.findFor(B_TYPE)).isPresent();
+        assertThat(mappers.findColumnMapper(A_TYPE)).isPresent();
+        assertThat(mappers.findColumnMapper(B_TYPE)).isPresent();
     }
 
     @Singleton

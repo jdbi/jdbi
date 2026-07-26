@@ -31,7 +31,7 @@ class JacksonIssue2395Test extends AbstractIssue2395Test {
     @RegisterExtension
     JdbiExtension pgExtension = JdbiExtension.postgres(pg)
         .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new Jackson3Plugin())
-        .withConfig(Jackson3Config.class, c -> c.setMapper(new ObjectMapper()));
+        .withConfig(Jackson3Config.class, c -> c.mapper(new ObjectMapper()));
 
     @Override
     protected Handle getHandle() {

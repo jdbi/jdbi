@@ -13,44 +13,46 @@
  */
 package org.jdbi.core.mapper.reflect.internal;
 
-import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
-import org.jdbi.core.generic.GenericTypes;
-import org.jdbi.core.internal.CopyOnWriteHashMap;
 
-public class PojoTypes implements JdbiConfig<PojoTypes> {
+/**
+ * Registry of {@link PojoPropertiesFactory} instances. Holds only registration data; resolving a type into
+ * its {@link PojoProperties} is done per configuration registry by {@link PojoResolver}.
+ * <p>
+ * This configuration is immutable: {@link #register} returns a new instance, leaving the receiver unchanged.
+ */
+public final class PojoTypes implements JdbiConfig<PojoTypes> {
     private final Map<Class<?>, PojoPropertiesFactory> factories;
-    private ConfigRegistry registry;
 
     public PojoTypes() {
-        factories = new CopyOnWriteHashMap<>();
+        this(Map.of());
     }
 
-    private PojoTypes(PojoTypes other) {
-        factories = new CopyOnWriteHashMap<>(other.factories);
-    }
-
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
+    private PojoTypes(final Map<Class<?>, PojoPropertiesFactory> factories) {
+        this.factories = factories;
     }
 
     public PojoTypes register(final Class<?> key, final PojoPropertiesFactory factory) {
-        factories.put(key, factory);
-        return this;
+        final Map<Class<?>, PojoPropertiesFactory> updated = new HashMap<>(factories);
+        updated.put(key, factory);
+        return new PojoTypes(Map.copyOf(updated));
     }
 
-    public Optional<PojoProperties<?>> findFor(Type type) {
-        return Optional.ofNullable(factories.get(GenericTypes.getErasedType(type)))
-                .map(ppf -> ppf.create(type, registry));
+    /**
+     * Returns the registered factories keyed by erased type. Consumed by {@link PojoResolver}.
+     *
+     * @return the registered pojo-properties factories
+     */
+    Map<Class<?>, PojoPropertiesFactory> getFactories() {
+        return factories;
     }
 
     @Override
     public PojoTypes createCopy() {
-        return new PojoTypes(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

@@ -103,7 +103,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Handle handle = h2Extension.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
         handle.configure(TupleMappers.class, c ->
-                c.setColumn(2, "integerValue").setColumn(3, "intValue"));
+                c.column(2, "integerValue").column(3, "intValue"));
 
         Tuple3<Something, Integer, Integer> result = handle
                 .createQuery("select * from something where id = 1")
@@ -119,9 +119,9 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     public void testMapTuple3WithAllSpecifiedColumnsShouldRespectConfiguration() {
         Handle handle = h2Extension.getSharedHandle();
         handle.configure(TupleMappers.class, c ->
-                c.setColumn(1, "integerValue")
-                        .setColumn(2, "intValue")
-                        .setColumn(3, "id"));
+                c.column(1, "integerValue")
+                        .column(2, "intValue")
+                        .column(3, "id"));
 
         Tuple3<Integer, Integer, Integer> result = handle
                 .createQuery("select * from something where id = 1")
@@ -151,7 +151,7 @@ public class TestVavrTupleRowMapperFactoryWithDB {
         Handle handle = h2Extension.getSharedHandle();
         handle.registerRowMapper(new SomethingMapper());
         handle.configure(TupleMappers.class, c ->
-                c.setColumn(1, "integerValue"));
+                c.column(1, "integerValue"));
 
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")

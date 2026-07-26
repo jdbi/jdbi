@@ -51,7 +51,7 @@ public class NonpublicSubclassTest {
     public JdbiExtension h2Extension = JdbiExtension.h2()
         .withPlugins(new H2DatabasePlugin(), new SqlObjectPlugin())
         .withInitializer(TestingInitializers.something())
-        .withConfig(Extensions.class, c -> c.setAllowProxy(false));
+        .withConfig(Extensions.class, c -> c.allowProxy(false));
 
     private Handle handle;
     private AbstractClassDao dao;

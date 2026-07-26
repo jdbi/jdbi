@@ -179,7 +179,7 @@ public class PojoMapper<T> implements RowMapper<T> {
 
     @SuppressWarnings("unchecked")
     protected PojoProperties<T> getProperties(ConfigRegistry config) {
-        return (PojoProperties<T>) config.get(PojoTypes.class).findFor(type)
+        return (PojoProperties<T>) PojoResolver.forRegistry(config).findFor(type)
             .orElseThrow(() -> new UnableToProduceResultException("Couldn't find properties for " + type));
     }
 

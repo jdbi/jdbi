@@ -24,8 +24,8 @@ import org.jdbi.core.Jdbi;
 import org.jdbi.core.annotation.JdbiProperty;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
-import org.jdbi.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.core.mapper.reflect.ColumnName;
+import org.jdbi.core.spi.JdbiPlugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -37,19 +37,22 @@ public class ImmutablesTest {
 
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
-        .withConfig(JdbiImmutables.class, c -> c
-            .registerImmutable(
-                SubValue.class,
-                FooBarBaz.class,
-                Getter.class,
-                ByteArray.class,
-                DerivedProperty.class,
-                Defaulty.class,
-                IsIsIsIs.class,
-                AlternateColumnName.class,
-                GetterWithColumnName.class
-            ).registerModifiable(FooBarBaz.class)
-        );
+        .withPlugin(new JdbiPlugin() {
+            @Override
+            public void customizeJdbi(Jdbi jdbi) {
+                jdbi.registerImmutable(
+                        SubValue.class,
+                        FooBarBaz.class,
+                        Getter.class,
+                        ByteArray.class,
+                        DerivedProperty.class,
+                        Defaulty.class,
+                        IsIsIsIs.class,
+                        AlternateColumnName.class,
+                        GetterWithColumnName.class
+                    ).registerModifiable(FooBarBaz.class);
+            }
+        });
 
     private Jdbi jdbi;
     private Handle h;
@@ -77,7 +80,7 @@ public class ImmutablesTest {
 
     @Test
     public void simpleTest() {
-        jdbi.getConfig(JdbiImmutables.class).registerImmutable(Train.class);
+        jdbi.registerImmutable(Train.class);
         try (Handle handle = jdbi.open()) {
             handle.execute("create table train (name varchar, carriages int, observation_car boolean)");
 

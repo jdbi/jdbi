@@ -32,6 +32,6 @@ public class UseEnumStrategyImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(Enums.class).setEnumStrategy(enumStrategy);
+        config.configure(Enums.class, c -> c.defaultStrategy(enumStrategy));
     }
 }

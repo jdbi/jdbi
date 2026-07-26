@@ -27,12 +27,12 @@ public class TestPreparedArguments {
     @Test
     public void disablePreparedArguments() {
         final Handle h = h2Extension.getSharedHandle();
-        final Arguments arguments = h.getConfig(Arguments.class);
+        final ArgumentResolver arguments = ArgumentResolver.forRegistry(h.getConfig());
 
         assertThat(arguments.prepareFor(int.class))
                 .isNotEmpty();
 
-        arguments.setPreparedArgumentsEnabled(false);
+        h.configure(Arguments.class, c -> c.preparedArgumentsEnabled(false));
 
         assertThat(arguments.prepareFor(int.class))
                 .isEmpty();

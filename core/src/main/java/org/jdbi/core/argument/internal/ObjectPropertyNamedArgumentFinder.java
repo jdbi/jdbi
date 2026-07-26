@@ -22,7 +22,6 @@ import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.Arguments;
 import org.jdbi.core.argument.NamedArgumentFinder;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 
 /**

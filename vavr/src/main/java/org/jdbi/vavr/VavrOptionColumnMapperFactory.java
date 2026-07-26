@@ -21,7 +21,6 @@ import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
-import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.NoSuchMapperException;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
@@ -36,7 +35,7 @@ class VavrOptionColumnMapperFactory implements ColumnMapperFactory {
     }
 
     private static ColumnMapper<?> create(Type type, ConfigRegistry config) {
-        final ColumnMapper<?> mapper = config.get(ColumnMappers.class).findFor(
+        final ColumnMapper<?> mapper = config.findColumnMapperFor(
                 GenericTypes.findGenericParameter(type, Option.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw vavr Option type")))
             .orElseThrow(() -> new NoSuchMapperException("No column mapper for type " + type + ", nested in vavr Option"));

@@ -78,7 +78,7 @@ public class FieldMapperTest {
     public void testNestedStrict() {
         Handle handle = h2Extension.getSharedHandle();
 
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
         handle.registerRowMapper(FieldMapper.factory(NestedThing.class));
 
         handle.execute("insert into something (id, name) values (1, 'foo')");
@@ -209,7 +209,7 @@ public class FieldMapperTest {
     public void testNestedPrefixStrict() {
         Handle handle = h2Extension.getSharedHandle();
 
-        handle.getConfig(ReflectionMappers.class).setStrictMatching(true);
+        handle.configure(ReflectionMappers.class, c -> c.strictMatching(true));
         handle.registerRowMapper(FieldMapper.factory(NestedPrefixThing.class));
 
         handle.execute("insert into something (id, name, integerValue) values (1, 'foo', 5)"); // three, sir!

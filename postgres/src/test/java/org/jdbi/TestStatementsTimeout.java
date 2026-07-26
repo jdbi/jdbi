@@ -55,7 +55,7 @@ public class TestStatementsTimeout {
 
     @Test
     public void testTimeout() {
-        h.getConfig(SqlStatements.class).setQueryTimeout(2);
+        h.configure(SqlStatements.class, c -> c.queryTimeout(2));
 
         assertThatCode(h.createQuery("select pg_sleep(1)").mapTo(String.class)::one)
             .doesNotThrowAnyException();

@@ -19,11 +19,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties;
 import org.jdbi.core.mapper.reflect.internal.PojoProperties.PojoProperty;
-import org.jdbi.core.mapper.reflect.internal.PojoTypes;
+import org.jdbi.core.mapper.reflect.internal.PojoResolver;
 import org.jdbi.core.statement.Customizable;
 import org.jdbi.sqlobject.customizer.SqlStatementParameterCustomizer;
 
@@ -39,8 +39,8 @@ public final class PojoWarmingCustomizer {
 
             @Override
             public void warm(ConfigRegistry config) {
-                Arguments arguments = config.get(Arguments.class);
-                config.get(PojoTypes.class)
+                ArgumentResolver arguments = ArgumentResolver.forRegistry(config);
+                PojoResolver.forRegistry(config)
                         .findFor(pojoType)
                         .map(Stream::of)
                         .orElseGet(Stream::empty)

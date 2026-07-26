@@ -41,7 +41,7 @@ public class TestMapMapper {
 
     @Test
     public void testCaseDefaultNop() {
-        h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.NOP);
+        h.configure(MapMappers.class, c -> c.caseChange(CaseStrategy.NOP));
 
         Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
 
@@ -50,7 +50,7 @@ public class TestMapMapper {
 
     @Test
     public void testCaseLower() {
-        h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.LOCALE_LOWER);
+        h.configure(MapMappers.class, c -> c.caseChange(CaseStrategy.LOCALE_LOWER));
 
         Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
 
@@ -59,7 +59,7 @@ public class TestMapMapper {
 
     @Test
     public void testCaseUpper() {
-        h.getConfig(MapMappers.class).setCaseChange(CaseStrategy.LOCALE_UPPER);
+        h.configure(MapMappers.class, c -> c.caseChange(CaseStrategy.LOCALE_UPPER));
 
         Map<String, Object> noOne = h.createQuery("select * from Foo").mapToMap().one();
 

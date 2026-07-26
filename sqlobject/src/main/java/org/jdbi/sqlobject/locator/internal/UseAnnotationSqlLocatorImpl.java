@@ -27,6 +27,6 @@ public class UseAnnotationSqlLocatorImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlObjects.class).setSqlLocator(sqlLocator);
+        config.configure(SqlObjects.class, c -> c.sqlLocator(sqlLocator));
     }
 }

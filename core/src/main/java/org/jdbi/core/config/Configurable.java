@@ -14,8 +14,10 @@
 package org.jdbi.core.config;
 
 import java.lang.reflect.Type;
-import java.util.function.Consumer;
+import java.util.Arrays;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 
 import org.jdbi.core.argument.ArgumentFactory;
@@ -39,6 +41,8 @@ import org.jdbi.core.mapper.QualifiedColumnMapperFactory;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
 import org.jdbi.core.mapper.RowMappers;
+import org.jdbi.core.mapper.immutables.internal.ImmutablesFactory;
+import org.jdbi.core.mapper.reflect.internal.PojoTypes;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.statement.SqlLogger;
 import org.jdbi.core.statement.SqlParser;
@@ -46,15 +50,14 @@ import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementCustomizer;
 import org.jdbi.core.statement.TemplateEngine;
 import org.jdbi.core.statement.TimingCollector;
-import org.jdbi.meta.Beta;
 import org.jdbi.core.statement.internal.DefineNamedBindingsStatementCustomizer;
+import org.jdbi.meta.Beta;
 
 /**
  * A type with access to access and modify arbitrary Jdbi configuration.
  *
  * @param <This> The subtype that implements this interface.
  */
-@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface Configurable<This> {
 
     /**
@@ -76,41 +79,43 @@ public interface Configurable<This> {
     }
 
     /**
-     * Passes the configuration object of the given type to the configurer, then returns this object.
+     * Derives a new configuration value of the given type by applying the given operator to the current value,
+     * installs it, then returns this object. With immutable config values the operator returns a new value
+     * (e.g. {@code c -> c.register(mapper)}); the installed value replaces the previous one.
      *
      * @param configClass the configuration type
-     * @param configurer  consumer that will be passed the configuration object
+     * @param configurer  operator applied to the current configuration value, returning the value to install
      * @param <C>         the configuration type
      * @return this object (for call chaining)
      */
     @SuppressWarnings("unchecked")
-    default <C extends JdbiConfig<C>> This configure(final Class<C> configClass, final Consumer<C> configurer) {
-        configurer.accept(getConfig(configClass));
+    default <C extends JdbiConfig<C>> This configure(final Class<C> configClass, final UnaryOperator<C> configurer) {
+        getConfig().configure(configClass, configurer);
         return (This) this;
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setTemplateEngine(rewriter)}
+     * Convenience method for {@code configure(SqlStatements.class, c -> c.templateEngine(templateEngine))}
      *
      * @param templateEngine the template engine
      * @return this
      */
     default This setTemplateEngine(final TemplateEngine templateEngine) {
-        return configure(SqlStatements.class, c -> c.setTemplateEngine(templateEngine));
+        return configure(SqlStatements.class, c -> c.templateEngine(templateEngine));
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setSqlParser(rewriter)}
+     * Convenience method for {@code configure(SqlStatements.class, c -> c.sqlParser(parser))}
      *
      * @param parser SQL parser
      * @return this
      */
     default This setSqlParser(final SqlParser parser) {
-        return configure(SqlStatements.class, c -> c.setSqlParser(parser));
+        return configure(SqlStatements.class, c -> c.sqlParser(parser));
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).setTimingCollector(collector)}
+     * Convenience method for {@code configure(SqlStatements.class, c -> c.setTimingCollector(collector))}
      *
      * @param collector timing collector
      * @return this
@@ -122,7 +127,7 @@ public interface Configurable<This> {
     }
 
     default This setSqlLogger(final SqlLogger sqlLogger) {
-        return configure(SqlStatements.class, c -> c.setSqlLogger(sqlLogger));
+        return configure(SqlStatements.class, c -> c.sqlLogger(sqlLogger));
     }
 
     default This addCustomizer(final StatementCustomizer customizer) {
@@ -130,7 +135,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlStatements.class).define(key, value)}
+     * Convenience method for {@code configure(SqlStatements.class, c -> c.define(key, value))}
      *
      * @param key   attribute name
      * @param value attribute value
@@ -141,7 +146,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(Arguments.class).register(factory)}
+     * Convenience method for {@code configure(Arguments.class, c -> c.register(factory))}
      *
      * @param factory argument factory
      * @return this
@@ -151,7 +156,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(Arguments.class).register(factory)}
+     * Convenience method for {@code configure(Arguments.class, c -> c.register(factory))}
      *
      * @param factory qualified argument factory
      * @return this
@@ -161,37 +166,37 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlArrayTypes.class).setArgumentStrategy(strategy)}
+     * Convenience method for {@code configure(SqlArrayTypes.class, c -> c.argumentStrategy(strategy))}
      *
      * @param strategy argument strategy
      * @return this
      */
     default This setSqlArrayArgumentStrategy(final SqlArrayArgumentStrategy strategy) {
-        return configure(SqlArrayTypes.class, c -> c.setArgumentStrategy(strategy));
+        return configure(SqlArrayTypes.class, c -> c.argumentStrategy(strategy));
     }
 
     /**
-     * Convenience method for {@code getConfig(MapEntryMappers.class).setKeyColumn(keyColumn)}
+     * Convenience method for {@code configure(MapEntryMappers.class, c -> c.keyColumn(keyColumn))}
      *
      * @param keyColumn the key column name
      * @return this
      */
     default This setMapKeyColumn(final String keyColumn) {
-        return configure(MapEntryMappers.class, c -> c.setKeyColumn(keyColumn));
+        return configure(MapEntryMappers.class, c -> c.keyColumn(keyColumn));
     }
 
     /**
-     * Convenience method for {@code getConfig(MapEntryMappers.class).setValueColumn(valueColumn)}
+     * Convenience method for {@code configure(MapEntryMappers.class, c -> c.valueColumn(valueColumn))}
      *
      * @param valueColumn the value column name
      * @return this
      */
     default This setMapValueColumn(final String valueColumn) {
-        return configure(MapEntryMappers.class, c -> c.setValueColumn(valueColumn));
+        return configure(MapEntryMappers.class, c -> c.valueColumn(valueColumn));
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlArrayTypes.class).register(elementType, sqlTypeName)}
+     * Convenience method for {@code configure(SqlArrayTypes.class, c -> c.register(elementType, sqlTypeName))}
      *
      * @param elementType element type
      * @param sqlTypeName SQL type name
@@ -215,7 +220,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlArrayTypes.class).register(arrayType)}
+     * Convenience method for {@code configure(SqlArrayTypes.class, c -> c.register(arrayType))}
      *
      * @param arrayType SQL array type
      * @return this
@@ -225,7 +230,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(SqlArrayTypes.class).register(factory)}
+     * Convenience method for {@code configure(SqlArrayTypes.class, c -> c.register(factory))}
      *
      * @param factory SQL array type factory
      * @return this
@@ -235,7 +240,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(JdbiCollectors.class).register(CollectorFactory.collectorFactory(collectionType, collector))}
+     * Convenience method for {@code configure(JdbiCollectors.class, c -> c.registerCollector(collectionType, collector))}
      *
      * @param collectionType collector type to register the collector for
      * @param collector      the Collector to use to build the resulting collection
@@ -247,7 +252,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(JdbiCollectors.class).register(factory)}
+     * Convenience method for {@code configure(JdbiCollectors.class, c -> c.register(factory))}
      *
      * @param factory collector factory
      * @return this
@@ -257,7 +262,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(mapper)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(mapper))}
      *
      * @param mapper column mapper
      * @return this
@@ -267,7 +272,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(type, mapper))}
      *
      * @param <T>    the type
      * @param type   the generic type to register
@@ -279,7 +284,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(type, mapper))}
      *
      * @param type   the type to register
      * @param mapper the mapper to use on that type
@@ -290,7 +295,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(type, mapper))}
      *
      * @param type   the type to register
      * @param mapper the mapper to use on that type
@@ -301,7 +306,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(factory)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(factory))}
      *
      * @param factory column mapper factory
      * @return this
@@ -311,7 +316,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(ColumnMappers.class).register(factory)}
+     * Convenience method for {@code configure(ColumnMappers.class, c -> c.register(factory))}
      *
      * @param factory column mapper factory
      * @return this
@@ -321,7 +326,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(Extensions.class).register(factory)}
+     * Convenience method for {@code configure(Extensions.class, c -> c.register(factory))}
      *
      * @param factory extension factory
      * @return this
@@ -331,7 +336,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(RowMappers.class).register(mapper)}
+     * Convenience method for {@code configure(RowMappers.class, c -> c.register(mapper))}
      *
      * @param mapper row mapper
      * @return this
@@ -341,7 +346,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(RowMappers.class, c -> c.register(type, mapper))}
      *
      * @param <T>    the type
      * @param type   to match
@@ -353,7 +358,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(RowMappers.class).register(type, mapper)}
+     * Convenience method for {@code configure(RowMappers.class, c -> c.register(type, mapper))}
      *
      * @param type   to match
      * @param mapper row mapper
@@ -364,7 +369,7 @@ public interface Configurable<This> {
     }
 
     /**
-     * Convenience method for {@code getConfig(RowMappers.class).register(factory)}
+     * Convenience method for {@code configure(RowMappers.class, c -> c.register(factory))}
      *
      * @param factory row mapper factory
      * @return this
@@ -383,6 +388,122 @@ public interface Configurable<This> {
     default This registerCodecFactory(final CodecFactory codecFactory) {
         registerColumnMapper(codecFactory);
         return registerArgument(codecFactory);
+    }
+
+    /**
+     * Register bean arguments and row mapping for an <a href="https://immutables.github.io">Immutables</a>
+     * {@code Immutable*} value class, expecting the default generated class and builder names.
+     *
+     * @param spec the specification interface or abstract class
+     * @param <S>  the specification class
+     * @return this
+     */
+    @Beta
+    default <S> This registerImmutable(final Class<S> spec) {
+        return registerPojoFactory(ImmutablesFactory.immutable(spec));
+    }
+
+    /**
+     * Convenience method for registering many immutable types.
+     *
+     * @param specs the specification interfaces or abstract classes
+     * @return this
+     * @see #registerImmutable(Class)
+     */
+    @Beta
+    default This registerImmutable(final Class<?>... specs) {
+        return registerImmutable(Arrays.asList(specs));
+    }
+
+    /**
+     * Convenience method for registering many immutable types.
+     *
+     * @param specs the specification interfaces or abstract classes
+     * @return this
+     * @see #registerImmutable(Class)
+     */
+    @Beta
+    @SuppressWarnings("unchecked")
+    default This registerImmutable(final Iterable<Class<?>> specs) {
+        specs.forEach(this::registerImmutable);
+        return (This) this;
+    }
+
+    /**
+     * Register bean arguments and row mapping for an {@code Immutable*} value class, using a supplied
+     * implementation and builder.
+     *
+     * @param spec    the specification interface or abstract class
+     * @param impl    the generated implementation class
+     * @param builder a supplier of new Builder instances
+     * @param <S>     the specification class
+     * @param <I>     the implementation class
+     * @return this
+     */
+    @Beta
+    default <S, I extends S> This registerImmutable(final Class<S> spec, final Class<I> impl, final Supplier<?> builder) {
+        return registerPojoFactory(ImmutablesFactory.immutable(spec, impl, builder));
+    }
+
+    /**
+     * Register bean arguments and row mapping for a {@code Modifiable*} value class, expecting the default
+     * generated class and public nullary constructor.
+     *
+     * @param spec the specification interface or abstract class
+     * @param <S>  the specification class
+     * @return this
+     */
+    @Beta
+    default <S> This registerModifiable(final Class<S> spec) {
+        return registerPojoFactory(ImmutablesFactory.modifiable(spec));
+    }
+
+    /**
+     * Convenience method for registering many modifiable types.
+     *
+     * @param specs the specification interfaces or abstract classes
+     * @return this
+     * @see #registerModifiable(Class)
+     */
+    @Beta
+    default This registerModifiable(final Class<?>... specs) {
+        return registerModifiable(Arrays.asList(specs));
+    }
+
+    /**
+     * Convenience method for registering many modifiable types.
+     *
+     * @param specs the specification interfaces or abstract classes
+     * @return this
+     * @see #registerModifiable(Class)
+     */
+    @Beta
+    @SuppressWarnings("unchecked")
+    default This registerModifiable(final Iterable<Class<?>> specs) {
+        specs.forEach(this::registerModifiable);
+        return (This) this;
+    }
+
+    /**
+     * Register bean arguments and row mapping for a {@code Modifiable*} value class, using a supplied
+     * implementation and constructor.
+     *
+     * @param spec        the specification interface or abstract class
+     * @param impl        the modifiable class
+     * @param constructor a supplier of new Modifiable instances
+     * @param <S>         the specification class
+     * @param <M>         the modifiable class
+     * @return this
+     */
+    @Beta
+    default <S, M extends S> This registerModifiable(final Class<S> spec, final Class<M> impl, final Supplier<?> constructor) {
+        return registerPojoFactory(ImmutablesFactory.modifiable(spec, impl, constructor));
+    }
+
+    private This registerPojoFactory(final ImmutablesFactory.Registration registration) {
+        return configure(PojoTypes.class, c -> c
+                .register(registration.spec(), registration.factory())
+                .register(registration.impl(), registration.factory()));
     }
 
     /**

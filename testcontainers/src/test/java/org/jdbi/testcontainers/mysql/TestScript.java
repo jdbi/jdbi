@@ -44,7 +44,7 @@ public class TestScript {
 
     @BeforeEach
     public void setUp() {
-        extension.getSharedHandle().getConfig(SqlStatements.class).setScriptStatementsNeedSemicolon(false);
+        extension.getSharedHandle().configure(SqlStatements.class, c -> c.scriptStatementsNeedSemicolon(false));
     }
 
     @Test

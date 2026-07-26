@@ -14,56 +14,62 @@
 package org.jdbi.core.collector;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collector;
 
 import org.jdbi.core.config.JdbiConfig;
+import org.jdbi.core.internal.RegistrationLists;
 
 /**
- * Registry of collector factories.
- * Contains a set of collector factories, registered by the application.
+ * Registry of collector factories. Holds only registration data; resolving a factory into a
+ * {@link Collector} for a given container type (and caching the result) is done per configuration registry
+ * by {@link CollectorResolver}.
+ * <p>
+ * This configuration is immutable: the {@code register} methods return a new instance, leaving the receiver
+ * unchanged.
  */
-public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
+public final class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
+
+    private static final List<CollectorFactory> DEFAULT_FACTORIES = buildDefaultFactories();
+
     private final List<CollectorFactory> factories;
-    private ConcurrentMap<Type, Optional<CollectorFactory>> factoryCache;
 
     public JdbiCollectors() {
-        factories = new CopyOnWriteArrayList<>();
-        factoryCache = new ConcurrentHashMap<>();
-        register(new MapCollectorFactory());
-        register(new OptionalCollectorFactory());
-        register(new ListCollectorFactory());
-        register(new SetCollectorFactory());
-        register(new OptionalPrimitiveCollectorFactory());
-        register(new ArrayCollectorFactory());
-        register(new EnumSetCollectorFactory());
+        this(DEFAULT_FACTORIES);
     }
 
-    private JdbiCollectors(JdbiCollectors that) {
-        factoryCache = that.factoryCache;
-        factories = new CopyOnWriteArrayList<>(that.factories);
+    private JdbiCollectors(final List<CollectorFactory> factories) {
+        this.factories = factories;
+    }
+
+    private static List<CollectorFactory> buildDefaultFactories() {
+        // Registration prepends, so the effective consultation order is the reverse of registration order.
+        final List<CollectorFactory> f = new ArrayList<>();
+        f.add(0, new MapCollectorFactory());
+        f.add(0, new OptionalCollectorFactory());
+        f.add(0, new ListCollectorFactory());
+        f.add(0, new SetCollectorFactory());
+        f.add(0, new OptionalPrimitiveCollectorFactory());
+        f.add(0, new ArrayCollectorFactory());
+        f.add(0, new EnumSetCollectorFactory());
+        return List.copyOf(f);
     }
 
     /**
      * Register a new {@link CollectorFactory}.
      * @param factory A collector factory
-     * @return this
+     * @return a copy of this configuration with the factory registered
      */
     public JdbiCollectors register(final CollectorFactory factory) {
-        factories.add(0, factory);
-        factoryCache = new ConcurrentHashMap<>();
-        return this;
+        return new JdbiCollectors(RegistrationLists.prepend(factories, factory));
     }
 
     /**
      * Register a new {@link Collector} for the given type.
      * @param collectionType The type that this collector will return
      * @param collector A {@link Collector} implementation
-     * @return this
+     * @return a copy of this configuration with the collector registered
      * @since 3.38.0
      * @see org.jdbi.core.config.Configurable#registerCollector(CollectorFactory)
      */
@@ -72,41 +78,17 @@ public class JdbiCollectors implements JdbiConfig<JdbiCollectors> {
     }
 
     /**
-     * Obtain a collector for the given type.
+     * Returns the registered factories, most-recently-registered first. Consumed by {@link CollectorResolver}.
      *
-     * @param containerType the container type.
-     * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
+     * @return the registered collector factories
      */
-    public Optional<Collector<?, ?, ?>> findFor(Type containerType) {
-        return findFactoryFor(containerType)
-                .map(f -> f.build(containerType));
-    }
-
-    /**
-     * Returns the element type for the given container type.
-     *
-     * @param containerType the container type.
-     * @return the element type for the given container type, if available.
-     */
-    public Optional<Type> findElementTypeFor(Type containerType) {
-        return findFactoryFor(containerType)
-                .flatMap(f -> f.elementType(containerType));
-    }
-
-    private Optional<CollectorFactory> findFactoryFor(Type containerType) {
-        Optional<CollectorFactory> entry = factoryCache.get(containerType);
-        if (entry != null) {
-            return entry;
-        }
-        entry = factories.stream()
-                .filter(f -> f.accepts(containerType))
-                .findFirst();
-        factoryCache.putIfAbsent(containerType, entry);
-        return entry;
+    List<CollectorFactory> getFactories() {
+        return factories;
     }
 
     @Override
     public JdbiCollectors createCopy() {
-        return new JdbiCollectors(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

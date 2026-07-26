@@ -38,6 +38,6 @@ public class UseSqlParserImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlStatements.class).setSqlParser(sqlParser);
+        config.configure(SqlStatements.class, c -> c.sqlParser(sqlParser));
     }
 }

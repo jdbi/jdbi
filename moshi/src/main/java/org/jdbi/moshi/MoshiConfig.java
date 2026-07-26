@@ -19,27 +19,26 @@ import org.jdbi.core.config.JdbiConfig;
 /**
  * Configuration class for Moshi integration.
  */
-public class MoshiConfig implements JdbiConfig<MoshiConfig> {
+public final class MoshiConfig implements JdbiConfig<MoshiConfig> {
 
-    private Moshi moshi;
+    private final Moshi moshi;
 
     public MoshiConfig() {
-        this.moshi = new Moshi.Builder().build();
+        this(new Moshi.Builder().build());
     }
 
-    private MoshiConfig(MoshiConfig other) {
-        this.moshi = other.moshi;
+    private MoshiConfig(Moshi moshi) {
+        this.moshi = moshi;
     }
 
     /**
-     * Set the {@link Moshi} to use for json conversion.
+     * Returns a copy of this configuration using the given {@link Moshi} for json conversion.
      *
      * @param moshi the mapper to use
-     * @return this
+     * @return the derived configuration
      */
-    public MoshiConfig setMoshi(Moshi moshi) {
-        this.moshi = moshi;
-        return this;
+    public MoshiConfig moshi(Moshi moshi) {
+        return new MoshiConfig(moshi);
     }
 
     /**
@@ -53,6 +52,7 @@ public class MoshiConfig implements JdbiConfig<MoshiConfig> {
 
     @Override
     public MoshiConfig createCopy() {
-        return new MoshiConfig(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

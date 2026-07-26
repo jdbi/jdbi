@@ -40,6 +40,6 @@ public class UseTemplateEngineImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(SqlStatements.class).setTemplateEngine(templateEngine);
+        config.configure(SqlStatements.class, c -> c.templateEngine(templateEngine));
     }
 }

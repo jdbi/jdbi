@@ -37,8 +37,7 @@ class DefinitionsFactory {
 
         if (!definitions.isEmpty()) {
             builder.addInstanceConfigCustomizer(config ->
-                    config.get(SqlStatements.class)
-                            .defineMap(definitions));
+                    config.configure(SqlStatements.class, c -> c.defineMap(definitions)));
         }
     }
 

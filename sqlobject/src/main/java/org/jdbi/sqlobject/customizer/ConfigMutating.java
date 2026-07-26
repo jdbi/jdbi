@@ -16,7 +16,7 @@ package org.jdbi.sqlobject.customizer;
 /**
  * Marker for a {@link SqlStatementCustomizer}, {@link SqlStatementParameterCustomizer}, or
  * {@link SqlStatementCustomizerFactory} whose customization mutates the statement configuration
- * (for example {@code getConfig(SqlStatements.class).setUnusedBindingAllowed(...)}) based on the
+ * (for example {@code configure(SqlStatements.class, c -> c.unusedBindingAllowed(...))}) based on the
  * specific invocation, so that it cannot be applied once when a reusable template is built.
  *
  * <p>A SQL Object method carrying any such customizer is executed on the classic per-statement path,

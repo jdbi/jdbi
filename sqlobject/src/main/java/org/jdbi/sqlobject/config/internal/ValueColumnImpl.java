@@ -33,6 +33,6 @@ public class ValueColumnImpl implements ExtensionConfigurer {
 
     @Override
     public void configureForMethod(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType, Method method) {
-        config.get(MapEntryMappers.class).setValueColumn(name);
+        config.configure(MapEntryMappers.class, c -> c.valueColumn(name));
     }
 }

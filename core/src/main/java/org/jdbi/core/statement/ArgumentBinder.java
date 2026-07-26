@@ -33,6 +33,7 @@ import jakarta.annotation.Nullable;
 
 import com.google.errorprone.annotations.CheckReturnValue;
 import org.jdbi.core.argument.Argument;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.argument.Arguments;
 import org.jdbi.core.argument.NamedArgumentFinder;
 import org.jdbi.core.argument.internal.NamedArgumentFinderFactory.PrepareKey;
@@ -137,7 +138,7 @@ class ArgumentBinder {
             throw new UnableToCreateStatementException(format(
                     "Superfluous named parameters provided while the query "
                             + "declares none: '%s'. This check may be disabled by calling "
-                            + "getConfig(SqlStatements.class).setUnusedBindingAllowed(true) "
+                            + "configure(SqlStatements.class, c -> c.unusedBindingAllowed(true)) "
                             + "or using @AllowUnusedBindings in SQL object.", binding), ctx);
         }
     }
@@ -193,7 +194,7 @@ class ArgumentBinder {
 
         Function<Object, Argument> argumentFactoryForType(QualifiedType<?> type) {
             return argumentFactoryByType.computeIfAbsent(type, qt -> {
-                Arguments args = ctx.getConfig(Arguments.class);
+                ArgumentResolver args = ArgumentResolver.forRegistry(ctx.getConfig());
                 Function<Object, Argument> factory =
                     args.prepareFor(type)
                         .orElse(v -> args.findFor(type, v)

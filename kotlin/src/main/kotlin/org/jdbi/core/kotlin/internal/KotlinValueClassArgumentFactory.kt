@@ -15,7 +15,7 @@ package org.jdbi.core.kotlin.internal
 
 import org.jdbi.core.argument.Argument
 import org.jdbi.core.argument.ArgumentFactory
-import org.jdbi.core.argument.Arguments
+import org.jdbi.core.argument.ArgumentResolver
 import org.jdbi.core.config.ConfigRegistry
 import org.jdbi.meta.Alpha
 import java.lang.reflect.Type
@@ -38,7 +38,7 @@ class KotlinValueClassArgumentFactory : ArgumentFactory {
         val valueParameterJavaType = toJavaType(property.returnType)
         val value = property.call(value)
 
-        return config[Arguments::class.java].findFor(valueParameterJavaType, value)
+        return ArgumentResolver.forRegistry(config).findFor(valueParameterJavaType, value)
     }
 
     override fun toString(): String = "KotlinValueClassArgumentFactory"

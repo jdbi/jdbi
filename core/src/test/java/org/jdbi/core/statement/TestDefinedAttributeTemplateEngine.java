@@ -40,7 +40,7 @@ public class TestDefinedAttributeTemplateEngine {
     }
 
     private String render(String sql, Map<String, Object> attributes) {
-        attributes.forEach(ctx.getConfig(SqlStatements.class)::define);
+        attributes.forEach((key, value) -> ctx.getConfig().configure(SqlStatements.class, c -> c.define(key, value)));
 
         return templateEngine.render(sql, RenderContext.of(ctx.getConfig()));
     }

@@ -53,7 +53,7 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
 
     @Override
     public void customizeJdbi(final Jdbi jdbi) throws SQLException {
-        jdbi.getConfig(SqlStatements.class).addContextListener(new TracingListener());
+        jdbi.configure(SqlStatements.class, c -> c.addContextListener(new TracingListener()));
     }
 
     class TracingListener implements StatementContextListener {

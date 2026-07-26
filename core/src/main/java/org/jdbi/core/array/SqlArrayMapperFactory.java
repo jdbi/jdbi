@@ -16,12 +16,11 @@ package org.jdbi.core.array;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.collector.JdbiCollectors;
+import org.jdbi.core.collector.CollectorResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
-import org.jdbi.core.mapper.ColumnMappers;
 
 /**
  * Maps SQL array columns into Java arrays or other Java container types.
@@ -42,7 +41,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
                     .map(elementMapper -> new ArrayColumnMapper(elementMapper, elementType));
         }
 
-        JdbiCollectors collectorRegistry = config.get(JdbiCollectors.class);
+        CollectorResolver collectorRegistry = CollectorResolver.forRegistry(config);
         return (Optional) collectorRegistry.findFor(type)
                 .flatMap(collector -> collectorRegistry.findElementTypeFor(type)
                         .flatMap(elementType -> elementTypeMapper(elementType, config))
@@ -50,7 +49,7 @@ public class SqlArrayMapperFactory implements ColumnMapperFactory {
     }
 
     private Optional<ColumnMapper<?>> elementTypeMapper(Type elementType, ConfigRegistry config) {
-        Optional<ColumnMapper<?>> mapper = config.get(ColumnMappers.class).findFor(elementType);
+        Optional<ColumnMapper<?>> mapper = config.findColumnMapperFor(elementType);
 
         if (!mapper.isPresent() && elementType == Object.class) {
             return Optional.of((rs, num, context) -> rs.getObject(num));

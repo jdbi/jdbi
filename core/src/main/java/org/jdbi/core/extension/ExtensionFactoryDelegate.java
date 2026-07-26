@@ -107,7 +107,7 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
 
         extensions.onCreateProxy();
 
-        final ExtensionMetadata extensionMetaData = extensions.findMetadata(extensionType, delegatedFactory);
+        final ExtensionMetadata extensionMetaData = ExtensionMetadataResolver.forRegistry(config).findMetadata(extensionType, delegatedFactory);
         final ConfigRegistry instanceConfig = extensionMetaData.createInstanceConfiguration(config);
 
         final Map<MethodKey, ExtensionHandlerInvoker> handlers = new HashMap<>();

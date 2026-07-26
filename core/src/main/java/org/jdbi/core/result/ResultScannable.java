@@ -30,6 +30,7 @@ import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.internal.RowViewImpl;
 import org.jdbi.core.statement.StatementContext;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ResultScannable {
 
     /**
@@ -191,7 +192,7 @@ public interface ResultScannable {
      * </p>
      * <pre>
      * Map&lt;Long, User&gt; usersById = handle.createQuery("select * from user")
-     *     .configure(MapEntryMappers.class, cfg -&gt; cfg.setKeyColumn("id"))
+     *     .configure(MapEntryMappers.class, cfg -&gt; cfg.keyColumn("id"))
      *     .collectInto(new GenericType&lt;Map&lt;Long, User&gt;&gt;() {});
      * </pre>
      *

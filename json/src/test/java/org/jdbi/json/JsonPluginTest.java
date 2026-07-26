@@ -40,7 +40,7 @@ public class JsonPluginTest {
         Object instance = new Foo();
         String json = "foo";
 
-        jdbi.getConfig(JsonConfig.class).setJsonMapper(new JsonMapper() {
+        jdbi.configure(JsonConfig.class, cfg -> cfg.jsonMapper(new JsonMapper() {
             @Override
             public TypedJsonMapper forType(Type type, ConfigRegistry config) {
                 assertThat(type).isEqualTo(Foo.class);
@@ -58,7 +58,7 @@ public class JsonPluginTest {
                     }
                 };
             }
-        });
+        }));
 
         Object result = h2Extension.getJdbi().withHandle(h -> {
             h.createUpdate("insert into foo(bar) values(:foo)")

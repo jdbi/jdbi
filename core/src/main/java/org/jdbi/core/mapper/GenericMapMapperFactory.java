@@ -61,7 +61,7 @@ public class GenericMapMapperFactory implements RowMapperFactory {
             .filter(map -> String.class.equals(GenericTypes.findGenericParameter(map, Map.class, 0).orElse(null)))
             .flatMap(map -> GenericTypes.findGenericParameter(map, Map.class, 1))
             .filter(value -> !Object.class.equals(value))
-            .flatMap(config.get(ColumnMappers.class)::findFor)
+            .flatMap(config::findColumnMapperFor)
             .map(GenericMapMapper::new);
     }
 
@@ -74,8 +74,7 @@ public class GenericMapMapperFactory implements RowMapperFactory {
      * @return A {@link RowMapper} for a map from string to the given value type
      */
     public static <T> RowMapper<Map<String, T>> getMapperForValueType(Class<T> valueType, ConfigRegistry config) {
-        return config.get(ColumnMappers.class)
-            .findFor(valueType)
+        return config.findColumnMapperFor(valueType)
             .map(GenericMapMapper::new)
             .orElseThrow(() -> new RuntimeException("no column mapper found for type " + valueType));
     }
@@ -89,8 +88,7 @@ public class GenericMapMapperFactory implements RowMapperFactory {
      * @return A {@link RowMapper} for a map from string to the given value type
      */
     public static <T> RowMapper<Map<String, T>> getMapperForValueType(GenericType<T> valueType, ConfigRegistry config) {
-        return config.get(ColumnMappers.class)
-            .findFor(valueType)
+        return config.findColumnMapperFor(valueType)
             .map(GenericMapMapper::new)
             .orElseThrow(() -> new RuntimeException("no column mapper found for type " + valueType));
     }

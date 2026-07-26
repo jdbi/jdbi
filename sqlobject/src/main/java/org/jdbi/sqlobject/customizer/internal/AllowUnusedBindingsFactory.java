@@ -29,6 +29,6 @@ public class AllowUnusedBindingsFactory implements SqlStatementCustomizerFactory
 
     @Override
     public SqlStatementCustomizer createForType(Annotation annotation, Class<?> sqlObjectType) {
-        return s -> s.getConfig().get(SqlStatements.class).setUnusedBindingAllowed(((AllowUnusedBindings) annotation).value());
+        return s -> s.getConfig().configure(SqlStatements.class, c -> c.unusedBindingAllowed(((AllowUnusedBindings) annotation).value()));
     }
 }

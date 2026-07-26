@@ -13,28 +13,36 @@
  */
 package org.jdbi.core;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jdbi.core.config.JdbiConfig;
+import org.jdbi.core.internal.RegistrationLists;
 
 /**
  * Configuration class for handles.
+ * <p>
+ * This configuration is immutable: the policy wither and the listener registration methods return a new
+ * instance, leaving the receiver unchanged.
  */
-public class Handles implements JdbiConfig<Handles> {
+public final class Handles implements JdbiConfig<Handles> {
 
-    private boolean forceEndTransactions = true;
+    private final boolean forceEndTransactions;
 
-    private final Set<HandleListener> handleListeners;
+    // Insertion order, no duplicates (a handle snapshots these at construction).
+    private final List<HandleListener> handleListeners;
 
     public Handles() {
-        handleListeners = new CopyOnWriteArraySet<>();
+        this(true, List.of());
     }
 
-    private Handles(Handles that) {
-        this.forceEndTransactions = that.forceEndTransactions;
-        this.handleListeners = new CopyOnWriteArraySet<>(that.handleListeners);
+    private Handles(boolean forceEndTransactions, List<HandleListener> handleListeners) {
+        this.forceEndTransactions = forceEndTransactions;
+        this.handleListeners = handleListeners;
     }
 
     /**
@@ -54,14 +62,15 @@ public class Handles implements JdbiConfig<Handles> {
     }
 
     /**
-     * Sets whether to enforce transaction termination discipline when a
+     * Returns a copy of this configuration setting whether to enforce transaction termination discipline when a
      * {@link Handle} is closed.
      *
      * @param forceEndTransactions whether to enforce transaction termination
      *                             discipline.
+     * @return the derived configuration
      */
-    public void setForceEndTransactions(boolean forceEndTransactions) {
-        this.forceEndTransactions = forceEndTransactions;
+    public Handles forceEndTransactions(boolean forceEndTransactions) {
+        return new Handles(forceEndTransactions, handleListeners);
     }
 
     /**
@@ -70,11 +79,10 @@ public class Handles implements JdbiConfig<Handles> {
      *
      * @param handleListener A {@link HandleListener} object.
      *
-     * @return The Handles object itself.
+     * @return a copy of this configuration with the listener registered
      */
     public Handles addListener(final HandleListener handleListener) {
-        this.handleListeners.add(handleListener);
-        return this;
+        return new Handles(forceEndTransactions, RegistrationLists.appendDistinct(handleListeners, handleListener));
     }
 
     /**
@@ -82,11 +90,15 @@ public class Handles implements JdbiConfig<Handles> {
      *
      * @param handleListener A {@link HandleListener} object.
      *
-     * @return The Handles object itself.
+     * @return a copy of this configuration with the listener removed
      */
     public Handles removeListener(final HandleListener handleListener) {
-        this.handleListeners.remove(handleListener);
-        return this;
+        if (!handleListeners.contains(handleListener)) {
+            return this;
+        }
+        final List<HandleListener> remaining = new ArrayList<>(handleListeners);
+        remaining.remove(handleListener);
+        return new Handles(forceEndTransactions, List.copyOf(remaining));
     }
 
     /**
@@ -95,7 +107,7 @@ public class Handles implements JdbiConfig<Handles> {
      * @return A set of {@link HandleListener} objects. The set is never null, can be empty and is immutable.
      */
     public Set<HandleListener> getListeners() {
-        return Collections.unmodifiableSet(handleListeners);
+        return Collections.unmodifiableSet(new LinkedHashSet<>(handleListeners));
     }
 
     CopyOnWriteArraySet<HandleListener> copyListeners() {
@@ -104,6 +116,7 @@ public class Handles implements JdbiConfig<Handles> {
 
     @Override
     public Handles createCopy() {
-        return new Handles(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

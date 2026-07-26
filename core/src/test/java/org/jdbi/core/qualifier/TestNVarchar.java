@@ -17,11 +17,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
-import org.jdbi.core.mapper.ColumnMappers;
-import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.statement.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,7 +109,7 @@ public class TestNVarchar {
 
             PreparedStatement stmt = mock(PreparedStatement.class);
 
-            handle.getConfig(Arguments.class)
+            ArgumentResolver.forRegistry(handle.getConfig())
                 .findFor(NVARCHAR_STRING, value)
                 .orElseThrow(IllegalStateException::new)
                 .apply(1, stmt, null);
@@ -136,15 +134,15 @@ public class TestNVarchar {
             when(rs.getNString(anyInt())).thenReturn("value");
 
             assertThat(
-                handle.getConfig(Mappers.class)
-                    .findFor(NVARCHAR_STRING)
+                handle.getConfig()
+                    .findMapperFor(NVARCHAR_STRING)
                     .orElseThrow(IllegalStateException::new)
                     .map(rs, null))
                 .isEqualTo("value");
 
             assertThat(
-                handle.getConfig(ColumnMappers.class)
-                    .findFor(NVARCHAR_STRING)
+                handle.getConfig()
+                    .findColumnMapperFor(NVARCHAR_STRING)
                     .orElseThrow(IllegalStateException::new)
                     .map(rs, 1, null))
                 .isEqualTo("value");

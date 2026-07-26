@@ -34,6 +34,6 @@ public class RegisterColumnMapperImpl extends SimpleExtensionConfigurer {
 
     @Override
     public void configure(ConfigRegistry config, Annotation annotation, Class<?> sqlObjectType) {
-        config.get(ColumnMappers.class).register(columnMapper);
+        config.configure(ColumnMappers.class, c -> c.register(columnMapper));
     }
 }

@@ -62,7 +62,7 @@ class DeadlockTest {
 
     @Test
     void testIssue2274() throws Exception {
-        jdbi.getConfig(SqlStatements.class).setTemplateCache(DefaultJdbiCacheBuilder.builder().maxSize(10));
+        jdbi.configure(SqlStatements.class, c -> c.templateCache(DefaultJdbiCacheBuilder.builder().maxSize(10)));
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT,
                 new ThreadFactoryBuilder().setNameFormat("test-%d").setDaemon(true).build());
 

@@ -24,10 +24,9 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import org.jdbi.core.collector.JdbiCollectors;
+import org.jdbi.core.collector.CollectorResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.generic.GenericTypes;
-import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 import org.jdbi.core.result.ResultIterable;
@@ -141,7 +140,7 @@ abstract class ResultReturner {
 
     protected void warm(ConfigRegistry config) {
         Optional.ofNullable(elementType(config))
-            .ifPresent(config.get(Mappers.class)::findFor);
+            .ifPresent(type -> config.findMapperFor(type));
     }
 
     private static Object checkResult(Object result, QualifiedType<?> type) {
@@ -330,13 +329,13 @@ abstract class ResultReturner {
         @Override
         protected void warm(ConfigRegistry config) {
             super.warm(config);
-            config.get(JdbiCollectors.class).findFor(returnType.getType());
+            CollectorResolver.forRegistry(config).findFor(returnType.getType());
         }
 
         @Override
         protected QualifiedType<?> elementType(ConfigRegistry config) {
             // if returnType is not supported by a collector factory, assume it to be a single-value return type.
-            return returnType.flatMapType(type -> config.get(JdbiCollectors.class).findElementTypeFor(type))
+            return returnType.flatMapType(type -> CollectorResolver.forRegistry(config).findElementTypeFor(type))
                 .orElse(returnType);
         }
     }

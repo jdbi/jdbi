@@ -156,7 +156,7 @@ public class TestClosingHandle {
     public void testCloseWithOpenTransactionCheckDisabled() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.getConfig(Handles.class).setForceEndTransactions(false);
+        h.configure(Handles.class, c -> c.forceEndTransactions(false));
 
         h.begin();
 

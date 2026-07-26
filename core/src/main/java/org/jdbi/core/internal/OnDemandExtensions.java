@@ -30,20 +30,19 @@ import static org.jdbi.core.internal.JdbiClassUtils.EQUALS_METHOD;
 import static org.jdbi.core.internal.JdbiClassUtils.HASHCODE_METHOD;
 import static org.jdbi.core.internal.JdbiClassUtils.TOSTRING_METHOD;
 
-public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
-    private Factory onDemandExtensionFactory;
+public final class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
+    private final Factory onDemandExtensionFactory;
 
     public OnDemandExtensions() {
-        onDemandExtensionFactory = (jdbi, extensionType, extraTypes) -> Optional.empty();
+        this((jdbi, extensionType, extraTypes) -> Optional.empty());
     }
 
-    private OnDemandExtensions(OnDemandExtensions other) {
-        onDemandExtensionFactory = other.onDemandExtensionFactory;
-    }
-
-    public OnDemandExtensions setFactory(Factory onDemandExtensionFactory) {
+    private OnDemandExtensions(Factory onDemandExtensionFactory) {
         this.onDemandExtensionFactory = onDemandExtensionFactory;
-        return this;
+    }
+
+    public OnDemandExtensions factory(Factory onDemandExtensionFactory) {
+        return new OnDemandExtensions(onDemandExtensionFactory);
     }
 
     public <E> E create(Jdbi jdbi, Class<E> extensionType, Class<?>... extraTypes) {
@@ -96,7 +95,8 @@ public class OnDemandExtensions implements JdbiConfig<OnDemandExtensions> {
 
     @Override
     public OnDemandExtensions createCopy() {
-        return new OnDemandExtensions(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 
     @FunctionalInterface

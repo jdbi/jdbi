@@ -18,7 +18,7 @@ import java.util.Optional;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.enums.EnumStrategy;
 import org.jdbi.core.generic.GenericTypes;
-import org.jdbi.core.internal.EnumStrategies;
+import org.jdbi.core.internal.EnumStrategyResolver;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.EnumMapper;
 import org.jdbi.core.mapper.QualifiedColumnMapperFactory;
@@ -35,7 +35,7 @@ public class EnumMapperFactory implements QualifiedColumnMapperFactory {
     }
 
     private static <E extends Enum<E>> ColumnMapper<?> makeEnumArgument(QualifiedType<E> givenType, Class<E> enumClass, ConfigRegistry config) {
-        boolean byName = EnumStrategy.BY_NAME == config.get(EnumStrategies.class).findStrategy(givenType);
+        boolean byName = EnumStrategy.BY_NAME == EnumStrategyResolver.forRegistry(config).findStrategy(givenType);
 
         return byName
             ? EnumMapper.byName(enumClass)

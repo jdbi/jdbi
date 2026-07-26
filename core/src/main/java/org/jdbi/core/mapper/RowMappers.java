@@ -14,59 +14,65 @@
 package org.jdbi.core.mapper;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.interceptor.JdbiInterceptionChainHolder;
-import org.jdbi.core.internal.CopyOnWriteHashMap;
+import org.jdbi.core.interceptor.JdbiInterceptor;
+import org.jdbi.core.internal.RegistrationLists;
 import org.jdbi.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.core.statement.Query;
 import org.jdbi.meta.Alpha;
 
 /**
- * Configuration registry for {@link RowMapperFactory} instances.
+ * Registry of {@link RowMapperFactory} instances. Holds only registration data; resolving a factory
+ * into a {@link RowMapper} for a given type (and caching the result) is done per configuration registry
+ * by {@link MapperResolver}.
+ * <p>
+ * This configuration is immutable: {@link #register} and {@link #withInferenceInterceptor} return a new
+ * instance, leaving the receiver unchanged.
  */
-public class RowMappers implements JdbiConfig<RowMappers> {
+public final class RowMappers implements JdbiConfig<RowMappers> {
 
     private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors;
 
     private final List<RowMapperFactory> factories;
-    private final Map<Type, Optional<RowMapper<?>>> cache;
-
-    private ConfigRegistry registry;
 
     public RowMappers() {
-        inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
-        factories = new CopyOnWriteArrayList<>();
-        cache = new CopyOnWriteHashMap<>();
-        register(MapEntryMapper.factory());
-        register(new PojoMapperFactory());
-        register(new OptionalRowMapperFactory());
+        this(buildDefaultFactories(), new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new));
     }
 
-    private RowMappers(RowMappers that) {
-        factories = new CopyOnWriteArrayList<>(that.factories);
-        cache = new CopyOnWriteHashMap<>(that.cache);
-        inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
+    private RowMappers(final List<RowMapperFactory> factories,
+            final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors) {
+        this.factories = factories;
+        this.inferenceInterceptors = inferenceInterceptors;
     }
 
-    @Override
-    public void setRegistry(ConfigRegistry registry) {
-        this.registry = registry;
+    private static List<RowMapperFactory> buildDefaultFactories() {
+        // Registration prepends, so the effective consultation order is the reverse of registration order.
+        final List<RowMapperFactory> factories = new ArrayList<>();
+        factories.add(0, MapEntryMapper.factory());
+        factories.add(0, new PojoMapperFactory());
+        factories.add(0, new OptionalRowMapperFactory());
+        return List.copyOf(factories);
     }
 
     /**
-     * Returns the {@link JdbiInterceptionChainHolder} for the RowMapper inference. This chain allows registration of custom interceptors to change the standard type
-     * inference for the {@link RowMappers#register(RowMapper)} method.
+     * Returns a copy of this configuration with the given interceptor added to the front of the RowMapper
+     * inference chain, letting it change the standard type inference for {@link #register(RowMapper)}.
+     *
+     * @param interceptor the inference interceptor to add
+     * @return the derived configuration
      */
     @Alpha
-    public JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> getInferenceInterceptors() {
-        return inferenceInterceptors;
+    public RowMappers withInferenceInterceptor(final JdbiInterceptor<RowMapper<?>, RowMapperFactory> interceptor) {
+        final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> newInterceptors = new JdbiInterceptionChainHolder<>(inferenceInterceptors);
+        newInterceptors.addFirst(interceptor);
+        return new RowMappers(factories, newInterceptors);
     }
 
     /**
@@ -79,7 +85,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * {@link java.lang.Object} is not supported as a concrete parameter type.
      *
      * @param mapper the row mapper
-     * @return this
+     * @return a copy of this configuration with the mapper registered
      * @throws UnsupportedOperationException if the RowMapper is not a concretely parameterized type
      */
     public RowMappers register(RowMapper<?> mapper) {
@@ -117,72 +123,39 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * Will be used with {@link Query#mapTo(Class)} for registered mappings.
      *
      * @param factory the row mapper factory
-     * @return this
+     * @return a copy of this configuration with the factory registered
      */
     public RowMappers register(RowMapperFactory factory) {
-        factories.add(0, factory);
-        cache.clear();
-        return this;
+        return new RowMappers(RegistrationLists.prepend(factories, factory), inferenceInterceptors);
     }
 
     /**
-     * Obtain a row mapper for the given type in the given context.
+     * Registers all of the given row mapper factories in a single derivation, as if each were passed to
+     * {@link #register(RowMapperFactory)} in iteration order (so the last factory in the collection has the
+     * highest priority). More efficient and readable than chaining individual {@code register} calls.
      *
-     * @param <T> the type of the mapper to find
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
+     * @param factories the row mapper factories to add
+     * @return a copy of this configuration with the factories registered
      */
-    @SuppressWarnings("unchecked")
-    public <T> Optional<RowMapper<T>> findFor(Class<T> type) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type).orElse(null);
-        return Optional.ofNullable(mapper);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in the given context.
-     *
-     * @param <T> the type of the mapper to find
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> Optional<RowMapper<T>> findFor(GenericType<T> type) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType()).orElse(null);
-        return Optional.ofNullable(mapper);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in the given context.
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findFor(Type type) {
-        // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
-        // Since row mappers can decorate other row mappers, we have to populate the cache the old fashioned way.
-        // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        Optional<RowMapper<?>> cached = cache.get(type);
-
-        if (cached != null) {
-            return cached;
+    public RowMappers register(Collection<? extends RowMapperFactory> factories) {
+        if (factories.isEmpty()) {
+            return this;
         }
+        return new RowMappers(RegistrationLists.prependAll(this.factories, factories, Function.identity()), inferenceInterceptors);
+    }
 
-        for (RowMapperFactory factory : factories) {
-            Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
-            RowMapper<?> mapper = maybeMapper.orElse(null);
-            if (mapper != null) {
-                mapper.init(registry);
-                cache.put(type, maybeMapper);
-                return maybeMapper;
-            }
-        }
-
-        cache.put(type, Optional.empty());
-        return Optional.empty();
+    /**
+     * Returns the registered factories, most-recently-registered first. Consumed by {@link MapperResolver}.
+     *
+     * @return the registered row mapper factories
+     */
+    List<RowMapperFactory> getFactories() {
+        return factories;
     }
 
     @Override
     public RowMappers createCopy() {
-        return new RowMappers(this);
+        // Immutable: safe to share across registries.
+        return this;
     }
 }

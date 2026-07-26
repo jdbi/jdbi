@@ -44,7 +44,7 @@ class HandleExceptionTest {
 
     @Test
     void handleException() {
-        h.getConfig(SqlStatements.class)
+        h.configure(SqlStatements.class, c -> c
                 .addExceptionHandler(s -> null)
                 .addExceptionHandler(new SqlExceptionHandler() {
                         @Override
@@ -55,7 +55,7 @@ class HandleExceptionTest {
                             return null;
                         }
                 })
-                .addExceptionHandler(s -> null); // simple chaining test
+                .addExceptionHandler(s -> null)); // simple chaining test
         h.execute("create table exception_test(id int primary key)");
         final String sql = "insert into exception_test (id) values(1)";
         h.execute(sql);
@@ -73,7 +73,7 @@ class HandleExceptionTest {
 
 
         assertThatThrownBy(() ->
-                h.configure(SqlStatements.class, ss -> ss.setUnusedBindingAllowed(true))
+                h.configure(SqlStatements.class, ss -> ss.unusedBindingAllowed(true))
                         .prepareBatch(sql)
                         .bind("unused", 1)
                         .add()

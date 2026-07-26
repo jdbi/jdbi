@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.mapper.Mappers;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 import org.jdbi.core.statement.Customizable;
@@ -52,7 +51,7 @@ public class BindFactory implements SqlStatementCustomizerFactory {
 
             @Override
             public void warm(ConfigRegistry config) {
-                config.get(Mappers.class).findFor(qualifiedType(config));
+                config.findMapperFor(qualifiedType(config));
             }
 
             private QualifiedType<?> qualifiedType(ConfigRegistry config) {

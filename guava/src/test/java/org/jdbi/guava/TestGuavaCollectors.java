@@ -38,7 +38,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeMultimap;
-import org.jdbi.core.collector.JdbiCollectors;
+import org.jdbi.core.collector.CollectorResolver;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.jdbi.testing.junit.internal.TestingInitializers;
@@ -130,7 +130,7 @@ public class TestGuavaCollectors {
 
     @SuppressWarnings("unchecked")
     private <M extends Map<Long, String>> void testMapCollector(Class<? extends Map> erasedType, GenericType<M> genericType) {
-        JdbiCollectors registry = h2Extension.getJdbi().getConfig(JdbiCollectors.class);
+        CollectorResolver registry = CollectorResolver.forRegistry(h2Extension.getJdbi().getConfig());
 
         assertThat(registry.findElementTypeFor(genericType.getType()))
                 .contains(new GenericType<Map.Entry<Long, String>>(){}.getType());
@@ -168,7 +168,7 @@ public class TestGuavaCollectors {
 
     @SuppressWarnings("unchecked")
     private <M extends Multimap<Long, String>> void testMultimapCollector(Class<? extends Multimap> erasedType, GenericType<M> genericType) {
-        JdbiCollectors registry = h2Extension.getJdbi().getConfig(JdbiCollectors.class);
+        CollectorResolver registry = CollectorResolver.forRegistry(h2Extension.getJdbi().getConfig());
 
         assertThat(registry.findElementTypeFor(genericType.getType()))
                 .contains(new GenericType<Map.Entry<Long, String>>(){}.getType());

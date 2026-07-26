@@ -19,21 +19,21 @@ import java.util.Optional;
 import java.util.stream.Collector;
 
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.argument.Arguments;
+import org.jdbi.core.argument.ArgumentResolver;
+import org.jdbi.core.array.ArrayTypeResolver;
 import org.jdbi.core.array.SqlArrayArgumentStrategy;
 import org.jdbi.core.array.SqlArrayType;
 import org.jdbi.core.array.SqlArrayTypes;
-import org.jdbi.core.collector.JdbiCollectors;
+import org.jdbi.core.collector.CollectorResolver;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
-import org.jdbi.core.mapper.Mappers;
+import org.jdbi.core.mapper.MapperResolver;
 import org.jdbi.core.mapper.RowMapper;
-import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.qualifier.QualifiedType;
 
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface ConfigReader {
     /**
      * Gets the configuration object of the given type, associated with this context.
@@ -61,7 +61,7 @@ public interface ConfigReader {
      * @return an Argument for the given value.
      */
     default Optional<Argument> findArgumentFor(final Type type, final Object value) {
-        return getConfig(Arguments.class).findFor(type, value);
+        return ArgumentResolver.forRegistry(getConfig()).findFor(type, value);
     }
 
     /**
@@ -72,7 +72,7 @@ public interface ConfigReader {
      * @return an Argument for the given value.
      */
     default Optional<Argument> findArgumentFor(final QualifiedType<?> type, final Object value) {
-        return getConfig(Arguments.class).findFor(type, value);
+        return ArgumentResolver.forRegistry(getConfig()).findFor(type, value);
     }
 
     /**
@@ -91,7 +91,7 @@ public interface ConfigReader {
      * @return an {@link SqlArrayType} for the given element type.
      */
     default Optional<SqlArrayType<?>> findSqlArrayTypeFor(final Type elementType) {
-        return getConfig(SqlArrayTypes.class).findFor(elementType);
+        return ArrayTypeResolver.forRegistry(getConfig()).findFor(elementType);
     }
 
     /**
@@ -103,7 +103,7 @@ public interface ConfigReader {
      * is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findMapperFor(final Class<T> type) {
-        return getConfig(Mappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findMapper(type);
     }
 
     /**
@@ -115,7 +115,7 @@ public interface ConfigReader {
      * is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findMapperFor(final GenericType<T> type) {
-        return getConfig(Mappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findMapper(type);
     }
 
     /**
@@ -126,7 +126,7 @@ public interface ConfigReader {
      * is registered for the given type.
      */
     default Optional<RowMapper<?>> findMapperFor(final Type type) {
-        return getConfig(Mappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findMapper(type);
     }
 
     /**
@@ -137,7 +137,7 @@ public interface ConfigReader {
      * is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findMapperFor(final QualifiedType<T> type) {
-        return getConfig(Mappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findMapper(type);
     }
 
     /**
@@ -148,7 +148,7 @@ public interface ConfigReader {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     default <T> Optional<ColumnMapper<T>> findColumnMapperFor(final Class<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findColumnMapper(type);
     }
 
     /**
@@ -159,7 +159,7 @@ public interface ConfigReader {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     default <T> Optional<ColumnMapper<T>> findColumnMapperFor(final GenericType<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findColumnMapper(type);
     }
 
     /**
@@ -169,7 +169,7 @@ public interface ConfigReader {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     default Optional<ColumnMapper<?>> findColumnMapperFor(final Type type) {
-        return getConfig(ColumnMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findColumnMapper(type);
     }
 
     /**
@@ -179,7 +179,7 @@ public interface ConfigReader {
      * @return a ColumnMapper for the given type, or empty if no column mapper is registered for the given type.
      */
     default <T> Optional<ColumnMapper<T>> findColumnMapperFor(final QualifiedType<T> type) {
-        return getConfig(ColumnMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findColumnMapper(type);
     }
 
     /**
@@ -189,7 +189,7 @@ public interface ConfigReader {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     default Optional<RowMapper<?>> findRowMapperFor(final Type type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findRowMapper(type);
     }
 
     /**
@@ -200,7 +200,7 @@ public interface ConfigReader {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findRowMapperFor(final Class<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findRowMapper(type);
     }
 
     /**
@@ -211,7 +211,7 @@ public interface ConfigReader {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     default <T> Optional<RowMapper<T>> findRowMapperFor(final GenericType<T> type) {
-        return getConfig(RowMappers.class).findFor(type);
+        return MapperResolver.forRegistry(getConfig()).findRowMapper(type);
     }
 
     /**
@@ -221,7 +221,7 @@ public interface ConfigReader {
      * @return a Collector for the given container type, or empty null if no collector is registered for the given type.
      */
     default Optional<Collector<?, ?, ?>> findCollectorFor(final Type containerType) {
-        return getConfig(JdbiCollectors.class).findFor(containerType);
+        return CollectorResolver.forRegistry(getConfig()).findFor(containerType);
     }
 
     /**
@@ -231,7 +231,7 @@ public interface ConfigReader {
      * @return the element type for the given container type, if available.
      */
     default Optional<Type> findElementTypeFor(final Type containerType) {
-        return getConfig(JdbiCollectors.class).findElementTypeFor(containerType);
+        return CollectorResolver.forRegistry(getConfig()).findElementTypeFor(containerType);
     }
 
     /**

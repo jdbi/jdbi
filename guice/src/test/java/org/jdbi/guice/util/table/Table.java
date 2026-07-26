@@ -25,7 +25,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.mapper.ColumnMapper;
-import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.guice.util.JsonCodec;
@@ -98,7 +97,7 @@ public final class Table {
 
         @Override
         public void init(ConfigRegistry registry) {
-            this.jsonMapper = registry.get(ColumnMappers.class).findFor(JsonCodec.TYPE).orElseThrow(IllegalStateException::new);
+            this.jsonMapper = registry.findColumnMapperFor(JsonCodec.TYPE).orElseThrow(IllegalStateException::new);
         }
 
         @Override

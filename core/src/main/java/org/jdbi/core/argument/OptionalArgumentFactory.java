@@ -56,7 +56,7 @@ class OptionalArgumentFactory extends DelegatingArgumentFactory {
         if (value instanceof Optional<?> maybeValue) {
             Object nestedValue = maybeValue.orElse(null);
             Type nestedType = findOptionalType(expectedType, nestedValue);
-            return config.get(Arguments.class).findFor(nestedType, nestedValue);
+            return ArgumentResolver.forRegistry(config).findFor(nestedType, nestedValue);
         } else {
             return super.build(expectedType, value, config);
         }
@@ -65,7 +65,7 @@ class OptionalArgumentFactory extends DelegatingArgumentFactory {
     @Override
     public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
         if (Optional.class.equals(getErasedType(type))) {
-            return config.get(Arguments.class)
+            return ArgumentResolver.forRegistry(config)
                     .prepareFor(findOptionalType(type, null))
                     .map(af -> opt -> af.apply(((Optional<?>) opt).orElse(null)));
         }

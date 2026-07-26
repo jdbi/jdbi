@@ -15,7 +15,6 @@ package org.jdbi.core.argument;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -63,18 +62,6 @@ public class BuiltInArgumentFactory implements ArgumentFactory.Preparable {
         return FACTORIES.stream()
             .flatMap(factory -> factory.build(expectedType, value, config).stream())
             .findFirst();
-    }
-
-    /**
-     * @deprecated no longer used
-     */
-    @Override
-    @Deprecated(since = "3.39.0", forRemoval = true)
-    public Collection<? extends Type> prePreparedTypes() {
-        return FACTORIES.stream()
-                .map(ArgumentFactory.Preparable::prePreparedTypes)
-                .flatMap(Collection::stream)
-                .toList();
     }
 
     private static class LegacyEnumByNameArgumentFactory implements ArgumentFactory.Preparable {

@@ -16,10 +16,10 @@ package org.jdbi.sqlobject.statement.internal;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.statement.Binding;
 import org.jdbi.core.statement.QueryCustomizerMixin;
+import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.core.statement.StatementCustomizer;
 import org.jdbi.core.statement.StatementCustomizers;
-import org.jdbi.core.statement.SqlStatements;
 
 /**
  * The build-time surface that configure-phase customizers are applied to when a {@link
@@ -46,7 +46,7 @@ final class ConfigureStatement implements QueryCustomizerMixin<ConfigureStatemen
 
     @Override
     public ConfigureStatement addCustomizer(final StatementCustomizer customizer) {
-        config.get(SqlStatements.class).addCustomizer(customizer);
+        config.configure(SqlStatements.class, c -> c.addCustomizer(customizer));
         return this;
     }
 
@@ -57,7 +57,7 @@ final class ConfigureStatement implements QueryCustomizerMixin<ConfigureStatemen
 
     @Override
     public ConfigureStatement define(final String key, final Object value) {
-        config.get(SqlStatements.class).define(key, value);
+        config.configure(SqlStatements.class, c -> c.define(key, value));
         return this;
     }
 

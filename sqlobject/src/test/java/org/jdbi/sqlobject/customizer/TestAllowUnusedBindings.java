@@ -45,7 +45,7 @@ public class TestAllowUnusedBindings {
 
     @Test
     public void testDisallowed() {
-        dao.getHandle().getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+        dao.getHandle().configure(SqlStatements.class, c -> c.unusedBindingAllowed(true));
         assertThatThrownBy(() -> dao.disallowed("43"))
             .isInstanceOf(UnableToCreateStatementException.class)
             .hasMessageContaining("named parameter");
@@ -53,7 +53,7 @@ public class TestAllowUnusedBindings {
 
     @Test
     public void testUnannotated() {
-        h2Extension.getJdbi().getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.unusedBindingAllowed(true));
         assertThat(dao.unannotated("42")).isTrue();
     }
 

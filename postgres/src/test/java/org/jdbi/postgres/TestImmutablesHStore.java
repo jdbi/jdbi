@@ -20,7 +20,7 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.immutables.value.Value;
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.mapper.immutables.JdbiImmutables;
+import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.customizer.BindPojo;
 import org.jdbi.sqlobject.statement.SqlQuery;
@@ -41,7 +41,12 @@ public class TestImmutablesHStore {
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
-        .withConfig(JdbiImmutables.class, c -> c.registerImmutable(Mappy.class))
+        .withPlugin(new JdbiPlugin() {
+            @Override
+            public void customizeJdbi(Jdbi jdbi) {
+                jdbi.registerImmutable(Mappy.class);
+            }
+        })
         .withInitializer((ds, h) -> h.execute("create table mappy (numbers hstore not null)"));
 
     MappyDao dao;

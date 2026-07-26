@@ -44,7 +44,7 @@ public class TestExtensionCustomizers {
     @BeforeEach
     public void setUp() {
         testHandle = h2Extension.getSharedHandle();
-        testHandle.getConfig(Extensions.class).register(new ExtensionFrameworkTestFactory());
+        testHandle.configure(Extensions.class, c -> c.register(new ExtensionFrameworkTestFactory()));
 
         INVOCATIONS.get().clear();
     }
@@ -107,12 +107,12 @@ public class TestExtensionCustomizers {
 
     @Test
     public void testRegisteredDecorator() {
-        testHandle.getConfig(Extensions.class).registerHandlerCustomizer(
+        testHandle.configure(Extensions.class, c -> c.registerHandlerCustomizer(
                 (base, sqlObjectType, method) ->
                         (config, target) -> (handleSupplier, args) -> {
                             invoked("custom");
                             return base.attachTo(config, target).invoke(handleSupplier, args);
-                        });
+                        }));
 
         testHandle.attach(Dao.class).orderedFooBar();
 
@@ -121,7 +121,7 @@ public class TestExtensionCustomizers {
 
     @Test
     public void testRegisteredDecoratorReturnsBase() {
-        testHandle.getConfig(Extensions.class).registerHandlerCustomizer((base, sqlObjectType, method) -> base);
+        testHandle.configure(Extensions.class, c -> c.registerHandlerCustomizer((base, sqlObjectType, method) -> base));
 
         testHandle.attach(Dao.class).orderedFooBar();
 

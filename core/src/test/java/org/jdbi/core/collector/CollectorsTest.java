@@ -123,7 +123,7 @@ public class CollectorsTest {
 
         // look up default list type manually
         GenericType<List<String>> type = new GenericType<List<String>>() {};
-        Collector<?, ?, ?> collector = handle.getConfig(JdbiCollectors.class).findFor(type.getType())
+        Collector<?, ?, ?> collector = CollectorResolver.forRegistry(handle.getConfig()).findFor(type.getType())
                 .orElseGet(Assertions::fail);
 
         try (Query query = baseQuery()) {
@@ -158,8 +158,8 @@ public class CollectorsTest {
         queryString(r -> assertThat(r.collectIntoList()).isNotInstanceOf(LinkedList.class));
 
         // register list type
-        handle.getConfig(JdbiCollectors.class)
-                .registerCollector(List.class, Collectors.toCollection(LinkedList::new));
+        handle.configure(JdbiCollectors.class, c ->
+                c.registerCollector(List.class, Collectors.toCollection(LinkedList::new)));
 
         try (Query query = baseQuery()) {
             assertThat(query

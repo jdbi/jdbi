@@ -23,9 +23,10 @@ import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.immutables.value.Value;
 import org.jdbi.core.Handle;
+import org.jdbi.core.Jdbi;
 import org.jdbi.core.generic.GenericType;
-import org.jdbi.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.core.qualifier.QualifiedType;
+import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.json.AbstractJsonMapperTest;
 import org.jdbi.json.Json;
 import org.jdbi.postgres.PostgresPlugin;
@@ -53,7 +54,12 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
     @RegisterExtension
     JdbiExtension pgExtension = JdbiExtension.postgres(pg)
         .withPlugins(new SqlObjectPlugin(), new PostgresPlugin(), new Jackson3Plugin())
-        .withConfig(JdbiImmutables.class, i -> i.registerImmutable(JsonContainer.class));
+        .withPlugin(new JdbiPlugin() {
+            @Override
+            public void customizeJdbi(Jdbi jdbi) {
+                jdbi.registerImmutable(JsonContainer.class);
+            }
+        });
 
     private Handle h;
 
@@ -128,7 +134,7 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
 
     @Test
     public void testSerializationView() {
-        h.getConfig(Jackson3Config.class).setSerializationView(ViewTest.ViewB.class);
+        h.configure(Jackson3Config.class, c -> c.serializationView(ViewTest.ViewB.class));
         assertThat(h.createQuery("select :vt::json ->> 'a'")
                 .bindByType("vt", viewValue, viewJsonType)
                 .mapTo(Integer.class)
@@ -138,7 +144,7 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
 
     @Test
     public void testDeserializationView() {
-        h.getConfig(Jackson3Config.class).setDeserializationView(ViewTest.ViewA.class);
+        h.configure(Jackson3Config.class, c -> c.deserializationView(ViewTest.ViewA.class));
         assertThat(h.createQuery("select '{\"a\":42,\"b\":43}'::json")
                 .mapTo(viewJsonType)
                 .one())
@@ -239,7 +245,7 @@ public class TestJackson3Plugin extends AbstractJsonMapperTest {
     @Test
     public void dynamicType() {
         assertThat(h.createQuery("select :val::varchar")
-                .configure(Jackson3Config.class, jc -> jc.setUseStaticType(false))
+                .configure(Jackson3Config.class, jc -> jc.useStaticType(false))
                 .bindByType("val", new PolySub(), QualifiedType.of(PolyBase.class).with(Json.class))
                 .mapTo(String.class)
                 .one())
