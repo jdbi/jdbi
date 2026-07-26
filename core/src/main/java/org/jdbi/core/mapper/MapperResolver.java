@@ -19,17 +19,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.CopyOnWriteHashMap;
 import org.jdbi.core.qualifier.QualifiedType;
 
 /**
- * Resolves row and column mappers for a specific {@link ConfigRegistry}, caching the results.
+ * Resolves row and column mappers for a specific {@link ConfigView}, caching the results.
  * <p>
  * A resolver reads the registered factories from the registry's {@link RowMappers} and
  * {@link ColumnMappers} (which hold only registration data) and turns them into mappers, memoizing the
- * outcome. It is obtained per registry via {@link #forRegistry(ConfigRegistry)} and is scoped to that
+ * outcome. It is obtained per registry via {@link #forRegistry(ConfigView)} and is scoped to that
  * registry: because it is never shared across registry copies, it safely holds the registry reference,
  * and its cache is warm across the many statements executed against a shared registry, yet a forked
  * registry starts with an empty cache and re-resolves against its own factories.
@@ -42,11 +42,11 @@ public final class MapperResolver {
      * @param config the configuration registry to resolve against
      * @return the registry's memoized mapper resolver
      */
-    public static MapperResolver forRegistry(final ConfigRegistry config) {
+    public static MapperResolver forRegistry(final ConfigView config) {
         return config.readAs(MapperResolver.class, MapperResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
     private final Map<Type, Optional<RowMapper<?>>> rowCache = new CopyOnWriteHashMap<>();
     private final Map<QualifiedType<?>, Optional<? extends ColumnMapper<?>>> columnCache = new CopyOnWriteHashMap<>();
 
@@ -56,7 +56,7 @@ public final class MapperResolver {
     private volatile int rowFactoryCount = -1;
     private volatile int columnFactoryCount = -1;
 
-    private MapperResolver(final ConfigRegistry registry) {
+    private MapperResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

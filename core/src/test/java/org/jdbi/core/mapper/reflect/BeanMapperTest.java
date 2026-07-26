@@ -38,9 +38,8 @@ public class BeanMapperTest {
 
     @Test
     public void testColumnNameAnnotation() {
-        handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
-
         ColumnNameBean bean = handle.createQuery("select * from something")
+            .registerRowMapper(BeanMapper.factory(ColumnNameBean.class))
             .mapTo(ColumnNameBean.class)
             .one();
 
@@ -52,9 +51,8 @@ public class BeanMapperTest {
 
     @Test
     public void testColumnNameMismatch() {
-        handle.registerRowMapper(BeanMapper.factory(MismatchColumnNameBean.class));
-
         MismatchColumnNameBean bean = handle.createQuery("select * from something")
+            .registerRowMapper(BeanMapper.factory(MismatchColumnNameBean.class))
             .mapTo(MismatchColumnNameBean.class)
             .one();
 

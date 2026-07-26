@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 
 /**
@@ -61,7 +61,7 @@ public class GetObjectColumnMapperFactory implements ColumnMapperFactory {
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         return Optional.of(type)
             .filter(Class.class::isInstance)
             .map(Class.class::cast)

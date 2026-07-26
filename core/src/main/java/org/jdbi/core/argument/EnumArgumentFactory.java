@@ -18,7 +18,7 @@ import java.sql.Types;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.enums.DatabaseValue;
 import org.jdbi.core.enums.EnumStrategy;
 import org.jdbi.core.internal.EnumStrategyResolver;
@@ -28,7 +28,7 @@ import org.jdbi.core.qualifier.QualifiedType;
 class EnumArgumentFactory implements QualifiedArgumentFactory {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public Optional<Argument> build(QualifiedType<?> givenType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(QualifiedType<?> givenType, Object value, ConfigView config) {
         return ifEnum(givenType.getType())
             .flatMap(clazz -> makeEnumArgument((QualifiedType<Enum>) givenType, (Enum) value, config));
     }
@@ -41,7 +41,7 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
         return Optional.empty();
     }
 
-    private static <E extends Enum<E>> Optional<Argument> makeEnumArgument(QualifiedType<E> givenType, E value, ConfigRegistry config) {
+    private static <E extends Enum<E>> Optional<Argument> makeEnumArgument(QualifiedType<E> givenType, E value, ConfigView config) {
         boolean byName = EnumStrategy.BY_NAME == EnumStrategyResolver.forRegistry(config).findStrategy(givenType);
 
         return byName
@@ -49,7 +49,7 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
             : byOrdinal(value, config);
     }
 
-    private static <E extends Enum<E>> Optional<Argument> byName(E value, ConfigRegistry config) {
+    private static <E extends Enum<E>> Optional<Argument> byName(E value, ConfigView config) {
         return makeArgument(Types.VARCHAR, String.class, value, EnumArgumentFactory::annotatedValue, config);
     }
 
@@ -61,7 +61,7 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
                 .orElse(e.name());
     }
 
-    private static <E extends Enum<E>> Optional<Argument> byOrdinal(E value, ConfigRegistry config) {
+    private static <E extends Enum<E>> Optional<Argument> byOrdinal(E value, ConfigView config) {
         return makeArgument(Types.INTEGER, Integer.class, value, E::ordinal, config);
     }
 
@@ -69,7 +69,7 @@ class EnumArgumentFactory implements QualifiedArgumentFactory {
                                                                           Class<A> attributeType,
                                                                           E value,
                                                                           Function<E, A> transform,
-                                                                          ConfigRegistry config) {
+                                                                          ConfigView config) {
         if (value == null) {
             return Optional.of(new NullArgument(nullType));
         }

@@ -17,7 +17,7 @@ import java.sql.Types;
 
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 // tag::argumentfactory[]
 @Reversed // <1>
@@ -27,7 +27,7 @@ public class ReversedStringArgumentFactory extends AbstractArgumentFactory<Strin
     }
 
     @Override
-    protected Argument build(String value, ConfigRegistry config) {
+    protected Argument build(String value, ConfigView config) {
         return (pos, stmt, ctx) -> stmt.setString(pos, Reverser.reverse(value));
     }
 }

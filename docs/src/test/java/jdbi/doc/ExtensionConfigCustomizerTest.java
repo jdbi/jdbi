@@ -59,12 +59,13 @@ class ExtensionConfigCustomizerTest {
 
     @BeforeEach
     void setUp() {
-        this.jdbi = h2Extension.getJdbi();
-
-        // tag::register-global[]
-        jdbi.configure(Extensions.class, e ->
-                e.registerConfigCustomizerFactory(new SomethingMapperConfigCustomizerFactory())); // <1>
-        // end::register-global[]
+        this.jdbi = Jdbi.builder(h2Extension.getUrl())
+                .installPlugin(new SqlObjectPlugin())
+                // tag::register-global[]
+                .configure(Extensions.class, e ->
+                        e.registerConfigCustomizerFactory(new SomethingMapperConfigCustomizerFactory())) // <1>
+                // end::register-global[]
+                .build();
 
         jdbi.useExtension(SomethingDao.class, dao -> {
             dao.insert(new Something(1, "apple"));

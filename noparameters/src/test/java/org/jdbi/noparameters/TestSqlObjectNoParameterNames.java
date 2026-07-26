@@ -38,7 +38,8 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 public class TestSqlObjectNoParameterNames {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b.registerRowMapper(BeanMapper.factory(Something.class)));
 
     Handle h;
 
@@ -47,7 +48,6 @@ public class TestSqlObjectNoParameterNames {
         assumeFalse(BindDao.class.getMethod("getByIdImplicitBindPositional", int.class).getParameters()[0].isNamePresent());
 
         h = h2Extension.getSharedHandle();
-        h.registerRowMapper(BeanMapper.factory(Something.class));
 
         h.execute("insert into something (id, name) values (1, 'Elsie Hughes')");
     }

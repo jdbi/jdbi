@@ -25,7 +25,6 @@ import org.jdbi.core.config.internal.ConfigCaches;
 import org.jdbi.core.internal.JdbiClassUtils;
 import org.jdbi.core.mapper.ColumnMappers;
 import org.jdbi.core.mapper.RowMappers;
-import org.jdbi.core.statement.ConfigReader;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.meta.Alpha;
 
@@ -34,7 +33,7 @@ import org.jdbi.meta.Alpha;
  *
  * @see Configurable
  */
-public final class ConfigRegistry implements ConfigReader {
+public final class ConfigRegistry implements ConfigView {
 
     private static final Class<?>[] JDBI_CONFIG_TYPES = {ConfigRegistry.class};
 
@@ -49,6 +48,11 @@ public final class ConfigRegistry implements ConfigReader {
     // Non-null only for an un-forked copy-on-write child (see createChild()): reads delegate to this parent
     // until the child's first install(), at which point the child materialises its own configs and detaches.
     private ConfigRegistry parent;
+
+    // Cached read-only view of this registry, handed to readAs create-functions (e.g. resolvers) so a resolver
+    // passes a ConfigView -- never this mutable registry -- to the factory SPIs it invokes. Lazily created; the
+    // wrapper is stateless (it forwards to this), so a benign race that builds two equivalent wrappers is harmless.
+    private ConfigView readOnlyView;
 
     /**
      * Creates a new config registry.
@@ -86,6 +90,7 @@ public final class ConfigRegistry implements ConfigReader {
      * @param <C>         the config class type.
      * @return the given config class instance that belongs to this registry.
      */
+    @Override
     public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
         // we would computeIfAbsent if not for JDK-8062841 >:(
         final JdbiConfig<?> lookup = configs.get(configClass);
@@ -160,7 +165,8 @@ public final class ConfigRegistry implements ConfigReader {
      * @return the memoized view of the given type for this registry
      */
     @Alpha
-    public <T> T readAs(final Class<T> asType, final Function<ConfigRegistry, T> create) {
+    @Override
+    public <T> T readAs(final Class<T> asType, final Function<ConfigView, T> create) {
         if (parent != null) {
             // Un-forked child: its effective config equals the parent's, so reuse the parent's (warm) view.
             return parent.readAs(asType, create);
@@ -170,9 +176,20 @@ public final class ConfigRegistry implements ConfigReader {
         if (existing != null) {
             return existing;
         }
-        final T created = create.apply(this);
+        // Hand the create-function a read-only view, not this registry, so a view (e.g. a resolver) cannot reach
+        // in-place mutation, and readAs cannot be abused to extract the mutable registry from a read-only context.
+        final T created = create.apply(asReadOnlyView());
         final T previous = asType.cast(views.putIfAbsent(asType, created));
         return previous != null ? previous : created;
+    }
+
+    // Package-private: the read-only view handed to readAs create-functions. Exposed to same-package tests
+    // that assert readAs binds a view to the intended registry.
+    ConfigView asReadOnlyView() {
+        if (readOnlyView == null) {
+            readOnlyView = ConfigView.readOnly(() -> this);
+        }
+        return readOnlyView;
     }
 
     private Function<ConfigRegistry, JdbiConfig<?>> configFactory(Class<? extends JdbiConfig<?>> configClass) {
@@ -189,6 +206,7 @@ public final class ConfigRegistry implements ConfigReader {
      * @see JdbiConfig#createCopy() config objects in the returned registry are copies of the corresponding
      * config objects from this registry.
      */
+    @Override
     public ConfigRegistry createCopy() {
         return new ConfigRegistry(this, false);
     }
@@ -208,6 +226,7 @@ public final class ConfigRegistry implements ConfigReader {
      * @return a copy-on-write child of this registry
      */
     @Alpha
+    @Override
     public ConfigRegistry createChild() {
         return new ConfigRegistry(this, true);
     }

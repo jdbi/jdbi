@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.jdbi.core.Handle;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.sqlobject.SqlObjectPlugin;
@@ -34,17 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BindMethodsTest {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withInitializer(TestingInitializers.users());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withInitializer(TestingInitializers.users())
+        .withConfig(b -> b.registerRowMapper(new UserMapper()));
 
     UserDao dao;
 
     @BeforeEach
     void setUp() {
-        Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new UserMapper());
-
-        this.dao = handle.attach(UserDao.class);
-
+        this.dao = h2Extension.getSharedHandle().attach(UserDao.class);
     }
 
     @Test

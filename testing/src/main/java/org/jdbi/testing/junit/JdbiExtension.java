@@ -19,6 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import javax.sql.DataSource;
@@ -282,6 +283,23 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
     }
 
     /**
+     * Apply build-time configuration to the {@link Jdbi} instance via its {@link Jdbi.Builder}. Use this to register
+     * mappers, arguments, and the like as test fixtures.
+     *
+     * <pre>{@code
+     *     @RegisterExtension
+     *     public JdbiExtension h2Extension = JdbiExtension.h2()
+     *             .withConfig(b -> b.registerRowMapper(Foo.class, new FooMapper()));
+     * }</pre>
+     *
+     * @param configurer applied to the {@link Jdbi.Builder} while the {@link Jdbi} is assembled.
+     * @return The extension itself for chaining method calls.
+     */
+    public final JdbiExtension withConfig(Consumer<Jdbi.Builder> configurer) {
+        return withPlugin(JdbiPlugin.of(configurer));
+    }
+
+    /**
      * Convenience method to attach an extension (such as a SqlObject) to the shared handle.
      */
     public final <T> T attach(final Class<T> extension) {
@@ -315,22 +333,31 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
         }
 
         final DataSource ds = getDataSource();
-
-        if (enableLeakchecker) {
-            withConfig(Handles.class, h -> h.addListener(leakChecker));
-            withConfig(SqlStatements.class, s -> s.addContextListener(leakChecker));
-        }
-
-        final Jdbi.Builder builder = Jdbi.builder(ds);
-        plugins.forEach(builder::installPlugin);
-        final Jdbi jdbiInstance = builder.build();
-
+        final Jdbi jdbiInstance = builder().build();
         final Handle sharedHandleInstance = jdbiInstance.open();
 
         this.jdbi = jdbiInstance;
         this.sharedHandle = sharedHandleInstance;
 
         initializerMaybe.ifPresent(i -> i.initialize(ds, sharedHandleInstance));
+    }
+
+    /**
+     * Returns a {@link Jdbi.Builder} pre-configured with this extension's data source, installed plugins, and (unless
+     * disabled with {@link #withoutLeakChecker()}) its leak checker, so a test can add per-test configuration (a
+     * transaction handler, a spy, and the like) and build its own {@link Jdbi} that still participates in the
+     * extension's leak-check lifecycle.
+     *
+     * @return a builder assembling a {@code Jdbi} equivalent to this extension's.
+     */
+    public final Jdbi.Builder builder() throws Exception {
+        final Jdbi.Builder builder = Jdbi.builder(getDataSource());
+        plugins.forEach(builder::installPlugin);
+        if (enableLeakchecker) {
+            builder.configure(Handles.class, h -> h.addListener(leakChecker));
+            builder.configure(SqlStatements.class, s -> s.addContextListener(leakChecker));
+        }
+        return builder;
     }
 
     protected void stopExtension() throws Exception {

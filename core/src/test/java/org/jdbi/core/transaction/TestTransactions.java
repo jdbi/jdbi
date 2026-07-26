@@ -24,6 +24,7 @@ import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.statement.RenderContext;
+import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.TemplateEngine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,12 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestTransactions {
 
-    @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
-
     int begin, commit, rollback;
-
-    private Handle h;
 
     private final LocalTransactionHandler txSpy = new LocalTransactionHandler() {
         @Override
@@ -65,9 +61,14 @@ public class TestTransactions {
         }
     };
 
+    @RegisterExtension
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+        .withConfig(b -> b.transactionHandler(txSpy));
+
+    private Handle h;
+
     @BeforeEach
     public void setUp() {
-        h2Extension.getJdbi().setTransactionHandler(txSpy);
         h = h2Extension.openHandle();
     }
 
@@ -202,10 +203,12 @@ public class TestTransactions {
 
     @Test
     public void testTemplateEngineThrowsError() {
-        assertThatThrownBy(() -> h.setTemplateEngine(new BoomEngine()).inTransaction(h2 -> h2.execute("select 1")))
-            .isOfAnyClassIn(Error.class)
-            .hasMessage("boom");
-        assertThat(h.isInTransaction()).isFalse();
+        try (Handle boomHandle = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.templateEngine(new BoomEngine())))) {
+            assertThatThrownBy(() -> boomHandle.inTransaction(h2 -> h2.execute("select 1")))
+                .isOfAnyClassIn(Error.class)
+                .hasMessage("boom");
+            assertThat(boomHandle.isInTransaction()).isFalse();
+        }
     }
 
     @Test

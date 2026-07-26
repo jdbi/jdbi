@@ -37,15 +37,18 @@ public class TestQueriesPG {
     @Test
     @DisplayName("HashPrefixSqlParser works with colon-based casting in postgresql (#1389)")
     public void testCastingWithHashParser() {
-        final Handle h = pgExtension.getSharedHandle()
-            .setSqlParser(new HashPrefixSqlParser());
+        final Handle h = pgExtension.getSharedHandle();
+        final HashPrefixSqlParser hashParser = new HashPrefixSqlParser();
 
         UUID uuid1 = UUID.randomUUID();
         UUID uuid2 = UUID.randomUUID();
-        h.createUpdate("insert into something (id, uuid) values (1, #uuid)").bind("uuid", uuid1).execute();
-        h.createUpdate("insert into something (id, uuid) values (2, #uuid)").bind("uuid", uuid2).execute();
+        h.createUpdate("insert into something (id, uuid) values (1, #uuid)")
+            .configure(SqlStatements.class, c -> c.sqlParser(hashParser)).bind("uuid", uuid1).execute();
+        h.createUpdate("insert into something (id, uuid) values (2, #uuid)")
+            .configure(SqlStatements.class, c -> c.sqlParser(hashParser)).bind("uuid", uuid2).execute();
 
         final int result = h.createQuery("select id from something WHERE uuid = #value::UUID")
+            .configure(SqlStatements.class, c -> c.sqlParser(hashParser))
             .bind("value", uuid2.toString())
             .mapTo(Integer.class)
             .one();

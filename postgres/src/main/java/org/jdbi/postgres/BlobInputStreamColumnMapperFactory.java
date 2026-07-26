@@ -19,14 +19,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
 import org.jdbi.core.statement.StatementContext;
 
 class BlobInputStreamColumnMapperFactory implements ColumnMapperFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         if (InputStream.class != type) {
             return Optional.empty();
         }

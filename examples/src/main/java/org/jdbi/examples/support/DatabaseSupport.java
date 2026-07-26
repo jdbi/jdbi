@@ -29,17 +29,22 @@ public final class DatabaseSupport {
     }
 
     public static void withDatabase(Consumer<Jdbi> jdbiConsumer) throws Exception {
+        withDatabase(builder -> {}, jdbiConsumer);
+    }
+
+    public static void withDatabase(Consumer<Jdbi.Builder> builderConfig, Consumer<Jdbi> jdbiConsumer) throws Exception {
         try (DatabaseManager manager = DatabaseManager.singleDatabase()
             // same as EmbeddedPostgres.defaultInstance()
             .withInstancePreparer(EmbeddedPostgres.Builder::withDefaults)
             .build()
             .start()) {
             DatabaseInfo databaseInfo = manager.getDatabaseInfo();
-            Jdbi jdbi = Jdbi.create(databaseInfo.asDataSource());
-            jdbi.installPlugin(new SqlObjectPlugin())
+            Jdbi.Builder builder = Jdbi.builder(databaseInfo.asDataSource())
+                .installPlugin(new SqlObjectPlugin())
                 .installPlugin(new PostgresPlugin());
+            builderConfig.accept(builder);
 
-            jdbiConsumer.accept(jdbi);
+            jdbiConsumer.accept(builder.build());
         }
     }
 }

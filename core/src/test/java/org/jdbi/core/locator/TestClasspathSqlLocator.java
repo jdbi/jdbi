@@ -86,9 +86,9 @@ public class TestClasspathSqlLocator {
     @Test
     public void testDetailExceptionForBackTracing() {
         Handle h = h2Extension.getSharedHandle();
-        h.configure(StatementExceptions.class, c -> c.messageRendering(MessageRendering.DETAIL));
 
         assertThatThrownBy(() -> h.createUpdate(locator.locate("insert-id-name"))
+                .configure(StatementExceptions.class, c -> c.messageRendering(MessageRendering.DETAIL))
                 .bind("id", 1)
                 .execute())
             .isInstanceOf(StatementException.class)

@@ -24,8 +24,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-// exercises the deprecated Jdbi.installPlugin path to verify the customizeHandle/customizeConnection hooks
-@SuppressWarnings("deprecation")
 public class TestPlugins {
 
     @RegisterExtension
@@ -37,14 +35,16 @@ public class TestPlugins {
         Connection connection = cf.openConnection();
         Jdbi db = Jdbi.create(connection);
         try (Handle h = db.open()) {
-            h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
-                @Override
-                public Handle customizeHandle(Handle handle) {
-                    handle.close(); // otherwise the handle leaks out
-                    return h;
-                }
-            });
-            Handle testHandle = h2Extension.openHandle();
+            Jdbi jdbi = Jdbi.builder(h2Extension.getUri())
+                    .installPlugin(new JdbiPlugin() {
+                        @Override
+                        public Handle customizeHandle(Handle handle) {
+                            handle.close(); // otherwise the handle leaks out
+                            return h;
+                        }
+                    })
+                    .build();
+            Handle testHandle = jdbi.open();
             assertThat(h).isSameAs(testHandle);
         }
     }
@@ -55,14 +55,16 @@ public class TestPlugins {
         Connection connection = cf.openConnection();
         Jdbi db = Jdbi.create(connection);
         try (Handle h = db.open()) {
-            h2Extension.getJdbi().installPlugin(new JdbiPlugin() {
-                @Override
-                public Connection customizeConnection(Connection conn) throws SQLException {
-                    conn.close(); // otherwise the connection leaks out
-                    return connection;
-                }
-            });
-            try (Handle testHandle = h2Extension.openHandle()) {
+            Jdbi jdbi = Jdbi.builder(h2Extension.getUri())
+                    .installPlugin(new JdbiPlugin() {
+                        @Override
+                        public Connection customizeConnection(Connection conn) throws SQLException {
+                            conn.close(); // otherwise the connection leaks out
+                            return connection;
+                        }
+                    })
+                    .build();
+            try (Handle testHandle = jdbi.open()) {
                 assertThat(connection).isSameAs(testHandle.getConnection());
             }
         }

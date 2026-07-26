@@ -16,7 +16,7 @@ package org.jdbi.postgres;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
@@ -28,7 +28,7 @@ import org.postgresql.util.PGobject;
 class PGobjectColumnMapperFactory implements ColumnMapperFactory {
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         Class<?> erasedType = GenericTypes.getErasedType(type);
         if (PGobject.class.isAssignableFrom(erasedType)) {
             return Optional.of((rs, col, ctx) -> rs.getObject(col, erasedType));

@@ -24,8 +24,8 @@ public class H2SqlObjectV3Benchmark extends BaseSqlObjectV3Benchmark {
     }
 
     @Override
-    protected Jdbi createJdbi() {
-        return Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=10");
+    protected Jdbi.Builder createJdbi() {
+        return Jdbi.builder("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=10");
     }
 
     @Override

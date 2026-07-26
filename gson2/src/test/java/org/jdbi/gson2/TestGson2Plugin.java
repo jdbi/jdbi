@@ -55,14 +55,12 @@ public class TestGson2Plugin extends AbstractJsonMapperTest {
 
     @Test
     public void typeCanBeOverridden() {
-        pgExtension.getJdbi().useHandle(h -> {
+        Gson gson = new GsonBuilder()
+            .registerTypeAdapter(SuperUser.class, new SuperUserAdapter())
+            .registerTypeAdapter(SubUser.class, new SubUserAdapter())
+            .create();
+        pgExtension.getJdbi().useHandle(cfg -> cfg.configure(Gson2Config.class, c -> c.gson(gson)), h -> {
             h.createUpdate("create table users(usr json)").execute();
-
-            Gson gson = new GsonBuilder()
-                .registerTypeAdapter(SuperUser.class, new SuperUserAdapter())
-                .registerTypeAdapter(SubUser.class, new SubUserAdapter())
-                .create();
-            h.configure(Gson2Config.class, c -> c.gson(gson));
 
             h.createUpdate("insert into users(usr) values(:user)")
                 // declare that the subuser should be mapped as a superuser

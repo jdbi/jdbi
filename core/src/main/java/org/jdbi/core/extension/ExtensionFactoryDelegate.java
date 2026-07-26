@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
 import org.jdbi.core.internal.JdbiClassUtils.MethodKey;
 
@@ -54,19 +55,19 @@ final class ExtensionFactoryDelegate implements ExtensionFactory {
     }
 
     @Override
-    public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(final ConfigRegistry config) {
+    public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(final ConfigView config) {
         return Collections.unmodifiableCollection(delegatedFactory.getExtensionHandlerFactories(config).stream()
                 .map(FilteringExtensionHandlerFactory::forDelegate)
                 .toList());
     }
 
     @Override
-    public Collection<ExtensionHandlerCustomizer> getExtensionHandlerCustomizers(final ConfigRegistry config) {
+    public Collection<ExtensionHandlerCustomizer> getExtensionHandlerCustomizers(final ConfigView config) {
         return delegatedFactory.getExtensionHandlerCustomizers(config);
     }
 
     @Override
-    public Collection<ConfigCustomizerFactory> getConfigCustomizerFactories(final ConfigRegistry config) {
+    public Collection<ConfigCustomizerFactory> getConfigCustomizerFactories(final ConfigView config) {
         return delegatedFactory.getConfigCustomizerFactories(config);
     }
 

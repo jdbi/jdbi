@@ -58,10 +58,10 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     @Test
     public void testMapTuple1UsingRegisteredRowMapperShouldSucceed() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new SomethingMapper());
 
         Tuple1<Something> result = handle
                 .createQuery("select id, name from something where id = 1")
+                .registerRowMapper(new SomethingMapper())
                 .mapTo(new GenericType<Tuple1<Something>>() {})
                 .one();
 
@@ -71,13 +71,13 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     @Test
     public void testMapTuple2UsingRegisteredRowMappersShouldSucceed() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new SomethingMapper());
-        handle.registerRowMapper(SomethingValues.class,
-                (rs, ctx) -> new SomethingValues(rs.getInt("integerValue"),
-                        rs.getInt("intValue")));
 
         Tuple2<Something, SomethingValues> result = handle
                 .createQuery("select * from something where id = 2")
+                .registerRowMapper(new SomethingMapper())
+                .registerRowMapper(SomethingValues.class,
+                        (rs, ctx) -> new SomethingValues(rs.getInt("integerValue"),
+                                rs.getInt("intValue")))
                 .mapTo(new GenericType<Tuple2<Something, SomethingValues>>() {})
                 .one();
 
@@ -88,10 +88,10 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     @Test
     public void testMapTuple2HavingOnlyOneRowMapperShouldFail() {
         final Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new SomethingMapper());
 
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
+                .registerRowMapper(new SomethingMapper())
                 .mapTo(new GenericType<Tuple2<Something, SomethingValues>>() {})
                 .one()
        ).isInstanceOf(NoSuchMapperException.class)
@@ -101,12 +101,12 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     @Test
     public void testMapTuple3WithExtraSpecifiedColumnShouldSucceed() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new SomethingMapper());
-        handle.configure(TupleMappers.class, c ->
-                c.column(2, "integerValue").column(3, "intValue"));
 
         Tuple3<Something, Integer, Integer> result = handle
                 .createQuery("select * from something where id = 1")
+                .registerRowMapper(new SomethingMapper())
+                .configure(TupleMappers.class, c ->
+                        c.column(2, "integerValue").column(3, "intValue"))
                 .mapTo(new GenericType<Tuple3<Something, Integer, Integer>>() {})
                 .one();
 
@@ -118,13 +118,13 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     @Test
     public void testMapTuple3WithAllSpecifiedColumnsShouldRespectConfiguration() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.configure(TupleMappers.class, c ->
-                c.column(1, "integerValue")
-                        .column(2, "intValue")
-                        .column(3, "id"));
 
         Tuple3<Integer, Integer, Integer> result = handle
                 .createQuery("select * from something where id = 1")
+                .configure(TupleMappers.class, c ->
+                        c.column(1, "integerValue")
+                                .column(2, "intValue")
+                                .column(3, "id"))
                 .mapTo(new GenericType<Tuple3<Integer, Integer, Integer>>() {})
                 .one();
 
@@ -136,10 +136,10 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     @Test
     public void testMapTuple3WithoutSpecifiedColumnShouldFail() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new SomethingMapper());
 
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
+                .registerRowMapper(new SomethingMapper())
                 .mapTo(new GenericType<Tuple3<Integer, Something, Integer>>() {})
                 .one())
                 .isInstanceOf(NoSuchMapperException.class)
@@ -149,12 +149,12 @@ public class TestVavrTupleRowMapperFactoryWithDB {
     @Test
     public void testMapTuple3WithOnlyOneSpecifiedColumnShouldFail() {
         Handle handle = h2Extension.getSharedHandle();
-        handle.registerRowMapper(new SomethingMapper());
-        handle.configure(TupleMappers.class, c ->
-                c.column(1, "integerValue"));
 
         assertThatThrownBy(() -> handle
                 .createQuery("select * from something where id = 1")
+                .registerRowMapper(new SomethingMapper())
+                .configure(TupleMappers.class, c ->
+                        c.column(1, "integerValue"))
                 .mapTo(new GenericType<Tuple3<Integer, Something, Integer>>() {})
                 .one()).isInstanceOf(NoSuchMapperException.class)
                 .isInstanceOf(NoSuchMapperException.class)

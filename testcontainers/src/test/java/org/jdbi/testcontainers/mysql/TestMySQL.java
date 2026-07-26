@@ -46,12 +46,12 @@ public class TestMySQL {
 
     @RegisterExtension
     JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer)
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b.registerRowMapper(Contact.class, ConstructorMapper.of(Contact.class)));
 
     @Test
     void testIssue2402() {
         final Handle handle = extension.getSharedHandle();
-        handle.registerRowMapper(Contact.class, ConstructorMapper.of(Contact.class));
 
         handle.execute("CREATE TABLE contacts (contact_id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, etag VARCHAR(255))");
 

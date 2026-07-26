@@ -50,8 +50,6 @@ class TestIssue2790 {
 
     @Test
     fun testListsWork() {
-        handle.registerRowMapper(KotlinMapperFactory())
-
         val list = listOf("a", "b", "c")
         val ktBean = EvenMoreThings(1, list)
 
@@ -60,6 +58,7 @@ class TestIssue2790 {
             .execute()
 
         val result = handle.createQuery("SELECT id, name from something")
+            .registerRowMapper(KotlinMapperFactory())
             .mapTo<Something>()
             .single()
 

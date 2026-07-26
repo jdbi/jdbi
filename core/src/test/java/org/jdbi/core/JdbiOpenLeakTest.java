@@ -14,8 +14,10 @@
 package org.jdbi.core;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.spi.JdbiPlugin;
@@ -45,14 +47,18 @@ public class JdbiOpenLeakTest {
             }
         };
 
-        h2Extension.getJdbi().installPlugin(jdbiPlugin);
+        final AtomicReference<Connection> lastConnection = new AtomicReference<>();
+        Jdbi jdbi = Jdbi.builder(() -> {
+            Connection conn = DriverManager.getConnection(h2Extension.getUri());
+            lastConnection.set(conn);
+            return conn;
+        }).installPlugin(jdbiPlugin).build();
 
-        h2Extension.clearLastConnection();
-        assertThatThrownBy(() -> h2Extension.getJdbi().open())
+        assertThatThrownBy(jdbi::open)
                 .isInstanceOf(CosmicRayException.class);
 
-        assertThat(h2Extension.getLastConnection()).isNotNull(); // has been created
-        assertThat(h2Extension.getLastConnection().isClosed()).isTrue(); // has been closed
+        assertThat(lastConnection.get()).isNotNull(); // has been created
+        assertThat(lastConnection.get().isClosed()).isTrue(); // has been closed
     }
 
     @Test
@@ -84,13 +90,16 @@ public class JdbiOpenLeakTest {
 
         h2Extension.getSharedHandle().execute("insert into something (id, name) values (1, 'Brian')");
 
-        Jdbi jdbi = h2Extension.getJdbi();
+        final AtomicReference<Connection> lastConnection = new AtomicReference<>();
         final ExplodeInSpecializeTransactionHandler handler = new ExplodeInSpecializeTransactionHandler();
-        h2Extension.getJdbi().setTransactionHandler(handler);
+        Jdbi jdbi = Jdbi.builder(() -> {
+            Connection conn = DriverManager.getConnection(h2Extension.getUri());
+            lastConnection.set(conn);
+            return conn;
+        }).transactionHandler(handler).build();
 
         assertThatThrownBy(() -> {
             String value;
-            h2Extension.clearLastConnection(); // reset connection
 
             try (Handle handle = jdbi.open()) {
                 value = handle.createQuery("select name from something where id = 1").mapToBean(Something.class).one().getName();
@@ -101,8 +110,8 @@ public class JdbiOpenLeakTest {
                 .hasCauseInstanceOf(SQLException.class);
 
         // see if the c'tor leaked a connection
-        assertThat(h2Extension.getLastConnection()).isNotNull(); // connection has been checked out
-        assertThat(h2Extension.getLastConnection().isClosed()).isTrue(); // connection has been closed
+        assertThat(lastConnection.get()).isNotNull(); // connection has been checked out
+        assertThat(lastConnection.get().isClosed()).isTrue(); // connection has been closed
     }
 
     static class CosmicRayException extends RuntimeException {

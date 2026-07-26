@@ -15,7 +15,8 @@ package org.jdbi.sqlobject.kotlin
 
 import org.jdbi.core.argument.AbstractArgumentFactory
 import org.jdbi.core.argument.Argument
-import org.jdbi.core.config.ConfigRegistry
+import org.jdbi.core.argument.Arguments
+import org.jdbi.core.config.ConfigView
 import org.jdbi.sqlobject.SqlObject
 import org.jdbi.sqlobject.statement.SqlQuery
 import org.jdbi.sqlobject.statement.SqlUpdate
@@ -47,7 +48,7 @@ class TestListArgument {
     }
 
     class StringListArgumentFactory : AbstractArgumentFactory<List<String>>(Types.VARCHAR) {
-        override fun build(value: List<String>?, config: ConfigRegistry): Argument? = Argument { position, statement, _ ->
+        override fun build(value: List<String>?, config: ConfigView): Argument? = Argument { position, statement, _ ->
             if (value != null) {
                 statement.setString(position, value.joinToString(","))
             } else {
@@ -58,8 +59,7 @@ class TestListArgument {
 
     @Test
     fun testSingleInsert() {
-        h2Extension.openHandle().use { handle ->
-            handle.registerArgument(StringListArgumentFactory())
+        h2Extension.jdbi.open { cfg -> cfg.configure(Arguments::class.java) { it.register(StringListArgumentFactory()) } }.use { handle ->
             val dao = handle.attach(SomethingDao::class)
 
             dao.insertList(1, listOf("one", "two"))
@@ -74,7 +74,7 @@ class TestListArgument {
     value class MagicValue(val value: String)
 
     class MagicListArgumentFactory : AbstractArgumentFactory<List<MagicValue>>(Types.VARCHAR) {
-        override fun build(value: List<MagicValue>?, config: ConfigRegistry): Argument? = Argument { position, statement, _ ->
+        override fun build(value: List<MagicValue>?, config: ConfigView): Argument? = Argument { position, statement, _ ->
             if (value != null) {
                 statement.setString(position, value.joinToString(",") { x -> x.value })
             } else {
@@ -85,8 +85,7 @@ class TestListArgument {
 
     @Test
     fun testSingleInsertWithMagicValue() {
-        h2Extension.openHandle().use { handle ->
-            handle.registerArgument(MagicListArgumentFactory())
+        h2Extension.jdbi.open { cfg -> cfg.configure(Arguments::class.java) { it.register(MagicListArgumentFactory()) } }.use { handle ->
             val dao = handle.attach(SomethingDao::class)
 
             dao.inserValueList(1, listOf(MagicValue("one"), MagicValue("two")))

@@ -19,15 +19,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collector;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.CopyOnWriteHashMap;
 
 /**
- * Resolves collectors for a specific {@link ConfigRegistry}, caching the results.
+ * Resolves collectors for a specific {@link ConfigView}, caching the results.
  * <p>
  * A resolver reads the registered factories from the registry's {@link JdbiCollectors} (which holds only
  * registration data) and turns a container type into a {@link Collector}, memoizing the outcome. It is
- * obtained per registry via {@link #forRegistry(ConfigRegistry)} and is scoped to that registry: its cache
+ * obtained per registry via {@link #forRegistry(ConfigView)} and is scoped to that registry: its cache
  * is warm across the many statements executed against a shared registry, yet a forked registry starts with
  * an empty cache and re-resolves against its own factories.
  */
@@ -39,11 +39,11 @@ public final class CollectorResolver {
      * @param config the configuration registry to resolve against
      * @return the registry's memoized collector resolver
      */
-    public static CollectorResolver forRegistry(final ConfigRegistry config) {
+    public static CollectorResolver forRegistry(final ConfigView config) {
         return config.readAs(CollectorResolver.class, CollectorResolver::new);
     }
 
-    private final ConfigRegistry registry;
+    private final ConfigView registry;
     private final Map<Type, Optional<CollectorFactory>> factoryCache = new CopyOnWriteHashMap<>();
 
     // Registration only ever adds factories, so a change in factory count means a factory was registered
@@ -51,7 +51,7 @@ public final class CollectorResolver {
     // registry (immutable-config step), each fork has its own fresh resolver and this guard is moot.
     private volatile int factoryCount = -1;
 
-    private CollectorResolver(final ConfigRegistry registry) {
+    private CollectorResolver(final ConfigView registry) {
         this.registry = registry;
     }
 

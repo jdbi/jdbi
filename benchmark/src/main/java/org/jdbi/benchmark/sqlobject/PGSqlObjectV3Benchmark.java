@@ -19,8 +19,8 @@ import org.jdbi.postgres.PostgresPlugin;
 
 public class PGSqlObjectV3Benchmark extends BaseSqlObjectV3Benchmark {
     @Override
-    protected Jdbi createJdbi() {
-        return Unchecked.supplier(() -> Jdbi.create(PGSqlObjectV2Benchmark.PROVIDER.createDefaultDataSource())
+    protected Jdbi.Builder createJdbi() {
+        return Unchecked.supplier(() -> Jdbi.builder(PGSqlObjectV2Benchmark.PROVIDER.createDefaultDataSource())
             .installPlugin(new PostgresPlugin())).get();
     }
 

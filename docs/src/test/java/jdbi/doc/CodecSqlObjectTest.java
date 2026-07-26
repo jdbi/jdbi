@@ -61,12 +61,13 @@ public class CodecSqlObjectTest {
 
     @Test
     public void testCounter() {
-        Jdbi jdbi = h2Extension.getJdbi();
-
         // tag::register[]
 
         // register the codec with JDBI
-        jdbi.registerCodecFactory(CodecFactory.forSingleCodec(COUNTER_TYPE, new CounterCodec()));
+        Jdbi jdbi = Jdbi.builder(h2Extension.getUrl())
+            .installPlugin(new SqlObjectPlugin())
+            .registerCodecFactory(CodecFactory.forSingleCodec(COUNTER_TYPE, new CounterCodec()))
+            .build();
 
         // end::register[]
 

@@ -22,7 +22,7 @@ import java.util.Optional;
 import org.jdbi.core.Handle;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.testing.SqliteDatabaseExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,17 +46,15 @@ public class TestSqlLoggerToString {
 
     @BeforeEach
     public void before() {
-        handle = sqliteExtension.openHandle();
-
-        handle.execute("create table foo(bar binary)");
-
-        handle.setSqlLogger(new SqlLogger() {
+        handle = sqliteExtension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(new SqlLogger() {
             @Override
             public void logBeforeExecution(StatementContext context) {
                 context.getBinding().findForPosition(0).ifPresent(value -> positional = Objects.toString(value));
                 context.getBinding().findForName(NAME, context).ifPresent(value -> named = Objects.toString(value));
             }
-        });
+        })));
+
+        handle.execute("create table foo(bar binary)");
     }
 
     @AfterEach
@@ -117,36 +115,28 @@ public class TestSqlLoggerToString {
 
     @Test
     public void testNeitherHasToString() {
-        handle.registerArgument(new FooArgumentFactory());
-
-        handle.createUpdate(INSERT_POSITIONAL).bind(0, new Foo()).execute();
+        handle.createUpdate(INSERT_POSITIONAL).registerArgument(new FooArgumentFactory()).bind(0, new Foo()).execute();
 
         assertThat(positional).containsPattern("@[0-9a-f]{1,8}$");
     }
 
     @Test
     public void testObjectHasToString() {
-        handle.registerArgument(new FooArgumentFactory());
-
-        handle.createUpdate(INSERT_POSITIONAL).bind(0, new ToStringFoo()).execute();
+        handle.createUpdate(INSERT_POSITIONAL).registerArgument(new FooArgumentFactory()).bind(0, new ToStringFoo()).execute();
 
         assertThat(positional).isEqualTo("I'm a Foo");
     }
 
     @Test
     public void testArgumentHasToString() {
-        handle.registerArgument(new ToStringFooArgumentFactory());
-
-        handle.createUpdate(INSERT_POSITIONAL).bind(0, new Foo()).execute();
+        handle.createUpdate(INSERT_POSITIONAL).registerArgument(new ToStringFooArgumentFactory()).bind(0, new Foo()).execute();
 
         assertThat(positional).isEqualTo("this is a Foo");
     }
 
     @Test
     public void testBothHaveToStringAndArgumentWins() {
-        handle.registerArgument(new ToStringFooArgumentFactory());
-
-        handle.createUpdate(INSERT_POSITIONAL).bind(0, new ToStringFoo()).execute();
+        handle.createUpdate(INSERT_POSITIONAL).registerArgument(new ToStringFooArgumentFactory()).bind(0, new ToStringFoo()).execute();
 
         assertThat(positional).isEqualTo("this is a Foo");
     }
@@ -177,7 +167,7 @@ public class TestSqlLoggerToString {
     private static class FooArgumentFactory implements ArgumentFactory {
 
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, Object value, ConfigView config) {
             if (value instanceof Foo) {
                 return Optional.of((position, statement, ctx) -> statement.setObject(1, value));
             } else {
@@ -189,7 +179,7 @@ public class TestSqlLoggerToString {
     private static class ToStringFooArgumentFactory implements ArgumentFactory {
 
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, Object value, ConfigView config) {
             if (value instanceof Foo) {
                 return Optional.of(new Argument() {
                     @Override

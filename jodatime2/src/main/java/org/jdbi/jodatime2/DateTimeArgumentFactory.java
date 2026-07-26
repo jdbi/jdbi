@@ -20,7 +20,7 @@ import java.sql.Types;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.internal.strategies.LoggableBinderArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.joda.time.DateTime;
 
 /**
@@ -32,7 +32,7 @@ public class DateTimeArgumentFactory extends AbstractArgumentFactory<DateTime> {
     }
 
     @Override
-    protected Argument build(DateTime value, ConfigRegistry config) {
+    protected Argument build(DateTime value, ConfigView config) {
         return new LoggableBinderArgument<>(new Timestamp(value.getMillis()), PreparedStatement::setTimestamp);
     }
 }

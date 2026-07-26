@@ -29,7 +29,7 @@ import io.vavr.Tuple7;
 import io.vavr.Tuple8;
 import io.vavr.collection.Array;
 import io.vavr.control.Option;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.RowMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,17 +46,17 @@ public class TestVavrTupleRowMapperFactory {
         unit = new VavrTupleRowMapperFactory() {
             // mock the resolution of column mappers in jdbi
             @Override
-            Optional<RowMapper<?>> getColumnMapper(Type type, int tupleIndex, ConfigRegistry config) {
+            Optional<RowMapper<?>> getColumnMapper(Type type, int tupleIndex, ConfigView config) {
                 return Optional.of((rs, ctx) -> tupleIndex);
             }
 
             @Override
-            Option<String> getConfiguredColumnName(int tupleIndex, ConfigRegistry config) {
+            Option<String> getConfiguredColumnName(int tupleIndex, ConfigView config) {
                 return Option.none();
             }
 
             @Override
-            Array<Tuple3<Type, Integer, Option<String>>> resolveKeyValueColumns(ConfigRegistry config, Array<Tuple2<Type, Integer>> tupleTypes) {
+            Array<Tuple3<Type, Integer, Option<String>>> resolveKeyValueColumns(ConfigView config, Array<Tuple2<Type, Integer>> tupleTypes) {
                 return tupleTypes.map(t -> Tuple.of(t._1, t._2, Option.<String>none()));
             }
         };

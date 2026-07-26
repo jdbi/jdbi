@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.config.internal.ConfigCache;
 import org.jdbi.core.config.internal.ConfigCaches;
 import org.jdbi.core.generic.GenericTypes;
@@ -99,12 +99,12 @@ public interface ModifiablePojoPropertiesFactory extends PojoPropertiesFactory {
 
     class ModifiableSpec<T, M> {
         Type type;
-        ConfigRegistry config;
+        ConfigView config;
         Class<T> defn;
         Class<M> impl;
         Supplier<M> constructor;
 
-        ModifiableSpec(Type type, ConfigRegistry config, Class<T> defn, Class<M> impl, Supplier<M> constructor) {
+        ModifiableSpec(Type type, ConfigView config, Class<T> defn, Class<M> impl, Supplier<M> constructor) {
             this.type = type;
             this.config = config;
             this.defn = defn;

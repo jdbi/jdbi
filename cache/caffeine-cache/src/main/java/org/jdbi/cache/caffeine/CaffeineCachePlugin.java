@@ -27,8 +27,8 @@ import static org.jdbi.core.statement.SqlStatements.SQL_TEMPLATE_CACHE_SIZE;
 public final class CaffeineCachePlugin implements JdbiPlugin {
 
     @Override
-    public void customizeJdbi(Jdbi jdbi) {
-        jdbi.configure(SqlStatements.class, config -> config
+    public void configure(Jdbi.Builder builder) {
+        builder.configure(SqlStatements.class, config -> config
                 .templateCache(CaffeineCacheBuilder.instance().maxSize(SQL_TEMPLATE_CACHE_SIZE))
                 .sqlParser(new ColonPrefixSqlParser(CaffeineCacheBuilder.instance().maxSize(PARSED_SQL_CACHE_SIZE))));
     }

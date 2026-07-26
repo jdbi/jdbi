@@ -23,6 +23,7 @@ import java.util.Set;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.extension.ExtensionFactory;
 import org.jdbi.core.extension.ExtensionHandler;
 import org.jdbi.core.extension.ExtensionHandlerFactory;
@@ -47,15 +48,14 @@ class ExtensionMetadataTest {
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
             .withInitializer(TestingInitializers.something())
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b.configure(Extensions.class, e -> e.register(new TestExtensionFactory())));
 
     Jdbi jdbi;
 
     @BeforeEach
     void setUp() {
         this.jdbi = h2Extension.getJdbi();
-
-        jdbi.configure(Extensions.class, e -> e.register(new TestExtensionFactory()));
     }
 
     @Test
@@ -100,7 +100,7 @@ class ExtensionMetadataTest {
         }
 
         @Override
-        public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigRegistry config) {
+        public Collection<ExtensionHandlerFactory> getExtensionHandlerFactories(ConfigView config) {
             return Collections.singleton(new TestExtensionHandlerFactory()); // <5>
         }
     }

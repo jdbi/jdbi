@@ -20,12 +20,12 @@ import java.util.function.Function;
 
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 
 public class BitStringEnumSetArgumentFactory implements ArgumentFactory.Preparable {
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         if (!EnumSet.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
             return Optional.empty();
         }

@@ -19,7 +19,7 @@ import java.sql.SQLException;
 import java.util.IdentityHashMap;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
 
@@ -51,7 +51,7 @@ class BoxedMapperFactory implements ColumnMapperFactory {
     }
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         Class<?> rawType = getErasedType(type);
 
         return Optional.ofNullable(mappers.get(rawType));

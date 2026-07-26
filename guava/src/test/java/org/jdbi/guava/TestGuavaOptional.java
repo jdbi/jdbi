@@ -22,7 +22,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.statement.Query;
@@ -82,8 +82,8 @@ public class TestGuavaOptional {
 
     @Test
     public void testDynamicBindOptionalOfCustomType() {
-        handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
+            .registerArgument(new NameArgumentFactory())
             .bindByType("name", Optional.of(new Name("eric")), new GenericType<Optional<Name>>() {})
             .mapToBean(Something.class)
             .list();
@@ -123,8 +123,8 @@ public class TestGuavaOptional {
 
     @Test
     public void testBindOptionalOfCustomType() {
-        handle.registerArgument(new NameArgumentFactory());
         List<Something> result = handle.createQuery(SELECT_BY_NAME)
+            .registerArgument(new NameArgumentFactory())
             .bind("name", Optional.of(new Name("eric")))
             .mapToBean(Something.class)
             .list();
@@ -165,7 +165,7 @@ public class TestGuavaOptional {
 
     static class NameArgumentFactory implements ArgumentFactory {
         @Override
-        public java.util.Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+        public java.util.Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
             if (expectedType == Name.class) {
                 Name nameValue = (Name) value;
                 return java.util.Optional.of((pos, stmt, c) -> stmt.setString(pos, nameValue.value));

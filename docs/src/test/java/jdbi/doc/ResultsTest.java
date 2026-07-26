@@ -120,9 +120,8 @@ public class ResultsTest {
     @Test
     public void rowMapperFactory() {
         // tag::rowMapperFactory[]
-        handle.registerRowMapper(User.class, new UserMapper());
-
         handle.createQuery("SELECT id, \"name\" FROM \"user\" ORDER BY id ASC")
+              .registerRowMapper(User.class, new UserMapper())
               .mapTo(User.class)
               .useStream(stream -> {
                   Optional<String> first = stream
@@ -137,8 +136,8 @@ public class ResultsTest {
     @Test
     public void constructorMapper() {
         // tag::constructorMapper[]
-        handle.registerRowMapper(ConstructorMapper.factory(User.class));
         Set<User> userSet = handle.createQuery("SELECT * FROM \"user\" ORDER BY id ASC")
+            .registerRowMapper(ConstructorMapper.factory(User.class))
             .mapTo(User.class)
             .collect(Collectors.toSet());
 
@@ -169,10 +168,9 @@ public class ResultsTest {
 
     @Test
     public void columnMapper() {
-        handle.registerColumnMapper(userNameFactory);
-        handle.registerRowMapper(ConstructorMapper.factory(NamedUser.class));
-
         NamedUser bob = handle.createQuery("SELECT id, \"name\" FROM \"user\" WHERE \"name\" = :name")
+            .registerColumnMapper(userNameFactory)
+            .registerRowMapper(ConstructorMapper.factory(NamedUser.class))
             .bind("name", "Bob")
             .mapTo(NamedUser.class)
             .one();
@@ -184,10 +182,9 @@ public class ResultsTest {
     @Test
     public void beanMapper() {
         // tag::beanMapper[]
-        handle.registerRowMapper(BeanMapper.factory(UserBean.class));
-
         List<UserBean> users = handle
                 .createQuery("select id, \"name\" from \"user\"")
+                .registerRowMapper(BeanMapper.factory(UserBean.class))
                 .mapTo(UserBean.class)
                 .list();
         // end::beanMapper[]
@@ -231,13 +228,13 @@ public class ResultsTest {
                 101, 1, "Work", "555-9999");
 
         // tag::beanMapperPrefix[]
-        handle.registerRowMapper(BeanMapper.factory(ContactBean.class, "c"));
-        handle.registerRowMapper(BeanMapper.factory(PhoneBean.class, "p"));
-        handle.registerRowMapper(JoinRowMapper.forTypes(ContactBean.class, PhoneBean.class));
         List<JoinRow> contactPhones = handle.select("select "
                 + "c.id cid, c.\"name\" cname, "
                 + "p.id pid, p.\"name\" pname, p.\"number\" pnumber "
                 + "from contacts c left join phones p on c.id = p.contact_id")
+                .registerRowMapper(BeanMapper.factory(ContactBean.class, "c"))
+                .registerRowMapper(BeanMapper.factory(PhoneBean.class, "p"))
+                .registerRowMapper(JoinRowMapper.forTypes(ContactBean.class, PhoneBean.class))
                 .mapTo(JoinRow.class)
                 .list();
         // end::beanMapperPrefix[]

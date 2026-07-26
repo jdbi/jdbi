@@ -16,7 +16,7 @@ package org.jdbi.core.codec;
 import java.util.function.Function;
 
 import org.jdbi.core.argument.Argument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.meta.Beta;
 
@@ -33,7 +33,7 @@ public interface Codec<T> {
     /**
      * Returns a {@link ColumnMapper} that creates an attribute value from a database column.
      * <p>
-     * Either this method or {@link #getColumnMapper(ConfigRegistry)} must be implemented.
+     * Either this method or {@link #getColumnMapper(ConfigView)} must be implemented.
      */
     default ColumnMapper<T> getColumnMapper() {
         throw new UnsupportedOperationException("getColumnMapper");
@@ -44,16 +44,16 @@ public interface Codec<T> {
      * <p>
      * This method is optional. If it is not implemented, the result of {@link #getColumnMapper()} is returned.
      *
-     * @param configRegistry The {@link ConfigRegistry} that this argument belongs to.
+     * @param configRegistry The {@link ConfigView} that this argument belongs to.
      */
-    default ColumnMapper<T> getColumnMapper(ConfigRegistry configRegistry) {
+    default ColumnMapper<T> getColumnMapper(ConfigView configRegistry) {
         return getColumnMapper();
     }
 
     /**
      * Returns a {@link Function} that creates an {@link Argument} to map an attribute value onto the database column.
      * <p>
-     * Either this method or {@link #getArgumentFunction(ConfigRegistry)} must be implemented.
+     * Either this method or {@link #getArgumentFunction(ConfigView)} must be implemented.
      */
     default Function<T, Argument> getArgumentFunction() {
         throw new UnsupportedOperationException("getArgumentFunction");
@@ -64,9 +64,9 @@ public interface Codec<T> {
      * <p>
      * This method is optional. If it is not implemented, the result of {@link #getArgumentFunction()} is returned.
      *
-     * @param configRegistry The {@link ConfigRegistry} that this argument belongs to.
+     * @param configRegistry The {@link ConfigView} that this argument belongs to.
      */
-    default Function<T, Argument> getArgumentFunction(ConfigRegistry configRegistry) {
+    default Function<T, Argument> getArgumentFunction(ConfigView configRegistry) {
         return getArgumentFunction();
     }
 }

@@ -44,13 +44,13 @@ public class JdbiFactoryBean extends AbstractFactoryBean<Jdbi> {
 
     @Override
     protected Jdbi createInstance() throws Exception {
-        final Jdbi jdbi = Jdbi.create(new SpringConnectionFactory(dataSource));
+        final Jdbi.Builder builder = Jdbi.builder(new SpringConnectionFactory(dataSource));
 
-        plugins.forEach(jdbi::installPlugin);
+        plugins.forEach(builder::installPlugin);
 
-        globalDefines.forEach(jdbi::define);
+        globalDefines.forEach(builder::define);
 
-        return jdbi;
+        return builder.build();
     }
 
     /**

@@ -197,8 +197,10 @@ public class TestBatching {
                 h2Extension.getSharedHandle().getConnection());
         var c = Mockito.mock(Connection.class, Mockito.withSettings()
                 .defaultAnswer(delegateAnswer));
-        Jdbi jdbi = Jdbi.create(c).installPlugin(new SqlObjectPlugin());
-        jdbi.setTransactionHandler(new SerializableTransactionRunner());
+        Jdbi jdbi = Jdbi.builder(c)
+                .installPlugin(new SqlObjectPlugin())
+                .transactionHandler(new SerializableTransactionRunner())
+                .build();
 
         var failed = new AtomicBoolean();
         jdbi.useHandle(jdbiHandle -> {

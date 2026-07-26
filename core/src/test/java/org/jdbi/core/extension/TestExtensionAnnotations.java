@@ -32,14 +32,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestExtensionAnnotations {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+            .withConfig(b -> b.configure(Extensions.class, c -> c.register(new ExtensionFrameworkTestFactory())));
 
     private Handle handle;
 
     @BeforeEach
     public void setUp() {
         handle = h2Extension.getSharedHandle();
-        handle.configure(Extensions.class, c -> c.register(new ExtensionFrameworkTestFactory()));
     }
 
     @Test

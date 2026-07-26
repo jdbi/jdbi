@@ -23,6 +23,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.jdbi.core.mapper.RowMapper;
+import org.jdbi.core.mapper.RowMappers;
 import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.core.result.ResultSetException;
 import org.jdbi.core.statement.StatementContext;
@@ -133,14 +134,15 @@ public class TestRegisteredMappersWork {
 
     @Test
     public void testRegistered() {
-        h2Extension.getSharedHandle().registerRowMapper(new SomethingMapper());
+        try (Handle h = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(RowMappers.class, r -> r.register(new SomethingMapper())))) {
+            Spiffy s = h.attach(Spiffy.class);
 
-        Spiffy s = h2Extension.getSharedHandle().attach(Spiffy.class);
+            s.insert(1, "Tatu");
 
-        s.insert(1, "Tatu");
-
-        Something t = s.byId(1);
-        assertThat(t).isEqualTo(new Something(1, "Tatu"));
+            Something t = s.byId(1);
+            assertThat(t).isEqualTo(new Something(1, "Tatu"));
+        }
     }
 
     @Test

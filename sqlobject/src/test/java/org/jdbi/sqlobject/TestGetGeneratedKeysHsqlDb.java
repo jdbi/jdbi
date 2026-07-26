@@ -33,8 +33,9 @@ public class TestGetGeneratedKeysHsqlDb {
 
     @BeforeEach
     public void setUp() {
-        db = Jdbi.create("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
-                .installPlugin(new SqlObjectPlugin());
+        db = Jdbi.builder("jdbc:hsqldb:mem:" + UUID.randomUUID(), "username", "password")
+                .installPlugin(new SqlObjectPlugin())
+                .build();
         db.useHandle(handle -> handle.execute("create table something (id identity primary key, name varchar(32))"));
     }
 

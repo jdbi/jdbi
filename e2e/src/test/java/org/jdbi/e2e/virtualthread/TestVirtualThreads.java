@@ -73,7 +73,7 @@ class TestVirtualThreads {
         hikariCfg.setMaximumPoolSize(10);
         hikariCfg.setJdbcUrl(h2Extension.getUrl());
         try (var pool = new HikariDataSource(hikariCfg)) {
-            final var dao = Jdbi.create(pool).installPlugin(new SqlObjectPlugin()).onDemand(UserDao.class);
+            final var dao = Jdbi.builder(pool).installPlugin(new SqlObjectPlugin()).build().onDemand(UserDao.class);
             final var inserts = IntStream.range(100, 200)
                     .mapToObj(id -> new User(id, "User " + id))
                     .toList();

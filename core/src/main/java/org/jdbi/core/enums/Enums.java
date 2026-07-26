@@ -13,6 +13,7 @@
  */
 package org.jdbi.core.enums;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -43,6 +44,7 @@ public final class Enums implements JdbiConfig<Enums> {
      * @param enumStrategy the new strategy
      * @return the derived configuration
      */
+    @CheckReturnValue
     public Enums defaultStrategy(EnumStrategy enumStrategy) {
         return new Enums(enumStrategy);
     }

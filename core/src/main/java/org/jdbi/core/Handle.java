@@ -26,8 +26,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.core.config.ConfigRegistry;
-import org.jdbi.core.config.Configurable;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.extension.ExtensionContext;
 import org.jdbi.core.extension.ExtensionMethod;
 import org.jdbi.core.extension.Extensions;
@@ -37,10 +38,12 @@ import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.statement.Batch;
 import org.jdbi.core.statement.Call;
 import org.jdbi.core.statement.Cleanable;
+import org.jdbi.core.statement.ConfigReader;
 import org.jdbi.core.statement.MetaData;
 import org.jdbi.core.statement.PreparedBatch;
 import org.jdbi.core.statement.Query;
 import org.jdbi.core.statement.Script;
+import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementBuilder;
 import org.jdbi.core.statement.Update;
 import org.jdbi.core.transaction.TransactionException;
@@ -59,7 +62,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * a JDBC Connection object.  Handle provides essential methods for transaction
  * management, statement creation, and other operations tied to the database session.
  */
-public class Handle implements Closeable, Configurable<Handle> {
+public class Handle implements Closeable, ConfigReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(Handle.class);
 
@@ -71,10 +74,25 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     private StatementBuilder statementBuilder;
 
+    // Set for a managed callback handle (withHandle/useHandle/inTransaction/useTransaction): statements created
+    // on this handle are attached to it for cleanup, regardless of the SqlStatements.attachAllStatementsForCleanup
+    // policy. Held here rather than as per-handle config so an unmodified callback handle keeps sharing the Jdbi
+    // root's copy-on-write config (and its warm resolvers) instead of forking a private copy on open. A plain
+    // field like the handle's other mutable state (statementBuilder, currentExtensionContext): a Handle wraps a
+    // JDBC Connection and is not thread-safe, so it is confined to one thread or handed off with a barrier that
+    // publishes this write along with the rest of its state.
+    private boolean forceAttachStatements;
+
     // the fallback context. It is used when resetting the Handle state.
     private final ExtensionContext defaultExtensionContext;
 
     private ExtensionContext currentExtensionContext;
+
+    // Read-only view handed to callers via getConfig(): a distinct delegate that cannot be cast back to the mutable
+    // ConfigRegistry, so a handle's config is not mutable post-open. It reads through to the current extension
+    // context's config, so it tracks context switches during extension invocation. Statements derive their own
+    // (copy-on-write) config from it via createChild().
+    private final ConfigView configView = ConfigView.readOnly(this::configRegistry);
 
     @GuardedBy("transactionCallbacks")
     private final List<TransactionCallback> transactionCallbacks = new ArrayList<>();
@@ -118,10 +136,15 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.connectionCleaner = connectionCleaner;
         this.connection = connection;
 
-        // create a copy to detach config from the jdbi to allow local changes, then apply any per-handle scope
-        // before the extension context and handle listeners are derived from it.
-        final ConfigRegistry handleConfig = jdbi.getConfig().createCopy();
+        // A copy-on-write child of the (frozen post-build) Jdbi config: an unmodified handle shares the root's
+        // warm resolver views instead of paying a cold copy, and a local change (a per-handle config scope, or a
+        // plugin's customizeHandleConfig) forks a private snapshot without touching the root. Both are applied
+        // during construction, before the extension context and handle listeners are derived from the config.
+        final ConfigRegistry handleConfig = jdbi.getConfig().createChild();
         configScope.accept(handleConfig);
+        // Plugins contribute per-connection config (e.g. binding database types to this connection) during
+        // construction, after the caller's scope and before the extension context is derived from the config.
+        jdbi.customizeHandleConfig(connection, handleConfig);
         this.defaultExtensionContext = ExtensionContext.forConfig(handleConfig);
         this.currentExtensionContext = defaultExtensionContext;
 
@@ -146,12 +169,23 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * The current configuration object associated with this handle.
+     * A read-only view of the configuration associated with this handle. It is a {@link ConfigView}, not a
+     * {@link ConfigRegistry}: a handle's configuration is fixed at open time. To configure a handle, open it with a
+     * config scope ({@link Jdbi#open(Consumer)}) or configure individual statements (which are copy-on-write).
      *
-     * @return A {@link ConfigRegistry} object that is associated with the handle.
+     * @return the read-only configuration view associated with the handle.
      */
     @Override
-    public ConfigRegistry getConfig() {
+    public ConfigView getConfig() {
+        return configView;
+    }
+
+    /**
+     * The mutable registry backing {@link #getConfig()} (the current extension context's config). Package-private,
+     * for framework code (handle suppliers, the extension machinery) that must reach the live registry; the public
+     * surface is read-only.
+     */
+    ConfigRegistry configRegistry() {
         return currentExtensionContext.getConfig();
     }
 
@@ -898,6 +932,24 @@ public class Handle implements Closeable, Configurable<Handle> {
         this.currentExtensionContext = extensionContext == null ? defaultExtensionContext : extensionContext;
 
         return this;
+    }
+
+    /**
+     * Whether statements created on this handle are attached to it for cleanup when the handle closes. This is the
+     * case when either this is a managed callback handle (see {@link Jdbi#withHandle}) whose callback-cleanup policy
+     * is enabled, or the {@link SqlStatements#isAttachAllStatementsForCleanup()} policy is set on this handle's config.
+     *
+     * @return {@code true} if new statements are attached to this handle for cleanup
+     */
+    public boolean isAttachStatementsForCleanup() {
+        return forceAttachStatements || getConfig().get(SqlStatements.class).isAttachAllStatementsForCleanup();
+    }
+
+    // package-private: set by the Jdbi callback methods to mark this as a managed callback handle.
+    @SuppressFBWarnings(value = "AT_STALE_THREAD_WRITE_OF_PRIMITIVE",
+            justification = "Handle is thread-confined (wraps a JDBC Connection); set once right after open, before the callback runs")
+    void setForceAttachStatements(final boolean forceAttachStatements) {
+        this.forceAttachStatements = forceAttachStatements;
     }
 
     private void notifyHandleCreated() {

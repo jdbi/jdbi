@@ -27,14 +27,15 @@ public class TestPreparedArguments {
     @Test
     public void disablePreparedArguments() {
         final Handle h = h2Extension.getSharedHandle();
-        final ArgumentResolver arguments = ArgumentResolver.forRegistry(h.getConfig());
 
-        assertThat(arguments.prepareFor(int.class))
+        assertThat(ArgumentResolver.forRegistry(h.getConfig()).prepareFor(int.class))
                 .isNotEmpty();
 
-        h.configure(Arguments.class, c -> c.preparedArgumentsEnabled(false));
-
-        assertThat(arguments.prepareFor(int.class))
-                .isEmpty();
+        // A config scope on a freshly opened handle disables prepared arguments; the resolver is scoped to that
+        // handle's private registry, so it resolves against the disabled configuration.
+        try (Handle disabled = h2Extension.getJdbi().open(cfg -> cfg.configure(Arguments.class, c -> c.preparedArgumentsEnabled(false)))) {
+            assertThat(ArgumentResolver.forRegistry(disabled.getConfig()).prepareFor(int.class))
+                    .isEmpty();
+        }
     }
 }

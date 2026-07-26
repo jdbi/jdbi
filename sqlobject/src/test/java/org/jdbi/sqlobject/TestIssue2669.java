@@ -21,7 +21,7 @@ import java.util.Optional;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
@@ -51,16 +51,16 @@ public class TestIssue2669 {
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)
             .withInitializer((ds, handle) -> handle.execute("CREATE TABLE foo (key VARCHAR NOT NULL PRIMARY KEY, value VARCHAR)"))
-            .withPlugins(new SqlObjectPlugin());
+            .withPlugins(new SqlObjectPlugin())
+            .withConfig(b -> b
+                .registerColumnMapper(Value.class, ColumnMapper.getDefaultColumnMapper())
+                .registerRowMapper((RowMapperFactory) new ValueMapper()));
 
     private Jdbi jdbi;
 
     @BeforeEach
     public void setUp() {
         this.jdbi = pgExtension.getJdbi();
-
-        jdbi.registerColumnMapper(Value.class, ColumnMapper.getDefaultColumnMapper())
-                .registerRowMapper((RowMapperFactory) new ValueMapper());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class TestIssue2669 {
     public static class ValueMapper
             implements RowMapperFactory, RowMapper<Value> {
         @Override
-        public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+        public Optional<RowMapper<?>> build(Type type, ConfigView config) {
             if (type.equals(Value.class)) {
                 return Optional.of(this);
             }

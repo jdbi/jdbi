@@ -54,9 +54,10 @@ public class SqlObjectOperationBenchmark {
 
     @Setup(Level.Iteration)
     public void setUp() {
-        jdbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=10");
-        jdbi.installPlugin(new SqlObjectPlugin());
-        jdbi.registerRowMapper(Data.class, new DataMapper());
+        jdbi = Jdbi.builder("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=10")
+                .installPlugin(new SqlObjectPlugin())
+                .registerRowMapper(Data.class, new DataMapper())
+                .build();
 
         handle = jdbi.open();
         handle.execute("drop table if exists tbl");

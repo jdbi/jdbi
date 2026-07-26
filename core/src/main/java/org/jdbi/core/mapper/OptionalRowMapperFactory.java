@@ -16,7 +16,7 @@ package org.jdbi.core.mapper;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericTypes;
 
 import static org.jdbi.core.generic.GenericTypes.getErasedType;
@@ -27,13 +27,13 @@ import static org.jdbi.core.generic.GenericTypes.getErasedType;
 class OptionalRowMapperFactory implements RowMapperFactory {
 
     @Override
-    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<RowMapper<?>> build(Type type, ConfigView config) {
         return Optional.of(type)
             .filter(t -> getErasedType(t) == Optional.class)
             .flatMap(t -> create(t, config));
     }
 
-    private static Optional<RowMapper<?>> create(Type type, ConfigRegistry config) {
+    private static Optional<RowMapper<?>> create(Type type, ConfigView config) {
         return config.findRowMapperFor(
                 GenericTypes.findGenericParameter(type, Optional.class)
                     .orElseThrow(() -> new NoSuchMapperException("No mapper for raw Optional type")))

@@ -14,6 +14,7 @@
 package org.jdbi.core.transaction;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.Jdbi;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -31,14 +32,16 @@ public class RollbackOnlyTransactionHandlerTest {
             h.useTransaction(txn -> txn.execute("create table pk (id integer primary key)"));
         }
 
-        h2Extension.getJdbi().setTransactionHandler(new RollbackOnlyTransactionHandler());
+        Jdbi rollbackOnly = Jdbi.builder(h2Extension.getUri())
+            .transactionHandler(new RollbackOnlyTransactionHandler())
+            .build();
 
-        try (Handle h = h2Extension.openHandle()) {
+        try (Handle h = rollbackOnly.open()) {
             h.useTransaction(txn ->
                 assertThat(txn.execute("insert into pk values(1)")).isOne());
         }
 
-        try (Handle h = h2Extension.openHandle()) {
+        try (Handle h = rollbackOnly.open()) {
             h.useTransaction(txn ->
                 assertThat(txn.execute("insert into pk values(1)")).isOne());
         }

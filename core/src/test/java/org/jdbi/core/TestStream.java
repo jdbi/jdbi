@@ -46,9 +46,9 @@ class TestStream {
     H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
             .withPlugin(new JdbiPlugin() {
                 @Override
-                public void customizeJdbi(Jdbi jdbi) {
-                    jdbi.registerRowMapper(new SomethingMapper());
-                    jdbi.registerExtension(new SpiffyFactory());
+                public void configure(Jdbi.Builder builder) {
+                    builder.registerRowMapper(new SomethingMapper());
+                    builder.registerExtension(new SpiffyFactory());
                 }
             });
 

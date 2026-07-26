@@ -23,6 +23,7 @@ import org.jdbi.core.mapper.JoinRow;
 import org.jdbi.core.mapper.JoinRowMapperTest;
 import org.jdbi.core.mapper.JoinRowMapperTest.Article;
 import org.jdbi.core.mapper.JoinRowMapperTest.User;
+import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.sqlobject.config.RegisterJoinRowMapper;
 import org.jdbi.sqlobject.statement.SqlQuery;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,9 +34,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestRegisterJoinRowMapper {
 
-    // Do not replace with JdbiExtension, this uses a core tests (JoinRowMapperTest) which uses the H2DatabaseExtension
+    // Do not replace with JdbiExtension, this uses a core tests (JoinRowMapperTest) which uses the H2DatabaseExtension.
+    // The User/Article mappers are registered here (build time) because JoinRowMapperTest#setUp is reused below with
+    // this extension injected, and it registers them on its own extension field rather than on the shared handle.
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withPlugin(new SqlObjectPlugin());
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance()
+        .withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b
+            .registerRowMapper(ConstructorMapper.factory(User.class))
+            .registerRowMapper(ConstructorMapper.factory(Article.class)));
 
     @BeforeEach
     public void setUp() {

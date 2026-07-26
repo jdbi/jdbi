@@ -34,8 +34,7 @@ public class TestTimingCollector {
     protected Handle openHandle() {
         tc = new TTC();
 
-        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.setTimingCollector(tc));
-        return h2Extension.openHandle();
+        return h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.setTimingCollector(tc)));
     }
 
     @Test

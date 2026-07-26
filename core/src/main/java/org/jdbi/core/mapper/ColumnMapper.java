@@ -16,7 +16,7 @@ package org.jdbi.core.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.StatementContext;
 
 /**
@@ -65,13 +65,13 @@ public interface ColumnMapper<T> {
     }
 
     /**
-     * Allows for initialization of the column mapper instance within a ConfigRegistry scope. This method is called once when the column mapper is first used from a
-     * ConfigRegistry.
+     * Allows for initialization of the column mapper instance within a config scope. This method is called once when the column mapper is first used from a
+     * config scope.
      * <p>
      * Note that a handle, and a statement or SQL object that changes its configuration, has its own registry, and this method is called once for each such registry.
      * A statement that does not change its configuration shares its handle's registry, so it reuses that registry's already-initialized mapper rather than initializing again.
      *
-     * @param registry A reference to the {@link ConfigRegistry} that this instance belongs to.
+     * @param registry A read-only view of the config that this instance belongs to.
      */
-    default void init(ConfigRegistry registry) {}
+    default void init(ConfigView registry) {}
 }

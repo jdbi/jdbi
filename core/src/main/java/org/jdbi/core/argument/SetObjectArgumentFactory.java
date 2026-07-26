@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * Factory that uses {@link java.sql.PreparedStatement#setObject(int, Object, int)} to bind values.
@@ -43,7 +43,7 @@ public class SetObjectArgumentFactory implements ArgumentFactory.Preparable {
     }
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         return Optional.of(type)
             .filter(Class.class::isInstance)
             .map(Class.class::cast)

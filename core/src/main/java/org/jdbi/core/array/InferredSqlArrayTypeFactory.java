@@ -16,7 +16,7 @@ package org.jdbi.core.array;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 import static org.jdbi.core.generic.GenericTypes.findGenericParameter;
 
@@ -36,7 +36,7 @@ class InferredSqlArrayTypeFactory implements SqlArrayTypeFactory {
     }
 
     @Override
-    public Optional<SqlArrayType<?>> build(Type elementType, ConfigRegistry config) {
+    public Optional<SqlArrayType<?>> build(Type elementType, ConfigView config) {
         return inferredElementType.equals(elementType)
                 ? Optional.of(arrayType)
                 : Optional.empty();

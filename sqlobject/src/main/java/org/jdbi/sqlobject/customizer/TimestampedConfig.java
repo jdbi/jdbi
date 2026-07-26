@@ -15,6 +15,7 @@ package org.jdbi.sqlobject.customizer;
 
 import java.time.ZoneId;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.jdbi.core.config.JdbiConfig;
 
 /**
@@ -47,6 +48,7 @@ public final class TimestampedConfig implements JdbiConfig<TimestampedConfig> {
      * @param timezone used in the resulting {@link java.time.OffsetDateTime}
      * @return the derived configuration
      */
+    @CheckReturnValue
     public TimestampedConfig timezone(ZoneId timezone) {
         return new TimestampedConfig(timezone);
     }

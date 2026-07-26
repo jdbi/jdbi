@@ -61,9 +61,13 @@ public class TestOnDemandSqlObject {
 
     @BeforeEach
     public void setUp() throws Exception {
-        jdbi = h2Extension.getJdbi();
-        // do not pull into the extension clause, otherwise the shared handle counts!
-        jdbi.installPlugin(tracker);
+        // Build a dedicated Jdbi against the same (shared-handle-kept-alive) database so the tracker only observes
+        // handles opened by this test. Installing the tracker on the extension's Jdbi is no longer possible (it is
+        // read-only) and would have counted the extension's shared handle anyway.
+        jdbi = Jdbi.builder(h2Extension.getUrl())
+                .installPlugin(new SqlObjectPlugin())
+                .installPlugin(tracker)
+                .build();
         assertThat(tracker.hasOpenedHandle()).isFalse();
     }
 
@@ -92,7 +96,7 @@ public class TestOnDemandSqlObject {
                         ArgumentMatchers.eq(ResultSet.CONCUR_READ_ONLY));
         Mockito.doThrow(CloseException.class).when(c).close();
 
-        Spiffy s = Jdbi.create(c).installPlugin(new SqlObjectPlugin()).onDemand(Spiffy.class);
+        Spiffy s = Jdbi.builder(c).installPlugin(new SqlObjectPlugin()).build().onDemand(Spiffy.class);
         assertThatThrownBy(() -> s.insert(1, "Tom")).isInstanceOf(TransactionException.class);
     }
 

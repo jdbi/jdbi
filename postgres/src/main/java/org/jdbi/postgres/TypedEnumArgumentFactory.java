@@ -18,7 +18,7 @@ import java.sql.Types;
 import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ObjectArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * Default {@code jdbi} behavior is to bind {@code Enum} subclasses as
@@ -32,7 +32,7 @@ public class TypedEnumArgumentFactory extends AbstractArgumentFactory<Enum> {
     }
 
     @Override
-    protected Argument build(Enum value, ConfigRegistry config) {
+    protected Argument build(Enum value, ConfigView config) {
         return ObjectArgument.of(value, Types.OTHER);
     }
 }

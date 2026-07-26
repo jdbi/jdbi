@@ -44,22 +44,23 @@ public class PrimitivesArgumentFactoryTest {
             .describedAs("binding a null binds the primitive's default")
             .isZero();
 
-        handle.configure(Arguments.class, c -> c.bindingNullToPrimitivesPermitted(false));
+        try (Handle handle = h2Extension.getJdbi().open(
+                cfg -> cfg.configure(Arguments.class, c -> c.bindingNullToPrimitivesPermitted(false)))) {
+            assertThatThrownBy(() -> {
+                try (Query query = handle.createQuery("select :foo")) {
+                    query.bindByType("foo", null, int.class).mapTo(int.class).one();
+                }
+            })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("binding null to a primitive int is forbidden by configuration, declare a boxed type instead");
 
-        assertThatThrownBy(() -> {
-            try (Query query = handle.createQuery("select :foo")) {
-                query.bindByType("foo", null, int.class).mapTo(int.class).one();
-            }
-        })
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("binding null to a primitive int is forbidden by configuration, declare a boxed type instead");
+            assertThat(handle.createQuery("select :foo").bindByType("foo", null, Integer.class).mapTo(Integer.class).one())
+                .describedAs("binding a null to a boxed type is fine")
+                .isNull();
 
-        assertThat(handle.createQuery("select :foo").bindByType("foo", null, Integer.class).mapTo(Integer.class).one())
-            .describedAs("binding a null to a boxed type is fine")
-            .isNull();
-
-        assertThat(handle.createQuery("select :foo").bindByType("foo", null, Long.class).mapTo(Long.class).one())
-            .describedAs("binding a null to a boxed type is fine")
-            .isNull();
+            assertThat(handle.createQuery("select :foo").bindByType("foo", null, Long.class).mapTo(Long.class).one())
+                .describedAs("binding a null to a boxed type is fine")
+                .isNull();
+        }
     }
 }

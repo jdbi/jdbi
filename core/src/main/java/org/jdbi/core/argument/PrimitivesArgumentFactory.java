@@ -19,7 +19,7 @@ import java.sql.Types;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
     PrimitivesArgumentFactory() {
@@ -34,16 +34,16 @@ class PrimitivesArgumentFactory extends DelegatingArgumentFactory {
     }
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         return super.prepare(type, config)
                 .map(prepared -> value -> prepared.apply(checkForNull(config, type, value)));
     }
     @Override
-    public Optional<Argument> build(Type expectedType, Object value, ConfigRegistry config) {
+    public Optional<Argument> build(Type expectedType, Object value, ConfigView config) {
         return super.build(expectedType, checkForNull(config, expectedType, value), config);
     }
 
-    private Object checkForNull(ConfigRegistry cfg, Type type, Object value) {
+    private Object checkForNull(ConfigView cfg, Type type, Object value) {
         if (value == null || value instanceof NullArgument) {
             if (cfg.get(Arguments.class).isBindingNullToPrimitivesPermitted()) {
                 return null;

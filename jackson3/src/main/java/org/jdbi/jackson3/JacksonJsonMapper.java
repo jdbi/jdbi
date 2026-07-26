@@ -15,7 +15,7 @@ package org.jdbi.jackson3;
 
 import java.lang.reflect.Type;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.result.UnableToProduceResultException;
 import org.jdbi.json.JsonMapper;
 import tools.jackson.core.JacksonException;
@@ -26,7 +26,7 @@ import tools.jackson.databind.ObjectWriter;
 
 class JacksonJsonMapper implements JsonMapper {
     @Override
-    public TypedJsonMapper forType(final Type type, final ConfigRegistry config) {
+    public TypedJsonMapper forType(final Type type, final ConfigView config) {
         return new TypedJsonMapper() {
             private final Jackson3Config jacksonConfig = config.get(Jackson3Config.class);
             private final ObjectMapper mapper = jacksonConfig.getMapper();
@@ -38,7 +38,7 @@ class JacksonJsonMapper implements JsonMapper {
                             : mapper.writer();
 
             @Override
-            public String toJson(final Object value, final ConfigRegistry config) {
+            public String toJson(final Object value, final ConfigView config) {
                 final Class<?> view = config.get(Jackson3Config.class).getSerializationView();
                 final ObjectWriter viewWriter =
                           view == null
@@ -52,7 +52,7 @@ class JacksonJsonMapper implements JsonMapper {
             }
 
             @Override
-            public Object fromJson(final String json, final ConfigRegistry config) {
+            public Object fromJson(final String json, final ConfigView config) {
                 final Class<?> view = config.get(Jackson3Config.class).getDeserializationView();
                 final ObjectReader viewReader =
                           view == null

@@ -31,14 +31,14 @@ public class TestBatchExceptionRewrite {
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
     @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg)
+        // silence chatty exception log
+        .withConfig(SqlStatements.class, c -> c.sqlLogger(SqlLogger.NOP_SQL_LOGGER));
 
     @BeforeEach
     public void createTable() {
         pgExtension.getJdbi()
             .useHandle(h -> h.execute("create table something (id int primary key, name varchar(50), integerValue integer, intValue integer)"));
-        // silence chatty exception log
-        pgExtension.getJdbi().configure(SqlStatements.class, c -> c.sqlLogger(SqlLogger.NOP_SQL_LOGGER));
     }
 
     @Test

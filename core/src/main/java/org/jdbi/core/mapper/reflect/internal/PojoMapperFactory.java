@@ -16,7 +16,7 @@ package org.jdbi.core.mapper.reflect.internal;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
 
@@ -26,7 +26,7 @@ import org.jdbi.core.mapper.RowMapperFactory;
  */
 public class PojoMapperFactory implements RowMapperFactory {
     @Override
-    public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<RowMapper<?>> build(Type type, ConfigView config) {
         return PojoResolver.forRegistry(config).findFor(type)
                 .map(p -> new PojoMapper<>(type, ""));
     }

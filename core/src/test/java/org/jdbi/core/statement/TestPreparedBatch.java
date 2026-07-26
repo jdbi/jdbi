@@ -27,7 +27,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
@@ -231,7 +231,6 @@ public class TestPreparedBatch {
     public void testMultipleExecuteBindFields() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.registerRowMapper(ConstructorMapper.factory(PublicSomething.class));
         final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
 
         b.bindFields(new PublicSomething(1, "Eric")).add();
@@ -243,7 +242,9 @@ public class TestPreparedBatch {
         b.bindFields(new PublicSomething(3, "Keith")).add();
         b.execute();
 
-        final List<PublicSomething> r = h.createQuery("select * from something order by id").mapTo(PublicSomething.class).list();
+        final List<PublicSomething> r = h.createQuery("select * from something order by id")
+            .registerRowMapper(ConstructorMapper.factory(PublicSomething.class))
+            .mapTo(PublicSomething.class).list();
         assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
     }
 
@@ -251,16 +252,17 @@ public class TestPreparedBatch {
     public void testNestedNotPrepareable() {
         Handle h = h2Extension.getSharedHandle();
 
-        h.registerArgument(new WrappedIntArgumentFactory());
-        h.registerRowMapper(ConstructorMapper.factory(WrappedIntPublicSomething.class));
-        h.registerColumnMapper(new WrappedIntColumnMapperFactory());
-        final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        final PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)")
+            .registerArgument(new WrappedIntArgumentFactory());
 
         b.bindFields(new WrappedIntPublicSomething(new WrappedInt(2), "Sally")).add();
         b.bindFields(new WrappedIntPublicSomething(new WrappedInt(3), "Erica")).add();
         b.execute();
 
-        final List<WrappedIntPublicSomething> r = h.createQuery("select * from something order by id").mapTo(WrappedIntPublicSomething.class).list();
+        final List<WrappedIntPublicSomething> r = h.createQuery("select * from something order by id")
+            .registerRowMapper(ConstructorMapper.factory(WrappedIntPublicSomething.class))
+            .registerColumnMapper(new WrappedIntColumnMapperFactory())
+            .mapTo(WrappedIntPublicSomething.class).list();
         assertThat(r).extracting(s -> s.id, s -> s.name).containsExactly(tuple(new WrappedInt(2), "Sally"), tuple(new WrappedInt(3), "Erica"));
     }
 
@@ -327,7 +329,7 @@ public class TestPreparedBatch {
 
     public static class WrappedIntArgumentFactory implements ArgumentFactory {
         @Override
-        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+        public Optional<Argument> build(Type type, Object value, ConfigView config) {
             return type == WrappedInt.class
                     ? Optional.of((p, s, c) -> s.setInt(p, ((WrappedInt) value).i))
                     : Optional.empty();

@@ -27,9 +27,9 @@ public class TestDefineNamedBindingsST {
 
     @Test
     public void testDefineBoolean() {
-        h2Extension.getSharedHandle().setTemplateEngine(new StringTemplateEngine());
         assertThat(
             h2Extension.getSharedHandle().createQuery("select <a> from values(:a) <if(b)>where false=:b<endif>")
+                .setTemplateEngine(new StringTemplateEngine())
                 .defineNamedBindings()
                 .bindBean(new DefinedBean())
                 .mapTo(boolean.class)

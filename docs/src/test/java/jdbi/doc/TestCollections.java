@@ -90,8 +90,8 @@ public class TestCollections {
     public void test() {
         // tag::into-list[]
         List<String> names = handle
-                .registerCollector(List.class, Collectors.toCollection(ArrayList::new))
                 .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
+                .registerCollector(List.class, Collectors.toCollection(ArrayList::new))
                 .bind("genre", "Action")
                 .mapTo(String.class)
                 .collectIntoList();
@@ -106,8 +106,8 @@ public class TestCollections {
     public void testIntoSet() {
         // tag::into-set[]
         Set<String> names = handle
-                .registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new))
                 .createQuery("SELECT title FROM films WHERE genre = :genre ORDER BY title")
+                .registerCollector(Set.class, Collectors.toCollection(LinkedHashSet::new))
                 .bind("genre", "Action")
                 .mapTo(String.class)
                 .collectIntoSet();
@@ -182,8 +182,8 @@ public class TestCollections {
     public void testMapTo() {
         // tag::to-map[]
         Map<Integer, String> names = handle
-                .registerRowMapper(Movie.class, ConstructorMapper.of(Movie.class))
                 .createQuery("SELECT * FROM films WHERE genre = :genre ORDER BY title")
+                .registerRowMapper(Movie.class, ConstructorMapper.of(Movie.class))
                 .bind("genre", "Action")
                 .mapTo(Movie.class)
                 .collectToMap(Movie::id, Movie::title);
@@ -247,8 +247,8 @@ public class TestCollections {
     public void testMovieResult() {
         // tag::movie-result[]
         Movie movie = handle
-                .registerRowMapper(Movie.class, ConstructorMapper.of(Movie.class))
                 .createQuery("SELECT * FROM films WHERE id = :id")
+                .registerRowMapper(Movie.class, ConstructorMapper.of(Movie.class))
                 .bind("id", 1)
                 .mapTo(Movie.class)
                 .one();

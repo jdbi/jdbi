@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 
 import static org.jdbi.core.generic.GenericTypes.findGenericParameter;
@@ -26,7 +26,7 @@ import static org.jdbi.core.generic.GenericTypes.isSuperType;
 
 /**
  * An {@link ArgumentFactory} base class for arguments of type {@code T}. For values of type {@code T}, factories
- * produces arguments from the {@link #build(Object, ConfigRegistry)} method. For null values with a known expected type
+ * produces arguments from the {@link #build(Object, ConfigView)} method. For null values with a known expected type
  * of {@code T}, produces null arguments for the {@code sqlType} passed to the constructor.
  * <pre>
  * class ValueType {
@@ -39,7 +39,7 @@ import static org.jdbi.core.generic.GenericTypes.isSuperType;
  *     }
  *
  *     &#64;Override
- *     protected Argument build(ValueType valueType, ConfigRegistry config) {
+ *     protected Argument build(ValueType valueType, ConfigView config) {
  *         return (pos, stmt, ctx) -&gt; stmt.setString(pos, valueType.value);
  *     }
  * }
@@ -75,21 +75,21 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
     }
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigView config) {
         return isInstance.test(type, null)
                 ? Optional.of(value -> innerBuild(type, value, config))
                 : Optional.empty();
     }
 
     @Override
-    public final Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+    public final Optional<Argument> build(Type type, Object value, ConfigView config) {
         return isInstance.test(type, value)
                 ? Optional.of(innerBuild(type, value, config))
                 : Optional.empty();
     }
 
     @SuppressWarnings("unchecked")
-    private Argument innerBuild(Type type, Object value, ConfigRegistry config) {
+    private Argument innerBuild(Type type, Object value, ConfigView config) {
         if (value == null) {
             return new NullArgument(sqlType);
         }
@@ -111,7 +111,7 @@ public abstract class AbstractArgumentFactory<T> implements ArgumentFactory.Prep
      * @param config the config registry
      * @return An {@link Argument} for the given {@code value}. Must not be null!
      */
-    protected abstract Argument build(T value, ConfigRegistry config);
+    protected abstract Argument build(T value, ConfigView config);
 
     @FunctionalInterface
     private interface ArgumentPredicate {

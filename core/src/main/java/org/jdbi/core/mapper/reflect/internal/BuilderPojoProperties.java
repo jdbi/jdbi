@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.leangen.geantyref.GenericTypeReflector;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.internal.exceptions.Unchecked;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
@@ -35,12 +35,12 @@ import org.jdbi.core.qualifier.Qualifiers;
 public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
     protected MethodHandle builderBuild;
     private final Map<String, BuilderPojoProperty<T>> properties;
-    protected final ConfigRegistry config;
+    protected final ConfigView config;
     protected final Class<T> defn;
     protected final Class<?> impl;
     protected final Supplier<?> builder;
 
-    BuilderPojoProperties(Type type, ConfigRegistry config, Class<T> defn, Class<?> impl, Supplier<B> builder) {
+    BuilderPojoProperties(Type type, ConfigView config, Class<T> defn, Class<?> impl, Supplier<B> builder) {
         super(type);
         this.config = config;
         this.defn = defn;

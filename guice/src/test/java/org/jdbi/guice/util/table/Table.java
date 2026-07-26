@@ -23,7 +23,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.StatementContext;
@@ -96,7 +96,7 @@ public final class Table {
         public TableMapper() {}
 
         @Override
-        public void init(ConfigRegistry registry) {
+        public void init(ConfigView registry) {
             this.jsonMapper = registry.findColumnMapperFor(JsonCodec.TYPE).orElseThrow(IllegalStateException::new);
         }
 

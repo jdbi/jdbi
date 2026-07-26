@@ -21,7 +21,7 @@ import org.jdbi.core.argument.AbstractArgumentFactory;
 import org.jdbi.core.argument.Argument;
 import org.jdbi.core.argument.ArgumentFactory;
 import org.jdbi.core.argument.internal.strategies.LoggableBinderArgument;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * Build URL objects as strings.
@@ -35,7 +35,7 @@ class URLArgumentFactory extends AbstractArgumentFactory<URL> {
     }
 
     @Override
-    protected Argument build(URL url, ConfigRegistry config) {
+    protected Argument build(URL url, ConfigView config) {
         return LoggableBinderArgument.bindAsString(url);
     }
 }

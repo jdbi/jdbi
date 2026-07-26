@@ -139,8 +139,8 @@ public class TestJsonOperator {
         }
 
         @Override
-        public void customizeJdbi(Jdbi jdbi) {
-            jdbi.configure(SqlStatements.class, c -> c.templateEngine(templateEngine));
+        public void configure(Jdbi.Builder builder) {
+            builder.configure(SqlStatements.class, c -> c.templateEngine(templateEngine));
         }
     }
 }

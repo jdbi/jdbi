@@ -28,13 +28,13 @@ import static org.mockito.Mockito.mock;
 public class TestRegisteredMappers {
 
     @RegisterExtension
-    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
+    public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER)
+        .withConfig(b -> b.registerRowMapper(new SomethingMapper()));
 
     @Test
     public void testRegisterInferredOnJdbi() {
         Jdbi db = h2Extension.getJdbi();
 
-        db.registerRowMapper(new SomethingMapper());
         Something sam = db.withHandle(handle1 -> {
             handle1.execute("insert into something (id, name) values (18, 'Sam')");
 
@@ -49,13 +49,13 @@ public class TestRegisteredMappers {
 
     @Test
     public void registerByGenericType() {
-        Jdbi db = h2Extension.getJdbi();
-
         @SuppressWarnings("unchecked")
         RowMapper<Iterable<Calendar>> mapper = mock(RowMapper.class);
         GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};
 
-        db.registerRowMapper(iterableOfCalendarType, mapper);
+        Jdbi db = Jdbi.builder(h2Extension.getUri())
+            .registerRowMapper(iterableOfCalendarType, mapper)
+            .build();
 
         assertThat(db.getConfig().findRowMapperFor(iterableOfCalendarType))
             .contains(mapper);

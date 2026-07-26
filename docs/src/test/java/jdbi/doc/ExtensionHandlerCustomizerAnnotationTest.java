@@ -57,22 +57,21 @@ class ExtensionHandlerCustomizerAnnotationTest {
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
             .withInitializer(TestingInitializers.something())
-            .withPlugin(new SqlObjectPlugin());
+            .withPlugin(new SqlObjectPlugin())
+            .withConfig(b -> b
+                    .configure(Extensions.class, extensions ->
+                            extensions.register(extensionType ->
+                                    Stream.of(extensionType.getMethods())
+                                            .anyMatch(method -> Stream.of(method.getAnnotations())
+                                                    .map(annotation -> annotation.annotationType().getAnnotation(UseExtensionHandler.class))
+                                                    .anyMatch(a -> a != null && "test".equals(a.id())))))
+                    .registerRowMapper(new SomethingMapper()));
 
     Jdbi jdbi;
 
     @BeforeEach
     void setUp() {
         this.jdbi = h2Extension.getJdbi();
-
-        jdbi.configure(Extensions.class, extensions ->
-                extensions.register(extensionType ->
-                        Stream.of(extensionType.getMethods())
-                                .anyMatch(method -> Stream.of(method.getAnnotations())
-                                        .map(annotation -> annotation.annotationType().getAnnotation(UseExtensionHandler.class))
-                                        .anyMatch(a -> a != null && "test".equals(a.id())))));
-
-        jdbi.registerRowMapper(new SomethingMapper());
 
         jdbi.useExtension(SomethingDao.class, dao -> {
             dao.insert(new Something(1, "apple"));

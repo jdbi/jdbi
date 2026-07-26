@@ -90,8 +90,7 @@ public class TestOnDemandMethodBehavior {
 
     @BeforeEach
     public void setUp() {
-        db = Jdbi.create(connectionFactory);
-        db.registerExtension(new UselessDaoExtension());
+        db = Jdbi.builder(connectionFactory).registerExtension(new UselessDaoExtension()).build();
         onDemand = db.onDemand(UselessDao.class);
         anotherOnDemand = db.onDemand(UselessDao.class);
     }
@@ -149,7 +148,6 @@ public class TestOnDemandMethodBehavior {
 
     @Test
     public void testExceptionThrown() {
-        db.registerExtension(new UselessDaoExtension());
         UselessDao uselessDao = db.onDemand(UselessDao.class);
         assertThatThrownBy(uselessDao::blowUp).isInstanceOf(SQLException.class);
     }

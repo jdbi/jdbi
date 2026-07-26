@@ -19,14 +19,14 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.ColumnMapperFactory;
 import org.jdbi.postgres.BlobInputStreamColumnMapperFactory.LobColumnMapper;
 
 class ClobReaderColumnMapperFactory implements ColumnMapperFactory {
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(Type type, ConfigView config) {
         if (Reader.class != type) {
             return Optional.empty();
         }

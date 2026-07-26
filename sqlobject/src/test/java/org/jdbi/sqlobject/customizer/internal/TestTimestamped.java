@@ -24,7 +24,6 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-import org.jdbi.core.Jdbi;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.SqlLogger;
 import org.jdbi.core.statement.StatementContext;
@@ -54,7 +53,23 @@ public class TestTimestamped {
     private static final OffsetDateTime UTC_MOMENT = OffsetDateTime.of(LocalDate.of(2018, Month.JANUARY, 1), LocalTime.NOON, ZoneOffset.UTC);
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin())
+        .withConfig(b -> b
+            .configure(TimestampedConfig.class, c -> c.timezone(GMT_PLUS_2))
+            .setSqlLogger(new SqlLogger() {
+                @Override
+                public void logBeforeExecution(StatementContext ctx) {
+                    String name = logNext.get();
+                    if (name != null) {
+                        String toString = ctx.getBinding()
+                            .findForName(name, ctx)
+                            .orElseThrow(AssertionError::new)
+                            .toString();
+                        insertedTimestamp.set(OffsetDateTime.parse(toString));
+                        logNext.set(null);
+                    }
+                }
+            }));
 
     private PersonDAO personDAO;
 
@@ -66,25 +81,7 @@ public class TestTimestamped {
     @BeforeEach
     public void before() {
         TimestampedFactory.setTimeSource(clock::withZone);
-        final Jdbi db = h2Extension.getJdbi();
-        db.configure(TimestampedConfig.class, c -> c.timezone(GMT_PLUS_2));
-
-        db.setSqlLogger(new SqlLogger() {
-            @Override
-            public void logBeforeExecution(StatementContext ctx) {
-                String name = logNext.get();
-                if (name != null) {
-                    String toString = ctx.getBinding()
-                        .findForName(name, ctx)
-                        .orElseThrow(AssertionError::new)
-                        .toString();
-                    insertedTimestamp.set(OffsetDateTime.parse(toString));
-                    logNext.set(null);
-                }
-            }
-        });
-
-        personDAO = db.onDemand(PersonDAO.class);
+        personDAO = h2Extension.getJdbi().onDemand(PersonDAO.class);
         personDAO.createTable();
     }
 

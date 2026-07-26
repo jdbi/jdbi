@@ -13,6 +13,7 @@
  */
 package org.jdbi.core.internal.testing;
 
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import org.jdbi.core.Handle;
@@ -24,6 +25,16 @@ import org.jdbi.core.spi.JdbiPlugin;
 public interface DatabaseExtension<T extends DatabaseExtension<T>> {
 
     Jdbi getJdbi();
+
+    /**
+     * Returns a {@link Jdbi.Builder} pre-configured with this extension's connection source, installed plugins, and
+     * (unless disabled with {@link #withoutLeakChecker()}) its leak checker, so a test can add per-test configuration
+     * (a transaction handler, a spy, and the like) and build its own {@link Jdbi} that still participates in the
+     * extension's leak-check lifecycle.
+     *
+     * @return a builder assembling a {@code Jdbi} equivalent to this extension's.
+     */
+    Jdbi.Builder builder() throws Exception;
 
     String getUri();
 
@@ -41,6 +52,10 @@ public interface DatabaseExtension<T extends DatabaseExtension<T>> {
 
     default <C extends JdbiConfig<C>> T withConfig(Class<C> configClass, UnaryOperator<C> configurer) {
         return withPlugin(ConfiguringPlugin.of(configClass, configurer));
+    }
+
+    default T withConfig(Consumer<Jdbi.Builder> configurer) {
+        return withPlugin(JdbiPlugin.of(configurer));
     }
 
     @SuppressWarnings("unchecked")

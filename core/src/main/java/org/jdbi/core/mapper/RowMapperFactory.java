@@ -16,7 +16,7 @@ package org.jdbi.core.mapper;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * Factory interface used to produce row mappers.
@@ -31,7 +31,7 @@ public interface RowMapperFactory {
      * @return a row mapper for the given type if this factory supports it; <code>Optional.empty()</code> otherwise.
      * @see RowMappers for composition
      */
-    Optional<RowMapper<?>> build(Type type, ConfigRegistry config);
+    Optional<RowMapper<?>> build(Type type, ConfigView config);
 
     /**
      * Create a RowMapperFactory from a given {@link RowMapper} that matches

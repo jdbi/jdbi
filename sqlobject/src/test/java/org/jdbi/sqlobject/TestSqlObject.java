@@ -70,7 +70,7 @@ public class TestSqlObject {
         c = Mockito.mock(Connection.class, Mockito.withSettings()
                 .defaultAnswer(AdditionalAnswers.delegatesTo(
                         h2Extension.getSharedHandle().getConnection())));
-        jdbi = Jdbi.create(c).installPlugin(new SqlObjectPlugin());
+        jdbi = Jdbi.builder(c).installPlugin(new SqlObjectPlugin()).build();
         handle = jdbi.open();
         TestingInitializers.something().initialize(null, handle);
     }

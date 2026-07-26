@@ -45,16 +45,19 @@ public class TestAllowUnusedBindings {
 
     @Test
     public void testDisallowed() {
-        dao.getHandle().configure(SqlStatements.class, c -> c.unusedBindingAllowed(true));
-        assertThatThrownBy(() -> dao.disallowed("43"))
+        assertThatThrownBy(() -> h2Extension.getJdbi().withHandle(
+                cfg -> cfg.configure(SqlStatements.class, c -> c.unusedBindingAllowed(true)),
+                handle -> handle.attach(UnusedBindingDao.class).disallowed("43")))
             .isInstanceOf(UnableToCreateStatementException.class)
             .hasMessageContaining("named parameter");
     }
 
     @Test
     public void testUnannotated() {
-        h2Extension.getJdbi().configure(SqlStatements.class, c -> c.unusedBindingAllowed(true));
-        assertThat(dao.unannotated("42")).isTrue();
+        boolean result = h2Extension.getJdbi().withHandle(
+            cfg -> cfg.configure(SqlStatements.class, c -> c.unusedBindingAllowed(true)),
+            handle -> handle.attach(UnusedBindingDao.class).unannotated("42"));
+        assertThat(result).isTrue();
     }
 
     interface UnusedBindingDao extends SqlObject {
