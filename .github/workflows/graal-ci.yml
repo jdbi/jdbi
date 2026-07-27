@@ -78,3 +78,69 @@ jobs:
           path: |
             **/target/native-tests
             **/target/native-test-reports/*
+
+  native-demo:
+    runs-on: ubuntu-latest
+    name: GraalVM native demo
+    strategy:
+      matrix:
+        java-version: [ 25 ]
+
+    # examples/native-demo is deliberately not a reactor module: it builds standalone
+    # against released Jdbi artifacts, the way a user's own project does. Nothing in the
+    # main build therefore compiles it, so give it its own job.
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: graalvm/setup-graalvm@v1
+        name: setup build jdk
+        id: build_jdk
+        with:
+          java-version: ${{ matrix.java-version }}
+          cache: maven
+
+      - name: build native demo
+        id: demo
+        env:
+          MAVEN_ARGS: "-B -ff"
+        run: ./mvnw -f examples/native-demo/pom.xml clean verify
+
+      - name: run native demo
+        id: demo_run
+        # Building the image proves less than it looks: a missing reflection registration
+        # or a mapper that cannot construct a record fails while the image runs, not while
+        # it is built. So run the binary and check what it produced. A Demo[...] line means
+        # ConstructorMapper built a record from a result set through reflection metadata,
+        # and a Sum line means an aggregate mapped to a primitive. The demo pauses between
+        # queries, so ask for a short run rather than the default 1000.
+        run: |
+          set -euo pipefail
+          queries=20
+          if ! ./examples/native-demo/target/jdbi3-graalvm-aot-executable "$queries" > demo.log 2>&1; then
+            echo "::error::native demo exited non-zero"
+            tail -50 demo.log
+            exit 1
+          fi
+
+          mapped=$(grep -cE 'Demo\[id=[0-9]+, name=User Name[0-9a-f-]+, count=[0-9]+\]' demo.log || true)
+          sums=$(grep -cE 'Sum of [0-9]+ to [0-9]+: [0-9]+' demo.log || true)
+          echo "mapped records: $mapped/$queries, aggregate results: $sums/$queries"
+
+          if [ "$mapped" -ne "$queries" ] || [ "$sums" -ne "$queries" ]; then
+            echo "::error::expected $queries mapped records and $queries aggregates, got $mapped and $sums"
+            tail -50 demo.log
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v7
+        name: upload build logs
+        continue-on-error: true
+        if: ${{ failure() && (steps.demo.conclusion == 'failure' || steps.demo_run.conclusion == 'failure') }}
+        with:
+          name: build logs (${{ github.job }}, ${{ matrix.java-version }})
+          retention-days: 90
+          path: |
+            demo.log
+            examples/native-demo/target
+            !examples/native-demo/target/**/*.jar
+            !examples/native-demo/target/**/*.class
