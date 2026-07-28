@@ -445,6 +445,12 @@
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
                 <extensions>true</extensions>
+                <configuration>
+                    <buildArgs combine.children="append">
+                        <!-- hsqldb formats dates through Locale.UK, so en-GB bundles must be in the image -->
+                        <buildArg>-H:IncludeLocales=en-GB</buildArg>
+                    </buildArgs>
+                </configuration>
                 <executions>
                     <execution>
                         <id>test-native</id>
