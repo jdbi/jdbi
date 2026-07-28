@@ -1,0 +1,5 @@
+{
+  "reflection": [
+    {"type":"org.springframework.test.context.bean.override.mockito.SpringMockResolver","methods":[{"name":"<init>"}]}
+  ]
+}

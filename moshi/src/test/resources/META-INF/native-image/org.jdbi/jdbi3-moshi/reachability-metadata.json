@@ -3,6 +3,7 @@
     {"type":{"proxy":["org.jdbi.v3.json.AbstractIssue2395Test$BeanDao"]}},
     {"type":{"proxy":["org.jdbi.v3.json.AbstractIssue2395Test$CtorDao"]}},
     {"type":{"proxy":["org.jdbi.v3.json.AbstractIssue2395Test$FieldDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.json.AbstractJsonMapperTest$JsonDao"]}}
+    {"type":{"proxy":["org.jdbi.v3.json.AbstractJsonMapperTest$JsonDao"]}},
+    {"type":"org.jdbi.v3.moshi.TestMoshiPlugin$User","unsafeAllocated":true}
   ]
 }

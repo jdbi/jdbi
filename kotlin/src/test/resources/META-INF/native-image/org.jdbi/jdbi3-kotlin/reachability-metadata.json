@@ -23,6 +23,8 @@
     {"type":"org.jdbi.v3.core.mapper.PropagateNullTest$Test25FKBean","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
     {"type":"org.jdbi.v3.core.mapper.PropagateNullTest$Test25FKBean$NestedBean25FK","allDeclaredFields":true,"methods":[{"name":"<init>"}]},
     {"type":"org.jdbi.v3.core.mapper.PropagateNullTest$Test26Bean","allDeclaredFields":true},
-    {"type":"org.jdbi.v3.core.mapper.PropagateNullTest$Test26Bean$NestedBean26","allDeclaredFields":true}
+    {"type":"org.jdbi.v3.core.mapper.PropagateNullTest$Test26Bean$NestedBean26","allDeclaredFields":true},
+    {"type":"org.jdbi.v3.core.kotlin.internal.TypeConversionHelper","allDeclaredClasses":true},
+    {"type":"org.jdbi.v3.core.kotlin.internal.TypeConversionHelper$GenericThing","allDeclaredFields":true,"allDeclaredMethods":true,"allDeclaredConstructors":true}
   ]
 }

@@ -24,22 +24,27 @@ permissions:
 jobs:
   native-build:
     runs-on: ubuntu-latest
-    name: GraalVM ${{ matrix.graalvm-version }} ${{ matrix.distribution }} native build
+    name: GraalVM ${{ matrix.graalvm-version }} ${{ matrix.distribution }} native build (exact metadata ${{ matrix.exact-metadata }})
     strategy:
       fail-fast: false
       # Spelled out rather than a cross product, because the cells are not
-      # interchangeable: only the interim releases can run exact reachability
-      # metadata, so that will be enabled per cell rather than globally.
+      # interchangeable. Exact reachability metadata runs only on 25.2: on 25.0
+      # the flag breaks @Nested test resolution, and does so without reporting
+      # anything, so those cells would lose coverage rather than gain it.
       matrix:
         include:
           - graalvm-version: '25.0'
             distribution: 'graalvm'
+            exact-metadata: 'false'
           - graalvm-version: '25.0'
             distribution: 'graalvm-community'
+            exact-metadata: 'false'
           - graalvm-version: '25.2'
             distribution: 'graalvm'
+            exact-metadata: 'true'
           - graalvm-version: '25.2'
             distribution: 'graalvm-community'
+            exact-metadata: 'true'
 
     steps:
       - uses: actions/checkout@v6
@@ -59,7 +64,7 @@ jobs:
       - name: build code
         id: install
         env:
-          MAVEN_ARGS: "-B -ff -Djdbi.native=true"
+          MAVEN_ARGS: "-B -ff -Djdbi.native=true -Djdbi.native.exact-metadata=${{ matrix.exact-metadata }}"
         run: |
           ./mvnw --version
           make install

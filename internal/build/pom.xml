@@ -122,6 +122,8 @@
         <jdbi.check.skip-ktlint>${jdbi.check.skip-kotlin}</jdbi.check.skip-ktlint>
         <jdbi.check.skip-sbom>${basepom.check.skip-extended}</jdbi.check.skip-sbom>
         <jdbi.check.skip-sortpom>${basepom.check.skip-basic}</jdbi.check.skip-sortpom>
+        <jdbi.native.exact-metadata>false</jdbi.native.exact-metadata>
+        <jdbi.native.exact-metadata.packages>org.jdbi.v3.benchmark,org.jdbi.v3.benchmark.sqlobject,org.jdbi.v3.cache.caffeine,org.jdbi.v3.cache.noop,org.jdbi.v3.commonstext,org.jdbi.v3.commonstext.internal,org.jdbi.v3.core,org.jdbi.v3.core.annotation,org.jdbi.v3.core.annotation.internal,org.jdbi.v3.core.argument,org.jdbi.v3.core.argument.internal,org.jdbi.v3.core.argument.internal.strategies,org.jdbi.v3.core.array,org.jdbi.v3.core.async,org.jdbi.v3.core.cache,org.jdbi.v3.core.cache.internal,org.jdbi.v3.core.codec,org.jdbi.v3.core.collector,org.jdbi.v3.core.config,org.jdbi.v3.core.config.internal,org.jdbi.v3.core.enums,org.jdbi.v3.core.enums.internal,org.jdbi.v3.core.extension,org.jdbi.v3.core.extension.annotation,org.jdbi.v3.core.generic,org.jdbi.v3.core.h2,org.jdbi.v3.core.interceptor,org.jdbi.v3.core.internal,org.jdbi.v3.core.internal.exceptions,org.jdbi.v3.core.kotlin,org.jdbi.v3.core.kotlin.internal,org.jdbi.v3.core.locator,org.jdbi.v3.core.locator.internal,org.jdbi.v3.core.mapper,org.jdbi.v3.core.mapper.immutables,org.jdbi.v3.core.mapper.reflect,org.jdbi.v3.core.mapper.reflect.internal,org.jdbi.v3.core.qualifier,org.jdbi.v3.core.result,org.jdbi.v3.core.result.internal,org.jdbi.v3.core.spi,org.jdbi.v3.core.statement,org.jdbi.v3.core.statement.internal,org.jdbi.v3.core.transaction,org.jdbi.v3.examples,org.jdbi.v3.examples.auth,org.jdbi.v3.examples.order,org.jdbi.v3.examples.support,org.jdbi.v3.freemarker,org.jdbi.v3.freemarker.internal,org.jdbi.v3.generator,org.jdbi.v3.gson2,org.jdbi.v3.guava,org.jdbi.v3.guava.codec,org.jdbi.v3.guice,org.jdbi.v3.guice.internal,org.jdbi.v3.jackson2,org.jdbi.v3.jackson3,org.jdbi.v3.jodatime2,org.jdbi.v3.jpa,org.jdbi.v3.jpa.internal,org.jdbi.v3.json,org.jdbi.v3.json.internal,org.jdbi.v3.meta,org.jdbi.v3.moshi,org.jdbi.v3.mysql,org.jdbi.v3.opentelemetry,org.jdbi.v3.oracle12,org.jdbi.v3.postgis,org.jdbi.v3.postgres,org.jdbi.v3.postgres.internal,org.jdbi.v3.spring,org.jdbi.v3.spring5,org.jdbi.v3.sqlite3,org.jdbi.v3.sqlobject,org.jdbi.v3.sqlobject.config,org.jdbi.v3.sqlobject.config.internal,org.jdbi.v3.sqlobject.customizer,org.jdbi.v3.sqlobject.customizer.internal,org.jdbi.v3.sqlobject.internal,org.jdbi.v3.sqlobject.kotlin,org.jdbi.v3.sqlobject.kotlin.internal,org.jdbi.v3.sqlobject.locator,org.jdbi.v3.sqlobject.locator.internal,org.jdbi.v3.sqlobject.statement,org.jdbi.v3.sqlobject.statement.internal,org.jdbi.v3.sqlobject.transaction,org.jdbi.v3.sqlobject.transaction.internal,org.jdbi.v3.stringtemplate4,org.jdbi.v3.stringtemplate4.internal,org.jdbi.v3.testing,org.jdbi.v3.testing.junit5,org.jdbi.v3.testing.junit5.internal,org.jdbi.v3.testing.junit5.tc,org.jdbi.v3.vavr</jdbi.native.exact-metadata.packages>
         <jdbi.native.fail-no-tests>true</jdbi.native.fail-no-tests>
         <jdbi.skip.native>true</jdbi.skip.native>
         <jdbi.test.language>en</jdbi.test.language>
@@ -1435,6 +1437,43 @@
                         </executions>
                     </plugin>
                 </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- Report a missing registration instead of answering the lookup as though the element
+                 does not exist. Jdbi ignores ReflectiveOperationException in places, so without this
+                 a gap in the shipped metadata degrades quietly.
+
+                 Scoped to Jdbi's own packages. The scope matches the package of the code performing
+                 the lookup, so this holds Jdbi's reflection to the strict contract while leaving
+                 third-party callers alone. Unscoped is not usable: JUnit collects so many discovery
+                 issues from other libraries that it overflows a 2GB StringBuilder while formatting
+                 them and reports nothing at all.
+
+                 The scope has to be enumerated, because a parent package does not cover its
+                 subpackages and wildcards are rejected. ExactMetadataPackagesTest fails the build if
+                 this list drifts from the packages actually present. -->
+            <id>native-exact-metadata</id>
+            <activation>
+                <property>
+                    <name>jdbi.native.exact-metadata</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.graalvm.buildtools</groupId>
+                            <artifactId>native-maven-plugin</artifactId>
+                            <configuration>
+                                <buildArgs combine.children="append">
+                                    <buildArg>--exact-reachability-metadata=${jdbi.native.exact-metadata.packages}</buildArg>
+                                </buildArgs>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
             </build>
         </profile>
         <profile>
