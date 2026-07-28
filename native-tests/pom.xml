@@ -438,6 +438,12 @@
                     <dependenciesToScan>
                         <dependency>*:*:test-jar</dependency>
                     </dependenciesToScan>
+                    <systemPropertyVariables>
+                        <!-- consumed by ExactMetadataPackagesTest, which fails if the scope list drifts -->
+                        <jdbi.native.exact-metadata>${jdbi.native.exact-metadata}</jdbi.native.exact-metadata>
+                        <jdbi.native.exact-metadata.packages>${jdbi.native.exact-metadata.packages}</jdbi.native.exact-metadata.packages>
+                        <jdbi.reactor.root>${project.basedir}/..</jdbi.reactor.root>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 

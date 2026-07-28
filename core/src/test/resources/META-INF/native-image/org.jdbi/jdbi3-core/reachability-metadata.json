@@ -68,7 +68,11 @@
     {"type":"org.jdbi.v3.core.statement.TestSqlLoggerToString$ToStringFooArgumentFactory$1"},
     {"type":"org.mockito.internal.matchers.Any","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]},
     {"type":"org.mockito.internal.matchers.Equals","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]},
-    {"type":"org.mockito.internal.matchers.InstanceOf","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]}
+    {"type":"org.mockito.internal.matchers.InstanceOf","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]},
+    {"type":{"proxy":["org.mockito.plugins.MockResolver"]}},
+    {"type":"org.jdbi.v3.core.CloseException","unsafeAllocated":true},
+    {"type":"org.jdbi.v3.core.JdbiOpenLeakTest$CosmicRayException","unsafeAllocated":true},
+    {"type":"org.jdbi.v3.core.transaction.TransactionException","unsafeAllocated":true}
   ],
   "resources": [
     {"glob":"*.sql"},

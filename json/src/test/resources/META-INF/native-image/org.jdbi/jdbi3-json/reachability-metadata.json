@@ -1,5 +1,9 @@
 {
   "reflection": [
-    {"type":{"proxy":["org.jdbi.v3.json.StubJsonMapperTest$FooDao"]}}
+    {"type":{"proxy":["org.jdbi.v3.json.StubJsonMapperTest$FooDao"]}},
+    {"type":"org.jdbi.v3.json.AbstractIssue2395Test$JsonData","unsafeAllocated":true},
+    {"type":"org.jdbi.v3.json.AbstractJsonMapperTest$JsonBean","unsafeAllocated":true},
+    {"type":"org.jdbi.v3.json.AbstractJsonMapperTest$Nested1","unsafeAllocated":true},
+    {"type":"org.jdbi.v3.json.AbstractJsonMapperTest$Nested2","unsafeAllocated":true}
   ]
 }

@@ -2,6 +2,7 @@
   "reflection": [
     {"type":{"proxy":["org.jdbi.v3.guice.TestJdbiBinder$Dao"]}},
     {"type":{"proxy":["org.jdbi.v3.guice.util.table.TableDao$Instance"]}},
+    {"type":"org.jdbi.v3.guice.util.table.TableDao$Instance","allDeclaredFields":true},
     {"type":"java.lang.Integer","methods":[{"name":"parseInt","parameterTypes":["java.lang.String"]}]},
     {"type":"java.lang.Long","methods":[{"name":"parseLong","parameterTypes":["java.lang.String"]}]},
     {"type":"java.lang.Boolean","methods":[{"name":"parseBoolean","parameterTypes":["java.lang.String"]}]},
