@@ -24,10 +24,22 @@ permissions:
 jobs:
   native-build:
     runs-on: ubuntu-latest
-    name: GraalVM native build
+    name: GraalVM ${{ matrix.graalvm-version }} ${{ matrix.distribution }} native build
     strategy:
+      fail-fast: false
+      # Spelled out rather than a cross product, because the cells are not
+      # interchangeable: only the interim releases can run exact reachability
+      # metadata, so that will be enabled per cell rather than globally.
       matrix:
-        java-version: [ 25 ]
+        include:
+          - graalvm-version: '25.0'
+            distribution: 'graalvm'
+          - graalvm-version: '25.0'
+            distribution: 'graalvm-community'
+          - graalvm-version: '25.2'
+            distribution: 'graalvm'
+          - graalvm-version: '25.2'
+            distribution: 'graalvm-community'
 
     steps:
       - uses: actions/checkout@v6
@@ -39,8 +51,10 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: ${{ matrix.java-version }}
+          version: ${{ matrix.graalvm-version }}
+          distribution: ${{ matrix.distribution }}
           cache: maven
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build code
         id: install
@@ -61,7 +75,7 @@ jobs:
         continue-on-error: true
         if: ${{ always() }}
         with:
-          name: build logs (${{ github.job }}, ${{ matrix.java-version }})
+          name: build logs (${{ github.job }}, ${{ matrix.graalvm-version }}, ${{ matrix.distribution }})
           retention-days: 90
           path: |
             **/target
@@ -73,7 +87,7 @@ jobs:
         id: upload_build_artifacts
         continue-on-error: true
         with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.java-version }})
+          name: build artifacts (${{ github.job }}, ${{ matrix.graalvm-version }}, ${{ matrix.distribution }})
           retention-days: 1
           path: |
             **/target/native-tests
@@ -81,10 +95,19 @@ jobs:
 
   native-demo:
     runs-on: ubuntu-latest
-    name: GraalVM native demo
+    name: GraalVM ${{ matrix.graalvm-version }} ${{ matrix.distribution }} native demo
     strategy:
+      fail-fast: false
       matrix:
-        java-version: [ 25 ]
+        include:
+          - graalvm-version: '25.0'
+            distribution: 'graalvm'
+          - graalvm-version: '25.0'
+            distribution: 'graalvm-community'
+          - graalvm-version: '25.2'
+            distribution: 'graalvm'
+          - graalvm-version: '25.2'
+            distribution: 'graalvm-community'
 
     # examples/native-demo is deliberately not a reactor module: it builds standalone
     # against released Jdbi artifacts, the way a user's own project does. Nothing in the
@@ -96,8 +119,10 @@ jobs:
         name: setup build jdk
         id: build_jdk
         with:
-          java-version: ${{ matrix.java-version }}
+          version: ${{ matrix.graalvm-version }}
+          distribution: ${{ matrix.distribution }}
           cache: maven
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build native demo
         id: demo
@@ -137,7 +162,7 @@ jobs:
         continue-on-error: true
         if: ${{ failure() && (steps.demo.conclusion == 'failure' || steps.demo_run.conclusion == 'failure') }}
         with:
-          name: build logs (${{ github.job }}, ${{ matrix.java-version }})
+          name: build logs (${{ github.job }}, ${{ matrix.graalvm-version }}, ${{ matrix.distribution }})
           retention-days: 90
           path: |
             demo.log
