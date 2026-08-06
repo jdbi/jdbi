@@ -245,21 +245,18 @@ class ArgumentBinder {
                                     .<Entry<PrepareKey, Function<Object, Argument>>>map(pf -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), pf)).stream())
                             .findFirst();
                     if (preparation.isPresent()) {
-                        Entry<PrepareKey, Function<Object, Argument>> p = preparation.get();
+                        // The first binding proves this parameter is preparable. Each batch
+                        // element may still use a different runtime type (and thus PrepareKey),
+                        // e.g. mixed subclasses bound via @BindBean Collection<Base>. Resolve
+                        // the prepared property accessor from the current binding rather than
+                        // hard-coding the template's PrepareKey (see #2974).
                         innerBinders.add(wrapCheckedConsumer(name,
-                            binding -> p.getValue()
-                                .apply(binding.prepareKeys.get(p.getKey()))
+                            binding -> preparedArgument(binding, name)
+                                .orElseGet(() -> dynamicNamedArgument(binding, name))
                                 .apply(index + 1, stmt, ctx)));
                     } else {
                         innerBinders.add(wrapCheckedConsumer(name,
-                            binding -> binding.namedArgumentFinder.stream()
-                                .flatMap(naf -> naf.find(name, ctx).stream())
-                                .findFirst()
-                                .orElseGet(() ->
-                                    binding.realizedBackupArgumentFinders.get().stream()
-                                        .flatMap(naf -> naf.find(name, ctx).stream())
-                                        .findFirst()
-                                        .orElseThrow(() -> missingNamedParameter(name, binding)))
+                            binding -> dynamicNamedArgument(binding, name)
                                 .apply(index + 1, stmt, ctx)));
                     }
                 } else {
@@ -270,6 +267,37 @@ class ArgumentBinder {
                 }
             }
             return binding -> innerBinders.forEach(b -> b.accept(binding));
+        }
+
+        /**
+         * Look up a prepared {@link Argument} for {@code name} using this binding's
+         * {@link PrepareKey}s. Keys include the runtime class, so each batch row may
+         * need a different prepared property accessor.
+         */
+        private Optional<Argument> preparedArgument(PreparedBinding binding, String name) {
+            for (Entry<PrepareKey, Object> entry : binding.prepareKeys.entrySet()) {
+                Function<String, Optional<Function<Object, Argument>>> finder =
+                        batch.preparedFinders.get(entry.getKey());
+                if (finder == null) {
+                    continue;
+                }
+                Optional<Function<Object, Argument>> prepared = finder.apply(name);
+                if (prepared.isPresent()) {
+                    return Optional.of(prepared.get().apply(entry.getValue()));
+                }
+            }
+            return Optional.empty();
+        }
+
+        private Argument dynamicNamedArgument(PreparedBinding binding, String name) {
+            return binding.namedArgumentFinder.stream()
+                    .flatMap(naf -> naf.find(name, ctx).stream())
+                    .findFirst()
+                    .orElseGet(() ->
+                            binding.realizedBackupArgumentFinders.get().stream()
+                                    .flatMap(naf -> naf.find(name, ctx).stream())
+                                    .findFirst()
+                                    .orElseThrow(() -> missingNamedParameter(name, binding)));
         }
 
         @Override
