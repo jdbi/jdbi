@@ -139,6 +139,48 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>bnd-process</id>
+                        <goals>
+                            <goal>bnd-process</goal>
+                        </goals>
+                        <configuration>
+                            <bnd><![CDATA[
+                                -exportcontents: org.jdbi.v3.*
+                                Bundle-SymbolicName: ${moduleName}
+                                DynamicImport-Package: *
+                                Import-Package:\
+                                    !org.antlr.v4.runtime*,\
+                                    com.google.errorprone.annotations*;resolution:=optional,\
+                                    jakarta.annotation;resolution:=optional,\
+                                    jdk.jfr;resolution:=optional,\
+                                    *
+                                Require-Capability:\
+                                    osgi.extender;filter:="(osgi.extender=osgi.serviceloader.processor)";resolution:=optional,\
+                                    osgi.serviceloader;filter:="(osgi.serviceloader=org.jdbi.v3.core.spi.JdbiPlugin)";cardinality:=multiple;resolution:=optional
+                            ]]></bnd>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <configuration>
+                            <archive>
+                                <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.basepom.maven</groupId>
                 <artifactId>inline-maven-plugin</artifactId>
                 <executions>
