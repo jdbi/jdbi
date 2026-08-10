@@ -1,5 +1,7 @@
 # Unreleased
 
+- add OSGi bundle manifests to all published modules (#2247)
+
 # 3.54.0
 
 - fix deadlock in configuration caching (#2980)
