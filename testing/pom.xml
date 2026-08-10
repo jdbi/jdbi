@@ -122,6 +122,50 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>bnd-process</id>
+                        <goals>
+                            <goal>bnd-process</goal>
+                        </goals>
+                        <configuration>
+                            <bnd><![CDATA[
+                                -exportcontents: org.jdbi.v3.*
+                                Bundle-SymbolicName: ${moduleName}
+                                Import-Package:\
+                                    com.opentable.db.postgres.*;resolution:=optional,\
+                                    de.softwareforge.testing.postgres.*;resolution:=optional,\
+                                    org.flywaydb.core*;resolution:=optional,\
+                                    org.h2*;resolution:=optional,\
+                                    org.junit;resolution:=optional,\
+                                    org.junit.jupiter.api*;resolution:=optional,\
+                                    org.junit.rules;resolution:=optional,\
+                                    org.junit.runner*;resolution:=optional,\
+                                    org.postgresql*;resolution:=optional,\
+                                    org.sqlite;resolution:=optional,\
+                                    *
+                            ]]></bnd>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <configuration>
+                            <archive>
+                                <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
