@@ -14,7 +14,10 @@
 package org.jdbi.core.statement;
 
 import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,6 +31,7 @@ import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
+import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -56,6 +60,45 @@ public class TestStatementTemplates {
         final List<Map<String, Object>> results = queryTemplate.with(h).mapToMap().list();
         assertThat(results).hasSize(2);
         assertThat(results.get(0).get("name")).isEqualTo("eric");
+    }
+
+    @Test
+    public void builderConfiguresTemplateWithoutTouchingJdbi() {
+        final Handle h = h2Extension.getSharedHandle();
+        h.execute("insert into something (id, name) values (1, 'eric')");
+        final Jdbi jdbi = h.getJdbi();
+
+        // Register a column mapper on this template alone, through the builder's inherited Configurable surface.
+        final StatementTemplate template = jdbi.statementTemplate("select name from something where id = :id")
+                .registerColumnMapper(new UppercaseStringMapper())
+                .build();
+
+        assertThat(template.with(h).bind("id", 1).mapTo(String.class).one()).isEqualTo("ERIC");
+
+        // The Jdbi is unaffected: a plain statement still uses the built-in String mapper.
+        assertThat(h.createQuery("select name from something where id = :id").bind("id", 1)
+                .mapTo(String.class).one()).isEqualTo("eric");
+    }
+
+    @Test
+    public void builderBakesDefinedAttribute() {
+        final Handle h = h2Extension.getSharedHandle();
+        h.execute("insert into something (id, name) values (1, 'eric')");
+
+        // The defined attribute is baked into the template once, via the builder -- no per-execution define needed.
+        final StatementTemplate template = h.getJdbi()
+                .statementTemplate("select <column> from something where id = 1")
+                .define("column", "name")
+                .build();
+
+        assertThat(template.with(h).mapTo(String.class).one()).isEqualTo("eric");
+    }
+
+    static class UppercaseStringMapper implements ColumnMapper<String> {
+        @Override
+        public String map(final ResultSet r, final int columnNumber, final StatementContext ctx) throws SQLException {
+            return r.getString(columnNumber).toUpperCase(Locale.ROOT);
+        }
     }
 
     @Test
@@ -378,14 +421,15 @@ public class TestStatementTemplates {
     @Test
     public void perStatementCustomizerDoesNotDefeatSqlReuse() {
         final AtomicInteger renders = new AtomicInteger();
-        // A Jdbi whose template engine counts renders, so we can observe whether a statement re-renders its SQL.
-        final Jdbi jdbi = h2Extension.getJdbi().toBuilder()
+        final Jdbi jdbi = h2Extension.getJdbi();
+        // A template whose engine counts renders -- configured on the builder alone, not on the Jdbi -- so we can
+        // observe whether a statement re-renders its SQL.
+        final var template = jdbi.statementTemplate("select :n")
             .configure(SqlStatements.class, s -> s.templateEngine((sql, ctx) -> {
                 renders.incrementAndGet();
                 return sql;
             }))
             .build();
-        final var template = jdbi.buildStatementTemplate("select :n");
         final int afterBuild = renders.get(); // rendered once, when the template is built
 
         try (Handle h = jdbi.open()) {

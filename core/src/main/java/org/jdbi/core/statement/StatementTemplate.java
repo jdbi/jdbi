@@ -18,6 +18,8 @@ import java.lang.reflect.Type;
 import com.google.errorprone.annotations.ThreadSafe;
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
+import org.jdbi.core.config.Configurable;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.MapperResolver;
@@ -37,6 +39,10 @@ import org.jdbi.meta.Beta;
  * {@link ResultBearing} to map to rows, or run as an update via {@link Query#execute()} &mdash; {@link #call(Handle)}
  * returns a {@link Call}, and {@link #prepareBatch(Handle)} a {@link PreparedBatch}. Each returns a fresh,
  * single-use statement confined to the calling thread.
+ *
+ * <p>{@code Jdbi.buildStatementTemplate(sql)} builds a template with the {@code Jdbi}'s configuration. To
+ * configure a template on its own &mdash; register a mapper, define an attribute, set a template engine &mdash;
+ * without deriving a whole new {@code Jdbi}, use the {@link Builder} returned by {@code Jdbi.statementTemplate(sql)}.
  */
 @Beta
 @ThreadSafe
@@ -50,14 +56,10 @@ public class StatementTemplate {
     final String renderedSql;
     final ParsedSql parsedSql;
 
-    /**
-     * Builds a template over the given SQL, rendered and parsed once against the given configuration, which the
-     * template retains and reads on every execution.
-     *
-     * @param config the configuration to render, parse, and execute against
-     * @param sql    the SQL to render and parse once
-     */
-    public StatementTemplate(final ConfigRegistry config, final CharSequence sql) {
+    // Renders and parses the SQL once against the given (already-assembled) configuration, which the template
+    // retains and reads on every execution. Package-private: a template is built through the Builder (see
+    // Jdbi.statementTemplate / Jdbi.buildStatementTemplate), so no public entry point takes a raw ConfigRegistry.
+    StatementTemplate(final ConfigRegistry config, final CharSequence sql) {
         this.config = config;
         this.sql = sql.toString();
 
@@ -189,5 +191,47 @@ public class StatementTemplate {
      */
     public <T> MappedStatementTemplate<T> map(final ColumnMapper<T> mapper) {
         return map(new SingleColumnMapper<>(mapper));
+    }
+
+    /**
+     * Assembles a {@link StatementTemplate} whose configuration starts from a {@link org.jdbi.core.Jdbi} but is
+     * tweaked for this template alone. Obtain one from {@code Jdbi.statementTemplate(sql)}, apply any
+     * {@link Configurable} configuration (register mappers or arguments, set a template engine, define attributes),
+     * then {@link #build()}.
+     *
+     * <p>The builder is {@link Configurable}, so it inherits the whole registration surface rather than repeating it.
+     * Its configuration is a copy-on-write child of the {@code Jdbi}'s: an unconfigured builder shares the Jdbi's
+     * warm resolvers, the first change forks a private copy, and the {@code Jdbi} is never affected.
+     */
+    @Beta
+    public static final class Builder implements Configurable<Builder> {
+        private final ConfigRegistry config;
+        private final String sql;
+
+        /**
+         * Starts a template builder over a copy-on-write child of the given configuration.
+         *
+         * @param baseConfig the configuration to derive the template's configuration from (read-only)
+         * @param sql        the SQL the built template renders and parses
+         */
+        public Builder(final ConfigView baseConfig, final CharSequence sql) {
+            this.config = baseConfig.createChild();
+            this.sql = sql.toString();
+        }
+
+        @Override
+        public ConfigRegistry getConfig() {
+            return config;
+        }
+
+        /**
+         * Renders and parses the template against the configuration assembled so far. The returned template
+         * captures that configuration; configuring the builder afterwards does not affect it.
+         *
+         * @return the reusable statement template
+         */
+        public StatementTemplate build() {
+            return new StatementTemplate(config, sql);
+        }
     }
 }

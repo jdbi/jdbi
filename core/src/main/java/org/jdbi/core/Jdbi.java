@@ -656,16 +656,32 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
+     * Returns a {@link StatementTemplate.Builder} to configure and build a reusable {@link StatementTemplate} over
+     * the given SQL. Apply configuration to the builder (register mappers, define attributes, set a template engine),
+     * then call {@link StatementTemplate.Builder#build()}. The configuration is derived copy-on-write from this
+     * {@code Jdbi} and does not affect it. For a template that uses this {@code Jdbi}'s configuration unchanged, use
+     * {@link #buildStatementTemplate(CharSequence)}.
+     *
+     * @param sql the SQL for the template
+     * @return a builder for a reusable statement template
+     */
+    @Beta
+    public StatementTemplate.Builder statementTemplate(final CharSequence sql) {
+        return new StatementTemplate.Builder(configView, sql);
+    }
+
+    /**
      * Builds a reusable {@link StatementTemplate} over the given SQL, prepared once against this Jdbi's
      * configuration and executed many times against any handle via {@link StatementTemplate#with(Handle)}.
-     * Reusing a template is cheaper than building an equivalent statement on each call.
+     * Reusing a template is cheaper than building an equivalent statement on each call. To configure the template
+     * on its own, use {@link #statementTemplate(CharSequence)}.
      *
      * @param sql the SQL for the template
      * @return a reusable statement template
      */
     @Beta
     public StatementTemplate buildStatementTemplate(final CharSequence sql) {
-        return new StatementTemplate(config.createChild(), sql);
+        return statementTemplate(sql).build();
     }
 
     /**

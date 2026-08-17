@@ -219,9 +219,9 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
         // the attach config's warm resolver views. A method with a configuration-mutating customizer
         // stays on the classic per-chunk path (template is null).
         final Supplier<StatementTemplate> template = late ? null : MemoizingSupplier.of(() -> {
-            final ConfigRegistry templateConfig = config.createChild();
-            applyConfigureCustomizers(new ConfigureStatement(templateConfig));
-            return new StatementTemplate(templateConfig, sqlSupplier.get());
+            final StatementTemplate.Builder builder = new StatementTemplate.Builder(config, sqlSupplier.get());
+            applyConfigureCustomizers(new ConfigureStatement(builder.getConfig()));
+            return builder.build();
         });
         if (config.get(Extensions.class).isFailFast()) {
             validate(config);

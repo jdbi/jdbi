@@ -114,9 +114,9 @@ public class SqlUpdateHandler extends CustomizingStatementHandler {
         // customizers leaves the child unforked, so it shares the attach config's warm resolver views;
         // baking a customizer forks a private snapshot. Every call binds a fresh, thread-confined binding.
         final Supplier<StatementTemplate> template = MemoizingSupplier.of(() -> {
-            final ConfigRegistry templateConfig = config.createChild();
-            applyConfigureCustomizers(new ConfigureStatement(templateConfig));
-            return new StatementTemplate(templateConfig, locatedSql.get());
+            final StatementTemplate.Builder builder = new StatementTemplate.Builder(config, locatedSql.get());
+            applyConfigureCustomizers(new ConfigureStatement(builder.getConfig()));
+            return builder.build();
         });
         return handle -> template.get().with(handle);
     }
