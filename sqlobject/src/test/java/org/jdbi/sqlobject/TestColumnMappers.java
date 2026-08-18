@@ -309,7 +309,7 @@ public class TestColumnMappers {
         ColumnMapper<Iterable<Calendar>> mapper = mock(ColumnMapper.class);
         GenericType<Iterable<Calendar>> iterableOfCalendarType = new GenericType<Iterable<Calendar>>() {};
 
-        try (Handle scoped = h2Extension.getJdbi().open(
+        try (Handle scoped = h2Extension.openWithConfig(
                 cfg -> cfg.configure(ColumnMappers.class, c -> c.register(iterableOfCalendarType, mapper)))) {
             assertThat(scoped.getConfig().findColumnMapperFor(iterableOfCalendarType))
                 .contains(mapper);

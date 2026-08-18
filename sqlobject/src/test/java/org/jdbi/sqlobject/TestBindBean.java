@@ -94,7 +94,7 @@ public class TestBindBean {
     public void testArgumentFactoryRegisteredForProperty() {
         handle.execute("create table beans (id integer, value_type varchar, fromField varchar, fromGetter varchar)");
 
-        try (Handle scoped = h2Extension.getJdbi().open(
+        try (Handle scoped = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, a -> a.register(new ValueTypeArgumentFactory())))) {
             BeanDao beanDao = scoped.attach(BeanDao.class);
 

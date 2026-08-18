@@ -19,24 +19,21 @@ import java.time.Clock;
 import org.jdbi.core.config.JdbiConfig;
 
 public class BindTimeConfig implements JdbiConfig<BindTimeConfig> {
-    private Clock clock;
+    private final Clock clock;
 
-    public BindTimeConfig() {}
+    public BindTimeConfig() {
+        this(null);
+    }
 
-    private BindTimeConfig(BindTimeConfig that) {
-        clock = that.clock;
+    private BindTimeConfig(Clock clock) {
+        this.clock = clock;
     }
 
     Clock getClock() {
         return clock;
     }
 
-    void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    @Override
-    public BindTimeConfig createCopy() {
-        return new BindTimeConfig(this);
+    BindTimeConfig clock(Clock clock) {
+        return new BindTimeConfig(clock);
     }
 }

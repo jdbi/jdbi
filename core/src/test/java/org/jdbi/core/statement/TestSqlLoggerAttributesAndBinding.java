@@ -43,7 +43,7 @@ public class TestSqlLoggerAttributesAndBinding {
     @BeforeEach
     public void before() {
         logger = new TalkativeSqlLogger();
-        h = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(logger)));
+        h = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.sqlLogger(logger)));
     }
 
     @AfterEach

@@ -34,6 +34,7 @@ import org.jdbi.core.argument.ArgumentResolver;
 import org.jdbi.core.argument.NamedArgumentFinder;
 import org.jdbi.core.argument.internal.NamedArgumentFinderFactory;
 import org.jdbi.core.argument.internal.NamedArgumentFinderFactory.PrepareKey;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.BatchResultBearing;
 import org.jdbi.core.result.ResultBearing;
@@ -75,6 +76,16 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
      */
     public PreparedBatch(Handle handle, String sql) {
         this(handle, (CharSequence) sql);
+    }
+
+    /**
+     * Reuse-mode constructor used by a reusable template ({@code StatementTemplate.prepareBatch(handle)}): the
+     * SQL was rendered and parsed once against {@code config} and is reused (see
+     * {@link SqlStatement#parseSql()}) across batch executions unless this execution mutates its configuration.
+     */
+    PreparedBatch(Handle handle, ConfigView config, CharSequence sql, String renderedSql, ParsedSql parsedSql) {
+        super(handle, config, sql, renderedSql, parsedSql);
+        getContext().setBinding(new PreparedBinding(getContext()));
     }
 
     @Override
@@ -221,19 +232,11 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         final StatementContext ctx = getContext();
 
         ParsedSql parsedSql = parseSql();
-        String sql = parsedSql.getSql();
         ParsedParameters parsedParameters = parsedSql.getParameters();
 
         try {
             final SqlStatements stmtConfig = getConfig(SqlStatements.class);
-            try {
-                stmt = createStatement(sql);
-
-                getContext().addCleanable(() -> cleanupStatement(stmt));
-                stmtConfig.customize(stmt);
-            } catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, ctx);
-            }
+            prepareStatement(parsedSql);
 
             if (bindings.isEmpty()) {
                 return new ExecutedBatch(stmt, new int[0]);

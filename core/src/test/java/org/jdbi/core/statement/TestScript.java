@@ -130,7 +130,7 @@ public class TestScript {
     public void testMySQLScript() {
         String sql = getClasspathSqlLocator().getResource("script/oracle-issue-2021.sql");
 
-        try (Handle h = h2Extension.getJdbi().open(cfg -> cfg.configure(SqlStatements.class, c -> c.scriptStatementsNeedSemicolon(false)));
+        try (Handle h = h2Extension.openWithConfig(cfg -> cfg.configure(SqlStatements.class, c -> c.scriptStatementsNeedSemicolon(false)));
                 Script script = new Script(h, sql)) {
             List<String> statements = script.getStatements();
 

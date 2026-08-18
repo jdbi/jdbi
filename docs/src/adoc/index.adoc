@@ -1,6 +1,6 @@
 // -*- mode: adoc; fill-column: 160; -*-
 // suppress inspection "AsciiDocLinkResolve" for whole file
-= Jdbi 3 Developer Guide
+= Jdbi 4 Developer Guide
 :doctype: book
 :toc: left
 :toclevels: 3
@@ -108,9 +108,9 @@ All information in here reflects the current state of development on the `master
 
 endif::[]
 
-== Introduction to Jdbi 3
+== Introduction to Jdbi 4
 
-*Jdbi provides convenient, idiomatic, access to relational data in Java.* Jdbi 3 is the third major release, which introduces enhanced support for modern Java, countless refinements to the design and implementation, and enhanced support for modular development through plugins and extensions.
+*Jdbi provides convenient, idiomatic, access to relational data in Java.* Jdbi 4 is the fourth major release, which introduces an immutable, copy-on-write configuration model, countless refinements to the design and implementation, and enhanced support for modular development through plugins and extensions.
 
 *Jdbi is built on top of JDBC.* If your data source has a JDBC driver, you can use it with Jdbi.
 It improves JDBC's low-level interface, providing a more natural API that is easy to bind to your domain data types.
@@ -150,6 +150,9 @@ endif::[]
 
 [TIP]
 Already using Jdbi v2? See <<Upgrading from v2 to v3>>
+
+[TIP]
+Upgrading from Jdbi 3? See <<Upgrading to Jdbi 4>>
 
 === Getting involved
 
@@ -204,27 +207,27 @@ This is a quick overview of the existing modules and their function:
 ===== Common modules
 
 [glossary]
-jdbi3-core::
+jdbi-core::
 The core Jdbi library.
 Required by all other components.
-jdbi3-sqlobject::
+jdbi-sqlobject::
 SQL Object extension for declarative database access.
 
 ===== Testing support
 
 [glossary]
-jdbi3-testing::
+jdbi-testing::
 Testing framework support.
 Currently, only supports modern JUnit (5+).
 
-jdbi3-testcontainers::
+jdbi-testcontainers::
 Support for arbitrary databases running in https://testcontainers.org/[Testcontainers^].
 Currently, only supports modern JUnit (5+).
 
 ===== Telemetry support
 
 [glossary]
-jdbi3-opentelemetry::
+jdbi-opentelemetry::
 OpenTelemetry tracing support
 
 ===== External data types and libraries
@@ -232,11 +235,11 @@ OpenTelemetry tracing support
 The core module contains support for the https://immutables.github.io/[Immutables^] library.
 
 [glossary]
-jdbi3-guava::
+jdbi-guava::
 Support for https://guava.dev/[Google Guava^] collection and Optional types.
-jdbi3-jodatime2::
+jdbi-jodatime2::
 Support for https://www.joda.org/joda-time/[JodaTime v2^] data types.
-jdbi3-vavr::
+jdbi-vavr::
 Support for https://www.vavr.io/[Vavr^] Tuples, Collections and Value arguments.
 
 ===== JSON Mapping
@@ -244,23 +247,23 @@ Support for https://www.vavr.io/[Vavr^] Tuples, Collections and Value arguments.
 Support for various JSON libraries to map data from the database onto JSON types and vice versa.
 
 [glossary]
-jdbi3-jackson2::
+jdbi-jackson2::
 Support for https://github.com/FasterXML/jackson[Jackson v2^].
-jdbi3-jackson3::
+jdbi-jackson3::
 Support for https://github.com/FasterXML/jackson[Jackson v3^].
-jdbi3-gson::
+jdbi-gson2::
 Support for https://github.com/google/gson[Google Gson^].
-jdbi3-moshi::
+jdbi-moshi::
 Support for https://github.com/square/moshi[Square Moshi^].
 
 ===== Frameworks
 
 [glossary]
-jdbi3-guice::
+jdbi-guice::
 Support dependency injection and modules with https://github.com/google/guice[Google Guice^].
-jdbi3-spring::
+jdbi-spring::
 Provides support for all https://spring.io/[Spring Framework^] versions that are under OSS support.
-jdbi3-jpa::
+jdbi-jpa::
 Some support for https://www.oracle.com/java/technologies/persistence-jsp.html[JPA^] annotations.
 
 ===== Database specific types and functions
@@ -269,13 +272,13 @@ While Jdbi supports _any_ data source that has a `JDBC` driver "out of the box",
 Some databases have additional data types and mappings, and support is added using the following modules:
 
 [glossary]
-jdbi3-postgres::
+jdbi-postgres::
 Support for https://www.postgresql.org/[Postgres^] data types.
-jdbi3-sqlite::
+jdbi-sqlite::
 Support for https://www.sqlite.org/index.html[sqlite^] data types.
-jdbi3-oracle12::
+jdbi-oracle12::
 Support Oracle returning DML statements.
-jdbi3-postgis::
+jdbi-postgis::
 Support for https://postgis.net/[PostGIS^] types.
 
 ===== SQL rendering
@@ -285,19 +288,19 @@ Unless explicitly configured, Jdbi uses a simple render engine that replaces `<.
 It is possible to replace this engine with other template engines.
 
 [glossary]
-jdbi3-stringtemplate4::
+jdbi-stringtemplate4::
 Use the https://www.stringtemplate.org/[StringTemplate 4^] template engine to render SQL statements.
-jdbi3-commons-text::
+jdbi-commons-text::
 Use https://commons.apache.org/proper/commons-text/[Apache Commons Text^] to render SQL statements.
-jdbi3-freemarker::
+jdbi-freemarker::
 Use https://freemarker.apache.org/[Apache Freemarker^] to render SQL statements.
 
 ===== Cache support
 
 [glossary]
-jdbi3-caffeine-cache::
+jdbi-caffeine-cache::
 Use the https://github.com/ben-manes/caffeine[Caffeine^] caching library for SQL template and parse caching.
-jdbi3-noop-cache::
+jdbi-noop-cache::
 Turn off SQL template and parse caching for testing and debugging.
 jdbi3-guava-cache::
 Use the https://github.com/google/guava/wiki/CachesExplained[Guava Cache^] caching library for SQL template and parse caching.
@@ -313,9 +316,9 @@ For Jdbi, Java is a first class citizen.
 We provide additonal modules for other JVM languages such as <<Kotlin>> that allow more idiomatic access to Jdbi functionality.
 
 [glossary]
-jdbi3-kotlin::
+jdbi-kotlin::
 Automatically map Kotlin data classes.
-jdbi3-kotlin-sqlobject::
+jdbi-kotlin-sqlobject::
 Kotlin support for the SQL Object extension.
 
 ==== External modules
@@ -353,7 +356,7 @@ For Apache Maven:
 <dependencies>
     <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-core</artifactId>
+        <artifactId>jdbi-core</artifactId>
         <version>{project_version}</version>
     </dependency>
 </dependencies>
@@ -364,7 +367,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-core:{project_version}")
+    implementation("org.jdbi:jdbi-core:{project_version}")
 }
 ----
 
@@ -381,7 +384,7 @@ For Apache Maven:
     <dependencies>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-bom</artifactId>
+            <artifactId>jdbi-bom</artifactId>
             <type>pom</type>
             <version>{project_version}</version>
             <scope>import</scope>
@@ -399,7 +402,7 @@ Jdbi components in use are declared in the `<dependencies>` section *without a v
 <dependencies>
     <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-core</artifactId>
+        <artifactId>jdbi-core</artifactId>
     </dependency>
 </dependencies>
 ----
@@ -410,7 +413,7 @@ For Gradle:
 ----
 dependencies {
     // Load bill of materials (BOM) for Jdbi.
-    implementation(platform("org.jdbi:jdbi3-bom:{project_version}"))
+    implementation(platform("org.jdbi:jdbi-bom:{project_version}"))
 }
 ----
 
@@ -421,7 +424,7 @@ Jdbi components are declared without versions:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-core")
+    implementation("org.jdbi:jdbi-core")
 }
 ----
 
@@ -448,10 +451,355 @@ These classes and interfaces may be used across the Jdbi code base and can chang
 
 ==== Mixing Jdbi component versions
 
-There is no guarantee that Jdbi components of different versions (e.g. `jdbi3-core` version 1.2.3 and `jdbi-sqlobject` version 1.3.1) work together.
+There is no guarantee that Jdbi components of different versions (e.g. `jdbi-core` version 1.2.3 and `jdbi-sqlobject` version 1.3.1) work together.
 Jdbi versioning is the *public API* exposed to consumers.
 All Jdbi components used in a project or service should use the same version.
 See the section on <<Build tools>> on how to use the BOM module to provide consistent versions for all components.
+
+== Upgrading to Jdbi 4
+
+Jdbi 4 is a source-incompatible major release.
+Its theme is an immutable, copy-on-write configuration model: a `Jdbi` and a `Handle` no longer carry mutable configuration you reconfigure after the fact.
+You assemble all configuration once, up front, through a builder; from then on it is read-only and shared.
+This removes a class of order-of-initialization bugs, makes a `Jdbi` safe to publish across threads, and lets Jdbi skip most of the per-statement and per-handle configuration copying that 3.x paid on every call (see <<Performance in Jdbi 4>>).
+
+Most applications that only _use_ Jdbi (open handles, run statements, attach SQL objects) need only three mechanical changes: the Maven coordinate rename, the package rename, and moving configuration into the builder.
+Applications that _extend_ Jdbi with custom argument factories, mappers, codecs, or config classes have a few more signatures to update.
+
+=== The Maven coordinates
+
+Every module's artifactId changed from `jdbi3-*` to `jdbi-*`; the `org.jdbi` group id is unchanged.
+For example `jdbi3-core` is now `jdbi-core`, `jdbi3-bom` is now `jdbi-bom`, and `jdbi3-sqlobject` is now `jdbi-sqlobject`.
+Update your dependencies (and the BOM import) first, before the package rename: the imports below will not resolve until the new artifacts are on the classpath.
+
+[source,xml,indent=0]
+----
+<!-- Jdbi 3 -->
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-core</artifactId>
+</dependency>
+
+<!-- Jdbi 4 -->
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi-core</artifactId>
+</dependency>
+----
+
+Modules released separately from the core distribution keep their own coordinates: `jdbi3-guava-cache`, for instance, is a distinct project and is unaffected by this rename.
+
+=== The package rename
+
+Every `org.jdbi.v3.*` package is now `org.jdbi.*` (for example `org.jdbi.v3.core.Jdbi` -> `org.jdbi.core.Jdbi`, `org.jdbi.v3.sqlobject` -> `org.jdbi.sqlobject`).
+No types were renamed, so for almost every import this is a pure `org.jdbi.v3.` -> `org.jdbi.` find-and-replace.
+The one wrinkle is the test extensions: the `junit5` package segment became `junit`, so `org.jdbi.v3.testing.junit5.JdbiExtension` is now `org.jdbi.testing.junit.JdbiExtension` and `org.jdbi.v3.testing.junit5.tc.JdbiTestcontainersExtension` is now `org.jdbi.testing.junit.tc.JdbiTestcontainersExtension`.
+Dropping only the `v3.` prefix leaves those imports in a `junit5` package that no longer exists.
+Because you are editing every file that imports Jdbi anyway, the other source changes below ride along at low cost.
+
+=== Assembling a Jdbi
+
+`Jdbi` no longer implements `Configurable`; it is read-only.
+The post-construction mutators are gone: `installPlugin`, the `registerRowMapper` / `registerColumnMapper` / `registerArgument` / ... family, `configure(...)`, and the knob setters `setTransactionHandler` / `setStatementBuilderFactory` / `setHandleCallbackDecorator` / `setHandleScope`.
+Move all of that into `Jdbi.builder(...)`, which _is_ `Configurable`, and finish with `build()`:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+Jdbi jdbi = Jdbi.create(dataSource);
+jdbi.installPlugin(new SqlObjectPlugin());
+jdbi.registerRowMapper(new UserMapper());
+jdbi.configure(SqlStatements.class, s -> s.setQueryTimeout(5));
+jdbi.setTransactionHandler(new SerializableTransactionRunner());
+
+// Jdbi 4
+Jdbi jdbi = Jdbi.builder(dataSource)
+        .installPlugin(new SqlObjectPlugin())
+        .registerRowMapper(new UserMapper())
+        .configure(SqlStatements.class, s -> s.queryTimeout(5))
+        .transactionHandler(new SerializableTransactionRunner())
+        .build();
+----
+
+The knob setters also lose their `set` prefix on the builder, matching the config withers below: `setTransactionHandler(h)` becomes `transactionHandler(h)`, `setStatementBuilderFactory(f)` becomes `statementBuilderFactory(f)`, `setHandleCallbackDecorator(d)` becomes `handleCallbackDecorator(d)`, and `setHandleScope(s)` becomes `handleScope(s)`.
+
+`Jdbi.create(...)` is retained as the zero-configuration shortcut (`Jdbi.create(ds)` equals `Jdbi.builder(ds).build()`); reach for it only when you register nothing.
+`Jdbi.builder(...)` accepts the same sources as `create(...)`: a `DataSource`, `Connection`, `ConnectionFactory`, or a JDBC URL (optionally with `Properties` or username/password).
+
+=== Config setters became withers
+
+Config classes are immutable.
+A setter that used to mutate in place now _returns a new value_, and `configure` takes a `UnaryOperator` that returns the value to install.
+The `setX(v)` spelling is dropped in favor of a prefix-free `x(v)` wither (`register(...)` keeps its name).
+A discarded wither is a no-op and is flagged at build time by `@CheckReturnValue`, so `getConfig(SqlStatements.class).queryTimeout(5)` on its own will not compile clean:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+jdbi.getConfig(SqlStatements.class).setQueryTimeout(5);          // mutated in place
+
+// Jdbi 4
+builder.configure(SqlStatements.class, s -> s.queryTimeout(5));  // installs the derived value
+----
+
+Because config values are immutable, `JdbiConfig.createCopy()` was removed: a registry now shares config values by reference instead of copying them.
+A custom `JdbiConfig` no longer implements `createCopy()`; make its fields `final` and add withers instead (see _Creating a custom JdbiConfig type_).
+(The registry-level `ConfigRegistry.createCopy()`, which snapshots a registry's map of values, is unaffected.)
+
+=== The `JdbiImmutables` config class was removed
+
+The `JdbiImmutables` config object is gone. It held no state of its own, so its registration methods moved directly onto `Configurable`, and therefore onto `Jdbi.Builder`.
+Register Immutables value types on the builder instead of reaching through the config class:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+jdbi.getConfig(JdbiImmutables.class).registerImmutable(MyValueType.class);
+
+// Jdbi 4
+Jdbi jdbi = Jdbi.builder(dataSource)
+        .registerImmutable(MyValueType.class)
+        .build();
+----
+
+`registerModifiable(...)` moved the same way.
+Because the class no longer exists (it was not renamed), this surfaces as a compile error rather than a deprecation.
+
+=== Plugins configure the builder
+
+`JdbiPlugin.customizeJdbi(Jdbi)` is removed, because a built `Jdbi` can no longer be mutated.
+Configure the builder instead by overriding `configure(Jdbi.Builder)`:
+
+[source,java,indent=0]
+----
+// Jdbi 3
+public class MyPlugin extends JdbiPlugin.Singleton {
+    @Override public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerRowMapper(new UserMapper());
+    }
+}
+
+// Jdbi 4
+public class MyPlugin extends JdbiPlugin.Singleton {
+    @Override public void configure(Jdbi.Builder builder) {
+        builder.registerRowMapper(new UserMapper());
+    }
+}
+----
+
+For a one-off plugin, `JdbiPlugin.of(builder -> builder.registerRowMapper(new UserMapper()))` is a lambda shorthand.
+The connection-time hooks are unchanged in spirit: `customizeConnection(Connection)` and `customizeHandle(Handle)` remain.
+Per-connection setup that needs the live `Connection` and reads `Jdbi`-level config -- binding driver-specific types, say -- moves to the renamed `customizeHandleConnection(Connection, ConfigView)` hook (formerly `customizeHandleConfig`; see the next section).
+
+`installPlugin` applies a plugin immediately, so configuration you register on the builder _after_ installing a plugin takes precedence over the plugin's, as it did in Jdbi 3. Install plugins before registering the configuration that should win. (The Guice module and Spring `JdbiFactoryBean` follow this order internally, so module-bound mappers and defines override plugin defaults.)
+
+Spring `JdbiFactoryBean` no longer exposes `autoInstallPlugins`; set the plugins explicitly with `setPlugins(...)`. A bean definition that still sets the `autoInstallPlugins` property fails with `NotWritablePropertyException` and must drop it.
+
+=== Per-handle configuration
+
+`Handle` no longer implements `Configurable`, and in Jdbi 4 a handle carries no configuration of its own: it is only a connection plus its transaction state.
+All configuration lives at the `Jdbi` level (immutable and shared) or at the statement level (copy-on-write).
+`Handle.getConfig()` returns a read-only `ConfigView` of the `Jdbi`'s configuration.
+There is no `Jdbi.open(Consumer)` config scope, and the scoped `withHandle`/`useHandle`/`inTransaction`/`useTransaction` overloads that took a `Consumer<ConfigRegistry>` have been removed.
+Three replacements cover what a config scope was used for.
+
+*A long-lived variant* -- one `Jdbi` per tenant, or a bounded set of configurations -- is derived once with `Jdbi.toBuilder()`, so it is built ahead of time and shares the original's connection source:
+
+[source,java,indent=0]
+----
+Jdbi tenantJdbi = jdbi.toBuilder()
+    .configure(SqlStatements.class, s -> s.setSqlLogger(tenantLogger))
+    .build();
+----
+
+*Per-request ambient context* -- a request id or tenant that changes on every unit of work -- belongs in a `Jdbi`-level configuration object that reads the ambient value itself, rather than in a per-handle scope.
+A `SqlLogger` that tags each statement with the current request id, for example, reads a `ScopedValue` (final in Java 25 and safe across structured-concurrency forks; a `ThreadLocal` works before then):
+
+[source,java,indent=0]
+----
+static final ScopedValue<String> REQUEST_ID = ScopedValue.newInstance();
+
+class RequestTaggingLogger implements SqlLogger {
+    @Override
+    public void logAfterExecution(StatementContext ctx) {
+        String requestId = REQUEST_ID.isBound() ? REQUEST_ID.get() : "-";
+        LOG.debug("[{}] {}", requestId, ctx.getRenderedSql());
+    }
+}
+
+// installed once, on the shared Jdbi
+jdbi.configure(SqlStatements.class, s -> s.setSqlLogger(new RequestTaggingLogger()));
+
+// bound per request; every handle and statement in the scope logs with this id
+ScopedValue.where(REQUEST_ID, requestId).run(() -> jdbi.useHandle(handle -> ...));
+----
+
+*A single statement* keeps its configuration on that statement, which remains `Configurable` (copy-on-write):
+
+[source,java,indent=0]
+----
+try (Query query = handle.createQuery("select * from users")) {
+    query.configure(RowMappers.class, r -> r.register(new UserMapper()));
+    // ...
+}
+----
+
+A plugin that must contribute per-connection state to every handle -- binding driver-specific types on the live `Connection`, say -- implements `JdbiPlugin.customizeHandleConnection(Connection, ConfigView)`, which runs once as each handle is created.
+It receives a read-only `ConfigView`: it can read `Jdbi`-level configuration and act on the `Connection`, but it cannot mutate the handle's config, which is never forked.
+
+=== Configuring Jdbi from Spring beans
+
+A Spring service that configured Jdbi at the point of use -- `handle.registerRowMapper(...)`, `handle.configure(...)`, or a `register`/`configure` call on the shared `Jdbi` bean after it was built -- has no equivalent in Jdbi 4: a built `Jdbi` and its handles are read-only.
+Move that configuration to build time, where the `Jdbi.Builder` is `Configurable`.
+
+The `jdbi-spring` module's `JdbiFactoryBean` builds the `Jdbi`, so contribute mappers, arguments, and defines through a plugin it installs rather than on the bean afterwards.
+When those values are themselves Spring beans, autowire them into a `JdbiPlugin` and register them from `configure(Jdbi.Builder)`:
+
+[source,java,indent=0]
+----
+@Component
+public class MapperPlugin extends JdbiPlugin.Singleton {
+    private final UserMapper userMapper;   // an autowired Spring bean
+
+    @Autowired
+    public MapperPlugin(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    @Override
+    public void configure(Jdbi.Builder builder) {
+        builder.registerRowMapper(userMapper);
+    }
+}
+
+@Bean
+public JdbiFactoryBean jdbi(DataSource dataSource, MapperPlugin mapperPlugin) {
+    return new JdbiFactoryBean(dataSource)
+        .setPlugins(List.of(new SqlObjectPlugin(), mapperPlugin));
+}
+----
+
+Register everything a request will need before `build()`; there is no point-of-use configuration left to fall back on.
+
+=== Custom factories, mappers, and codecs take `ConfigView`
+
+The read-only half of the split is a new `ConfigView` type: `Jdbi.getConfig()` and `Handle.getConfig()` return a `ConfigView` (reads and safe derives only), not a mutable `ConfigRegistry`.
+The resolving SPIs -- the ones Jdbi calls to _build_ an argument or mapper -- now receive a `ConfigView` instead of a `ConfigRegistry`.
+If you implement any of these, change the parameter type (a mechanical edit alongside the package rename):
+
+* `ArgumentFactory.build`, `AbstractArgumentFactory.build`, `QualifiedArgumentFactory.build`, and the `Preparable.prepare` variants
+* `RowMapperFactory.build`, `ColumnMapperFactory.build`, `QualifiedColumnMapperFactory.build`
+* `SqlArrayTypeFactory.build`
+* `RowMapper.init` and `ColumnMapper.init`
+* `Codec.getColumnMapper` / `getArgumentFunction`, and the `JsonMapper` family (`forType` / `toJson` / `fromJson`)
+
+[source,java,indent=0]
+----
+// Jdbi 3
+public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) { ... }
+
+// Jdbi 4
+public Optional<RowMapper<?>> build(Type type, ConfigView config) { ... }
+----
+
+`ConfigView` exposes everything a factory legitimately needs -- `get(SomeConfig.class)`, the `findXFor(...)` lookups, and `createChild()` / `createCopy()` -- but not in-place mutation.
+A factory has no business reconfiguring the registry it is resolving against, so this is now a compile-time guarantee rather than a convention.
+The hooks that are _meant_ to configure -- `ConfigCustomizer` and `JdbiPlugin.configure(Jdbi.Builder)` -- still receive a mutable `ConfigRegistry` (or the mutable builder).
+`JdbiPlugin.customizeHandleConfig` was renamed to `customizeHandleConnection` and now takes a `ConfigView`: it contributes per-connection side effects while reading `Jdbi`-level config, but no longer mutates a handle's config.
+
+=== Performance in Jdbi 4
+
+The immutable, copy-on-write model lets Jdbi share warm configuration instead of copying it.
+The numbers below are `gc.alloc.rate.norm` (bytes allocated per operation, a deterministic JMH metric) on H2; the "Jdbi 3" columns are the same benchmarks with the pre-immutability behavior restored (a per-statement or per-handle `createCopy`).
+
+.Per-statement on a warm handle
+[cols="3,>2,>2"]
+|===
+| Path | Jdbi 3 | Jdbi 4
+
+| Classic `handle.createQuery(...)`
+| 6104 B/op
+| 4208 B/op (-31%)
+
+| Reused `StatementTemplate`
+| n/a
+| 3512 B/op (-43% vs classic 3.x)
+|===
+
+.One handle per request (a fresh handle opened per operation)
+[cols="3,>2,>2"]
+|===
+| Path | Jdbi 3 | Jdbi 4
+
+| SQL Object attach
+| 134580 B/op
+| 45719 B/op (-66%; ~1.3x throughput)
+
+| Fluent query
+| 13728 B/op
+| 12260 B/op (-11%)
+|===
+
+The largest win is the "one handle per request" pattern common in web services: a fresh handle now shares the `Jdbi`'s already-resolved mappers and extension metadata instead of rebuilding them on every open.
+
+=== New: reusable `StatementTemplate`
+
+Jdbi 4 adds `StatementTemplate`, a handle-independent, reusable SQL statement.
+It renders, parses, and snapshots configuration once, then executes against any handle without repeating that work -- useful for a hot statement run many times:
+
+[source,java,indent=0]
+----
+StatementTemplate template = jdbi.buildStatementTemplate("SELECT name FROM users WHERE id = :id");
+// reuse across handles/threads:
+String name = template.with(handle).bind("id", id).mapTo(String.class).one();
+----
+
+`with(handle)` returns a `Query`, and which terminal you call selects how the statement runs: a result operation such as `mapTo(type)` reads rows, while `execute()` runs it as an update and returns the modified-row count.
+
+[source,java,indent=0]
+----
+StatementTemplate insert = jdbi.buildStatementTemplate("INSERT INTO users (id, name) VALUES (:id, :name)");
+int rows = insert.with(handle).bind("id", id).bind("name", name).execute();
+----
+
+For stored procedures and batches, `template.call(handle)` returns a `Call` and `template.prepareBatch(handle)` returns a `PreparedBatch` bound to the same reusable template.
+
+Fixing the result type with `mapTo(type)` on the template resolves the row mapper once, at build time, so each execution skips even that lookup.
+This yields a further small allocation and throughput improvement for a hot, single-shape query:
+
+[source,java,indent=0]
+----
+MappedStatementTemplate<String> byId =
+    jdbi.buildStatementTemplate("SELECT name FROM users WHERE id = :id").mapTo(String.class);
+// the mapper is already resolved; results() applies it with no per-call lookup:
+String name = byId.with(handle).bind("id", id).results().one();
+----
+
+=== SQL Object updates report statement type `Query`
+
+`@SqlUpdate`, `@SqlCall`, and `@SqlBatch` now execute through the same reusable statement machinery as `@SqlQuery`.
+One effect is observable: a `@SqlUpdate` method runs through a `Query`, so `StatementContext.describeJdbiStatementType()` and the `type` field of the `JdbiStatementEvent` JFR event report `Query` where Jdbi 3 reported `Update`.
+Return values and behavior are unchanged; only the reported type string differs.
+Monitoring that matches the literal `Update` type for `@SqlUpdate` methods needs updating.
+`@SqlCall` still reports `Call` and `@SqlBatch` still reports `PreparedBatch`.
+
+=== Authoring SQL Object statement customizers
+
+If you implement a custom `SqlStatementCustomizer` or `SqlStatementCustomizerFactory`, Jdbi 4 distinguishes when a customizer runs so it can bake invariant configuration into a reusable template once instead of re-applying it on every call.
+A type- or method-level customizer is treated as invariant configuration by default and applied once, against a build-time configuration surface.
+Two marker interfaces override that default:
+
+* A customizer or factory that implements `ConfigMutating` changes configuration per invocation. It runs on the classic per-statement path, applied on every call.
+* A customizer or factory that implements `StatementScoped` operates on the live `Query`, `Call`, or `PreparedBatch` rather than on configuration, for example to register an out parameter. It runs per invocation against each statement, while the configuration snapshot stays shared. Jdbi's own `@OutParameter` is implemented this way.
+
+A type- or method-level customizer that touches the live statement without implementing `StatementScoped` is handed a configuration surface that does not support statement operations, and the invocation fails with a message naming the marker to add.
+Parameter-level customizers already bind per invocation and need neither marker.
+
+Because a configure-phase customizer bakes its work into the shared template once, a `StatementCustomizer` it registers is a single instance that runs on every, possibly concurrent, execution. Keep such a customizer stateless or thread-safe, or declare `StatementScoped` so a fresh customizer is applied per invocation.
+
+The `warm(ConfigRegistry)` pre-initialization hook is removed from `SqlStatementCustomizer` and `SqlStatementParameterCustomizer` (and from the `AttachedExtensionHandler` extension SPI).
+Remove any override; it is no longer called.
+When `Extensions.failFast()` is set, Jdbi resolves a SQL Object method's result mapper while attaching, so an unregistered mapper still fails at attach time rather than on first use.
 
 == API Overview
 
@@ -970,20 +1318,19 @@ Script parsing uses a generic SQL parser and creates separate statements.
 Depending on the database and its driver, there are small differences in how the script needs to be parsed.
 The most notorious issue is whether the parsed statements need to retain a trailing semicolon or not.
 Some databases (e.g. Oracle) require the trailing semicolon while others (e.g. MySQL) actually report a syntax error if it is present.
-As we can not please everyone equally, there is the link:{jdbidocs}/core/statement/SqlStatements.html#setScriptStatementsNeedSemicolon(boolean)[setScriptStatementsNeedSemicolon()^] switch, which controls this behavior.
+As we can not please everyone equally, there is the link:{jdbidocs}/core/statement/SqlStatements.html#scriptStatementsNeedSemicolon(boolean)[scriptStatementsNeedSemicolon()^] switch, which controls this behavior.
 By default, Jdbi *retains the semicolon if present*.
 
 Turning off the trailing semicolons for databases that have problems with it:
 
 [source,java,indent=0]
 ----
-jdbi.withHandle(h -> {
+jdbi.withHandle(
     // turn off trailing semicolons for script statements
-    h.getConfig(SqlStatements.class).setScriptStatementsNeedSemicolon(false);
-    return h.createScript(ClasspathSqlLocator.removingComments()
+    config -> config.configure(SqlStatements.class, s -> s.scriptStatementsNeedSemicolon(false)),
+    h -> h.createScript(ClasspathSqlLocator.removingComments()
             .getResource("scripts/mysql-script.sql"))
-        .execute();
-    });
+        .execute());
 ----
 
 ==== Metadata
@@ -1470,22 +1817,22 @@ User user = jdbi.withHandle(handle ->
         .one());
 ----
 
-This behavior can be controlled through the link:{jdbidocs}/core/statement/SqlStatements.html#setAttachCallbackStatementsForCleanup(boolean)[setAttachCallbackStatementsForCleanup()^] method.
+This behavior can be controlled through the link:{jdbidocs}/core/statement/SqlStatements.html#attachCallbackStatementsForCleanup(boolean)[attachCallbackStatementsForCleanup()^] method.
 If a callback executes a huge number of statements, it may be preferable to manage resources manually:
 
 [source,java,indent=0]
 ----
-jdbi.useHandle(handle -> {
-    handle.getConfig(SqlStatements.class).setAttachCallbackStatementsForCleanup(false); <1>
-
-    for (int i = 0; i < 100_000; i++) {
-        try (Update update = handle.createUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")) {
-            update.bind("id", i)
-                  .bind("name", "user_" + i)
-                  .execute();
+jdbi.useHandle(
+    config -> config.configure(SqlStatements.class, s -> s.attachCallbackStatementsForCleanup(false)), <1>
+    handle -> {
+        for (int i = 0; i < 100_000; i++) {
+            try (Update update = handle.createUpdate("INSERT INTO users (id, name) VALUES (:id, :name)")) {
+                update.bind("id", i)
+                      .bind("name", "user_" + i)
+                      .execute();
+            }
         }
-    }
-});
+    });
 ----
 
 <1> Turn off automatic attachment of statements to the handle because the callback creates a large number of statements.
@@ -1815,8 +2162,9 @@ Jdbi automatically looks up the mapper from the registry, and uses it.
 
 [source,java,indent=0]
 ----
-jdbi.registerRowMapper(User.class,
-    (rs, ctx) -> new User(rs.getInt("id"), rs.getString("name"));
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .registerRowMapper(User.class, (rs, ctx) -> new User(rs.getInt("id"), rs.getString("name")))
+    .build();
 
 try (Handle handle = jdbi.open()) {
     List<User> users = handle
@@ -1831,7 +2179,9 @@ A mapper which implements link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^]
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(new UserMapper());
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .registerRowMapper(new UserMapper())
+    .build();
 ----
 
 When this method is used, Jdbi inspects the generic class signature of the mapper to automatically discover the mapped type.
@@ -1984,11 +2334,10 @@ Row mapper factories may be registered similar to regular row mappers:
 
 [source,java,indent=0]
 ----
-jdbi.registerRowMapper(new PairMapperFactory());
-
 try (Handle handle = jdbi.open()) {
     List<Pair<String, String>> configPairs = handle
         .createQuery("SELECT key, value FROM config")
+        .registerRowMapper(new PairMapperFactory())
         .mapTo(new GenericType<Pair<String, String>>() {})
         .list();
 }
@@ -2043,8 +2392,9 @@ Jdbi automatically looks up the mapper from the registry, and uses it.
 
 [source,java,indent=0]
 ----
-jdbi.registerColumnMapper(Money.class,
-    (rs, col, ctx) -> Money.parse(rs.getString(col)));
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .registerColumnMapper(Money.class, (rs, col, ctx) -> Money.parse(rs.getString(col)))
+    .build();
 
 List<Money> amounts = jdbi.withHandle(handle ->
     handle.select("SELECT amount FROM transactions WHERE account_id = ?", accountId)
@@ -2056,7 +2406,9 @@ A mapper which implements link:{jdbidocs}/core/mapper/ColumnMapper.html[ColumnMa
 
 [source,java,indent=0]
 ----
-handle.registerColumnMapper(new MoneyMapper());
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .registerColumnMapper(new MoneyMapper())
+    .build();
 ----
 
 When this method is used, Jdbi inspects the generic class signature of the mapper to automatically discover the mapped type.
@@ -2197,11 +2549,10 @@ Column mapper factories may be registered similar to regular column mappers:
 
 [source,java,indent=0]
 ----
-jdbi.registerColumnMapper(new OptionalColumnMapperFactory());
-
 try (Handle handle = jdbi.open()) {
     List<Optional<String>> middleNames = handle
         .createQuery("SELECT middle_name FROM contacts")
+        .registerColumnMapper(new OptionalColumnMapperFactory())
         .mapTo(new GenericType<Optional<String>>() {})
         .list();
 }
@@ -2217,7 +2568,7 @@ Generally, Jdbi will automatically perform boxing and unboxing as appropriate wh
 
 By default, SQL `null` mapped to a primitive type will adopt the JDBC default value.
 This may be disabled by configuring
-`jdbi.getConfig(ColumnMappers.class).setCoalesceNullPrimitivesToDefaults(false)`.
+`builder.configure(ColumnMappers.class, c -> c.coalesceNullPrimitivesToDefaults(false))` on the `Jdbi.Builder`.
 
 === Immutables Mapping
 
@@ -2333,14 +2684,13 @@ This can help to disambiguate mapping joins, e.g. when two mapped classes have i
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(ConstructorMapper.factory(Contact.class, "c"));
-handle.registerRowMapper(ConstructorMapper.factory(Phone.class, "p"));
-handle.registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class);
-
 List<JoinRow> contactPhones = handle.select("SELECT " +
     "c.id cid, c.name cname, " +
     "p.id pid, p.name pname, p.number pnumber " +
     "FROM contacts c LEFT JOIN phones p ON c.id = p.contact_id")
+    .registerRowMapper(ConstructorMapper.factory(Contact.class, "c"))
+    .registerRowMapper(ConstructorMapper.factory(Phone.class, "p"))
+    .registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class))
     .mapTo(JoinRow.class)
     .list();
 ----
@@ -2387,10 +2737,9 @@ public class Address {
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(ConstructorMapper.factory(User.class));
-
 List<User> users = handle
     .select("SELECT id, name, street, city, state, zip FROM users")
+    .registerRowMapper(ConstructorMapper.factory(User.class))
     .mapTo(User.class)
     .list();
 ----
@@ -2408,10 +2757,9 @@ public User(int id,
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(ConstructorMapper.factory(User.class));
-
 List<User> users = handle
     .select("SELECT id, name, addr_street, addr_city, addr_state, addr_zip FROM users")
+    .registerRowMapper(ConstructorMapper.factory(User.class))
     .mapTo(User.class)
     .list();
 ----
@@ -2530,10 +2878,9 @@ The setter is preferred.
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(BeanMapper.factory(User.class));
-
 List<User> users = handle
     .select("SELECT id, name, street, city, state, zip FROM users")
+    .registerRowMapper(BeanMapper.factory(User.class))
     .mapTo(User.class)
     .list();
 ----
@@ -2548,10 +2895,9 @@ public Address getAddress() { ... }
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(BeanMapper.factory(User.class));
-
 List<User> users = handle
     .select("SELECT id, name, addr_street, addr_city, addr_state, addr_zip FROM users")
+    .registerRowMapper(BeanMapper.factory(User.class))
     .mapTo(User.class)
     .list();
 ----
@@ -2576,10 +2922,9 @@ Register a field mapper for your mapped class, using the `factory()` method:
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(FieldMapper.factory(User.class));
-
 List<UserBean> users = handle
     .createQuery("SELECT id, name FROM user")
+    .registerRowMapper(FieldMapper.factory(User.class))
     .mapTo(User.class)
     .list();
 ----
@@ -2589,14 +2934,14 @@ This can help to disambiguate mapping joins, e.g. when two mapped classes have i
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(FieldMapper.factory(Contact.class, "c"));
-handle.registerRowMapper(FieldMapper.factory(Phone.class, "p"));
-handle.registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class);
 List<JoinRow> contactPhones = handle.select(
     "SELECT " +
     "c.id cid, c.name cname, " +
     "p.id pid, p.name pname, p.number pnumber " +
     "FROM contacts c LEFT JOIN phones p ON c.id = p.contact_id")
+    .registerRowMapper(FieldMapper.factory(Contact.class, "c"))
+    .registerRowMapper(FieldMapper.factory(Phone.class, "p"))
+    .registerRowMapper(JoinRowMapper.forTypes(Contact.class, Phone.class))
     .mapTo(JoinRow.class)
     .list();
 ----
@@ -2636,10 +2981,9 @@ public class Address {
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(FieldMapper.factory(User.class));
-
 List<User> users = handle
     .select("SELECT id, name, street, city, state, zip FROM users")
+    .registerRowMapper(FieldMapper.factory(User.class))
     .mapTo(User.class)
     .list();
 ----
@@ -2659,10 +3003,9 @@ public class User {
 
 [source,java,indent=0]
 ----
-handle.registerRowMapper(FieldMapper.factory(User.class));
-
 List<User> users = handle
     .select("SELECT id, name, addr_street, addr_city, addr_state, addr_zip FROM users")
+    .registerRowMapper(FieldMapper.factory(User.class))
     .mapTo(User.class)
     .list();
 ----
@@ -2754,22 +3097,26 @@ Codecs are collected in a codec factory, which can be registered with the regist
 
 [source,java,indent=0]
 ----
+Jdbi.Builder builder = Jdbi.builder(dataSource);
+
 // register a single codec
-jdbi.registerCodecFactory(CodecFactory.forSingleCodec(type, codec));
+builder.registerCodecFactory(CodecFactory.forSingleCodec(type, codec));
 
 // register a few codecs
-jdbi.registerCodecFactory(CodecFactory.builder()
+builder.registerCodecFactory(CodecFactory.builder()
     // register a codec by qualified type
     .addCodec(QualifiedType.of(Foo.class), codec1)
     // register a codec by direct java type
     .addCodec(Foo.class, codec2)
     // register a codec by generic type
-    .addCodec(new GenericType<Set<Foo>>() {}. codec3)
+    .addCodec(new GenericType<Set<Foo>>() {}, codec3)
     .build());
 
 // register many codecs
 Map<QualifiedType<?>, Codec<?>> codecs = ...
-jdbi.registerCodecFactory(new CodecFactory(codecs));
+builder.registerCodecFactory(new CodecFactory(codecs));
+
+Jdbi jdbi = builder.build();
 ----
 
 Codec example:
@@ -3352,23 +3699,24 @@ link:{jdbidocs}/core/Handle.html[Handle^] from
 link:{jdbidocs}/core/Jdbi.html[Jdbi^], when opening a
 link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] from the Handle, and when attaching or creating an on-demand extension such as link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^].
 
-A configurable Jdbi object implements the
-link:{jdbidocs}/core/config/Configurable.html[Configurable^] interface which allows modification of its configuration as well as retrieving the current context's configuration for use by Jdbi core or extensions.
+In Jdbi 4 configuration is assembled up front and is then read-only.
+A link:{jdbidocs}/core/Jdbi.Builder.html[Jdbi.Builder^] (during assembly) and each link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] (for a single execution) implement the link:{jdbidocs}/core/config/Configurable.html[Configurable^] interface, which registers mappers, arguments, and other extensions.
+A built link:{jdbidocs}/core/Jdbi.html[Jdbi^] and an open link:{jdbidocs}/core/Handle.html[Handle^] are read-only: they implement link:{jdbidocs}/core/statement/ConfigReader.html[ConfigReader^] and expose the current context's configuration as a link:{jdbidocs}/core/config/ConfigView.html[ConfigView^] for reading and safe copy-on-write derivation, but not in-place mutation.
 
 [source,java,indent=0]
 ----
+// assemble configuration up front on the builder
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .configure(SqlStatements.class, s -> s.unusedBindingAllowed(true))
+    .build();
 
-// fetch the config registry object
-ConfigRegistry config = jdbi.getConfig();
-
-// access the SqlStatements configuration object:
+// read a configuration object from a built Jdbi (or an open Handle)
+ConfigView config = jdbi.getConfig();
 SqlStatements sqlStatements = jdbi.getConfig(SqlStatements.class);
 
-// modify a setting in SqlStatements with a callback
-jdbi.configure(SqlStatements.class, s -> s.setUnusedBindingAllowed(true));
-
-// modify a setting in SqlStatements with direct method invocation
-jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
+// configuration that applies to a single execution is set on the statement
+handle.createQuery("SELECT * FROM users")
+    .configure(SqlStatements.class, s -> s.unusedBindingAllowed(true));
 ----
 
 The link:{jdbidocs}/core/config/Configurable.html[Configurable^]
@@ -3605,7 +3953,7 @@ link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^]) to locate SQL s
 
 | link:{jdbidocs}/json/JsonConfig.html[JsonConfig^] | jsonMapper
 | link:{jdbidocs}/json/JsonMapper.html[JsonMapper^] | see description
-| Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi3-gson2`, `jdbi3-jackson2`, `jdbi3-jackson3`, or `jdbi3-moshi` plugin, this is automatically set to the provided implementation.
+| Sets the JSON implementation used to serialize and deserialize json columns. Needs to be set when using the generic Json serialization/deserialization mapper. When installing the `jdbi-gson2`, `jdbi-jackson2`, `jdbi-jackson3`, or `jdbi-moshi` plugin, this is automatically set to the provided implementation.
 
 If none of these modules is loaded, it defaults to an implementation that throws an exception whenever serialization or deserialization is attempted.
 
@@ -3696,7 +4044,9 @@ Any array type directly supported by the JDBC driver can be registered using:
 
 [source,java,indent=0]
 ----
-jdbi.registerArrayType(int.class, "integer");
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .registerArrayType(int.class, "integer")
+    .build();
 ----
 
 Here, `"integer"` is the SQL type name that the JDBC driver supports natively.
@@ -3706,7 +4056,7 @@ Plugins like `PostgresPlugin` and `H2DatabasePlugin` automatically register the 
 
 [TIP]
 Postgres supports enum array types, so you can register an array type for
-`enum Colors { red, blue }` using `jdbi.registerArrayType(Colors.class, "colors")`
+`enum Colors { red, blue }` using `builder.registerArrayType(Colors.class, "colors")`
 where `"colors"` is a user-defined enum type name in your database.
 
 === Binding custom array types
@@ -3736,8 +4086,8 @@ You can now bind instances of `User[]` to arguments of data type `integer[]`:
 User user1 = new User(1, "bob");
 User user2 = new User(42, "alice");
 
-handle.registerArrayType(new UserArrayType());
 handle.createUpdate("INSERT INTO groups (id, user_ids) VALUES (:id, :users)")
+    .registerArrayType(new UserArrayType())
     .bind("id", 1)
     .bind("users", new User[] {user1, user2})
     .execute();
@@ -3763,8 +4113,8 @@ public class UserIdColumnMapper implements ColumnMapper<UserId> {
 
 [source,java,indent=0]
 ----
-handle.registerColumnMapper(new UserIdColumnMapper());
 List<UserId> userIds = handle.createQuery("SELECT user_ids FROM groups WHERE id = :id")
+    .registerColumnMapper(new UserIdColumnMapper())
     .bind("id", 1)
     .mapTo(new GenericType<List<UserId>>() {})
     .one();
@@ -3792,7 +4142,7 @@ For Apache Maven:
 <dependencies>
     <dependency>
         <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-sqlobject</artifactId>
+        <artifactId>jdbi-sqlobject</artifactId>
         <version>{project_version}</version>
     </dependency>
 </dependencies>
@@ -3803,16 +4153,17 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-sqlobject:{project_version}")
+    implementation("org.jdbi:jdbi-sqlobject:{project_version}")
 }
 ----
 
-Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
+Then install the plugin when building the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,java,indent=0]
 ----
-Jdbi jdbi = ...
-jdbi.installPlugin(new SqlObjectPlugin());
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new SqlObjectPlugin())
+    .build();
 ----
 
 With SQL Object, you declare a public interface class as a SQL Object extension type, add methods for database operations, and specify what SQL statement to execute.
@@ -5748,10 +6099,10 @@ Also, arrays cannot be qualified.
 
 These features currently make use of qualified types:
 
-- `@NVarchar` and `@MacAddr` (the latter in `jdbi3-postgres`) bind and map Strings as `nvarchar` and `macaddr`
+- `@NVarchar` and `@MacAddr` (the latter in `jdbi-postgres`) bind and map Strings as `nvarchar` and `macaddr`
 respectively, instead of the usual `varchar`.
-- `jdbi3-postgres` offers <<postgres-hstore,HStore>>.
-- <<jdbi3-json,JSON>>
+- `jdbi-postgres` offers <<postgres-hstore,HStore>>.
+- <<jdbi-json,JSON>>
 - link:{jdbidocs}/core/mapper/reflect/BeanMapper.html[BeanMapper^], link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^], link:{jdbidocs}/sqlobject/config/RegisterBeanMapper.html[@RegisterBeanMapper^], `mapTobean()`, and
 link:{jdbidocs}/core/statement/SqlStatement.html#bindBean(java.lang.Object)[bindBean()^] respect qualifiers on getters, setters, and setter parameters.
 - `ConstructorMapper` and link:{jdbidocs}/sqlobject/config/RegisterConstructorMapper.html[@RegisterConstructorMapper^] respect qualifiers on constructor parameters.
@@ -5914,19 +6265,19 @@ Multiple comment styles are supported:
 
 Each piece of core or extension that wishes to participate in configuration defines a configuration class, for example the `SqlStatements`
 class stores SqlStatement related configuration.
-Then, on any link:{jdbidocs}/core/config/Configurable.html[Configurable^] context (like a link:{jdbidocs}/core/Jdbi.html[Jdbi^] or link:{jdbidocs}/core/Handle.html[Handle^]) you can change configuration in a type safe way:
+Then, on a link:{jdbidocs}/core/config/Configurable.html[Configurable^] context -- the link:{jdbidocs}/core/Jdbi.Builder.html[Jdbi.Builder^] during assembly, or a link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] for a single execution -- you can change configuration in a type safe way:
 
 [source,java,indent=0]
 ----
-jdbi.getConfig(SqlStatements.class).setUnusedBindingAllowed(true);
-jdbi.getConfig(Arguments.class).register(new MyTypeArgumentFactory());
-jdbi.getConfig(Handles.class).setForceEndTransactions(true);
-
-// Or, if you have a bunch of work to do:
-jdbi.configure(RowMappers.class, rm -> {
-    rm.register(new TypeARowMapperFactory();
-    rm.register(new TypeBRowMapperFactory();
-});
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .configure(SqlStatements.class, s -> s.unusedBindingAllowed(true))
+    .configure(Arguments.class, a -> a.register(new MyTypeArgumentFactory()))
+    .configure(Handles.class, h -> h.forceEndTransactions(true))
+    // Or, if you have a bunch of work to do:
+    .configure(RowMappers.class, rm -> rm
+        .register(new TypeARowMapperFactory())
+        .register(new TypeBRowMapperFactory()))
+    .build();
 ----
 
 === Statement caching
@@ -5945,9 +6296,9 @@ Jdbi provides link:{jdbidocs}/core/cache/package-summary.html[a cache SPI^] for 
 
 The following cache implementations are included:
 
-- `jdbi3-caffeine-cache` - Using the https://github.com/ben-manes/caffeine[Caffeine^] cache library.
+- `jdbi-caffeine-cache` - Using the https://github.com/ben-manes/caffeine[Caffeine^] cache library.
 This used to be the default cache up to version 3.36.0
-- `jdbi3-noop-cache`, - Disables caching.
+- `jdbi-noop-cache`, - Disables caching.
 This is useful for testing and debugging.
 
 A cache module can provide a plugin to enable it.
@@ -5956,7 +6307,9 @@ Only one plugin can be in use at a time (last one installed wins):
 [source,java,indent=0]
 ----
     // use the caffeine cache library
-    jdbi.installPlugin(new CaffeineCachePlugin());
+    Jdbi jdbi = Jdbi.builder(dataSource)
+        .installPlugin(new CaffeineCachePlugin())
+        .build();
 ----
 
 ==== Using custom cache instances
@@ -5994,7 +6347,7 @@ These are only intended for Jdbi internal use and not part of the official, publ
 
 === JUnit
 
-The `jdbi3-testing` artifact provides link:{jdbidocs}/testing/junit/JdbiExtension.html[JdbiExtension^] for JUnit based tests.
+The `jdbi-testing` artifact provides link:{jdbidocs}/testing/junit/JdbiExtension.html[JdbiExtension^] for JUnit based tests.
 
 It supports both the https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/RegisterExtension.html[@RegisterExtension^] and https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/extension/ExtendWith.html[@ExtendWith^] annotations.
 
@@ -6227,7 +6580,7 @@ Configuration to limit large amounts of data recorded is available on the `SqlSt
 
 The link:https://opentelemetry.io/[OpenTelemetry^] project provides a SDK to implement distributed tracing.
 Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^]
-from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data similarly as JFR events above.
+from the `jdbi-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data similarly as JFR events above.
 Additionally, it will add the trace id to JFR events.
 
 == Third-Party Integration
@@ -6250,7 +6603,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-guava</artifactId>
+    <artifactId>jdbi-guava</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6260,7 +6613,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-guava:{project_version}")
+    implementation("org.jdbi:jdbi-guava:{project_version}")
 }
 ----
 
@@ -6268,7 +6621,9 @@ Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new GuavaPlugin());
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new GuavaPlugin())
+    .build();
 ----
 
 With the plugin installed, any supported Guava collection type can be returned from a SQL object method:
@@ -6288,20 +6643,22 @@ instance:
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new H2DatabasePlugin());
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new H2DatabasePlugin())
+    .build();
 ----
 
-[[jdbi3-json]]
+[[jdbi-json]]
 === JSON
 
-The `jdbi3-json` module adds a link:{jdbidocs}/json/Json.html[@Json^] type qualifier that allows to store arbitrary Java objects as JSON data in your database.
+The `jdbi-json` module adds a link:{jdbidocs}/json/Json.html[@Json^] type qualifier that allows to store arbitrary Java objects as JSON data in your database.
 
 The actual JSON (de)serialization code is not included.
 For that, you must install a backing plugin (see below).
 
 [TIP]
 Backing plugins will install the `JsonPlugin` for you.
-You do *not* need to install it yourself or include the `jdbi3-json` dependency directly.
+You do *not* need to install it yourself or include the `jdbi-json` dependency directly.
 
 The feature has been tested with Postgres `json` columns and `varchar` columns in H2 and Sqlite.
 
@@ -6315,7 +6672,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-jackson2</artifactId>
+    <artifactId>jdbi-jackson2</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6325,15 +6682,17 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-jackson2:{project_version}")
+    implementation("org.jdbi:jdbi-jackson2:{project_version}")
 }
 ----
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new Jackson2Plugin());
-// optionally configure your ObjectMapper (recommended)
-jdbi.getConfig(Jackson2Config.class).setMapper(myObjectMapper);
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new Jackson2Plugin())
+    // optionally configure your ObjectMapper (recommended)
+    .configure(Jackson2Config.class, c -> c.mapper(myObjectMapper))
+    .build();
 
 // now with simple support for Json Views if you want to filter properties:
 jdbi.getConfig(Jackson2Config.class).setView(ApiProperty.class);
@@ -6349,7 +6708,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-jackson3</artifactId>
+    <artifactId>jdbi-jackson3</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6359,15 +6718,17 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-jackson3:{project_version}")
+    implementation("org.jdbi:jdbi-jackson3:{project_version}")
 }
 ----
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new Jackson3Plugin());
-// optionally configure your ObjectMapper (recommended)
-jdbi.getConfig(Jackson3Config.class).setMapper(myObjectMapper);
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new Jackson3Plugin())
+    // optionally configure your ObjectMapper (recommended)
+    .configure(Jackson3Config.class, c -> c.mapper(myObjectMapper))
+    .build();
 
 // now with simple support for Json Views if you want to filter properties:
 jdbi.getConfig(Jackson3Config.class).setView(ApiProperty.class);
@@ -6383,7 +6744,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-gson2</artifactId>
+    <artifactId>jdbi-gson2</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6393,15 +6754,17 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-gson2:{project_version}")
+    implementation("org.jdbi:jdbi-gson2:{project_version}")
 }
 ----
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new Gson2Plugin());
-// optional
-jdbi.getConfig(Gson2Config.class).setGson(myGson);
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new Gson2Plugin())
+    // optional
+    .configure(Gson2Config.class, c -> c.gson(myGson))
+    .build();
 ----
 
 ==== Moshi
@@ -6415,7 +6778,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-moshi</artifactId>
+    <artifactId>jdbi-moshi</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6425,15 +6788,17 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-moshi:{project_version}")
+    implementation("org.jdbi:jdbi-moshi:{project_version}")
 }
 ----
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new MoshiPlugin());
-// optional
-jdbi.getConfig(MoshiConfig.class).setMoshi(myMoshi);
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new MoshiPlugin())
+    // optional
+    .configure(MoshiConfig.class, c -> c.moshi(myMoshi))
+    .build();
 ----
 
 ==== Operation
@@ -6511,7 +6876,7 @@ We do support the configurable `get`, `is`, and `set` prefixes.
 
 Just tell us about your types by installing the plugin and configuring your `Immutables` type:
 
-`jdbi.registerImmutable(MyValueType.class)`
+`builder.registerImmutable(MyValueType.class)` on the `Jdbi.Builder`
 
 The configuration will both register appropriate link:{jdbidocs}/core/mapper/RowMapper.html[RowMapper^]&#8288;s as well as configure the new link:{jdbidocs}/core/statement/SqlStatement.html#bindPojo(java.lang.Object) (or `@BindPojo`) binders:
 
@@ -6532,7 +6897,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-jodatime2</artifactId>
+    <artifactId>jdbi-jodatime2</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -6542,7 +6907,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-jodatime2:{project_version}")
+    implementation("org.jdbi:jdbi-jodatime2:{project_version}")
 }
 ----
 
@@ -6550,7 +6915,9 @@ Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new JodaTimePlugin());
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new JodaTimePlugin())
+    .build();
 ----
 
 === Google Guice
@@ -6574,7 +6941,7 @@ They are most useful in larger projects.
 For a long time, Java used the https://javax-inject.github.io/javax-inject/[JSR-330^] annotations in the `javax.inject` namespace to define dependency injections.
 The https://jakarta.ee/release/9/[Java Enterprise Edition 9^] specification updated the dependency injection specification to https://jakarta.ee/specifications/dependency-injection/2.0/[version 2.0^], which changed the namespace to `jakarta.inject`.
 
-The `jdbi3-guice` module supports all Google Guice releases since 5.x including 6.x (which uses `javax.inject` annotations) and 7.x (which uses `jakarta.inject`).
+The `jdbi-guice` module supports all Google Guice releases since 5.x including 6.x (which uses `javax.inject` annotations) and 7.x (which uses `jakarta.inject`).
 
 ==== Definition modules
 
@@ -6841,9 +7208,9 @@ class GuiceCustomizationModule extends AbstractJdbiDefinitionModule {
 class MyCustomizer implements GuiceJdbiCustomizer {
 
     @Override
-    public void customize(Jdbi jdbi) {
+    public void customize(Jdbi.Builder builder) {
         // set the logger to use Slf4j
-        jdbi.setSqlLogger(new Slf4JSqlLogger());
+        builder.setSqlLogger(new Slf4JSqlLogger());
     }
 }
 ----
@@ -7029,8 +7396,8 @@ class JdbiSpecialLogging implements GuiceJdbiCustomizer {
     }
 
     @Override
-    public void customize(Jdbi jdbi) {
-        jdbi.setSqlLogger(new SpecialSqlLogger(logger));
+    public void customize(Jdbi.Builder builder) {
+        builder.setSqlLogger(new SpecialSqlLogger(logger));
     }
 }
 
@@ -7256,7 +7623,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-jpa</artifactId>
+    <artifactId>jdbi-jpa</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7266,7 +7633,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-jpa:{project_version}")
+    implementation("org.jdbi:jdbi-jpa:{project_version}")
 }
 ----
 
@@ -7274,7 +7641,9 @@ Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new JpaPlugin());
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new JpaPlugin())
+    .build();
 ----
 
 Annotate your entity with JPA annotations:
@@ -7318,17 +7687,17 @@ Honestly though... just tear off the bandage and switch to Jdbi proper.
 
 === Kotlin
 
-https://kotlinlang.org/[Kotlin^] support is provided by *jdbi3-kotlin* and *jdbi3-kotlin-sqlobject* modules.
+https://kotlinlang.org/[Kotlin^] support is provided by *jdbi-kotlin* and *jdbi-kotlin-sqlobject* modules.
 
 Kotlin API documentation:
 
-* link:apidocs-kotlin/jdbi3-kotlin/index.html[jdbi3-kotlin^]
-* link:apidocs-kotlin/jdbi3-kotlin-sqlobject/index.html[jdbi3-kotlin-sqlobject^]
+* link:apidocs-kotlin/jdbi-kotlin/index.html[jdbi-kotlin^]
+* link:apidocs-kotlin/jdbi-kotlin-sqlobject/index.html[jdbi-kotlin-sqlobject^]
 
 
 ==== ResultSet Mapping
 
-The *jdbi3-kotlin* plugin adds mapping support for Kotlin data classes.
+The *jdbi-kotlin* plugin adds mapping support for Kotlin data classes.
 
 Data classes where all fields are present in the constructor and classes with writable properties are supported.
 Nullable types are supported.
@@ -7343,7 +7712,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-kotlin</artifactId>
+    <artifactId>jdbi-kotlin</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7353,7 +7722,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-kotlin:{project_version}")
+    implementation("org.jdbi:jdbi-kotlin:{project_version}")
 }
 ----
 
@@ -7368,7 +7737,9 @@ Then install the link:{kotlindocs}core.kotlin/-kotlin-plugin/[Kotlin Plugin^] in
 
 [source,kotlin]
 ----
-jdbi.installPlugin(KotlinPlugin());
+val jdbi = Jdbi.builder(dataSource)
+    .installPlugin(KotlinPlugin())
+    .build()
 ----
 
 The Kotlin mapper also supports link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation that allows to specify name for a property or parameter explicitly, as well as the link:{jdbidocs}/core/mapper/Nested.html[@Nested^] annotation that allows mapping nested Kotlin objects.
@@ -7498,7 +7869,7 @@ val result = handle.createQuery("SELECT id, planet, moon FROM orbits")
 
 ==== SqlObject
 
-The *jdbi3-kotlin-sqlobject* plugin adds automatic parameter binding by name for Kotlin methods in SqlObjects as well as support for Kotlin default methods.
+The *jdbi-kotlin-sqlobject* plugin adds automatic parameter binding by name for Kotlin methods in SqlObjects as well as support for Kotlin default methods.
 
 To use it, add a dependency:
 
@@ -7508,7 +7879,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-kotlin-sqlobject</artifactId>
+    <artifactId>jdbi-kotlin-sqlobject</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7518,7 +7889,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-kotlin-sqlobject:{project_version}")
+    implementation("org.jdbi:jdbi-kotlin-sqlobject:{project_version}")
 }
 ----
 
@@ -7526,7 +7897,9 @@ Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance:
 
 [source,kotlin]
 ----
-jdbi.installPlugin(KotlinSqlObjectPlugin());
+val jdbi = Jdbi.builder(dataSource)
+    .installPlugin(KotlinSqlObjectPlugin())
+    .build()
 ----
 
 Parameter binding supports individual primitive types as well as Kotlin or JavaBean style objects as a parameter (referenced in binding as
@@ -7715,7 +8088,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-oracle12</artifactId>
+    <artifactId>jdbi-oracle12</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7725,7 +8098,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-oracle12:{project_version}")
+    implementation("org.jdbi:jdbi-oracle12:{project_version}")
 }
 ----
 
@@ -7737,7 +8110,7 @@ to get the returned DML.
 
 === PostgreSQL
 
-The *jdbi3-postgres* plugin provides enhanced integration with the
+The *jdbi-postgres* plugin provides enhanced integration with the
 https://jdbc.postgresql.org/[PostgreSQL JDBC Driver^].
 
 To use this feature, add a dependency:
@@ -7748,7 +8121,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-postgres</artifactId>
+    <artifactId>jdbi-postgres</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7758,7 +8131,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-postgres:{project_version}")
+    implementation("org.jdbi:jdbi-postgres:{project_version}")
 }
 ----
 
@@ -7912,7 +8285,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-spring</artifactId>
+    <artifactId>jdbi-spring</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -7922,7 +8295,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-spring:{project_version}")
+    implementation("org.jdbi:jdbi-spring:{project_version}")
 }
 ----
 
@@ -8088,7 +8461,7 @@ public class UserService {
 
 === SQLite
 
-The *jdbi3-sqlite* plugin provides support for using the https://github.com/xerial/sqlite-jdbc[SQLite JDBC Driver^] with Jdbi.
+The *jdbi-sqlite* plugin provides support for using the https://github.com/xerial/sqlite-jdbc[SQLite JDBC Driver^] with Jdbi.
 
 The plugin configures support for some data types, e.g. link:{jdkdocs}/java.base/java/net/URL.html[URL^].
 
@@ -8100,7 +8473,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-sqlite</artifactId>
+    <artifactId>jdbi-sqlite</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8110,7 +8483,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-sqlite:{project_version}")
+    implementation("org.jdbi:jdbi-sqlite:{project_version}")
 }
 ----
 
@@ -8135,7 +8508,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-stringtemplate4</artifactId>
+    <artifactId>jdbi-stringtemplate4</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8145,7 +8518,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-stringtemplate4:{project_version}")
+    implementation("org.jdbi:jdbi-stringtemplate4:{project_version}")
 }
 ----
 
@@ -8284,7 +8657,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-freemarker</artifactId>
+    <artifactId>jdbi-freemarker</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8294,7 +8667,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-freemarker:{project_version}")
+    implementation("org.jdbi:jdbi-freemarker:{project_version}")
 }
 ----
 
@@ -8431,7 +8804,7 @@ For Apache Maven:
 ----
 <dependency>
     <groupId>org.jdbi</groupId>
-    <artifactId>jdbi3-vavr</artifactId>
+    <artifactId>jdbi-vavr</artifactId>
     <version>{project_version}</version>
 </dependency>
 ----
@@ -8441,7 +8814,7 @@ For Gradle:
 [source,groovy,subs="attributes,specialchars"]
 ----
 dependencies {
-    implementation("org.jdbi:jdbi3-vavr:{project_version}")
+    implementation("org.jdbi:jdbi-vavr:{project_version}")
 }
 ----
 
@@ -8451,7 +8824,9 @@ The Jdbi plugin only supports 0.9.x and 0.10.x and requires recompilation for va
 
 [source,java,indent=0]
 ----
-jdbi.installPlugin(new VavrPlugin());
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .installPlugin(new VavrPlugin())
+    .build();
 ----
 
 Here are some usage examples of the features listed above:
@@ -8530,11 +8905,10 @@ Using the `TupleMappers` class you can configure your projections.(In fact, you 
 
 [source,java,indent=0]
 ----
-handle.configure(TupleMappers.class, c -> c.setColumn(2, "street").setColumn(3, "housenumber"));
-
 Tuple3<City, String, Integer> result = handle
     .createQuery("SELECT cityname, zipcode, street, housenumber " +
                  "FROM addresses WHERE user_id = 1")
+    .configure(TupleMappers.class, c -> c.column(2, "street").column(3, "housenumber"))
     .mapTo(new GenericType<Tuple3<City, String, Integer>>() {})
     .one();
 ----
@@ -8562,11 +8936,6 @@ class InjectedDependencies implements JdbiConfig<InjectedDependencies> {
     SomeDependency dep;
 
     public InjectedDependencies() {}
-
-    @Override
-    public InjectedDependencies createCopy() {
-        return this; // effectively immutable
-    }
 }
 
 Jdbi jdbi = Jdbi.create(myDataSource);
@@ -9508,13 +9877,10 @@ link:{jdbidocs}/core/statement/SqlStatement.html[SqlStatement^] from the Handle,
 
 The configuration itself is stored in implementations of the
 link:{jdbidocs}/core/config/JdbiConfig.html[JdbiConfig^] interface.
-Each implementation must adhere to the contract of the interface; in particular it must have a public no-argument constructor that provides useful defaults and an implementation of the
-link:{jdbidocs}/core/config/JdbiConfig.html#createCopy()[JdbiConfig#createCopy^]
-method that is invoked when a configuration registry is cloned.
+Each implementation must have a public no-argument constructor that provides useful defaults, and must be immutable: instead of a setter, a "wither" method returns a new instance carrying the change, which the context's
+link:{jdbidocs}/core/config/Configurable.html[configure^] method installs into the registry.
 
-Configuration should be set on a context before that context is used, and not changed later.
-Some configuration classes may be thread-safe but most are not.
-Configuration objects should be implemented so that they are cheap to copy, for example the base ones use copy-on-write collections.
+Because config values are immutable they are shared by reference, not copied, when a context derives its configuration, and they may be read concurrently from many threads. Configure values before a context is used; a value already in use never changes in place.
 
 Many of Jdbi's core features, for example argument or mapper registries, are simply implementations of link:{jdbidocs}/core/config/JdbiConfig.html[JdbiConfig^] that store the registered mappings for later use during query execution.
 
@@ -9525,13 +9891,11 @@ include::{exampledir}/ExampleConfig.java[tags=exampleConfig]
 
 ==== Creating a custom JdbiConfig type
 
-* Create a public class that implements JdbiConfig.
-* Add a public, no-argument constructor
-* Add a private, copy constructor.
-* Implement `createCopy()` to call the copy constructor.
-* Add config properties, and provide sane defaults for each property.
-* Ensure that all config properties get copied to the new instance in the copy constructor.
-* Override `setConfig(ConfigRegistry)` if your config class wants to be able to use other config classes in the registry.
+* Create a public class that implements JdbiConfig, with all fields `final`.
+* Add a public, no-argument constructor that sets a sane default for each property.
+* Add a private, all-arguments constructor.
+* For each property, add a getter and a "wither" that returns a new instance with that one property changed, delegating to the all-arguments constructor.
+* If your config class needs to read another config class in the registry, declare a public constructor that takes a `ConfigRegistry`; Jdbi passes the registry when it creates the value.
 E.g. RowMappers registry delegates to ColumnMappers registry, if it does not have a mapper registered for a given type.
 * Use that configuration object from other classes that are interested in it.
 ** e.g. BeanMapper, FieldMapper, and ConstructorMapper all use the ReflectionMappers config class to keep common configuration.
@@ -9617,7 +9981,7 @@ In the above example, the `columns` attribute is defined as `"id, name"`.
 
 Jdbi supports custom template engines through the link:{jdbidocs}/core/statement/TemplateEngine.html[TemplateEngine^]
 interface.
-By calling link:{jdbidocs}/core/config/Configurable.html#setTemplateEngine(org.jdbi.core.statement.TemplateEngine)[Configurable#setTemplateEngine()^] method on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the template engine used to render SQL can be changed:
+By calling link:{jdbidocs}/core/config/Configurable.html#setTemplateEngine(org.jdbi.core.statement.TemplateEngine)[Configurable#setTemplateEngine()^] method on the link:{jdbidocs}/core/Jdbi.Builder.html[Jdbi.Builder^] or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the template engine used to render SQL can be changed:
 
 [source,java,indent=0]
 ----
@@ -9625,7 +9989,9 @@ TemplateEngine templateEngine = (template, ctx) -> {
   ...
 };
 
-jdbi.setTemplateEngine(templateEngine);
+Jdbi jdbi = Jdbi.builder(dataSource)
+    .setTemplateEngine(templateEngine)
+    .build();
 ----
 
 [TIP]
@@ -9658,12 +10024,12 @@ Jdbi also provides link:{jdbidocs}/core/statement/HashPrefixSqlParser.html[HashP
 Other custom parsers implement the link:{jdbidocs}/core/statement/SqlParser.html[SqlParser^]
 interface.
 
-By calling link:{jdbidocs}/core/config/Configurable.html#setSqlParser(org.jdbi.core.statement.SqlParser)[Configurable#setSqlParser()^] method on the link:{jdbidocs}/core/Jdbi.html[Jdbi^], link:{jdbidocs}/core/Handle.html[Handle^], or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the parser used to define named arguments can be changed:
+By calling link:{jdbidocs}/core/config/Configurable.html#setSqlParser(org.jdbi.core.statement.SqlParser)[Configurable#setSqlParser()^] method on the link:{jdbidocs}/core/Jdbi.Builder.html[Jdbi.Builder^] or any SQL statement like link:{jdbidocs}/core/statement/Update.html[Update^] or link:{jdbidocs}/core/statement/Query.html[Query^], the parser used to define named arguments can be changed:
 
 [source,java,indent=0]
 ----
-handle.setSqlParser(new HashPrefixSqlParser())
-      .createUpdate("INSERT INTO characters (id, name) VALUES (#id, #name)")
+handle.createUpdate("INSERT INTO characters (id, name) VALUES (#id, #name)")
+      .setSqlParser(new HashPrefixSqlParser())
       .bind("id", 2)
       .bind("name", "Teddy Flood")
       .execute();
@@ -9712,7 +10078,7 @@ Most users will not need to implement the *ResultProducer* interface.
 === Jdbi SQL object code generator
 
 Jdbi includes an experimental SqlObject code generator.
-If you include the `jdbi3-generator` artifact as an annotation processor and annotate your SqlObject definitions with `@GenerateSqlObject`, the generator will produce an implementing class and avoids using
+If you include the `jdbi-generator` artifact as an annotation processor and annotate your SqlObject definitions with `@GenerateSqlObject`, the generator will produce an implementing class and avoids using
 link:{jdkdocs}/java.base/java/lang/reflect/Proxy.html[Java proxy^] instances.
 
 === GraalVM Native Image
@@ -9756,9 +10122,9 @@ public class ExampleJdbiPlugin
         implements JdbiPlugin, HandleCallbackDecorator
 {
     @Override
-    public void customizeJdbi(Jdbi jdbi)
+    public void configure(Jdbi.Builder builder)
     {
-        jdbi.setHandleCallbackDecorator(this);
+        builder.handleCallbackDecorator(this);
     }
 
     @Override
@@ -9841,8 +10207,8 @@ And then measure again to be sure it made a difference.
 === API Reference
 
 * link:apidocs/index.html[Javadoc^]
-* link:apidocs-kotlin/jdbi3-kotlin/index.html[jdbi3-kotlin^]
-* link:apidocs-kotlin/jdbi3-kotlin-sqlobject/index.html[jdbi3-kotlin-sqlobject^]
+* link:apidocs-kotlin/jdbi-kotlin/index.html[jdbi-kotlin^]
+* link:apidocs-kotlin/jdbi-kotlin-sqlobject/index.html[jdbi-kotlin-sqlobject^]
 
 === Related Projects
 
@@ -9865,7 +10231,7 @@ General:
 
 * Maven artifacts renamed and split out:
 * Old: `org.jdbi:jdbi`
-* New: `org.jdbi:jdbi3-core`, `org.jdbi:jdbi3-sqlobject`, etc.
+* New: `org.jdbi:jdbi-core`, `org.jdbi:jdbi-sqlobject`, etc.
 * Root package renamed: `org.skife.jdbi.v2` -> `org.jdbi`
 
 Core API:
@@ -9911,8 +10277,9 @@ It must be added as a separate dependency, and the plugin installed into the lin
 
 [source,java,indent=0]
 ----
-Jdbi jdbi = Jdbi.create(...);
-jdbi.installPlugin(new SqlObjectPlugin());
+Jdbi jdbi = Jdbi.builder(...)
+    .installPlugin(new SqlObjectPlugin())
+    .build();
 ----
 
 * SQL Object types in v3 must be public interfaces--no classes.

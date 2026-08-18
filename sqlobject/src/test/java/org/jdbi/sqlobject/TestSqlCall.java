@@ -66,6 +66,18 @@ public class TestSqlCall {
         assertThat(dao.findById(1)).isEqualTo(new Something(1, "Jeff"));
     }
 
+    @Test
+    public void sqlCallReusesTemplateAcrossInvocations() {
+        Dao dao = handle.attach(Dao.class);
+
+        // Each invocation binds a fresh Call against the reused template built once per attach.
+        dao.insert(2, "Brian");
+        dao.insert(3, "Keith");
+
+        assertThat(dao.findById(2)).isEqualTo(new Something(2, "Brian"));
+        assertThat(dao.findById(3)).isEqualTo(new Something(3, "Keith"));
+    }
+
     public interface Dao {
         @SqlCall("call stored_insert(:id, :name)")
         void insert(@Bind("id") int id, @Bind("name") String name);

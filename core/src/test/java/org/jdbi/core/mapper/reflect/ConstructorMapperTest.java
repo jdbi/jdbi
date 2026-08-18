@@ -187,7 +187,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedParametersStrict() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 .configure(ReflectionMappers.class, c -> c.strictMatching(true))
                 .configure(RowMappers.class, r -> r.register(ConstructorMapper.factory(NestedBean.class))))) {
 
@@ -270,7 +270,7 @@ public class ConstructorMapperTest {
 
     @Test
     public void nestedPrefixParametersStrict() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 .configure(ReflectionMappers.class, c -> c.strictMatching(true))
                 .configure(RowMappers.class, r -> r.register(ConstructorMapper.factory(NestedPrefixBean.class))))) {
 

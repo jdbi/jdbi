@@ -44,7 +44,7 @@ public class PrimitivesArgumentFactoryTest {
             .describedAs("binding a null binds the primitive's default")
             .isZero();
 
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, c -> c.bindingNullToPrimitivesPermitted(false)))) {
             assertThatThrownBy(() -> {
                 try (Query query = handle.createQuery("select :foo")) {

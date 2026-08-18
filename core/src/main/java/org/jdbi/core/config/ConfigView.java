@@ -27,8 +27,8 @@ import org.jdbi.meta.Alpha;
  * <p>
  * A {@code ConfigView} obtained from a read-only context is a distinct read-only delegate, not the underlying
  * {@code ConfigRegistry}, so it cannot be cast back to one to reach {@code configure}. To apply configuration, build
- * the {@code Jdbi} with {@link org.jdbi.core.Jdbi#builder}, open a handle with a config scope
- * ({@link org.jdbi.core.Jdbi#open(java.util.function.Consumer)}), or configure a statement (which is copy-on-write).
+ * the {@code Jdbi} with {@link org.jdbi.core.Jdbi#builder} (or derive one with {@link org.jdbi.core.Jdbi#toBuilder}),
+ * or configure a statement (which is copy-on-write).
  */
 public interface ConfigView extends ConfigReader {
 

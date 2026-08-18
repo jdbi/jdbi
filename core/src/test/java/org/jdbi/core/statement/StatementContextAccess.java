@@ -38,4 +38,14 @@ public final class StatementContextAccess {
     public static StatementContext createContext(final Handle handle) {
         return StatementContext.create(handle.getConfig().createChild(), null, StatementContextAccess.class);
     }
+
+    /**
+     * Returns the render context for the given statement context, including its per-execution defines overlay.
+     * This is what a statement passes to its {@link org.jdbi.core.statement.TemplateEngine} at render time; unlike
+     * {@link RenderContext#of(ConfigRegistry)} it sees defines made with {@link StatementContext#define}, not just
+     * configuration.
+     */
+    public static RenderContext renderContext(final StatementContext ctx) {
+        return ctx.renderContext();
+    }
 }

@@ -160,9 +160,4 @@ public final class RowMappers implements JdbiConfig<RowMappers> {
         return factories;
     }
 
-    @Override
-    public RowMappers createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

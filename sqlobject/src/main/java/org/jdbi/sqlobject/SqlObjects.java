@@ -80,9 +80,4 @@ public final class SqlObjects implements JdbiConfig<SqlObjects> {
         return new SqlObjects(sqlLocator, defaultParameterCustomizerFactory);
     }
 
-    @Override
-    public SqlObjects createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

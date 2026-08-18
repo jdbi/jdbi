@@ -13,14 +13,13 @@
  */
 package org.jdbi.core.config;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.core.mapper.RowMapperFactory;
@@ -38,133 +37,113 @@ public class TestConfigRegistry {
     private ConfigRegistry grandchild1;
     private ConfigRegistry grandchild2;
 
-    private TestConfig parentConfig;
-
     @BeforeEach
     public void setUp() {
         this.parent = new ConfigRegistry();
-        this.parentConfig = parent.get(TestConfig.class);
-        this.parentConfig.addList("list1");
-        this.parentConfig.addSet("set1");
-        this.parentConfig.addMap("key1", "value1");
+        // TestConfig values are immutable, so a change is installed with configure() rather than mutated in place.
+        parent.configure(TestConfig.class, c -> c.addList("list1").addSet("set1").addMap("key1", "value1"));
     }
 
     @Test
     public void testInheritParentValues() {
-        validateSingleConfig(parentConfig);
+        validateSingleConfig(parent.get(TestConfig.class));
 
         child1 = parent.createCopy();
-        TestConfig child1Config = child1.get(TestConfig.class);
-        validateSingleConfig(child1Config);
+        validateSingleConfig(child1.get(TestConfig.class));
 
         child2 = parent.createCopy();
-        TestConfig child2Config = child1.get(TestConfig.class);
-        validateSingleConfig(child2Config);
+        validateSingleConfig(child2.get(TestConfig.class));
 
         grandchild1 = child1.createCopy();
-        TestConfig grandchild1Config = grandchild1.get(TestConfig.class);
-        validateSingleConfig(grandchild1Config);
+        validateSingleConfig(grandchild1.get(TestConfig.class));
 
         grandchild2 = child2.createCopy();
-        TestConfig grandchild2Config = grandchild2.get(TestConfig.class);
-        validateSingleConfig(grandchild2Config);
+        validateSingleConfig(grandchild2.get(TestConfig.class));
     }
 
     @Test
     public void testModifyParentAfterCopy() {
-        validateSingleConfig(parentConfig);
+        validateSingleConfig(parent.get(TestConfig.class));
 
         child1 = parent.createCopy();
-        TestConfig child1Config = child1.get(TestConfig.class);
-        validateSingleConfig(child1Config);
+        validateSingleConfig(child1.get(TestConfig.class));
 
-        parentConfig.addList("list2");
-        parentConfig.addSet("set2");
+        parent.configure(TestConfig.class, c -> c.addList("list2").addSet("set2"));
 
-        validateDoubleConfig(parentConfig);
-        validateSingleConfig(child1Config);
+        // createCopy() snapshots the value set, so a later change to the parent does not reach the copy.
+        validateDoubleConfig(parent.get(TestConfig.class));
+        validateSingleConfig(child1.get(TestConfig.class));
 
         grandchild1 = child1.createCopy();
-        TestConfig grandchild1Config = grandchild1.get(TestConfig.class);
 
-        child1Config.addList("list2");
-        child1Config.addSet("set2");
+        child1.configure(TestConfig.class, c -> c.addList("list2").addSet("set2"));
 
-        validateDoubleConfig(parentConfig);
-        validateDoubleConfig(child1Config);
-        validateSingleConfig(grandchild1Config);
+        validateDoubleConfig(parent.get(TestConfig.class));
+        validateDoubleConfig(child1.get(TestConfig.class));
+        validateSingleConfig(grandchild1.get(TestConfig.class));
     }
 
     @Test
     public void testModifyChildAfterCopy() {
-        validateSingleConfig(parentConfig);
+        validateSingleConfig(parent.get(TestConfig.class));
 
         child1 = parent.createCopy();
-        TestConfig child1Config = child1.get(TestConfig.class);
-        validateSingleConfig(child1Config);
+        validateSingleConfig(child1.get(TestConfig.class));
 
-        child1Config.addList("list2");
-        child1Config.addSet("set2");
+        child1.configure(TestConfig.class, c -> c.addList("list2").addSet("set2"));
 
-        validateDoubleConfig(child1Config);
-        validateSingleConfig(parentConfig);
+        // installing on the child does not touch the parent's value.
+        validateDoubleConfig(child1.get(TestConfig.class));
+        validateSingleConfig(parent.get(TestConfig.class));
 
         grandchild1 = child1.createCopy();
-        TestConfig grandchild1Config = grandchild1.get(TestConfig.class);
 
-        grandchild1Config.addList("list3");
-        grandchild1Config.addSet("set3");
+        grandchild1.configure(TestConfig.class, c -> c.addList("list3").addSet("set3"));
 
-        validateTripleConfig(grandchild1Config);
-        validateDoubleConfig(child1Config);
-        validateSingleConfig(parentConfig);
+        validateTripleConfig(grandchild1.get(TestConfig.class));
+        validateDoubleConfig(child1.get(TestConfig.class));
+        validateSingleConfig(parent.get(TestConfig.class));
     }
 
     @Test
     public void testSiblingsAreIndependent() {
-        validateSingleConfig(parentConfig);
+        validateSingleConfig(parent.get(TestConfig.class));
 
         child1 = parent.createCopy();
-        TestConfig child1Config = child1.get(TestConfig.class);
-        validateSingleConfig(child1Config);
+        validateSingleConfig(child1.get(TestConfig.class));
 
         child2 = parent.createCopy();
-        TestConfig child2Config = child2.get(TestConfig.class);
-        validateSingleConfig(child2Config);
+        validateSingleConfig(child2.get(TestConfig.class));
 
-        child1Config.addList("list2");
-        child1Config.addSet("set2");
+        child1.configure(TestConfig.class, c -> c.addList("list2").addSet("set2"));
 
-        validateDoubleConfig(child1Config);
-        validateSingleConfig(parentConfig);
-        validateSingleConfig(child2Config);
+        validateDoubleConfig(child1.get(TestConfig.class));
+        validateSingleConfig(parent.get(TestConfig.class));
+        validateSingleConfig(child2.get(TestConfig.class));
     }
 
 
     @Test
     public void testSiblingsInheritChanges() {
-        validateSingleConfig(parentConfig);
+        validateSingleConfig(parent.get(TestConfig.class));
 
         child1 = parent.createCopy();
-        TestConfig child1Config = child1.get(TestConfig.class);
-        validateSingleConfig(child1Config);
+        validateSingleConfig(child1.get(TestConfig.class));
 
-        parentConfig.addList("list2");
-        parentConfig.addSet("set2");
+        parent.configure(TestConfig.class, c -> c.addList("list2").addSet("set2"));
 
         child2 = parent.createCopy();
-        TestConfig child2Config = child2.get(TestConfig.class);
 
-        validateDoubleConfig(parentConfig);
-        validateSingleConfig(child1Config);
-        validateDoubleConfig(child2Config);
+        // child1 was copied while the parent held a single value; child2 after the second value was installed.
+        validateDoubleConfig(parent.get(TestConfig.class));
+        validateSingleConfig(child1.get(TestConfig.class));
+        validateDoubleConfig(child2.get(TestConfig.class));
 
-        parentConfig.addList("list3");
-        parentConfig.addSet("set3");
+        parent.configure(TestConfig.class, c -> c.addList("list3").addSet("set3"));
 
-        validateTripleConfig(parentConfig);
-        validateSingleConfig(child1Config);
-        validateDoubleConfig(child2Config);
+        validateTripleConfig(parent.get(TestConfig.class));
+        validateSingleConfig(child1.get(TestConfig.class));
+        validateDoubleConfig(child2.get(TestConfig.class));
     }
 
     @Test
@@ -312,6 +291,7 @@ public class TestConfigRegistry {
                 .containsEntry("key1", "value1");
     }
 
+    // An immutable JdbiConfig: each "add" wither returns a new instance with an added entry.
     public static class TestConfig implements JdbiConfig<TestConfig> {
 
         private final List<String> list;
@@ -319,47 +299,43 @@ public class TestConfigRegistry {
         private final Map<String, String> map;
 
         public TestConfig() {
-            this.list = new CopyOnWriteArrayList<>();
-            this.set = new CopyOnWriteArraySet<>();
-            this.map = new ConcurrentHashMap<>();
+            this(List.of(), Set.of(), Map.of());
         }
 
-        private TestConfig(TestConfig that) {
-            this.list = new CopyOnWriteArrayList<>(that.list);
-            this.set = new CopyOnWriteArraySet<>(that.set);
-            this.map = new ConcurrentHashMap<>(that.map);
-        }
-
-        @Override
-        public TestConfig createCopy() {
-            return new TestConfig(this);
+        private TestConfig(List<String> list, Set<String> set, Map<String, String> map) {
+            this.list = list;
+            this.set = set;
+            this.map = map;
         }
 
         public TestConfig addList(String key) {
-            this.list.add(key);
-            return this;
+            List<String> copy = new ArrayList<>(list);
+            copy.add(key);
+            return new TestConfig(List.copyOf(copy), set, map);
         }
 
         public TestConfig addSet(String key) {
-            this.set.add(key);
-            return this;
+            Set<String> copy = new LinkedHashSet<>(set);
+            copy.add(key);
+            return new TestConfig(list, Set.copyOf(copy), map);
         }
 
         public TestConfig addMap(String key, String value) {
-            this.map.put(key, value);
-            return this;
+            Map<String, String> copy = new LinkedHashMap<>(map);
+            copy.put(key, value);
+            return new TestConfig(list, set, Map.copyOf(copy));
         }
 
         public Set<String> getSet() {
-            return Collections.unmodifiableSet(set);
+            return set;
         }
 
         public List<String> getList() {
-            return Collections.unmodifiableList(list);
+            return list;
         }
 
         public Map<String, String> getMap() {
-            return Collections.unmodifiableMap(map);
+            return map;
         }
     }
 }

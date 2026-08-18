@@ -196,9 +196,4 @@ public final class Arguments implements JdbiConfig<Arguments> {
         return new Arguments(factories, untypedNullArgument, bindingNullToPrimitivesPermitted, preparedArgumentsEnabled);
     }
 
-    @Override
-    public Arguments createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

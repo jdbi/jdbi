@@ -16,13 +16,10 @@ package org.jdbi.core;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
@@ -39,14 +36,15 @@ import org.jdbi.core.internal.OnDemandExtensions;
 import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.statement.ConfigReader;
 import org.jdbi.core.statement.DefaultStatementBuilder;
-import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.StatementBuilder;
 import org.jdbi.core.statement.StatementBuilderFactory;
+import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.core.transaction.LocalTransactionHandler;
 import org.jdbi.core.transaction.TransactionHandler;
 import org.jdbi.core.transaction.TransactionIsolationLevel;
 import org.jdbi.meta.Alpha;
+import org.jdbi.meta.Beta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +59,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 public class Jdbi implements ConfigReader {
     private static final Logger LOG = LoggerFactory.getLogger(Jdbi.class);
 
-    /** A no-op per-handle config scope: the opened handle uses an unmodified copy of this Jdbi's config. */
-    private static final Consumer<ConfigRegistry> NO_CONFIG_SCOPE = config -> {};
-
-    private final ConfigRegistry config = new ConfigRegistry();
+    private final ConfigRegistry config;
     // Read-only view handed to callers via getConfig(): a distinct delegate that cannot be cast back to the mutable
     // ConfigRegistry, so post-build configuration must go through the builder. Internal code uses `config` directly.
     private final ConfigView configView = ConfigView.readOnly(this::configRegistry);
@@ -78,8 +73,12 @@ public class Jdbi implements ConfigReader {
     private final CopyOnWriteArrayList<JdbiPlugin> plugins = new CopyOnWriteArrayList<>();
 
     private Jdbi(final ConnectionFactory connectionFactory) {
-        Objects.requireNonNull(connectionFactory, "null connectionFactory");
-        this.connectionFactory = connectionFactory;
+        this(connectionFactory, new ConfigRegistry());
+    }
+
+    private Jdbi(final ConnectionFactory connectionFactory, final ConfigRegistry config) {
+        this.connectionFactory = Objects.requireNonNull(connectionFactory, "null connectionFactory");
+        this.config = config;
     }
 
     /**
@@ -342,6 +341,35 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
+     * Returns a {@link Builder} seeded from this Jdbi: a copy of its configuration and the same connection source,
+     * transaction handler, statement-builder factory, handle callback decorator, handle scope, and plugins.
+     * Reconfigure it and {@link Builder#build()} to obtain an independent {@code Jdbi} that shares this connection
+     * source but carries its own configuration &mdash; use it to derive a long-lived variant, such as one Jdbi per
+     * tenant, without disturbing this instance:
+     * <pre>{@code
+     * Jdbi tenantJdbi = jdbi.toBuilder()
+     *     .configure(SqlStatements.class, s -> s.setSqlLogger(tenantLogger))
+     *     .build();
+     * }</pre>
+     * Seeded plugins are already applied, so {@link Builder#build()} does not run their
+     * {@link JdbiPlugin#configure(Builder)} again, though their per-handle hooks still run on handles from the new
+     * instance. To vary configuration for a single unit of work instead, configure individual statements
+     * (which are copy-on-write).
+     *
+     * @return a builder seeded from this Jdbi's configuration and connection source
+     */
+    @Alpha
+    public Builder toBuilder() {
+        final Jdbi derived = new Jdbi(connectionFactory, config.createCopy());
+        derived.transactionhandler.set(transactionhandler.get());
+        derived.statementBuilderFactory.set(statementBuilderFactory.get());
+        derived.handleCallbackDecorator.set(handleCallbackDecorator.get());
+        derived.handleScope = handleScope;
+        derived.plugins.addAll(plugins);
+        return new Builder(derived);
+    }
+
+    /**
      * Returns the {@link TransactionHandler}.
      *
      * @return the {@link TransactionHandler}
@@ -381,29 +409,6 @@ public class Jdbi implements ConfigReader {
      * @see #withHandle(HandleCallback)
      */
     public Handle open() {
-        return open(NO_CONFIG_SCOPE);
-    }
-
-    /**
-     * Obtain a Handle whose configuration is a copy of this Jdbi's, with the given scope applied. Use this to run a
-     * unit of work against a handle that carries per-handle configuration (mappers, arguments, defines, and the like)
-     * without affecting this Jdbi or any other handle:
-     * <pre>{@code
-     * try (Handle h = jdbi.open(config -> config.configure(RowMappers.class, r -> r.register(myMapper)))) {
-     *     ...
-     * }
-     * }</pre>
-     * The scope receives a private copy of this Jdbi's config and configures it in place. You own the returned handle
-     * and are required to close it, ideally with a {@code try-with-resources} block.
-     *
-     * @param configScope applied to the new handle's private config copy during {@code open}
-     * @return an open Handle instance carrying the scoped configuration
-     * @see #open()
-     * @see #withHandle(Consumer, HandleCallback)
-     */
-    @Alpha
-    public Handle open(final Consumer<ConfigRegistry> configScope) {
-        Objects.requireNonNull(configScope, "null configScope");
         try {
             final long start = System.nanoTime();
             Connection conn = Objects.requireNonNull(connectionFactory.openConnection(),
@@ -421,8 +426,7 @@ public class Jdbi implements ConfigReader {
                         connectionFactory.getCleanableFor(conn), // don't use conn::close, the cleanup must be done by the connection factory!
                         transactionhandler.get(),
                         cache,
-                        conn,
-                        configScope);
+                        conn);
 
                 for (final JdbiPlugin p : plugins) {
                     h = p.customizeHandle(h);
@@ -439,12 +443,14 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
-     * Applies each installed plugin's {@link JdbiPlugin#customizeHandleConfig} to a new handle's config during
-     * construction, in install order. Called from the {@link Handle} constructor.
+     * Applies each installed plugin's {@link JdbiPlugin#customizeHandleConnection} to a new handle during
+     * construction, in install order. The plugins receive a read-only view of the handle's config so they can read
+     * Jdbi-level configuration and contribute per-connection side effects, but cannot mutate the handle's config.
+     * Called from the {@link Handle} constructor.
      */
-    void customizeHandleConfig(final Connection connection, final ConfigRegistry config) throws SQLException {
+    void customizeHandleConnection(final Connection connection, final ConfigView config) throws SQLException {
         for (final JdbiPlugin p : plugins) {
-            p.customizeHandleConfig(connection, config);
+            p.customizeHandleConnection(connection, config);
         }
     }
 
@@ -479,42 +485,6 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
-     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
-     * and yields it to a callback. Unlike {@link #withHandle(HandleCallback)}, this always opens a <em>new</em> handle
-     * for the scoped configuration (a handle captures its config at {@code open}), so it does not join a handle already
-     * in scope; the scoped handle is in scope for the duration of the callback and is closed before returning.
-     *
-     * @param configScope applied to the new handle's private config copy during {@code open}
-     * @param callback A callback which will receive the scoped Handle
-     * @param <R> type returned by the callback
-     * @param <X> exception type thrown by the callback, if any.
-     *
-     * @return the value returned by callback
-     *
-     * @throws X any exception thrown by the callback
-     * @see #open(Consumer)
-     */
-    @Alpha
-    public <R, X extends Exception> R withHandle(final Consumer<ConfigRegistry> configScope, final HandleCallback<R, X> callback) throws X {
-        Objects.requireNonNull(configScope, "null configScope");
-        final HandleCallback<R, X> decoratedCallback = handleCallbackDecorator.get().decorate(callback);
-
-        final var previous = handleScope.get();
-        try (Handle h = this.open(configScope)) {
-            h.setForceAttachStatements(h.getConfig().get(SqlStatements.class).isAttachCallbackStatementsForCleanup());
-
-            handleScope.set(ConstantHandleSupplier.of(h));
-            return decoratedCallback.withHandle(h);
-        } finally {
-            if (previous == null) {
-                handleScope.clear();
-            } else {
-                handleScope.set(previous);
-            }
-        }
-    }
-
-    /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients.
      *
@@ -525,22 +495,6 @@ public class Jdbi implements ConfigReader {
      */
     public <X extends Exception> void useHandle(final HandleConsumer<X> consumer) throws X {
         withHandle(consumer.asCallback());
-    }
-
-    /**
-     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
-     * and yields it to a callback. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens a new handle
-     * for the scoped configuration.
-     *
-     * @param configScope applied to the new handle's private config copy during {@code open}
-     * @param consumer A callback which will receive the scoped Handle
-     * @param <X> exception type thrown by the callback, if any.
-     *
-     * @throws X any exception thrown by the callback
-     */
-    @Alpha
-    public <X extends Exception> void useHandle(final Consumer<ConfigRegistry> configScope, final HandleConsumer<X> consumer) throws X {
-        withHandle(configScope, consumer.asCallback());
     }
 
     /**
@@ -562,26 +516,6 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
-     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
-     * and yields it to a callback in a transaction. The transaction is committed if the callback finishes normally,
-     * or rolled back if it raises an exception. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens
-     * a new handle for the scoped configuration.
-     *
-     * @param configScope applied to the new handle's private config copy during {@code open}
-     * @param callback A callback which will receive the scoped Handle, in a transaction
-     * @param <R> type returned by the callback
-     * @param <X> exception type thrown by the callback, if any.
-     *
-     * @return the value returned by callback
-     *
-     * @throws X any exception thrown by the callback
-     */
-    @Alpha
-    public <R, X extends Exception> R inTransaction(final Consumer<ConfigRegistry> configScope, final HandleCallback<R, X> callback) throws X {
-        return withHandle(configScope, handle -> handle.inTransaction(callback));
-    }
-
-    /**
      * A convenience function which manages the lifecycle of a handle and yields it to a callback
      * for use by clients. The handle will be in a transaction when the callback is invoked, and
      * that transaction will be committed if the callback finishes normally, or rolled back if the
@@ -594,23 +528,6 @@ public class Jdbi implements ConfigReader {
      */
     public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X {
         useHandle(handle -> handle.useTransaction(callback));
-    }
-
-    /**
-     * A convenience function which manages the lifecycle of a handle carrying the given per-handle configuration,
-     * and yields it to a callback in a transaction. The transaction is committed if the callback finishes normally,
-     * or rolled back if it raises an exception. Like {@link #withHandle(Consumer, HandleCallback)}, this always opens
-     * a new handle for the scoped configuration.
-     *
-     * @param configScope applied to the new handle's private config copy during {@code open}
-     * @param callback A callback which will receive the scoped Handle, in a transaction
-     * @param <X> exception type thrown by the callback, if any.
-     *
-     * @throws X any exception thrown by the callback
-     */
-    @Alpha
-    public <X extends Exception> void useTransaction(final Consumer<ConfigRegistry> configScope, final HandleConsumer<X> callback) throws X {
-        useHandle(configScope, handle -> handle.useTransaction(callback));
     }
 
     /**
@@ -739,15 +656,32 @@ public class Jdbi implements ConfigReader {
     }
 
     /**
-     * Builds a reusable, thread-safe {@link StatementTemplate} over the given SQL. The SQL is rendered
-     * and parsed once against a snapshot of this Jdbi's configuration; the returned template can then
-     * be executed many times against any handle via {@link StatementTemplate#with(Handle)}.
+     * Returns a {@link StatementTemplate.Builder} to configure and build a reusable {@link StatementTemplate} over
+     * the given SQL. Apply configuration to the builder (register mappers, define attributes, set a template engine),
+     * then call {@link StatementTemplate.Builder#build()}. The configuration is derived copy-on-write from this
+     * {@code Jdbi} and does not affect it. For a template that uses this {@code Jdbi}'s configuration unchanged, use
+     * {@link #buildStatementTemplate(CharSequence)}.
      *
-     * @param sql the SQL to render and parse once
-     * @return a reusable query template
+     * @param sql the SQL for the template
+     * @return a builder for a reusable statement template
      */
+    @Beta
+    public StatementTemplate.Builder statementTemplate(final CharSequence sql) {
+        return new StatementTemplate.Builder(configView, sql);
+    }
+
+    /**
+     * Builds a reusable {@link StatementTemplate} over the given SQL, prepared once against this Jdbi's
+     * configuration and executed many times against any handle via {@link StatementTemplate#with(Handle)}.
+     * Reusing a template is cheaper than building an equivalent statement on each call. To configure the template
+     * on its own, use {@link #statementTemplate(CharSequence)}.
+     *
+     * @param sql the SQL for the template
+     * @return a reusable statement template
+     */
+    @Beta
     public StatementTemplate buildStatementTemplate(final CharSequence sql) {
-        return new StatementTemplate(config.createCopy(), sql);
+        return statementTemplate(sql).build();
     }
 
     /**
@@ -762,7 +696,6 @@ public class Jdbi implements ConfigReader {
     public static final class Builder implements Configurable<Builder> {
 
         private final Jdbi jdbi;
-        private final List<JdbiPlugin> plugins = new ArrayList<>();
 
         Builder(final Jdbi jdbi) {
             this.jdbi = jdbi;
@@ -776,17 +709,17 @@ public class Jdbi implements ConfigReader {
         }
 
         /**
-         * Installs a {@link JdbiPlugin} to be applied when {@link #build()} is called. Plugins are applied in the
-         * order installed.
+         * Installs a {@link JdbiPlugin}, running its {@link JdbiPlugin#configure(Builder)} immediately (a plugin is
+         * applied at most once). Applying it now, rather than deferring to {@link #build()}, means configuration the
+         * caller registers <em>after</em> installing a plugin takes precedence over the plugin's, matching the
+         * install-order semantics of Jdbi 3.
          *
          * @param plugin the plugin to install
          * @return this builder
          */
         public Builder installPlugin(final JdbiPlugin plugin) {
             Objects.requireNonNull(plugin, "null plugin");
-            if (!plugins.contains(plugin)) {
-                plugins.add(plugin);
-            }
+            jdbi.applyPlugin(this, plugin);
             return this;
         }
 
@@ -835,20 +768,12 @@ public class Jdbi implements ConfigReader {
         }
 
         /**
-         * Applies the installed plugins and returns the assembled {@link Jdbi}. Each plugin's
-         * {@link JdbiPlugin#configure(Builder)} runs, in install order. A plugin may itself install further plugins
-         * (via {@link #installPlugin(JdbiPlugin)} from its {@code configure} hook); those are drained and applied in
-         * turn, each at most once.
+         * Returns the assembled {@link Jdbi}. Plugins have already run their {@link JdbiPlugin#configure(Builder)}
+         * as they were installed (see {@link #installPlugin(JdbiPlugin)}), so this simply hands back the instance.
          *
          * @return the assembled {@code Jdbi}
          */
         public Jdbi build() {
-            // Drain by index: a plugin's configure() may install further plugins, growing the list mid-drain.
-            // applyPlugin() installs-if-absent so a plugin pulled in by two others is still applied once.
-            int i = 0;
-            while (i < plugins.size()) {
-                jdbi.applyPlugin(this, plugins.get(i++));
-            }
             return jdbi;
         }
     }

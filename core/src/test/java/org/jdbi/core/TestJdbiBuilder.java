@@ -82,7 +82,7 @@ public class TestJdbiBuilder {
     }
 
     @Test
-    public void buildDrainsPluginsInstalledDuringConfigure() {
+    public void appliesSubPluginInstalledDuringConfigure() {
         final RowMapper<String> mapper = (rs, ctx) -> "from-sub";
         final JdbiPlugin sub = JdbiPlugin.of(b -> b.registerRowMapper(String.class, mapper));
         final JdbiPlugin parent = new JdbiPlugin() {
@@ -139,5 +139,79 @@ public class TestJdbiBuilder {
         Jdbi.builder(url()).installPlugin(first).installPlugin(second).build();
 
         assertThat(configureCount).hasValue(1);
+    }
+
+    @Test
+    public void callerConfigRegisteredAfterPluginTakesPrecedence() {
+        // A plugin registers a mapper for String; the caller registers a different one AFTER installing the
+        // plugin. installPlugin applies the plugin immediately, so the caller's later registration wins -- the
+        // install-order precedence of Jdbi 3, not the "plugins always last" inversion of the deferred model.
+        final JdbiPlugin plugin = JdbiPlugin.of(b -> b.registerRowMapper(String.class, (rs, ctx) -> "from-plugin"));
+        final Jdbi jdbi = Jdbi.builder(url())
+                .installPlugin(plugin)
+                .registerRowMapper(String.class, (rs, ctx) -> "from-caller")
+                .build();
+
+        try (Handle h = jdbi.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("from-caller");
+        }
+    }
+
+    @Test
+    public void toBuilderCopiesConfigurationAndKnobs() {
+        final RowMapper<String> mapper = (rs, ctx) -> "base";
+        final TransactionHandler handler = LocalTransactionHandler.binding();
+        final Jdbi base = Jdbi.builder(url())
+                .registerRowMapper(String.class, mapper)
+                .transactionHandler(handler)
+                .build();
+
+        final Jdbi derived = base.toBuilder().build();
+
+        assertThat(derived.getTransactionHandler()).isSameAs(handler);
+        try (Handle h = derived.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("base");
+        }
+    }
+
+    @Test
+    public void toBuilderConfigurationIsIndependentOfSource() {
+        final Jdbi base = Jdbi.builder(url())
+                .registerRowMapper(String.class, (rs, ctx) -> "base")
+                .build();
+
+        final Jdbi derived = base.toBuilder()
+                .registerRowMapper(String.class, (rs, ctx) -> "derived")
+                .build();
+
+        try (Handle b = base.open(); Handle d = derived.open()) {
+            assertThat(b.createQuery("select 1").mapTo(String.class).one()).isEqualTo("base");
+            assertThat(d.createQuery("select 1").mapTo(String.class).one()).isEqualTo("derived");
+        }
+    }
+
+    @Test
+    public void toBuilderDoesNotReapplySeededPlugins() {
+        final AtomicInteger configureCount = new AtomicInteger();
+        final RowMapper<String> mapper = (rs, ctx) -> "from-plugin";
+        final JdbiPlugin plugin = new JdbiPlugin() {
+            @Override
+            public void configure(final Jdbi.Builder builder) {
+                configureCount.incrementAndGet();
+                builder.registerRowMapper(String.class, mapper);
+            }
+        };
+
+        final Jdbi base = Jdbi.builder(url()).installPlugin(plugin).build();
+        assertThat(configureCount).hasValue(1);
+
+        final Jdbi derived = base.toBuilder().build();
+
+        // The seeded plugin is already applied: its configuration is carried in the copied config, so build()
+        // does not re-run configure(), but its effect is present on the derived instance.
+        assertThat(configureCount).hasValue(1);
+        try (Handle h = derived.open()) {
+            assertThat(h.createQuery("select 1").mapTo(String.class).one()).isEqualTo("from-plugin");
+        }
     }
 }

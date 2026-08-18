@@ -103,7 +103,7 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testRegisteredDecorator() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg.configure(HandlerDecorators.class, c -> c.register(
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg.configure(HandlerDecorators.class, c -> c.register(
                 (base, sqlObjectType, method) ->
                         (target, args, handleSupplier) -> {
                             invoked("custom");
@@ -117,7 +117,7 @@ public class TestSqlMethodDecorators {
 
     @Test
     public void testRegisteredDecoratorReturnsBase() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(HandlerDecorators.class, c -> c.register((base, sqlObjectType, method) -> base)))) {
             handle.attach(Dao.class).orderedFooBar();
         }

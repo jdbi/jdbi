@@ -52,9 +52,4 @@ public final class PojoTypes implements JdbiConfig<PojoTypes> {
         return factories;
     }
 
-    @Override
-    public PojoTypes createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

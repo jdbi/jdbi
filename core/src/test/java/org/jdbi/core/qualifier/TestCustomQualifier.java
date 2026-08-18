@@ -47,7 +47,7 @@ public class TestCustomQualifier {
     @Test
     public void qualifiedTypeUsage() {
         // tag::usage[]
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 .configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory()))
                 .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper())))) {
             QualifiedType<String> reversedString =
@@ -74,7 +74,7 @@ public class TestCustomQualifier {
 
     @Test
     public void registerArgumentFactory() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
             handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
                 .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class))
@@ -90,7 +90,7 @@ public class TestCustomQualifier {
 
     @Test
     public void configArgumentsRegister() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
             handle.createUpdate("INSERT INTO something (id, name) VALUES (1, :name)")
                 .bindByType("name", "abc", QualifiedType.of(String.class).with(Reversed.class))
@@ -106,7 +106,7 @@ public class TestCustomQualifier {
 
     @Test
     public void registerColumnMapper() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper())))) {
             handle.execute("insert into something (id, name) values (1, 'abc')");
 
@@ -120,7 +120,7 @@ public class TestCustomQualifier {
 
     @Test
     public void configColumnMappersRegister() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper())))) {
             handle.execute("insert into something (id, name) values (1, 'abc')");
 
@@ -134,7 +134,7 @@ public class TestCustomQualifier {
 
     @Test
     public void registerColumnMapperByQualifiedType() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(ColumnMappers.class, config -> config.register(
                     QualifiedType.of(String.class).with(Reversed.class),
                     (r, c, ctx) -> reverse(r.getString(c)))))) {
@@ -150,7 +150,7 @@ public class TestCustomQualifier {
 
     @Test
     public void configColumnMappersRegisterByQualifiedType() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(ColumnMappers.class, config -> config.register(
                     QualifiedType.of(String.class).with(Reversed.class),
                     (r, c, ctx) -> reverse(r.getString(c)))))) {
@@ -166,7 +166,7 @@ public class TestCustomQualifier {
 
     @Test
     public void registerColumnMapperFactory() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(ColumnMappers.class, config -> config.register(new ReversedStringMapperFactory())))) {
             handle.execute("insert into something (id, name) values (1, 'xyz')");
 
@@ -180,7 +180,7 @@ public class TestCustomQualifier {
 
     @Test
     public void configColumnMappersRegisterFactory() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(ColumnMappers.class, config -> config.register(new ReversedStringMapperFactory())))) {
             handle.execute("insert into something (id, name) values (1, 'xyz')");
 
@@ -194,7 +194,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindBeanQualifiedGetter() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
             handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
                 .bindBean(new QualifiedGetterThing(1, "abc"))
@@ -209,7 +209,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapBeanQualifiedGetter() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
                 .configure(RowMappers.class, config -> config.register(BeanMapper.factory(QualifiedGetterThing.class))))) {
             handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
@@ -223,7 +223,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindBeanQualifiedSetter() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
             handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
                 .bindBean(new QualifiedSetterThing(1, "abc"))
@@ -238,7 +238,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapBeanQualifiedSetter() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
                 .configure(RowMappers.class, config -> config.register(BeanMapper.factory(QualifiedSetterThing.class))))) {
             handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
@@ -252,7 +252,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindBeanQualifiedSetterParam() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
             handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
                 .bindBean(new QualifiedSetterParamThing(1, "abc"))
@@ -267,7 +267,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapBeanQualifiedSetterParam() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
                 .configure(RowMappers.class, config -> config.register(BeanMapper.factory(QualifiedSetterParamThing.class))))) {
             handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
@@ -281,7 +281,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindMethodsQualifiedMethod() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
             handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
                 .bindMethods(new QualifiedMethodThing(1, "abc"))
@@ -296,7 +296,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapConstructorQualifiedParam() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
                 .configure(RowMappers.class, config -> config.register(ConstructorMapper.factory(QualifiedConstructorParamThing.class))))) {
             handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
@@ -310,7 +310,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindFieldsQualified() {
-        try (Handle handle = h2Extension.getJdbi().open(
+        try (Handle handle = h2Extension.openWithConfig(
                 cfg -> cfg.configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory())))) {
             handle.createUpdate("INSERT INTO something (id, name) VALUES (:id, :name)")
                 .bindFields(new QualifiedFieldThing(1, "abc"))
@@ -325,7 +325,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapFieldsQualified() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))
                 .configure(RowMappers.class, config -> config.register(FieldMapper.factory(QualifiedFieldThing.class))))) {
             handle.execute("INSERT INTO something (id, name) VALUES (1, 'abc')");
@@ -389,7 +389,7 @@ public class TestCustomQualifier {
 
     @Test
     public void bindMultipleQualifiers() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 // should use this one - register first so it's consulted last
                 .configure(Arguments.class, config -> config.register(new ReversedUpperCaseStringArgumentFactory()))
                 .configure(Arguments.class, config -> config.register(new ReversedStringArgumentFactory()))
@@ -407,7 +407,7 @@ public class TestCustomQualifier {
 
     @Test
     public void mapMultipleQualifiers() {
-        try (Handle handle = h2Extension.getJdbi().open(cfg -> cfg
+        try (Handle handle = h2Extension.openWithConfig(cfg -> cfg
                 // should use this one - register first so it's consulted last
                 .configure(ColumnMappers.class, config -> config.register(new ReversedUpperCaseStringMapper()))
                 .configure(ColumnMappers.class, config -> config.register(new ReversedStringMapper()))

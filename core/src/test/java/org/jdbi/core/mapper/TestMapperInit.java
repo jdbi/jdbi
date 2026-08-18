@@ -108,14 +108,16 @@ public class TestMapperInit {
             assertThat(value.size() * 3).isEqualTo(mapper.getMappedCount());
         });
 
-        // a handle that changes its configuration forks a private registry, so the mapper re-initializes
-        jdbi.useHandle(config -> config.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true)), h -> {
+        // a Jdbi with different configuration has its own registry, so the mapper re-initializes
+        try (Handle h = jdbi.toBuilder()
+            .configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true))
+            .build().open()) {
             h.createQuery("SELECT string_value FROM column_mappers")
                 .mapTo(StringValue.class)
                 .list();
 
             assertThat(mapper.getInitializedCount()).isEqualTo(2);
-        });
+        }
     }
 
     @Test
@@ -176,14 +178,16 @@ public class TestMapperInit {
             assertThat(value).hasSize(mapper.getMappedCount() / 3);
         });
 
-        // a handle that changes its configuration forks a private registry, so the mapper re-initializes
-        jdbi.useHandle(config -> config.configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true)), h -> {
+        // a Jdbi with different configuration has its own registry, so the mapper re-initializes
+        try (Handle h = jdbi.toBuilder()
+            .configure(SqlStatements.class, c -> c.attachAllStatementsForCleanup(true))
+            .build().open()) {
             h.createQuery("SELECT * FROM column_mappers")
                 .mapTo(resultType)
                 .list();
 
             assertThat(mapper.getInitializedCount()).isEqualTo(2);
-        });
+        }
     }
 
     public static class StringValue {

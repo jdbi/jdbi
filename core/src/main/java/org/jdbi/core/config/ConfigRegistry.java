@@ -37,13 +37,21 @@ public final class ConfigRegistry implements ConfigView {
 
     private static final Class<?>[] JDBI_CONFIG_TYPES = {ConfigRegistry.class};
 
-    private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>(32);
+    // Lazily allocated: an un-forked copy-on-write child (parent != null) never touches these maps -- reads
+    // delegate to the parent (see get()/readAs()) -- so it holds neither. They are allocated exactly when a
+    // registry has no parent: the root and full-copy constructors, and fork() when a child detaches. Thus the
+    // invariant parent == null <=> configs != null && views != null holds, and createChild() allocates only the
+    // registry shell. The map references are assigned in a constructor (root / full copy) or in fork() on a
+    // thread-confined registry, so the reference is safely published; the maps themselves are ConcurrentHashMaps
+    // because a shared root is not frozen -- concurrent get()/readAs on it lazily create config values and views
+    // after publication -- so these fields need no further synchronization.
+    private Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs;
     private final Map<Class<? extends JdbiConfig<?>>, Function<ConfigRegistry, JdbiConfig<?>>> configFactories;
 
     // Per-registry memoized read-only views of this registry (e.g. resolvers). Deliberately NOT copied by
     // the copy constructor, and cleared by install(): a change to any config value invalidates memoized
     // resolvers, so a registry never serves a view built against a superseded config.
-    private final Map<Class<?>, Object> views = new ConcurrentHashMap<>(4);
+    private Map<Class<?>, Object> views;
 
     // Non-null only for an un-forked copy-on-write child (see createChild()): reads delegate to this parent
     // until the child's first install(), at which point the child materialises its own configs and detaches.
@@ -59,6 +67,8 @@ public final class ConfigRegistry implements ConfigView {
      */
     public ConfigRegistry() {
         configFactories = new ConcurrentHashMap<>();
+        configs = new ConcurrentHashMap<>(32);
+        views = new ConcurrentHashMap<>(4);
         get(ConfigCaches.class);
         get(SqlStatements.class);
         get(Arguments.class);
@@ -71,13 +81,18 @@ public final class ConfigRegistry implements ConfigView {
         configFactories = source.configFactories;
         if (asChild) {
             // Copy-on-write child: share the parent's config values (and warm resolver views) by delegation
-            // until the first install().
+            // until the first install(). Holds no maps of its own until fork().
             parent = source;
         } else {
             // Full snapshot: copy the effective config set, walking any copy-on-write parent chain so that a
-            // nearer (child) value wins. Values are immutable, so createCopy() returns the same instance.
+            // nearer (child) value wins. Values are immutable, so they are shared by reference; only the maps
+            // (and thus which values are installed) are independent of the source.
+            configs = new ConcurrentHashMap<>(32);
+            views = new ConcurrentHashMap<>(4);
             for (ConfigRegistry r = source; r != null; r = r.parent) {
-                r.configs.forEach((type, config) -> configs.putIfAbsent(type, config.createCopy()));
+                if (r.configs != null) {
+                    r.configs.forEach(configs::putIfAbsent);
+                }
             }
         }
     }
@@ -93,14 +108,17 @@ public final class ConfigRegistry implements ConfigView {
     @Override
     public <C extends JdbiConfig<C>> C get(Class<C> configClass) {
         // we would computeIfAbsent if not for JDK-8062841 >:(
-        final JdbiConfig<?> lookup = configs.get(configClass);
-        if (lookup != null) {
-            return configClass.cast(lookup);
+        if (configs != null) {
+            final JdbiConfig<?> lookup = configs.get(configClass);
+            if (lookup != null) {
+                return configClass.cast(lookup);
+            }
         }
         if (parent != null) {
             // Un-forked child: read (and lazily create the shared default) through the parent.
             return parent.get(configClass);
         }
+        // parent == null, so this registry owns its configs map (see the field comment).
         C config = configClass.cast(configFactory(configClass).apply(this));
         return Optional.ofNullable(configClass.cast(configs.putIfAbsent(configClass, config))).orElse(config);
     }
@@ -118,6 +136,7 @@ public final class ConfigRegistry implements ConfigView {
         if (parent != null) {
             fork();
         }
+        // parent == null here, so configs and views are allocated (root/full-copy ctor, or fork() just now).
         // A changed config value invalidates any memoized resolver built against the previous value.
         views.clear();
         configs.put(configClass, config);
@@ -129,8 +148,12 @@ public final class ConfigRegistry implements ConfigView {
      * and never touch the (shared) parent.
      */
     private void fork() {
+        configs = new ConcurrentHashMap<>(32);
+        views = new ConcurrentHashMap<>(4);
         for (ConfigRegistry r = parent; r != null; r = r.parent) {
-            r.configs.forEach(configs::putIfAbsent);
+            if (r.configs != null) {
+                r.configs.forEach(configs::putIfAbsent);
+            }
         }
         parent = null;
     }
@@ -152,12 +175,15 @@ public final class ConfigRegistry implements ConfigView {
     }
 
     /**
-     * Returns a memoized, read-only view of this registry of the given type, creating it on first request.
-     * Views (for example resolvers that carry resolution caches) are scoped to this registry: a copy of the
-     * registry does not inherit them, so a view built against one registry is never observed by another.
+     * Returns a memoized, read-only view of this registry of the given type (for example a resolver that carries
+     * resolution caches), creating it on first request. Views are memoized on the parent-less registry: a full
+     * {@link #createCopy() copy} does not inherit them (it rebuilds its own), but an unforked copy-on-write
+     * {@link #createChild() child} shares its parent's views by delegating {@code readAs} to it. A view can
+     * therefore be read concurrently through several child registries on different threads, so it must be
+     * thread-safe. It may hold a reference back to the (parent-less) registry it was built against, which outlives
+     * those children.
      * <p>
-     * A view is safe to hold a reference back to this registry, because it is never shared across registry
-     * copies. The {@code create} function must not call {@code readAs} re-entrantly for the same type.
+     * The {@code create} function must not call {@code readAs} re-entrantly for the same type.
      *
      * @param asType the view type, which also keys the memo
      * @param create builds the view from this registry, if not already present
@@ -200,11 +226,11 @@ public final class ConfigRegistry implements ConfigView {
     }
 
     /**
-     * Returns a copy of this config registry.
+     * Returns an isolated copy of this config registry: a fresh registry with its own maps, snapshotting the
+     * effective config set. Because config values are immutable they are shared by reference, so the copy is cheap
+     * and installing a different value into one registry never affects the other.
      *
-     * @return a copy of this config registry
-     * @see JdbiConfig#createCopy() config objects in the returned registry are copies of the corresponding
-     * config objects from this registry.
+     * @return an isolated copy of this config registry
      */
     @Override
     public ConfigRegistry createCopy() {

@@ -80,9 +80,4 @@ public final class HandlerDecorators implements JdbiConfig<HandlerDecorators> {
         return handler;
     }
 
-    @Override
-    public HandlerDecorators createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

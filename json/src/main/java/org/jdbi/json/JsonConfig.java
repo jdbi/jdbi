@@ -37,9 +37,4 @@ public final class JsonConfig implements JdbiConfig<JsonConfig> {
         return mapper;
     }
 
-    @Override
-    public JsonConfig createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 }

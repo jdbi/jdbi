@@ -265,12 +265,6 @@ class SqlStatementsTest {
         assertDefaultFlags(derived);
     }
 
-    @Test
-    void createCopyReturnsSameImmutableInstance() {
-        final SqlStatements s = new SqlStatements().define("a", 1);
-        assertThat(s.createCopy()).isSameAs(s);
-    }
-
     private static Object templateCache(final SqlStatements s) throws Exception {
         final Field field = SqlStatements.class.getDeclaredField("templateCache");
         field.setAccessible(true);

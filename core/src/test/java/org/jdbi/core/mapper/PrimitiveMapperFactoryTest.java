@@ -13,6 +13,7 @@
  */
 package org.jdbi.core.mapper;
 
+import org.jdbi.core.Handle;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.result.UnableToProduceResultException;
 import org.junit.jupiter.api.Test;
@@ -44,12 +45,14 @@ public class PrimitiveMapperFactoryTest {
 
     @Test
     public void forbidNullPrimitives() {
-        assertThatThrownBy(() -> h2Extension.getJdbi().withHandle(
-            cfg -> cfg.configure(ColumnMappers.class, mappers -> mappers.coalesceNullPrimitivesToDefaults(false)),
-            h -> h.createQuery("select null as foo")
-                .mapTo(int.class)
-                .one()
-        ))
+        assertThatThrownBy(() -> {
+            try (Handle h = h2Extension.openWithConfig(
+                cfg -> cfg.configure(ColumnMappers.class, mappers -> mappers.coalesceNullPrimitivesToDefaults(false)))) {
+                h.createQuery("select null as foo")
+                    .mapTo(int.class)
+                    .one();
+            }
+        })
             .isInstanceOf(UnableToProduceResultException.class)
             .hasMessageContaining("Database null values are not allowed for Java primitives")
             .hasMessageContaining("column 1 (FOO)");
@@ -57,12 +60,13 @@ public class PrimitiveMapperFactoryTest {
 
     @Test
     public void doesntApplyToBoxed() {
-        Integer value = h2Extension.getJdbi().withHandle(
-            cfg -> cfg.configure(ColumnMappers.class, mappers -> mappers.coalesceNullPrimitivesToDefaults(false)),
-            h -> h.createQuery("select null")
+        final Integer value;
+        try (Handle h = h2Extension.openWithConfig(
+            cfg -> cfg.configure(ColumnMappers.class, mappers -> mappers.coalesceNullPrimitivesToDefaults(false)))) {
+            value = h.createQuery("select null")
                 .mapTo(Integer.class)
-                .one()
-        );
+                .one();
+        }
 
         assertThat(value).isNull();
     }

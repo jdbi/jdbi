@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
+import org.jdbi.core.statement.MappedStatementTemplate;
 import org.jdbi.core.statement.StatementTemplate;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -33,11 +34,13 @@ import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
 /**
- * Compares the classic per-statement {@code Handle.createQuery} path against a reused
- * {@link StatementTemplate} for the same single-row SELECT. The interesting metric is
- * {@code gc.alloc.rate.norm} (bytes allocated per operation, deterministic): the classic path
- * pays a full {@code ConfigRegistry.createCopy()} plus SQL render/parse on every call, while the
- * template snapshots configuration once at build time and reuses it.
+ * Compares three paths for the same single-row SELECT: the classic per-statement
+ * {@code Handle.createQuery}, a reused {@link StatementTemplate}, and a reused
+ * {@link org.jdbi.core.statement.MappedStatementTemplate} that also pre-resolves the result mapper. The
+ * interesting metric is {@code gc.alloc.rate.norm} (bytes allocated per operation, deterministic): the
+ * classic path pays a full {@code ConfigRegistry.createCopy()} plus SQL render/parse on every call, while
+ * the template snapshots configuration once at build time and reuses it, and the mapped template skips the
+ * per-execution mapper lookup on top of that.
  */
 @State(Scope.Thread)
 @BenchmarkMode(Mode.Throughput)
@@ -53,6 +56,7 @@ public class StatementTemplateBenchmark {
     private Handle handle;
     private long rowOne;
     private StatementTemplate template;
+    private MappedStatementTemplate<String> mappedTemplate;
 
     @Setup(Level.Trial)
     public void setup() {
@@ -63,6 +67,9 @@ public class StatementTemplateBenchmark {
         rowOne = 1L;
         // Built once; reused across every benchmark invocation.
         template = jdbi.buildStatementTemplate(SELECT);
+        // A template that resolves its result mapper once at build time, so each execution skips
+        // the per-call mapper lookup the plain template repeats.
+        mappedTemplate = template.mapTo(String.class);
     }
 
     @TearDown(Level.Trial)
@@ -83,6 +90,42 @@ public class StatementTemplateBenchmark {
         return template.with(handle)
             .bind("id", rowOne)
             .mapTo(String.class)
+            .one();
+    }
+
+    // Single-column String result: this isolates the per-execution mapper lookup the plain template
+    // repeats (a warm cache hit plus a fresh SingleColumnMapper/QualifiedType/Optional), not mapper
+    // construction, which is already cached per registry regardless of mapper complexity.
+    @Benchmark
+    public String mappedTemplate() {
+        return mappedTemplate.with(handle)
+            .bind("id", rowOne)
+            .results()
+            .one();
+    }
+
+    // Builds a fresh StatementTemplate and executes it exactly once, then discards it. This is the
+    // "template used only once" case: it measures whether paying the template's build-time render,
+    // parse, and config snapshot up front costs more than the classic path pays lazily at execute
+    // ({@link #classic()}), when there is no reuse to amortize the build over.
+    @Benchmark
+    public String singleUseTemplate() {
+        return jdbi.buildStatementTemplate(SELECT)
+            .with(handle)
+            .bind("id", rowOne)
+            .mapTo(String.class)
+            .one();
+    }
+
+    // As {@link #singleUseTemplate()} but also resolves the result mapper at build time, so the whole
+    // build-plus-map-plus-execute-once chain is measured against the classic path.
+    @Benchmark
+    public String singleUseMappedTemplate() {
+        return jdbi.buildStatementTemplate(SELECT)
+            .mapTo(String.class)
+            .with(handle)
+            .bind("id", rowOne)
+            .results()
             .one();
     }
 }

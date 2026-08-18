@@ -31,7 +31,7 @@ import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.extension.AttachedExtensionHandler;
 import org.jdbi.core.extension.ExtensionHandler;
-import org.jdbi.core.extension.HandleSupplier;
+import org.jdbi.core.extension.Extensions;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.RowReducer;
@@ -43,6 +43,7 @@ import org.jdbi.sqlobject.customizer.SqlStatementCustomizer;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.sqlobject.customizer.SqlStatementCustomizingAnnotation;
 import org.jdbi.sqlobject.customizer.SqlStatementParameterCustomizer;
+import org.jdbi.sqlobject.customizer.StatementScoped;
 import org.jdbi.sqlobject.statement.ParameterCustomizerFactory;
 import org.jdbi.sqlobject.statement.UseRowMapper;
 import org.jdbi.sqlobject.statement.UseRowReducer;
@@ -105,11 +106,19 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
     }
 
     /**
-     * A customizer is {@link Phase#LATE} if it (or the factory that produced it) declares
-     * {@link ConfigMutating}; otherwise it runs in the given default phase.
+     * Determines when a customizer runs. A customizer that (or whose factory) declares
+     * {@link ConfigMutating} mutates configuration per invocation and runs {@link Phase#LATE} (classic
+     * path); one that declares {@link StatementScoped} operates on the live statement and runs
+     * {@link Phase#BIND} even at type/method level; otherwise it runs in the given default phase.
      */
     private static Phase phaseFor(SqlStatementCustomizerFactory factory, Object customizer, Phase defaultPhase) {
-        return factory instanceof ConfigMutating || customizer instanceof ConfigMutating ? Phase.LATE : defaultPhase;
+        if (factory instanceof ConfigMutating || customizer instanceof ConfigMutating) {
+            return Phase.LATE;
+        }
+        if (factory instanceof StatementScoped || customizer instanceof StatementScoped) {
+            return Phase.BIND;
+        }
+        return defaultPhase;
     }
 
     private static Stream<Annotation> annotationsFor(AnnotatedElement... elements) {
@@ -138,11 +147,6 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
                         @Override
                         public Phase phase() {
                             return phase;
-                        }
-
-                        @Override
-                        public void warm(ConfigRegistry config) {
-                            c.warm(config);
                         }
 
                         @Override
@@ -190,11 +194,6 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
             }
 
             @Override
-            public void warm(ConfigRegistry config) {
-                create(config).warm(config);
-            }
-
-            @Override
             public void apply(Customizable<?> stmt, Object[] args) throws SQLException {
                 create(stmt.getConfig()).apply(stmt, args[i]);
             }
@@ -224,31 +223,52 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
     public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
         final Supplier<String> locatedSql = locateSql(config);
         final Function<Handle, ? extends Customizable<?>> statementFactory = statementFactory(config, locatedSql);
-        return new AttachedExtensionHandler() {
-            @Override
-            public Object invoke(HandleSupplier handleSupplier, Object... args) throws Exception {
-                final Handle h = handleSupplier.getHandle();
-                final Customizable<?> stmt = statementFactory.apply(h);
-
-                // clean the statement when the handle closes
-                stmt.attachToHandleForCleanup();
-
-                final SqlObjectStatementState state = new SqlObjectStatementState(args);
-                stmt.getContext().setExtensionState(state);
-                configureReturner(stmt, state);
-                applyPerInvocationCustomizers(stmt, safeVarargs(args));
-                return state.getReturner().get();
+        if (config.get(Extensions.class).isFailFast()) {
+            validate(config);
+            if (buildsReusableTemplate()) {
+                dryRunConfigurePhase(config);
             }
+        }
+        return (handleSupplier, args) -> {
+            final Handle h = handleSupplier.getHandle();
+            final Customizable<?> stmt = statementFactory.apply(h);
 
-            @Override
-            public void warm(ConfigRegistry config) {
-                statementCustomizers.forEach(s -> s.warm(config));
-                CustomizingStatementHandler.this.warm(config);
-            }
+            // clean the statement when the handle closes
+            stmt.attachToHandleForCleanup();
+
+            final SqlObjectStatementState state = new SqlObjectStatementState(args);
+            stmt.getContext().setExtensionState(state);
+            configureReturner(stmt, state);
+            applyPerInvocationCustomizers(stmt, safeVarargs(args));
+            return state.getReturner().get();
         };
     }
 
-    protected void warm(ConfigRegistry config) {}
+    /**
+     * Resolves the result-producing types this handler needs, so a wiring error (for example an
+     * unregistered result mapper) surfaces while attaching rather than on first invocation. Called only
+     * when {@link Extensions#isFailFast()} is enabled; handlers that produce mapped results override it.
+     */
+    void validate(ConfigRegistry config) {}
+
+    /**
+     * @return true if this handler bakes configure-phase customizers into a reusable template at build time
+     * (the fast path), so those customizers are dry-run at attach under fail-fast. The default is false: a
+     * handler that applies every customizer to a real statement on each call has nothing to check.
+     */
+    boolean buildsReusableTemplate() {
+        return false;
+    }
+
+    /**
+     * Dry-runs the configure phase at attach against a throwaway config, so a customizer that must touch the
+     * live statement but does not declare {@link org.jdbi.sqlobject.customizer.StatementScoped} fails here
+     * rather than on the first invocation. The throwaway child config absorbs anything the configure
+     * customizers install.
+     */
+    void dryRunConfigurePhase(final ConfigRegistry config) {
+        applyConfigureCustomizers(new ConfigureStatement(config.createChild()));
+    }
 
     /**
      * Builds the per-invocation factory that produces the statement to execute. The default creates a
@@ -346,8 +366,6 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
 
         void apply(Customizable<?> stmt, Object[] args) throws SQLException;
 
-        void warm(ConfigRegistry config);
-
         static BoundCustomizer of(SqlStatementCustomizer inner, Phase phase) {
             return new BoundCustomizer() {
                 @Override
@@ -358,11 +376,6 @@ abstract class CustomizingStatementHandler implements ExtensionHandler {
                 @Override
                 public void apply(Customizable<?> stmt, Object[] args) throws SQLException {
                     inner.apply(stmt);
-                }
-
-                @Override
-                public void warm(ConfigRegistry config) {
-                    inner.warm(config);
                 }
             };
         }

@@ -52,11 +52,6 @@ public final class FreemarkerConfig implements JdbiConfig<FreemarkerConfig> {
         return new FreemarkerSqlLocator(this);
     }
 
-    @Override
-    public FreemarkerConfig createCopy() {
-        // Immutable: safe to share across registries.
-        return this;
-    }
 
     private static ClassLoader selectClassLoader() {
         return Optional.ofNullable(Thread.currentThread().getContextClassLoader())

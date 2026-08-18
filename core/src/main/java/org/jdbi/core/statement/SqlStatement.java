@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.function.Consumer;
 
 import org.jdbi.core.Handle;
+import org.jdbi.core.config.ConfigView;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.internal.JfrSupport;
@@ -31,13 +32,30 @@ import org.jdbi.core.statement.internal.OptionalEvent;
  */
 public abstract class SqlStatement<This extends SqlStatement<This>> extends BaseStatement<This> implements Customizable<This> {
     private final String sql;
+
+    // Non-null only for a statement built from a reusable template: the SQL was rendered and parsed once at
+    // build time. parseSql() reuses them unless this execution supplied per-execution defines (which change
+    // the rendering); a one-shot statement renders and parses lazily on every execution.
+    private final String cachedRenderedSql;
+    private final ParsedSql cachedParsedSql;
+
     PreparedStatement stmt;
 
     SqlStatement(final Handle handle,
                  final CharSequence sql) {
-        super(handle);
+        this(handle, handle.getConfig(), sql, null, null);
+    }
+
+    SqlStatement(final Handle handle,
+                 final ConfigView parentConfig,
+                 final CharSequence sql,
+                 final String cachedRenderedSql,
+                 final ParsedSql cachedParsedSql) {
+        super(handle, parentConfig);
 
         this.sql = sql.toString();
+        this.cachedRenderedSql = cachedRenderedSql;
+        this.cachedParsedSql = cachedParsedSql;
 
         getContext()
             .setConnection(handle.getConnection())
@@ -99,10 +117,13 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
     }
 
     // Disambiguates the identically-signed define() inherited from Configurable (default) and
-    // BindingsMixin (abstract). Classic statements store defines in their configuration.
+    // BindingsMixin (abstract). A per-statement define is per-render state, stored on the context's defines
+    // overlay rather than the configuration, so it neither forks the copy-on-write config nor invalidates
+    // memoized resolvers. Configuration-level defaults still come from Configurable#define (jdbi/handle level).
     @Override
     public This define(final String key, final Object value) {
-        return configure(SqlStatements.class, c -> c.define(key, value));
+        getContext().define(key, value);
+        return typedThis;
     }
 
     // Disambiguates addCustomizer, which SqlStatement inherits from both Configurable (as a default)
@@ -142,15 +163,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         final SqlStatements stmtConfig = getConfig(SqlStatements.class);
         try {
-            try {
-                stmt = createStatement(parsedSql.getSql());
-                // The statement builder might (or might not) clean up the statement when called. E.g. the
-                // caching statement builder relies on the statement *not* being closed.
-                getContext().addCleanable(() -> cleanupStatement(stmt));
-                stmtConfig.customize(stmt);
-            } catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, ctx);
-            }
+            prepareStatement(parsedSql);
 
             ctx.setStatement(stmt);
 
@@ -181,6 +194,25 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         }
     }
 
+    /**
+     * Creates the JDBC statement, registers it for cleanup, and applies the configured statement customizers.
+     * Shared by the single-execute engine ({@link #internalExecute()}) and the prepared-batch prologue. Sets
+     * the {@link #stmt} field and returns it; the caller decides whether to record it on the context.
+     */
+    final PreparedStatement prepareStatement(final ParsedSql parsedSql) {
+        final SqlStatements stmtConfig = getConfig(SqlStatements.class);
+        try {
+            stmt = createStatement(parsedSql.getSql());
+            // The statement builder might (or might not) clean up the statement when called. E.g. the
+            // caching statement builder relies on the statement *not* being closed.
+            getContext().addCleanable(() -> cleanupStatement(stmt));
+            stmtConfig.customize(stmt);
+        } catch (SQLException e) {
+            throw new UnableToCreateStatementException(e, getContext());
+        }
+        return stmt;
+    }
+
     PreparedStatement createStatement(final String parsedSql) throws SQLException {
         return getHandle().getStatementBuilder().create(getHandle().getConnection(), parsedSql, getContext());
     }
@@ -191,9 +223,19 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     ParsedSql parseSql() {
         final StatementContext ctx = getContext();
+
+        if (cachedParsedSql != null && ctx.getDefinedAttributes().isEmpty()) {
+            // Reusable-template fast path: the SQL was rendered and parsed once at build time, and this
+            // execution supplied no per-execution defines (the only per-execution input to rendering), so
+            // reuse them instead of re-rendering and re-parsing.
+            ctx.setRenderedSql(cachedRenderedSql);
+            ctx.setParsedSql(cachedParsedSql);
+            return cachedParsedSql;
+        }
+
         final SqlStatements statements = getConfig(SqlStatements.class);
 
-        final String renderedSql = statements.preparedRender(sql, RenderContext.of(ctx.getConfig()));
+        final String renderedSql = statements.preparedRender(sql, ctx.renderContext());
         ctx.setRenderedSql(renderedSql);
 
         final ParsedSql parsedSql = statements.getSqlParser().parse(renderedSql, ctx);

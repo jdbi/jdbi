@@ -29,16 +29,19 @@ import java.util.stream.Stream;
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.extension.AttachedExtensionHandler;
+import org.jdbi.core.extension.Extensions;
 import org.jdbi.core.extension.HandleSupplier;
 import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.internal.IterableLike;
 import org.jdbi.core.internal.JdbiClassUtils;
+import org.jdbi.core.internal.MemoizingSupplier;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.result.ResultIterator;
 import org.jdbi.core.statement.Customizable;
 import org.jdbi.core.statement.PreparedBatch;
 import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.core.statement.UnableToCreateStatementException;
 import org.jdbi.sqlobject.SingleValue;
 import org.jdbi.sqlobject.UnableToCreateSqlObjectException;
@@ -55,6 +58,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
     private final SqlBatchHandler.ChunkSizeFunction batchChunkSize;
     private final Function<PreparedBatch, ResultIterator<?>> batchIntermediate;
     private final ResultReturner resultReturner;
+    private final boolean late;
 
     public SqlBatchHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -91,6 +95,9 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
                         .iterator();
             }
         }
+
+        // A method whose customizer must mutate configuration per invocation runs on the classic path.
+        this.late = hasLateCustomizers();
     }
 
     private Function<PreparedBatch, ResultIterator<?>> mapToBoolean(Function<PreparedBatch, ResultIterator<?>> modCounts) {
@@ -152,6 +159,15 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
         return handle.prepareBatch(locatedSql);
     }
 
+    /**
+     * Creates the {@link PreparedBatch} for a chunk. On the fast path the template renders, parses, and
+     * snapshots configuration once, so each chunk reuses them; on the classic path (null template) each
+     * chunk builds a statement from scratch.
+     */
+    private static PreparedBatch newPreparedBatch(Handle handle, String sql, Supplier<StatementTemplate> template) {
+        return template == null ? handle.prepareBatch(sql) : template.get().prepareBatch(handle);
+    }
+
     @Override
     void configureReturner(Customizable<?> stmt, SqlObjectStatementState state) {}
 
@@ -184,9 +200,35 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
     }
 
     @Override
+    void validate(ConfigRegistry config) {
+        resultReturner.resolveResultType(config);
+    }
+
+    @Override
+    boolean buildsReusableTemplate() {
+        return !late;
+    }
+
+    @Override
     public AttachedExtensionHandler attachTo(ConfigRegistry config, Object target) {
-        final AttachedExtensionHandler superInvoker = super.attachTo(config, target);
         final Supplier<String> sqlSupplier = locateSql(config);
+        // Fast path: build one template per attach over a copy-on-write child of the attach
+        // configuration, baking configure-phase customizers in once. Each chunk binds a fresh
+        // PreparedBatch against that child, skipping the per-chunk render, parse, and configuration
+        // copy; a method with no configure-phase customizers leaves the child unforked so it shares
+        // the attach config's warm resolver views. A method with a configuration-mutating customizer
+        // stays on the classic per-chunk path (template is null).
+        final Supplier<StatementTemplate> template = late ? null : MemoizingSupplier.of(() -> {
+            final StatementTemplate.Builder builder = new StatementTemplate.Builder(config, sqlSupplier.get());
+            applyConfigureCustomizers(new ConfigureStatement(builder.getConfig()));
+            return builder.build();
+        });
+        if (config.get(Extensions.class).isFailFast()) {
+            validate(config);
+            if (buildsReusableTemplate()) {
+                dryRunConfigurePhase(config);
+            }
+        }
         return new AttachedExtensionHandler() {
             @Override
             public Object invoke(HandleSupplier handleSupplier, Object... args) {
@@ -218,9 +260,12 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
                     }
 
                     private PreparedBatch createPreparedBatch(Handle handle, String sql, List<Object[]> currArgs) {
-                        PreparedBatch batch = handle.prepareBatch(sql);
+                        PreparedBatch batch = newPreparedBatch(handle, sql, template);
+                        // On the fast path configure-phase customizers are baked into the template, so
+                        // only bind per row; on the classic path (no template) every phase applies.
+                        final Phase phase = template == null ? null : Phase.BIND;
                         for (Object[] currArg : currArgs) {
-                            applyCustomizers(batch, currArg, null);
+                            applyCustomizers(batch, currArg, phase);
                             batch.add();
                         }
                         return batch;
@@ -280,7 +325,7 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
                     result = new BatchChunkIterator();
                 } else {
                     // only created to get access to the context.
-                    PreparedBatch dummy = handle.prepareBatch(sql);
+                    PreparedBatch dummy = newPreparedBatch(handle, sql, template);
                     result = new ResultIterator<>() {
                         @Override
                         public void close() {
@@ -307,12 +352,6 @@ public class SqlBatchHandler extends CustomizingStatementHandler {
                 ResultIterable<Object> iterable = ResultIterable.of(result);
 
                 return resultReturner.mappedResult(iterable, result.getContext());
-            }
-
-            @Override
-            public void warm(ConfigRegistry config) {
-                superInvoker.warm(config);
-                resultReturner.warm(config);
             }
         };
     }

@@ -59,7 +59,10 @@ public class TestSqlBatchWithCustomizer {
         assertThat(h.createQuery("select thing from things").mapTo(String.class).list())
             .containsExactlyInAnyOrderElementsOf(things);
 
-        assertThat(VerifyImpl.INVOKED_COUNT).hasValue(things.size());
+        // The original bug (#1516) was that beforeExecution received a null statement for @SqlBatch.
+        // The method-level customizer is declared once, so it is registered once and its beforeExecution
+        // fires once per batch execution with a non-null statement (asserted in VerifyImpl).
+        assertThat(VerifyImpl.INVOKED_COUNT).hasValue(1);
     }
 
     public interface ThingDAO {
@@ -85,6 +88,8 @@ public class TestSqlBatchWithCustomizer {
 
         @Override
         public void beforeExecution(PreparedStatement stmt, StatementContext ctx) {
+            // Guards the #1516 regression: the statement must not be null for a @SqlBatch.
+            assertThat(stmt).isNotNull();
             INVOKED_COUNT.getAndIncrement();
         }
     }

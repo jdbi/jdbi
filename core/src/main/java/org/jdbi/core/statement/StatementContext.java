@@ -25,8 +25,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import jakarta.annotation.Nullable;
@@ -57,6 +59,12 @@ public class StatementContext implements Closeable, ConfigReader {
     private final Type jdbiStatementType;
 
     private final Set<Cleanable> cleanables = new LinkedHashSet<>();
+
+    // Per-execution defined attributes ("defines"), layered over the configuration-level defaults in
+    // SqlStatements. Kept off the config registry deliberately: a define is per-render statement state, not
+    // configuration, so setting one neither forks the copy-on-write config child nor invalidates the registry's
+    // memoized resolvers. This map is confined to the (single-threaded) statement that owns this context.
+    private final Map<String, Object> definedAttributes = new HashMap<>();
 
     private String rawSql;
     private String renderedSql;
@@ -121,13 +129,57 @@ public class StatementContext implements Closeable, ConfigReader {
     }
 
     /**
-     * Define an attribute for in this context.
+     * Define an attribute for this context. The attribute is scoped to this statement execution and takes
+     * precedence over any configuration-level default of the same name; it is not stored in the configuration.
      *
      * @param key   the key for the attribute
      * @param value the value for the attribute
      */
     public void define(final String key, final Object value) {
-        getConfig().configure(SqlStatements.class, c -> c.define(key, value));
+        definedAttributes.put(key, value);
+    }
+
+    // The per-execution defines overlay, for the reusable-template reuse fast path (see SqlStatement#parseSql).
+    Map<String, Object> getDefinedAttributes() {
+        return definedAttributes;
+    }
+
+    // The render context for this execution: this context's configuration overlaid with its per-execution
+    // defines. Every render site (SqlStatement#parseSql, Batch, Script) must use this rather than
+    // RenderContext.of(getConfig()), which would drop the per-execution defines.
+    RenderContext renderContext() {
+        return new RenderContext(config, definedAttributes);
+    }
+
+    /**
+     * Returns the value of a defined attribute: a per-execution {@link #define(String, Object) define} if present,
+     * otherwise the configuration-level default from {@link SqlStatements}.
+     *
+     * @param key the attribute name
+     * @return the attribute value, or {@code null} if not defined
+     */
+    @Override
+    public Object getAttribute(final String key) {
+        if (definedAttributes.containsKey(key)) {
+            return definedAttributes.get(key);
+        }
+        return getConfig(SqlStatements.class).getAttribute(key);
+    }
+
+    /**
+     * Returns all defined attributes in effect: the {@link SqlStatements} configuration-level defaults overlaid
+     * with any per-execution {@link #define(String, Object) defines}.
+     *
+     * @return the defined attributes
+     */
+    @Override
+    public Map<String, Object> getAttributes() {
+        if (definedAttributes.isEmpty()) {
+            return getConfig(SqlStatements.class).getAttributes();
+        }
+        final Map<String, Object> merged = new HashMap<>(getConfig(SqlStatements.class).getAttributes());
+        merged.putAll(definedAttributes);
+        return merged;
     }
 
     StatementContext setRawSql(final String rawSql) {

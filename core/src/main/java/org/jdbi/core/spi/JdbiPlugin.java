@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
-import org.jdbi.core.config.ConfigRegistry;
+import org.jdbi.core.config.ConfigView;
 
 /**
  * A plugin is given an opportunity to customize instances of various {@code Jdbi}
@@ -59,17 +59,18 @@ public interface JdbiPlugin {
     default void configure(Jdbi.Builder builder) {}
 
     /**
-     * Contributes per-connection configuration to a new handle's config while the handle is still being constructed.
-     * This is the hook for configuration that can only be computed once a JDBC {@link Connection} is available (for
-     * example, binding database types to the live connection), applied during construction rather than by mutating a
-     * finished handle. It runs after any caller-supplied config scope and before the handle's extension context is
-     * derived. Prefer this over {@link #customizeHandle(Handle)} for anything that modifies the handle's config.
+     * Contributes per-connection side effects to a new handle while the handle is still being constructed. This is
+     * the hook for work that can only be computed once a JDBC {@link Connection} is available (for example, binding
+     * database types to the live connection), applied during construction rather than by mutating a finished handle.
+     * It runs before the handle's extension context is derived. The {@code config} is a read-only view of the
+     * handle's configuration: plugins may read Jdbi-level configuration (all configuration lives at the {@code Jdbi}
+     * level or the statement level) but cannot mutate the handle's config, which is never forked.
      *
      * @param connection the JDBC connection backing the new handle
-     * @param config the new handle's config, still open for modification during construction
+     * @param config a read-only view of the new handle's config
      * @throws SQLException something went wrong with the database
      */
-    default void customizeHandleConfig(Connection connection, ConfigRegistry config) throws SQLException {}
+    default void customizeHandleConnection(Connection connection, ConfigView config) throws SQLException {}
 
     /**
      * Configure customizations for a new Handle instance.

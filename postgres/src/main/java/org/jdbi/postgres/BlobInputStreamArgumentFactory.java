@@ -42,7 +42,9 @@ class BlobInputStreamArgumentFactory extends AbstractArgumentFactory<InputStream
 
         @Override
         public void apply(int pos, PreparedStatement stmt, StatementContext ctx) throws SQLException {
-            PgLobApi lob = ctx.getConfig(PostgresTypes.class).getLobApi();
+            // The Large Object API is bound to this execution's physical connection, resolved from the
+            // statement context rather than stored per-handle in configuration.
+            PgLobApi lob = new PgLobApiImpl(ctx.getConnection());
             long oid = lob.createLob();
             lob.writeLob(oid, value);
             stmt.setLong(pos, oid);

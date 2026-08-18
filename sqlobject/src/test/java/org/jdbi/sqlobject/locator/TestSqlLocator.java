@@ -17,7 +17,7 @@ import java.util.List;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
-import org.jdbi.core.Jdbi;
+import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
 import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.sqlobject.SqlObjectPlugin;
@@ -45,37 +45,40 @@ public class TestSqlLocator {
             h.execute("insert into something (id, name) values (?, ?)", 1, "Bob");
         })
         .withConfig(b -> b.configure(SqlObjects.class, c -> c.sqlLocator(
-            (type, method, config) -> config.get(TestConfig.class).sql)));
+            (type, method, config) -> config.get(TestConfig.class).sql())));
 
     @Test
     public void testLocateConfigDriven() throws Exception {
-        Jdbi jdbi = pgExtension.getJdbi();
-
-        jdbi.useHandle(h -> {
-            h.getConfig(TestConfig.class).sql = "select * from something order by id";
-            assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
+        try (Handle h = pgExtension.openWithConfig(
+                b -> b.configure(TestConfig.class, c -> c.sql("select * from something order by id")))) {
+            assertThat(h.attach(TestDao.class).list())
                 .containsExactly(new Something(1, "Bob"), new Something(2, "Alice"));
-        });
+        }
 
-        jdbi.useHandle(h -> {
-            h.getConfig(TestConfig.class).sql = "select * from something order by name";
-            assertThat(jdbi.withExtension(TestDao.class, TestDao::list))
+        try (Handle h = pgExtension.openWithConfig(
+                b -> b.configure(TestConfig.class, c -> c.sql("select * from something order by name")))) {
+            assertThat(h.attach(TestDao.class).list())
                 .containsExactly(new Something(2, "Alice"), new Something(1, "Bob"));
-        });
+        }
     }
 
     public static class TestConfig implements JdbiConfig<TestConfig> {
-        private String sql;
+        private final String sql;
 
-        public TestConfig() {}
-
-        private TestConfig(TestConfig that) {
-            this.sql = that.sql;
+        public TestConfig() {
+            this(null);
         }
 
-        @Override
-        public TestConfig createCopy() {
-            return new TestConfig(this);
+        private TestConfig(String sql) {
+            this.sql = sql;
+        }
+
+        String sql() {
+            return sql;
+        }
+
+        TestConfig sql(String sql) {
+            return new TestConfig(sql);
         }
     }
 

@@ -20,12 +20,14 @@ import java.util.function.Supplier;
 import org.jdbi.core.Handle;
 import org.jdbi.core.config.ConfigRegistry;
 import org.jdbi.core.internal.MemoizingSupplier;
+import org.jdbi.core.mapper.NoSuchMapperException;
+import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.result.ResultBearing;
 import org.jdbi.core.result.ResultIterable;
 import org.jdbi.core.statement.Customizable;
-import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.core.statement.StatementContext;
+import org.jdbi.core.statement.StatementTemplate;
 import org.jdbi.sqlobject.statement.UseRowMapper;
 import org.jdbi.sqlobject.statement.UseRowReducer;
 
@@ -34,6 +36,10 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
     private final UseRowMapper useRowMapper;
     private final UseRowReducer useRowReducer;
     private final boolean late;
+    // Fast-path result mapper, resolved once against the baked template configuration and reused across
+    // invocations to skip a per-call registry lookup. Unused on the late path, where configuration can
+    // change per invocation and the mapper is resolved each call.
+    private volatile RowMapper<?> resolvedMapper;
 
     public SqlQueryHandler(Class<?> sqlObjectType, Method method) {
         super(sqlObjectType, method);
@@ -51,8 +57,13 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
     }
 
     @Override
-    protected void warm(ConfigRegistry config) {
-        resultReturner.warm(config);
+    void validate(ConfigRegistry config) {
+        resultReturner.resolveResultType(config);
+    }
+
+    @Override
+    boolean buildsReusableTemplate() {
+        return !late;
     }
 
     @Override
@@ -61,12 +72,14 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
             // Classic path: a fresh Query per call, each with its own configuration copy.
             return super.statementFactory(config, locatedSql);
         }
-        // Fast path: build one template per attach, baking configure-phase customizers into its
-        // configuration snapshot once. Every call binds against a fresh, thread-confined binding.
+        // Fast path: build one template per attach over a copy-on-write child of the attach
+        // configuration, baking configure-phase customizers in once. A method with no configure-phase
+        // customizers leaves the child unforked, so it shares the attach config's warm resolver views;
+        // baking a customizer forks a private snapshot. Every call binds a fresh, thread-confined binding.
         final Supplier<StatementTemplate> template = MemoizingSupplier.of(() -> {
-            final ConfigRegistry templateConfig = config.createCopy();
-            applyConfigureCustomizers(new ConfigureStatement(templateConfig));
-            return new StatementTemplate(templateConfig, locatedSql.get());
+            final StatementTemplate.Builder builder = new StatementTemplate.Builder(config, locatedSql.get());
+            applyConfigureCustomizers(new ConfigureStatement(builder.getConfig()));
+            return builder.build();
         });
         return handle -> template.get().with(handle);
     }
@@ -92,11 +105,28 @@ public class SqlQueryHandler extends CustomizingStatementHandler {
                 return resultReturner.reducedResult(results.reduceRows(rowReducerFor(useRowReducer)), ctx);
             }
 
-            ResultIterable<?> iterable = useRowMapper == null
-                    ? results.mapTo(elementType)
-                    : results.map(rowMapperFor(useRowMapper));
+            ResultIterable<?> iterable;
+            if (useRowMapper != null) {
+                iterable = results.map(rowMapperFor(useRowMapper));
+            } else if (late) {
+                // Classic path: configuration can change per invocation, so resolve the mapper each call.
+                iterable = results.mapTo(elementType);
+            } else {
+                // Fast path: the mapper is fixed by the baked template configuration; resolve it once.
+                iterable = results.map(resolveMapper(ctx, elementType));
+            }
             return resultReturner.mappedResult(iterable, ctx);
         });
+    }
+
+    private RowMapper<?> resolveMapper(StatementContext ctx, QualifiedType<?> elementType) {
+        RowMapper<?> mapper = resolvedMapper;
+        if (mapper == null) {
+            mapper = ctx.findMapperFor(elementType)
+                    .orElseThrow(() -> new NoSuchMapperException("No mapper registered for type " + elementType));
+            resolvedMapper = mapper;
+        }
+        return mapper;
     }
 
     @Override
