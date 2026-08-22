@@ -60,6 +60,7 @@ jobs:
 
       - uses: ./.github/actions/test-report
         name: report test failures
+        if: ${{ !cancelled() }}
         with:
           name: 'test report (flyway ${{ matrix.flyway-version }})'
 

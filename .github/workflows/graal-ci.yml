@@ -66,8 +66,9 @@ jobs:
 
       - uses: ./.github/actions/test-report
         name: report native test failures
+        if: ${{ !cancelled() }}
         with:
-          name: 'native test report'
+          name: 'native test report (${{ matrix.graalvm-version }}, ${{ matrix.distribution }})'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
