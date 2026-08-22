@@ -1,6 +1,10 @@
 ---
 name: test report
-description: Publish JUnit reports from a test run as a check run on the pull request.
+description: >
+  Publish JUnit reports from a test run as a check run on the pull request.
+  The calling step must set "if: !cancelled()". The always() on the inner step
+  is not enough: the caller's default success() condition skips the whole
+  composite when a test step fails, which is exactly when the report matters.
 
 inputs:
   name:

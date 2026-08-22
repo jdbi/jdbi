@@ -57,6 +57,7 @@ jobs:
 
       - uses: ./.github/actions/test-report
         name: report test failures
+        if: ${{ !cancelled() }}
         with:
           name: 'test report (slow tests)'
 
@@ -118,6 +119,7 @@ jobs:
 
       - uses: ./.github/actions/test-report
         name: report test failures
+        if: ${{ !cancelled() }}
         with:
           name: 'test report (slow tests, timezone and locale)'
 
@@ -184,6 +186,7 @@ jobs:
 
       - uses: ./.github/actions/test-report
         name: report test failures
+        if: ${{ !cancelled() }}
         with:
           name: 'test report (oracle ${{ matrix.test-version }})'
 

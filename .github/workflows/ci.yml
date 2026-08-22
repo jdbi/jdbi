@@ -71,6 +71,7 @@ jobs:
 
       - uses: ./.github/actions/test-report
         name: report test failures
+        if: ${{ !cancelled() }}
         with:
           name: 'test report (${{ matrix.distribution }}, ${{ matrix.java-version }})'
 
@@ -133,6 +134,7 @@ jobs:
 
       - uses: ./.github/actions/test-report
         name: report test failures
+        if: ${{ !cancelled() }}
         with:
           name: 'test report (timezone and locale)'
 
