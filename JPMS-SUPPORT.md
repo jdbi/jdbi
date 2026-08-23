@@ -64,7 +64,7 @@ JPMS modules come in three flavors:
 - everything else. Module names for these jars is set by the filename. Those modules are unstable (people may add manifest entries or module descriptors *with a different* module name. Depending on those and releasing publicly is a risk. Maven actually warns about those:
 
 ```
-[INFO] --- compiler:3.11.0:compile (default-compile) @ jdbi3-testing ---
+[INFO] --- compiler:3.11.0:compile (default-compile) @ jdbi-testing ---
 [WARNING] *************************************************************************************************************************************************
 [WARNING] * Required filename-based automodules detected: [otj-pg-embedded-1.0.1.jar]. Please don't publish this project to a public artifact repository! *
 [WARNING] *************************************************************************************************************************************************

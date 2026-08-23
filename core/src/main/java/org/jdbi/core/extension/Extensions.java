@@ -312,7 +312,7 @@ public class Extensions implements JdbiConfig<Extensions> {
     public void onCreateProxy() {
         if (!isAllowProxy()) {
             throw new IllegalStateException(
-                    "Creating onDemand proxy disallowed. Ensure @GenerateSqlObject annotation is being processed by `jdbi3-generator` annotation processor.");
+                    "Creating onDemand proxy disallowed. Ensure @GenerateSqlObject annotation is being processed by `jdbi-generator` annotation processor.");
         }
     }
 }

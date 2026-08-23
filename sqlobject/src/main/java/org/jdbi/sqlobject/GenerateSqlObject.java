@@ -19,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Decorate a SqlObject type to instruct the {@code jdbi3-generator} annotation processor
+ * Decorate a SqlObject type to instruct the {@code jdbi-generator} annotation processor
  * to create a compiled implementation.
  */
 @Retention(RetentionPolicy.RUNTIME)

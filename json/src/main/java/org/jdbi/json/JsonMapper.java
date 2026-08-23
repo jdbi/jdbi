@@ -23,7 +23,7 @@ import org.jdbi.core.config.ConfigRegistry;
  * Implement this interface and {@link JsonConfig#setJsonMapper(JsonMapper)} it
  * to be able to convert objects to/from JSON between your application and database.
  *
- * jdbi3-jackson2 and jdbi3-gson2 are readily available for this.
+ * jdbi-jackson2 and jdbi-gson2 are readily available for this.
  */
 @SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface JsonMapper {

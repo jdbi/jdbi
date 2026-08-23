@@ -22,7 +22,7 @@ import org.jdbi.json.JsonMapper;
 
 public class UnimplementedJsonMapper implements JsonMapper {
     private static final String NO_IMPL_INSTALLED = String.format(
-        "you need to install (see %s) a %s impl, like jdbi3-jackson2 or jdbi3-gson2",
+        "you need to install (see %s) a %s impl, like jdbi-jackson2 or jdbi-gson2",
         JsonConfig.class.getSimpleName(),
         JsonMapper.class.getSimpleName()
     );
