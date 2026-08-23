@@ -351,7 +351,7 @@ public final class ExtensionMetadata {
          * configuration customizers have been applied). The extension context is registered with
          * the underlying handle to configure the handle when calling the {@link Callable#call()} method.
          * <br>
-         * This method is used by the generated classes from the <code>jdbi3-generator</code> annotation
+         * This method is used by the generated classes from the <code>jdbi-generator</code> annotation
          * processor to execute predefined {@link ExtensionHandler} instances.
          *
          * @param callable The callable to use
@@ -371,7 +371,7 @@ public final class ExtensionMetadata {
          * configuration customizers have been applied). The extension context is registered with
          * the underlying handle to configure the handle when calling the {@link Runnable#run()} method.
          * <br>
-         * This method is used by the generated classes from the <code>jdbi3-generator</code> annotation
+         * This method is used by the generated classes from the <code>jdbi-generator</code> annotation
          * processor to execute predefined {@link ExtensionHandler} instances.
          *
          * @param runnable The runnable to use

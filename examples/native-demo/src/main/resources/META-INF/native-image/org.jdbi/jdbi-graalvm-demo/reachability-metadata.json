@@ -4,8 +4,6 @@
     {"type":"org.jdbi.nativedemo.NativeMain$CreateDao","allDeclaredFields":true,"allDeclaredMethods":true,"allPublicMethods":true},
     {"type":"org.jdbi.nativedemo.NativeMain$Demo","allDeclaredFields":true,"allDeclaredMethods":true,"allDeclaredConstructors":true},
     {"type":"org.jdbi.nativedemo.NativeMain$QueryDao","allDeclaredFields":true,"allDeclaredMethods":true,"allPublicMethods":true},
-    {"type":"org.jdbi.core.argument.internal.strategies.LoggableBinderArgument","methods":[{"name":"toString"}]},
-    {"type":"org.jdbi.meta.Legacy"},
     {"type":{"proxy":["org.jdbi.nativedemo.NativeMain$CreateDao"]}},
     {"type":{"proxy":["org.jdbi.nativedemo.NativeMain$QueryDao"]}}
   ],

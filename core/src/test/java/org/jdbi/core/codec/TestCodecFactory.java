@@ -38,7 +38,7 @@ public class TestCodecFactory {
         Optional<Function<Object, Argument>> result = factory.prepare(SET_CODEC_TYPE, new ConfigRegistry());
         assertThat(result).isPresent();
 
-        // The TypeResolvingCodecFactory in jdbi3-guava returns true here.
+        // The TypeResolvingCodecFactory in jdbi-guava returns true here.
         result = factory.prepare(CONCRETE_TYPE_CODEC_TYPE, new ConfigRegistry());
         assertThat(result).isNotPresent();
     }
