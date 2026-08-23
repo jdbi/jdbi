@@ -129,6 +129,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jdbi</groupId>
+                <artifactId>jdbi-mysql</artifactId>
+                <version>${dep.jdbi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
                 <artifactId>jdbi-noop-cache</artifactId>
                 <version>${dep.jdbi.version}</version>
             </dependency>

@@ -29,6 +29,8 @@
 
     <properties>
         <basepom.test.fork-count>1</basepom.test.fork-count>
+        <!-- docker tests run long -->
+        <basepom.test.timeout>600</basepom.test.timeout>
         <moduleName>org.jdbi.oracle12</moduleName>
     </properties>
 
@@ -52,14 +54,14 @@
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>oracle-xe</artifactId>
+            <artifactId>testcontainers-oracle-xe</artifactId>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>jdbc</artifactId>
+            <artifactId>testcontainers-jdbc</artifactId>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -79,13 +81,20 @@
 
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi-sqlobject</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>oracle-free</artifactId>
+            <artifactId>testcontainers-oracle-free</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -97,7 +106,7 @@
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

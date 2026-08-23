@@ -66,7 +66,7 @@ native-tests:: install
 
 publish-docs:: MAVEN_ARGS += -Dbasepom.javadoc.skip=false
 publish-docs:: install-fast
-	${MAVEN} -Ppublish-docs -pl :jdbi3-docs clean deploy
+	${MAVEN} -Ppublish-docs -pl :jdbi-docs clean deploy
 
 deploy:: MAVEN_ARGS += -Dbasepom.it.skip=false
 deploy::

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testcontainers.mysql;
+package org.jdbi.mysql;
 
 import java.util.List;
 
@@ -38,15 +38,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("slow")
 @Testcontainers
-public class TestMySQL {
-    static final String MYSQL_VERSION = System.getProperty("jdbi.test.mysql-version", "mysql");
+public class TestMysql {
+    static final String MYSQL_DOCKER_IMAGE = System.getProperty("jdbi.test.mysql-docker-image", "mysql");
 
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_VERSION);
-
+    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_DOCKER_IMAGE);
     @RegisterExtension
     JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer)
-            .withPlugin(new SqlObjectPlugin());
+        .withPlugin(new SqlObjectPlugin());
 
     @Test
     void testIssue2402() {
@@ -77,15 +76,15 @@ public class TestMySQL {
         List<Contact> getAllContacts();
 
         @SqlQuery("""
-                SELECT contact_id
-                FROM contacts
-                WHERE RIGHT(etag, 1) = RIGHT(:etag, 1)""")
+            SELECT contact_id
+            FROM contacts
+            WHERE RIGHT(etag, 1) = RIGHT(:etag, 1)""")
         List<String> testOne(@Bind("etag") String etag);
 
         @SqlQuery("""
-                SELECT contact_id
-                FROM contacts
-                WHERE etag LIKE \\'%<etagPattern>\\'""")
+            SELECT contact_id
+            FROM contacts
+            WHERE etag LIKE \\'%<etagPattern>\\'""")
         List<String> testTwo(@Define("etagPattern") String etag);
     }
 
@@ -113,9 +112,9 @@ public class TestMySQL {
     public void testIssue2535PassesSingleLine() {
         // this is a single line of text. DO NOT CHANGE. This is what the test is checking.
         String sqlScript = "CREATE PROCEDURE QWE() "
-                + "BEGIN "
-                + "END; "
-                + "DROP PROCEDURE IF EXISTS QWE;";
+            + "BEGIN "
+            + "END; "
+            + "DROP PROCEDURE IF EXISTS QWE;";
         int[] result = extension.getJdbi().withHandle(h -> h.createScript(sqlScript).execute());
 
         assertThat(result).isEqualTo(new int[] { 0, 0 });
@@ -124,11 +123,11 @@ public class TestMySQL {
     @Test
     public void testIssue2535FailsMultiLine() {
         String sqlScript = """
-                CREATE PROCEDURE QWE()
-                BEGIN
-                END;
-                DROP PROCEDURE IF EXISTS QWE;
-                """;
+            CREATE PROCEDURE QWE()
+            BEGIN
+            END;
+            DROP PROCEDURE IF EXISTS QWE;
+            """;
         int[] result = extension.getJdbi().withHandle(h -> h.createScript(sqlScript).execute());
 
         assertThat(result).isEqualTo(new int[] { 0, 0 });

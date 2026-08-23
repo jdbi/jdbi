@@ -15,18 +15,24 @@ concurrency:
   group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# The test reporter publishes a check run. A pull_request build from a fork gets a
+# read-only token regardless, and falls back to annotations there.
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   slow-tests:
     name: Run slow tests
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-tags: true
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         name: setup build jdk
         id: build_jdk
         with:
@@ -49,7 +55,13 @@ jobs:
           ./mvnw --version
           make run-slow-tests
 
-      - uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        if: ${{ !cancelled() }}
+        with:
+          name: 'test report (slow tests)'
+
+      - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
         continue-on-error: true
@@ -62,7 +74,7 @@ jobs:
             !**/target/**/*.jar
             !**/target/**/*.class
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build artifacts
         id: upload_build_artifacts
         continue-on-error: true
@@ -77,12 +89,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-tags: true
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         name: setup build jdk
         id: build_jdk
         with:
@@ -105,7 +117,13 @@ jobs:
           ./mvnw --version
           make run-slow-tests
 
-      - uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        if: ${{ !cancelled() }}
+        with:
+          name: 'test report (slow tests, timezone and locale)'
+
+      - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
         continue-on-error: true
@@ -118,7 +136,7 @@ jobs:
             !**/target/**/*.jar
             !**/target/**/*.class
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build artifacts
         id: upload_build_artifacts
         continue-on-error: true
@@ -134,15 +152,15 @@ jobs:
 
     strategy:
       matrix:
-        test-version: [ 'latest-faststart', 'full-faststart' ]
+        test-version: [ 'gvenzl/oracle-free:latest-faststart', 'gvenzl/oracle-free:full-faststart' ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-tags: true
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         name: setup build jdk
         id: build_jdk
         with:
@@ -161,12 +179,18 @@ jobs:
       - name: run tests
         id: run_tests
         env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-oracle12 -Doracle.container.version=${{ matrix.test-version }}"
+          MAVEN_ARGS: "-B -ff -pl :jdbi-oracle12 -Djdbi.test.oracle-docker-image=${{ matrix.test-version }}"
         run: |
           ./mvnw --version
           make run-slow-tests
 
-      - uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        if: ${{ !cancelled() }}
+        with:
+          name: 'test report (oracle ${{ matrix.test-version }})'
+
+      - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
         continue-on-error: true
@@ -179,7 +203,7 @@ jobs:
             !**/target/**/*.jar
             !**/target/**/*.class
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build artifacts
         id: upload_build_artifacts
         continue-on-error: true

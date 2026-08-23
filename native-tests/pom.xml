@@ -115,6 +115,11 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi-mysql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi-noop-cache</artifactId>
             <scope>test</scope>
         </dependency>
@@ -407,7 +412,7 @@
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
+            <artifactId>testcontainers-postgresql</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -440,6 +445,12 @@
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
                 <extensions>true</extensions>
+                <configuration>
+                    <buildArgs combine.children="append">
+                        <!-- hsqldb formats dates through Locale.UK, so en-GB bundles must be in the image -->
+                        <buildArg>-H:IncludeLocales=en-GB</buildArg>
+                    </buildArgs>
+                </configuration>
                 <executions>
                     <execution>
                         <id>test-native</id>

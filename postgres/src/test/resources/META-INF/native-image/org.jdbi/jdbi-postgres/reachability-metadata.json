@@ -13,11 +13,12 @@
     {"type":{"proxy":["org.jdbi.postgres.TestUuid$UuidObject"]}},
     {"type":{"proxy":["org.jdbi.sqlobject.TestBatchGeneratedKeys$UsesBatching"]}},
     {"type":{"proxy":["org.jdbi.sqlobject.TestJsonOperator$KeyValueStore"]}},
+    {"type":"java.sql.Timestamp[]"},
     {"type":"org.jdbi.postgres.FooBarPGType","methods":[{"name":"<init>"}]},
     {"type":"org.jdbi.postgres.ImmutableMappy"},
     {"type":"org.postgresql.util.PGmoney","methods":[{"name":"<init>"}]}
   ],
   "resources": [
-    {"glob":"**/*.sql.stg"}
+    {"glob":"org/**/*.sql.stg"}
   ]
 }

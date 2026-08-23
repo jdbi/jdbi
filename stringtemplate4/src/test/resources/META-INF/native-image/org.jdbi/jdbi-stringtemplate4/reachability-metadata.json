@@ -15,11 +15,12 @@
     {"type":{"proxy":["org.jdbi.sqlobject.BindListTest$SomethingByIteratorHandleDefault"]}},
     {"type":{"proxy":["org.jdbi.sqlobject.BindListTest$SomethingByVarargsHandleDefault"]}},
     {"type":{"proxy":["org.jdbi.sqlobject.BindListTest$SomethingWithExplicitAttributeName"]}},
+    {"type":{"proxy":["org.jdbi.stringtemplate4.TestBindMethodsListWithStringTemplate$Dao"]}},
     {"type":{"proxy":["org.jdbi.stringtemplate4.TestConditionalStringTemplateLocator$Dao"]}},
     {"type":{"proxy":["org.jdbi.stringtemplate4.TestStringTemplateGroupReference$Dao"]}},
     {"type":{"proxy":["org.jdbi.stringtemplate4.TestStringTemplateSqlLocator$Wombat"]}}
   ],
   "resources": [
-    {"glob":"**/*.sql.stg"}
+    {"glob":"org/**/*.sql.stg"}
   ]
 }

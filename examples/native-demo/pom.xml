@@ -20,7 +20,8 @@
     <parent>
         <groupId>org.basepom</groupId>
         <artifactId>basepom-oss</artifactId>
-        <version>62</version>
+        <version>69</version>
+        <relativePath/>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -51,9 +52,9 @@
     <properties>
         <basepom.check.fail-all>true</basepom.check.fail-all>
         <dep.h2.version>2.3.232</dep.h2.version>
-        <dep.jdbi.version>3.49.3</dep.jdbi.version>
+        <dep.jdbi.version>4.0.0-SNAPSHOT</dep.jdbi.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>
-        <dep.plugin.native.version>0.10.6</dep.plugin.native.version>
+        <dep.plugin.native.version>1.1.5</dep.plugin.native.version>
         <project.build.targetJdk>21</project.build.targetJdk>
         <basepom.main-class>org.jdbi.nativedemo.NativeMain</basepom.main-class>
         <basepom.executable.name>jdbi-graalvm-jit-executable</basepom.executable.name>
@@ -137,7 +138,9 @@
                         <mainClass>org.jdbi.nativedemo.NativeMain</mainClass>
                         <imageName>jdbi-graalvm-aot-executable</imageName>
                         <buildArgs>
-                            <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                            <!-- Without this, a missing registration degrades quietly rather than
+                                 failing: Jdbi ignores ReflectiveOperationException in places. -->
+                            <buildArg>--exact-reachability-metadata</buildArg>
                         </buildArgs>
                         <metadataRepository>
                             <enabled>true</enabled>
@@ -183,6 +186,14 @@
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
                         <configuration>
+                            <!-- Replaces rather than appends: a JFR build must not inherit the exact
+                                 reachability metadata flag set above, because together they crash the
+                                 image when the JDK's Thread.sleep event is committed.
+                                 See https://github.com/oracle/graal/issues/14088
+
+                                 A workaround, not a preference: drop the override once that issue
+                                 is fixed. Nothing is lost meanwhile, since the ordinary build
+                                 checks the same application code. -->
                             <buildArgs>
                                 <buildArg>--enable-monitoring=jfr</buildArg>
                             </buildArgs>

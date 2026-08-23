@@ -30,13 +30,34 @@ public final class NativeMain {
 
     private static final Logger LOG = LoggerFactory.getLogger(NativeMain.class);
 
+    private static final int ROW_COUNT = 1000;
+    private static final int DEFAULT_QUERY_COUNT = 1000;
+
     public static void main(String[] args) throws Exception {
+        // every query pauses, so a default run takes minutes; pass a count for a short one
+        var queryCount = args.length > 0 ? parseQueryCount(args[0]) : DEFAULT_QUERY_COUNT;
+
         NativeMain nativeMain = new NativeMain();
         var jdbi = nativeMain.init();
-        nativeMain.execute(jdbi);
+        nativeMain.execute(jdbi, queryCount);
     }
 
     private NativeMain() {
+    }
+
+    // A count of zero would let the CI check pass while proving nothing ran, so reject it
+    // here rather than let the demo exit successfully having executed no query.
+    private static int parseQueryCount(String arg) {
+        int count;
+        try {
+            count = Integer.parseInt(arg);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(format("query count '%s' is not a number", arg), e);
+        }
+        if (count < 1) {
+            throw new IllegalArgumentException(format("query count must be at least 1, got %d", count));
+        }
+        return count;
     }
 
     Jdbi init() throws Exception {
@@ -50,7 +71,7 @@ public final class NativeMain {
         var random = SecureRandom.getInstanceStrong();
 
         jdbi.useExtension(CreateDao.class, dao -> {
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < ROW_COUNT; i++) {
                 dao.insert(i, "User Name" + UUID.randomUUID(), random.nextInt(10, 100));
             }
         });
@@ -58,17 +79,17 @@ public final class NativeMain {
         return jdbi;
     }
 
-    void execute(Jdbi jdbi) throws Exception {
+    void execute(Jdbi jdbi, int queryCount) throws Exception {
         var random = SecureRandom.getInstanceStrong();
         jdbi.useExtension(QueryDao.class, dao -> {
-            for (int i = 0; i < 1000; i++) {
-                var id = random.nextInt(1000);
+            for (int i = 0; i < queryCount; i++) {
+                var id = random.nextInt(ROW_COUNT);
                 var demo = dao.getObject(id);
                 LOG.info(format("Demo %d: %s", id, demo));
                 Thread.sleep(200L);
 
-                var start = random.nextInt(1000);
-                var end = random.nextInt(1000, 2000);
+                var start = random.nextInt(ROW_COUNT);
+                var end = random.nextInt(ROW_COUNT, 2 * ROW_COUNT);
                 var sum = dao.getRange(start, end);
                 LOG.info(format("Sum of %d to %d: %d", start, end, sum));
                 Thread.sleep(200L);

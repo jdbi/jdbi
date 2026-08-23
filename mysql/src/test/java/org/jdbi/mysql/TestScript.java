@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.testcontainers.mysql;
+package org.jdbi.mysql;
 
 import java.util.List;
 
@@ -35,9 +35,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Tag("slow")
 @Testcontainers
 public class TestScript {
-    static final String MYSQL_VERSION = System.getProperty("jdbi.test.mysql-version", "mysql");
+    static final String MYSQL_DOCKER_IMAGE = System.getProperty("jdbi.test.mysql-docker-image", "mysql");
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_VERSION).withUrlParam("rewriteBatchedStatements", "true");
+    static JdbcDatabaseContainer<?> dbContainer = new MySQLContainer<>(MYSQL_DOCKER_IMAGE).withUrlParam("rewriteBatchedStatements", "true");
 
     @RegisterExtension
     JdbiExtension extension = JdbiTestcontainersExtension.instance(dbContainer);

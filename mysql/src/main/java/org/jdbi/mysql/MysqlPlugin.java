@@ -11,21 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.postgres;
+package org.jdbi.mysql;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-
-import org.jdbi.core.mapper.GetObjectColumnMapperFactory;
+import org.jdbi.core.Jdbi;
+import org.jdbi.core.spi.JdbiPlugin;
 
 /**
- * Provide mappers corresponding to java time types.
- * @see JavaTimeArgumentFactory for the list of types
+ * MySQL plugin. Adds support for MySQL specific arguments and mappings.
+ *
+ * @since 3.52.0
  */
-public class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
-    public JavaTimeMapperFactory() {
-        super(LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class);
+public class MysqlPlugin extends JdbiPlugin.Singleton {
+
+    @Override
+    public void customizeJdbi(Jdbi jdbi) {
+        jdbi.registerArgument(new JavaTimeArgumentFactory());
     }
 }

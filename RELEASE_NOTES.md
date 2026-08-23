@@ -1,5 +1,79 @@
 # Unreleased
 
+# 3.54.0
+
+- fix deadlock in configuration caching (#2980)
+- fix prepared batch first-time-null binding (#2975)
+- Add `@SqlPreflight` (Alpha) for SQL Object methods. The annotation runs a literal SQL statement on
+  the same `Handle`, immediately before the method's main statement, binding the method's arguments.
+  This is useful for setting scoped/session variables before a query (e.g. a Postgres trigram
+  threshold). It is repeatable and may be placed on a method or a SQL Object type. See issue #2979.
+- update postgres driver due to CVE-2026-42198
+
+# 3.53.0
+
+## Fixes: Jdbi-Freemarker Security Advisory GHSA-mggx-p7jf-jgw4
+
+The Freemarker configuration allows templates to construct arbitrary
+Java types, including `freemarker.template.utility.Execute`.
+
+While exploiting this requires other unsafe practices (letting a user
+dictate template input), it seems prudent to disable template class resolution.
+
+Please see https://github.com/jdbi/jdbi/security/advisories/GHSA-mggx-p7jf-jgw4 for more details.
+
+## Upgrade to testcontainers 2.x
+
+While this required no code changes, the testcontainers project has
+renamed a number of their jar files. Jdbi still supports
+testcontainers 1.x and now also testcontainers 2.x:
+
+If you are using testcontainers with Jdbi today and can not update to
+2.x, make sure that you reference the `org.testcontainers:jdbc` and
+`org.testcontainers:junit-jupiter` dependencies. Those used to be
+available as transitive dependency from `jdbi3-testcontainers`.
+
+If you upgrade to testcontainers 2.x, the
+`org.testcontainers:testcontainers-jdbc` and
+`org.testcontainers:testcontainers-junit-jupiter` dependencies must be
+available.
+
+- Update testcontainers dependency to 2.0.5 (from 1.21.4)
+- Add StatementContext parameter to SqlExceptionHandler and remove return value
+
+# 3.52.1
+
+- fix regression for `java.time.Instant` mapping from 3.52.0 (#2955, reported by @Eng-Fouad and @toadzky)
+- Add missing mappers for java.sql.Date and java.sql.Time
+- Add support for `java.time.OffsetTime`
+- Add support for `java.time.ZoneOffset`
+
+# 3.52.0
+
+## Changes to java.time related classes
+
+JDBC 4.2 added full support to map java.time classes onto SQL types
+in 2014. This release of Jdbi switches from mapping these objects onto
+"classic" (`java.sql.Date`, `Time`, `Timestamp`) to using the JDBC 4.2 API
+(`PreparedStatement#setObject` and `ResultSet#getObject`).
+
+These changes should not be visible for any database, except if you
+were brave enough to map types with time zones or offsets
+(`ZonedDateTime` and `OffsetDateTime`) onto SQL types that have no
+timezone (`TIMESTAMP` or `DATETIME`). This affects databases that do
+not support the `TIMESTAMP WITH TIMEZONE` data type. IAW _MySQL_.
+
+If you use MySQL with Jdbi *and* map any of these data types, you are
+already losing the zone/offset information. Now you actually get an
+error (which is the correct behavior of the driver!) *unless* you load
+the new `MysqlPlugin` which restores the mapping.
+
+If your application relies on legacy mappings, you can also use the
+new `@Legacy` annotation to force the old behavior. See the
+documentation at https://jdbi.org/ for details.
+
+
+- Add MySQL specific module (jdbi3-mysql) and plugin (MysqlPlugin).
 - Add new SqlExceptionHandler hook to handle database exceptions thrown during statement execution
 - Add option to not attach sensitive binding data with OpenTelemetry (#2941, thanks @gmellemstrand !)
 - Add configuration for Jackson serialization of types with custom polymorphic handling (#2915)
@@ -8,6 +82,9 @@
 - Run test suite against Spring Framework 7 (#2919)
 - Add OraclePlugin that sets untyped null argument to Types.NULL for Oracle compatibility (#1003)
 - Support INOUT parameters for stored procedure Call statements (#1606)
+- Map java.time types according to JDBC 4.2 spec (using setObject) (#988)
+- Add `@Legacy` annotation to restore old timestamp mapping behavior
+- Make `@BindMethodsList` work with the String template engine (fixes #2917, reported by @agavrilov76, fixed by @JScodeconcise)
 
 # 3.51.0
 
@@ -1091,10 +1168,10 @@ NOTE: this release's git tags are missing due to maintainer error!
 
 # 2.45
 - Support for setting Enum values from strings in BeanMapper
-  
+
 # 2.44
 - Add java.io.Closeable to Handle and ResultIterator
- 
+
 # 2.35
 - Use CGLIB for sql objects instead of dyanmic proxies
 - Support for classes as well as interfaces in the sql object api

@@ -19,6 +19,6 @@
     {"type":{"proxy":["org.jdbi.sqlobject.kotlin.TestValueClasses$Dao"]}}
   ],
   "resources": [
-    {"glob":"**/*.sql.stg"}
+    {"glob":"org/**/*.sql.stg"}
   ]
 }

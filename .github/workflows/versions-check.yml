@@ -15,552 +15,90 @@ concurrency:
   group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Inherited by the called workflow, which publishes a check run.
+permissions:
+  contents: read
+  checks: write
+
+# Every job here is the same build run against a different version of one dependency,
+# so the run itself lives in dependency-version-tests.yml.
 jobs:
   guava:
     name: Test Guava versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 33.4.8-jre, 33.3.1-jre, 33.2.1-jre ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-guava,:jdbi-guice -Ddep.guava.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: guava
+      versions: '["33.4.8-jre", "33.3.1-jre", "33.2.1-jre"]'
+      property: dep.guava.version
+      projects: ':jdbi-guava,:jdbi-guice'
 
   immutables:
     name: Test Immutables versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 2.11.6, 2.10.1, 2.9.3 ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-core -Ddep.immutables.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: immutables
+      versions: '["2.11.6", "2.10.1", "2.9.3"]'
+      property: dep.immutables.version
+      projects: ':jdbi-core'
 
   jackson2:
     name: Test Jackson Versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 2.19.4, 2.18.5, 2.17.3, 2.16.2 ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-jackson2 -Ddep.jackson2.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: jackson2
+      versions: '["2.20.2", "2.19.4", "2.18.5", "2.17.3"]'
+      property: dep.jackson2.version
+      projects: ':jdbi-jackson2'
 
   jodatime2:
     name: Test joda-time versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 2.13.1, 2.12.7 ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-jodatime2 -Ddep.joda-time.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: jodatime2
+      versions: '["2.13.1", "2.12.7"]'
+      property: dep.joda-time.version
+      projects: ':jdbi-jodatime2'
 
   vavr:
     name: Test vavr versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 0.10.6, 0.9.3 ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-vavr -Ddep.vavr.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: vavr
+      versions: '["0.10.6", "0.9.3"]'
+      property: dep.vavr.version
+      projects: ':jdbi-vavr'
 
   guice:
     name: Test guice versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 6.0.0, 7.0.0 ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-guice -Ddep.guice.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: guice
+      versions: '["6.0.0", "7.0.0"]'
+      property: dep.guice.version
+      projects: ':jdbi-guice'
 
   kotlin:
     name: Test kotlin runtime versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 2.2.21, 2.1.21, 2.0.21 ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-kotlin,:jdbi-kotlin-sqlobject -Ddep.kotlin.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: kotlin
+      versions: '["2.2.21", "2.1.21", "2.0.21"]'
+      property: dep.kotlin.version
+      projects: ':jdbi-kotlin,:jdbi-kotlin-sqlobject'
 
   spring:
     name: Test spring framework versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 6.1.21, 7.0.3 ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -pl :jdbi-spring -Ddep.spring.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: spring
+      versions: '["6.1.21", "7.0.6"]'
+      property: dep.spring.version
+      projects: ':jdbi-spring'
 
   slf4j:
     name: Test slf4j versions
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        test-version: [ 2.1.0-alpha1 ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-tags: true
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        name: setup build jdk
-        id: build_jdk
-        with:
-          java-version: 25
-          distribution: temurin
-          cache: maven
-
-      - name: build code
-        id: install_fast
-        env:
-          MAVEN_ARGS: "-B -ff"
-        run: |
-          ./mvnw --version
-          make install-fast
-
-      - name: run tests
-        id: run_tests
-        env:
-          MAVEN_ARGS: "-B -ff -Ddep.slf4j.version=${{ matrix.test-version }}"
-        run: |
-          ./mvnw --version
-          make run-tests
-
-      - uses: actions/upload-artifact@v4
-        name: upload build logs
-        id: upload_build_logs
-        continue-on-error: true
-        if: ${{ always() }}
-        with:
-          name: build logs (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 90
-          path: |
-            **/target
-            !**/target/**/*.jar
-            !**/target/**/*.class
-
-      - uses: actions/upload-artifact@v4
-        name: upload build artifacts
-        id: upload_build_artifacts
-        continue-on-error: true
-        with:
-          name: build artifacts (${{ github.job }}, ${{ matrix.test-version }})
-          retention-days: 1
-          path: |
-            **/target/**/*.jar
+    uses: ./.github/workflows/dependency-version-tests.yml
+    with:
+      name: slf4j
+      versions: '["2.1.0-alpha1"]'
+      property: dep.slf4j.version
