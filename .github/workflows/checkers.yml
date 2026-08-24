@@ -20,12 +20,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-tags: true
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         name: setup build jdk
         id: build_jdk
         with:
@@ -39,7 +39,7 @@ jobs:
         run: |
           make install-notests
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
         continue-on-error: true
@@ -52,7 +52,7 @@ jobs:
             !**/target/**/*.jar
             !**/target/**/*.class
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build artifacts
         id: upload_build_artifacts
         continue-on-error: true
@@ -67,12 +67,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-tags: true
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         name: setup build jdk
         id: build_jdk
         with:
@@ -92,7 +92,7 @@ jobs:
         run: |
           make compare-reproducible
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build logs
         id: upload_build_logs
         continue-on-error: true
@@ -105,7 +105,7 @@ jobs:
             !**/target/**/*.jar
             !**/target/**/*.class
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: upload build artifacts
         id: upload_build_artifacts
         continue-on-error: true

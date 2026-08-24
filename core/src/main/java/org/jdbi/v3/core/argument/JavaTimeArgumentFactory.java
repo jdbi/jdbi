@@ -13,7 +13,7 @@
  */
 package org.jdbi.v3.core.argument;
 
-import java.sql.Time;
+import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
@@ -21,15 +21,47 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.ZonedDateTime;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
-class JavaTimeArgumentFactory extends DelegatingArgumentFactory {
+import org.jdbi.v3.core.argument.internal.strategies.LoggableBinderArgument;
+import org.jdbi.v3.core.config.ConfigRegistry;
+
+class JavaTimeArgumentFactory extends SetObjectArgumentFactory {
+    private static final Map<Class<?>, Function<Object, Argument>> TYPES = Map.of(
+        ZonedDateTime.class, value -> value == null
+            ? new NullArgument(Types.TIMESTAMP_WITH_TIMEZONE)
+            : ObjectArgument.of(((ZonedDateTime) value).toOffsetDateTime(), Types.TIMESTAMP_WITH_TIMEZONE),
+        Instant.class, value -> value == null
+            ? new NullArgument(Types.TIMESTAMP)
+            : new LoggableBinderArgument<>(value, (p, i, v) -> p.setTimestamp(i, Timestamp.from((Instant) v)))
+    );
+
     JavaTimeArgumentFactory() {
-        register(Instant.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v)));
-        register(LocalDate.class, Types.DATE, (p, i, v) -> p.setDate(i, java.sql.Date.valueOf(v)));
-        register(LocalTime.class, Types.TIME, (p, i, v) -> p.setTime(i, Time.valueOf(v)));
-        register(LocalDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.valueOf(v)));
-        register(OffsetDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
-        register(ZonedDateTime.class, Types.TIMESTAMP, (p, i, v) -> p.setTimestamp(i, Timestamp.from(v.toInstant())));
+        super(Map.of(
+            LocalDate.class, Types.DATE,
+            LocalTime.class, Types.TIME,
+            LocalDateTime.class, Types.TIMESTAMP,
+            OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE,
+            OffsetTime.class, Types.TIME_WITH_TIMEZONE
+        ));
     }
+
+    @Override
+    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+        var res = Optional.of(type)
+            .filter(Class.class::isInstance)
+            .map(Class.class::cast)
+            .map(TYPES::get);
+
+        if (res.isEmpty()) {
+            res = super.prepare(type, config);
+        }
+
+        return res;
+    }
+
 }

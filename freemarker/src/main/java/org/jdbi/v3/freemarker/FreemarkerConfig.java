@@ -16,6 +16,7 @@ package org.jdbi.v3.freemarker;
 import java.util.Optional;
 
 import freemarker.cache.ClassTemplateLoader;
+import freemarker.core.TemplateClassResolver;
 import freemarker.template.Configuration;
 import org.jdbi.v3.core.config.JdbiConfig;
 
@@ -27,6 +28,7 @@ public class FreemarkerConfig implements JdbiConfig<FreemarkerConfig> {
         freemarkerConfiguration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
         freemarkerConfiguration.setTemplateLoader(new ClassTemplateLoader(selectClassLoader(), "/"));
         freemarkerConfiguration.setNumberFormat("computer");
+        freemarkerConfiguration.setNewBuiltinClassResolver(TemplateClassResolver.ALLOWS_NOTHING_RESOLVER);
     }
 
     private FreemarkerConfig(FreemarkerConfig other) {

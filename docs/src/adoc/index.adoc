@@ -59,6 +59,10 @@ All information in here reflects the current state of development on the `master
 
 === Release documentation
 
+* https://jdbi.org/releases/3.54.0[Release 3.54.0 - 2026-07-01^]
+* https://jdbi.org/releases/3.53.0[Release 3.53.0 - 2026-04-27^] - *Fixes https://github.com/jdbi/jdbi/security/advisories/GHSA-mggx-p7jf-jgw4[GHSA-mggx-p7jf-jgw4] *
+* https://jdbi.org/releases/3.52.1[Release 3.52.1 - 2026-04-09^]
+* https://jdbi.org/releases/3.52.0[Release 3.52.0 - 2026-03-21^]
 * https://jdbi.org/releases/3.51.0[Release 3.51.0 - 2025-12-09^]
 * https://jdbi.org/releases/3.50.0[Release 3.50.0 - 2025-11-04^]
 * https://jdbi.org/releases/3.49.6[Release 3.49.6 - 2025-10-02^] - *This is the last release of Jdbi to support Java 11!*
@@ -277,6 +281,8 @@ Some databases have additional data types and mappings, and support is added usi
 [glossary]
 jdbi3-postgres::
 Support for https://www.postgresql.org/[Postgres^] data types.
+jdbi3-mysql::
+Support for https://www.mysql.com/[MySQL^] data types.
 jdbi3-sqlite::
 Support for https://www.sqlite.org/index.html[sqlite^] data types.
 jdbi3-oracle12::
@@ -1558,7 +1564,7 @@ Out of the box, Jdbi supports the following types as SQL statement arguments:
 * java.net: `Inet4Address`, `Inet6Address`, `URL`, and `URI`
 * java.sql: `Blob`, `Clob`, `Date`, `Time`, and `Timestamp`
 * java.time: `Instant`, `LocalDate`, `LocalDateTime`, `LocalTime`,
-`OffsetDateTime`, `ZonedDateTime`, and `ZoneId`
+`OffsetDateTime`, `ZonedDateTime`, `ZoneId` and `ZoneOffset`.
 * java.util: `Date`, link:{jdkdocs}/java.base/java/util/Optional.html[Optional^] (around any other supported type), and `UUID`
 * `java.util.Collection` and Java arrays (stored as SQL arrays).
 Some additional setup may be required depending on the type of array element.
@@ -3256,6 +3262,52 @@ include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowdao]
 include::{sqlobjectexampledir}/TestRegisterJoinRowMapper.java[tags=joinrowusage]
 ----
 
+== Exception Handling
+
+When executing a statement, a thrown SQLException will include important information about the
+failure, such as the "state" code, as well as various vendor-specific extensions.
+
+For example, an insert that fails due to a duplicate key might come back with "23505" state, and
+potentially (driver-specific) the name of the violating column or index.
+
+In order to inspect these exceptions and provide more context to callers, Jdbi provides a `SqlExceptionHandler`
+extension point. For imperative support, please register your handler with
+`jdbi.getConfig(SqlStatements.class).addExceptionHandler(SqlExceptionHandler)`.
+With SqlObject, use the `@RegisterSqlExceptionHandler` annotation.
+
+A `SqlExceptionHandler` receives the raw `SQLException` and the `StatementContext` for the failed statement.
+To replace the exception, `throw` a new exception from the handler; if the method returns normally, the next
+registered handler is tried. If no handler throws, the original `SQLException` is wrapped and rethrown as an
+`UnableToExecuteStatementException`. Multiple handlers are tried in reverse registration order (last registered,
+first tried), so more specific handlers should be registered after more general ones.
+
+[source,java]
+----
+// Imperative registration
+jdbi.getConfig(SqlStatements.class).addExceptionHandler((ex, ctx) -> {
+    if ("23505".equals(ex.getSQLState())) {
+        throw new DuplicateKeyException("Duplicate key in: " + ctx.getRawSql(), ex);
+    }
+    // return normally to defer to the next handler (or re-throw the original)
+});
+
+// SqlObject annotation
+@RegisterSqlExceptionHandler(DuplicateKeyExceptionHandler.class)
+public interface UserDao {
+    @SqlUpdate("insert into users (id, name) values (:id, :name)")
+    void insert(@Bind("id") long id, @Bind("name") String name);
+}
+
+public class DuplicateKeyExceptionHandler implements SqlExceptionHandler {
+    @Override
+    public void handle(SQLException ex, StatementContext ctx) {
+        if ("23505".equals(ex.getSQLState())) {
+            throw new DuplicateKeyException("User already exists", ex);
+        }
+    }
+}
+----
+
 == Transactions
 
 Jdbi provides full support for JDBC transactions.
@@ -4038,6 +4090,36 @@ By default, methods annotated with link:{jdbidocs}/sqlobject/statement/SqlScript
 * `int[]` or `long[]` - return value of each statement executed.
 Depending on the database vendor and JDBC driver, this may be either the number of rowsreturn nothing changed by a statement, or the number matched by the query (regardless of whether any data was changed).
 * `boolean[]` - returns true if the update count is greater than zero, one value for each statement in the script.
+
+==== @SqlPreflight
+
+Use link:{jdbidocs}/sqlobject/statement/SqlPreflight.html[@SqlPreflight^] to run a literal SQL statement on the same link:{jdbidocs}/core/Handle.html[Handle^], immediately before the annotated method's main statement.
+This is useful for setting a scoped or session variable before a query, for example a non-default Postgres trigram similarity threshold:
+
+[source,java,indent=0]
+----
+@SqlPreflight("select set_config('pg_trgm.word_similarity_threshold', :threshold, true)") // <1>
+@SqlQuery("select name from users where name %> :search")
+@RegisterFieldMapper(User.class)
+List<User> findUser(@Bind("search") String search, @Bind("threshold") String threshold);
+----
+
+<1> The method's arguments are bound to the preflight statement, so it can reference `:threshold` just like the main query references `:search`.
+
+The preflight statement binds the method's arguments, respecting binding annotations such as link:{jdbidocs}/sqlobject/customizer/Bind.html[@Bind^] and link:{jdbidocs}/sqlobject/customizer/BindBean.html[@BindBean^].
+Arguments that the preflight SQL does not reference are ignored, so a static preflight (one that binds nothing) also works on a method that declares arguments.
+
+The annotation is repeatable--multiple preflight statements run in declaration order--and may be placed on a method or on the SQL Object type, in which case it applies to all of the type's methods (type-level preflights run before method-level ones).
+
+Unlike link:{jdbidocs}/sqlobject/statement/SqlQuery.html[@SqlQuery^] and link:{jdbidocs}/sqlobject/statement/SqlUpdate.html[@SqlUpdate^], the `@SqlPreflight` value is always used as literal SQL; it is not resolved through the configured link:{jdbidocs}/sqlobject/locator/SqlLocator.html[SqlLocator^], so external `.sql` files and link:{jdbidocs}/sqlobject/locator/UseClasspathSqlLocator.html[@UseClasspathSqlLocator^] have no effect on it.
+
+Because the preflight runs on the same connection as the main statement, scoped variables set this way are visible to the query.
+The preflight runs during the main statement's setup, so it always executes inside the method's transaction when the method is annotated with link:{jdbidocs}/sqlobject/transaction/Transaction.html[@Transaction^], regardless of the order in which the two annotations are declared.
+When connection pooling is in use, prefer transaction-scoped settings (for example `SET LOCAL` in Postgres) together with `@Transaction`, so the setting does not leak to later users of the connection.
+
+NOTE: Jdbi normally rejects a statement when every one of its declared parameters goes unused.
+A preflight argument that the *main* statement does not also use is fine as long as the main statement declares at least one parameter of its own.
+However, if the main statement declares no parameters at all but the method takes an argument used only by the preflight, annotate the method with link:{jdbidocs}/sqlobject/customizer/AllowUnusedBindings.html[@AllowUnusedBindings^] so the main statement does not fail on that preflight-only argument.
 
 === Using SQL Objects
 
@@ -5790,6 +5872,44 @@ include::{coreexamples}/org/jdbi/v3/core/qualifier/TestCustomQualifier.java[tags
 
 <1> Bind the value using `bindByType` with the qualified type so the `@Reversed` factory is selected.
 <2> Map the result using the qualified type so the `@Reversed` mapper is selected.
+
+=== Mapping Java Time (JSR 310) objects
+
+The link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] API provides date and time related types since JDK 8. At the same time, Java released JDBC 4.2 which defines mapping of these types to SQL.
+
+Starting with release 3.52.0, Jdbi supports all recent JDBC drivers natively by using the official link:{jdkdocs}/java.sql/java/sql/PreparedStatement.html#setObject(int,java.lang.Object)[PreparedStatement#setObject^] and link:{jdkdocs}/java.sql/java/sql/ResultSet.html#getObject(int)[ResultSet#getObject^] APIs. This affects link:{jdkdocs}/java.base/java/time/LocalDate.html[LocalDate^],
+link:{jdkdocs}/java.base/java/time/LocalTime.html[LocalTime^],
+link:{jdkdocs}/java.base/java/time/LocalDateTime.html[LocalDateTime^],
+link:{jdkdocs}/java.base/java/time/OffsetDateTime.html[OffsetDateTime^] and
+link:{jdkdocs}/java.base/java/time/OffsetTime.html[OffsetTime^].
+
+JDBC drivers are not standardized when it comes to mapping data types with timezone onto columns that do not support timezones. Databases all behave differently when mapping data from those columns back onto data types such as link:{jdkdocs}/java.base/java/time/OffsetDateTime.html[OffsetDateTime^] or link:{jdkdocs}/java.base/java/time/ZonedDateTime.html[ZonedDateTime^].
+
+Jdbi used to map these types explicitly to the legacy (pre-JDBC 4.2) types such as link:{jdkdocs}/java.sql/java/sql/Timestamp.html[Timestamp^], link:{jdkdocs}/java.sql/java/sql/Date.html[Date^] and link:{jdkdocs}/java.sql/java/sql/Time.html[Time^]. None of those datatypes support timezones so heuristics were used for data types with timezones.
+
+These heuristics have changed with 3.52.0. If the old behavior is wanted, it is possible to qualify the mapping type with the link:{jdbidocs}/meta/Legacy.html[@Legacy^] annotation:
+
+[source,java,indent=0]
+----
+var legacyType = QualifiedType.of(OffsetDateTime.class).with(Legacy.class);
+try (Update u = h.createUpdate("INSERT INTO time_table (time_col) VALUES (?)")) {
+    u.bindByType(0, OffsetDateTime.now(), legacyType);
+    u.execute();
+}
+
+var result = h.createQuery("SELECT time_col FROM time_table").mapTo(legacyType).list();
+----
+
+[source,java,indent=0]
+----
+interface LegacyDao {
+    @SqlUpdate("INSERT INTO time_table (time_col) VALUES (:now)")
+    void update(@Legacy OffsetDateTime now);
+
+    @SqlQuery("SELECT time_col FROM time_table")
+    @Legacy List<OffsetDateTime> query();
+}
+----
 
 [#query-templating]
 === Query Templating
@@ -7797,8 +7917,7 @@ Jdbi jdbi = Jdbi.create("jdbc:postgresql://host:port/database")
                 .installPlugin(new PostgresPlugin());
 ----
 
-The plugin configures mappings for link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] types like
-link:{jdkdocs}/java.base/java/time/Instant.html[Instant^] or link:{jdkdocs}/java.base/java/time/Duration.html[Duration^], link:{jdkdocs}/java.base/java/net/InetAddress.html[InetAddress^], link:{jdkdocs}/java.base/java/util/UUID.html[UUID^], typed enums, and <<postgres-hstore,hstore>>.
+The plugin configures mappings for link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] types like link:{jdkdocs}/java.base/java/time/Duration.html[Duration^], link:{jdkdocs}/java.base/java/net/InetAddress.html[InetAddress^], link:{jdkdocs}/java.base/java/util/UUID.html[UUID^], typed enums, and <<postgres-hstore,hstore>>.
 
 It also configures SQL array type support for `int`, `long`, `float`, `double`,
 `String`, and `UUID`.
@@ -7925,6 +8044,46 @@ public interface Lobject {
 Please refer to
 https://jdbc.postgresql.org/documentation/binary-data/[Pg-JDBC docs^]
 for upstream driver documentation.
+
+=== MySQL
+
+The *jdbi3-mysql* plugin provides enhanced integration with the
+https://dev.mysql.com/doc/connector-j/en/[MySQL JDBC Driver^].
+
+To use this feature, add a dependency:
+
+For Apache Maven:
+
+[source,xml,indent=0,subs="attributes,specialchars"]
+----
+<dependency>
+    <groupId>org.jdbi</groupId>
+    <artifactId>jdbi3-mysql</artifactId>
+    <version>{project_version}</version>
+</dependency>
+----
+
+For Gradle:
+
+[source,groovy,subs="attributes,specialchars"]
+----
+dependencies {
+    implementation("org.jdbi:jdbi3-mysql:{project_version}")
+}
+----
+
+Then install the plugin into the link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance.
+
+[source,java,indent=0]
+----
+Jdbi jdbi = Jdbi.create("jdbc:mysql://host:port/database")
+                .installPlugin(new MysqlPlugin());
+----
+
+The plugin configures mappings for data types from link:{jdkdocs}/java.base/java/time/package-summary.html[java.time^] that support time zones: link:{jdkdocs}/java.base/java/time/OffsetDateTime.html[OffsetDateTime^], link:{jdkdocs}/java.base/java/time/OffsetTime.html[OffsetTime^], link:{jdkdocs}/java.base/java/time/ZonedDateTime.html[ZonedDateTime^].
+
+[NOTE]
+MySQL does not have a data type that manages time zones! Loading this module makes it possible to map the java types directly onto columns. This converts the timezone to the system timezone and then creates a local timestamp (without a timezone). Without the module, the database driver will report an error that it does not support `TIMEZONE_WITH_TIMESTAMP` SQL types.
 
 === Spring framework
 

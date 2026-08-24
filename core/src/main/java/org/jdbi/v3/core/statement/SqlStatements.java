@@ -16,8 +16,10 @@ package org.jdbi.v3.core.statement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -57,12 +59,15 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private volatile boolean attachCallbackStatementsForCleanup = true;
     private volatile boolean scriptStatementsNeedSemicolon = true;
     private final Collection<StatementCustomizer> customizers;
+    private final Deque<SqlExceptionHandler> exceptionHandlers;
 
     private final Collection<StatementContextListener> contextListeners;
 
     // Don't emit unlimited amounts of data via telemetry
     private volatile int jfrSqlMaxLength = 512;
     private volatile int jfrParamMaxLength = 512;
+
+    private volatile boolean includeBindingsInTelemetry = true;
 
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());
@@ -73,6 +78,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         customizers = new CopyOnWriteArrayList<>();
         contextListeners = new CopyOnWriteArraySet<>();
         templateCache = DefaultJdbiCacheBuilder.builder().maxSize(SQL_TEMPLATE_CACHE_SIZE).build();
+        exceptionHandlers = new ArrayDeque<>(0);
     }
 
     private SqlStatements(SqlStatements that) {
@@ -90,6 +96,8 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.templateCache = that.templateCache;
         this.jfrSqlMaxLength = that.jfrSqlMaxLength;
         this.jfrParamMaxLength = that.jfrParamMaxLength;
+        this.includeBindingsInTelemetry = that.includeBindingsInTelemetry;
+        this.exceptionHandlers = new ArrayDeque<>(that.exceptionHandlers);
     }
 
     /**
@@ -391,6 +399,14 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
+     * Toggle whether to include potentially sensitive bindins in telemetry data.
+     */
+    @Beta
+    public boolean getIncludeBindingsInTelemetry() {
+        return includeBindingsInTelemetry;
+    }
+
+    /**
      * When recording JFR events, the maximum length of rendered parameters to store in the event record.
      */
     @Beta
@@ -405,6 +421,24 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     @Beta
     public int getJfrParamMaxLength() {
         return jfrParamMaxLength;
+    }
+
+    /**
+     * Toggle whether to include potentially sensitive bindins in telemetry data.
+     */
+    public SqlStatements setIncludeBindingsInTelemetry(boolean includeBindingsInTelemetry) {
+        this.includeBindingsInTelemetry = includeBindingsInTelemetry;
+        return this;
+    }
+
+    /**
+     * Add a callback used when statement execution throws SQLException.
+     * Latest registered callbacks are fired first.
+     */
+    @Beta
+    public SqlStatements addExceptionHandler(SqlExceptionHandler handler) {
+        exceptionHandlers.add(handler);
+        return this;
     }
 
     /**
@@ -449,6 +483,14 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         } catch (final IllegalArgumentException e) {
             throw new UnableToCreateStatementException("Exception rendering SQL template", e, ctx);
         }
+    }
+
+    UnableToExecuteStatementException handleException(SQLException e, StatementContext ctx) {
+        var handlerIter = exceptionHandlers.descendingIterator();
+        while (handlerIter.hasNext()) {
+            handlerIter.next().handle(e, ctx);
+        }
+        throw new UnableToExecuteStatementException(e, ctx);
     }
 
     private static JdbiCacheLoader<StatementCacheKey, Function<StatementContext, String>> cacheLoaderFunction(StatementContext ctx) {
@@ -498,5 +540,4 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
                     .toString();
         }
     }
-
 }

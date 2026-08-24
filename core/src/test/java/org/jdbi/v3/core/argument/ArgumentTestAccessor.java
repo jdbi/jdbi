@@ -11,21 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jdbi.v3.postgres;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-
-import org.jdbi.v3.core.mapper.GetObjectColumnMapperFactory;
+package org.jdbi.v3.core.argument;
 
 /**
- * Provide mappers corresponding to java time types.
- * @see JavaTimeArgumentFactory for the list of types
+ * Helper class to avoid exposing public test methods.
  */
-public class JavaTimeMapperFactory extends GetObjectColumnMapperFactory {
-    public JavaTimeMapperFactory() {
-        super(LocalDate.class, LocalTime.class, LocalDateTime.class, OffsetDateTime.class);
+public final class ArgumentTestAccessor {
+    private ArgumentTestAccessor() {
+        throw new AssertionError("ArgumentTestAccessor can not be instantiated");
+    }
+
+    public static <T> T getObjectArgumentValue(Class<T> type, ObjectArgument objectArgument) {
+        return objectArgument.getValue(type);
     }
 }
