@@ -13,19 +13,18 @@
  */
 package org.jdbi.v3.benchmark;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.h2.Driver;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.TemplateEngine;
+import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.stringtemplate4.StringTemplateEngine;
+import org.jdbi.v3.testing.JdbiRule;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
@@ -35,7 +34,9 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.misc.STMessage;
 
 /**
  * End-to-end effect of caching StringTemplate compilation: both arms run the same conditional query,
@@ -55,26 +56,29 @@ public class StringTemplateQueryBenchmark {
             + " <if(byName)> and name = :nm <endif>"
             + " order by <sortCol>";
 
+    private JdbiRule recompilingDb;
+    private JdbiRule cachedDb;
     private Handle recompilingHandle;
     private Handle cachedHandle;
 
-    @Setup(Level.Trial)
-    public void setup() {
-        Driver.load();
-        recompilingHandle = open(new RecompilingStringTemplateEngine());
-        cachedHandle = open(new StringTemplateEngine());
+    @Setup
+    public void setup() throws Throwable {
+        recompilingDb = JdbiRule.h2();
+        cachedDb = JdbiRule.h2();
+        recompilingHandle = open(recompilingDb, new RecompilingStringTemplateEngine());
+        cachedHandle = open(cachedDb, new StringTemplateEngine());
     }
 
-    @TearDown(Level.Trial)
+    @TearDown
     public void tearDown() {
-        recompilingHandle.close();
-        cachedHandle.close();
+        recompilingDb.after();
+        cachedDb.after();
     }
 
-    private static Handle open(TemplateEngine engine) {
-        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=10");
-        jdbi.setTemplateEngine(engine);
-        Handle handle = jdbi.open();
+    private static Handle open(JdbiRule db, TemplateEngine engine) throws Throwable {
+        db.before();
+        Handle handle = db.getHandle();
+        handle.setTemplateEngine(engine);
         handle.execute("create table tbl (id integer primary key, name varchar)");
         handle.execute("insert into tbl (id, name) values (1, 'row one')");
         return handle;
@@ -100,13 +104,47 @@ public class StringTemplateQueryBenchmark {
         return run(cachedHandle);
     }
 
-    /** Recompiles a fresh StringTemplate every render, as the engine did before it cached compilation. */
+    /**
+     * Recompiles a fresh StringTemplate every render, as the engine did before it cached compilation,
+     * including the per-render group and error-listener setup.
+     */
     static final class RecompilingStringTemplateEngine implements TemplateEngine {
         @Override
         public String render(String sql, StatementContext ctx) {
-            ST template = new ST(new STGroup(), sql);
+            STGroup group = new STGroup();
+            group.setListener(new ThrowingListener(ctx));
+            ST template = new ST(group, sql);
             ctx.getAttributes().forEach(template::add);
             return template.render();
+        }
+    }
+
+    /** Fails loudly like the real engine's listener; the benchmark template never errors. */
+    static final class ThrowingListener implements STErrorListener {
+        private final StatementContext ctx;
+
+        ThrowingListener(StatementContext ctx) {
+            this.ctx = ctx;
+        }
+
+        @Override
+        public void compileTimeError(STMessage msg) {
+            throw new UnableToCreateStatementException("Compiling StringTemplate failed: " + msg, msg.cause, ctx);
+        }
+
+        @Override
+        public void runTimeError(STMessage msg) {
+            throw new UnableToExecuteStatementException("Executing StringTemplate failed: " + msg, msg.cause, ctx);
+        }
+
+        @Override
+        public void IOError(STMessage msg) {
+            runTimeError(msg);
+        }
+
+        @Override
+        public void internalError(STMessage msg) {
+            runTimeError(msg);
         }
     }
 }

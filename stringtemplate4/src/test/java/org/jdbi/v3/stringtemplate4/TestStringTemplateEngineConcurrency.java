@@ -15,11 +15,13 @@ package org.jdbi.v3.stringtemplate4;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -52,12 +54,15 @@ public class TestStringTemplateEngineConcurrency {
         int threads = 8;
         int iterations = 2000;
         ExecutorService pool = Executors.newFixedThreadPool(threads);
-        AtomicInteger wrong = new AtomicInteger();
+        CyclicBarrier start = new CyclicBarrier(threads);
+        Queue<String> mismatches = new ConcurrentLinkedQueue<>();
         List<Future<?>> futures = new ArrayList<>();
 
         for (int t = 0; t < threads; t++) {
             final int seed = t;
             futures.add(pool.submit(() -> {
+                // Line up all workers so the first renders are guaranteed to contend.
+                start.await();
                 for (int i = 0; i < iterations; i++) {
                     // Vary the rendered shape and the bound name per call.
                     boolean byName = ((seed + i) & 1) == 0;
@@ -70,17 +75,21 @@ public class TestStringTemplateEngineConcurrency {
                             .mapTo(Long.class)
                             .one());
                     if (count != expected) {
-                        wrong.incrementAndGet();
+                        mismatches.add("byName=" + byName + " name=" + name + " expected=" + expected + " got=" + count);
                     }
                 }
+                return null;
             }));
         }
 
-        for (Future<?> f : futures) {
-            f.get(60, TimeUnit.SECONDS);
+        try {
+            for (Future<?> f : futures) {
+                f.get(60, TimeUnit.SECONDS);
+            }
+        } finally {
+            pool.shutdownNow();
         }
-        pool.shutdown();
 
-        assertThat(wrong).hasValue(0);
+        assertThat(mismatches).isEmpty();
     }
 }
