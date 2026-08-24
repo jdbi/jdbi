@@ -2,6 +2,12 @@
 
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
+- stringtemplate4: `StringTemplateEngine` now caches template compilation through the core statement
+  cache instead of recompiling on every render, with compiled templates pooled for thread safety.
+  The cached path bypasses `render(String, StatementContext)`: a subclass that overrides `render`
+  must also override `parse`, most simply to return `Optional.empty()`, which keeps the core on
+  its `render` path.
+  `Batch` and `Script` now render through the statement cache as well. (#2997)
 
 # 3.54.0
 
