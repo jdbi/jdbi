@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import jakarta.annotation.Nonnull;
+
 import org.jdbi.v3.meta.Alpha;
 
 /**
@@ -38,5 +40,6 @@ public interface PrefixedRowMapper<T> extends RowMapper<T> {
      *
      * @return the declared column name prefix, never null
      */
+    @Nonnull
     String getPrefix();
 }
