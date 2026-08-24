@@ -245,15 +245,20 @@ class ArgumentBinder {
                                     .<Entry<PrepareKey, Function<Object, Argument>>>map(pf -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), pf)).stream())
                             .findFirst();
                     if (preparation.isPresent()) {
-                        // The first binding proves this parameter is preparable. Each batch
-                        // element may still use a different runtime type (and thus PrepareKey),
-                        // e.g. mixed subclasses bound via @BindBean Collection<Base>. Resolve
-                        // the prepared property accessor from the current binding rather than
-                        // hard-coding the template's PrepareKey (see #2974).
+                        Entry<PrepareKey, Function<Object, Argument>> p = preparation.get();
+                        // A row can have a different runtime type, and thus a different PrepareKey,
+                        // than the template row (mixed subclasses, #2974). Keep the template's
+                        // accessor as the per-row fast path and resolve other keys once, on first use.
+                        Map<PrepareKey, Function<Object, Argument>> accessors = new HashMap<>();
+                        accessors.put(p.getKey(), p.getValue());
                         innerBinders.add(wrapCheckedConsumer(name,
-                            binding -> preparedArgument(binding, name)
-                                .orElseGet(() -> dynamicNamedArgument(binding, name))
-                                .apply(index + 1, stmt, ctx)));
+                            binding -> {
+                                Object bound = binding.prepareKeys.get(p.getKey());
+                                Argument argument = bound != null
+                                    ? p.getValue().apply(bound)
+                                    : preparedArgument(accessors, binding, name);
+                                argument.apply(index + 1, stmt, ctx);
+                            }));
                     } else {
                         innerBinders.add(wrapCheckedConsumer(name,
                             binding -> dynamicNamedArgument(binding, name)
@@ -270,23 +275,22 @@ class ArgumentBinder {
         }
 
         /**
-         * Look up a prepared {@link Argument} for {@code name} using this binding's
-         * {@link PrepareKey}s. Keys include the runtime class, so each batch row may
-         * need a different prepared property accessor.
+         * Look up a prepared {@link Argument} for {@code name} using this binding's own
+         * {@link PrepareKey}s, for rows whose runtime type differs from the template row.
+         * Resolved accessors are memoized in {@code accessors}, which is safe because each
+         * {@link Prepared} instance binds one batch execution on one thread.
          */
-        private Optional<Argument> preparedArgument(PreparedBinding binding, String name) {
+        private Argument preparedArgument(Map<PrepareKey, Function<Object, Argument>> accessors, PreparedBinding binding, String name) {
             for (Entry<PrepareKey, Object> entry : binding.prepareKeys.entrySet()) {
-                Function<String, Optional<Function<Object, Argument>>> finder =
-                        batch.preparedFinders.get(entry.getKey());
-                if (finder == null) {
-                    continue;
-                }
-                Optional<Function<Object, Argument>> prepared = finder.apply(name);
-                if (prepared.isPresent()) {
-                    return Optional.of(prepared.get().apply(entry.getValue()));
+                Function<Object, Argument> accessor = accessors.computeIfAbsent(entry.getKey(), key -> {
+                    Function<String, Optional<Function<Object, Argument>>> finder = batch.preparedFinders.get(key);
+                    return finder == null ? null : finder.apply(name).orElse(null);
+                });
+                if (accessor != null) {
+                    return accessor.apply(entry.getValue());
                 }
             }
-            return Optional.empty();
+            return dynamicNamedArgument(binding, name);
         }
 
         private Argument dynamicNamedArgument(PreparedBinding binding, String name) {

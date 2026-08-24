@@ -1,5 +1,6 @@
 # Unreleased
 
+- Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
 

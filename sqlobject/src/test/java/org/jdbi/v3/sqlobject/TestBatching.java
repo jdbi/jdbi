@@ -148,6 +148,21 @@ public class TestBatching {
     }
 
     @Test
+    public void testChunkedBatchingMixedSubclasses() {
+        UsesBatching b = handle.attach(UsesBatching.class);
+        // the runtime type changes both inside a chunk and across chunk boundaries (#2974)
+        List<Something> things = Arrays.asList(new SubSomething(1, "Brian"),
+            new Something(2, "Henri"),
+            new Something(3, "Patrick"),
+            new SubSomething(4, "Robert"),
+            new SubSomething(5, "Maniax"));
+        int[] counts = b.insertChunked(things);
+
+        assertThat(counts).hasSize(5).containsOnly(1);
+        assertThat(b.size()).isEqualTo(5);
+    }
+
+    @Test
     @Timeout(5)
     public void testNoIterable() {
         BadBatch b = handle.attach(BadBatch.class);
@@ -250,6 +265,12 @@ public class TestBatching {
 
         @SqlBatch("insert into test (id) values (:id)")
         void invalidInsertString(@Bind("id") String id);
+    }
+
+    public static class SubSomething extends Something {
+        public SubSomething(int id, String name) {
+            super(id, name);
+        }
     }
 
     public interface BadBatch {
