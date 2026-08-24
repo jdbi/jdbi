@@ -16,6 +16,7 @@ package org.jdbi.v3.core.mapper;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -37,7 +38,8 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     private final JdbiInterceptionChainHolder<RowMapper<?>, RowMapperFactory> inferenceInterceptors;
 
     private final List<RowMapperFactory> factories;
-    private final Map<PrefixedMapperKey, Optional<RowMapper<?>>> cache;
+    private final Map<Type, Optional<RowMapper<?>>> cache;
+    private final Map<PrefixedMapperKey, Optional<RowMapper<?>>> prefixedCache;
 
     private ConfigRegistry registry;
 
@@ -45,6 +47,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
         factories = new CopyOnWriteArrayList<>();
         cache = new CopyOnWriteHashMap<>();
+        prefixedCache = new CopyOnWriteHashMap<>();
         register(MapEntryMapper.factory());
         register(new PojoMapperFactory());
         register(new OptionalRowMapperFactory());
@@ -53,6 +56,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     private RowMappers(RowMappers that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
         cache = new CopyOnWriteHashMap<>(that.cache);
+        prefixedCache = new CopyOnWriteHashMap<>(that.prefixedCache);
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
     }
 
@@ -123,6 +127,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     public RowMappers register(RowMapperFactory factory) {
         factories.add(0, factory);
         cache.clear();
+        prefixedCache.clear();
         return this;
     }
 
@@ -135,20 +140,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      */
     @SuppressWarnings("unchecked")
     public <T> Optional<RowMapper<T>> findFor(Class<T> type) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type, null).orElse(null);
-        return Optional.ofNullable(mapper);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in the given context.
-     *
-     * @param <T> the type of the mapper to find
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> Optional<RowMapper<T>> findFor(Class<T> type, String prefix) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type, prefix).orElse(null);
+        RowMapper<T> mapper = (RowMapper<T>) findFor((Type) type).orElse(null);
         return Optional.ofNullable(mapper);
     }
 
@@ -161,20 +153,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      */
     @SuppressWarnings("unchecked")
     public <T> Optional<RowMapper<T>> findFor(GenericType<T> type) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType(), null).orElse(null);
-        return Optional.ofNullable(mapper);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in the given context.
-     *
-     * @param <T> the type of the mapper to find
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> Optional<RowMapper<T>> findFor(GenericType<T> type, String prefix) {
-        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType(), prefix).orElse(null);
+        RowMapper<T> mapper = (RowMapper<T>) findFor(type.getType()).orElse(null);
         return Optional.ofNullable(mapper);
     }
 
@@ -185,21 +164,10 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
      */
     public Optional<RowMapper<?>> findFor(Type type) {
-        return findFor(type, null);
-    }
-
-    /**
-     * Obtain a row mapper for the given type in the given context.
-     *
-     * @param type the target type to map to
-     * @return a RowMapper for the given type, or empty if no row mapper is registered for the given type.
-     */
-    public Optional<RowMapper<?>> findFor(Type type, String prefix) {
         // ConcurrentHashMap can enter an infinite loop on nested computeIfAbsent calls.
         // Since row mappers can decorate other row mappers, we have to populate the cache the old fashioned way.
         // See https://bugs.openjdk.java.net/browse/JDK-8062841, https://bugs.openjdk.java.net/browse/JDK-8142175
-        var key = new PrefixedMapperKey(type, prefix);
-        Optional<RowMapper<?>> cached = cache.get(key);
+        Optional<RowMapper<?>> cached = cache.get(type);
 
         if (cached != null) {
             return cached;
@@ -208,17 +176,56 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         for (RowMapperFactory factory : factories) {
             Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
             RowMapper<?> mapper = maybeMapper.orElse(null);
-            if (mapper instanceof PrefixedRowMapper prefixedRowMapper && prefix != null && !prefix.equals(prefixedRowMapper.getPrefix())) {
-                mapper = null;
-            }
             if (mapper != null) {
                 mapper.init(registry);
-                cache.put(key, maybeMapper);
+                cache.put(type, maybeMapper);
                 return maybeMapper;
             }
         }
 
-        cache.put(key, Optional.empty());
+        cache.put(type, Optional.empty());
+        return Optional.empty();
+    }
+
+    /**
+     * Obtain a row mapper for the given type that declares the given column name prefix.
+     * <p>
+     * Only mappers that implement {@link PrefixedRowMapper} take part in this lookup, and a mapper
+     * matches only if its {@link PrefixedRowMapper#getPrefix() declared prefix} is equal to the
+     * given prefix. The comparison is an exact, case-sensitive string comparison. Mappers that do
+     * not declare a prefix never match, no matter what type they map.
+     * <p>
+     * The reflective mappers ({@code BeanMapper}, {@code ConstructorMapper}, {@code FieldMapper})
+     * declare the prefix given at registration, or the empty string when registered without one.
+     * <p>
+     * Use this lookup to tell apart multiple mappers for the same type that read differently
+     * prefixed column sets, for example when a query joins the same table twice. To look up a
+     * mapper by type alone, use {@link #findFor(Type)}.
+     *
+     * @param type the target type to map to
+     * @param prefix the column name prefix the mapper must declare, never null
+     * @return a RowMapper for the given type and prefix, or empty if no matching row mapper is registered.
+     */
+    @Alpha
+    public Optional<RowMapper<?>> findFor(Type type, String prefix) {
+        Objects.requireNonNull(prefix, "prefix; use findFor(Type) to look up a mapper by type alone");
+        var key = new PrefixedMapperKey(type, prefix);
+        Optional<RowMapper<?>> cached = prefixedCache.get(key);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        for (RowMapperFactory factory : factories) {
+            Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
+            if (maybeMapper.orElse(null) instanceof PrefixedRowMapper<?> mapper && prefix.equals(mapper.getPrefix())) {
+                mapper.init(registry);
+                prefixedCache.put(key, maybeMapper);
+                return maybeMapper;
+            }
+        }
+
+        prefixedCache.put(key, Optional.empty());
         return Optional.empty();
     }
 
