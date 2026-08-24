@@ -367,11 +367,6 @@ public class TestBeanMapper {
         DocumentDao dao = h.attach(DocumentDao.class);
         dao.insertFolders(folder1, folder2, folder3);
 
-        Folder newFolder1 = new Folder(1, "folder1");
-        Folder newFolder2 = new Folder(2, "folder2");
-        Folder newFolder3 = new Folder(3, "folder3");
-        newFolder3.setParent(newFolder1);
-
-        assertThat(dao.listFoldersWithParent()).containsExactly(newFolder1, newFolder2, newFolder3);
+        assertThat(dao.listFoldersWithParent()).containsExactly(folder1, folder2, folder3);
     }
 }
