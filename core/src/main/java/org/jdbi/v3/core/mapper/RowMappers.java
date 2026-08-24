@@ -207,6 +207,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
      * @return a RowMapper for the given type and prefix, or empty if no matching row mapper is registered.
      */
     @Alpha
+    @SuppressWarnings("java:S2789") // the cache stores empty Optionals for negative results, so null means "not cached yet"
     public Optional<RowMapper<?>> findFor(Type type, String prefix) {
         Objects.requireNonNull(prefix, "prefix; use findFor(Type) to look up a mapper by type alone");
         var key = new PrefixedMapperKey(type, prefix);

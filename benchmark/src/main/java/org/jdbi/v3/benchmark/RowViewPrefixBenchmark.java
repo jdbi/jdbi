@@ -78,7 +78,7 @@ public class RowViewPrefixBenchmark {
         rowMappers = handle.getConfig(RowMappers.class);
         // populate the lookup caches so the benchmarks measure the steady state
         rowMappers.findFor(Contact.class);
-        rowMappers.findFor((Type) Contact.class, "b");
+        rowMappers.findFor(Contact.class, "b");
     }
 
     @TearDown
@@ -93,7 +93,7 @@ public class RowViewPrefixBenchmark {
 
     @Benchmark
     public Optional<RowMapper<?>> findForPrefixed() {
-        return rowMappers.findFor((Type) Contact.class, "b");
+        return rowMappers.findFor(Contact.class, "b");
     }
 
     @Benchmark
