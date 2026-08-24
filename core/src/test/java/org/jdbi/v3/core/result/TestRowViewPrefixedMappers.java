@@ -160,13 +160,13 @@ public class TestRowViewPrefixedMappers {
     public void testRegistryLookupByPrefix() {
         RowMappers rowMappers = h.getConfig(RowMappers.class);
 
-        assertThat(rowMappers.findFor((Type) ContactBean.class, "a")).isEmpty();
+        assertThat(rowMappers.findFor(ContactBean.class, "a")).isEmpty();
 
         h.registerRowMapper(BeanMapper.factory(ContactBean.class, "a"));
 
-        assertThat(rowMappers.findFor((Type) ContactBean.class, "a")).isPresent();
-        assertThat(rowMappers.findFor((Type) ContactBean.class, "b")).isEmpty();
-        assertThatThrownBy(() -> rowMappers.findFor((Type) ContactBean.class, null))
+        assertThat(rowMappers.findFor(ContactBean.class, "a")).isPresent();
+        assertThat(rowMappers.findFor(ContactBean.class, "b")).isEmpty();
+        assertThatThrownBy(() -> rowMappers.findFor(ContactBean.class, null))
             .isInstanceOf(NullPointerException.class);
     }
 
@@ -175,8 +175,8 @@ public class TestRowViewPrefixedMappers {
         RowMappers rowMappers = h.getConfig(RowMappers.class);
         h.registerRowMapper(BeanMapper.factory(ContactBean.class, "a"));
 
-        assertThat(rowMappers.findFor((Type) ContactBean.class, "A")).isEmpty();
-        assertThat(rowMappers.findFor((Type) ContactBean.class, "a_")).isEmpty();
+        assertThat(rowMappers.findFor(ContactBean.class, "A")).isEmpty();
+        assertThat(rowMappers.findFor(ContactBean.class, "a_")).isEmpty();
     }
 
     @Test
