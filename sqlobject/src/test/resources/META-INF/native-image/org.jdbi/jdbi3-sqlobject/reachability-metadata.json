@@ -216,6 +216,10 @@
     {"type":{"proxy":["org.jdbi.v3.sqlobject.locator.TestSqlLocator$TestDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.subpackage.BrokenDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.subpackage.SomethingDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.statement.TestSqlPreflight$BothLevelsDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.statement.TestSqlPreflight$Dao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.statement.TestSqlPreflight$TxnDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.statement.TestSqlPreflight$TypeLevelDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.statement.TestSqlScripts$Scriptacular"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.transaction.Transactional"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.transaction.Transactional","org.jdbi.v3.sqlobject.SqlObject"]}},
@@ -261,7 +265,7 @@
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestTextBlock$UserDao"]}}
   ],
   "resources": [
-    {"glob":"**/*.sql"}
+    {"glob":"org/**/*.sql"}
   ],
   "serialization": [
     {"type":"java.lang.String"},

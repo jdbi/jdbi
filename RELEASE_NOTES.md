@@ -1,5 +1,8 @@
 # Unreleased
 
+- Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
+- Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
+
 # 3.54.0
 
 - fix deadlock in configuration caching (#2980)

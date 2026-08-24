@@ -99,7 +99,9 @@
         <dep.plugin.japicmp.version>0.25.4</dep.plugin.japicmp.version>
         <dep.plugin.kotlin.version>${dep.kotlin.version}</dep.plugin.kotlin.version>
         <dep.plugin.ktlint.version>3.5.0</dep.plugin.ktlint.version>
-        <dep.plugin.native.version>0.11.5</dep.plugin.native.version>
+        <!-- 1.1.6 fails before building an image, with NoClassDefFoundError on
+             org/apache/maven/shared/utils/logging/MessageUtils -->
+        <dep.plugin.native.version>1.1.5</dep.plugin.native.version>
         <dep.plugin.sortpom.version>4.0.0</dep.plugin.sortpom.version>
         <dep.postgresql.version>42.7.12</dep.postgresql.version>
         <dep.slf4j.version>2.0.17</dep.slf4j.version>

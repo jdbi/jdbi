@@ -1,9 +1,10 @@
 {
   "reflection": [
     {"type":{"proxy":["org.jdbi.v3.spring.jta.SomethingDao"]}},
-    {"type":{"proxy":["org.jdbi.v3.spring.jta.SomethingDao","org.jdbi.v3.sqlobject.SqlObject"]}}
+    {"type":{"proxy":["org.jdbi.v3.spring.jta.SomethingDao","org.jdbi.v3.sqlobject.SqlObject"]}},
+    {"type":"org.springframework.test.context.bean.override.mockito.SpringMockResolver","methods":[{"name":"<init>","parameterTypes":[]}]}
   ],
   "resources": [
-    {"glob":"**/*.xml"}
+    {"glob":"org/**/*.xml"}
   ]
 }
