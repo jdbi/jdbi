@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jdbi.v3.core.internal.PrefixedMapperKey;
@@ -24,6 +25,7 @@ import org.jdbi.v3.core.mapper.ColumnMapper;
 import org.jdbi.v3.core.mapper.MappingException;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.RowMappers;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -32,7 +34,8 @@ public class RowViewImpl extends RowView {
     private final StatementContext ctx;
     private final ResultSet rs;
 
-    private final Map<PrefixedMapperKey, RowMapper<?>> rowMappers = new ConcurrentHashMap<>();
+    private final Map<Type, RowMapper<?>> rowMappers = new ConcurrentHashMap<>();
+    private final Map<PrefixedMapperKey, RowMapper<?>> prefixedRowMappers = new ConcurrentHashMap<>();
     private final Map<QualifiedType<?>, ColumnMapper<?>> columnMappers = new ConcurrentHashMap<>();
 
     public RowViewImpl(ResultSet rs, StatementContext ctx) {
@@ -46,24 +49,49 @@ public class RowViewImpl extends RowView {
      * @return the materialized object
      */
     @Override
-    public Object getRow(Type type, String prefix) {
+    public Object getRow(Type type) {
         try {
-            return rowMapperFor(type, prefix).map(rs, ctx);
+            return rowMapperFor(type).map(rs, ctx);
         } catch (SQLException e) {
             throw new MappingException(e);
         }
     }
 
-    private RowMapper<?> rowMapperFor(Type type, String prefix) throws SQLException {
-        var key = new PrefixedMapperKey(type, prefix);
-        if (rowMappers.containsKey(key)) {
-            return rowMappers.get(key);
+    @Override
+    public Object getRow(Type type, String prefix) {
+        Objects.requireNonNull(prefix, "prefix; use getRow(type) to map without a prefix");
+        try {
+            return prefixedRowMapperFor(type, prefix).map(rs, ctx);
+        } catch (SQLException e) {
+            throw new MappingException(e);
+        }
+    }
+
+    private RowMapper<?> rowMapperFor(Type type) throws SQLException {
+        if (rowMappers.containsKey(type)) {
+            return rowMappers.get(type);
         }
 
-        RowMapper<?> mapper = ctx.findRowMapperFor(type, prefix)
-                .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for " + type + " and prefix " + prefix))
+        RowMapper<?> mapper = ctx.findRowMapperFor(type)
+                .orElseThrow(() -> new NoSuchMapperException("No row mapper registered for " + type))
                 .specialize(rs, ctx);
-        rowMappers.put(key, mapper);
+        rowMappers.put(type, mapper);
+
+        return mapper;
+    }
+
+    private RowMapper<?> prefixedRowMapperFor(Type type, String prefix) throws SQLException {
+        var key = new PrefixedMapperKey(type, prefix);
+        RowMapper<?> cached = prefixedRowMappers.get(key);
+        if (cached != null) {
+            return cached;
+        }
+
+        RowMapper<?> mapper = ctx.getConfig(RowMappers.class).findFor(type, prefix)
+                .orElseThrow(() -> new NoSuchMapperException(
+                        "No row mapper registered for " + type + " with prefix \"" + prefix + "\""))
+                .specialize(rs, ctx);
+        prefixedRowMappers.put(key, mapper);
 
         return mapper;
     }

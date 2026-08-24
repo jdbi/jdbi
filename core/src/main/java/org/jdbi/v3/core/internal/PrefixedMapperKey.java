@@ -15,4 +15,8 @@ package org.jdbi.v3.core.internal;
 
 import java.lang.reflect.Type;
 
+/**
+ * Cache key for prefixed row mapper lookup. Unprefixed lookups key on the bare {@link Type}
+ * in a separate cache, so they do not pay for key allocation.
+ */
 public record PrefixedMapperKey(Type type, String prefix) {}

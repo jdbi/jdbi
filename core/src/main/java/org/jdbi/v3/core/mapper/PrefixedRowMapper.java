@@ -13,6 +13,30 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import org.jdbi.v3.meta.Alpha;
+
+/**
+ * A {@link RowMapper} that reads its values from columns with a common name prefix.
+ * <p>
+ * Mappers that implement this interface take part in prefixed mapper lookup, see
+ * {@link RowMappers#findFor(java.lang.reflect.Type, String)} and
+ * {@link org.jdbi.v3.core.result.RowView#getRow(Class, String)}. This makes it possible to
+ * register multiple mappers for the same type, each with a different prefix, and select
+ * between them per call.
+ * <p>
+ * The reflective mappers ({@code BeanMapper}, {@code ConstructorMapper}, {@code FieldMapper})
+ * implement this interface.
+ *
+ * @param <T> the mapped type
+ */
+@Alpha
 public interface PrefixedRowMapper<T> extends RowMapper<T> {
+
+    /**
+     * Returns the column name prefix this mapper reads its values from.
+     * A mapper created without a prefix declares the empty string.
+     *
+     * @return the declared column name prefix, never null
+     */
     String getPrefix();
 }

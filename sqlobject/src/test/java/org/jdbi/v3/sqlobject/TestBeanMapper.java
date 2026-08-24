@@ -128,7 +128,6 @@ public class TestBeanMapper {
                 .containsExactlyInAnyOrder(ValueType.valueOf("foo_1"), ValueType.valueOf("foo_2"));
     }
 
-
     public static class Document {
         private int id;
         private String name;
@@ -271,9 +270,6 @@ public class TestBeanMapper {
         @SqlBatch("insert into documents (id, folder_id, name, contents) values (:d.id, :f.id, :d.name, :d.contents)")
         void insertDocuments(@BindBean("f") Folder folder, @BindBean("d") Document... documents);
 
-        @SqlBatch("insert into documents (id, folder_id, previous_folder_id, name, contents) values (:d.id, :f.id, :pf.id, :d.name, :d.contents)")
-        void insertDocuments(@BindBean("f") Folder folder, @BindBean("pf") Folder previousFolder, @BindBean("d") Document... documents);
-
         @SqlQuery("select f.id f_id, f.name f_name, "
             + "d.id d_id, d.name d_name, d.contents d_contents "
             + "from folders f left join documents d "
@@ -334,7 +330,7 @@ public class TestBeanMapper {
     @Test
     public void testFoldWithPrefixedMappers() {
         h.execute("create table folders (id identity primary key, name varchar(50), parent_folder_id integer)");
-        h.execute("create table documents (id identity primary key, folder_id integer, previous_folder_id integer, name varchar(50), contents varchar(1000))");
+        h.execute("create table documents (id identity primary key, folder_id integer, name varchar(50), contents varchar(1000))");
 
         Folder folder1 = new Folder(1, "folder1");
         Folder folder2 = new Folder(2, "folder2");
@@ -362,7 +358,6 @@ public class TestBeanMapper {
     @Test
     public void testFoldWithMultiplePrefixedMappers() {
         h.execute("create table folders (id identity primary key, name varchar(50), parent_folder_id integer)");
-        h.execute("create table documents (id identity primary key, folder_id integer, previous_folder_id integer, name varchar(50), contents varchar(1000))");
 
         Folder folder1 = new Folder(1, "folder1");
         Folder folder2 = new Folder(2, "folder2");
@@ -375,7 +370,7 @@ public class TestBeanMapper {
         Folder newFolder1 = new Folder(1, "folder1");
         Folder newFolder2 = new Folder(2, "folder2");
         Folder newFolder3 = new Folder(3, "folder3");
-        newFolder3.setParent(folder1);
+        newFolder3.setParent(newFolder1);
 
         assertThat(dao.listFoldersWithParent()).containsExactly(newFolder1, newFolder2, newFolder3);
     }
