@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import org.jdbi.v3.core.config.ConfigCustomizer;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.internal.ConfigCustomizerChain;
-import org.jdbi.v3.core.extension.internal.ExtensionConfigCache;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.JdbiClassUtils.MethodKey;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
@@ -81,41 +80,30 @@ public final class ExtensionMetadata {
      * Create an instance specific configuration based on all instance customizers. The instance configuration holds all
      * custom configuration that was applied e.g. through instance annotations.
      *
-     * <p>The derived configuration is cached per source registry (see {@link ExtensionConfigCache}), so repeated
-     * attaches against the same registry — notably {@link org.jdbi.v3.core.Jdbi#onDemand(Class)}, which
-     * re-attaches on every method call — reuse it instead of copying the registry every time.
-     *
      * @param config A configuration object. The object is not changed
-     * @return A configuration object with all changes applied; shared across attaches from the same source registry
+     * @return A new configuration object with all changes applied
      */
     public ConfigRegistry createInstanceConfiguration(ConfigRegistry config) {
-        return config.get(ExtensionConfigCache.class).instanceConfiguration(extensionType, () -> {
-            ConfigRegistry instanceConfiguration = config.createCopy();
-            instanceConfigCustomizer.customize(instanceConfiguration);
-            return instanceConfiguration;
-        });
+        ConfigRegistry instanceConfiguration = config.createCopy();
+        instanceConfigCustomizer.customize(instanceConfiguration);
+        return instanceConfiguration;
     }
 
     /**
      * Create an method specific configuration based on all method customizers. The method configuration holds all
      * custom configuration that was applied e.g. through method annotations.
      *
-     * <p>The derived configuration is cached per source registry (see {@link ExtensionConfigCache}), so repeated
-     * attaches against the same instance configuration reuse it instead of copying the registry every time.
-     *
      * @param method The method that is about to be called
      * @param config A configuration object. The object is not changed
-     * @return A configuration object with all changes applied; shared across attaches from the same source registry
+     * @return A new configuration object with all changes applied
      */
     public ConfigRegistry createMethodConfiguration(Method method, ConfigRegistry config) {
-        return config.get(ExtensionConfigCache.class).methodConfiguration(method, () -> {
-            ConfigRegistry methodConfiguration = config.createCopy();
-            ConfigCustomizer methodConfigCustomizer = methodConfigCustomizers.get(method);
-            if (methodConfigCustomizer != null) {
-                methodConfigCustomizer.customize(methodConfiguration);
-            }
-            return methodConfiguration;
-        });
+        ConfigRegistry methodConfiguration = config.createCopy();
+        ConfigCustomizer methodConfigCustomizer = methodConfigCustomizers.get(method);
+        if (methodConfigCustomizer != null) {
+            methodConfigCustomizer.customize(methodConfiguration);
+        }
+        return methodConfiguration;
     }
 
     /**
