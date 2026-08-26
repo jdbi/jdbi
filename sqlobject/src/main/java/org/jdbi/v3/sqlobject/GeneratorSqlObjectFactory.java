@@ -90,7 +90,7 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
 
     private static MethodHandleHolder<?> getGeneratedClass(Class<?> extensionType) {
         try {
-            return JdbiClassUtils.findConstructor(Class.forName(getGeneratedClassName(extensionType)), EXTENSION_TYPES);
+            return JdbiClassUtils.findConstructor(loadGeneratedClass(extensionType, getGeneratedClassName(extensionType)), EXTENSION_TYPES);
         } catch (Throwable t) {
             throw new UnableToCreateSqlObjectException(t);
         }
@@ -98,10 +98,19 @@ final class GeneratorSqlObjectFactory extends AbstractSqlObjectFactory implement
 
     private static MethodHandleHolder<?> getOnDemandClass(Class<?> extensionType) {
         try {
-            return JdbiClassUtils.findConstructor(Class.forName(getOnDemandClassName(extensionType)), ON_DEMAND_TYPES);
+            return JdbiClassUtils.findConstructor(loadGeneratedClass(extensionType, getOnDemandClassName(extensionType)), ON_DEMAND_TYPES);
         } catch (Throwable t) {
             throw new UnableToCreateSqlObjectException(t);
         }
+    }
+
+    /**
+     * The generated class lives next to the extension type, so it must be loaded through the same
+     * class loader. A plain {@code Class.forName(name)} would use the loader of this class, which fails
+     * in environments that isolate application code from Jdbi (plugin containers, application servers).
+     */
+    private static Class<?> loadGeneratedClass(Class<?> extensionType, String className) throws ClassNotFoundException {
+        return Class.forName(className, true, extensionType.getClassLoader());
     }
 
     private static String getGeneratedClassName(Class<?> extensionType) {
