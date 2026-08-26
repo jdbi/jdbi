@@ -9,6 +9,7 @@
   must also override `parse`, most simply to return `Optional.empty()`, which keeps the core on
   its `render` path.
   `Batch` and `Script` now render through the statement cache as well. (#2997)
+- Fix `@GenerateSqlObject` implementations not found when the SQL object interface is loaded by a class loader other than the one that loaded Jdbi, e.g. plugin containers (#3014)
 
 # 3.54.0
 
