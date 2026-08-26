@@ -167,18 +167,33 @@ public class StringTemplateEngine implements TemplateEngine.Parsing {
         }
     }
 
-    /** No-op listener for a pooled prototype at rest; a render always installs an {@link ErrorListener} first. */
+    /**
+     * Listener for a pooled prototype at rest. A render installs an {@link ErrorListener} before it touches the
+     * group, so a callback here means a template executed outside a checkout, which is a bug in the caller.
+     */
     private static final class IdleListener implements STErrorListener {
         @Override
-        public void compileTimeError(STMessage msg) {}
+        public void compileTimeError(STMessage msg) {
+            idle(msg);
+        }
 
         @Override
-        public void runTimeError(STMessage msg) {}
+        public void runTimeError(STMessage msg) {
+            idle(msg);
+        }
 
         @Override
-        public void IOError(STMessage msg) {}
+        public void IOError(STMessage msg) {
+            idle(msg);
+        }
 
         @Override
-        public void internalError(STMessage msg) {}
+        public void internalError(STMessage msg) {
+            idle(msg);
+        }
+
+        private static void idle(STMessage msg) {
+            throw new IllegalStateException("StringTemplate reported an error on an idle pooled template: " + msg, msg.cause);
+        }
     }
 }
