@@ -13,6 +13,9 @@
  */
 package org.jdbi.v3.spring5;
 
+import java.io.Serial;
+
 public class ForceRollback extends RuntimeException {
+    @Serial
     private static final long serialVersionUID = 1L;
 }

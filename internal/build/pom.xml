@@ -80,7 +80,7 @@
         <dep.junit.version>6.0.3</dep.junit.version>
         <dep.kotlin.version>2.3.20</dep.kotlin.version>
         <dep.kotlinx-coroutines.version>1.10.2</dep.kotlinx-coroutines.version>
-        <dep.lombok.version>1.18.44</dep.lombok.version>
+        <dep.lombok.version>1.18.46</dep.lombok.version>
         <dep.mockito.version>5.23.0</dep.mockito.version>
         <dep.moshi.version>1.15.2</dep.moshi.version>
         <dep.mssql.version>13.4.0.jre11</dep.mssql.version>

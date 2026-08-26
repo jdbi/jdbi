@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.postgres;
 
+import java.io.Serial;
+
 import org.jdbi.v3.core.statement.StatementException;
 
 public class LargeObjectException extends StatementException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public LargeObjectException(Throwable cause) {

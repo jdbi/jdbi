@@ -13,11 +13,14 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.io.Serial;
+
 /**
  * Thrown when {@code Jdbi} couldn't retrieve metadata from the connection.
  */
 public class UnableToRetrieveMetaDataException extends StatementException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     UnableToRetrieveMetaDataException(Exception cause, StatementContext ctx) {

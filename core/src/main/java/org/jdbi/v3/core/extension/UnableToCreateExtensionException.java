@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.extension;
 
+import java.io.Serial;
+
 import com.google.errorprone.annotations.FormatMethod;
 import org.jdbi.v3.core.JdbiException;
 import org.jdbi.v3.meta.Beta;
@@ -27,6 +29,7 @@ import static java.lang.String.format;
 @Beta
 public final class UnableToCreateExtensionException extends JdbiException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

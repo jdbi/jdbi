@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.extension;
 
+import java.io.Serial;
+
 import org.jdbi.v3.core.JdbiException;
 
 import static java.lang.String.format;
@@ -21,6 +23,7 @@ import static java.lang.String.format;
  * Thrown when no {@link ExtensionFactory} accepts a given extension type.
  */
 public final class NoSuchExtensionException extends JdbiException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private static final String DEFAULT_MESSAGE = "Extension not found: %s [Hint: maybe you need to register a plugin, like SqlObjectPlugin]";
