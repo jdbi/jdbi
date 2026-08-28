@@ -3,6 +3,10 @@
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
+- `QualifiedType` no longer synthesizes an annotation proxy for a qualifier annotation without
+  members, so `QualifiedType.with(Class)` and the built-in `@Legacy`, `@NVarchar`, `@EnumByName`,
+  and `@EncodedJson` qualifiers work in a GraalVM native image without proxy registration.
+  New `QualifiedType.hasQualifiers(Set)` compares qualifiers without materializing annotations. (#2967)
 - stringtemplate4: `StringTemplateEngine` now caches template compilation through the core statement
   cache instead of recompiling on every render, with compiled templates pooled for thread safety.
   The cached path bypasses `render(String, StatementContext)`: a subclass that overrides `render`

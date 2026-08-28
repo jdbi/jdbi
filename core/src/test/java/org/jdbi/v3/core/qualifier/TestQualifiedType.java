@@ -13,12 +13,22 @@
  */
 package org.jdbi.v3.core.qualifier;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.internal.AnnotationFactory;
+import org.jdbi.v3.meta.Legacy;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jdbi.v3.core.qualifier.SampleQualifiers.bar;
 import static org.jdbi.v3.core.qualifier.SampleQualifiers.foo;
 
@@ -51,4 +61,76 @@ public class TestQualifiedType {
             .isNotEqualTo(QualifiedType.of(String.class).with(foo(1)))
             .isNotEqualTo(QualifiedType.of(String.class).with(bar("1")));
     }
+
+    @Test
+    public void memberlessQualifierClassEqualsRealAnnotation() {
+        Annotation real = Holder.class.getAnnotation(Legacy.class);
+        QualifiedType<String> fromClass = QualifiedType.of(String.class).with(Legacy.class);
+        QualifiedType<String> fromInstance = QualifiedType.of(String.class).with(real);
+
+        assertThat(fromClass)
+            .isEqualTo(fromInstance)
+            .hasSameHashCodeAs(fromInstance)
+            .hasToString("@org.jdbi.v3.meta.Legacy() java.lang.String");
+        assertThat(fromClass.hasQualifier(Legacy.class)).isTrue();
+        assertThat(fromClass.hasQualifier(NVarchar.class)).isFalse();
+        assertThat(fromClass.hasQualifiers(Set.of(real))).isTrue();
+        assertThat(fromInstance.hasQualifiers(Set.of(real))).isTrue();
+        assertThat(fromClass.hasQualifiers(Set.of())).isFalse();
+        assertThat(QualifiedType.of(String.class).hasQualifiers(Set.of())).isTrue();
+        assertThat(QualifiedType.of(String.class).hasQualifiers(Set.of(real))).isFalse();
+    }
+
+    @Test
+    public void getQualifiersSynthesizesMemberlessAnnotations() {
+        Set<Annotation> qualifiers = QualifiedType.of(String.class).with(Legacy.class).getQualifiers();
+
+        assertThat(qualifiers).hasSize(1);
+        Annotation synthesized = qualifiers.iterator().next();
+        assertThat(synthesized).isInstanceOf(Legacy.class);
+        assertThat(synthesized).isEqualTo(Holder.class.getAnnotation(Legacy.class));
+        assertThat(qualifiers).isEqualTo(Set.of(Holder.class.getAnnotation(Legacy.class)));
+    }
+
+    @Test
+    public void qualifierWithMembersComparesByValue() {
+        Annotation real = DefaultedHolder.class.getAnnotation(Defaulted.class);
+        Annotation synthesized = AnnotationFactory.create(Defaulted.class, Map.of("value", 7));
+        Annotation other = AnnotationFactory.create(Defaulted.class, Map.of("value", 8));
+
+        assertThat(QualifiedType.of(String.class).with(real))
+            .isEqualTo(QualifiedType.of(String.class).with(synthesized))
+            .hasSameHashCodeAs(QualifiedType.of(String.class).with(synthesized))
+            .isNotEqualTo(QualifiedType.of(String.class).with(other));
+        assertThat(QualifiedType.of(String.class).with(real).getQualifiers()).containsExactly(real);
+        assertThat(QualifiedType.of(String.class).with(real).hasQualifiers(Set.of(synthesized))).isTrue();
+        assertThat(QualifiedType.of(String.class).with(real).hasQualifiers(Set.of(other))).isFalse();
+    }
+
+    @Test
+    public void qualifierClassWithRequiredMemberIsRejected() {
+        assertThatThrownBy(() -> QualifiedType.of(String.class).with(SampleQualifiers.Foo.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Cannot synthesize annotation @Foo");
+    }
+
+    @Test
+    public void qualifierClassWithDefaultedMembersIsSynthesized() {
+        assertThat(QualifiedType.of(String.class).with(Defaulted.class))
+            .isEqualTo(QualifiedType.of(String.class).with(DefaultedHolder.class.getAnnotation(Defaulted.class)))
+            .isEqualTo(QualifiedType.of(String.class).with(Defaulted.class));
+    }
+
+    @Legacy
+    private static final class Holder {}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    @Qualifier
+    public @interface Defaulted {
+        int value() default 7;
+    }
+
+    @Defaulted
+    private static final class DefaultedHolder {}
 }

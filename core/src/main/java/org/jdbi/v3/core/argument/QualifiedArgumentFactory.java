@@ -66,7 +66,7 @@ public interface QualifiedArgumentFactory {
         }
         Set<Annotation> qualifiers = config.get(Qualifiers.class).findFor(factory.getClass());
         return (type, value, cfg) ->
-            type.getQualifiers().equals(qualifiers)
+            type.hasQualifiers(qualifiers)
                 ? factory.build(type.getType(), value, cfg)
                 : Optional.empty();
     }
@@ -116,14 +116,14 @@ public interface QualifiedArgumentFactory {
 
                 @Override
                 public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry cfg) {
-                    return type.getQualifiers().equals(qualifiers)
+                    return type.hasQualifiers(qualifiers)
                             ? factory.build(type.getType(), value, cfg)
                             : Optional.empty();
                 }
 
                 @Override
                 public Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry cfg) {
-                    return type.getQualifiers().equals(qualifiers)
+                    return type.hasQualifiers(qualifiers)
                             ? factory.prepare(type.getType(), cfg)
                             : Optional.empty();
                 }
