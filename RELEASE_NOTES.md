@@ -1,5 +1,10 @@
 # Unreleased
 
+- `ConfigRegistry.createCopy()` now materializes each config object lazily on its first access instead
+  of copying every config object eagerly. This removes most of the allocation cost of extension attach
+  (`Jdbi#onDemand` re-attaches on every call), of `Handle` creation, and of statement creation
+  (#2982, thanks @ulmetrs!). If code depends on the exact moment a copy is taken, restore the old
+  timing with `ConfigRegistry#setEagerCopies(true)` (Alpha).
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
