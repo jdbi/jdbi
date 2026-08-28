@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.Arguments;
@@ -50,7 +51,7 @@ public final class ConfigRegistry {
     private final Map<Class<? extends JdbiConfig<?>>, JdbiConfig<?>> configs = new ConcurrentHashMap<>(32);
     private final Map<Class<? extends JdbiConfig<?>>, Function<ConfigRegistry, JdbiConfig<?>>> configFactories;
     private final ConfigRegistry source;
-    private volatile boolean eagerCopies;
+    private final AtomicBoolean eagerCopies = new AtomicBoolean();
 
     /**
      * Creates a new config registry.
@@ -69,8 +70,9 @@ public final class ConfigRegistry {
 
     private ConfigRegistry(ConfigRegistry that) {
         configFactories = that.configFactories;
-        eagerCopies = that.eagerCopies;
-        if (eagerCopies) {
+        final boolean eager = that.eagerCopies.get();
+        eagerCopies.set(eager);
+        if (eager) {
             source = null;
             for (Class<? extends JdbiConfig<?>> type : that.knownConfigTypes()) {
                 configs.put(type, that.lookup(type).createCopy());
@@ -166,7 +168,7 @@ public final class ConfigRegistry {
      */
     @Alpha
     public void setEagerCopies(boolean eagerCopies) {
-        this.eagerCopies = eagerCopies;
+        this.eagerCopies.set(eagerCopies);
     }
 
     /**
@@ -176,6 +178,6 @@ public final class ConfigRegistry {
      */
     @Alpha
     public boolean isEagerCopies() {
-        return eagerCopies;
+        return eagerCopies.get();
     }
 }
