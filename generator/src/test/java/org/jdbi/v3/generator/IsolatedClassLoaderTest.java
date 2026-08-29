@@ -24,6 +24,7 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * class loader of Jdbi itself. Plugin containers (Paper, OSGi, application servers) load application code
  * in a child loader that Jdbi's own loader can not see.
  */
+@DisabledInNativeImage // a native image can not define classes at run time
 public class IsolatedClassLoaderTest {
 
     private static final String ISOLATED_PACKAGE = "org.jdbi.v3.generator.isolated";
