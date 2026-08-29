@@ -15,19 +15,18 @@ package org.jdbi.v3.core.qualifier;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.StreamSupport;
 
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.internal.AnnotationFactory;
 
 import static java.util.Collections.emptySet;
-
-import static org.jdbi.v3.core.internal.CollectionCollectors.toUnmodifiableSet;
 
 /**
  * A {@link java.lang.reflect.Type} qualified by a set of qualifier annotations. Two qualified types are equal to each other
@@ -37,7 +36,8 @@ import static org.jdbi.v3.core.internal.CollectionCollectors.toUnmodifiableSet;
  */
 public final class QualifiedType<T> {
     private final Type type;
-    private final Set<Annotation> qualifiers;
+    private final Set<QualifierKey> qualifiers;
+    private Set<Annotation> annotations;
     private int hashCode;
 
     /**
@@ -71,7 +71,7 @@ public final class QualifiedType<T> {
         return (QualifiedType<T>) of(type.getType());
     }
 
-    private QualifiedType(Type type, Set<Annotation> qualifiers) {
+    private QualifiedType(Type type, Set<QualifierKey> qualifiers) {
         this.type = type;
         this.qualifiers = qualifiers;
     }
@@ -83,7 +83,7 @@ public final class QualifiedType<T> {
      * @return the QualifiedType
      */
     public QualifiedType<T> with(Annotation... newQualifiers) {
-        return new QualifiedType<>(type, Arrays.stream(newQualifiers).collect(toUnmodifiableSet()));
+        return new QualifiedType<>(type, keysOf(Arrays.asList(newQualifiers)));
     }
 
     /**
@@ -95,10 +95,7 @@ public final class QualifiedType<T> {
      */
     @SafeVarargs
     public final QualifiedType<T> with(Class<? extends Annotation>... newQualifiers) {
-        Set<Annotation> annotations = Arrays.stream(newQualifiers)
-            .map(AnnotationFactory::create)
-            .collect(toUnmodifiableSet());
-        return new QualifiedType<>(type, annotations);
+        return new QualifiedType<>(type, keysOfClasses(Arrays.asList(newQualifiers)));
     }
 
     /**
@@ -109,7 +106,7 @@ public final class QualifiedType<T> {
      * @param newQualifiers the qualifiers for the new qualified type.
      */
     public QualifiedType<T> withAnnotations(Iterable<? extends Annotation> newQualifiers) {
-        return new QualifiedType<>(type, StreamSupport.stream(newQualifiers.spliterator(), false).collect(toUnmodifiableSet()));
+        return new QualifiedType<>(type, keysOf(newQualifiers));
     }
 
     /**
@@ -120,10 +117,23 @@ public final class QualifiedType<T> {
      * @param newQualifiers the qualifiers for the new qualified type.
      */
     public QualifiedType<T> withAnnotationClasses(Iterable<Class<? extends Annotation>> newQualifiers) {
-        Set<Annotation> annotations = StreamSupport.stream(newQualifiers.spliterator(), false)
-            .map(AnnotationFactory::create)
-            .collect(toUnmodifiableSet());
-        return new QualifiedType<>(type, annotations);
+        return new QualifiedType<>(type, keysOfClasses(newQualifiers));
+    }
+
+    private static Set<QualifierKey> keysOf(Iterable<? extends Annotation> annotations) {
+        List<QualifierKey> keys = new ArrayList<>();
+        for (Annotation annotation : annotations) {
+            keys.add(QualifierKey.of(annotation));
+        }
+        return Set.copyOf(keys);
+    }
+
+    private static Set<QualifierKey> keysOfClasses(Iterable<Class<? extends Annotation>> annotationTypes) {
+        List<QualifierKey> keys = new ArrayList<>();
+        for (Class<? extends Annotation> annotationType : annotationTypes) {
+            keys.add(QualifierKey.of(annotationType));
+        }
+        return Set.copyOf(keys);
     }
 
     /**
@@ -136,12 +146,40 @@ public final class QualifiedType<T> {
     }
 
     /**
-     * Returns a set of qualifying annotations.
+     * Returns a set of qualifying annotations. Qualifiers that were given as annotation classes rather than
+     * annotation instances are synthesized on first call.
      *
      * @return the type qualifiers.
      */
     public Set<Annotation> getQualifiers() {
-        return qualifiers;
+        Set<Annotation> result = annotations;
+        if (result == null) {
+            List<Annotation> collected = new ArrayList<>();
+            for (QualifierKey key : qualifiers) {
+                collected.add(key.annotation());
+            }
+            result = Set.copyOf(collected);
+            annotations = result;
+        }
+        return result;
+    }
+
+    /**
+     * Returns true if the qualifiers of this type are exactly the given annotations.
+     *
+     * @param annotations the annotations to compare against.
+     * @return true if this instance has exactly the given qualifiers.
+     */
+    public boolean hasQualifiers(Set<? extends Annotation> annotations) {
+        if (qualifiers.size() != annotations.size()) {
+            return false;
+        }
+        for (Annotation annotation : annotations) {
+            if (!qualifiers.contains(QualifierKey.of(annotation))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -175,7 +213,12 @@ public final class QualifiedType<T> {
      * @return true if this instance contains the given qualifier.
      */
     public boolean hasQualifier(Class<? extends Annotation> qualifier) {
-        return qualifiers.stream().anyMatch(qualifier::isInstance);
+        for (QualifierKey key : qualifiers) {
+            if (key.type() == qualifier) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -207,5 +250,37 @@ public final class QualifiedType<T> {
         qualifiers.forEach(qualifier -> builder.append(qualifier).append(' '));
         builder.append(type.getTypeName());
         return builder.toString();
+    }
+
+    /**
+     * Identity of one qualifier. A qualifier annotation that declares no members is identified by its type alone,
+     * so it never needs an annotation instance. A qualifier with members is identified by an instance, and relies
+     * on the {@link Annotation#equals(Object)} contract.
+     */
+    private record QualifierKey(Class<? extends Annotation> type, Annotation instance) {
+        private static final ClassValue<Boolean> HAS_MEMBERS = new ClassValue<>() {
+            @Override
+            protected Boolean computeValue(Class<?> annotationType) {
+                return annotationType.getDeclaredMethods().length > 0;
+            }
+        };
+
+        static QualifierKey of(Annotation annotation) {
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            return new QualifierKey(annotationType, HAS_MEMBERS.get(annotationType) ? annotation : null);
+        }
+
+        static QualifierKey of(Class<? extends Annotation> annotationType) {
+            return new QualifierKey(annotationType, HAS_MEMBERS.get(annotationType) ? AnnotationFactory.create(annotationType) : null);
+        }
+
+        Annotation annotation() {
+            return instance != null ? instance : AnnotationFactory.create(type);
+        }
+
+        @Override
+        public String toString() {
+            return instance != null ? instance.toString() : "@" + type.getName() + "()";
+        }
     }
 }

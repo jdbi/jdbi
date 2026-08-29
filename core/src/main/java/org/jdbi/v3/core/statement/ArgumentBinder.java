@@ -208,7 +208,7 @@ class ArgumentBinder {
                 final TypeVariable<?>[] typeVars = clazz.getTypeParameters();
                 if (typeVars.length > 0) {
                     return new UnableToCreateStatementException("No type parameters found for erased type '" + type + Arrays.toString(typeVars)
-                        + "' with qualifiers '" + qualifiedType.getQualifiers()
+                        + "' of qualified type '" + qualifiedType
                         + "'. To bind a generic type, prefer using bindByType.");
                 }
             }
