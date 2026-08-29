@@ -14,7 +14,9 @@
 package org.jdbi.v3.gson2;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Set;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
@@ -24,7 +26,7 @@ import org.jdbi.v3.json.JsonMapper;
 
 class GsonJsonMapper implements JsonMapper {
     @Override
-    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+    public TypedJsonMapper forType(Type type, Set<? extends Annotation> annotations, ConfigRegistry config) {
         return new TypedJsonMapper() {
             @SuppressWarnings("rawtypes")
             private final TypeAdapter adapter = config.get(Gson2Config.class)
