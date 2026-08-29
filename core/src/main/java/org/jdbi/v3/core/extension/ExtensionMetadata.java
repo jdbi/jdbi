@@ -150,29 +150,36 @@ public final class ExtensionMetadata {
         private final Map<Method, ConfigCustomizerChain> methodConfigCustomizers = new HashMap<>();
         private final Map<Method, ExtensionHandler> methodHandlers = new HashMap<>();
 
-        private final Collection<Method> extensionTypeMethods = new HashSet<>();
-
         private final Optional<Method> finalizer;
+
+        private Collection<Method> extensionTypeMethods;
 
         Builder(Class<?> extensionType) {
             this.extensionType = extensionType;
-
-            this.extensionTypeMethods.addAll(Arrays.asList(extensionType.getMethods()));
-            this.extensionTypeMethods.addAll(Arrays.asList(extensionType.getDeclaredMethods()));
-
-            this.extensionTypeMethods.stream()
-                    .filter(m -> !m.isSynthetic())
-                    .collect(Collectors.groupingBy(MethodKey::methodKey))
-                    .values()
-                    .stream()
-                    .filter(methodCount -> methodCount.size() > 1)
-                    .findAny()
-                    .ifPresent(methods -> {
-                        throw new UnableToCreateExtensionException("%s has ambiguous methods (%s) found, please resolve with an explicit override",
-                                extensionType, methods);
-                    });
-
             this.finalizer = JdbiClassUtils.safeMethodLookup(extensionType, "finalize");
+        }
+
+        /**
+         * Sets the methods of the extension type that need extension handlers. By default, the builder discovers
+         * these methods through reflection when {@link #build()} is called. Code that already holds the methods
+         * of the extension type, such as code created by the Jdbi generator, can supply them here so that no
+         * reflective discovery takes place. This matters for GraalVM native image, where an unregistered type
+         * reports no methods.
+         *
+         * @param methods The methods of the extension type
+         * @return The builder instance
+         * @since 3.55.0
+         */
+        public Builder setExtensionTypeMethods(Collection<Method> methods) {
+            this.extensionTypeMethods = new HashSet<>(methods);
+            return this;
+        }
+
+        private Collection<Method> discoverExtensionTypeMethods() {
+            Collection<Method> methods = new HashSet<>();
+            methods.addAll(Arrays.asList(extensionType.getMethods()));
+            methods.addAll(Arrays.asList(extensionType.getDeclaredMethods()));
+            return methods;
         }
 
         /**
@@ -253,6 +260,22 @@ public final class ExtensionMetadata {
          * @return A {@link ExtensionMetadata} object
          */
         public ExtensionMetadata build() {
+            if (extensionTypeMethods == null) {
+                extensionTypeMethods = discoverExtensionTypeMethods();
+            }
+
+            extensionTypeMethods.stream()
+                    .filter(m -> !m.isSynthetic())
+                    .collect(Collectors.groupingBy(MethodKey::methodKey))
+                    .values()
+                    .stream()
+                    .filter(methodCount -> methodCount.size() > 1)
+                    .findAny()
+                    .ifPresent(methods -> {
+                        throw new UnableToCreateExtensionException("%s has ambiguous methods (%s) found, please resolve with an explicit override",
+                                extensionType, methods);
+                    });
+
             // add all methods that are declared on the extension type and
             // are not static and don't already have a handler
 
