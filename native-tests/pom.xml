@@ -64,6 +64,11 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-generator</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-guava</artifactId>
             <scope>test</scope>
         </dependency>
@@ -193,6 +198,13 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-freemarker</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-generator</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
