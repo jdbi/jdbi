@@ -15,6 +15,14 @@ package org.jdbi.v3.postgres;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.Period;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Map;
 
 import com.pgvector.PGbit;
@@ -29,6 +37,7 @@ import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.postgres.internal.BitStringEnumSetArgumentFactory;
 import org.jdbi.v3.postgres.internal.BitStringEnumSetMapperFactory;
 import org.jdbi.v3.postgres.internal.ByteaArrayType;
+import org.jdbi.v3.postgres.internal.JavaTimeLiterals;
 import org.postgresql.PGConnection;
 import org.postgresql.geometric.PGbox;
 import org.postgresql.geometric.PGcircle;
@@ -72,7 +81,23 @@ import org.postgresql.util.PGmoney;
  * <li>{@link java.lang.Long}</li>
  * <li>{@link java.lang.String}</li>
  * <li>{@link java.util.UUID}</li>
+ * <li>{@link java.time.LocalDate}</li>
+ * <li>{@link java.time.LocalTime}</li>
+ * <li>{@link java.time.LocalDateTime}</li>
+ * <li>{@link java.time.OffsetTime}</li>
+ * <li>{@link java.time.OffsetDateTime}</li>
+ * <li>{@link java.time.Instant} (bound as the equivalent UTC {@link java.time.OffsetDateTime})</li>
+ * <li>{@link java.time.ZonedDateTime} (bound as the equivalent {@link java.time.OffsetDateTime})</li>
+ * <li>{@link java.time.Duration} and {@link java.time.Period} (see notes below)</li>
  * </ul>
+ *
+ * <p>
+ * The driver has no native encoder for temporal array elements, so they are sent as text
+ * literals. Consequently, {@link java.time.Duration} and {@link java.time.Period} array
+ * elements behave differently from their scalar argument factories: they are sent in ISO-8601
+ * form, the server rounds sub-microsecond precision instead of the factory rejecting it, and
+ * the server rejects intervals outside its own range rather than the factory rejecting values
+ * a {@link PGInterval} cannot hold.
  *
  * <p>
  * A note about the mapping between the Postgres {@code interval} type and the Java {@link java.time.Period} and
@@ -129,6 +154,19 @@ public class PostgresPlugin extends JdbiPlugin.Singleton {
         jdbi.registerArgument(new BitStringEnumSetArgumentFactory());
         jdbi.registerArgument(new BlobInputStreamArgumentFactory());
         jdbi.registerArgument(new ClobReaderArgumentFactory());
+
+        // java.time array element types; the driver sends these as text, so the conversions
+        // produce literals the server parses for any year Postgres supports, including BC
+        jdbi.registerArrayType(LocalDate.class, "date", JavaTimeLiterals::dateLiteral);
+        jdbi.registerArrayType(LocalDateTime.class, "timestamp", JavaTimeLiterals::timestampLiteral);
+        jdbi.registerArrayType(OffsetDateTime.class, "timestamptz", JavaTimeLiterals::timestampLiteral);
+        jdbi.registerArrayType(Instant.class, "timestamptz",
+                v -> JavaTimeLiterals.timestampLiteral(v == null ? null : OffsetDateTime.ofInstant(v, ZoneOffset.UTC)));
+        jdbi.registerArrayType(ZonedDateTime.class, "timestamptz",
+                v -> JavaTimeLiterals.timestampLiteral(v == null ? null : v.toOffsetDateTime()));
+        // Duration and Period elements are sent in their ISO-8601 form, which the server parses
+        jdbi.registerArrayType(Duration.class, "interval");
+        jdbi.registerArrayType(Period.class, "interval");
 
         // built-in PGobject types
         jdbi.registerArrayType(PGbox.class, "box");

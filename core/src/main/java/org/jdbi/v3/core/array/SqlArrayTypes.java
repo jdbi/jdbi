@@ -14,6 +14,14 @@
 package org.jdbi.v3.core.array;
 
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,6 +65,15 @@ public class SqlArrayTypes implements JdbiConfig<SqlArrayTypes> {
         register(Double.class, "float8");
         register(String.class, "varchar");
         register(UUID.class, "uuid");
+        register(LocalDate.class, "date");
+        register(LocalTime.class, "time");
+        register(LocalDateTime.class, "timestamp");
+        register(OffsetDateTime.class, "timestamp with time zone");
+        register(OffsetTime.class, "time with time zone");
+        register(SqlArrayTypeFactory.of(Instant.class, "timestamp with time zone",
+                v -> v == null ? null : OffsetDateTime.ofInstant(v, ZoneOffset.UTC)));
+        register(SqlArrayTypeFactory.of(ZonedDateTime.class, "timestamp with time zone",
+                v -> v == null ? null : v.toOffsetDateTime()));
         register(new EnumSqlArrayTypeFactory());
     }
 

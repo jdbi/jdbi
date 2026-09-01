@@ -3776,8 +3776,14 @@ jdbi.registerArrayType(int.class, "integer");
 
 Here, `"integer"` is the SQL type name that the JDBC driver supports natively.
 
+Jdbi registers the most common element types out of the box: the primitive and boxed
+numeric types, `String`, `UUID`, enums, and the `java.time` types `LocalDate`,
+`LocalTime`, `LocalDateTime`, `OffsetDateTime`, `OffsetTime`, `Instant`, and
+`ZonedDateTime` (the last two are bound as the equivalent `OffsetDateTime`).
+
 [NOTE]
-Plugins like `PostgresPlugin` and `H2DatabasePlugin` automatically register the most common array element types for their respective databases.
+Plugins like `PostgresPlugin` and `H2DatabasePlugin` automatically register additional array element types for their respective databases.
+For example, `PostgresPlugin` registers `Duration` and `Period` (bound as `interval`), and binds the date-bearing `java.time` element types as text literals that cover the full Postgres date range, including BC dates.
 
 [TIP]
 Postgres supports enum array types, so you can register an array type for
