@@ -158,9 +158,6 @@
                                     jakarta.annotation;resolution:=optional,\
                                     jdk.jfr;resolution:=optional,\
                                     *
-                                Require-Capability:\
-                                    osgi.extender;filter:="(osgi.extender=osgi.serviceloader.processor)";resolution:=optional,\
-                                    osgi.serviceloader;filter:="(osgi.serviceloader=org.jdbi.v3.core.spi.JdbiPlugin)";cardinality:=multiple;resolution:=optional
                             ]]></bnd>
                         </configuration>
                     </execution>
