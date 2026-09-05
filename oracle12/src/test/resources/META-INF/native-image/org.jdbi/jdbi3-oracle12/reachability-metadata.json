@@ -1,5 +1,5 @@
 {
   "resources": [
-    {"glob":"**/*.sql"}
+    {"glob":"scripts/**/*.sql"}
   ]
 }

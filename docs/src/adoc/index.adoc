@@ -3169,6 +3169,36 @@ When you call `rowView.getRow(SomeType.class)`, `RowView` looks up the registere
 Likewise, when you call `rowView.getColumn("my_value", MyValueType.class)`,
 `RowView` looks up the registered column mapper for `MyValueType`, and uses it to map the `my_value` column of the current row to a `MyValueType` object.
 
+When a query joins the same table twice, one mapper per type is not enough: both joined objects have the same type, and a lookup by type alone always finds the mapper registered last.
+For this case, register one mapper per column name prefix, and select between them with the `getRow()` overloads that take a prefix:
+
+[source,java,indent=0]
+----
+List<Folder> folders = handle.createQuery(SELECT_FOLDERS_WITH_PARENT)
+    .registerRowMapper(BeanMapper.factory(Folder.class, "f"))
+    .registerRowMapper(BeanMapper.factory(Folder.class, "pf")) // <1>
+    .reduceRows((Map<Integer, Folder> map, RowView rowView) -> {
+        Folder folder = map.computeIfAbsent(
+            rowView.getColumn("f_id", Integer.class),
+            id -> rowView.getRow(Folder.class, "f")); // <2>
+
+        if (rowView.getColumn("pf_id", Integer.class) != null) {
+            folder.setParent(rowView.getRow(Folder.class, "pf"));
+        }
+    })
+    .toList();
+----
+
+<1> Two mappers for `Folder`, one for the `f`-prefixed columns and one for the
+`pf`-prefixed columns of the self-joined parent folder.
+<2> `getRow(Folder.class, "f")` selects the mapper registered with the `"f"`
+prefix.
+
+The prefix given to `getRow()` must be equal to the prefix the mapper was registered with.
+Only mappers that declare a prefix (`BeanMapper`, `ConstructorMapper`, `FieldMapper`, and `KotlinMapper`, or any custom mapper that implements
+link:{jdbidocs}/core/mapper/PrefixedRowMapper.html[PrefixedRowMapper^]) take part in this lookup.
+If no mapper with the given prefix is registered for the type, `getRow()` throws an exception rather than fall back to an unprefixed mapper.
+
 Now let's do the same thing, but for a single contact:
 
 [source,java,indent=0]

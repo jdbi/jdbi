@@ -38,3 +38,19 @@ jobs:
           MAVEN_ARGS: "-B -ff -Dbasepom.check.fail-javadoc=true"
         run: |
           make docs
+
+      - uses: actions/upload-artifact@v7
+        name: upload build logs
+        continue-on-error: true
+        # A failed javadoc aggregate exits with a bare "exit code 2"; the fatal line is
+        # buried in the console among dozens of benign warnings, and GitHub's annotation
+        # cap hides it. Keep the full build output so the real cause is recoverable
+        # without re-running the job.
+        if: ${{ always() }}
+        with:
+          name: build logs (${{ github.job }})
+          retention-days: 90
+          path: |
+            **/target
+            !**/target/**/*.jar
+            !**/target/**/*.class

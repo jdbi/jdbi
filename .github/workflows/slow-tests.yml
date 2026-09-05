@@ -15,6 +15,12 @@ concurrency:
   group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# The test reporter publishes a check run. A pull_request build from a fork gets a
+# read-only token regardless, and falls back to annotations there.
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   slow-tests:
     name: Run slow tests
@@ -48,6 +54,12 @@ jobs:
         run: |
           ./mvnw --version
           make run-slow-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        if: ${{ !cancelled() }}
+        with:
+          name: 'test report (slow tests)'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
@@ -104,6 +116,12 @@ jobs:
         run: |
           ./mvnw --version
           make run-slow-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        if: ${{ !cancelled() }}
+        with:
+          name: 'test report (slow tests, timezone and locale)'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs
@@ -165,6 +183,12 @@ jobs:
         run: |
           ./mvnw --version
           make run-slow-tests
+
+      - uses: ./.github/actions/test-report
+        name: report test failures
+        if: ${{ !cancelled() }}
+        with:
+          name: 'test report (oracle ${{ matrix.test-version }})'
 
       - uses: actions/upload-artifact@v7
         name: upload build logs

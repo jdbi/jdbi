@@ -12,6 +12,6 @@
     {"type":"org.springframework.test.context.web.WebAppConfiguration"}
   ],
   "resources": [
-    {"glob":"**/*.xml"}
+    {"glob":"org/**/*.xml"}
   ]
 }

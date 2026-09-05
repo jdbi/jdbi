@@ -275,6 +275,140 @@ public class TestPreparedBatch {
             .execute()).containsExactly(1, 1, 1);
     }
 
+    /**
+     * Regression for #2974: PreparedBatch bindBean with mixed subclasses must not NPE
+     * when the prepared binder was built from the first row's runtime type.
+     */
+    @Test
+    public void testBindBeanMixedSubclasses() {
+        Handle h = h2Extension.getSharedHandle();
+
+        BaseBean subclass = new SubBean();
+        subclass.setId(1);
+        subclass.setName("sub");
+
+        BaseBean base = new BaseBean();
+        base.setId(2);
+        base.setName("base");
+
+        // Subclass first so the prepared binder is keyed on SubBean; base second triggers the bug
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        b.bindBean(subclass).add();
+        b.bindBean(base).add();
+        b.execute();
+
+        // Opposite order as well
+        BaseBean base2 = new BaseBean();
+        base2.setId(3);
+        base2.setName("base2");
+        BaseBean subclass2 = new SubBean();
+        subclass2.setId(4);
+        subclass2.setName("sub2");
+
+        PreparedBatch b2 = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        b2.bindBean(base2).add();
+        b2.bindBean(subclass2).add();
+        b2.execute();
+
+        List<Something> rows = h.createQuery("select * from something order by id")
+            .mapToBean(Something.class)
+            .list();
+        assertThat(rows).extracting(Something::getId, Something::getName)
+            .containsExactly(
+                tuple(1, "sub"),
+                tuple(2, "base"),
+                tuple(3, "base2"),
+                tuple(4, "sub2"));
+    }
+
+    @Test
+    public void testBindFieldsMixedSubclasses() {
+        Handle h = h2Extension.getSharedHandle();
+        h.registerRowMapper(ConstructorMapper.factory(PublicSomething.class));
+
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        b.bindFields(new PublicSubSomething(1, "sub")).add();
+        b.bindFields(new PublicSomething(2, "base")).add();
+        b.execute();
+
+        List<PublicSomething> rows = h.createQuery("select * from something order by id")
+            .mapTo(PublicSomething.class)
+            .list();
+        assertThat(rows).extracting("id", "name")
+            .containsExactly(tuple(1, "sub"), tuple(2, "base"));
+    }
+
+    @Test
+    public void testBindMethodsMixedSubclasses() {
+        Handle h = h2Extension.getSharedHandle();
+
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        b.bindMethods(new SubMethodSomething(1, "sub")).add();
+        b.bindMethods(new MethodSomething(2, "base")).add();
+        b.execute();
+
+        List<Something> rows = h.createQuery("select * from something order by id")
+            .mapToBean(Something.class)
+            .list();
+        assertThat(rows).extracting(Something::getId, Something::getName)
+            .containsExactly(tuple(1, "sub"), tuple(2, "base"));
+    }
+
+    public static class BaseBean {
+        private int id;
+        private String name;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public static class SubBean extends BaseBean {
+        // empty subclass — same bean properties, different runtime class
+    }
+
+    public static class PublicSubSomething extends PublicSomething {
+        public PublicSubSomething(Integer id, String name) {
+            super(id, name);
+        }
+    }
+
+    public static class MethodSomething {
+        private final int id;
+        private final String name;
+
+        public MethodSomething(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int id() {
+            return id;
+        }
+
+        public String name() {
+            return name;
+        }
+    }
+
+    public static class SubMethodSomething extends MethodSomething {
+        public SubMethodSomething(int id, String name) {
+            super(id, name);
+        }
+    }
+
     public static class PublicSomething {
         public int id;
         public String name;

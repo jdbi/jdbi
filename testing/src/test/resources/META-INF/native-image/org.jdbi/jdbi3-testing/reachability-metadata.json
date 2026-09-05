@@ -1,9 +1,12 @@
 {
   "resources": [
+    {"glob":"*.sql"},
     {"glob":"custom/migration/location"},
     {"glob":"custom/migration/otherlocation"},
     {"glob":"db/migration"},
     {"glob":"test/h2"},
-    {"glob":"**/*.sql"}
+    {"glob":"custom/**/*.sql"},
+    {"glob":"db/**/*.sql"},
+    {"glob":"test/**/*.sql"}
   ]
 }

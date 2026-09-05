@@ -19,6 +19,6 @@
     {"type":{"proxy":["org.jdbi.v3.freemarker.TestIssue2562$UserSearchDao"]}}
   ],
   "resources": [
-    {"glob":"**/*.ftl"}
+    {"glob":"org/**/*.ftl"}
   ]
 }

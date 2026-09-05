@@ -23,6 +23,7 @@
     {"type":"java.lang.Math","methods":[{"name":"toDegrees"}]},
     {"type":"java.lang.Integer","methods":[{"name":"parseInt","parameterTypes":["java.lang.String"]}]},
     {"type":"java.util.HashMap","methods":[{"name":"clone"}]},
+    {"type":"java.util.concurrent.ConcurrentHashMap","methods":[{"name":"<init>","parameterTypes":[]}]},
     {"type":"org.h2.jdbc.JdbcSQLNonTransientException","allPublicConstructors": true,"allPublicMethods": true,"allDeclaredFields": true},
     {"type":"org.jdbi.v3.core.Something","allPublicConstructors": true,"allPublicMethods": true},
     {"type":"org.jdbi.v3.core.argument.TestNamedParams$1","allPublicConstructors": true,"allPublicMethods": true,"allDeclaredFields": true},
@@ -70,6 +71,9 @@
     {"type":"org.mockito.internal.matchers.InstanceOf","methods":[{"name":"matches","parameterTypes":["java.lang.Object"]}]}
   ],
   "resources": [
-    {"glob":"**/*.sql"}
+    {"glob":"*.sql"},
+    {"glob":"mockito-extensions/org.mockito.plugins.MockMaker"},
+    {"glob":"org/**/*.sql"},
+    {"glob":"script/**/*.sql"}
   ]
 }
