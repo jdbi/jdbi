@@ -13,67 +13,88 @@
  */
 package org.jdbi.v3.e2e.osgi;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OSGiManifestTest {
 
-    // Bundle-SymbolicName (= moduleName) of every published jdbi module; keep in sync with this module's test dependencies
-    private static final List<String> EXPECTED_BUNDLES = List.of(
-            "org.jdbi.v3.core",
-            "org.jdbi.v3.sqlobject",
-            "org.jdbi.v3.json",
-            "org.jdbi.v3.jackson2",
-            "org.jdbi.v3.jackson3",
-            "org.jdbi.v3.postgres",
-            "org.jdbi.v3.caffeine",
-            "org.jdbi.v3.cache.noop",
-            "org.jdbi.v3.commonstext",
-            "org.jdbi.v3.freemarker",
-            "org.jdbi.v3.generator",
-            "org.jdbi.v3.gson2",
-            "org.jdbi.v3.guava",
-            "org.jdbi.v3.guice",
-            "org.jdbi.v3.jodatime2",
-            "org.jdbi.v3.jpa",
-            "org.jdbi.v3.kotlin",
-            "org.jdbi.v3.sqlobject.kotlin",
-            "org.jdbi.v3.moshi",
-            "org.jdbi.v3.mysql",
-            "org.jdbi.v3.opentelemetry",
-            "org.jdbi.v3.oracle12",
-            "org.jdbi.v3.postgis",
-            "org.jdbi.v3.spring",
-            "org.jdbi.v3.spring5",
-            "org.jdbi.v3.sqlite",
-            "org.jdbi.v3.stringtemplate4",
-            "org.jdbi.v3.testcontainers",
-            "org.jdbi.v3.testing",
-            "org.jdbi.v3.vavr");
+    private record Bundle(String symbolicName, Attributes attributes) {
+        @Override
+        public String toString() {
+            return symbolicName;
+        }
+    }
 
     @Test
-    void everyPublishedModuleHasAnOsgiBundleManifest() throws IOException {
-        Set<String> bundleNames = new HashSet<>();
-        Enumeration<URL> manifests = getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
+    void everyDeclaredModuleProducedABundle() throws Exception {
+        assertThat(jdbiBundlesOnClasspath()).hasSize(declaredJdbiTestDependencyCount());
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("jdbiBundlesOnClasspath")
+    void bundleHasBasicInformation(Bundle bundle) {
+        assertThat(bundle.attributes().getValue("Bundle-Name")).isNotBlank();
+        assertThat(bundle.attributes().getValue("Bundle-Version")).isNotBlank();
+    }
+
+    @Test
+    void allBundlesShareTheSameVersion() throws IOException {
+        List<Bundle> bundles = jdbiBundlesOnClasspath();
+        assertThat(bundles.stream().map(b -> b.attributes().getValue("Bundle-Version")))
+                .containsOnly(bundles.get(0).attributes().getValue("Bundle-Version"));
+    }
+
+    // discovered from the classpath, not a fixed list: a module dropping its manifest fails
+    // everyDeclaredModuleProducedABundle() instead of silently shrinking the coverage below
+    static List<Bundle> jdbiBundlesOnClasspath() throws IOException {
+        List<Bundle> bundles = new ArrayList<>();
+        Enumeration<URL> manifests = OSGiManifestTest.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
         while (manifests.hasMoreElements()) {
             try (InputStream in = manifests.nextElement().openStream()) {
-                String symbolicName = new Manifest(in).getMainAttributes().getValue("Bundle-SymbolicName");
-                if (symbolicName != null) {
-                    bundleNames.add(symbolicName);
+                Attributes attributes = new Manifest(in).getMainAttributes();
+                String symbolicName = attributes.getValue("Bundle-SymbolicName");
+                if (symbolicName != null && symbolicName.startsWith("org.jdbi.v3")) {
+                    bundles.add(new Bundle(symbolicName, attributes));
                 }
             }
         }
+        return bundles;
+    }
 
-        assertThat(bundleNames).containsAll(EXPECTED_BUNDLES);
+    // read from this module's own pom.xml so the expected count never drifts from the actual dependency list
+    private static int declaredJdbiTestDependencyCount() throws Exception {
+        var doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("pom.xml"));
+        NodeList dependencies = doc.getElementsByTagName("dependency");
+        int count = 0;
+        for (int i = 0; i < dependencies.getLength(); i++) {
+            Element dependency = (Element) dependencies.item(i);
+            if ("org.jdbi".equals(childText(dependency, "groupId"))
+                    && childText(dependency, "artifactId").startsWith("jdbi3-")) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static String childText(Element parent, String tagName) {
+        NodeList nodes = parent.getElementsByTagName(tagName);
+        return nodes.getLength() > 0 ? nodes.item(0).getTextContent() : "";
     }
 }
