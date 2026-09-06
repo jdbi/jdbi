@@ -141,7 +141,7 @@ public class LocalTransactionHandler implements TransactionHandler {
                 restoreAutoCommitState(handle);
             } catch (SQLException e) {
                 try {
-                    rollback(handle);
+                    handle.rollback();
                 } catch (Exception rollbackException) {
                     e.addSuppressed(rollbackException);
                 }

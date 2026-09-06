@@ -14,6 +14,8 @@
 package org.jdbi.v3.core.transaction;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -46,6 +48,23 @@ public class TestLocalTransactionHandler {
             assertThat(e.getSuppressed()).hasSize(1);
             assertThat(e.getSuppressed()[0]).isSameAs(inner);
         }
+    }
+
+    @Test
+    public void testCommitFailureStillFiresAfterRollbackCallback() throws Exception {
+        Mockito.when(c.getAutoCommit()).thenReturn(true);
+        Mockito.doThrow(new SQLException("commit failed")).when(c).commit();
+
+        AtomicBoolean rolledBack = new AtomicBoolean();
+
+        assertThatThrownBy(() ->
+            h.inTransaction(handle -> {
+                handle.afterRollback(() -> rolledBack.set(true));
+                return null;
+            }))
+            .isInstanceOf(TransactionException.class);
+
+        assertThat(rolledBack).isTrue();
     }
 
     @Test
