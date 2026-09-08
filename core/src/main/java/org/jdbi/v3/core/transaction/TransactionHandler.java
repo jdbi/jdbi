@@ -83,11 +83,19 @@ public interface TransactionHandler {
     void releaseSavepoint(Handle handle, String savepointName);
 
     /**
-     * Run a transaction. This method is the primary transaction entry point: every transaction
-     * started through this handler runs through it, whether or not the caller requested a
-     * transaction isolation level.
+     * Run a transaction. This method is the single transaction entry point: every transaction
+     * started through this handler runs through it.
+     *
+     * <p>
+     * The isolation level is informational: the caller has already applied it to the handle,
+     * and it is {@link TransactionIsolationLevel#UNKNOWN} when the caller did not request a
+     * level. Implementations that manage transactions externally can use it; implementations
+     * that rely on the handle's connection state may ignore it.
+     * </p>
      *
      * @param handle the handle to the database
+     * @param level the isolation level requested for the transaction, or
+     *              {@link TransactionIsolationLevel#UNKNOWN} if none was requested
      * @param callback a callback which will receive the open handle, in a transaction.
      * @param <R> the callback return type
      * @param <X> the exception type thrown by the callback, if any
@@ -96,45 +104,11 @@ public interface TransactionHandler {
      *
      * @throws X any exception thrown by the callback.
      * @see Handle#inTransaction(HandleCallback)
-     */
-    <R, X extends Exception> R inTransaction(Handle handle,
-                                             HandleCallback<R, X> callback) throws X;
-
-    /**
-     * Run a transaction in the given transaction isolation level.
-     *
-     * <p>
-     * The default implementation applies the isolation level to the handle for the duration of
-     * the transaction and calls {@link #inTransaction(Handle, HandleCallback)}, so an
-     * implementation that treats every isolation level the same only needs to implement that
-     * method. Override this method only when a requested isolation level needs special handling.
-     * </p>
-     *
-     * @param handle the handle to the database
-     * @param level the isolation level for the transaction
-     * @param callback a callback which will receive the open handle, in a transaction.
-     * @param <R> the callback return type
-     * @param <X> the exception type thrown by the callback, if any
-     *
-     * @return the value returned by the callback.
-     *
-     * @throws X any exception thrown by the callback.
      * @see Handle#inTransaction(TransactionIsolationLevel, HandleCallback)
      */
-    default <R, X extends Exception> R inTransaction(Handle handle,
-                                                     TransactionIsolationLevel level,
-                                                     HandleCallback<R, X> callback) throws X {
-        if (level == TransactionIsolationLevel.UNKNOWN) {
-            return inTransaction(handle, callback);
-        }
-        final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
-        try {
-            handle.setTransactionIsolationLevel(level);
-            return inTransaction(handle, callback);
-        } finally {
-            handle.setTransactionIsolationLevel(initial);
-        }
-    }
+    <R, X extends Exception> R inTransaction(Handle handle,
+                                             TransactionIsolationLevel level,
+                                             HandleCallback<R, X> callback) throws X;
 
     /**
      * Bind a TransactionHandler to a Handle, to allow it to track handle-local state.

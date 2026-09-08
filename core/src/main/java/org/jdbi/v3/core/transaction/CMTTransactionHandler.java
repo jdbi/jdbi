@@ -85,16 +85,13 @@ public class CMTTransactionHandler implements TransactionHandler {
         throw new UnsupportedOperationException("Savepoints not supported");
     }
 
-    @Override
-    public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    HandleCallback<R, X> callback) throws X {
-        return callback.withHandle(handle);
-    }
-
+    /**
+     * The container manages the transaction, so the requested isolation level is ignored.
+     */
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
                                                     HandleCallback<R, X> callback) throws X {
-        return inTransaction(handle, callback);
+        return callback.withHandle(handle);
     }
 }

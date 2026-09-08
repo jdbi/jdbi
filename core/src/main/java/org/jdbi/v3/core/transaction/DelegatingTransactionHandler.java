@@ -18,13 +18,6 @@ import org.jdbi.v3.core.HandleCallback;
 
 /**
  * Simple delegating subclass that just invokes its delegate.
- *
- * <p>
- * The isolation level variant of {@code inTransaction} is inherited from
- * {@link TransactionHandler} and routes through {@link #inTransaction(Handle, HandleCallback)}
- * on this handler, so a subclass that overrides only that method sees every transaction,
- * with or without a requested isolation level.
- * </p>
  */
 public class DelegatingTransactionHandler implements TransactionHandler {
     private final TransactionHandler delegate;
@@ -74,7 +67,8 @@ public class DelegatingTransactionHandler implements TransactionHandler {
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionIsolationLevel level,
                                                     HandleCallback<R, X> callback) throws X {
-        return delegate.inTransaction(handle, callback);
+        return delegate.inTransaction(handle, level, callback);
     }
 }

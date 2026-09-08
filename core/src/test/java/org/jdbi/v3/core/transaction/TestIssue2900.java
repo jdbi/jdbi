@@ -25,9 +25,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * A {@link DelegatingTransactionHandler} subclass that overrides only
- * {@link TransactionHandler#inTransaction(Handle, HandleCallback)} must see every transaction,
- * whether or not the caller requested an isolation level.
+ * A {@link DelegatingTransactionHandler} subclass that overrides {@code inTransaction} must see
+ * every transaction, whether or not the caller requested an isolation level.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/2900">issue 2900</a>
  */
@@ -79,9 +78,9 @@ public class TestIssue2900 {
         }
 
         @Override
-        public <R, X extends Exception> R inTransaction(Handle handle, HandleCallback<R, X> callback) throws X {
+        public <R, X extends Exception> R inTransaction(Handle handle, TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
             inTransactionCount.incrementAndGet();
-            return super.inTransaction(handle, callback);
+            return super.inTransaction(handle, level, callback);
         }
 
         int count() {

@@ -8,5 +8,3 @@
 * Throwables throwOnlyException only exists because of the above <X extends Exception> issue, so clean that up too
 * BeanMapper should throw if it can't find a nested type rather than default to `rs.getObject` (strictColumnMapping)
 * use the with/use pattern everywhere. Replace `inTransaction` with `withTransaction`
-* Collapse TransactionHandler.inTransaction to the single level-taking method (UNKNOWN when the
-  caller did not request a level); remove the plain variant from the interface (#2900)
