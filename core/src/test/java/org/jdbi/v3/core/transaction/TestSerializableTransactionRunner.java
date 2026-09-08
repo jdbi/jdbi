@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.HandleCallback;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
@@ -202,5 +203,28 @@ public class TestSerializableTransactionRunner {
         verify(onSuccess, times(1)).accept(anyList());
         verifyNoMoreInteractions(onSuccess);
         assertThat(expectedExceptions.get()).isEqualTo(MAX_RETRIES);
+    }
+
+    @Test
+    public void testSubclassSurvivesSpecialize() {
+        CountingRunner counting = new CountingRunner();
+        h2Extension.getJdbi().setTransactionHandler(counting);
+
+        // specialize runs when the handle opens; it must not replace the subclass
+        h2Extension.getJdbi().useTransaction(handle ->
+            handle.createQuery("SELECT 1").mapTo(Integer.class).one());
+
+        assertThat(counting.count.get()).isEqualTo(1);
+    }
+
+    static class CountingRunner extends SerializableTransactionRunner {
+        final AtomicInteger count = new AtomicInteger();
+
+        @Override
+        public <R, X extends Exception> R inTransaction(Handle handle,
+                                                        HandleCallback<R, X> callback) throws X {
+            count.incrementAndGet();
+            return super.inTransaction(handle, callback);
+        }
     }
 }

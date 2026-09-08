@@ -163,6 +163,31 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-invoker-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>com.github.siom79.japicmp</groupId>
+                <artifactId>japicmp-maven-plugin</artifactId>
+                <configuration>
+                    <parameter>
+                        <!-- TransactionHandler#inTransaction(Handle, TransactionIsolationLevel, HandleCallback)
+                             became a default method that routes through the two-arg method (#2900). japicmp reports
+                             METHOD_ABSTRACT_NOW_DEFAULT on the interface, and METHOD_REMOVED_IN_SUPERCLASS on the
+                             classes that no longer declare the method themselves, because it does not resolve the
+                             inherited default through the superclass chain. JVM method resolution does (JVMS 5.4.3.3),
+                             and JLS 13.5.3 makes abstract-to-default binary compatible except for a diamond of two
+                             defaults, so this is a limitation of the tool and not a break. The five excludes work as a
+                             set: dropping any of them turns the others into METHOD_REMOVED failures. They name the one
+                             method so that any other API change in these classes is still checked. Remove them after
+                             the 3.55.0 release, when the baseline contains the default method. -->
+                        <excludes combine.children="append">
+                            <exclude>org.jdbi.v3.core.transaction.TransactionHandler#inTransaction(org.jdbi.v3.core.Handle,org.jdbi.v3.core.transaction.TransactionIsolationLevel,org.jdbi.v3.core.HandleCallback)</exclude>
+                            <exclude>org.jdbi.v3.core.transaction.DelegatingTransactionHandler#inTransaction(org.jdbi.v3.core.Handle,org.jdbi.v3.core.transaction.TransactionIsolationLevel,org.jdbi.v3.core.HandleCallback)</exclude>
+                            <exclude>org.jdbi.v3.core.transaction.LocalTransactionHandler#inTransaction(org.jdbi.v3.core.Handle,org.jdbi.v3.core.transaction.TransactionIsolationLevel,org.jdbi.v3.core.HandleCallback)</exclude>
+                            <exclude>org.jdbi.v3.core.transaction.RollbackOnlyTransactionHandler#inTransaction(org.jdbi.v3.core.Handle,org.jdbi.v3.core.transaction.TransactionIsolationLevel,org.jdbi.v3.core.HandleCallback)</exclude>
+                            <exclude>org.jdbi.v3.core.transaction.SerializableTransactionRunner#inTransaction(org.jdbi.v3.core.Handle,org.jdbi.v3.core.transaction.TransactionIsolationLevel,org.jdbi.v3.core.HandleCallback)</exclude>
+                        </excludes>
+                    </parameter>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
