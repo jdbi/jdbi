@@ -163,6 +163,26 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-invoker-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>com.github.siom79.japicmp</groupId>
+                <artifactId>japicmp-maven-plugin</artifactId>
+                <configuration>
+                    <parameter>
+                        <!-- TransactionHandler#inTransaction(Handle, TransactionIsolationLevel, HandleCallback)
+                             became a default method that routes through the two-arg method (#2900). japicmp flags
+                             the abstract-to-default change and does not resolve the inherited default through the
+                             DelegatingTransactionHandler superclass chain; the JVM does, so this stays binary
+                             compatible. Remove these excludes after the 3.55.0 release. -->
+                        <excludes combine.children="append">
+                            <exclude>org.jdbi.v3.core.transaction.TransactionHandler</exclude>
+                            <exclude>org.jdbi.v3.core.transaction.DelegatingTransactionHandler</exclude>
+                            <exclude>org.jdbi.v3.core.transaction.LocalTransactionHandler</exclude>
+                            <exclude>org.jdbi.v3.core.transaction.RollbackOnlyTransactionHandler</exclude>
+                            <exclude>org.jdbi.v3.core.transaction.SerializableTransactionRunner</exclude>
+                        </excludes>
+                    </parameter>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

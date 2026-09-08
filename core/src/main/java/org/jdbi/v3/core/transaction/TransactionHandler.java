@@ -83,7 +83,9 @@ public interface TransactionHandler {
     void releaseSavepoint(Handle handle, String savepointName);
 
     /**
-     * Run a transaction.
+     * Run a transaction. This method is the primary transaction entry point: every transaction
+     * started through this handler runs through it, whether or not the caller requested a
+     * transaction isolation level.
      *
      * @param handle the handle to the database
      * @param callback a callback which will receive the open handle, in a transaction.
@@ -99,7 +101,14 @@ public interface TransactionHandler {
                                              HandleCallback<R, X> callback) throws X;
 
     /**
-     * Run a transaction.
+     * Run a transaction in the given transaction isolation level.
+     *
+     * <p>
+     * The default implementation applies the isolation level to the handle for the duration of
+     * the transaction and calls {@link #inTransaction(Handle, HandleCallback)}, so an
+     * implementation that treats every isolation level the same only needs to implement that
+     * method. Override this method only when a requested isolation level needs special handling.
+     * </p>
      *
      * @param handle the handle to the database
      * @param level the isolation level for the transaction
@@ -112,9 +121,20 @@ public interface TransactionHandler {
      * @throws X any exception thrown by the callback.
      * @see Handle#inTransaction(TransactionIsolationLevel, HandleCallback)
      */
-    <R, X extends Exception> R inTransaction(Handle handle,
-                                             TransactionIsolationLevel level,
-                                             HandleCallback<R, X> callback) throws X;
+    default <R, X extends Exception> R inTransaction(Handle handle,
+                                                     TransactionIsolationLevel level,
+                                                     HandleCallback<R, X> callback) throws X {
+        if (level == TransactionIsolationLevel.UNKNOWN) {
+            return inTransaction(handle, callback);
+        }
+        final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
+        try {
+            handle.setTransactionIsolationLevel(level);
+            return inTransaction(handle, callback);
+        } finally {
+            handle.setTransactionIsolationLevel(initial);
+        }
+    }
 
     /**
      * Bind a TransactionHandler to a Handle, to allow it to track handle-local state.

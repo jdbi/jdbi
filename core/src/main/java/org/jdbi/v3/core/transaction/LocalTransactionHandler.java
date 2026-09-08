@@ -73,11 +73,6 @@ public class LocalTransactionHandler implements TransactionHandler {
         return nonspecial(handle).inTransaction(handle, callback);
     }
 
-    @Override
-    public <R, X extends Exception> R inTransaction(Handle handle, TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
-        return nonspecial(handle).inTransaction(handle, level, callback);
-    }
-
     TransactionHandler nonspecial(Handle handle) {
         return bound.computeIfAbsent(handle, Unchecked.function(BoundLocalTransactionHandler::new));
     }
@@ -247,19 +242,6 @@ public class LocalTransactionHandler implements TransactionHandler {
                 }
                 // now call mark the operation as failed.
                 throw e;
-            }
-        }
-
-        @Override
-        public <R, X extends Exception> R inTransaction(Handle handle,
-                                                        TransactionIsolationLevel level,
-                                                        HandleCallback<R, X> callback) throws X {
-            final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
-            try {
-                handle.setTransactionIsolationLevel(level);
-                return inTransaction(handle, callback);
-            } finally {
-                handle.setTransactionIsolationLevel(initial);
             }
         }
 

@@ -1,5 +1,9 @@
 # Unreleased
 
+- Fix `TransactionHandler` isolation-level dispatch: the level-taking `inTransaction` is now a
+  default method that applies the level and calls the plain `inTransaction`, so a custom handler
+  (e.g. a `DelegatingTransactionHandler` subclass) that overrides only the plain method now sees
+  `@Transaction` transactions too (#2900, reported by @Randgalt, thank you!)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
