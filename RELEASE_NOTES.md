@@ -1,5 +1,10 @@
 # Unreleased
 
+- **Breaking change**: `TransactionHandler` has a single `inTransaction` method that takes a
+  `TransactionIsolationLevel` (`UNKNOWN` when the caller did not request a level). The level is
+  applied to the handle by the caller and passed to the handler for information. Implementations
+  move their logic from the old two-argument method to the level-taking method (#2900)
+
 - Fix `TransactionHandler` isolation-level dispatch: the level-taking `inTransaction` is now a
   default method that applies the level and calls the plain `inTransaction`, so a custom handler
   (e.g. a `DelegatingTransactionHandler` subclass) that overrides only the plain method now sees

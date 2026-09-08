@@ -32,8 +32,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * A method annotated with {@code @Transaction} must run through a custom transaction handler
- * that overrides only the two-argument {@code inTransaction} method.
+ * A method annotated with {@code @Transaction} must run through a custom transaction handler's
+ * {@code inTransaction} method.
  *
  * @see <a href="https://github.com/jdbi/jdbi/issues/2900">issue 2900</a>
  */
@@ -88,9 +88,9 @@ public class TestIssue2900 {
         }
 
         @Override
-        public <R, X extends Exception> R inTransaction(Handle handle, HandleCallback<R, X> callback) throws X {
+        public <R, X extends Exception> R inTransaction(Handle handle, TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
             inTransactionCount.incrementAndGet();
-            return super.inTransaction(handle, callback);
+            return super.inTransaction(handle, level, callback);
         }
 
         int count() {

@@ -69,8 +69,8 @@ public class LocalTransactionHandler implements TransactionHandler {
     }
 
     @Override
-    public <R, X extends Exception> R inTransaction(Handle handle, HandleCallback<R, X> callback) throws X {
-        return nonspecial(handle).inTransaction(handle, callback);
+    public <R, X extends Exception> R inTransaction(Handle handle, TransactionIsolationLevel level, HandleCallback<R, X> callback) throws X {
+        return nonspecial(handle).inTransaction(handle, level, callback);
     }
 
     TransactionHandler nonspecial(Handle handle) {
@@ -211,6 +211,7 @@ public class LocalTransactionHandler implements TransactionHandler {
 
         @Override
         public <R, X extends Exception> R inTransaction(Handle handle,
+                                                        TransactionIsolationLevel level,
                                                         HandleCallback<R, X> callback) throws X {
             if (isInTransaction(handle)) {
                 throw new IllegalStateException("Already in transaction");

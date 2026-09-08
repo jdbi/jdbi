@@ -716,7 +716,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     public <R, X extends Exception> R inTransaction(HandleCallback<R, X> callback) throws X {
         return isInTransaction()
                 ? callback.withHandle(this)
-                : transactionHandler.inTransaction(this, callback);
+                : transactionHandler.inTransaction(this, TransactionIsolationLevel.UNKNOWN, callback);
     }
 
     /**

@@ -46,6 +46,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
 
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
+                                                    TransactionIsolationLevel level,
                                                     HandleCallback<R, X> callback) throws X {
         final Configuration config = handle.getConfig(Configuration.class);
         int attempts = 1 + config.maxRetries;
@@ -53,7 +54,7 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         Deque<Exception> failures = new ArrayDeque<>();
         while (true) {
             try {
-                R result = getDelegate().inTransaction(handle, callback);
+                R result = getDelegate().inTransaction(handle, level, callback);
                 config.onSuccess.accept(new ArrayList<>(failures));
                 return result;
             } catch (Exception last) {

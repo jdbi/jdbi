@@ -38,7 +38,7 @@ public class TestLocalTransactionHandler {
         Mockito.doThrow(inner).when(c).rollback();
 
         try {
-            new LocalTransactionHandler().inTransaction(h, x -> {
+            new LocalTransactionHandler().inTransaction(h, TransactionIsolationLevel.UNKNOWN, x -> {
                 throw outer;
             });
         } catch (RuntimeException e) {
@@ -55,7 +55,7 @@ public class TestLocalTransactionHandler {
         Mockito.when(c.getAutoCommit()).thenReturn(true);
 
         assertThatThrownBy(() ->
-            new LocalTransactionHandler().inTransaction(h, x -> {
+            new LocalTransactionHandler().inTransaction(h, TransactionIsolationLevel.UNKNOWN, x -> {
                 throw error;
             }))
             .isSameAs(error);
