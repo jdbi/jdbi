@@ -80,7 +80,8 @@ public class PojoMapper<T> implements PrefixedRowMapper<T> {
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> result = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
-            .orElseThrow(() -> new IllegalArgumentException(format("Mapping bean %s didn't find any matching columns in result set", type)));
+            .orElseThrow(() -> new IllegalArgumentException(format("Mapping bean %s didn't find any matching columns in result set.%s",
+                type, UnmatchedColumnsHint.forColumns(prefix, columnNames))));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {

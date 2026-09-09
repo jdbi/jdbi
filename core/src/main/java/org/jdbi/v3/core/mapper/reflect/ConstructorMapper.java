@@ -40,6 +40,7 @@ import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.RowMapperFactory;
 import org.jdbi.v3.core.mapper.SingleColumnMapper;
 import org.jdbi.v3.core.mapper.reflect.internal.NullDelegatingMapper;
+import org.jdbi.v3.core.mapper.reflect.internal.UnmatchedColumnsHint;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 import org.jdbi.v3.core.statement.StatementContext;
@@ -69,7 +70,7 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
         "Instance factory '%s' could not match any parameter to any columns in the result set. "
             + "Verify that the Java compiler is configured to emit parameter names, "
             + "that your result set has the columns expected, annotate the "
-            + "parameter names explicitly with @ColumnName, or annotate nullable parameters as @Nullable";
+            + "parameter names explicitly with @ColumnName, or annotate nullable parameters as @Nullable.%s";
 
     @SuppressWarnings("InlineFormatString")
     private static final String UNMATCHED_CONSTRUCTOR_PARAMETER =
@@ -246,7 +247,7 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
 
         RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
             .orElseGet(() -> new UnmatchedConstructorMapper<>(format(
-                UNMATCHED_CONSTRUCTOR_PARAMETERS, factory)));
+                UNMATCHED_CONSTRUCTOR_PARAMETERS, factory, UnmatchedColumnsHint.forColumns(prefix, columnNames))));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
