@@ -29,6 +29,15 @@ import org.jdbi.v3.core.internal.exceptions.Unchecked;
  * This <code>TransactionHandler</code> uses local JDBC transactions
  * demarcated explicitly on the handle and passed through to be handled
  * directly on the JDBC Connection instance.
+ * <p>
+ * A connection that arrives with autocommit disabled is treated as enrolled
+ * in a transaction that the connection owner manages. The handle reports an
+ * open transaction, {@code inTransaction} and {@code useTransaction} join
+ * that transaction without a commit, {@code begin} does nothing, and explicit
+ * {@code commit} and {@code rollback} operate on the open transaction and can
+ * repeat. Closing such a handle does not commit, roll back, or throw. See the
+ * "Transactions managed outside Jdbi" section of the User Guide.
+ * </p>
  */
 public class LocalTransactionHandler implements TransactionHandler {
     private final Map<Handle, BoundLocalTransactionHandler> bound = Collections.synchronizedMap(new WeakHashMap<>());
