@@ -6,7 +6,8 @@
 - `QualifiedType` no longer synthesizes an annotation proxy for a qualifier annotation without
   members, so `QualifiedType.with(Class)` and the built-in `@Legacy`, `@NVarchar`, `@EnumByName`,
   and `@EncodedJson` qualifiers work in a GraalVM native image without proxy registration.
-  New `QualifiedType.hasQualifiers(Set)` compares qualifiers without materializing annotations. (#2967)
+  New `QualifiedType.hasQualifiers(Set)` and `hasNoQualifiers()` compare qualifiers without
+  materializing annotations. (#2967)
 - stringtemplate4: `StringTemplateEngine` now caches template compilation through the core statement
   cache instead of recompiling on every render, with compiled templates pooled for thread safety.
   The cached path bypasses `render(String, StatementContext)`: a subclass that overrides `render`

@@ -77,7 +77,9 @@ public class TestQualifiedType {
         assertThat(fromClass.hasQualifiers(Set.of(real))).isTrue();
         assertThat(fromInstance.hasQualifiers(Set.of(real))).isTrue();
         assertThat(fromClass.hasQualifiers(Set.of())).isFalse();
+        assertThat(fromClass.hasNoQualifiers()).isFalse();
         assertThat(QualifiedType.of(String.class).hasQualifiers(Set.of())).isTrue();
+        assertThat(QualifiedType.of(String.class).hasNoQualifiers()).isTrue();
         assertThat(QualifiedType.of(String.class).hasQualifiers(Set.of(real))).isFalse();
     }
 
