@@ -13,14 +13,13 @@
  */
 package org.jdbi.v3.generator;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.extension.Extensions;
 import org.jdbi.v3.core.h2.H2DatabasePlugin;
+import org.jdbi.v3.core.internal.IsolatingClassLoader;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
@@ -36,8 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class IsolatedClassLoaderTest {
 
-    private static final String ISOLATED_PACKAGE = "org.jdbi.v3.generator.isolated.";
-    private static final String DAO_NAME = ISOLATED_PACKAGE + "IsolatedDao";
+    private static final String ISOLATED_PACKAGE = "org.jdbi.v3.generator.isolated";
+    private static final String DAO_NAME = ISOLATED_PACKAGE + ".IsolatedDao";
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
@@ -47,7 +46,7 @@ public class IsolatedClassLoaderTest {
 
     @Test
     public void attachResolvesGeneratedClassThroughExtensionTypeLoader() throws Exception {
-        IsolatingClassLoader loader = new IsolatingClassLoader();
+        IsolatingClassLoader loader = new IsolatingClassLoader(ISOLATED_PACKAGE);
         Class<?> daoType = loader.loadClass(DAO_NAME);
         assertThat(daoType.getClassLoader()).isSameAs(loader);
 
@@ -63,7 +62,7 @@ public class IsolatedClassLoaderTest {
 
     @Test
     public void onDemandResolvesGeneratedClassThroughExtensionTypeLoader() throws Exception {
-        IsolatingClassLoader loader = new IsolatingClassLoader();
+        IsolatingClassLoader loader = new IsolatingClassLoader(ISOLATED_PACKAGE);
         Class<?> daoType = loader.loadClass(DAO_NAME);
 
         Object dao = h2Extension.getJdbi().onDemand(daoType);
@@ -84,47 +83,5 @@ public class IsolatedClassLoaderTest {
         insert.invoke(dao, 2, "Ellie");
 
         assertThat((List<Object>) names.invoke(dao)).containsExactly("Bella", "Ellie");
-    }
-
-    /**
-     * Defines every class in the isolated package itself from the test class path and delegates all
-     * other classes, including Jdbi, to the parent. This mirrors a plugin loader: the parent (Jdbi's
-     * loader) can not resolve the isolated classes by name, only the child can.
-     */
-    static final class IsolatingClassLoader extends ClassLoader {
-
-        IsolatingClassLoader() {
-            super(IsolatedClassLoaderTest.class.getClassLoader());
-        }
-
-        @Override
-        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-            if (!name.startsWith(ISOLATED_PACKAGE)) {
-                return super.loadClass(name, resolve);
-            }
-            synchronized (getClassLoadingLock(name)) {
-                Class<?> loaded = findLoadedClass(name);
-                if (loaded == null) {
-                    loaded = defineIsolated(name);
-                }
-                if (resolve) {
-                    resolveClass(loaded);
-                }
-                return loaded;
-            }
-        }
-
-        private Class<?> defineIsolated(String name) throws ClassNotFoundException {
-            String resource = name.replace('.', '/') + ".class";
-            try (InputStream in = getParent().getResourceAsStream(resource)) {
-                if (in == null) {
-                    throw new ClassNotFoundException(name);
-                }
-                byte[] bytes = in.readAllBytes();
-                return defineClass(name, bytes, 0, bytes.length);
-            } catch (IOException e) {
-                throw new ClassNotFoundException(name, e);
-            }
-        }
     }
 }

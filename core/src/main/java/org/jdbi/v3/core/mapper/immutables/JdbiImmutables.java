@@ -153,10 +153,15 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
         }
     }
 
+    /**
+     * The generated class lives next to the spec, so it must be loaded through the same class loader.
+     * A plain {@code Class.forName(name)} would use the loader of this class, which fails in environments
+     * that isolate application code from Jdbi (plugin containers, application servers).
+     */
     private static <S> Class<? extends S> classByPrefix(String prefix, Class<S> spec) {
         final String implName = spec.getPackage().getName() + '.' + prefix + spec.getSimpleName();
         try {
-            return Class.forName(implName).asSubclass(spec);
+            return Class.forName(implName, true, spec.getClassLoader()).asSubclass(spec);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Couldn't locate default implementation class " + implName, e);
         }
