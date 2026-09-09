@@ -14,10 +14,13 @@
 package org.jdbi.v3.core.result;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * A RowView is an accessor for {@code ResultSet} that uses
@@ -84,12 +87,13 @@ public abstract class RowView {
     /**
      * Use a prefixed row mapper to extract a type from the current ResultSet row.
      * <p>
-     * Only mappers that implement {@link org.jdbi.v3.core.mapper.PrefixedRowMapper} and declare a
-     * prefix equal to the given prefix take part in the lookup. This makes it possible to register
-     * multiple mappers for the same type with different column name prefixes, for example when a
-     * query joins the same table twice, and select between them per call. A mapper that does not
-     * declare the given prefix never matches; the lookup fails rather than fall back to an
-     * unprefixed mapper for the type. To look up a mapper by type alone, use {@link #getRow(Type)}.
+     * A mapper that implements {@link org.jdbi.v3.core.mapper.PrefixedRowMapper} matches if it
+     * declares a prefix equal to the given prefix, and a mapper that declares no prefix matches the
+     * empty prefix only. This makes it possible to register multiple mappers for the same type with
+     * different column name prefixes, for example when a query joins the same table twice, and
+     * select between them per call. A mapper that does not match the given prefix is not used; the
+     * lookup fails rather than fall back to a mapper with another prefix. To look up a mapper by
+     * type alone, use {@link #getRow(Type)}.
      *
      * @param type the type to map
      * @param prefix the column name prefix the mapper must declare, never null
@@ -99,6 +103,50 @@ public abstract class RowView {
     @Alpha
     public Object getRow(Type type, String prefix) {
         throw new UnsupportedOperationException("getRow by prefix is not supported by " + getClass().getName());
+    }
+
+    /**
+     * Returns the labels of the columns of the result set, in column order, as {@link java.sql.ResultSetMetaData#getColumnLabel(int)}
+     * returns them.
+     * @return the column labels, as an unmodifiable list
+     */
+    @Beta
+    public List<String> getColumnNames() {
+        throw new UnsupportedOperationException("getColumnNames is not supported by " + getClass().getName());
+    }
+
+    /**
+     * Maps the current row with the given row mapper. The mapper is {@link RowMapper#specialize specialized}
+     * once per result set, keyed by mapper instance, so pass the same instance for every row.
+     * @param <T> the type to map
+     * @param mapper the row mapper
+     * @return the materialized T
+     */
+    @Beta
+    public <T> T getRow(RowMapper<T> mapper) {
+        throw new UnsupportedOperationException("getRow with a mapper is not supported by " + getClass().getName());
+    }
+
+    /**
+     * Returns the value of a column as the JDBC driver returns it from {@link java.sql.ResultSet#getObject(String)},
+     * without a column mapper. Use this to read a value whose type does not matter, such as a key that identifies a row.
+     * @param column the column name
+     * @return the column value, or null for SQL NULL
+     */
+    @Beta
+    public Object getColumn(String column) {
+        throw new UnsupportedOperationException("getColumn without a type is not supported by " + getClass().getName());
+    }
+
+    /**
+     * Returns the value of a column as the JDBC driver returns it from {@link java.sql.ResultSet#getObject(int)},
+     * without a column mapper. Use this to read a value whose type does not matter, such as a key that identifies a row.
+     * @param column the column index
+     * @return the column value, or null for SQL NULL
+     */
+    @Beta
+    public Object getColumn(int column) {
+        throw new UnsupportedOperationException("getColumn without a type is not supported by " + getClass().getName());
     }
 
     /**

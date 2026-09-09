@@ -124,6 +124,28 @@ public class TestRowViewPrefixedMappers {
     }
 
     @Test
+    public void testEmptyPrefixMatchesPlainRowMapper() {
+        h.registerRowMapper(ContactBean.class, (rs, ctx) -> {
+            ContactBean bean = new ContactBean();
+            bean.setId(rs.getInt("b_id"));
+            bean.setName(rs.getString("b_name"));
+            return bean;
+        });
+
+        ContactBean bob = h.createQuery("select * from contacts")
+            .reduceRows((ContactBean) null, (acc, rv) -> rv.getRow(ContactBean.class, ""));
+
+        assertThat(bob.getName()).isEqualTo("bob");
+    }
+
+    @Test
+    public void testEmptyPrefixDoesNotMatchAPrefixedMapper() {
+        h.registerRowMapper(BeanMapper.factory(ContactBean.class, "a"));
+
+        assertThat(h.getConfig(RowMappers.class).findFor(ContactBean.class, "")).isEmpty();
+    }
+
+    @Test
     public void testUnknownPrefixThrows() {
         h.registerRowMapper(BeanMapper.factory(ContactBean.class, "a"));
 
