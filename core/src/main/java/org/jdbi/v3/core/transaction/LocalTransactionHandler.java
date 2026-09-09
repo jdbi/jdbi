@@ -38,9 +38,23 @@ import org.jdbi.v3.core.internal.exceptions.Unchecked;
  * repeat. Closing such a handle does not commit, roll back, or throw. See the
  * "Transactions managed outside Jdbi" section of the User Guide.
  * </p>
+ * <p>
+ * Use {@link #managed()} for a handler that manages transactions itself on
+ * connections with autocommit disabled instead of joining them.
+ * </p>
  */
 public class LocalTransactionHandler implements TransactionHandler {
     private final Map<Handle, BoundLocalTransactionHandler> bound = Collections.synchronizedMap(new WeakHashMap<>());
+
+    private final boolean managed;
+
+    public LocalTransactionHandler() {
+        this(false);
+    }
+
+    private LocalTransactionHandler(boolean managed) {
+        this.managed = managed;
+    }
 
     @Override
     public void begin(Handle handle) {
@@ -88,11 +102,32 @@ public class LocalTransactionHandler implements TransactionHandler {
     }
 
     TransactionHandler nonspecial(Handle handle) {
-        return bound.computeIfAbsent(handle, Unchecked.function(BoundLocalTransactionHandler::new));
+        return bound.computeIfAbsent(handle, Unchecked.function(h -> new BoundLocalTransactionHandler(h, managed)));
     }
 
     public static LocalTransactionHandler binding() {
-        return new BindingLocalTransactionHandler();
+        return new BindingLocalTransactionHandler(false);
+    }
+
+    /**
+     * Returns a handler that manages transactions itself on every connection,
+     * including a connection with autocommit disabled. The handler does not read
+     * the autocommit flag to find the transaction state. It tracks the
+     * transactions that Jdbi demarcates: {@code inTransaction} and
+     * {@code useTransaction} start a transaction, run the callback, and commit,
+     * and {@code isInTransaction} returns true only between {@code begin} and
+     * the commit or rollback. A statement executed outside of a transaction is
+     * not committed.
+     * <p>
+     * Use this handler when a connection pool disables autocommit as a
+     * precaution and Jdbi manages the transactions, for example
+     * {@code jdbi.setTransactionHandler(LocalTransactionHandler.managed())}.
+     * </p>
+     *
+     * @return a transaction handler that manages transactions on connections with autocommit disabled.
+     */
+    public static LocalTransactionHandler managed() {
+        return new BindingLocalTransactionHandler(true);
     }
 
     public void reset(Handle handle) {
@@ -100,9 +135,16 @@ public class LocalTransactionHandler implements TransactionHandler {
     }
 
     static class BindingLocalTransactionHandler extends LocalTransactionHandler {
+        private final boolean bindManaged;
+
+        BindingLocalTransactionHandler(boolean managed) {
+            super(managed);
+            this.bindManaged = managed;
+        }
+
         @Override
         public TransactionHandler specialize(Handle handle) throws SQLException {
-            return new BoundLocalTransactionHandler(handle);
+            return new BoundLocalTransactionHandler(handle, bindManaged);
         }
     }
 
@@ -117,10 +159,12 @@ public class LocalTransactionHandler implements TransactionHandler {
         }
 
         private final Map<String, Savepoint> savepoints = new HashMap<>();
+        private final boolean managed;
         private boolean initialAutocommit;
         private State handlerState;
 
-        BoundLocalTransactionHandler(Handle handle) throws SQLException {
+        BoundLocalTransactionHandler(Handle handle, boolean managed) throws SQLException {
+            this.managed = managed;
             this.initialAutocommit = handle.getConnection().getAutoCommit();
             this.handlerState = getInitialHandlerState();
         }
@@ -134,6 +178,12 @@ public class LocalTransactionHandler implements TransactionHandler {
                     savepoints.clear();
                     conn.setAutoCommit(false);
                     handlerState = State.AFTER_BEGIN;
+                }
+                if (managed && handlerState == State.AFTER_BEGIN) {
+                    // a managed handler cannot use the autocommit flag to detect an explicit
+                    // begin, so begin promotes the state machine instead
+                    savepoints.clear();
+                    handlerState = State.IN_TRANSACTION;
                 }
             } catch (SQLException e) {
                 throw new TransactionException("Failed to start transaction", e);
@@ -216,6 +266,9 @@ public class LocalTransactionHandler implements TransactionHandler {
 
         @Override
         public boolean isInTransaction(Handle handle) {
+            if (managed) {
+                return handlerState == State.IN_TRANSACTION;
+            }
             try {
                 return handlerState == State.IN_TRANSACTION || !handle.getConnection().getAutoCommit();
             } catch (SQLException e) {

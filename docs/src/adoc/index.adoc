@@ -3414,7 +3414,7 @@ On the second go around, it calculates 10 + 20 + 30 = 60. Adding to 30 from the 
 
 Some applications manage transactions outside of Jdbi.
 A connection pool can disable autocommit for every connection, a container can own the transaction, or a framework such as Spring can wrap the data source in a transaction-aware proxy.
-Jdbi supports two strategies for these connections: the handle joins the external transaction, or Jdbi ignores transactions completely.
+Jdbi supports three strategies for these connections: the handle joins the external transaction, Jdbi ignores transactions completely, or Jdbi takes ownership and manages the transactions itself.
 
 ==== Joining a transaction: connections with autocommit disabled
 
@@ -3431,7 +3431,7 @@ The handle joins this transaction:
 
 [NOTE]
 Because `inTransaction` and `useTransaction` never commit on such a connection, transaction retry handlers such as `SerializableTransactionRunner` do not engage.
-To let Jdbi manage transactions, keep autocommit enabled and demarcate transactions with the Jdbi API.
+To let Jdbi manage transactions on these connections, use `LocalTransactionHandler.managed()` (see below).
 
 ==== Joining a container transaction
 
@@ -3455,6 +3455,31 @@ Use it when the connection is wrapped by a proxy, for example the Spring `Transa
 Jdbi jdbi = Jdbi.create(new TransactionAwareDataSourceProxy(dataSource));
 jdbi.setTransactionHandler(new NoOpTransactionHandler());
 ----
+
+==== Letting Jdbi manage transactions with autocommit disabled
+
+Some connection pools disable autocommit for every connection as a precaution, and the application still wants Jdbi to manage the transactions.
+For this configuration, use link:{jdbidocs}/core/transaction/LocalTransactionHandler.html#managed()[LocalTransactionHandler.managed()^]:
+
+[source,java]
+----
+Jdbi jdbi = Jdbi.create(dataSourceWithAutocommitDisabled);
+jdbi.setTransactionHandler(LocalTransactionHandler.managed());
+----
+
+The managed handler does not read the autocommit flag to find the transaction state.
+It tracks the transactions that Jdbi demarcates:
+
+* `inTransaction` and `useTransaction` start a transaction, run the callback, and commit. When the callback throws, they roll the transaction back.
+* `isInTransaction()` returns `true` only between `begin()` (or the start of a transaction callback) and the commit or rollback.
+* The variants that take an isolation level work. Retry handlers engage when composed with the managed handler: `new SerializableTransactionRunner(LocalTransactionHandler.managed())`.
+* A statement executed outside of a transaction is not committed. The work is discarded when the connection closes.
+* `close()` on a handle with an open transaction rolls the transaction back and throws, the same as with autocommit enabled.
+
+[NOTE]
+JDBC has one transaction per connection.
+When a statement executes outside of a Jdbi transaction and a Jdbi transaction then commits on the same connection, the commit includes the earlier statement.
+This is a property of JDBC and applies to all strategies on this page.
 
 == Configuration
 
