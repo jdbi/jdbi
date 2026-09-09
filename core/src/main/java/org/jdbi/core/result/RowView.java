@@ -17,6 +17,7 @@ import java.lang.reflect.Type;
 
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.qualifier.QualifiedType;
+import org.jdbi.meta.Alpha;
 
 /**
  * A RowView is an accessor for {@code ResultSet} that uses
@@ -36,6 +37,19 @@ public abstract class RowView {
     }
 
     /**
+     * Use a prefixed row mapper to extract a type from the current ResultSet row.
+     * The mapper must declare the given column name prefix, see {@link #getRow(Type, String)}.
+     * @param <T> the type to map
+     * @param rowType the Class of the type
+     * @param prefix the column name prefix the mapper must declare, never null
+     * @return the materialized T
+     */
+    @Alpha
+    public <T> T getRow(Class<T> rowType, String prefix) {
+        return rowType.cast(getRow((Type) rowType, prefix));
+    }
+
+    /**
      * Use a row mapper to extract a type from the current ResultSet row.
      * @param <T> the type to map
      * @param rowType the GenericType of the type
@@ -47,11 +61,45 @@ public abstract class RowView {
     }
 
     /**
+     * Use a prefixed row mapper to extract a type from the current ResultSet row.
+     * The mapper must declare the given column name prefix, see {@link #getRow(Type, String)}.
+     * @param <T> the type to map
+     * @param rowType the GenericType of the type
+     * @param prefix the column name prefix the mapper must declare, never null
+     * @return the materialized T
+     */
+    @Alpha
+    @SuppressWarnings("unchecked")
+    public <T> T getRow(GenericType<T> rowType, String prefix) {
+        return (T) getRow(rowType.getType(), prefix);
+    }
+
+    /**
      * Use a row mapper to extract a type from the current ResultSet row.
      * @param type the type to map
      * @return the materialized object
      */
     public abstract Object getRow(Type type);
+
+    /**
+     * Use a prefixed row mapper to extract a type from the current ResultSet row.
+     * <p>
+     * Only mappers that implement {@link org.jdbi.core.mapper.PrefixedRowMapper} and declare a
+     * prefix equal to the given prefix take part in the lookup. This makes it possible to register
+     * multiple mappers for the same type with different column name prefixes, for example when a
+     * query joins the same table twice, and select between them per call. A mapper that does not
+     * declare the given prefix never matches; the lookup fails rather than fall back to an
+     * unprefixed mapper for the type. To look up a mapper by type alone, use {@link #getRow(Type)}.
+     *
+     * @param type the type to map
+     * @param prefix the column name prefix the mapper must declare, never null
+     * @return the materialized object
+     * @throws org.jdbi.core.mapper.NoSuchMapperException if no registered row mapper maps the given type with the given prefix
+     */
+    @Alpha
+    public Object getRow(Type type, String prefix) {
+        throw new UnsupportedOperationException("getRow by prefix is not supported by " + getClass().getName());
+    }
 
     /**
      * Use a column mapper to extract a type from the current ResultSet row.

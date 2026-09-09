@@ -246,20 +246,22 @@ class ArgumentBinder {
                             .findFirst();
                     if (preparation.isPresent()) {
                         final Entry<PrepareKey, Function<Object, Argument>> p = preparation.get();
+                        // A row can have a different runtime type, and thus a different PrepareKey,
+                        // than the template row (mixed subclasses, #2974). Keep the template's
+                        // accessor as the per-row fast path and resolve other keys once, on first use.
+                        final Map<PrepareKey, Function<Object, Argument>> accessors = new HashMap<>();
+                        accessors.put(p.getKey(), p.getValue());
                         innerBinders.add(wrapCheckedConsumer(name,
-                            binding -> p.getValue()
-                                .apply(binding.prepareKeys.get(p.getKey()))
-                                .apply(index + 1, stmt, ctx)));
+                            binding -> {
+                                Object bound = binding.prepareKeys.get(p.getKey());
+                                Argument argument = bound != null
+                                    ? p.getValue().apply(bound)
+                                    : preparedArgument(accessors, binding, name);
+                                argument.apply(index + 1, stmt, ctx);
+                            }));
                     } else {
                         innerBinders.add(wrapCheckedConsumer(name,
-                            binding -> binding.namedArgumentFinder.stream()
-                                .flatMap(naf -> naf.find(name, ctx).stream())
-                                .findFirst()
-                                .orElseGet(() ->
-                                    binding.realizedBackupArgumentFinders.get().stream()
-                                        .flatMap(naf -> naf.find(name, ctx).stream())
-                                        .findFirst()
-                                        .orElseThrow(() -> missingNamedParameter(name, binding)))
+                            binding -> dynamicNamedArgument(binding, name)
                                 .apply(index + 1, stmt, ctx)));
                     }
                 } else {
@@ -270,6 +272,36 @@ class ArgumentBinder {
                 }
             }
             return binding -> innerBinders.forEach(b -> b.accept(binding));
+        }
+
+        /**
+         * Look up a prepared {@link Argument} for {@code name} using this binding's own
+         * {@link PrepareKey}s, for rows whose runtime type differs from the template row.
+         * Resolved accessors are memoized in {@code accessors}, which is safe because each
+         * {@link Prepared} instance binds one batch execution on one thread.
+         */
+        private Argument preparedArgument(Map<PrepareKey, Function<Object, Argument>> accessors, PreparedBinding binding, String name) {
+            for (Entry<PrepareKey, Object> entry : binding.prepareKeys.entrySet()) {
+                Function<Object, Argument> accessor = accessors.computeIfAbsent(entry.getKey(), key -> {
+                    Function<String, Optional<Function<Object, Argument>>> finder = batch.preparedFinders.get(key);
+                    return finder == null ? null : finder.apply(name).orElse(null);
+                });
+                if (accessor != null) {
+                    return accessor.apply(entry.getValue());
+                }
+            }
+            return dynamicNamedArgument(binding, name);
+        }
+
+        private Argument dynamicNamedArgument(PreparedBinding binding, String name) {
+            return binding.namedArgumentFinder.stream()
+                    .flatMap(naf -> naf.find(name, ctx).stream())
+                    .findFirst()
+                    .orElseGet(() ->
+                            binding.realizedBackupArgumentFinders.get().stream()
+                                    .flatMap(naf -> naf.find(name, ctx).stream())
+                                    .findFirst()
+                                    .orElseThrow(() -> missingNamedParameter(name, binding)));
         }
 
         @Override

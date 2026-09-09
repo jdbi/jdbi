@@ -34,6 +34,7 @@ import org.jdbi.core.generic.GenericTypes;
 import org.jdbi.core.mapper.ColumnMapper;
 import org.jdbi.core.mapper.Nested;
 import org.jdbi.core.mapper.NoSuchMapperException;
+import org.jdbi.core.mapper.PrefixedRowMapper;
 import org.jdbi.core.mapper.PropagateNull;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.SingleColumnMapper;
@@ -53,7 +54,7 @@ import static org.jdbi.core.mapper.reflect.ReflectionMapperUtil.findColumnIndex;
 import static org.jdbi.core.mapper.reflect.ReflectionMapperUtil.getColumnNames;
 
 /** This class is the future home of BeanMapper functionality. */
-public class PojoMapper<T> implements RowMapper<T> {
+public class PojoMapper<T> implements PrefixedRowMapper<T> {
 
     protected boolean strictColumnTypeMapping = true; // this should be default (only?) behavior but that's a breaking change
     protected final Type type;
@@ -187,6 +188,10 @@ public class PojoMapper<T> implements RowMapper<T> {
         return new PojoMapper<>(rawType, nestedPrefix);
     }
 
+    @Override
+    public String getPrefix() {
+        return this.prefix;
+    }
 
     private String getName(PojoProperty<T> property) {
         return property.getAnnotation(ColumnName.class)

@@ -16,6 +16,7 @@ package org.jdbi.core.kotlin
 import org.jdbi.core.annotation.internal.JdbiAnnotations
 import org.jdbi.core.kotlin.internal.toJavaType
 import org.jdbi.core.mapper.Nested
+import org.jdbi.core.mapper.PrefixedRowMapper
 import org.jdbi.core.mapper.PropagateNull
 import org.jdbi.core.mapper.RowMapper
 import org.jdbi.core.mapper.SingleColumnMapper
@@ -47,7 +48,8 @@ import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.jvm.jvmErasure
 
-class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : RowMapper<Any> {
+@Suppress("TooManyFunctions")
+class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : PrefixedRowMapper<Any> {
     private val constructor = findConstructor(kClass)
     private val constructorParameters = constructor.parameters
     private val memberProperties = kClass.memberProperties
@@ -60,6 +62,8 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Row
     private val nestedPropertyMappers = ConcurrentHashMap<KMutableProperty1<*, *>, KotlinMapper>()
 
     constructor(clazz: Class<*>, prefix: String = "") : this(clazz.kotlin, prefix)
+
+    override fun getPrefix(): String = prefix
 
     override fun map(rs: ResultSet, ctx: StatementContext): Any? = specialize(rs, ctx).map(rs, ctx)
 
