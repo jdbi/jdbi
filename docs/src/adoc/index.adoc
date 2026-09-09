@@ -558,7 +558,7 @@ Handles are intended to be short-lived and must be closed to release the databas
 A link:{jdbidocs}/core/Handle.html[Handle^] is used to prepare and run SQL statements against the database, and manage database transactions.
 It provides access to fluent statement APIs that can bind arguments, execute the statement, and then map any results into Java objects.
 
-A link:{jdbidocs}/core/Handle.html[Handle^] inherits configuration from the link:{jdbidocs}/core/Jdbi.html[Jdbi^] at the time it is created.
+A link:{jdbidocs}/core/Handle.html[Handle^] inherits configuration from the link:{jdbidocs}/core/Jdbi.html[Jdbi^] that created it.
 See <<Configuration>> for more details.
 
 Handles and all attached query objects such as link:{jdbidocs}/core/statement/Batch.html[Batch^], link:{jdbidocs}/core/statement/Call.html[Call^], link:{jdbidocs}/core/statement/Query.html[Query^], link:{jdbidocs}/core/statement/Script.html[Script^] and link:{jdbidocs}/core/statement/Update.html[Update^] should be used by a single thread and are *not thread-safe*.
@@ -3421,7 +3421,14 @@ Each Jdbi object that represents a distinct database context (for example, link:
 link:{jdbidocs}/core/Handle.html[Handle^] instance, or an attached
 link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] class) has a separate config registry instance.
 
-When a new context is created, it inherits a copy of its parent configuration at the time of creation - further modifications to the original will not affect already created configuration contexts.
+When a new context is created, it inherits a copy of its parent configuration.
+Each configuration object is copied when the new context, or a context derived from it, first accesses the object, not when the context is created.
+Once copied, a configuration object is private to its context: changes to the copy do not affect the parent, and changes to the parent do not affect the copy.
+A change to the parent between the creation of the context and its first access of the changed configuration object is visible to the new context.
+Under the documented contract that configuration is set before a context is used, the two moments are equivalent.
+To copy every configuration object when the context is created instead, the behavior of Jdbi releases before 3.55.0, call
+link:{jdbidocs}/core/config/ConfigRegistry.html#setEagerCopies(boolean)[ConfigRegistry#setEagerCopies^]
+on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] configuration before any handle or extension is created.
 Configuration context copies happen when creating a
 link:{jdbidocs}/core/Handle.html[Handle^] from
 link:{jdbidocs}/core/Jdbi.html[Jdbi^], when opening a
@@ -9722,7 +9729,14 @@ link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] class) has a separate confi
 A context implements the
 link:{jdbidocs}/core/config/Configurable.html[Configurable^] interface which allows modification of its configuration as well as retrieving the current context's configuration for use by Jdbi core or extensions.
 
-When a new context is created, it inherits a copy of its parent configuration at the time of creation - further modifications to the original will not affect already created configuration contexts.
+When a new context is created, it inherits a copy of its parent configuration.
+Each configuration object is copied when the new context, or a context derived from it, first accesses the object, not when the context is created.
+Once copied, a configuration object is private to its context: changes to the copy do not affect the parent, and changes to the parent do not affect the copy.
+A change to the parent between the creation of the context and its first access of the changed configuration object is visible to the new context.
+Under the documented contract that configuration is set before a context is used, the two moments are equivalent.
+To copy every configuration object when the context is created instead, the behavior of Jdbi releases before 3.55.0, call
+link:{jdbidocs}/core/config/ConfigRegistry.html#setEagerCopies(boolean)[ConfigRegistry#setEagerCopies^]
+on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] configuration before any handle or extension is created.
 Configuration context copies happen when creating a
 link:{jdbidocs}/core/Handle.html[Handle^] from
 link:{jdbidocs}/core/Jdbi.html[Jdbi^], when opening a

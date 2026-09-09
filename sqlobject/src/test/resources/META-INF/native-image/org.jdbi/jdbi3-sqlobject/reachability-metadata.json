@@ -128,6 +128,7 @@
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestReadOnly$RODao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestReentrancy$TheBasics"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestReentrancy$TheBasics","org.jdbi.v3.sqlobject.SqlObject"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestReconfigureAfterAttach$Dao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestRegisterArgumentFactory$ShortStack"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestRegisterArgumentFactory$Waffle"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestRegisterConstructorMapper$Dao"]}},

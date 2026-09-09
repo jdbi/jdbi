@@ -45,12 +45,11 @@ import org.openjdk.jmh.annotations.Warmup;
  *
  * <p>{@link Jdbi#onDemand(Class)} (and {@link Jdbi#withExtension}) re-attaches the extension on every
  * method call against the same, stable {@code Jdbi}-level configuration. Each attach derives an
- * instance configuration plus one configuration per extension method, each a full
+ * instance configuration plus one configuration per extension method, each a
  * {@code ConfigRegistry.createCopy()}. The {@code ManyMethodDao} below has many methods so that the
- * {@code 1 + methodCount} copies dominate, making the effect of caching the derived configurations
- * visible. {@link #handleAttach()} attaches against a per-{@link Handle} configuration (a one-shot
- * attach source that does not benefit from the cache) and is included to confirm there is no
- * regression on that path.
+ * {@code 1 + methodCount} copies dominate the cost of a call. {@link #handleAttach()} opens a fresh
+ * {@link Handle} per call and attaches against the per-{@link Handle} configuration, so it also
+ * measures the copy that each {@link Handle} takes from the {@code Jdbi} configuration.
  */
 @State(Scope.Thread)
 @BenchmarkMode(Mode.Throughput)
@@ -85,8 +84,7 @@ public class OnDemandAttachBenchmark {
     }
 
     /**
-     * On-demand style attach: re-attaches against the stable {@code Jdbi} configuration on every call,
-     * so the derived configurations can be cached and reused.
+     * On-demand style attach: re-attaches against the stable {@code Jdbi} configuration on every call.
      */
     @Benchmark
     public Data onDemandAttach() {
@@ -94,10 +92,8 @@ public class OnDemandAttachBenchmark {
     }
 
     /**
-     * Opens a fresh {@link Handle} per call and attaches against its per-handle configuration — a
-     * one-shot attach source (a new configuration each call) that does <em>not</em> reuse cached
-     * configurations. This mirrors the typical open-handle-per-unit-of-work pattern and confirms there
-     * is no regression on the path the cache cannot help.
+     * Opens a fresh {@link Handle} per call and attaches against its per-handle configuration. This
+     * mirrors the typical open-handle-per-unit-of-work pattern.
      */
     @Benchmark
     public Data handleAttach() {

@@ -1,5 +1,10 @@
 # Unreleased
 
+- `ConfigRegistry.createCopy()` now materializes each config object lazily on its first access instead
+  of copying every config object eagerly. This removes most of the allocation cost of extension attach
+  (`Jdbi#onDemand` re-attaches on every call), of `Handle` creation, and of statement creation
+  (#2982, thanks @ulmetrs!). If code depends on the exact moment a copy is taken, restore the old
+  timing with `ConfigRegistry#setEagerCopies(true)` (Alpha).
 - Fix jdbi3-spring excluding spring-jcl from consumers since 3.51.0, which broke Spring Boot 3
   applications at startup with `NoClassDefFoundError: org.apache.commons.logging.LogFactory` (#2990)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
