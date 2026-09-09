@@ -80,7 +80,8 @@ public final class ExtensionMetadata {
      * Create an instance specific configuration based on all instance customizers. The instance configuration holds all
      * custom configuration that was applied e.g. through instance annotations.
      *
-     * @param config A configuration object. The object is not changed
+     * @param config The source configuration. Its settings are not changed, but the derived configuration
+     *               creates default config objects in it for config types it does not hold yet
      * @return A new configuration object with all changes applied
      */
     public ConfigRegistry createInstanceConfiguration(ConfigRegistry config) {
@@ -94,7 +95,8 @@ public final class ExtensionMetadata {
      * custom configuration that was applied e.g. through method annotations.
      *
      * @param method The method that is about to be called
-     * @param config A configuration object. The object is not changed
+     * @param config The source configuration. Its settings are not changed, but the derived configuration
+     *               creates default config objects in it for config types it does not hold yet
      * @return A new configuration object with all changes applied
      */
     public ConfigRegistry createMethodConfiguration(Method method, ConfigRegistry config) {
