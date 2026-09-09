@@ -3385,7 +3385,7 @@ By default, transactions are delegated to the JDBC connection and managed throug
 
 The transaction handler can be set per link:{jdbidocs}/core/Jdbi.html[Jdbi^] instance using the link:{jdbidocs}/core/Jdbi.html#setTransactionHandler(org.jdbi.v3.core.transaction.TransactionHandler)[setTransactionHandler^] and link:{jdbidocs}/core/Jdbi.html#getTransactionHandler()[getTransactionHandler^] methods.
 
-In addition to the link:{jdbidocs}/core/transaction/LocalTransactionHandler.html[standard transaction handler^], Jdbi includes a link:{jdbidocs}/core/transaction/CMTTransactionHandler.html[handler that works correctly in a container managed environment^] and a link:{jdbidocs}/core/transaction/SerializableTransactionRunner.html[serializable transaction handler^] that allows multiple concurrent operations on a single handle to retry transparently.
+In addition to the link:{jdbidocs}/core/transaction/LocalTransactionHandler.html[standard transaction handler^], Jdbi includes a link:{jdbidocs}/core/transaction/CMTTransactionHandler.html[handler that works correctly in a container managed environment^], a link:{jdbidocs}/core/transaction/NoOpTransactionHandler.html[handler that ignores transactions completely^] for connections that an external framework manages, and a link:{jdbidocs}/core/transaction/SerializableTransactionRunner.html[serializable transaction handler^] that allows multiple concurrent operations on a single handle to retry transparently.
 
 === Serializable Transactions
 
@@ -3409,6 +3409,52 @@ Without serializable isolation, each transaction reads 10 and 20, and then retur
 
 With serializable isolation, one of the two transactions is forced to abort and retry.
 On the second go around, it calculates 10 + 20 + 30 = 60. Adding to 30 from the other, we get 30 + 60 = 90 and the assertion succeeds.
+
+=== Transactions managed outside Jdbi
+
+Some applications manage transactions outside of Jdbi.
+A connection pool can disable autocommit for every connection, a container can own the transaction, or a framework such as Spring can wrap the data source in a transaction-aware proxy.
+Jdbi supports two strategies for these connections: the handle joins the external transaction, or Jdbi ignores transactions completely.
+
+==== Joining a transaction: connections with autocommit disabled
+
+The default transaction handler treats a connection that arrives with autocommit disabled as enrolled in a transaction that the connection owner manages.
+The handle joins this transaction:
+
+* link:{jdbidocs}/core/Handle.html#isInTransaction()[isInTransaction()^] returns `true` for the life of the handle.
+* `inTransaction` and `useTransaction` run the callback in the open transaction and do not commit. The connection owner commits. This is the same rule that applies to a nested `inTransaction` call inside an explicit `begin()`.
+* The variants that take an isolation level throw a `TransactionException` when the requested level is different from the level of the connection. `TransactionIsolationLevel.UNKNOWN` joins without this check.
+* `begin()` does nothing.
+* Explicit `commit()` and `rollback()` operate on the open transaction. After a commit or rollback, the next statement starts a new transaction, and the cycle can repeat on the same handle.
+* The transaction callbacks (`afterCommit`, `afterRollback`) run at each explicit commit or rollback.
+* `close()` does not commit, roll back, or throw. The connection returns to its owner with its transaction state unchanged.
+
+[NOTE]
+Because `inTransaction` and `useTransaction` never commit on such a connection, transaction retry handlers such as `SerializableTransactionRunner` do not engage.
+To let Jdbi manage transactions, keep autocommit enabled and demarcate transactions with the Jdbi API.
+
+==== Joining a container transaction
+
+link:{jdbidocs}/core/transaction/CMTTransactionHandler.html[CMTTransactionHandler^] is for container managed (J2EE CMT) environments.
+It never begins or commits.
+When autocommit is disabled on the connection, the handle reports an open transaction and callbacks join it.
+A call to `rollback()` throws a `TransactionException`, so that the exception propagates to the container, which then rolls the transaction back.
+
+==== Ignoring transactions completely
+
+link:{jdbidocs}/core/transaction/NoOpTransactionHandler.html[NoOpTransactionHandler^] never reads or changes the transaction state of the connection.
+Use it when the connection is wrapped by a proxy, for example the Spring `TransactionAwareDataSourceProxy` or an XA data source, where the autocommit flag does not show the real transaction state:
+
+* `begin()` and `commit()` do nothing. The external manager starts and commits the transaction.
+* `rollback()` throws a `TransactionException`, so that the external manager sees the failure and rolls the transaction back.
+* `isInTransaction()` returns `false` and does not examine the connection.
+* `inTransaction` and `useTransaction` run the callback directly.
+
+[source,java]
+----
+Jdbi jdbi = Jdbi.create(new TransactionAwareDataSourceProxy(dataSource));
+jdbi.setTransactionHandler(new NoOpTransactionHandler());
+----
 
 == Configuration
 

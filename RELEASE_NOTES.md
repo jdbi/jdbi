@@ -1,5 +1,12 @@
 # Unreleased
 
+- Add `NoOpTransactionHandler` for connections whose transactions an external framework manages,
+  e.g. a Spring `TransactionAwareDataSourceProxy` or an XA data source. It never reads or changes
+  the transaction state of the connection. `CMTTransactionHandler` now extends it, with unchanged
+  behavior. (#2742, thanks @bekoenig for the suggestion!)
+- Document the transaction contract for connections with autocommit disabled: the handle joins the
+  transaction that the connection owner manages. New "Transactions managed outside Jdbi" section in
+  the User Guide, with tests that pin the contract. (#1039, #2663)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
