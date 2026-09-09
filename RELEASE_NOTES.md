@@ -1,5 +1,6 @@
 # Unreleased
 
+- update Spring Framework to 6.2.19 due to CVE-2026-41848 (Dependabot alert #45)
 - Fix jdbi3-spring excluding spring-jcl from consumers since 3.51.0, which broke Spring Boot 3
   applications at startup with `NoClassDefFoundError: org.apache.commons.logging.LogFactory` (#2990)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
