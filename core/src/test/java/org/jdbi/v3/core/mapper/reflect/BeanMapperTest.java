@@ -16,11 +16,13 @@ package org.jdbi.v3.core.mapper.reflect;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER;
 
 public class BeanMapperTest {
@@ -60,6 +62,43 @@ public class BeanMapperTest {
 
         // annotation on setter
         assertThat(bean.getI()).isOne();
+    }
+
+    @Test
+    public void testPrefixedMapperReportsUnprefixedColumns() {
+        handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class, "t"));
+
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select id, name from something")) {
+                query.mapTo(ColumnNameBean.class).one();
+            }
+        })
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("didn't find any matching columns in result set")
+            .hasMessageContaining("Result set columns: [id, name]")
+            .hasMessageContaining("prefix 't'")
+            .hasMessageContaining("\"t.id AS t_id\" instead of \"t.*\"");
+
+        ColumnNameBean bean = handle.createQuery("select id as t_id, name as t_name from something")
+            .mapTo(ColumnNameBean.class)
+            .one();
+
+        assertThat(bean.getI()).isOne();
+        assertThat(bean.getS()).isEqualTo("foo");
+    }
+
+    @Test
+    public void testUnprefixedMapperReportsColumns() {
+        handle.registerRowMapper(BeanMapper.factory(ColumnNameBean.class));
+
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select 1 as other from something")) {
+                query.mapTo(ColumnNameBean.class).one();
+            }
+        })
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("didn't find any matching columns in result set. Result set columns: [other].")
+            .hasMessageNotContaining("prefix");
     }
 
     public static class ColumnNameBean {

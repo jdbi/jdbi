@@ -2357,6 +2357,10 @@ List<JoinRow> contactPhones = handle.select("SELECT " +
     .list();
 ----
 
+NOTE: The prefix is matched against the column label in the result set, not against the table or its alias.
+`SELECT c.*, p.*` produces labels such as `id` and `name` without a prefix, and a prefixed mapper finds no columns to map.
+Alias each column with the prefix, as in the example above.
+
 Typically, the mapped class will have a single constructor.
 If it has multiple constructors, Jdbi will pick one based on these rules:
 
@@ -2492,6 +2496,10 @@ This can help to disambiguate mapping joins, e.g. when two mapped classes have i
 include::{exampledir}/ResultsTest.java[tags=beanMapperPrefix]
 ----
 
+NOTE: The prefix is matched against the column label in the result set, not against the table or its alias.
+`SELECT c.*, p.*` produces labels such as `id` and `name` without a prefix, and a prefixed mapper finds no columns to map.
+Alias each column with the prefix, as in the example above.
+
 For legacy column names that don't match up to property names, use the
 link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation to provide an exact column name.
 
@@ -2612,6 +2620,10 @@ List<JoinRow> contactPhones = handle.select(
     .mapTo(JoinRow.class)
     .list();
 ----
+
+NOTE: The prefix is matched against the column label in the result set, not against the table or its alias.
+`SELECT c.*, p.*` produces labels such as `id` and `name` without a prefix, and a prefixed mapper finds no columns to map.
+Alias each column with the prefix, as in the example above.
 
 For legacy column names that don't match up to field names, use the
 link:{jdbidocs}/core/mapper/reflect/ColumnName.html[@ColumnName^] annotation to provide an exact column name:
@@ -3260,6 +3272,9 @@ List<Contact> contacts = handle.createQuery(SELECT_ALL)
 
 The JoinRowMapper takes a set of types to extract from each row.
 It uses the mapping registry to determine how to map each given type, and presents you with a JoinRow that holds all the resulting values.
+
+When the joined types share column names such as `id`, register each type's mapper with a column name prefix and alias every selected column with that prefix (`c.id AS c_id`).
+The prefix is matched against the column label only, so `SELECT c.*, p.*` leaves the prefixed mappers with no matching columns.
 
 Let's consider two simple types, User and Article, with a join table named Author.
 Guava provides a Multimap class, which is very handy for representing joined tables like this.

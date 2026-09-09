@@ -1,5 +1,8 @@
 # Unreleased
 
+- Reflective row mappers (`BeanMapper`, `ConstructorMapper`, `FieldMapper`) that match no columns at all now
+  list the result set columns in the error, and a prefixed mapper explains that `SELECT t.*` yields unprefixed
+  labels and shows how to alias them. Document the same in the mapper and JoinRowMapper sections (#2289)
 - Fix jdbi3-spring excluding spring-jcl from consumers since 3.51.0, which broke Spring Boot 3
   applications at startup with `NoClassDefFoundError: org.apache.commons.logging.LogFactory` (#2990)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
