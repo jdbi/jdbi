@@ -16,6 +16,7 @@ package org.jdbi.v3.core.transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -65,6 +66,42 @@ public class TestLocalTransactionHandler {
             .isInstanceOf(TransactionException.class);
 
         assertThat(rolledBack).isTrue();
+    }
+
+    @Test
+    public void testCommitFailureFiresAfterRollbackWhenAutoCommitDisabled() throws Exception {
+        Mockito.when(c.getAutoCommit()).thenReturn(false);
+        Mockito.doThrow(new SQLException("commit failed")).when(c).commit();
+
+        AtomicBoolean rolledBack = new AtomicBoolean();
+        h.afterRollback(() -> rolledBack.set(true));
+
+        assertThatThrownBy(h::commit).isInstanceOf(TransactionException.class);
+
+        assertThat(rolledBack).isTrue();
+    }
+
+    @Test
+    public void testSerializationFailureAtCommitFiresAfterRollbackBeforeRetry() throws Exception {
+        Mockito.when(c.getAutoCommit()).thenReturn(true);
+        Mockito.doThrow(new SQLException("serialization failure", "40001")).doNothing().when(c).commit();
+
+        Jdbi jdbi = Jdbi.create(() -> c);
+        jdbi.setTransactionHandler(new SerializableTransactionRunner());
+
+        AtomicInteger attempts = new AtomicInteger();
+        AtomicInteger rollbacks = new AtomicInteger();
+
+        try (Handle handle = jdbi.open()) {
+            handle.inTransaction(x -> {
+                attempts.incrementAndGet();
+                x.afterRollback(rollbacks::incrementAndGet);
+                return null;
+            });
+        }
+
+        assertThat(attempts).hasValue(2);
+        assertThat(rollbacks).hasValue(1);
     }
 
     @Test

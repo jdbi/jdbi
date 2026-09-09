@@ -18,6 +18,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -227,6 +229,56 @@ public class TestTransactions {
                 .mapTo(int.class)
                 .one())
             .isZero();
+    }
+
+    @Test
+    public void commitThrowsFiresAfterRollbackCallback() throws SQLException {
+        var forwardAnswer = AdditionalAnswers.delegatesTo(h.getConnection());
+        var c = Mockito.mock(Connection.class, Mockito.withSettings()
+                .defaultAnswer(forwardAnswer));
+
+        var jdbi = Jdbi.create(c);
+
+        var expectedExn = new SQLException("woof");
+        Mockito.doThrow(expectedExn).when(c).commit();
+
+        AtomicBoolean rolledBack = new AtomicBoolean();
+        Handle handle = jdbi.open();
+        handle.begin();
+        handle.afterRollback(() -> rolledBack.set(true));
+
+        assertThatThrownBy(handle::commit).hasCause(expectedExn);
+
+        assertThat(rolledBack).isTrue();
+    }
+
+    @Test
+    public void failedCommitCallbacksDoNotLeakIntoNextTransaction() throws SQLException {
+        var forwardAnswer = AdditionalAnswers.delegatesTo(h.getConnection());
+        var c = Mockito.mock(Connection.class, Mockito.withSettings()
+                .defaultAnswer(forwardAnswer));
+
+        var jdbi = Jdbi.create(c);
+
+        var expectedExn = new SQLException("woof");
+        Mockito.doThrow(expectedExn).doNothing().when(c).commit();
+
+        AtomicInteger staleCommits = new AtomicInteger();
+        AtomicInteger rollbacks = new AtomicInteger();
+
+        Handle handle = jdbi.open();
+        assertThatThrownBy(() -> handle.useTransaction(txn -> {
+            txn.afterCommit(staleCommits::incrementAndGet);
+            txn.afterRollback(rollbacks::incrementAndGet);
+        })).hasCause(expectedExn);
+
+        assertThat(rollbacks).hasValue(1);
+        assertThat(staleCommits).hasValue(0);
+
+        handle.useTransaction(txn -> {});
+
+        assertThat(staleCommits).hasValue(0);
+        assertThat(rollbacks).hasValue(1);
     }
 
     static class BoomEngine implements TemplateEngine {
