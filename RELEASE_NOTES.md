@@ -1,5 +1,8 @@
 # Unreleased
 
+- Add `BindListStyle` to render `bindList` / `@BindList` elements as single-column rows, `(:a),(:b)`, for
+  use with the SQL `VALUES` list constructor. Configure it with `SqlStatements#setBindListStyle` or
+  `@BindList(style = BindListStyle.ROWS)` (#1550, Alpha)
 - update Spring Framework to 6.2.19 due to CVE-2026-41848 (Dependabot alert #45)
 - `ConfigRegistry.createCopy()` now materializes each config object lazily on its first access instead
   of copying every config object eagerly. This removes most of the allocation cost of extension attach
