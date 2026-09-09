@@ -4104,6 +4104,8 @@ link:{jdbidocs}/sqlobject/statement/SqlCall.html[@SqlCall^] supports <<sql-call-
 Use link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] to execute one or more statements in a batch.
 
 While link:{jdbidocs}/sqlobject/statement/SqlBatch.html[@SqlBatch^] executes the same SQL statement with different values, the link:{jdbidocs}/sqlobject/statement/SqlScript.html[@SqlScript^] annotation executes different SQL statements without explicit data bound to each statement.
+Method arguments are not bound as statement parameters, only template attributes are substituted.
+To run several statements with bound parameters, declare one `@SqlUpdate` method for each statement and call them from an interface default method.
 
 [source,java,indent=0]
 ----

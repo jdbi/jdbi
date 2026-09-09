@@ -25,6 +25,11 @@ import org.jdbi.v3.sqlobject.statement.internal.SqlScriptsHandler;
 
 /**
  * Annotate a method to indicate that it will execute one or more SQL statements.
+ *
+ * <p>Method arguments are not bound as statement parameters. Use
+ * {@link org.jdbi.v3.sqlobject.customizer.Define @Define} to substitute template attributes.
+ * To run several statements with bound parameters, declare one {@link SqlUpdate @SqlUpdate} method
+ * for each statement and call them from a default method.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
