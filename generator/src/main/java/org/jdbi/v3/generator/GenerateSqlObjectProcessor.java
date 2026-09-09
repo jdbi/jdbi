@@ -13,10 +13,16 @@
  */
 package org.jdbi.v3.generator;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,20 +46,26 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.extension.ExtensionMetadata;
 import org.jdbi.v3.core.extension.ExtensionMetadata.ExtensionHandlerInvoker;
 import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
+import org.jdbi.v3.sqlobject.GeneratedSqlObjectProvider;
 import org.jdbi.v3.sqlobject.SqlObject;
 
 import static java.lang.String.format;
@@ -64,6 +76,11 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
     public static final String GENERATE_SQL_OBJECT_ANNOTATION_NAME = "org.jdbi.v3.sqlobject.GenerateSqlObject";
 
     private static final Set<ElementKind> ACCEPTABLE_ELEMENT_TYPES = EnumSet.of(ElementKind.CLASS, ElementKind.INTERFACE);
+    private static final String PROVIDER_SERVICE_FILE = "META-INF/services/" + GeneratedSqlObjectProvider.class.getName();
+    private static final String PROVIDER_CLASS_NAME = "Provider";
+
+    private final Set<String> providerClassNames = new LinkedHashSet<>();
+    private final Set<Element> providerOriginatingElements = new LinkedHashSet<>();
 
     private Elements elementUtils;
     private Types typeUtils;
@@ -103,6 +120,10 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
             generateSourceFile(element);
         }
 
+        if (roundEnv.processingOver()) {
+            writeProviderServiceFile();
+        }
+
         return false;
     }
 
@@ -119,6 +140,9 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
             // write the source file
             sqlObjectFile.writeFile();
 
+            providerClassNames.add(sqlObjectFile.getProviderClassName());
+            providerOriginatingElements.add(element);
+
         } catch (RuntimeException e) {
             messager.printMessage(Kind.ERROR, format("@GenerateSqlObject processor threw an exception for '%s': %s", element, e));
             throw e;
@@ -134,6 +158,48 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                 .orElseThrow(() -> new IllegalStateException(format("no %s.%s found!", klass, name)));
     }
 
+    /**
+     * Registers all generated providers with the {@link java.util.ServiceLoader}. A build tool may compile
+     * only part of the sources and leave a service file from an earlier run in the output. Its entries are
+     * kept so that the providers of unchanged classes stay registered.
+     */
+    private void writeProviderServiceFile() {
+        if (providerClassNames.isEmpty()) {
+            return;
+        }
+
+        final Set<String> serviceEntries = new LinkedHashSet<>(readExistingProviderServiceFile());
+        serviceEntries.addAll(providerClassNames);
+
+        try {
+            final FileObject file = filer.createResource(StandardLocation.CLASS_OUTPUT, "", PROVIDER_SERVICE_FILE,
+                    providerOriginatingElements.toArray(new Element[0]));
+            try (Writer out = file.openWriter()) {
+                for (String serviceEntry : serviceEntries) {
+                    out.write(serviceEntry);
+                    out.write('\n');
+                }
+            }
+        } catch (IOException e) {
+            messager.printMessage(Kind.ERROR, format("Could not write %s: %s", PROVIDER_SERVICE_FILE, e));
+        }
+    }
+
+    private Collection<String> readExistingProviderServiceFile() {
+        try {
+            final FileObject existing = filer.getResource(StandardLocation.CLASS_OUTPUT, "", PROVIDER_SERVICE_FILE);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(existing.openInputStream(), StandardCharsets.UTF_8))) {
+                return reader.lines()
+                        .map(String::strip)
+                        .filter(line -> !line.isEmpty())
+                        .toList();
+            }
+        } catch (IOException e) {
+            // the file does not exist yet
+            return List.of();
+        }
+    }
+
     // can't be in the inner class b/c static.
     private static String getImplementationClassName(TypeElement typeElement) {
         return typeElement.getSimpleName() + "Impl";
@@ -146,6 +212,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
         private final TypeSpec.Builder implementationBuilder;
         private final TypeSpec.Builder onDemandBuilder;
         private final CodeBlock.Builder implementationCtorBuilder = CodeBlock.builder();
+        private final List<String> methodFields = new ArrayList<>();
         private long counter = 0;
 
 
@@ -210,6 +277,7 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
             final Name methodName = method.getSimpleName();
             final String methodField = "m_" + methodName + "_" + counter;
             final String invokerField = "i_" + methodName + "_" + counter++;
+            methodFields.add(methodField);
 
             // the method field is initialized with a call to JdbiClassUtils.methodLookup
             implementationBuilder.addField(FieldSpec.builder(Method.class, methodField, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
@@ -282,8 +350,54 @@ public class GenerateSqlObjectProcessor extends AbstractProcessor {
                     .collect(Collectors.joining(","));
         }
 
+        private String getProviderClassName() {
+            return format("%s.%s$%s", elementUtils.getPackageOf(typeElement), getImplementationClassName(typeElement), PROVIDER_CLASS_NAME);
+        }
+
+        /**
+         * The provider gives Jdbi a direct path to the generated class and its methods. It replaces the
+         * reflective lookup by class name, which does not work in a GraalVM native image without metadata.
+         */
+        private TypeSpec buildProvider() {
+            final ClassName implementationName = ClassName.get(elementUtils.getPackageOf(typeElement).toString(), getImplementationClassName(typeElement));
+
+            return TypeSpec.classBuilder(PROVIDER_CLASS_NAME)
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .addSuperinterface(GeneratedSqlObjectProvider.class)
+                    .addMethod(MethodSpec.methodBuilder("extensionType")
+                            .addAnnotation(Override.class)
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(ParameterizedTypeName.get(ClassName.get(Class.class), WildcardTypeName.subtypeOf(Object.class)))
+                            .addCode("return $T.class;\n", typeUtils.erasure(typeElement.asType()))
+                            .build())
+                    .addMethod(MethodSpec.methodBuilder("extensionMethods")
+                            .addAnnotation(Override.class)
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(ParameterizedTypeName.get(Collection.class, Method.class))
+                            .addCode("return $T.of($L);\n", List.class, String.join(", ", methodFields))
+                            .build())
+                    .addMethod(MethodSpec.methodBuilder("createInstance")
+                            .addAnnotation(Override.class)
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(Object.class)
+                            .addParameter(ExtensionMetadata.class, "extensionMetadata")
+                            .addParameter(HandleSupplier.class, "handleSupplier")
+                            .addParameter(ConfigRegistry.class, "config")
+                            .addCode("return new $T(extensionMetadata, handleSupplier, config);\n", implementationName)
+                            .build())
+                    .addMethod(MethodSpec.methodBuilder("createOnDemand")
+                            .addAnnotation(Override.class)
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(Object.class)
+                            .addParameter(Jdbi.class, "jdbi")
+                            .addCode("return new $T(jdbi);\n", implementationName.nestedClass("OnDemand"))
+                            .build())
+                    .build();
+        }
+
         private void writeFile() {
             implementationBuilder.addType(onDemandBuilder.build());
+            implementationBuilder.addType(buildProvider());
 
             // add constructor at the end, every method added code to it.
             implementationBuilder.addMethod(MethodSpec.constructorBuilder()
