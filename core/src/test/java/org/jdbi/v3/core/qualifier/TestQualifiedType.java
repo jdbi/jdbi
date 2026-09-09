@@ -87,8 +87,9 @@ public class TestQualifiedType {
 
         assertThat(qualifiers).hasSize(1);
         Annotation synthesized = qualifiers.iterator().next();
-        assertThat(synthesized).isInstanceOf(Legacy.class);
-        assertThat(synthesized).isEqualTo(Holder.class.getAnnotation(Legacy.class));
+        assertThat(synthesized)
+            .isInstanceOf(Legacy.class)
+            .isEqualTo(Holder.class.getAnnotation(Legacy.class));
         assertThat(qualifiers).isEqualTo(Set.of(Holder.class.getAnnotation(Legacy.class)));
     }
 
