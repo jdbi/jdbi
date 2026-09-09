@@ -1,5 +1,9 @@
 # Unreleased
 
+- Add `LocalTransactionHandler.managed()`: Jdbi manages transactions on connections with autocommit
+  disabled instead of joining them, e.g. on a pool that disables autocommit as a precaution.
+  `inTransaction` commits, retry handlers such as `SerializableTransactionRunner` engage, and a
+  statement executed outside of a transaction is not committed. (#2663, #1733)
 - Add `NoOpTransactionHandler` for connections whose transactions an external framework manages,
   e.g. a Spring `TransactionAwareDataSourceProxy` or an XA data source. It never reads or changes
   the transaction state of the connection. `CMTTransactionHandler` now extends it, with unchanged
