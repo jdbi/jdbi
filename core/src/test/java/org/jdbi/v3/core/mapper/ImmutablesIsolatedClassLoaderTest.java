@@ -13,10 +13,8 @@
  */
 package org.jdbi.v3.core.mapper;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.internal.IsolatingClassLoader;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisabledInNativeImage // a native image can not define classes at run time
 public class ImmutablesIsolatedClassLoaderTest {
 
-    private static final String ISOLATED_PACKAGE = "org.jdbi.v3.core.mapper.isolated.";
-    private static final String SPEC_NAME = ISOLATED_PACKAGE + "IsolatedTrain";
+    private static final String ISOLATED_PACKAGE = "org.jdbi.v3.core.mapper.isolated";
+    private static final String SPEC_NAME = ISOLATED_PACKAGE + ".IsolatedTrain";
 
     @RegisterExtension
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance();
 
-    private final IsolatingClassLoader loader = new IsolatingClassLoader();
+    private final IsolatingClassLoader loader = new IsolatingClassLoader(ISOLATED_PACKAGE);
 
     private Handle handle;
     private Class<?> specType;
@@ -68,7 +66,7 @@ public class ImmutablesIsolatedClassLoaderTest {
     @Test
     public void registerModifiableResolvesGeneratedClassThroughSpecLoader() throws Exception {
         handle.getConfig(JdbiImmutables.class).registerModifiable(specType);
-        Class<?> modifiableType = loader.loadClass(ISOLATED_PACKAGE + "ModifiableIsolatedTrain");
+        Class<?> modifiableType = loader.loadClass(ISOLATED_PACKAGE + ".ModifiableIsolatedTrain");
 
         Object train = handle.createQuery("select * from train").mapTo(modifiableType).one();
 
@@ -79,7 +77,7 @@ public class ImmutablesIsolatedClassLoaderTest {
     private void assertIsolatedTrain(Object train, String prefix) {
         assertThat(train).isInstanceOf(specType);
         assertThat(train.getClass().getClassLoader()).isSameAs(loader);
-        assertThat(train.getClass().getName()).isEqualTo(ISOLATED_PACKAGE + prefix + "IsolatedTrain");
+        assertThat(train.getClass().getName()).isEqualTo(ISOLATED_PACKAGE + "." + prefix + "IsolatedTrain");
         assertThat(train).extracting("name", "carriages").containsExactly("Zephyr", 8);
     }
 
@@ -91,47 +89,5 @@ public class ImmutablesIsolatedClassLoaderTest {
 
         assertThat(handle.createQuery("select count(1) from train where name = 'Zephyr' and carriages = 8").mapTo(int.class).one())
             .isEqualTo(2);
-    }
-
-    /**
-     * Defines every class in the isolated package itself from the test class path and delegates all
-     * other classes, including Jdbi, to the parent. This mirrors a plugin loader: the parent (Jdbi's
-     * loader) can not resolve the isolated classes by name, only the child can.
-     */
-    static final class IsolatingClassLoader extends ClassLoader {
-
-        IsolatingClassLoader() {
-            super(ImmutablesIsolatedClassLoaderTest.class.getClassLoader());
-        }
-
-        @Override
-        protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-            if (!name.startsWith(ISOLATED_PACKAGE)) {
-                return super.loadClass(name, resolve);
-            }
-            synchronized (getClassLoadingLock(name)) {
-                Class<?> loaded = findLoadedClass(name);
-                if (loaded == null) {
-                    loaded = defineIsolated(name);
-                }
-                if (resolve) {
-                    resolveClass(loaded);
-                }
-                return loaded;
-            }
-        }
-
-        private Class<?> defineIsolated(String name) throws ClassNotFoundException {
-            String resource = name.replace('.', '/') + ".class";
-            try (InputStream in = getParent().getResourceAsStream(resource)) {
-                if (in == null) {
-                    throw new ClassNotFoundException(name);
-                }
-                byte[] bytes = in.readAllBytes();
-                return defineClass(name, bytes, 0, bytes.length);
-            } catch (IOException e) {
-                throw new ClassNotFoundException(name, e);
-            }
-        }
     }
 }
