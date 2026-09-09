@@ -5518,6 +5518,22 @@ public interface AccountDao extends CrudDao<Account, UUID> {
 The SQL Object extension uses the same core API as programmatic SQL operations.
 There is an underlying link:{jdbidocs}/core/Handle.html[Handle^] object that is used to execute the SQL methods.
 
+[#sqlobject-mixins]
+==== Mixin interfaces
+
+A _mixin interface_ is a regular Java interface that a SQL object type extends to add methods to it.
+The SQL object type does not implement these methods.
+The SQL Object framework implements link:{jdbidocs}/sqlobject/SqlObject.html#getHandle()[getHandle()^] and link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle()^].
+All other mixin methods are `default` methods that build on these two.
+Mixin methods use the same managed handle as the annotated SQL methods on the same object, so they share the connection, the transaction state and the configuration.
+
+Jdbi provides two mixin interfaces:
+
+* link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] gives access to the handle with link:{jdbidocs}/sqlobject/SqlObject.html#getHandle()[getHandle()^], link:{jdbidocs}/sqlobject/SqlObject.html#withHandle(org.jdbi.v3.core.HandleCallback)[withHandle()^] and link:{jdbidocs}/sqlobject/SqlObject.html#useHandle(org.jdbi.v3.core.HandleConsumer)[useHandle()^].
+* link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^] adds the transaction methods of the handle, such as `begin()`, `commit()`, `rollback()`, link:{jdbidocs}/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalCallback)[inTransaction()^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[useTransaction()^].
+It extends `SqlObject`, so a type that extends `Transactional` also has the handle methods.
+See <<SQL Object Transactions>> for details.
+
 A SQL Object type can extend the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] mixin interface to get access to the handle.
 It also exposes a number of operations that can be used to mix declarative SQL Object methods with programmatic core API code:
 
@@ -5692,15 +5708,17 @@ public void createUsers(Handle handle) {
         // both inserts happen in the same transaction
         dao.createUser(1, "Alice");
         dao.createUser(2, "Bob");
-    }
+    });
 }
 ----
 
-As an alternative, the link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^] mixin interface can be used to provide transaction support on a SQL object.
+As an alternative, the SQL object type can extend the link:{jdbidocs}/sqlobject/transaction/Transactional.html[Transactional^] <<sqlobject-mixins, mixin interface>>.
+It adds the transaction methods of the link:{jdbidocs}/core/Handle.html[Handle^] to the SQL object itself, so no separate handle is needed.
+The type parameter must be the SQL object type that extends `Transactional` (`Transactional<UserDao>` in the examples below).
 
-Similar to the link:{jdbidocs}/sqlobject/SqlObject.html[SqlObject^] interface, it gives access to all transaction related methods on the Handle and offers the same callbacks as the Handle itself.
-
-With this mixin interface, the link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[Transactional#useTransaction()^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalCallback)[Transactional#inTransaction()^] methods group statements into a single transaction by using a callback:
+The link:{jdbidocs}/sqlobject/transaction/Transactional.html#useTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalConsumer)[Transactional#useTransaction()^] and link:{jdbidocs}/sqlobject/transaction/Transactional.html#inTransaction(org.jdbi.v3.sqlobject.transaction.TransactionalCallback)[Transactional#inTransaction()^] methods group statements into a single transaction by using a callback.
+The callback receives the SQL object, typed as the type parameter, and all calls on it run in the transaction.
+In the following example, `UserDao` does not declare `useTransaction()`. The method is inherited from `Transactional`:
 
 [source,java,indent=0]
 ----
@@ -5765,12 +5783,11 @@ public void createUsers(Jdbi jdbi) {
 
         // this insert as well
         transactionDao.getHandle().useTransaction(transactionHandle ->
-            transactionHandle.createUpdate("USERT INTO users VALUES (:id, :name)")
+            transactionHandle.createUpdate("INSERT INTO users VALUES (:id, :name)")
                 .bind("id", 3)
                 .bind("name", "Charlie")
-                .execute();
-        }
-    }
+                .execute());
+    });
 }
 ----
 
