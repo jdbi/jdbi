@@ -1628,6 +1628,33 @@ handle.createQuery("SELECT value FROM items WHERE kind in (<varargListOfKinds>)"
 Using link:{jdbidocs}/core/statement/SqlStatement.html#bindList(java.lang.String,java.lang.Iterable)[bindList()^] requires writing the SQL with an attribute, not a binding, even though the values are bound.
 The attribute is a placeholder that will be rendered to a comma-separated list of binding placeholders.
 
+By default, the attribute renders as a plain comma-separated list.
+To use the bound values with the SQL `VALUES` list constructor, which requires each value in its own parenthesized row, set the link:{jdbidocs}/core/statement/BindListStyle.html[BindListStyle^] on the statement:
+
+[source,java,indent=0]
+----
+handle.createQuery("SELECT value FROM items WHERE kind in (VALUES <listOfKinds>)")
+    .configure(SqlStatements.class, c -> c.setBindListStyle(BindListStyle.ROWS))
+    .bindList("listOfKinds", keys)
+    .mapTo(String.class)
+    .list();
+// renders as ... in (VALUES (:__listOfKinds_0),(:__listOfKinds_1))
+----
+
+A `VALUES` list can also stand in for a table, which allows a join against the bound values:
+
+[source,java,indent=0]
+----
+handle.createQuery("SELECT link FROM (VALUES <links>) AS candidates (link) EXCEPT SELECT link FROM seen_links")
+    .configure(SqlStatements.class, c -> c.setBindListStyle(BindListStyle.ROWS))
+    .bindList("links", links)
+    .mapTo(String.class)
+    .list();
+----
+
+The style must match the SQL around each attribute, so set it per statement as shown. A style set on the `Jdbi` or `Handle` applies to every `bindList` call made through it.
+`EmptyHandling.NULL_KEYWORD` is not valid with `ROWS`: `VALUES null` is a syntax error. Use `THROW`, or `DEFINE_NULL` with a template conditional, to handle an empty list.
+
 You can bind multiple arguments from properties of a Java Bean:
 
 [source,java,indent=0]
@@ -4290,6 +4317,16 @@ If the database supports array types, it is strongly recommended to use link:{jd
 ----
 @SqlQuery("SELECT name FROM users WHERE id in (<userIds>)")
 List<String> getFromIds(@BindList("userIds") List<Long> userIds)
+----
+
+The `style` attribute selects the link:{jdbidocs}/core/statement/BindListStyle.html[BindListStyle^].
+`ROWS` wraps each element in parentheses for the SQL `VALUES` list constructor.
+The annotation always sets the style for its own parameter, so a style configured on the `Jdbi` or `Handle` does not apply to `@BindList` parameters:
+
+[source,java,indent=0]
+----
+@SqlQuery("SELECT name FROM users WHERE id in (VALUES <userIds>)")
+List<String> getFromIds(@BindList(style = BindListStyle.ROWS) List<Long> userIds)
 ----
 
 ===== Bind map instances with @BindMap

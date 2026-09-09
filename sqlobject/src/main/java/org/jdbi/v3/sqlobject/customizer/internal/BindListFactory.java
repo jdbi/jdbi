@@ -19,6 +19,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.internal.IterableLike;
+import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementCustomizerFactory;
 import org.jdbi.v3.sqlobject.customizer.SqlStatementParameterCustomizer;
@@ -38,6 +39,8 @@ public final class BindListFactory implements SqlStatementCustomizerFactory {
                         + "and parameter name data is not present in the class file, for: "
                         + param.getDeclaringExecutable() + "::" + param));
 
-        return (stmt, arg) -> stmt.bindList(bindList.onEmpty().getCoreImpl(), name, arg == null ? null : IterableLike.toList(arg));
+        return (stmt, arg) -> stmt
+                .configure(SqlStatements.class, c -> c.setBindListStyle(bindList.style()))
+                .bindList(bindList.onEmpty().getCoreImpl(), name, arg == null ? null : IterableLike.toList(arg));
     }
 }
