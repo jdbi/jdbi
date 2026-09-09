@@ -267,11 +267,15 @@ public final class QualifiedType<T> {
 
         static QualifierKey of(Annotation annotation) {
             Class<? extends Annotation> annotationType = annotation.annotationType();
-            return new QualifierKey(annotationType, HAS_MEMBERS.get(annotationType) ? annotation : null);
+            return new QualifierKey(annotationType, hasMembers(annotationType) ? annotation : null);
         }
 
         static QualifierKey of(Class<? extends Annotation> annotationType) {
-            return new QualifierKey(annotationType, HAS_MEMBERS.get(annotationType) ? AnnotationFactory.create(annotationType) : null);
+            return new QualifierKey(annotationType, hasMembers(annotationType) ? AnnotationFactory.create(annotationType) : null);
+        }
+
+        private static boolean hasMembers(Class<? extends Annotation> annotationType) {
+            return HAS_MEMBERS.get(annotationType);
         }
 
         Annotation annotation() {
