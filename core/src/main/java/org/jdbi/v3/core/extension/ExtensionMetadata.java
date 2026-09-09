@@ -170,6 +170,7 @@ public final class ExtensionMetadata {
          * @return The builder instance
          * @since 3.55.0
          */
+        @Alpha
         public Builder setExtensionTypeMethods(Collection<Method> methods) {
             this.extensionTypeMethods = new HashSet<>(methods);
             return this;
