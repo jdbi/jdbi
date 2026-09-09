@@ -167,19 +167,28 @@ public final class QualifiedType<T> {
     /**
      * Returns true if the qualifiers of this type are exactly the given annotations.
      *
-     * @param annotations the annotations to compare against.
+     * @param expected the annotations to compare against.
      * @return true if this instance has exactly the given qualifiers.
      */
-    public boolean hasQualifiers(Set<? extends Annotation> annotations) {
-        if (qualifiers.size() != annotations.size()) {
+    public boolean hasQualifiers(Set<? extends Annotation> expected) {
+        if (qualifiers.size() != expected.size()) {
             return false;
         }
-        for (Annotation annotation : annotations) {
+        for (Annotation annotation : expected) {
             if (!qualifiers.contains(QualifierKey.of(annotation))) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Returns true if this type has no qualifiers.
+     *
+     * @return true if this instance is an unqualified type.
+     */
+    public boolean hasNoQualifiers() {
+        return qualifiers.isEmpty();
     }
 
     /**
