@@ -16,6 +16,7 @@ package org.jdbi.core.mapper;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -24,6 +25,7 @@ import org.jdbi.core.config.JdbiConfig;
 import org.jdbi.core.generic.GenericType;
 import org.jdbi.core.interceptor.JdbiInterceptionChainHolder;
 import org.jdbi.core.internal.CopyOnWriteHashMap;
+import org.jdbi.core.internal.PrefixedMapperKey;
 import org.jdbi.core.mapper.reflect.internal.PojoMapperFactory;
 import org.jdbi.core.statement.Query;
 import org.jdbi.meta.Alpha;
@@ -37,6 +39,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
 
     private final List<RowMapperFactory> factories;
     private final Map<Type, Optional<RowMapper<?>>> cache;
+    private final Map<PrefixedMapperKey, Optional<RowMapper<?>>> prefixedCache;
 
     private ConfigRegistry registry;
 
@@ -44,6 +47,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(InferredRowMapperFactory::new);
         factories = new CopyOnWriteArrayList<>();
         cache = new CopyOnWriteHashMap<>();
+        prefixedCache = new CopyOnWriteHashMap<>();
         register(MapEntryMapper.factory());
         register(new PojoMapperFactory());
         register(new OptionalRowMapperFactory());
@@ -52,6 +56,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     private RowMappers(RowMappers that) {
         factories = new CopyOnWriteArrayList<>(that.factories);
         cache = new CopyOnWriteHashMap<>(that.cache);
+        prefixedCache = new CopyOnWriteHashMap<>(that.prefixedCache);
         inferenceInterceptors = new JdbiInterceptionChainHolder<>(that.inferenceInterceptors);
     }
 
@@ -122,6 +127,7 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     public RowMappers register(RowMapperFactory factory) {
         factories.add(0, factory);
         cache.clear();
+        prefixedCache.clear();
         return this;
     }
 
@@ -178,6 +184,49 @@ public class RowMappers implements JdbiConfig<RowMappers> {
         }
 
         cache.put(type, Optional.empty());
+        return Optional.empty();
+    }
+
+    /**
+     * Obtain a row mapper for the given type that declares the given column name prefix.
+     * <p>
+     * Only mappers that implement {@link PrefixedRowMapper} take part in this lookup, and a mapper
+     * matches only if its {@link PrefixedRowMapper#getPrefix() declared prefix} is equal to the
+     * given prefix. The comparison is an exact, case-sensitive string comparison. Mappers that do
+     * not declare a prefix never match, no matter what type they map.
+     * <p>
+     * The reflective mappers ({@code BeanMapper}, {@code ConstructorMapper}, {@code FieldMapper})
+     * declare the prefix given at registration, or the empty string when registered without one.
+     * <p>
+     * Use this lookup to tell apart multiple mappers for the same type that read differently
+     * prefixed column sets, for example when a query joins the same table twice. To look up a
+     * mapper by type alone, use {@link #findFor(Type)}.
+     *
+     * @param type the target type to map to
+     * @param prefix the column name prefix the mapper must declare, never null
+     * @return a RowMapper for the given type and prefix, or empty if no matching row mapper is registered.
+     */
+    @Alpha
+    @SuppressWarnings("java:S2789") // the cache stores empty Optionals for negative results, so null means "not cached yet"
+    public Optional<RowMapper<?>> findFor(Type type, String prefix) {
+        Objects.requireNonNull(prefix, "prefix; use findFor(Type) to look up a mapper by type alone");
+        var key = new PrefixedMapperKey(type, prefix);
+        Optional<RowMapper<?>> cached = prefixedCache.get(key);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        for (RowMapperFactory factory : factories) {
+            Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
+            if (maybeMapper.orElse(null) instanceof PrefixedRowMapper<?> mapper && prefix.equals(mapper.getPrefix())) {
+                mapper.init(registry);
+                prefixedCache.put(key, maybeMapper);
+                return maybeMapper;
+            }
+        }
+
+        prefixedCache.put(key, Optional.empty());
         return Optional.empty();
     }
 
