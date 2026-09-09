@@ -14,10 +14,13 @@
 package org.jdbi.v3.core.result;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.meta.Alpha;
+import org.jdbi.v3.meta.Beta;
 
 /**
  * A RowView is an accessor for {@code ResultSet} that uses
@@ -99,6 +102,50 @@ public abstract class RowView {
     @Alpha
     public Object getRow(Type type, String prefix) {
         throw new UnsupportedOperationException("getRow by prefix is not supported by " + getClass().getName());
+    }
+
+    /**
+     * Returns the labels of the columns of the result set, in column order, as {@link java.sql.ResultSetMetaData#getColumnLabel(int)}
+     * returns them.
+     * @return the column labels
+     */
+    @Beta
+    public List<String> getColumnNames() {
+        throw new UnsupportedOperationException("getColumnNames is not supported by " + getClass().getName());
+    }
+
+    /**
+     * Maps the current row with the given row mapper. The mapper is {@link RowMapper#specialize specialized}
+     * once per result set, keyed by mapper instance, so pass the same instance for every row.
+     * @param <T> the type to map
+     * @param mapper the row mapper
+     * @return the materialized T
+     */
+    @Beta
+    public <T> T getRow(RowMapper<T> mapper) {
+        throw new UnsupportedOperationException("getRow with a mapper is not supported by " + getClass().getName());
+    }
+
+    /**
+     * Returns the value of a column as the JDBC driver returns it from {@link java.sql.ResultSet#getObject(String)},
+     * without a column mapper. Use this to read a value whose type does not matter, such as a key that identifies a row.
+     * @param column the column name
+     * @return the column value, or null for SQL NULL
+     */
+    @Beta
+    public Object getColumn(String column) {
+        throw new UnsupportedOperationException("getColumn without a type is not supported by " + getClass().getName());
+    }
+
+    /**
+     * Returns the value of a column as the JDBC driver returns it from {@link java.sql.ResultSet#getObject(int)},
+     * without a column mapper. Use this to read a value whose type does not matter, such as a key that identifies a row.
+     * @param column the column index
+     * @return the column value, or null for SQL NULL
+     */
+    @Beta
+    public Object getColumn(int column) {
+        throw new UnsupportedOperationException("getColumn without a type is not supported by " + getClass().getName());
     }
 
     /**

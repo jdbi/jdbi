@@ -15,7 +15,10 @@ package org.jdbi.v3.core.result.internal;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +40,7 @@ public class RowViewImpl extends RowView {
     private final Map<Type, RowMapper<?>> rowMappers = new ConcurrentHashMap<>();
     private final Map<PrefixedMapperKey, RowMapper<?>> prefixedRowMappers = new ConcurrentHashMap<>();
     private final Map<QualifiedType<?>, ColumnMapper<?>> columnMappers = new ConcurrentHashMap<>();
+    private final Map<RowMapper<?>, RowMapper<?>> specializedMappers = new ConcurrentHashMap<>();
 
     public RowViewImpl(ResultSet rs, StatementContext ctx) {
         this.rs = rs;
@@ -94,6 +98,53 @@ public class RowViewImpl extends RowView {
         prefixedRowMappers.put(key, mapper);
 
         return mapper;
+    }
+
+    @Override
+    public List<String> getColumnNames() {
+        try {
+            ResultSetMetaData metaData = rs.getMetaData();
+            List<String> names = new ArrayList<>(metaData.getColumnCount());
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                names.add(metaData.getColumnLabel(i));
+            }
+            return names;
+        } catch (SQLException e) {
+            throw new MappingException(e);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getRow(RowMapper<T> mapper) {
+        try {
+            RowMapper<?> specialized = specializedMappers.get(mapper);
+            if (specialized == null) {
+                specialized = mapper.specialize(rs, ctx);
+                specializedMappers.put(mapper, specialized);
+            }
+            return (T) specialized.map(rs, ctx);
+        } catch (SQLException e) {
+            throw new MappingException(e);
+        }
+    }
+
+    @Override
+    public Object getColumn(String column) {
+        try {
+            return rs.getObject(column);
+        } catch (SQLException e) {
+            throw new MappingException(e);
+        }
+    }
+
+    @Override
+    public Object getColumn(int column) {
+        try {
+            return rs.getObject(column);
+        } catch (SQLException e) {
+            throw new MappingException(e);
+        }
     }
 
     /**
