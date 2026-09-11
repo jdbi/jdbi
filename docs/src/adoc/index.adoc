@@ -3229,6 +3229,95 @@ Optional<Contact> contact = handle.createQuery(SELECT_ONE)
     .findFirst();
 ----
 
+==== JoinRowReducer
+
+link:{jdbidocs}/core/result/JoinRowReducer.html[JoinRowReducer^] is a `RowReducer` for join queries, so that most of them need no hand-written reducer.
+You name the root type, then declare each relation with its column prefix, its type and the method that links it to the parent.
+
+[source,java,indent=0]
+----
+List<Contact> contacts = handle.createQuery(
+        "SELECT c.id, c.name, p.id phone_id, p.number phone_number "
+            + "FROM contacts c LEFT JOIN phones p ON p.contact_id = c.id")
+    .reduceRows(JoinRowReducer.of(Contact.class).mappedBy(BeanMapper::of) // <1>
+        .many("phone", Phone.class, Contact::addPhone)) // <2>
+    .toList();
+----
+
+<1> The root type reads its columns without a prefix, and its key column is `id`. `of(Contact.class, "email")` names another key column.
+`mappedBy(BeanMapper::of)` creates a bean mapper for every type and prefix in the reducer, so nothing is registered.
+Without it, mappers come from the registry by type and prefix, so register `BeanMapper.factory(Contact.class)` and `BeanMapper.factory(Phone.class, "phone")` instead.
+<2> `many()` declares a to-many relation under the column prefix `phone`, so a phone reads `phone_id` and `phone_number`.
+Each distinct `phone_id` produces one `Phone`, and the linker adds it to its contact once.
+A row with a `NULL` `phone_id`, as produced by a `LEFT JOIN` without a match, adds nothing.
+
+`one()` declares a to-one relation.
+One type is one table: every object is identified by its type and its key, so a table row is one instance no matter through how many relations the query reaches it.
+Here the author and the editor of a book are one `Person` instance when they are the same person, and an author shared by several books is one instance:
+
+[source,java,indent=0]
+----
+List<Book> books = handle.createQuery(
+        "SELECT b.id, b.title, a.id author_id, a.name author_name, e.id editor_id, e.name editor_name "
+            + "FROM books b LEFT JOIN persons a ON a.id = b.author_id LEFT JOIN persons e ON e.id = b.editor_id")
+    .reduceRows(JoinRowReducer.of(Book.class).mappedBy(BeanMapper::of)
+        .one("author", Person.class, Book::setAuthor)
+        .one("editor", Person.class, Book::setEditor))
+    .toList();
+----
+
+Relations can be combined freely.
+A query that joins two collections produces the cross product of the two collections for each root, and `many()` adds each joined object to a root only once:
+
+[source,java,indent=0]
+----
+List<Book> books = handle.createQuery(SELECT_BOOKS_WITH_CHAPTERS_AND_TAGS)
+    .reduceRows(JoinRowReducer.of(Book.class).mappedBy(BeanMapper::of)
+        .one("author", Person.class, Book::setAuthor)
+        .many("chapter", Chapter.class, Book::addChapter)
+        .many("tag", Tag.class, Book::addTag))
+    .toList();
+----
+
+A joined type can have relations of its own.
+Pass a reducer for the type instead of the class, and prefixes compound: an award of the author reads `author_award_id` and `author_award_name`.
+A class that is declared anywhere in the reducer refers to that declaration, so the editor below is the same `Person` node as the author, awards included:
+
+[source,java,indent=0]
+----
+List<Book> books = handle.createQuery(SELECT_BOOKS_WITH_AUTHORS_AND_AWARDS)
+    .reduceRows(JoinRowReducer.of(Book.class).mappedBy(BeanMapper::of)
+        .one("author", JoinRowReducer.of(Person.class)
+                .many("award", Award.class, Person::addAward),
+            Book::setAuthor)
+        .one("editor", Person.class, Book::setEditor))
+    .toList();
+----
+
+The root type is declared too, so a self join names it by class, and the parent is the same instance as the root category with that key.
+The recursion ends where the selected columns end: without a `parent_parent_id` column there is no grandparent.
+
+[source,java,indent=0]
+----
+List<Category> categories = handle.createQuery(
+        "SELECT c.id, c.name, pc.id parent_id, pc.name parent_name "
+            + "FROM categories c LEFT JOIN categories pc ON pc.id = c.parent_id")
+    .reduceRows(JoinRowReducer.of(Category.class).mappedBy(BeanMapper::of)
+        .one("parent", Category.class, Category::setParent))
+    .toList();
+----
+
+A type may take its mapper from another factory than the root, for example `JoinRowReducer.of(Tag.class).mappedBy(ConstructorMapper::of)` for a record.
+Linkers run once per distinct pair after the last row, and the relations of a joined type are linked before the joined type is linked to its parent, so a linker receives a complete object unless the graph is recursive.
+If the query selects a type on several paths, the object is mapped from the shallowest path, so the result does not depend on row order.
+Root objects are returned in the order of their first row, and only keys in the root key column become roots.
+Keys are read with `RowView.getColumn(String)`, which returns the value as the JDBC driver returns it, and compared by value: integral keys of any JDBC type are equal when their values are, decimals ignore trailing zeros, and a `byte[]` key is compared by content.
+A relation is present on a path when the result set has its key column there, so select the root's own foreign key columns under another label than a relation key, or not at all.
+With `SELECT b.*` and a relation `category`, the book's `category_id` column alone would produce a `Category` that has only its key.
+`one()` links each parent once and fails if a second, different key appears for the same parent, which shows that the join is not to-one.
+A reduction also fails if the result set has no root key column, or if a declared relation has its key column on no path, which catches a misspelled alias.
+A `JoinRowReducer` is immutable and holds no state between reductions, so one instance can serve many statements.
+
 ==== ResultBearing.reduceResultSet()
 
 link:{jdbidocs}/core/result/ResultBearing.html#reduceResultSet(U,org.jdbi.v3.core.result.ResultSetAccumulator)[ResultBearing.reduceResultSet()^]
@@ -5337,6 +5426,27 @@ These mappers are used indirectly by the row reducer in the
 <4> link:{jdbidocs}/core/result/LinkedHashMapRowReducer.html[LinkedHashMapRowReducer^] is an abstract `RowReducer` implementation that uses a `LinkedHashMap` as the result container, and returns the `values()` collection as the result.
 <5> Get the `Folder` for this row from the map by ID, or create it if not in the map.
 <6> Confirm this row has a document (this _is_ a left join) before mapping a document and adding it to the folder.
+
+For most join queries, a <<JoinRowReducer>> does the same work without a hand-written `accumulate()` method.
+`@UseRowReducer` requires a class with a public no-arg constructor, so extend `JoinRowReducer` and pass the configured reducer to the superclass constructor.
+The registered mappers are looked up by type and prefix, so the query aliases the parent folder columns as `parent_id` and `parent_name`, and the document columns as `document_id` and so on:
+
+[source,java,indent=0]
+----
+@RegisterBeanMapper(Folder.class)
+@RegisterBeanMapper(value = Folder.class, prefix = "parent")
+@RegisterBeanMapper(value = Document.class, prefix = "document")
+@UseRowReducer(FolderDocReducer.class)
+List<Folder> listFolders();
+
+public class FolderDocReducer extends JoinRowReducer<Folder> {
+    public FolderDocReducer() {
+        super(JoinRowReducer.of(Folder.class)
+            .one("parent", Folder.class, Folder::setParent)
+            .many("document", Document.class, (folder, document) -> folder.getDocuments().add(document)));
+    }
+}
+----
 
 ==== @RegisterCollector and @RegisterCollectorFactory
 
