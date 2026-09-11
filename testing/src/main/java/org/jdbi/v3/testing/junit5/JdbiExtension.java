@@ -388,9 +388,6 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
             this.dataSource = null;
             this.sharedHandle = null;
             this.jdbi = null;
-
-            this.initializerMaybe = Optional.empty();
-            this.plugins.clear();
         }
 
         if (enableLeakchecker) {

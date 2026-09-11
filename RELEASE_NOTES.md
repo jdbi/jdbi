@@ -1,5 +1,9 @@
 # Unreleased
 
+- Fix `JdbiExtension` losing its plugins and initializer after `afterAll`, so a static extension whose test
+  class ran a second time in the same JVM (a Surefire rerun of a failed test, or a `@Nested` class selected
+  as its own test class) restarted with a bare `Jdbi` and failed with `NoSuchMapperException` or
+  `NoSuchExtensionException`
 - update Spring Framework to 6.2.19 due to CVE-2026-41848 (Dependabot alert #45)
 - `ConfigRegistry.createCopy()` now materializes each config object lazily on its first access instead
   of copying every config object eagerly. This removes most of the allocation cost of extension attach
