@@ -3,8 +3,8 @@
 - Fix `JdbiExtension` losing its plugins and initializer after `afterAll`, so a static extension whose test
   class ran a second time in the same JVM (a Surefire rerun of a failed test, or a `@Nested` class selected
   as its own test class) restarted with a bare `Jdbi` and failed with `NoSuchMapperException` or
-  `NoSuchExtensionException`
-- update Spring Framework to 6.2.19 due to CVE-2026-41848 (Dependabot alert #45)
+  `NoSuchExtensionException` (#3036)
+- update Spring Framework to 6.2.19 due to CVE-2026-41848 (Dependabot alert #45, #3026)
 - `ConfigRegistry.createCopy()` now materializes each config object lazily on its first access instead
   of copying every config object eagerly. This removes most of the allocation cost of extension attach
   (`Jdbi#onDemand` re-attaches on every call), of `Handle` creation, and of statement creation
@@ -15,6 +15,11 @@
   labels and shows how to alias them. Document the same in the mapper and JoinRowMapper sections (#2289)
 - Fix jdbi3-spring excluding spring-jcl from consumers since 3.51.0, which broke Spring Boot 3
   applications at startup with `NoClassDefFoundError: org.apache.commons.logging.LogFactory` (#2990)
+- Register SQL array element types for `java.time` out of the box: `LocalDate`, `LocalTime`,
+  `LocalDateTime`, `OffsetDateTime`, `OffsetTime`, `Instant`, and `ZonedDateTime` now bind to
+  SQL arrays without a manual `registerArrayType` call. `PostgresPlugin` additionally registers
+  `Duration` and `Period` (bound as `interval`) and binds the date-bearing types as text
+  literals that cover the full Postgres date range, including BC dates (#3022)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)

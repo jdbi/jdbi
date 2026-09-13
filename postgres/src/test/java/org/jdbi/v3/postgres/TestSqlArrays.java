@@ -69,11 +69,7 @@ public class TestSqlArrays {
 
     @BeforeEach
     public void setUp() {
-        handle = pgExtension.openHandle()
-            // register array type to the handle
-            .registerArrayType(Instant.class, "timestamptz");
-
-        // attach the array object to the handle as well.
+        handle = pgExtension.openHandle();
         ao = handle.attach(ArrayObject.class);
     }
 
@@ -200,7 +196,7 @@ public class TestSqlArrays {
     }
 
     @Test
-    public void testReusedArrayWithString() throws Exception {
+    public void testReusedArrayWithString() {
         handle.registerArrayType(String.class, "text");
         assertThat(handle.createQuery("select :array = :array")
                 .bindArray("array", String.class, Collections.singletonList("element"))
