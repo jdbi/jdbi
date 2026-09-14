@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -46,6 +47,7 @@ import org.jdbi.v3.core.transaction.TransactionException;
 import org.jdbi.v3.core.transaction.TransactionHandler;
 import org.jdbi.v3.core.transaction.TransactionIsolationLevel;
 import org.jdbi.v3.core.transaction.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.v3.core.transaction.UnableToRestoreAutoCommitStateException;
 import org.jdbi.v3.meta.Beta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -554,7 +556,13 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public Handle commit() {
         final long start = System.nanoTime();
-        transactionHandler.commit(this);
+        try {
+            transactionHandler.commit(this);
+        } catch (UnableToRestoreAutoCommitStateException e) {
+            // the connection committed, only the autocommit restore afterwards failed
+            drainCallbacks(TransactionCallback::afterCommit, e);
+            throw e;
+        }
         LOG.trace("Handle [{}] commit transaction in {}ms", this, msSince(start));
         drainCallbacks()
                 .forEach(TransactionCallback::afterCommit);
@@ -568,7 +576,12 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     public Handle rollback() {
         final long start = System.nanoTime();
-        transactionHandler.rollback(this);
+        try {
+            transactionHandler.rollback(this);
+        } catch (RuntimeException e) {
+            drainCallbacks(TransactionCallback::afterRollback, e);
+            throw e;
+        }
         LOG.trace("Handle [{}] rollback transaction in {}ms", this, msSince(start));
         drainCallbacks()
                 .forEach(TransactionCallback::afterRollback);
@@ -577,6 +590,8 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Execute an action the next time this Handle commits, unless it is rolled back first.
+     * The action also runs when the connection committed but the autocommit state could not
+     * be restored afterwards.
      *
      * @param afterCommit the action to execute after commit.
      * @return this Handle.
@@ -594,7 +609,7 @@ public class Handle implements Closeable, Configurable<Handle> {
     /**
      * Execute an action the next time this Handle rolls back, unless it is committed first.
      * With the default transaction handler, a commit that fails rolls the transaction
-     * back and runs the action.
+     * back and runs the action, and so does a rollback that fails on the connection.
      *
      * @param afterRollback the action to execute after rollback.
      * @return this Handle.
@@ -614,6 +629,16 @@ public class Handle implements Closeable, Configurable<Handle> {
             List<TransactionCallback> result = new ArrayList<>(transactionCallbacks);
             transactionCallbacks.clear();
             return result;
+        }
+    }
+
+    private void drainCallbacks(Consumer<TransactionCallback> action, Throwable failure) {
+        for (TransactionCallback callback : drainCallbacks()) {
+            try {
+                action.accept(callback);
+            } catch (RuntimeException e) {
+                failure.addSuppressed(e);
+            }
         }
     }
 
