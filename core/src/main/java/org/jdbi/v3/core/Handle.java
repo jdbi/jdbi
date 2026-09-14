@@ -546,7 +546,9 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Commit a transaction.
+     * Commit a transaction. With the default transaction handler, a commit that fails
+     * rolls the transaction back and runs the {@link #afterRollback} callbacks before
+     * the exception propagates.
      *
      * @return the same handle.
      */
@@ -591,6 +593,8 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Execute an action the next time this Handle rolls back, unless it is committed first.
+     * With the default transaction handler, a commit that fails rolls the transaction
+     * back and runs the action.
      *
      * @param afterRollback the action to execute after rollback.
      * @return this Handle.
