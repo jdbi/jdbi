@@ -523,6 +523,10 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Returns whether the handle is in a transaction. Delegates to the underlying {@link TransactionHandler}.
+     * <p>
+     * With the default transaction handler, a connection with autocommit disabled always reports an open
+     * transaction: the handle joins the transaction that the connection owner manages.
+     * </p>
      *
      * @return True if the handle is in a transaction.
      */
@@ -706,6 +710,11 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Executes <code>callback</code> in a transaction, and returns the result of the callback.
+     * <p>
+     * If the handle is already in a transaction, the callback joins that transaction and this method
+     * does not commit. This includes a handle over a connection with autocommit disabled, where the
+     * connection owner manages the transaction and must commit explicitly.
+     * </p>
      *
      * @param callback a callback which will receive an open handle, in a transaction.
      * @param <R>      type returned by callback

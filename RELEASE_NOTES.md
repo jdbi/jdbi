@@ -1,5 +1,16 @@
 # Unreleased
 
+- Add `LocalTransactionHandler.managed()`: Jdbi manages transactions on connections with autocommit
+  disabled instead of joining them, e.g. on a pool that disables autocommit as a precaution.
+  `inTransaction` commits, retry handlers such as `SerializableTransactionRunner` engage, and a
+  statement executed outside of a transaction is not committed. (#2663, #1733)
+- Add `NoOpTransactionHandler` for connections whose transactions an external framework manages,
+  e.g. a Spring `TransactionAwareDataSourceProxy` or an XA data source. It never reads or changes
+  the transaction state of the connection. `CMTTransactionHandler` now extends it, with unchanged
+  behavior. (#2742, thanks @bekoenig for the suggestion!)
+- Document the transaction contract for connections with autocommit disabled: the handle joins the
+  transaction that the connection owner manages. New "Transactions managed outside Jdbi" section in
+  the User Guide, with tests that pin the contract. (#1039, #2663)
 - Fix `JdbiExtension` losing its plugins and initializer after `afterAll`, so a static extension whose test
   class ran a second time in the same JVM (a Surefire rerun of a failed test, or a `@Nested` class selected
   as its own test class) restarted with a bare `Jdbi` and failed with `NoSuchMapperException` or
