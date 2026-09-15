@@ -13,10 +13,13 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.io.Serial;
+
 /**
  * Thrown when statement execution fails.
  */
 public class UnableToExecuteStatementException extends StatementException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public UnableToExecuteStatementException(Exception e, StatementContext ctx) {

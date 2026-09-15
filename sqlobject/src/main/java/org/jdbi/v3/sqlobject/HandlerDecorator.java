@@ -43,8 +43,8 @@ public interface HandlerDecorator extends ExtensionHandlerCustomizer {
     @Override
     default ExtensionHandler customize(ExtensionHandler defaultHandler, Class<?> extensionType, Method method) {
         ExtensionHandler handler = defaultHandler;
-        if (handler instanceof Handler) {
-            handler = decorateHandler((Handler) handler, extensionType, method);
+        if (handler instanceof Handler handler1) {
+            handler = decorateHandler(handler1, extensionType, method);
         }
         return handler;
     }

@@ -13,12 +13,15 @@
  */
 package org.jdbi.v3.jpa;
 
+import java.io.Serial;
+
 import org.jdbi.v3.core.JdbiException;
 
 /**
  * Thrown when a JPA getter or setter fails.
  */
 public class EntityMemberAccessException extends JdbiException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public EntityMemberAccessException(String string, Throwable throwable) {

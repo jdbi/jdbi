@@ -13,9 +13,11 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.io.Serial;
 import java.util.HashMap;
 
 public class HandyMapThing<K> extends HashMap<K, Object> {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public HandyMapThing<K> add(K k, Object v) {

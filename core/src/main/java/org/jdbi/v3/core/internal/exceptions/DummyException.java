@@ -13,8 +13,11 @@
  */
 package org.jdbi.v3.core.internal.exceptions;
 
+import java.io.Serial;
+
 @SuppressWarnings("PMD.MissingStaticMethodInNonInstantiatableClass")
 public class DummyException extends RuntimeException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private DummyException() {
