@@ -34,6 +34,10 @@
 - Fix `afterRollback` callbacks not firing when a transaction fails at commit time, e.g. on a
   serialization failure under `SerializableTransactionRunner`. The failed transaction's callbacks
   also no longer leak into the next transaction on the same handle. (#3021, thanks @OswaldOniSango!)
+- Fix `afterCommit` and `afterRollback` callbacks not firing, and leaking into the next transaction on
+  the same handle, when the connection fails during a rollback or during the autocommit restore that
+  follows a commit. `RollbackOnlyTransactionHandler` now runs the `afterRollback` callbacks on a
+  commit, and never the `afterCommit` callbacks, because it never commits (#3038)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)

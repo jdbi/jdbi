@@ -3441,7 +3441,7 @@ The handle joins this transaction:
 * The variants that take an isolation level throw a `TransactionException` when the requested level is different from the level of the connection. `TransactionIsolationLevel.UNKNOWN` joins without this check.
 * `begin()` does nothing.
 * Explicit `commit()` and `rollback()` operate on the open transaction. After a commit or rollback, the next statement starts a new transaction, and the cycle can repeat on the same handle.
-* The transaction callbacks (`afterCommit`, `afterRollback`) run at each explicit commit or rollback. A commit that fails rolls the transaction back and runs the `afterRollback` callbacks.
+* The transaction callbacks (`afterCommit`, `afterRollback`) run at each explicit commit or rollback. A commit that fails rolls the transaction back and runs the `afterRollback` callbacks. A rollback that fails runs them too. When the connection commits and only the autocommit restore afterwards fails, the `afterCommit` callbacks run.
 * `close()` does not commit, roll back, or throw. The connection returns to its owner with its transaction state unchanged.
 
 [NOTE]
