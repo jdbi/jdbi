@@ -851,6 +851,9 @@
                     <artifactId>maven-pmd-plugin</artifactId>
                     <configuration>
                         <analysisCache>true</analysisCache>
+                        <!-- with no violations, skip the report render: it resolves site
+                             descriptors from Central for a site that is never built -->
+                        <skipEmptyReport>true</skipEmptyReport>
                         <rulesets>
                             <ruleset>policy/pmd.xml</ruleset>
                         </rulesets>
@@ -1443,16 +1446,6 @@
                 <basepom.check.skip-enforcer>false</basepom.check.skip-enforcer>
                 <basepom.test.skip>true</basepom.test.skip>
                 <jdbi.skip.native>false</jdbi.skip.native>
-            </properties>
-        </profile>
-        <profile>
-            <!-- Profile to skip time-consuming steps. -->
-            <id>fast</id>
-            <properties>
-                <basepom.check.skip-all>true</basepom.check.skip-all>
-                <basepom.check.skip-enforcer>false</basepom.check.skip-enforcer>
-                <skipITs>true</skipITs>
-                <skipTests>true</skipTests>
             </properties>
         </profile>
         <profile>

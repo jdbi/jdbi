@@ -62,4 +62,19 @@
         <tag>HEAD</tag>
         <url>https://github.com/jdbi/jdbi/</url>
     </scm>
+
+    <profiles>
+        <profile>
+            <!-- Profile to skip time-consuming steps. It is defined here and not in the build parent
+                 so that it also covers the modules that do not inherit the build parent
+                 (jdbi3-root and jdbi3-policy). -->
+            <id>fast</id>
+            <properties>
+                <basepom.check.skip-all>true</basepom.check.skip-all>
+                <basepom.check.skip-enforcer>false</basepom.check.skip-enforcer>
+                <skipITs>true</skipITs>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+    </profiles>
 </project>
