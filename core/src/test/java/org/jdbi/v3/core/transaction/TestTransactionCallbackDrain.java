@@ -115,6 +115,43 @@ public class TestTransactionCallbackDrain {
     }
 
     @Test
+    public void rollbackOnlyHandlerFiresAfterRollbackOnCommit() throws Exception {
+        Jdbi jdbi = Jdbi.create(() -> c);
+        jdbi.setTransactionHandler(new RollbackOnlyTransactionHandler());
+
+        try (Handle handle = jdbi.open()) {
+            handle.useTransaction(this::register);
+
+            assertThat(rollbacks).hasValue(1);
+            assertThat(commits).hasValue(0);
+        }
+
+        Mockito.verify(c, Mockito.never()).commit();
+    }
+
+    @Test
+    public void rollbackOnlyHandlerRollbackFailureFiresAfterRollbackOnce() throws Exception {
+        Mockito.doThrow(new SQLException("rollback failed")).doNothing().when(c).rollback();
+
+        Jdbi jdbi = Jdbi.create(() -> c);
+        jdbi.setTransactionHandler(new RollbackOnlyTransactionHandler());
+
+        try (Handle handle = jdbi.open()) {
+            assertThatThrownBy(() -> handle.useTransaction(this::register))
+                .isInstanceOf(TransactionException.class);
+
+            assertThat(rollbacks).hasValue(1);
+            assertThat(commits).hasValue(0);
+
+            handle.useTransaction(txn -> {});
+            handle.useTransaction(Handle::rollback);
+        }
+
+        assertThat(rollbacks).hasValue(1);
+        assertThat(commits).hasValue(0);
+    }
+
+    @Test
     public void autoCommitRestoreFailureAfterRollbackFiresAfterRollbackOnce() throws Exception {
         Mockito.doNothing().doThrow(new SQLException("restore failed")).doNothing().when(c).setAutoCommit(Mockito.anyBoolean());
 

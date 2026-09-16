@@ -17,7 +17,9 @@ import org.jdbi.v3.core.Handle;
 
 /**
  * A transaction handler that always calls {@link #rollback(org.jdbi.v3.core.Handle)} instead
- * of {@link #commit(org.jdbi.v3.core.Handle)}.
+ * of {@link #commit(org.jdbi.v3.core.Handle)}. Nothing this handler manages ever commits, so a
+ * commit runs the {@link Handle#afterRollback} callbacks and never the {@link Handle#afterCommit}
+ * callbacks.
  */
 public class RollbackOnlyTransactionHandler extends DelegatingTransactionHandler {
     public RollbackOnlyTransactionHandler() {
@@ -30,6 +32,6 @@ public class RollbackOnlyTransactionHandler extends DelegatingTransactionHandler
 
     @Override
     public void commit(final Handle handle) {
-        rollback(handle);
+        handle.rollback();
     }
 }
