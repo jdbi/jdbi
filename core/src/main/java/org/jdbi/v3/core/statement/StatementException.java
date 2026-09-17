@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.io.Serial;
 import java.util.Optional;
 
 import org.jdbi.v3.core.JdbiException;
@@ -22,6 +23,7 @@ import org.jdbi.v3.core.statement.StatementExceptions.MessageRendering;
  * Superclass for exceptions thrown while trying to execute a statement.
  */
 public abstract class StatementException extends JdbiException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final transient StatementContext statementContext;

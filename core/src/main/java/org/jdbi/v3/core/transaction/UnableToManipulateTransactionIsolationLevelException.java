@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.transaction;
 
+import java.io.Serial;
 import java.sql.SQLException;
 
 import org.jdbi.v3.core.JdbiException;
@@ -21,6 +22,7 @@ import org.jdbi.v3.core.JdbiException;
  * Thrown when {@code Jdbi} isn't able to change the transaction isolation level.
  */
 public class UnableToManipulateTransactionIsolationLevelException extends JdbiException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public UnableToManipulateTransactionIsolationLevelException(int i, SQLException e) {

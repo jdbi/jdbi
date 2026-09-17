@@ -13,12 +13,15 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.io.Serial;
+
 import org.jdbi.v3.core.JdbiException;
 
 /**
  * Thrown when constructing a SqlObject fails.
  */
 public class UnableToCreateSqlObjectException extends JdbiException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public UnableToCreateSqlObjectException(String message) {

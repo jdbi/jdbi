@@ -13,7 +13,10 @@
  */
 package org.jdbi.v3.core;
 
+import java.io.Serial;
+
 public class ConnectionException extends JdbiException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public ConnectionException(Throwable cause) {
