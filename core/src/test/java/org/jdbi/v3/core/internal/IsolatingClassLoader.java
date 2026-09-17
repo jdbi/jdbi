@@ -23,6 +23,10 @@ import java.io.InputStream;
  * <p>
  * Nothing in the isolated package may be referenced from a test directly, or the parent loader would
  * define it first.
+ * <p>
+ * This loader does not work in a GraalVM native image. The image is closed world, so every class is
+ * identified when the image is built and {@code defineClass} can not add another one at run time.
+ * Annotate every test that uses it with {@code @DisabledInNativeImage}.
  */
 public final class IsolatingClassLoader extends ClassLoader {
 
@@ -33,6 +37,11 @@ public final class IsolatingClassLoader extends ClassLoader {
      */
     public IsolatingClassLoader(String isolatedPackage) {
         super(IsolatingClassLoader.class.getClassLoader());
+        if (NativeImageDetector.inNativeImage()) {
+            // defineClass returns the class that is already in the image, so the isolation would be
+            // silently absent and the test would fail on an unrelated assertion
+            throw new UnsupportedOperationException("isolating class loader doesn't work in native-image");
+        }
         this.isolatedPackagePrefix = isolatedPackage + '.';
     }
 
