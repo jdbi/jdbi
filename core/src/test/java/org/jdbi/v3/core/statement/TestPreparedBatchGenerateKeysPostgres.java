@@ -19,8 +19,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
@@ -34,10 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestPreparedBatchGenerateKeysPostgres {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance().withInitializer(
         handle -> handle.execute("create table something (id serial primary key, name varchar(50), create_time timestamptz)")
     );
 

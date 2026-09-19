@@ -15,8 +15,6 @@ package org.jdbi.v3.core.statement;
 
 import java.util.UUID;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.junit.jupiter.api.DisplayName;
@@ -28,10 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestQueriesPG {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg)
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance()
         .withInitializer(h -> h.execute("create table something (id integer primary key, uuid UUID)"));
 
     @Test
