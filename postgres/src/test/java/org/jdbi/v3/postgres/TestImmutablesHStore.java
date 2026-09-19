@@ -17,9 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.immutables.value.Value;
-import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.junit5.SharedEmbeddedPgExtension;
 import org.jdbi.v3.core.mapper.immutables.JdbiImmutables;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindPojo;
@@ -35,14 +34,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestImmutablesHStore {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withDatabasePreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
-        .build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
         .withConfig(JdbiImmutables.class, c -> c.registerImmutable(Mappy.class))
-        .withInitializer((ds, h) -> h.execute("create table mappy (numbers hstore not null)"));
+        .withInitializer((ds, h) -> {
+            h.execute("create extension if not exists hstore");
+            h.execute("create table mappy (numbers hstore not null)");
+        });
 
     MappyDao dao;
 

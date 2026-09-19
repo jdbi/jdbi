@@ -13,8 +13,6 @@
  */
 package org.jdbi.v3.core.mapper.reflect;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapperTest.ConstructorBean;
@@ -26,9 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConstructorMapperPgTest {
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance();
 
     private Handle handle;
 
