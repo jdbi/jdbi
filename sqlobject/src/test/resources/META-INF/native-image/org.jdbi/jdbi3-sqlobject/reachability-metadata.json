@@ -94,6 +94,7 @@
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestInheritedAnnotations$CharacterDao","org.jdbi.v3.sqlobject.TestInheritedAnnotations$CrudDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestInheritedAnnotations$ChildDao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestInheritedAnnotations$ChildDao","org.jdbi.v3.sqlobject.TestInheritedAnnotations$ParentDao"]}},
+    {"type":{"proxy":["org.jdbi.v3.sqlobject.TestIssue2900TransactionAnnotation$Dao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestIterator$Spiffy"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestMistypedNamedParameter$Dao"]}},
     {"type":{"proxy":["org.jdbi.v3.sqlobject.TestMixinInterfaces$ExplicitUseHandle"]}},

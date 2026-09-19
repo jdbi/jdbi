@@ -1,5 +1,15 @@
 # Unreleased
 
+- Fix `TransactionHandler` isolation-level dispatch: the level-taking `inTransaction` is now a
+  default method that applies the level and calls the plain `inTransaction`, so a custom handler
+  (e.g. a `DelegatingTransactionHandler` subclass) that overrides only the plain method now sees
+  `@Transaction` transactions too. As a consequence, a delegate's own isolation-level override is
+  no longer called through a `DelegatingTransactionHandler`. A handler invoked directly with
+  `UNKNOWN` no longer restores the isolation level on exit; a call through `Handle` or `Jdbi` is
+  unaffected, because those save and restore the level themselves. (#2900, reported by @Randgalt,
+  thank you!)
+- Fix `SerializableTransactionRunner` discarding a subclass when it binds to a handle:
+  `specialize` now keeps the subclass instance, so its overrides keep running (#2900)
 - Add `LocalTransactionHandler.managed()`: Jdbi manages transactions on connections with autocommit
   disabled instead of joining them, e.g. on a pool that disables autocommit as a precaution.
   `inTransaction` commits, retry handlers such as `SerializableTransactionRunner` engage, and a

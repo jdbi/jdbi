@@ -78,21 +78,22 @@ public class SerializableTransactionRunner extends DelegatingTransactionHandler 
         }
     }
 
-    @Override
-    public <R, X extends Exception> R inTransaction(Handle handle,
-                                                    TransactionIsolationLevel level,
-                                                    HandleCallback<R, X> callback) throws X {
-        final TransactionIsolationLevel initial = handle.getTransactionIsolationLevel();
-        try {
-            handle.setTransactionIsolationLevel(level);
-            return inTransaction(handle, callback);
-        } finally {
-            handle.setTransactionIsolationLevel(initial);
-        }
-    }
-
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A subclass is returned as-is rather than rewrapped, because rewrapping would build a plain
+     * {@code SerializableTransactionRunner} and silently discard the subclass's overrides. The
+     * trade-off is that the delegate is then not specialized for the handle either:
+     * {@link LocalTransactionHandler} keeps its own per-handle state and is unaffected, but a
+     * delegate that relies on {@code specialize} to carry per-handle state does not receive it
+     * under a subclass of this handler.
+     * </p>
+     */
     @Override
     public TransactionHandler specialize(Handle handle) throws SQLException {
+        if (getClass() != SerializableTransactionRunner.class) {
+            return this;
+        }
         return new SerializableTransactionRunner(getDelegate().specialize(handle));
     }
 

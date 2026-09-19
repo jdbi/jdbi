@@ -31,7 +31,7 @@ import org.jdbi.v3.core.HandleCallback;
  * connection. On a wrapped connection, the autocommit flag does not show the
  * real transaction state, so this handler never reads it.</li>
  * <li>{@link #inTransaction(Handle, HandleCallback)} runs the callback on the
- * handle directly.</li>
+ * handle directly. The isolation-level variant ignores the requested level.</li>
  * <li>Savepoints are not supported.</li>
  * </ul>
  * Because the handle never reports an open transaction, the transaction
@@ -95,6 +95,12 @@ public class NoOpTransactionHandler implements TransactionHandler {
         return callback.withHandle(handle);
     }
 
+    /**
+     * Runs the callback without applying the requested isolation level. The inherited default
+     * would set the level on the connection, which this handler must not touch. A call through
+     * {@link Handle#inTransaction(TransactionIsolationLevel, HandleCallback)} has already applied
+     * the level before any handler runs, so this override only changes a direct handler call.
+     */
     @Override
     public <R, X extends Exception> R inTransaction(Handle handle,
                                                     TransactionIsolationLevel level,
