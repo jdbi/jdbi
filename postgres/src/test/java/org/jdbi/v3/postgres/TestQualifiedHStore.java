@@ -19,10 +19,9 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.generic.GenericType;
+import org.jdbi.v3.core.junit5.SharedEmbeddedPgExtension;
 import org.jdbi.v3.core.mapper.NoSuchMapperException;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.sqlobject.SingleValue;
@@ -45,13 +44,14 @@ public class TestQualifiedHStore {
     private static final GenericType<Map<String, String>> STRING_MAP = new GenericType<Map<String, String>>() {};
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withDatabasePreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("create extension hstore")))
-        .build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
         .withInitializer((ds, h) -> h.useTransaction(th -> {
+            th.execute("create extension if not exists hstore");
             th.execute("drop table if exists campaigns");
             th.execute("create table campaigns(id int not null, caps hstore)");
             th.execute("insert into campaigns(id, caps) values (1, 'yearly=>10000, monthly=>5000, daily=>200'::hstore)");

@@ -20,9 +20,8 @@ import java.sql.SQLException;
 import java.util.function.Supplier;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.junit5.SharedEmbeddedPgExtension;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -41,11 +40,13 @@ public class TestLobStream {
     private Handle h;
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults()
-        .withDatabasePreparer(ds -> Jdbi.create(ds).withHandle(h -> h.execute("CREATE TABLE lob (id int, lob oid)"))).build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
-    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin());
+    public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
+        .withInitializer((ds, handle) -> handle.execute("CREATE TABLE lob (id int, lob oid)"));
 
     @BeforeEach
     public void setUp() throws SQLException {

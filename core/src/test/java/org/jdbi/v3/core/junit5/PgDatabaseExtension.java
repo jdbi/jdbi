@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import de.softwareforge.testing.postgres.embedded.DatabaseInfo;
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Handles;
 import org.jdbi.v3.core.Jdbi;
@@ -34,8 +33,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  */
 public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseExtension>, BeforeEachCallback, AfterEachCallback {
 
-    private final EmbeddedPgExtension pg;
-
     private final Set<JdbiPlugin> plugins = new LinkedHashSet<>();
     private final JdbiLeakChecker leakChecker = new JdbiLeakChecker();
 
@@ -46,13 +43,17 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
     private Handle sharedHandle = null;
     private boolean enableLeakchecker = true;
 
-    public static PgDatabaseExtension instance(EmbeddedPgExtension pg) {
-        return new PgDatabaseExtension(pg);
+    /**
+     * Returns an extension backed by the embedded postgres server that every test class in this
+     * launcher session shares. The server starts on first use and stops when the session ends.
+     *
+     * @return a database extension on the shared server.
+     */
+    public static PgDatabaseExtension instance() {
+        return new PgDatabaseExtension();
     }
 
-    private PgDatabaseExtension(EmbeddedPgExtension pg) {
-        this.pg = pg;
-    }
+    private PgDatabaseExtension() {}
 
     @Override
     public Jdbi getJdbi() {
@@ -104,7 +105,7 @@ public final class PgDatabaseExtension implements DatabaseExtension<PgDatabaseEx
             throw new IllegalStateException("info is not null!");
         }
 
-        info = pg.createDatabaseInfo();
+        info = SharedEmbeddedPgExtension.instance(context).createDatabaseInfo();
 
         jdbi = Jdbi.create(info.asDataSource());
 

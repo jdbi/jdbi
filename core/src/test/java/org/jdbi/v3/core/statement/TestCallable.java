@@ -15,8 +15,6 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.Types;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
 import org.assertj.core.data.Offset;
 import org.jdbi.v3.core.Handle;
@@ -32,10 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class TestCallable {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance();
 
     private Handle h;
 
