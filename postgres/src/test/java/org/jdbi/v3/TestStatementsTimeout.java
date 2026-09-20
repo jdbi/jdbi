@@ -35,6 +35,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestStatementsTimeout {
 
+    private static final long UNCONTENDED_LOCK = 0x7D1_0001L;
+    private static final long CONTENDED_LOCK = 0x7D1_0002L;
+
     @RegisterExtension
     public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
 
@@ -53,20 +56,34 @@ public class TestStatementsTimeout {
         h.close();
     }
 
+    /**
+     * An advisory lock blocks for exactly as long as another session holds it, so the query
+     * that must time out waits on a held lock and the query that must not time out takes a
+     * free one. Neither case depends on a sleep racing the timeout.
+     */
     @Test
     public void testTimeout() {
         h.getConfig(SqlStatements.class).setQueryTimeout(2);
 
-        assertThatCode(h.createQuery("select pg_sleep(1)").mapTo(String.class)::one)
+        assertThatCode(h.createQuery("select pg_advisory_lock(:key)")
+                .bind("key", UNCONTENDED_LOCK)
+                .mapTo(String.class)::one)
             .doesNotThrowAnyException();
 
-        try (Query query = h.createQuery("select pg_sleep(3)")) {
-            ResultIterable<String> iterable = query.mapTo(String.class);
+        try (Handle lockHolder = pgExtension.openHandle()) {
+            lockHolder.createQuery("select pg_advisory_lock(:key)")
+                .bind("key", CONTENDED_LOCK)
+                .mapTo(String.class)
+                .one();
 
-            assertThatThrownBy(iterable::one)
-            .isInstanceOf(UnableToExecuteStatementException.class)
-                .hasCauseInstanceOf(PSQLException.class)
-                .matches(ex -> PSQLState.QUERY_CANCELED.getState().equals(((PSQLException) ex.getCause()).getSQLState()));
+            try (Query query = h.createQuery("select pg_advisory_lock(:key)").bind("key", CONTENDED_LOCK)) {
+                ResultIterable<String> iterable = query.mapTo(String.class);
+
+                assertThatThrownBy(iterable::one)
+                    .isInstanceOf(UnableToExecuteStatementException.class)
+                    .hasCauseInstanceOf(PSQLException.class)
+                    .matches(ex -> PSQLState.QUERY_CANCELED.getState().equals(((PSQLException) ex.getCause()).getSQLState()));
+            }
         }
     }
 }
