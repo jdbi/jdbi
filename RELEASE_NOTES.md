@@ -1,5 +1,13 @@
 # Unreleased
 
+- New `JoinRowReducer` (Beta) reduces the rows of a join query into root objects and links the joined
+  objects to them, for to-one and to-many relations over inner and outer joins. Columns are named relative
+  to the relation prefix, one type is one table, so a table row is one instance no matter through how many
+  relations the query reaches it, and reducers nest for deeper graphs (#1574)
+- New `RowView.getColumn(String)` and `RowView.getColumn(int)` return a column value as the JDBC driver
+  returns it from `ResultSet.getObject`, without a column mapper. New `RowView.getColumnNames()` returns
+  the column labels of the result set, and `RowView.getRow(RowMapper)` maps the current row with a given
+  mapper (#1574)
 - Add `LocalTransactionHandler.managed()`: Jdbi manages transactions on connections with autocommit
   disabled instead of joining them, e.g. on a pool that disables autocommit as a precaution.
   `inTransaction` commits, retry handlers such as `SerializableTransactionRunner` engage, and a

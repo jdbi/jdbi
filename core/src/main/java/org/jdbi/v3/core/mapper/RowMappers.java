@@ -190,10 +190,11 @@ public class RowMappers implements JdbiConfig<RowMappers> {
     /**
      * Obtain a row mapper for the given type that declares the given column name prefix.
      * <p>
-     * Only mappers that implement {@link PrefixedRowMapper} take part in this lookup, and a mapper
-     * matches only if its {@link PrefixedRowMapper#getPrefix() declared prefix} is equal to the
-     * given prefix. The comparison is an exact, case-sensitive string comparison. Mappers that do
-     * not declare a prefix never match, no matter what type they map.
+     * A mapper that implements {@link PrefixedRowMapper} matches if its
+     * {@link PrefixedRowMapper#getPrefix() declared prefix} is equal to the given prefix. The
+     * comparison is an exact, case-sensitive string comparison. A mapper that does not declare a
+     * prefix reads unprefixed columns, so it matches the empty prefix and no other, no matter what
+     * type it maps.
      * <p>
      * The reflective mappers ({@code BeanMapper}, {@code ConstructorMapper}, {@code FieldMapper})
      * declare the prefix given at registration, or the empty string when registered without one.
@@ -219,7 +220,8 @@ public class RowMappers implements JdbiConfig<RowMappers> {
 
         for (RowMapperFactory factory : factories) {
             Optional<RowMapper<?>> maybeMapper = factory.build(type, registry);
-            if (maybeMapper.orElse(null) instanceof PrefixedRowMapper<?> mapper && prefix.equals(mapper.getPrefix())) {
+            RowMapper<?> mapper = maybeMapper.orElse(null);
+            if (mapper != null && declaresPrefix(mapper, prefix)) {
                 mapper.init(registry);
                 prefixedCache.put(key, maybeMapper);
                 return maybeMapper;
@@ -228,6 +230,10 @@ public class RowMappers implements JdbiConfig<RowMappers> {
 
         prefixedCache.put(key, Optional.empty());
         return Optional.empty();
+    }
+
+    private static boolean declaresPrefix(RowMapper<?> mapper, String prefix) {
+        return mapper instanceof PrefixedRowMapper<?> prefixed ? prefix.equals(prefixed.getPrefix()) : prefix.isEmpty();
     }
 
     @Override
