@@ -8,6 +8,9 @@
   returns it from `ResultSet.getObject`, without a column mapper. New `RowView.getColumnNames()` returns
   the column labels of the result set, and `RowView.getRow(RowMapper)` maps the current row with a given
   mapper (#1574)
+- Add `BindListStyle` to render `bindList` / `@BindList` elements as single-column rows, `(:a),(:b)`, for
+  use with the SQL `VALUES` list constructor. Configure it with `SqlStatements#setBindListStyle` or
+  `@BindList(style = BindListStyle.ROWS)` (#1550, Alpha)
 - Add `LocalTransactionHandler.managed()`: Jdbi manages transactions on connections with autocommit
   disabled instead of joining them, e.g. on a pool that disables autocommit as a precaution.
   `inTransaction` commits, retry handlers such as `SerializableTransactionRunner` engage, and a
