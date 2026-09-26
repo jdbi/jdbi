@@ -32,6 +32,7 @@ import org.jdbi.v3.core.mapper.reflect.ReflectionMappers
 import org.jdbi.v3.core.mapper.reflect.internal.NullDelegatingMapper
 import org.jdbi.v3.core.qualifier.QualifiedType
 import org.jdbi.v3.core.statement.StatementContext
+import java.lang.reflect.Type
 import java.sql.ResultSet
 import java.util.Optional
 import java.util.OptionalInt
@@ -149,7 +150,8 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Pre
                     columnNameMatchers = columnNameMatchers,
                     unmatchedColumns = unmatchedColumns
                 ),
-                property.javaField != null && FieldMapper.checkPropagateNullAnnotation(property.javaField)
+                property.javaField != null && FieldMapper.checkPropagateNullAnnotation(property.javaField),
+                property.returnType.javaType.isPrimitiveClass()
             )
         }
 
@@ -202,7 +204,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Pre
 
                 return ctx.findColumnMapperFor(type)
                     .map { mapper ->
-                        ParamData(ParamResolution.MAPPED, SingleColumnMapper(mapper, columnIndex.asInt + 1), propagateNull)
+                        ParamData(ParamResolution.MAPPED, SingleColumnMapper(mapper, columnIndex.asInt + 1), propagateNull, type.type.isPrimitiveClass())
                     }
                     .orElseThrow {
                         IllegalArgumentException(
@@ -227,7 +229,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Pre
                         unmatchedColumns = unmatchedColumns
                     )
                 if (nestedMapper.isPresent) {
-                    return ParamData(ParamResolution.MAPPED, nestedMapper.get(), propagateNull)
+                    return ParamData(ParamResolution.MAPPED, nestedMapper.get(), propagateNull, isPrimitive = false)
                 }
             }
         }
@@ -237,11 +239,12 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Pre
             return ParamData(
                 if (parameter.type.isMarkedNullable) ParamResolution.USE_DEFAULT else ParamResolution.MAPPED,
                 null,
-                propagateNull
+                propagateNull,
+                isPrimitive = false
             )
         }
 
-        return ParamData(ParamResolution.UNMAPPED, null, propagateNull)
+        return ParamData(ParamResolution.UNMAPPED, null, propagateNull, isPrimitive = false)
     }
 
     private fun resolveMemberPropertyMapper(
@@ -313,7 +316,11 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Pre
         return propagateNullValue.isPresent
     }
 
-    private data class ParamData(val type: ParamResolution, val mapper: RowMapper<*>?, val propagateNull: Boolean)
+    private data class ParamData(val type: ParamResolution, val mapper: RowMapper<*>?, val propagateNull: Boolean, val isPrimitive: Boolean)
+
+    private fun Type.isPrimitiveClass(): Boolean = this is Class<*> && this.isPrimitive
+
+    private fun ParamData.propagatesNull(value: Any?, rs: ResultSet): Boolean = propagateNull && (value == null || (isPrimitive && rs.wasNull()))
 
     override fun toString() = "KotlinMapper(kClass=${kClass.qualifiedName}, prefix=$prefix)"
 
@@ -331,7 +338,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Pre
                     // non-optional values without a mapper (e.g. a non-optional value that is nullable
                     // but was not mapped onto a column) to pass through the filter
                     val value = if (v.mapper == null && k.isOptional) ParamResolution.USE_DEFAULT else v.mapper?.map(rs, ctx)
-                    if (value == null && v.propagateNull) {
+                    if (v.propagatesNull(value, rs)) {
                         return null
                     }
                     value
@@ -345,7 +352,7 @@ class KotlinMapper(val kClass: KClass<*>, private val prefix: String = "") : Pre
                 .associateWith { propertyMapper ->
                     val prop = memberPropertyMappers[propertyMapper]
                     val v = prop?.mapper?.map(rs, ctx)
-                    if (v == null && prop?.propagateNull == true) {
+                    if (prop?.propagatesNull(v, rs) == true) {
                         return null
                     }
                     v

@@ -7,6 +7,10 @@
   a type is first used and cache the result for the `Jdbi` instance, so set the strategy on the `Jdbi` before
   first use, not on a `Handle` or statement. A `ConstructorMapper` for a type that Jdbi can not access now fails
   on first use, with a message that names the fix, instead of at creation (#1684)
+- Fix `KotlinMapper` ignoring a SQL `NULL` for a `@PropagateNull` constructor parameter or property of a
+  non-null primitive type such as `Long` or `Int`. The column mapper returned `0` (or `false`) and the
+  object was mapped instead of `null`. `KotlinMapper` now treats the `NULL` as `null` like the
+  `ConstructorMapper`, `FieldMapper`, and `BeanMapper` do (#3048)
 - New `JoinRowReducer` (Beta) reduces the rows of a join query into root objects and links the joined
   objects to them, for to-one and to-many relations over inner and outer joins. Columns are named relative
   to the relation prefix, one type is one table, so a table row is one instance no matter through how many

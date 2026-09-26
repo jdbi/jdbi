@@ -2353,7 +2353,7 @@ include::{exampledir}/PropagateNullTest.java[tag=prefix]
 ----
 
 Because the mapper examines the value that the column mapper returns, an `Optional<String>` attribute on a SQL `NULL` column is `Optional.empty()`, which is not `null`, and does not propagate.
-For a primitive attribute such as `int id`, the `BeanMapper`, `ConstructorMapper`, and `FieldMapper` also treat a SQL `NULL` as `null`.
+For a primitive attribute such as `int id` (or a non-null Kotlin `Long` or `Int`), the `BeanMapper`, `ConstructorMapper`, `FieldMapper`, and `KotlinMapper` also treat a SQL `NULL` as `null`.
 On a `@Nested` attribute, the mapper examines the nested object: if the nested object is `null`, the parent object is also `null`.
 
 ===== Using `@Nullable` annotations
