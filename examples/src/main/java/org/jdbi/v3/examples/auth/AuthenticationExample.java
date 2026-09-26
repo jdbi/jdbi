@@ -37,6 +37,7 @@ import org.jdbi.v3.core.statement.Query;
  * Note that the handler will be instantiated separately for every method in the annotated types. Accessing an external authentication service will require
  * injection of a static singleton into the class.
  */
+@SuppressWarnings("PMD.UseUtilityClass")
 public class AuthenticationExample {
 
     /**
