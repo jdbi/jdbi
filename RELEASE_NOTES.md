@@ -27,6 +27,11 @@
   as its own test class) restarted with a bare `Jdbi` and failed with `NoSuchMapperException` or
   `NoSuchExtensionException` (#3036)
 - vavr: update to vavr 1.0.1. The vavr 1.0.0-alpha releases remain unsupported (#2350)
+- Fix repeated `@RegisterKotlinMapper` annotations on one method or type. Kotlin wrapped them in a generated
+  container that Jdbi did not process, so none of the mappers were registered and rows mapped through the
+  unprefixed `KotlinMapperFactory` mapper, ignoring the prefix. The annotation now uses
+  `RegisterKotlinMappers` as its container. Recompile code that repeats the annotation to pick up the fix.
+  (#2961)
 - update Spring Framework to 6.2.19 due to CVE-2026-41848 (Dependabot alert #45, #3026)
 - `ConfigRegistry.createCopy()` now materializes each config object lazily on its first access instead
   of copying every config object eagerly. This removes most of the allocation cost of extension attach
