@@ -8936,9 +8936,9 @@ dependencies {
 }
 ----
 
-[WARNING]
-Vavr introduced binary incompatibilities between 0.10.x and 1.0.0-alpha.
-The Jdbi plugin only supports 0.9.x and 0.10.x and requires recompilation for vavr 1.0.0.
+[NOTE]
+The Jdbi plugin supports vavr 1.0.x.
+It does not support the vavr 1.0.0-alpha releases, which are binary incompatible with vavr 1.0.
 
 [source,java,indent=0]
 ----
