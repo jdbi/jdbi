@@ -126,6 +126,11 @@ public class ReflectionMappers implements JdbiConfig<ReflectionMappers> {
      * Set the strategy Jdbi uses for Java accessibility rules.
      * The legacy default is to call {@code setAccessible(true)} in certain cases when we try to use a Constructor, Method, or Field.
      * In the future, this default will be changed to a no-op, to better interact with the Java module system.
+     * <p>
+     * Jdbi applies the strategy to a constructor, method, or field of a mapped or bound type that it can not access otherwise,
+     * for example a public getter of a package-private bean class. For beans, constructors, and Immutables, Jdbi applies the
+     * strategy in effect when a type is first used and caches the result for the {@code Jdbi} instance. Set the strategy on the
+     * {@code Jdbi} object before first use, not on a {@code Handle} or statement.
      *
      * @param makeAccessible A {@link Consumer} instance that implements the strategy.
      * @see AccessibleObjectStrategy
