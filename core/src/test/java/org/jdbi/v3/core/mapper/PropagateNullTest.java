@@ -17,8 +17,10 @@ import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
+import org.jdbi.v3.core.statement.Query;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PropagateNullTest extends AbstractPropagateNullTest {
@@ -437,6 +439,26 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
         }
     }
 
+    @Test
+    void testPropagateNullOnBeanWithMapperPrefix() {
+        assertPropagateNullWithMapperPrefix(prefix -> BeanMapper.of(Test7Bean.class, prefix));
+    }
+
+    @PropagateNull("fk")
+    public static class Test7Bean implements TestBean.NestedBean {
+
+        private String id;
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getId() {
+            return id;
+        }
+    }
+
     /**
      * Test that the propagateNull annotation on a nested bean works. The nested bean does not use a prefix and the column in the nested bean is present in the
      * result set.
@@ -529,6 +551,25 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
     @Test
     void testPropagateNullOnNestedCtorWithPrefixCaseInsensitive() {
         testPropagateNullOnNestedWithPrefixCaseInsensitive(q -> q.map(ConstructorMapper.of(Test12Bean.class)));
+    }
+
+    /**
+     * Test that the prefix of the mapper and the prefix of the nested bean add up when the nested bean resolves its propagateNull column.
+     */
+    @Test
+    void testPropagateNullOnNestedCtorWithMapperPrefix() {
+        RowMapper<Test12Bean> mapper = ConstructorMapper.of(Test12Bean.class, "t");
+
+        try (Query select = handle.select("select 'forty-two' as t_bean_id")) {
+            assertThat(select.map(mapper).one().getNestedBean())
+                .extracting(TestBean.NestedBean::getId).isEqualTo("forty-two");
+        }
+
+        try (Query select = handle.select("select NULL as t_bean_id")) {
+            assertThat(select.map(mapper).one())
+                .isNotNull()
+                .extracting(TestBean::getNestedBean).isNull();
+        }
     }
 
     public static class Test12Bean implements TestBean {
@@ -826,6 +867,26 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
             public String getId() {
                 return id;
             }
+        }
+    }
+
+    @Test
+    void testPropagateNullOnCtorWithMapperPrefix() {
+        assertPropagateNullWithMapperPrefix(prefix -> ConstructorMapper.of(Test17Bean.class, prefix));
+    }
+
+    @PropagateNull("fk")
+    public static class Test17Bean implements TestBean.NestedBean {
+
+        private final String id;
+
+        public Test17Bean(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getId() {
+            return id;
         }
     }
 
@@ -1162,6 +1223,22 @@ public class PropagateNullTest extends AbstractPropagateNullTest {
             public String getId() {
                 return id;
             }
+        }
+    }
+
+    @Test
+    void testPropagateNullOnFieldWithMapperPrefix() {
+        assertPropagateNullWithMapperPrefix(prefix -> FieldMapper.of(Test27Bean.class, prefix));
+    }
+
+    @PropagateNull("fk")
+    public static class Test27Bean implements TestBean.NestedBean {
+
+        public String id;
+
+        @Override
+        public String getId() {
+            return id;
         }
     }
 }
