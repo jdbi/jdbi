@@ -15,7 +15,6 @@ package org.jdbi.v3.core.mapper.reflect.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -28,6 +27,7 @@ import java.util.stream.Collectors;
 
 import io.leangen.geantyref.GenericTypeReflector;
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -55,9 +55,9 @@ public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
     BuilderPojoProperties(BuilderSpec<T, B> spec) {
         this(spec.type, spec.config, spec.defn, null, spec.builder);
         try {
-            builderBuild = MethodHandles.lookup().unreflect(builder.get().getClass().getMethod("build"))
+            builderBuild = JdbiClassUtils.unreflect(config, builder.get().getClass().getMethod("build"))
                     .asType(MethodType.methodType(Object.class, Object.class));
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+        } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Failed to inspect Immutables " + defn, e);
         }
     }
@@ -69,18 +69,14 @@ public class BuilderPojoProperties<T, B> extends PojoProperties<T> {
 
     protected BuilderPojoProperty<T> createProperty(String name, Method m) {
         final Class<?> builderClass = builder.get().getClass();
-        try {
-            final Type propertyType = GenericTypeReflector.getExactReturnType(m, getType());
-            return new BuilderPojoProperty<>(
-                name,
-                QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
-                m,
-                PojoBuilderUtils.alwaysSet(),
-                MethodHandles.lookup().unreflect(m).asFixedArity(),
-                PojoBuilderUtils.findBuilderSetter(builderClass, name, m, propertyType).asFixedArity());
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException("Failed to inspect method " + m, e);
-        }
+        final Type propertyType = GenericTypeReflector.getExactReturnType(m, getType());
+        return new BuilderPojoProperty<>(
+            name,
+            QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
+            m,
+            PojoBuilderUtils.alwaysSet(),
+            JdbiClassUtils.unreflect(config, m).asFixedArity(),
+            PojoBuilderUtils.findBuilderSetter(config, builderClass, name, m, propertyType).asFixedArity());
     }
 
     @Override

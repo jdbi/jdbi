@@ -3726,7 +3726,7 @@ transaction is rolled back and an exception is thrown when closing the Handle.
 Custom strategies can be set by implementing link:{jdkdocs}/java.base/java/util/function/UnaryOperator.html[UnaryOperator<String>^] with custom code.
 
 
-.2+| link:{jdbidocs}/core/mapper/reflect/ReflectionMappers.html[ReflectionMappers^] | caseChange
+.3+| link:{jdbidocs}/core/mapper/reflect/ReflectionMappers.html[ReflectionMappers^] | caseChange
     | link:{jdkdocs}/java.base/java/util/function/UnaryOperator.html[UnaryOperator<String>^] | link:{jdbidocs}/core/mapper/CaseStrategy.html#LOCALE_LOWER[LOCALE_LOWER^]
     | Defines the strategy for mapping the database column names to key names. Available strategies are:
 
@@ -3744,6 +3744,10 @@ Custom strategies can be set by implementing link:{jdkdocs}/java.base/java/util/
 | strictMatching
 ^| boolean ^| `false`
 <| If `true`, all database columns must be mapped to a property. If any columns are unmatched or any property is unset, an exception is thrown.
+
+| accessibleObjectStrategy
+^| link:{jdkdocs}/java.base/java/util/function/Consumer.html[Consumer<AccessibleObject>^] ^| link:{jdbidocs}/core/mapper/reflect/AccessibleObjectStrategy.html#FORCE_MAKE_ACCESSIBLE[FORCE_MAKE_ACCESSIBLE^]
+<| Applied to a constructor, method, or field of a mapped or bound type that Jdbi can not access otherwise, for example a public getter of a package-private bean class. For beans, constructors, and Immutables, Jdbi applies the strategy in effect when a type is first used and caches the result for the `Jdbi` instance. Set the strategy on the `Jdbi` object before first use, not on a `Handle` or statement. If the type is in a named module, that module must also open its package to Jdbi: to module `org.jdbi.v3.core` when Jdbi is on the module path, or to `ALL-UNNAMED` when Jdbi is on the class path.
 
 | link:{jdbidocs}/core/result/ResultProducers.html[ResultProducers^] | allowNoResults
 ^| boolean ^| `false`

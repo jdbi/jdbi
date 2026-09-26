@@ -340,7 +340,7 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
                 UNMATCHED_CONSTRUCTOR_PARAMETER, factory, unmatchedParameters));
         }
 
-        RowMapper<R> boundMapper = new BoundConstructorMapper<>(paramData, postProcessor);
+        RowMapper<R> boundMapper = new BoundConstructorMapper<>(paramData, factory.instantiator(ctx.getConfig()), postProcessor);
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
@@ -440,11 +440,13 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
 
         private final List<ParameterData> paramData;
         private final int count;
+        private final Function<Object[], T> instantiator;
         private final Function<T, R> postProcessor;
 
-        BoundConstructorMapper(List<ParameterData> paramData, Function<T, R> postProcessor) {
+        BoundConstructorMapper(List<ParameterData> paramData, Function<Object[], T> instantiator, Function<T, R> postProcessor) {
             this.paramData = paramData;
             this.count = factory.getParameterCount();
+            this.instantiator = instantiator;
             this.postProcessor = postProcessor;
         }
 
@@ -459,7 +461,7 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
                 }
             }
 
-            return postProcessor.apply(factory.newInstance(params));
+            return postProcessor.apply(instantiator.apply(params));
         }
 
         @Override

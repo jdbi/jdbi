@@ -26,7 +26,9 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 
@@ -74,8 +76,7 @@ public class PojoBuilderUtils {
         return names;
     }
 
-    public static MethodHandle findBuilderSetter(final Class<?> builderClass, String name, Method decl, Type type)
-        throws IllegalAccessException {
+    public static MethodHandle findBuilderSetter(ConfigRegistry config, final Class<?> builderClass, String name, Method decl, Type type) {
         final List<NoSuchMethodException> failures = new ArrayList<>();
         final Set<String> names = new LinkedHashSet<>();
         names.add(defaultSetterName(decl.getName()));
@@ -95,14 +96,14 @@ public class PojoBuilderUtils {
 
         for (String tryName : names) {
             try {
-                return MethodHandles.lookup().unreflect(builderClass.getMethod(tryName, GenericTypes.getErasedType(type)));
+                return JdbiClassUtils.unreflect(config, builderClass.getMethod(tryName, GenericTypes.getErasedType(type)));
             } catch (NoSuchMethodException e) {
                 failures.add(e);
             }
         }
         for (Method m : builderClass.getMethods()) {
             if (names.contains(m.getName()) && m.getParameterCount() == 1) {
-                return MethodHandles.lookup().unreflect(m);
+                return JdbiClassUtils.unreflect(config, m);
             }
         }
         final IllegalArgumentException iae = new IllegalArgumentException("Failed to find builder setter for property " + name + " on " + builderClass);

@@ -13,15 +13,18 @@
  */
 package org.jdbi.v3.core.mapper.immutables;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.JdbiOptionals;
+import org.jdbi.v3.core.internal.MemoizingSupplier;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.mapper.reflect.internal.BuilderPojoPropertiesFactory;
 import org.jdbi.v3.core.mapper.reflect.internal.ModifiablePojoPropertiesFactory;
@@ -135,22 +138,34 @@ public class JdbiImmutables implements JdbiConfig<JdbiImmutables> {
         return this;
     }
 
-    private static Optional<Supplier<?>> nullaryMethodOf(Class<?> impl, String methodName) {
+    private Optional<Supplier<?>> nullaryMethodOf(Class<?> impl, String methodName) {
+        final Method method;
         try {
-            return Optional.of(Unchecked.supplier(MethodHandles.lookup()
-                                .unreflect(impl.getMethod(methodName))::invoke));
-        } catch (ReflectiveOperationException e) {
+            method = impl.getMethod(methodName);
+        } catch (NoSuchMethodException e) {
             return Optional.empty();
         }
+        final ConfigRegistry config = registry;
+        return Optional.of(lazyInvoker(() -> JdbiClassUtils.unreflect(config, method)));
     }
 
     @SuppressWarnings("unchecked")
-    private static <S> Supplier<S> constructorOf(Class<S> impl) {
+    private <S> Supplier<S> constructorOf(Class<S> impl) {
+        final Constructor<S> constructor;
         try {
-            return (Supplier<S>) Unchecked.supplier(MethodHandles.lookup().findConstructor(impl, MethodType.methodType(void.class))::invoke);
-        } catch (ReflectiveOperationException e) {
+            constructor = impl.getConstructor();
+        } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("Couldn't find public constructor of " + impl, e);
         }
+        final ConfigRegistry config = registry;
+        return (Supplier<S>) lazyInvoker(() -> JdbiClassUtils.unreflectConstructor(config, constructor));
+    }
+
+    // Resolve the handle on first use rather than at registration, so that an accessible object
+    // strategy set on the Jdbi after registration still applies.
+    private static Supplier<Object> lazyInvoker(Supplier<MethodHandle> handleFactory) {
+        final Supplier<MethodHandle> handle = MemoizingSupplier.of(handleFactory);
+        return Unchecked.supplier(() -> handle.get().invoke());
     }
 
     /**

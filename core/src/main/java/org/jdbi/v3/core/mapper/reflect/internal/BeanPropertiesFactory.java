@@ -17,7 +17,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -49,7 +48,7 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 public class BeanPropertiesFactory {
 
     private static final ConfigCache<Type, PropertiesHolder<?>> PROPERTY_CACHE =
-            ConfigCaches.declare(PropertiesHolder::new);
+            ConfigCaches.declare((config, type) -> new PropertiesHolder<>(config, type));
 
     private BeanPropertiesFactory() {}
 
@@ -111,17 +110,17 @@ public class BeanPropertiesFactory {
             final BiConsumer<Object, Object> setter;
             final Type actualBeanType;
 
-            BeanPojoProperty(PropertyDescriptor property, Type actualBeanType) {
+            BeanPojoProperty(ConfigRegistry config, PropertyDescriptor property, Type actualBeanType) {
                 this.descriptor = property;
                 this.actualBeanType = actualBeanType;
                 this.qualifiedType = determineQualifiedType();
                 getter = Optional.ofNullable(descriptor.getReadMethod())
-                        .map(Unchecked.function(MethodHandles.lookup()::unreflect))
+                        .map(method -> JdbiClassUtils.unreflect(config, method))
                         .map(mh -> mh.asType(MethodType.methodType(Object.class, Object.class)))
                         .map(mh -> Unchecked.function(mh::invokeExact))
                         .orElse(null);
                 setter = Optional.ofNullable(descriptor.getWriteMethod())
-                        .map(Unchecked.function(MethodHandles.lookup()::unreflect))
+                        .map(method -> JdbiClassUtils.unreflect(config, method))
                         .map(mh -> mh.asType(MethodType.methodType(void.class, Object.class, Object.class)))
                         .map(mh -> Unchecked.biConsumer(mh::invokeExact))
                         .orElse(null);
@@ -196,18 +195,18 @@ public class BeanPropertiesFactory {
             final Map<String, BeanPojoProperty<?>> properties;
             final MethodHandleHolder<?> ctorHandleHolder;
 
-            PropertiesHolder(Type type) {
+            PropertiesHolder(ConfigRegistry config, Type type) {
                 this.clazz = GenericTypes.getErasedType(type);
                 try {
                     properties = Arrays.stream(Introspector.getBeanInfo(clazz).getPropertyDescriptors())
                             .filter(BeanPropertiesFactory::shouldSeeProperty)
-                            .map(p -> new BeanPojoProperty<>(p, addMissingWildcards(type)))
+                            .map(p -> new BeanPojoProperty<>(config, p, addMissingWildcards(type)))
                             .collect(Collectors.toMap(PojoProperty::getName, Function.identity()));
                 } catch (IntrospectionException e) {
                     throw new IllegalArgumentException("Failed to inspect bean " + clazz, e);
                 }
 
-                ctorHandleHolder = JdbiClassUtils.findConstructor(this.clazz);
+                ctorHandleHolder = JdbiClassUtils.findConstructor(config, this.clazz);
             }
 
             @SuppressWarnings({ "unchecked", "PMD.LambdaCanBeMethodReference" })
