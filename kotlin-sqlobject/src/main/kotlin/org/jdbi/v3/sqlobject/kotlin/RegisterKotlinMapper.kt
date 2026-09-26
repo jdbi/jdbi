@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.RUNTIME)
 @UseExtensionConfigurer(RegisterKotlinMapperImpl::class)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-@Repeatable
+@JvmRepeatable(RegisterKotlinMappers::class)
 annotation class RegisterKotlinMapper(
     /**
      * The mapped kotlin class.
