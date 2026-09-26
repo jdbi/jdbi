@@ -442,7 +442,7 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
 
         final String extensionId = jdbiStore.getOrComputeIfAbsent(JDBI_ID_KEY, k -> uniqueId, String.class);
 
-        if (extensionId.equals(uniqueId)) {
+        if (uniqueId.equals(extensionId)) {
             startExtension();
         }
     }
@@ -453,7 +453,7 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
 
         final String extensionId = jdbiStore.getOrComputeIfAbsent(JDBI_ID_KEY, k -> uniqueId, String.class);
 
-        if (extensionId.equals(uniqueId)) {
+        if (uniqueId.equals(extensionId)) {
             stopExtension();
         }
     }
