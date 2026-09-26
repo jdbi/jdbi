@@ -23,8 +23,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 class ClickhouseJdbiTestContainerExtensionTest extends AbstractJdbiTestcontainersExtensionTest {
 
+    // ClickHouse 26.9 responses fail with "Invalid LZ4 magic byte" in clickhouse-jdbc 0.9.8 and 0.10.0.
     @Container
-    static JdbcDatabaseContainer<?> dbContainer = new ClickHouseContainer("clickhouse/clickhouse-server:latest")
+    static JdbcDatabaseContainer<?> dbContainer = new ClickHouseContainer("clickhouse/clickhouse-server:26.8.12.53")
         .withUsername("test")
         .withPassword("test");
 
