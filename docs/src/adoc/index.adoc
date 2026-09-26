@@ -2299,7 +2299,7 @@ When binding object properties (e.g. with link:{jdbidocs}/core/statement/SqlStat
 
 [NOTE]
 link:{jdbidocs}/core/mapper/Nested.html[@Nested^] also can be used in combination with link:{jdkdocs}/java.base/java/util/Optional.html[Optional^].
-When mapping a value `@Nested Optional<MyBean>` then it will wrapped inside an optional, and will be `Optional.empty()` when `MyBean` itself would be null (e.g. because `@PropagateNull` annotation is used on a `MyBean` field that was null).
+When mapping a value `@Nested Optional<MyBean>` then it will be wrapped inside an optional, and will be `Optional.empty()` when `MyBean` itself would be null (e.g. because of a `@PropagateNull` annotation on the `MyBean` class or on a `MyBean` field whose column was null).
 
 [#propagate-null]
 ===== Using `@PropagateNull`
@@ -2355,6 +2355,7 @@ include::{exampledir}/PropagateNullTest.java[tag=prefix]
 Because the mapper examines the value that the column mapper returns, an `Optional<String>` attribute on a SQL `NULL` column is `Optional.empty()`, which is not `null`, and does not propagate.
 For a primitive attribute such as `int id`, the `BeanMapper`, `ConstructorMapper`, and `FieldMapper` also treat a SQL `NULL` as `null`.
 On a `@Nested` attribute, the mapper examines the nested object: if the nested object is `null`, the parent object is also `null`.
+A `@Nested Optional<MyBean>` attribute is `Optional.empty()` instead of `null`, so `@PropagateNull` on this attribute has no effect.
 
 ===== Using `@Nullable` annotations
 

@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.sql.Types;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
@@ -43,7 +45,7 @@ public class MapNestedOptionalsTest {
         <T> RowMapper<T> createRowMapper(Class<T> clazz);
     }
 
-    private static Stream<Arguments> rowMappers() {
+    private static Stream<Arguments.ArgumentSet> rowMappers() {
         RowMapperFactory constructorMapperFactory = ConstructorMapper::of;
         RowMapperFactory beanMapperFactory = BeanMapper::of;
         RowMapperFactory fieldMapperFactory = FieldMapper::of;
@@ -95,6 +97,68 @@ public class MapNestedOptionalsTest {
         assertThat(resultList.get(1).bean).isEmpty();
     }
 
+
+    private record ParentVariant(String name, Class<? extends NestedOptionalHolder> type) {}
+
+    private static Stream<Arguments> propagateNullParents() {
+        var parents = List.of(
+            new ParentVariant("class-level @PropagateNull", ParentOfClassPropagateNull.class),
+            new ParentVariant("class-level @PropagateNull, @PropagateNull on parent", PropagateNullParentOfClassPropagateNull.class),
+            new ParentVariant("attribute-level @PropagateNull", ParentOfAttributePropagateNull.class),
+            new ParentVariant("attribute-level @PropagateNull, @PropagateNull on parent", PropagateNullParentOfAttributePropagateNull.class));
+
+        return rowMappers().flatMap(mapper -> parents.stream().map(parent -> Arguments.argumentSet(
+            mapper.getName() + ", " + parent.name(),
+            mapper.get()[0],
+            parent.type())));
+    }
+
+    @ParameterizedTest
+    @MethodSource("propagateNullParents")
+    void testNestedOptionalIsEmptyWhenPropagateNullColumnIsNull(RowMapperFactory factory, Class<? extends NestedOptionalHolder> type) {
+        final Handle h = h2Extension.getSharedHandle();
+        h.execute("insert into something(intValue, nested_name) values(1, 'Duke')");
+        h.execute("insert into something(intValue, nested_name) values(null, 'Anonymous')");
+
+        var resultList = h.createQuery("select intValue as nested_id, nested_name from something order by id")
+            .map(factory.createRowMapper(type))
+            .list();
+
+        assertThat(resultList).hasSize(2);
+        assertThat(resultList.get(0).getNested()).hasValueSatisfying(n -> {
+            assertThat(n.getId()).isEqualTo(1);
+            assertThat(n.getName()).isEqualTo("Duke");
+        });
+        assertThat(resultList.get(1)).isNotNull();
+        assertThat(resultList.get(1).getNested()).isEmpty();
+    }
+
+    @ParameterizedTest
+    @MethodSource("rowMappers")
+    void testNestedOptionalInsideNestedOptionalWithPropagateNull(RowMapperFactory factory) {
+        final Handle h = h2Extension.getSharedHandle();
+        final RowMapper<OuterOfMiddle> mapper = factory.createRowMapper(OuterOfMiddle.class);
+        final String sql = "select cast(:middleId as integer) as outer_id, cast(:innerId as integer) as outer_inner_id, 'Duke' as outer_inner_name";
+
+        OuterOfMiddle bothPresent = h.createQuery(sql).bind("middleId", 1).bind("innerId", 2).map(mapper).one();
+        assertThat(bothPresent.getOuter()).hasValueSatisfying(middle -> {
+            assertThat(middle.getId()).isEqualTo(1);
+            assertThat(middle.getInner()).hasValueSatisfying(inner -> {
+                assertThat(inner.getId()).isEqualTo(2);
+                assertThat(inner.getName()).isEqualTo("Duke");
+            });
+        });
+
+        OuterOfMiddle innerNull = h.createQuery(sql).bind("middleId", 1).bindNull("innerId", Types.INTEGER).map(mapper).one();
+        assertThat(innerNull.getOuter()).hasValueSatisfying(middle -> {
+            assertThat(middle.getId()).isEqualTo(1);
+            assertThat(middle.getInner()).isEmpty();
+        });
+
+        OuterOfMiddle middleNull = h.createQuery(sql).bindNull("middleId", Types.INTEGER).bind("innerId", 2).map(mapper).one();
+        assertThat(middleNull).isNotNull();
+        assertThat(middleNull.getOuter()).isEmpty();
+    }
 
     public static class OptionalBean {
 
@@ -184,6 +248,220 @@ public class MapNestedOptionalsTest {
         @Nested
         public void setBean(Optional<NestedBeanWithPropagateNullPrimitive> bean) {
             this.bean = bean;
+        }
+    }
+
+    public interface IdAndName {
+        Integer getId();
+
+        String getName();
+    }
+
+    public interface NestedOptionalHolder {
+        Optional<? extends IdAndName> getNested();
+    }
+
+    @PropagateNull("id")
+    public static class ClassPropagateNullBean implements IdAndName {
+        public Integer id;
+        public String name;
+
+        @JdbiConstructor
+        public ClassPropagateNullBean(Integer id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+        public ClassPropagateNullBean() {}
+
+        @Override
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public static class AttributePropagateNullBean implements IdAndName {
+        @PropagateNull
+        public Integer id;
+        public String name;
+
+        @JdbiConstructor
+        public AttributePropagateNullBean(@PropagateNull Integer id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+        public AttributePropagateNullBean() {}
+
+        @Override
+        public Integer getId() {
+            return id;
+        }
+
+        @PropagateNull
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public static class ParentOfClassPropagateNull implements NestedOptionalHolder {
+        @Nested("nested")
+        public Optional<ClassPropagateNullBean> nested;
+
+        @JdbiConstructor
+        public ParentOfClassPropagateNull(@Nested("nested") Optional<ClassPropagateNullBean> nested) {
+            this.nested = nested;
+        }
+        public ParentOfClassPropagateNull() {}
+
+        @Override
+        public Optional<ClassPropagateNullBean> getNested() {
+            return nested;
+        }
+
+        @Nested("nested")
+        public void setNested(Optional<ClassPropagateNullBean> nested) {
+            this.nested = nested;
+        }
+    }
+
+    public static class PropagateNullParentOfClassPropagateNull implements NestedOptionalHolder {
+        @Nested("nested")
+        @PropagateNull
+        public Optional<ClassPropagateNullBean> nested;
+
+        @JdbiConstructor
+        public PropagateNullParentOfClassPropagateNull(@Nested("nested") @PropagateNull Optional<ClassPropagateNullBean> nested) {
+            this.nested = nested;
+        }
+        public PropagateNullParentOfClassPropagateNull() {}
+
+        @Override
+        public Optional<ClassPropagateNullBean> getNested() {
+            return nested;
+        }
+
+        @Nested("nested")
+        @PropagateNull
+        public void setNested(Optional<ClassPropagateNullBean> nested) {
+            this.nested = nested;
+        }
+    }
+
+    public static class ParentOfAttributePropagateNull implements NestedOptionalHolder {
+        @Nested("nested")
+        public Optional<AttributePropagateNullBean> nested;
+
+        @JdbiConstructor
+        public ParentOfAttributePropagateNull(@Nested("nested") Optional<AttributePropagateNullBean> nested) {
+            this.nested = nested;
+        }
+        public ParentOfAttributePropagateNull() {}
+
+        @Override
+        public Optional<AttributePropagateNullBean> getNested() {
+            return nested;
+        }
+
+        @Nested("nested")
+        public void setNested(Optional<AttributePropagateNullBean> nested) {
+            this.nested = nested;
+        }
+    }
+
+    public static class PropagateNullParentOfAttributePropagateNull implements NestedOptionalHolder {
+        @Nested("nested")
+        @PropagateNull
+        public Optional<AttributePropagateNullBean> nested;
+
+        @JdbiConstructor
+        public PropagateNullParentOfAttributePropagateNull(@Nested("nested") @PropagateNull Optional<AttributePropagateNullBean> nested) {
+            this.nested = nested;
+        }
+        public PropagateNullParentOfAttributePropagateNull() {}
+
+        @Override
+        public Optional<AttributePropagateNullBean> getNested() {
+            return nested;
+        }
+
+        @Nested("nested")
+        @PropagateNull
+        public void setNested(Optional<AttributePropagateNullBean> nested) {
+            this.nested = nested;
+        }
+    }
+
+    @PropagateNull("id")
+    public static class MiddleWithNestedOptional {
+        public Integer id;
+        @Nested("inner")
+        public Optional<ClassPropagateNullBean> inner;
+
+        @JdbiConstructor
+        public MiddleWithNestedOptional(Integer id, @Nested("inner") Optional<ClassPropagateNullBean> inner) {
+            this.id = id;
+            this.inner = inner;
+        }
+
+        public MiddleWithNestedOptional() {}
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public Optional<ClassPropagateNullBean> getInner() {
+            return inner;
+        }
+
+        @Nested("inner")
+        public void setInner(Optional<ClassPropagateNullBean> inner) {
+            this.inner = inner;
+        }
+    }
+
+    public static class OuterOfMiddle {
+        @Nested("outer")
+        public Optional<MiddleWithNestedOptional> outer;
+
+        @JdbiConstructor
+        public OuterOfMiddle(@Nested("outer") Optional<MiddleWithNestedOptional> outer) {
+            this.outer = outer;
+        }
+
+        public OuterOfMiddle() {}
+
+        public Optional<MiddleWithNestedOptional> getOuter() {
+            return outer;
+        }
+
+        @Nested("outer")
+        public void setOuter(Optional<MiddleWithNestedOptional> outer) {
+            this.outer = outer;
         }
     }
 }
