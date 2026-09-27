@@ -316,4 +316,63 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
     data class Test7Bean(private val id: String?) : TestBean.NestedBean {
         override fun getId(): String? = id
     }
+
+    @Test
+    fun testPropagateNullOnPrimitiveConstructorParameter() {
+        assertThat(handle.select("select NULL as id, 'foo' as name").mapTo<PrimitiveParameterBean>().one()).isNull()
+        assertThat(handle.select("select 42 as id, NULL as name").mapTo<PrimitiveParameterBean>().one())
+            .isEqualTo(PrimitiveParameterBean(42L, null))
+        assertThat(handle.select("select 0 as id, 'foo' as name").mapTo<PrimitiveParameterBean>().one())
+            .isEqualTo(PrimitiveParameterBean(0L, "foo"))
+    }
+
+    data class PrimitiveParameterBean(@PropagateNull val id: Long, val name: String?)
+
+    @Test
+    fun testPropagateNullOnPrimitiveBooleanConstructorParameter() {
+        assertThat(handle.select("select NULL as active").mapTo<PrimitiveBooleanBean>().one()).isNull()
+        assertThat(handle.select("select false as active").mapTo<PrimitiveBooleanBean>().one())
+            .isEqualTo(PrimitiveBooleanBean(false))
+    }
+
+    data class PrimitiveBooleanBean(@PropagateNull val active: Boolean)
+
+    @Test
+    fun testPropagateNullOnPrimitiveMemberProperty() {
+        assertThat(handle.select("select NULL as id, 'foo' as name").mapTo<PrimitivePropertyBean>().one()).isNull()
+
+        val bean = handle.select("select 42 as id, NULL as name").mapTo<PrimitivePropertyBean>().one()
+        assertThat(bean).isNotNull()
+        assertThat(bean.id).isEqualTo(42)
+        assertThat(bean.name).isNull()
+
+        val zeroBean = handle.select("select 0 as id, 'foo' as name").mapTo<PrimitivePropertyBean>().one()
+        assertThat(zeroBean).isNotNull()
+        assertThat(zeroBean.id).isZero()
+        assertThat(zeroBean.name).isEqualTo("foo")
+    }
+
+    data class PrimitivePropertyBean(val name: String?) {
+        @PropagateNull
+        var id: Int = -1
+    }
+
+    @Test
+    fun testPropagateNullOnPrimitiveConstructorParameterWithDefault() {
+        assertThat(handle.select("select NULL as id, 'foo' as name").mapTo<PrimitiveDefaultBean>().one()).isNull()
+        assertThat(handle.select("select 'foo' as name").mapTo<PrimitiveDefaultBean>().one())
+            .isEqualTo(PrimitiveDefaultBean(5L, "foo"))
+    }
+
+    data class PrimitiveDefaultBean(@PropagateNull val id: Long = 5L, val name: String?)
+
+    @Test
+    fun testPropagateNullOnNestedPrimitiveWithPrefix() {
+        assertThat(handle.select("select 1 as id, NULL as inner_id, 'foo' as inner_name").mapTo<PrimitiveOuterBean>().one())
+            .isEqualTo(PrimitiveOuterBean(1, null))
+        assertThat(handle.select("select 1 as id, 42 as inner_id, 'foo' as inner_name").mapTo<PrimitiveOuterBean>().one())
+            .isEqualTo(PrimitiveOuterBean(1, PrimitiveParameterBean(42L, "foo")))
+    }
+
+    data class PrimitiveOuterBean(val id: Int, @Nested("inner") val inner: PrimitiveParameterBean?)
 }
