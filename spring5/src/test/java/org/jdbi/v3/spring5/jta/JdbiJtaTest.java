@@ -24,6 +24,8 @@ import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
+import org.jdbi.v3.spring5.ForceRollback;
+import org.jdbi.v3.sqlobject.SqlObject;
 import org.jdbi.v3.testing.junit5.internal.JdbiLeakChecker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,12 +34,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { JdbiJtaTestConfiguration.class })
 public class JdbiJtaTest {
 
     @Autowired
     private SomethingService somethingService;
+
+    @Autowired
+    private SomethingDao somethingDao;
 
     @Autowired
     private Jdbi jdbi;
@@ -77,6 +85,39 @@ public class JdbiJtaTest {
                 () -> somethingService.inTransaction(SomethingDao::exceptionThrowingQuery)
         );
         jdbiLeakChecker.checkForLeaks();
+    }
+
+    @Test
+    void testRepositoryJoinsJdbiTransaction() {
+        JdbiLeakChecker jdbiLeakChecker = installJdbiLeakChecker(jdbi);
+        assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> jdbi.useTransaction(handle -> {
+            assertThat(((SqlObject) somethingDao).getHandle()).isSameAs(handle);
+            somethingDao.insert(1, "rolled back");
+            assertThat(handle.createQuery("select count(*) from something").mapTo(int.class).one()).isOne();
+            throw new ForceRollback();
+        }));
+        jdbiLeakChecker.checkForLeaks();
+
+        assertThat(somethingDao.count()).isZero();
+    }
+
+    @Test
+    void testRepositoryJoinsSpringTransaction() {
+        assertThatExceptionOfType(ForceRollback.class).isThrownBy(() -> somethingService.inTransaction(dao -> {
+            dao.insert(1, "rolled back");
+            assertThat(dao.count()).isOne();
+            throw new ForceRollback();
+        }));
+
+        assertThat(somethingDao.count()).isZero();
+    }
+
+    @Test
+    void testJdbiCallbackHasPriorityOverSpringTransaction() {
+        somethingService.inTransaction(dao -> jdbi.withHandle(handle -> {
+            assertThat(((SqlObject) dao).getHandle()).isSameAs(handle);
+            return null;
+        }));
     }
 
     public static JdbiLeakChecker installJdbiLeakChecker(Jdbi jdbi) {
