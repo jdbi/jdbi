@@ -7005,6 +7005,43 @@ MyJson result = h.createQuery("SELECT json FROM myjsons")
     .one();
 ----
 
+==== Additional qualifiers
+
+A `@Json` type can carry more qualifiers, e.g. `@Json @Shouting String`.
+Jdbi binds and maps it as JSON, and passes the full link:{jdbidocs}/core/qualifier/QualifiedType.html[QualifiedType^] to
+link:{jdbidocs}/json/JsonMapper.html#forType(org.jdbi.v3.core.qualifier.QualifiedType,org.jdbi.v3.core.config.ConfigRegistry)[JsonMapper#forType(QualifiedType, ConfigRegistry)^].
+A `JsonMapper` can override this method to select a serializer by qualifier. The default implementation ignores the qualifiers.
+
+The <<Moshi>> mapper passes each qualifier that is annotated with Moshi's `@JsonQualifier` to Moshi. To use a Moshi qualifier, annotate it with both `@JsonQualifier` and Jdbi's link:{jdbidocs}/core/qualifier/Qualifier.html[@Qualifier^]:
+
+[source,java,indent=0]
+----
+@Retention(RetentionPolicy.RUNTIME)
+@JsonQualifier
+@Qualifier
+public @interface Shouting {}
+
+public class ShoutingAdapter {
+    @ToJson
+    public String toJson(@Shouting String value) {
+        return value.toUpperCase(Locale.ROOT);
+    }
+
+    @FromJson
+    @Shouting
+    public String fromJson(String value) {
+        return value.toLowerCase(Locale.ROOT);
+    }
+}
+
+interface ShoutDao {
+    @SqlUpdate("INSERT INTO shouts (shout) VALUES (:shout)")
+    void insert(@Json @Shouting String shout);
+}
+----
+
+In Kotlin, put both annotations on the constructor property of a data class, e.g. `data class Shout(@Json @Shouting val shout: String)`.
+
 === Immutables
 
 https://immutables.github.io/[Immutables^] is an annotation processor that generates value types based on simple interface descriptions.

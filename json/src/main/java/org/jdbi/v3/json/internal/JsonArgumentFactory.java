@@ -13,13 +13,12 @@
  */
 package org.jdbi.v3.json.internal;
 
-import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.function.Function;
 
 import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.argument.Arguments;
+import org.jdbi.v3.core.argument.QualifiedArgumentFactory;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.qualifier.QualifiedType;
@@ -30,10 +29,10 @@ import org.jdbi.v3.json.JsonConfig;
 import org.jdbi.v3.json.JsonMapper.TypedJsonMapper;
 
 /**
- * converts a value object to json text and delegates to another factory to perform the {@code (@Json) String} binding
+ * converts a value object to json text and delegates to another factory to perform the {@code (@Json) String} binding.
+ * Matches any type qualified with {@code @Json}, including types with additional qualifiers.
  */
-@Json
-public class JsonArgumentFactory implements ArgumentFactory.Preparable {
+public class JsonArgumentFactory implements QualifiedArgumentFactory.Preparable {
     public static final QualifiedType<String> ENCODED_JSON = QualifiedType.of(String.class).with(EncodedJson.class);
 
     private static final String JSON_NOT_STORABLE = String.format(
@@ -42,7 +41,15 @@ public class JsonArgumentFactory implements ArgumentFactory.Preparable {
     );
 
     @Override
-    public Optional<Function<Object, Argument>> prepare(Type type, ConfigRegistry config) {
+    public Optional<Argument> build(QualifiedType<?> type, Object value, ConfigRegistry config) {
+        return prepare(type, config).map(binder -> binder.apply(value));
+    }
+
+    @Override
+    public Optional<Function<Object, Argument>> prepare(QualifiedType<?> type, ConfigRegistry config) {
+        if (!type.hasQualifier(Json.class)) {
+            return Optional.empty();
+        }
         TypedJsonMapper mapper = config.get(JsonConfig.class).getJsonMapper().forType(type, config);
         Arguments a = config.get(Arguments.class);
         // look for specialized json support first, revert to simple String binding if absent

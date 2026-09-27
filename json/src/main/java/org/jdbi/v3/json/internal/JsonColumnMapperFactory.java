@@ -13,14 +13,13 @@
  */
 package org.jdbi.v3.json.internal;
 
-import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.internal.JdbiOptionals;
 import org.jdbi.v3.core.mapper.ColumnMapper;
-import org.jdbi.v3.core.mapper.ColumnMapperFactory;
 import org.jdbi.v3.core.mapper.ColumnMappers;
+import org.jdbi.v3.core.mapper.QualifiedColumnMapperFactory;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.json.EncodedJson;
@@ -29,17 +28,20 @@ import org.jdbi.v3.json.JsonConfig;
 import org.jdbi.v3.json.JsonMapper.TypedJsonMapper;
 
 /**
- * converts a {@code (@Json) String} fetched by another mapper into a value object
+ * converts a {@code (@Json) String} fetched by another mapper into a value object.
+ * Matches any type qualified with {@code @Json}, including types with additional qualifiers.
  */
-@Json
-public class JsonColumnMapperFactory implements ColumnMapperFactory {
+public class JsonColumnMapperFactory implements QualifiedColumnMapperFactory {
     private static final String JSON_NOT_RETRIEVABLE = String.format(
         "No column mapper found for '@%s String', or 'String'",
         Json.class.getSimpleName()
     );
 
     @Override
-    public Optional<ColumnMapper<?>> build(Type type, ConfigRegistry config) {
+    public Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config) {
+        if (!type.hasQualifier(Json.class)) {
+            return Optional.empty();
+        }
         ColumnMappers cm = config.get(ColumnMappers.class);
         // look for specialized json support first, revert to simple String mapping if absent
         ColumnMapper<String> jsonStringMapper = JdbiOptionals.findFirstPresent(

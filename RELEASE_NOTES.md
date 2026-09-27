@@ -1,5 +1,11 @@
 # Unreleased
 
+- Bind and map a `@Json` type that carries more qualifiers, e.g. `@Json @Shouting String`. Before, the JSON
+  factories did not match such a type. The new `JsonMapper#forType(QualifiedType, ConfigRegistry)` receives
+  all qualifiers, and its default implementation calls the existing `forType(Type, ConfigRegistry)`. The Moshi mapper
+  passes each `@JsonQualifier` annotation to Moshi. A Moshi qualifier annotation that is also annotated with Jdbi's
+  `@Qualifier` now selects its Moshi adapter for Java and Kotlin properties (#2824)
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public
