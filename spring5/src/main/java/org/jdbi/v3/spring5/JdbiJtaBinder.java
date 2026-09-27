@@ -26,6 +26,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.internal.UtilityClassException;
 import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.sqlobject.SqlObject;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static org.jdbi.v3.core.internal.JdbiClassUtils.EQUALS_METHOD;
 import static org.jdbi.v3.core.internal.JdbiClassUtils.HASHCODE_METHOD;
@@ -38,6 +39,8 @@ class JdbiJtaBinder {
 
     /**
      * Proxies the extension object to bind it to the jta framework. Creates and closes the handle if needed.
+     * A handle that the calling thread already holds from {@link Jdbi#withHandle} or its variants has priority
+     * over a handle bound to a Spring transaction.
      */
     static <E> E bind(Jdbi jdbi, Class<E> extensionType) {
         InvocationHandler invocationHandler = createInvocationHandler(jdbi, extensionType);
@@ -46,6 +49,10 @@ class JdbiJtaBinder {
 
     private static InvocationHandler createInvocationHandler(Jdbi jdbi, Class<?> extensionType) {
         return (proxy, method, args) -> {
+            if (jdbi.getHandleScope().get() != null || !TransactionSynchronizationManager.isSynchronizationActive()) {
+                return jdbi.withExtension(extensionType, extension -> invoke(extension, method, args));
+            }
+
             Handle handle = JdbiUtil.getHandle(jdbi);
             try {
                 Object delegate = handle.attach(extensionType);

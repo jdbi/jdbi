@@ -17,7 +17,9 @@ import java.util.List;
 
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.spring5.JdbiRepository;
+import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
 @JdbiRepository
 public interface SomethingDao {
@@ -30,4 +32,9 @@ public interface SomethingDao {
     @SqlQuery("select name from something where 1/0 = 1")
     String exceptionThrowingQuery();
 
+    @SqlUpdate("insert into something (id, name) values (:id, :name)")
+    void insert(@Bind("id") int id, @Bind("name") String name);
+
+    @SqlQuery("select count(*) from something")
+    int count();
 }

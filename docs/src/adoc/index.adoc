@@ -8610,6 +8610,18 @@ try {
 
 This utility will also make sure that the handle is released when it was bound to a Spring transaction and that transaction is closed.
 
+If you create the `Jdbi` instance from a `DataSource` yourself, wrap the data source in Spring's
+link:https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/datasource/TransactionAwareDataSourceProxy.html[TransactionAwareDataSourceProxy^].
+Every handle then uses the connection of the current Spring transaction, and Spring commits or rolls back the work of all handles together:
+
+[source,java,indent=0]
+----
+@Bean
+public Jdbi jdbi(DataSource dataSource) {
+    return Jdbi.create(new TransactionAwareDataSourceProxy(dataSource));
+}
+----
+
 ==== Jdbi Repositories
 
 When using <<sql-objects, SQL objects>> it might be preferable to have them available for injection.
@@ -8634,6 +8646,22 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 }
+----
+
+Each method call on a repository bean uses the first of these handles that exists:
+
+. The handle of a `Jdbi` callback that encloses the call on the same thread, such as `Jdbi#useTransaction`, `Jdbi#withHandle`, or `Jdbi#useExtension`.
+. The handle bound to the current Spring transaction.
+. A new handle, which Jdbi closes when the method returns.
+
+A repository bean therefore takes part in a `Jdbi` transaction as well as in a Spring transaction:
+
+[source,java,indent=0]
+----
+jdbi.useTransaction(handle -> {
+    userDao.insert(user);           // uses the transaction handle
+    auditDao.insert(auditRecord);   // same handle, same transaction
+});
 ----
 
 === SQLite

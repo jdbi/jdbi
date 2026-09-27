@@ -1,5 +1,11 @@
 # Unreleased
 
+- Fix `@JdbiRepository` beans ignoring an enclosing `Jdbi#useTransaction`, `Jdbi#withHandle`, or similar callback.
+  Each method call opened its own handle and ran outside the transaction. A repository method call now uses the
+  handle of the enclosing callback, and uses the handle of the Spring transaction only when there is no such
+  callback. The `spring` and `spring5` modules both have the fix. The Spring documentation now also describes the
+  `TransactionAwareDataSourceProxy` setup (#2670)
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public
