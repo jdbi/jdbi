@@ -11,6 +11,10 @@
   non-null primitive type such as `Long` or `Int`. The column mapper returned `0` (or `false`) and the
   object was mapped instead of `null`. `KotlinMapper` now treats the `NULL` as `null` like the
   `ConstructorMapper`, `FieldMapper`, and `BeanMapper` do (#3048)
+- Fix a `@Nested Optional<T>` attribute that held `null` instead of `Optional.empty()` when `T` used the
+  class-level `@PropagateNull("column")` form and that column was null. A `@PropagateNull` on the
+  `Optional` attribute itself no longer turns the parent into `null` in this case, which matches the
+  attribute-level form (#3049)
 - New `JoinRowReducer` (Beta) reduces the rows of a join query into root objects and links the joined
   objects to them, for to-one and to-many relations over inner and outer joins. Columns are named relative
   to the relation prefix, one type is one table, so a table row is one instance no matter through how many

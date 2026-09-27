@@ -160,7 +160,7 @@ public class PojoMapper<T> implements PrefixedRowMapper<T> {
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
-            return Optional.of(new NullDelegatingMapper<>(propagateNullColumnIndex.getAsInt() + 1, boundMapper));
+            return Optional.of(new NullDelegatingMapper<>(propagateNullColumnIndex.getAsInt() + 1, boundMapper, postProcessor.apply(null)));
         } else {
             return Optional.of(boundMapper);
         }
