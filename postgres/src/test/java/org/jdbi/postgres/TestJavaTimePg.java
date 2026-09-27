@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.assertj.core.data.TemporalUnitOffset;
 import org.jdbi.core.Handle;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.sqlobject.AbstractJavaTimeSqlObjectTests;
 import org.jdbi.sqlobject.SqlObjectPlugin;
@@ -41,11 +41,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TestJavaTimePg {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)

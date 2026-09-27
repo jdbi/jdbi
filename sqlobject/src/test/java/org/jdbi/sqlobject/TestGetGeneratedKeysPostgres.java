@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.statement.StatementContext;
 import org.jdbi.sqlobject.config.RegisterRowMapper;
@@ -40,7 +40,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestGetGeneratedKeysPostgres {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugin(new SqlObjectPlugin());

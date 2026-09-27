@@ -100,6 +100,31 @@ public class FieldMapperTest {
             .hasMessageContaining("could not match fields for columns: [other]");
     }
 
+    @Test
+    public void testPrefixedMapperReportsUnprefixedColumns() {
+        Handle handle = h2Extension.getSharedHandle();
+        handle.execute("insert into something (id, name) values (1, 'foo')");
+        handle.registerRowMapper(FieldMapper.factory(ColumnNameThing.class, "t"));
+
+        assertThatThrownBy(() -> {
+            try (Query query = handle.createQuery("select id, name from something")) {
+                query.mapTo(ColumnNameThing.class).one();
+            }
+        })
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("didn't find any matching columns in result set")
+            .hasMessageContaining("Result set columns: [id, name]")
+            .hasMessageContaining("prefix 't'")
+            .hasMessageContaining("\"t.id AS t_id\" instead of \"t.*\"");
+
+        ColumnNameThing thing = handle.createQuery("select id as t_id, name as t_name from something")
+            .mapTo(ColumnNameThing.class)
+            .one();
+
+        assertThat(thing.i).isOne();
+        assertThat(thing.s).isEqualTo("foo");
+    }
+
     static class NestedThing {
 
         @Nested

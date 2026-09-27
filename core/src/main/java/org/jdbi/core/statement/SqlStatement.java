@@ -1446,6 +1446,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the vararg array is empty.
      * @see #bindList(BiConsumer, String, List)
+     * @see SqlStatements#setBindListStyle(BindListStyle)
      */
     public final This bindList(String key, Object... values) {
         return bindList(EmptyHandling.THROW, key, values);
@@ -1461,6 +1462,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @throws IllegalArgumentException if the vararg array is empty.
      * @see EmptyHandling
      * @see #bindList(BiConsumer, String, List)
+     * @see SqlStatements#setBindListStyle(BindListStyle)
      */
     public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Object... values) {
         return bindList(onEmpty, key, values == null ? null : Arrays.asList(values));
@@ -1474,6 +1476,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the iterable is empty.
      * @see #bindList(BiConsumer, String, List)
+     * @see SqlStatements#setBindListStyle(BindListStyle)
      */
     public final This bindList(String key, Iterable<?> values) {
         return bindList(EmptyHandling.THROW, key, values);
@@ -1489,6 +1492,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @throws IllegalArgumentException if the iterable is empty.
      * @see EmptyHandling
      * @see #bindList(BiConsumer, String, List)
+     * @see SqlStatements#setBindListStyle(BindListStyle)
      */
     public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Iterable<?> values) {
         return bindList(onEmpty, key, values == null ? null : IterableLike.toList(values));
@@ -1502,6 +1506,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the iterator is empty.
      * @see #bindList(BiConsumer, String, List)
+     * @see SqlStatements#setBindListStyle(BindListStyle)
      */
     public final This bindList(String key, Iterator<?> values) {
         return bindList(EmptyHandling.THROW, key, values);
@@ -1517,6 +1522,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @throws IllegalArgumentException if the iterator is empty.
      * @see EmptyHandling
      * @see #bindList(BiConsumer, String, List)
+     * @see SqlStatements#setBindListStyle(BindListStyle)
      */
     public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, Iterator<?> values) {
         return bindList(onEmpty, key, values == null ? null : IterableLike.toList(values));
@@ -1524,7 +1530,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
     /**
      * Bind a parameter for each value in the given list, and defines an attribute as the comma-separated list of
-     * parameter references (using colon prefix).
+     * parameter references (using colon prefix). The configured {@link BindListStyle} controls how each
+     * parameter reference is rendered, e.g. wrapped in parentheses for a SQL {@code VALUES} list.
      * <p>
      * Examples:
      * <pre>
@@ -1554,6 +1561,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
      * @return this
      * @throws IllegalArgumentException if the list is empty.
      * @see EmptyHandling
+     * @see SqlStatements#setBindListStyle(BindListStyle)
      */
     public final This bindList(BiConsumer<SqlStatement, String> onEmpty, String key, List<?> values) {
         if (values == null || values.isEmpty()) {
@@ -1561,6 +1569,8 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             return typedThis;
         }
 
+        SqlStatements sqlStatements = getConfig(SqlStatements.class);
+        BindListStyle style = sqlStatements.getBindListStyle();
         StringBuilder names = new StringBuilder();
 
         for (int i = 0; i < values.size(); i++) {
@@ -1569,8 +1579,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
             if (i > 0) {
                 names.append(',');
             }
-            String paramName = getConfig().get(SqlStatements.class).getSqlParser().nameParameter(name, getContext());
-            names.append(paramName);
+            style.appendElement(names, sqlStatements.getSqlParser().nameParameter(name, getContext()));
 
             bind(name, values.get(i));
         }

@@ -13,10 +13,18 @@
  */
 package org.jdbi.core.result;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jdbi.core.Handle;
 import org.jdbi.core.internal.testing.H2DatabaseExtension;
 import org.jdbi.core.mapper.NoSuchMapperException;
+import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.qualifier.QualifiedType;
+import org.jdbi.core.statement.StatementContext;
 import org.jdbi.meta.Beta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +53,62 @@ public class TestRowView {
             h2Extension.getSharedHandle().createQuery("SELECT * FROM test")
                 .reduceRows(0, (a, rv) -> a + rv.getColumn("a", Integer.class)))
             .isEqualTo(10);
+    }
+
+    @Test
+    public void testRowViewUntypedColumn() {
+        assertThat(
+            h2Extension.getSharedHandle().createQuery("SELECT * FROM test")
+                .reduceRows(0, (a, rv) -> a + (Integer) rv.getColumn("a")))
+            .isEqualTo(10);
+        assertThat(
+            h2Extension.getSharedHandle().createQuery("SELECT * FROM test")
+                .reduceRows(0, (a, rv) -> a + (Integer) rv.getColumn(1)))
+            .isEqualTo(10);
+        assertThat(
+            h2Extension.getSharedHandle().createQuery("SELECT CAST(NULL AS INT) a")
+                .reduceRows(new ArrayList<>(), (list, rv) -> {
+                    list.add(rv.getColumn("a"));
+                    return list;
+                }))
+            .containsExactly((Object) null);
+    }
+
+    @Test
+    public void testRowViewColumnNames() {
+        assertThat(
+            h2Extension.getSharedHandle().createQuery("SELECT a, a AS other FROM test")
+                .reduceRows(new ArrayList<List<String>>(), (list, rv) -> {
+                    list.add(rv.getColumnNames());
+                    return list;
+                }))
+            .allSatisfy(names -> {
+                assertThat(names).containsExactly("A", "OTHER");
+                assertThatThrownBy(() -> names.add("C")).isInstanceOf(UnsupportedOperationException.class);
+            });
+    }
+
+    @Test
+    public void testRowViewGetRowWithMapper() {
+        AtomicInteger specializations = new AtomicInteger();
+        RowMapper<Integer> mapper = new RowMapper<>() {
+            @Override
+            public Integer map(ResultSet rs, StatementContext ctx) throws SQLException {
+                return rs.getInt("a") * 10;
+            }
+
+            @Override
+            public RowMapper<Integer> specialize(ResultSet rs, StatementContext ctx) {
+                specializations.incrementAndGet();
+                return this;
+            }
+        };
+
+        assertThat(
+            h2Extension.getSharedHandle().createQuery("SELECT * FROM test")
+                .reduceRows(0, (a, rv) -> a + rv.getRow(mapper)))
+            .isEqualTo(100);
+        assertThat(specializations).hasValue(1);
     }
 
     @Test

@@ -18,9 +18,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Jdbi;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.core.statement.OutParameters;
 import org.jdbi.core.statement.UnableToExecuteStatementException;
 import org.jdbi.sqlobject.customizer.OutParameter;
@@ -36,7 +36,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestOutParameterAnnotation {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)

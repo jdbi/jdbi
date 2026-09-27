@@ -1,14 +1,105 @@
 # Unreleased
 
+# 3.55.0
+
+- Bind and map types that are not public: a package-private bean class with public accessors, a non-public
+  constructor or `@JdbiConstructor` factory method, or a package-private Immutables value type. `mapToBean` now
+  also uses a non-public no-arg constructor, e.g. a private one on a public bean. The `ReflectionMappers`
+  accessible object strategy controls this. Unlike `FieldMapper`, these mappers apply the strategy in effect when
+  a type is first used and cache the result for the `Jdbi` instance, so set the strategy on the `Jdbi` before
+  first use, not on a `Handle` or statement. A `ConstructorMapper` for a type that Jdbi can not access now fails
+  on first use, with a message that names the fix, instead of at creation (#1684)
+- Fix `KotlinMapper` ignoring a SQL `NULL` for a `@PropagateNull` constructor parameter or property of a
+  non-null primitive type such as `Long` or `Int`. The column mapper returned `0` (or `false`) and the
+  object was mapped instead of `null`. `KotlinMapper` now treats the `NULL` as `null` like the
+  `ConstructorMapper`, `FieldMapper`, and `BeanMapper` do (#3048)
+- Fix a `@Nested Optional<T>` attribute that held `null` instead of `Optional.empty()` when `T` used the
+  class-level `@PropagateNull("column")` form and that column was null. A `@PropagateNull` on the
+  `Optional` attribute itself no longer turns the parent into `null` in this case, which matches the
+  attribute-level form (#3049)
+- New `JoinRowReducer` (Beta) reduces the rows of a join query into root objects and links the joined
+  objects to them, for to-one and to-many relations over inner and outer joins. Columns are named relative
+  to the relation prefix, one type is one table, so a table row is one instance no matter through how many
+  relations the query reaches it, and reducers nest for deeper graphs (#1574)
+- New `RowView.getColumn(String)` and `RowView.getColumn(int)` return a column value as the JDBC driver
+  returns it from `ResultSet.getObject`, without a column mapper. New `RowView.getColumnNames()` returns
+  the column labels of the result set, and `RowView.getRow(RowMapper)` maps the current row with a given
+  mapper (#1574)
+- Add `BindListStyle` to render `bindList` / `@BindList` elements as single-column rows, `(:a),(:b)`, for
+  use with the SQL `VALUES` list constructor. Configure it with `SqlStatements#setBindListStyle` or
+  `@BindList(style = BindListStyle.ROWS)` (#1550, Alpha)
+- Add `LocalTransactionHandler.managed()`: Jdbi manages transactions on connections with autocommit
+  disabled instead of joining them, e.g. on a pool that disables autocommit as a precaution.
+  `inTransaction` commits, retry handlers such as `SerializableTransactionRunner` engage, and a
+  statement executed outside of a transaction is not committed. (#2663, #1733)
+- Add `NoOpTransactionHandler` for connections whose transactions an external framework manages,
+  e.g. a Spring `TransactionAwareDataSourceProxy` or an XA data source. It never reads or changes
+  the transaction state of the connection. `CMTTransactionHandler` now extends it, with unchanged
+  behavior. (#2742, thanks @bekoenig for the suggestion!)
+- Document the transaction contract for connections with autocommit disabled: the handle joins the
+  transaction that the connection owner manages. New "Transactions managed outside Jdbi" section in
+  the User Guide, with tests that pin the contract. (#1039, #2663)
+- Document how `@PropagateNull` resolves its column: on a class, the column name is relative to the mapper
+  prefix (from `@Nested` or from a mapper made with a prefix), so one class maps under different prefixes.
+  New "Using `@PropagateNull`" section in the User Guide, with tests for mappers made with a prefix. (#1764)
+- Fix `JdbiExtension` losing its plugins and initializer after `afterAll`, so a static extension whose test
+  class ran a second time in the same JVM (a Surefire rerun of a failed test, or a `@Nested` class selected
+  as its own test class) restarted with a bare `Jdbi` and failed with `NoSuchMapperException` or
+  `NoSuchExtensionException` (#3036)
+- vavr: update to vavr 1.0.1. The vavr 1.0.0-alpha releases remain unsupported (#2350)
+- Fix repeated `@RegisterKotlinMapper` annotations on one method or type. Kotlin wrapped them in a generated
+  container that Jdbi did not process, so none of the mappers were registered and rows mapped through the
+  unprefixed `KotlinMapperFactory` mapper, ignoring the prefix. The annotation now uses
+  `RegisterKotlinMappers` as its container. Recompile code that repeats the annotation to pick up the fix.
+  (#2961)
+- update Spring Framework to 6.2.19 due to CVE-2026-41848 (Dependabot alert #45, #3026)
+- `ConfigRegistry.createCopy()` now materializes each config object lazily on its first access instead
+  of copying every config object eagerly. This removes most of the allocation cost of extension attach
+  (`Jdbi#onDemand` re-attaches on every call), of `Handle` creation, and of statement creation
+  (#2982, thanks @ulmetrs!). If code depends on the exact moment a copy is taken, restore the old
+  timing with `ConfigRegistry#setEagerCopies(true)` (Alpha).
+- Reflective row mappers (`BeanMapper`, `ConstructorMapper`, `FieldMapper`) that match no columns at all now
+  list the result set columns in the error, and a prefixed mapper explains that `SELECT t.*` yields unprefixed
+  labels and shows how to alias them. Document the same in the mapper and JoinRowMapper sections (#2289)
+- Fix jdbi3-spring excluding spring-jcl from consumers since 3.51.0, which broke Spring Boot 3
+  applications at startup with `NoClassDefFoundError: org.apache.commons.logging.LogFactory` (#2990)
+- Register SQL array element types for `java.time` out of the box: `LocalDate`, `LocalTime`,
+  `LocalDateTime`, `OffsetDateTime`, `OffsetTime`, `Instant`, and `ZonedDateTime` now bind to
+  SQL arrays without a manual `registerArrayType` call. `PostgresPlugin` additionally registers
+  `Duration` and `Period` (bound as `interval`) and binds the date-bearing types as text
+  literals that cover the full Postgres date range, including BC dates (#3022)
+- Fix `afterRollback` callbacks not firing when a transaction fails at commit time, e.g. on a
+  serialization failure under `SerializableTransactionRunner`. The failed transaction's callbacks
+  also no longer leak into the next transaction on the same handle. (#3021, thanks @OswaldOniSango!)
+- Fix `afterCommit` and `afterRollback` callbacks not firing, and leaking into the next transaction on
+  the same handle, when the connection fails during a rollback or during the autocommit restore that
+  follows a commit. `RollbackOnlyTransactionHandler` now runs the `afterRollback` callbacks on a
+  commit, and never the `afterCommit` callbacks, because it never commits (#3038)
+- generator: generated SQL objects work in a GraalVM native image without reachability metadata. The
+  generator now registers a `GeneratedSqlObjectProvider` (Alpha) for each generated class through the
+  `ServiceLoader`, and Jdbi uses it instead of a reflective lookup by class name. Classes generated by an
+  older Jdbi version must be recompiled. `ExtensionMetadata.Builder#setExtensionTypeMethods`
+  lets an extension factory supply the extension methods instead of discovering them by reflection. (#2474)
 - Fix PreparedBatch NPE when rows bind different runtime types, e.g. mixed bean subclasses (#2974, thanks @arimu1!)
 - Fix DefaultJdbiCache pinning entries when loader throws an exception (#2995)
 - Fix GraalVM native image missing entries and update metadata to new format, support 25.2 (#2994)
+- `QualifiedType` no longer synthesizes an annotation proxy for a qualifier annotation without
+  members, so `QualifiedType.with(Class)` and the built-in `@Legacy`, `@NVarchar`, `@EnumByName`,
+  and `@EncodedJson` qualifiers work in a GraalVM native image without proxy registration.
+  New `QualifiedType.hasQualifiers(Set)` and `hasNoQualifiers()` compare qualifiers without
+  materializing annotations. (#2967)
 - stringtemplate4: `StringTemplateEngine` now caches template compilation through the core statement
   cache instead of recompiling on every render, with compiled templates pooled for thread safety.
   The cached path bypasses `render(String, StatementContext)`: a subclass that overrides `render`
   must also override `parse`, most simply to return `Optional.empty()`, which keeps the core on
   its `render` path.
   `Batch` and `Script` now render through the statement cache as well. (#2997)
+- Fix `@GenerateSqlObject` implementations not found when the SQL object interface is loaded by a
+  class loader other than the one that loaded Jdbi, e.g. plugin containers (#3014)
+- Share the extension metadata cache across handles so `handle.attach()`-only workloads no longer
+  recompute `ExtensionMetadata` on every handle (#2991)
+- Fix `JdbiImmutables` not finding the generated `Immutable*` and `Modifiable*` classes when the spec
+  is loaded by a class loader other than the one that loaded Jdbi, e.g. plugin containers
 
 # 3.54.0
 

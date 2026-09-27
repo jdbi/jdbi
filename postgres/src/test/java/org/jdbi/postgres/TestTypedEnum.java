@@ -14,8 +14,8 @@
 package org.jdbi.postgres;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
@@ -28,7 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestTypedEnum {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())

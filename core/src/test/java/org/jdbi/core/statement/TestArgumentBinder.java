@@ -17,8 +17,6 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.List;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
 import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
@@ -31,10 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestArgumentBinder {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgDatabaseExtension = PgDatabaseExtension.instance(pg)
+    public PgDatabaseExtension pgDatabaseExtension = PgDatabaseExtension.instance()
         .withInitializer(handle ->
             handle.execute("CREATE TABLE binder_test (i INT, u UUID, s VARCHAR, t timestamp with time zone default current_timestamp, d date)"));
 

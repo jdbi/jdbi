@@ -15,8 +15,6 @@ package org.jdbi.core.statement;
 
 import java.util.List;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
 import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.jdbi.core.result.ResultProducers;
@@ -30,10 +28,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.atIndex;
 public class TestPreparedBatchPG {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(h -> h.execute("create table something (id integer primary key, name varchar(50), integerValue integer, intValue integer)"));
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance().withInitializer(h -> h.execute("create table something (id integer primary key, name varchar(50), integerValue integer, intValue integer)"));
 
     private Handle handle;
 

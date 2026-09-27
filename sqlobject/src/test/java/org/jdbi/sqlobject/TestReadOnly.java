@@ -16,8 +16,8 @@ package org.jdbi.sqlobject;
 import java.sql.SQLException;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.core.transaction.TransactionException;
 import org.jdbi.sqlobject.transaction.Transaction;
 import org.jdbi.testing.junit.JdbiExtension;
@@ -30,7 +30,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestReadOnly {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)

@@ -15,8 +15,6 @@ package org.jdbi.core.argument;
 
 import java.util.Collections;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
 import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.jdbi.core.statement.UnableToCreateStatementException;
@@ -27,10 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestCollectionArguments {
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance();
 
     @Test
     public void testBindTypeErased() {

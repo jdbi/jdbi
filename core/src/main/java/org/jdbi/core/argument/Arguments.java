@@ -143,8 +143,7 @@ public class Arguments implements JdbiConfig<Arguments> {
         // an actual value is seen and defer when seeing nulls.
         //
         if (value != null && expectedClass == Object.class) {
-            var qualifiers = type.getQualifiers();
-            expectedType = QualifiedType.of(value.getClass()).withAnnotations(qualifiers);
+            expectedType = type.mapType(t -> value.getClass());
         } else {
             expectedType = type;
         }

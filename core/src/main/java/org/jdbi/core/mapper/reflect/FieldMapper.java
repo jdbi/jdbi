@@ -39,6 +39,7 @@ import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
 import org.jdbi.core.mapper.SingleColumnMapper;
 import org.jdbi.core.mapper.reflect.internal.NullDelegatingMapper;
+import org.jdbi.core.mapper.reflect.internal.UnmatchedColumnsHint;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 import org.jdbi.core.statement.StatementContext;
@@ -127,7 +128,8 @@ public final class FieldMapper<T> implements PrefixedRowMapper<T> {
         final List<String> unmatchedColumns = new ArrayList<>(columnNames);
 
         RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
-            .orElseThrow(() -> new IllegalArgumentException(format("Mapping fields for type %s didn't find any matching columns in result set", type)));
+            .orElseThrow(() -> new IllegalArgumentException(format("Mapping fields for type %s didn't find any matching columns in result set.%s",
+                type, UnmatchedColumnsHint.forColumns(prefix, columnNames))));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
@@ -214,7 +216,7 @@ public final class FieldMapper<T> implements PrefixedRowMapper<T> {
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
-            return Optional.of(new NullDelegatingMapper<>(propagateNullColumnIndex.getAsInt() + 1, boundMapper));
+            return Optional.of(new NullDelegatingMapper<>(propagateNullColumnIndex.getAsInt() + 1, boundMapper, postProcessor.apply(null)));
         } else {
             return Optional.of(boundMapper);
         }

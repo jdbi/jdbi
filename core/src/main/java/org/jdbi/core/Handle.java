@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.jdbi.core.config.ConfigRegistry;
@@ -46,6 +47,7 @@ import org.jdbi.core.transaction.TransactionException;
 import org.jdbi.core.transaction.TransactionHandler;
 import org.jdbi.core.transaction.TransactionIsolationLevel;
 import org.jdbi.core.transaction.UnableToManipulateTransactionIsolationLevelException;
+import org.jdbi.core.transaction.UnableToRestoreAutoCommitStateException;
 import org.jdbi.meta.Beta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -523,6 +525,10 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Returns whether the handle is in a transaction. Delegates to the underlying {@link TransactionHandler}.
+     * <p>
+     * With the default transaction handler, a connection with autocommit disabled always reports an open
+     * transaction: the handle joins the transaction that the connection owner manages.
+     * </p>
      *
      * @return True if the handle is in a transaction.
      */
@@ -542,13 +548,22 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Commit a transaction.
+     * Commit a transaction. With the default transaction handler, a commit that fails
+     * rolls the transaction back and runs the {@link #afterRollback} callbacks before
+     * the exception propagates.
      *
      * @return the same handle.
      */
     public Handle commit() {
         final long start = System.nanoTime();
-        transactionHandler.commit(this);
+        try {
+            transactionHandler.commit(this);
+        } catch (UnableToRestoreAutoCommitStateException e) {
+            // the connection committed, only the autocommit restore afterwards failed
+            LOG.trace("Handle [{}] commit transaction in {}ms, autocommit restore failed", this, msSince(start));
+            drainCallbacks(TransactionCallback::afterCommit, e);
+            throw e;
+        }
         LOG.trace("Handle [{}] commit transaction in {}ms", this, msSince(start));
         drainCallbacks()
                 .forEach(TransactionCallback::afterCommit);
@@ -556,13 +571,20 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Rollback a transaction.
+     * Rollback a transaction. The {@link #afterRollback} callbacks run even when the
+     * rollback fails, because the transaction did not commit either way.
      *
      * @return the same handle.
      */
     public Handle rollback() {
         final long start = System.nanoTime();
-        transactionHandler.rollback(this);
+        try {
+            transactionHandler.rollback(this);
+        } catch (RuntimeException e) {
+            LOG.trace("Handle [{}] rollback transaction failed in {}ms", this, msSince(start));
+            drainCallbacks(TransactionCallback::afterRollback, e);
+            throw e;
+        }
         LOG.trace("Handle [{}] rollback transaction in {}ms", this, msSince(start));
         drainCallbacks()
                 .forEach(TransactionCallback::afterRollback);
@@ -571,6 +593,8 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Execute an action the next time this Handle commits, unless it is rolled back first.
+     * The action also runs when the connection committed but the autocommit state could not
+     * be restored afterwards.
      *
      * @param afterCommit the action to execute after commit.
      * @return this Handle.
@@ -587,6 +611,8 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Execute an action the next time this Handle rolls back, unless it is committed first.
+     * With the default transaction handler, a commit that fails rolls the transaction
+     * back and runs the action, and so does a rollback that fails on the connection.
      *
      * @param afterRollback the action to execute after rollback.
      * @return this Handle.
@@ -606,6 +632,16 @@ public class Handle implements Closeable, Configurable<Handle> {
             final List<TransactionCallback> result = new ArrayList<>(transactionCallbacks);
             transactionCallbacks.clear();
             return result;
+        }
+    }
+
+    private void drainCallbacks(final Consumer<TransactionCallback> action, final Throwable failure) {
+        for (final TransactionCallback callback : drainCallbacks()) {
+            try {
+                action.accept(callback);
+            } catch (final Throwable t) {
+                failure.addSuppressed(t);
+            }
         }
     }
 
@@ -706,6 +742,11 @@ public class Handle implements Closeable, Configurable<Handle> {
 
     /**
      * Executes <code>callback</code> in a transaction, and returns the result of the callback.
+     * <p>
+     * If the handle is already in a transaction, the callback joins that transaction and this method
+     * does not commit. This includes a handle over a connection with autocommit disabled, where the
+     * connection owner manages the transaction and must commit explicitly.
+     * </p>
      *
      * @param callback a callback which will receive an open handle, in a transaction.
      * @param <R>      type returned by callback

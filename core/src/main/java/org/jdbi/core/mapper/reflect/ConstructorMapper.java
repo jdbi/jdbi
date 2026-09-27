@@ -40,6 +40,7 @@ import org.jdbi.core.mapper.RowMapper;
 import org.jdbi.core.mapper.RowMapperFactory;
 import org.jdbi.core.mapper.SingleColumnMapper;
 import org.jdbi.core.mapper.reflect.internal.NullDelegatingMapper;
+import org.jdbi.core.mapper.reflect.internal.UnmatchedColumnsHint;
 import org.jdbi.core.qualifier.QualifiedType;
 import org.jdbi.core.qualifier.Qualifiers;
 import org.jdbi.core.statement.StatementContext;
@@ -69,7 +70,7 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
         "Instance factory '%s' could not match any parameter to any columns in the result set. "
             + "Verify that the Java compiler is configured to emit parameter names, "
             + "that your result set has the columns expected, annotate the "
-            + "parameter names explicitly with @ColumnName, or annotate nullable parameters as @Nullable";
+            + "parameter names explicitly with @ColumnName, or annotate nullable parameters as @Nullable.%s";
 
     @SuppressWarnings("InlineFormatString")
     private static final String UNMATCHED_CONSTRUCTOR_PARAMETER =
@@ -246,7 +247,7 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
 
         RowMapper<T> mapper = createSpecializedRowMapper(ctx, columnNames, columnNameMatchers, unmatchedColumns, Function.identity())
             .orElseGet(() -> new UnmatchedConstructorMapper<>(format(
-                UNMATCHED_CONSTRUCTOR_PARAMETERS, factory)));
+                UNMATCHED_CONSTRUCTOR_PARAMETERS, factory, UnmatchedColumnsHint.forColumns(prefix, columnNames))));
 
         if (ctx.getConfig(ReflectionMappers.class).isStrictMatching()
             && anyColumnsStartWithPrefix(unmatchedColumns, prefix, columnNameMatchers)) {
@@ -339,11 +340,11 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
                 UNMATCHED_CONSTRUCTOR_PARAMETER, factory, unmatchedParameters));
         }
 
-        RowMapper<R> boundMapper = new BoundConstructorMapper<>(paramData, postProcessor);
+        RowMapper<R> boundMapper = new BoundConstructorMapper<>(paramData, factory.instantiator(ctx.getConfig()), postProcessor);
         OptionalInt propagateNullColumnIndex = locatePropagateNullColumnIndex(columnNames, columnNameMatchers);
 
         if (propagateNullColumnIndex.isPresent()) {
-            return Optional.of(new NullDelegatingMapper<>(propagateNullColumnIndex.getAsInt() + 1, boundMapper));
+            return Optional.of(new NullDelegatingMapper<>(propagateNullColumnIndex.getAsInt() + 1, boundMapper, postProcessor.apply(null)));
         } else {
             return Optional.of(boundMapper);
         }
@@ -439,11 +440,13 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
 
         private final List<ParameterData> paramData;
         private final int count;
+        private final Function<Object[], T> instantiator;
         private final Function<T, R> postProcessor;
 
-        BoundConstructorMapper(List<ParameterData> paramData, Function<T, R> postProcessor) {
+        BoundConstructorMapper(List<ParameterData> paramData, Function<Object[], T> instantiator, Function<T, R> postProcessor) {
             this.paramData = paramData;
             this.count = factory.getParameterCount();
+            this.instantiator = instantiator;
             this.postProcessor = postProcessor;
         }
 
@@ -458,7 +461,7 @@ public final class ConstructorMapper<T> implements PrefixedRowMapper<T> {
                 }
             }
 
-            return postProcessor.apply(factory.newInstance(params));
+            return postProcessor.apply(instantiator.apply(params));
         }
 
         @Override

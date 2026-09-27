@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Handle;
 import org.jdbi.core.Something;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.core.mapper.SomethingMapper;
 import org.jdbi.sqlobject.SingleValue;
 import org.jdbi.sqlobject.SqlObjectPlugin;
@@ -55,7 +55,9 @@ public class TestSqlArrays {
     private static final String T_INSERT = "INSERT INTO uuids VALUES(NULL, NULL, :instants)";
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg).withPlugins(new SqlObjectPlugin(), new PostgresPlugin())
@@ -69,11 +71,7 @@ public class TestSqlArrays {
 
     @BeforeEach
     public void setUp() {
-        handle = pgExtension.openHandle()
-            // register array type to the handle
-            .registerArrayType(Instant.class, "timestamptz");
-
-        // attach the array object to the handle as well.
+        handle = pgExtension.openHandle();
         ao = handle.attach(ArrayObject.class);
     }
 
@@ -200,7 +198,7 @@ public class TestSqlArrays {
     }
 
     @Test
-    public void testReusedArrayWithString() throws Exception {
+    public void testReusedArrayWithString() {
         handle.registerArrayType(String.class, "text");
         assertThat(handle.createQuery("select :array = :array")
                 .bindArray("array", String.class, Collections.singletonList("element"))
