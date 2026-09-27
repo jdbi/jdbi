@@ -20,9 +20,12 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import jakarta.annotation.Nullable;
+
+import org.jdbi.v3.core.config.ConfigRegistry;
 
 import static java.util.Objects.requireNonNull;
 
@@ -66,7 +69,7 @@ abstract class InstanceFactory<T> {
             .orElse(null);
     }
 
-    abstract T newInstance(Object... params);
+    abstract Function<Object[], T> instantiator(ConfigRegistry config);
 
     @Override
     public abstract String toString();

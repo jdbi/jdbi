@@ -14,9 +14,8 @@
 package org.jdbi.v3.core.mapper.reflect.internal;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.function.Supplier;
 
@@ -24,6 +23,7 @@ import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.internal.ConfigCache;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
 import org.jdbi.v3.core.generic.GenericTypes;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -51,21 +51,31 @@ public interface ModifiablePojoPropertiesFactory extends PojoPropertiesFactory {
                         QualifiedType.of(propertyType).withAnnotations(config.get(Qualifiers.class).findFor(m)),
                         m,
                         isSetMethod(name),
-                        MethodHandles.lookup().unreflect(m).asFixedArity(),
-                        MethodHandles.lookup().findVirtual(impl, setterName(name), MethodType.methodType(impl, GenericTypes.getErasedType(propertyType))).asFixedArity());
-            } catch (IllegalAccessException | NoSuchMethodException e) {
+                        JdbiClassUtils.unreflect(config, m).asFixedArity(),
+                        JdbiClassUtils.unreflect(config, setterMethod(name, GenericTypes.getErasedType(propertyType))).asFixedArity());
+            } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException("Failed to inspect method " + m, e);
             }
         }
 
+        private Method setterMethod(String name, Class<?> propertyType) throws NoSuchMethodException {
+            final Method setter = impl.getMethod(setterName(name), propertyType);
+            if (Modifier.isStatic(setter.getModifiers()) || setter.getReturnType() != impl) {
+                throw new NoSuchMethodException(impl.getName() + "." + setter.getName() + " is not an instance method that returns " + impl.getName());
+            }
+            return setter;
+        }
+
         private MethodHandle isSetMethod(String name) {
             try {
-                return MethodHandles.lookup().findVirtual(impl, name + "IsSet", MethodType.methodType(boolean.class));
+                final Method isSet = impl.getMethod(name + "IsSet");
+                if (!Modifier.isStatic(isSet.getModifiers()) && isSet.getReturnType() == boolean.class) {
+                    return JdbiClassUtils.unreflect(config, isSet);
+                }
+                return PojoBuilderUtils.alwaysSet();
             } catch (NoSuchMethodException e) {
                 // not optional field
                 return PojoBuilderUtils.alwaysSet();
-            } catch (IllegalAccessException e) {
-                throw new IllegalArgumentException("Failed to find IsSet method for " + name, e);
             }
         }
 

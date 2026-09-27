@@ -14,7 +14,6 @@
 package org.jdbi.v3.core.argument;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -30,6 +29,7 @@ import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.config.internal.ConfigCache;
 import org.jdbi.v3.core.config.internal.ConfigCaches;
+import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
@@ -64,7 +64,7 @@ public class ObjectMethodArguments extends ObjectPropertyNamedArgumentFinder {
                 .forEach((name, method) -> {
                     QualifiedType<?> qualifiedType = QualifiedType.of(method.getGenericReturnType())
                             .withAnnotations(config.get(Qualifiers.class).findFor(method));
-                    MethodHandle mh = Unchecked.function(MethodHandles.lookup()::unreflect).apply(method);
+                    MethodHandle mh = JdbiClassUtils.unreflect(config, method);
                     methodMap.put(name, Unchecked.function(
                             value -> new TypedValue(qualifiedType, mh.invoke(value))));
                 });

@@ -1,5 +1,12 @@
 # Unreleased
 
+- Bind and map types that are not public: a package-private bean class with public accessors, a non-public
+  constructor or `@JdbiConstructor` factory method, or a package-private Immutables value type. `mapToBean` now
+  also uses a non-public no-arg constructor, e.g. a private one on a public bean. The `ReflectionMappers`
+  accessible object strategy controls this. Unlike `FieldMapper`, these mappers apply the strategy in effect when
+  a type is first used and cache the result for the `Jdbi` instance, so set the strategy on the `Jdbi` before
+  first use, not on a `Handle` or statement. A `ConstructorMapper` for a type that Jdbi can not access now fails
+  on first use, with a message that names the fix, instead of at creation (#1684)
 - New `JoinRowReducer` (Beta) reduces the rows of a join query into root objects and links the joined
   objects to them, for to-one and to-many relations over inner and outer joins. Columns are named relative
   to the relation prefix, one type is one table, so a table row is one instance no matter through how many
