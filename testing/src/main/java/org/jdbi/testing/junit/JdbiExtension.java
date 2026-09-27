@@ -350,9 +350,6 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
             this.dataSource = null;
             this.sharedHandle = null;
             this.jdbi = null;
-
-            this.initializerMaybe = Optional.empty();
-            this.plugins.clear();
         }
 
         if (enableLeakchecker) {
@@ -407,7 +404,7 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
 
         final String extensionId = jdbiStore.computeIfAbsent(JDBI_ID_KEY, k -> uniqueId, String.class);
 
-        if (extensionId.equals(uniqueId)) {
+        if (uniqueId.equals(extensionId)) {
             startExtension();
         }
     }
@@ -418,7 +415,7 @@ public abstract class JdbiExtension implements BeforeAllCallback, AfterAllCallba
 
         final String extensionId = jdbiStore.computeIfAbsent(JDBI_ID_KEY, k -> uniqueId, String.class);
 
-        if (extensionId.equals(uniqueId)) {
+        if (uniqueId.equals(extensionId)) {
             stopExtension();
         }
     }

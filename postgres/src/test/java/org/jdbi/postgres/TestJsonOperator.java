@@ -19,9 +19,9 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Maps;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
 import org.jdbi.core.Jdbi;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.core.spi.JdbiPlugin;
 import org.jdbi.core.statement.SqlStatements;
 import org.jdbi.core.statement.TemplateEngine;
@@ -40,7 +40,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestJsonOperator {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)

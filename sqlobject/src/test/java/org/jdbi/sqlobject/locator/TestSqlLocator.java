@@ -16,10 +16,10 @@ package org.jdbi.sqlobject.locator;
 import java.util.List;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.Something;
 import org.jdbi.core.config.JdbiConfig;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.sqlobject.SqlObjectPlugin;
 import org.jdbi.sqlobject.SqlObjects;
 import org.jdbi.sqlobject.config.RegisterBeanMapper;
@@ -33,7 +33,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestSqlLocator {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)

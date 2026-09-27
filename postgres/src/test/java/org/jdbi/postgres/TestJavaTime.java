@@ -17,9 +17,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.assertj.core.data.TemporalUnitOffset;
 import org.jdbi.core.Handle;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.core.statement.Update;
 import org.jdbi.testing.junit.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
@@ -33,7 +33,9 @@ import static org.assertj.core.api.Assertions.within;
 class TestJavaTime {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     public JdbiExtension pgExtension = JdbiExtension.postgres(pg)

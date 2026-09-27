@@ -104,7 +104,7 @@ public class Mappers implements JdbiConfig<Mappers> {
      * is registered for the given type.
      */
     public <T> Optional<RowMapper<T>> findFor(QualifiedType<T> type) {
-        if (type.getQualifiers().isEmpty()) {
+        if (type.hasNoQualifiers()) {
             @SuppressWarnings("unchecked")
             Optional<RowMapper<T>> result = rowMappers.findFor(type.getType()).map(m -> (RowMapper<T>) m);
             if (result.isPresent()) {

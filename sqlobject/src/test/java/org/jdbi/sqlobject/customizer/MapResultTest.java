@@ -17,10 +17,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.Jdbi;
 import org.jdbi.core.extension.Extensions;
 import org.jdbi.core.extension.UnableToCreateExtensionException;
+import org.jdbi.core.internal.testing.SharedEmbeddedPgExtension;
 import org.jdbi.core.mapper.NoSuchMapperException;
 import org.jdbi.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.sqlobject.SqlObjectPlugin;
@@ -40,7 +40,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class MapResultTest {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
+    public static SharedEmbeddedPgExtension sharedPg = new SharedEmbeddedPgExtension();
+
+    private static EmbeddedPgExtension pg = SharedEmbeddedPgExtension.instance();
 
     @RegisterExtension
     JdbiExtension pgExtension = JdbiExtension.postgres(pg)

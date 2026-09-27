@@ -13,8 +13,6 @@
  */
 package org.jdbi.core;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.assertj.core.api.Assertions;
 import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.junit.jupiter.api.AfterEach;
@@ -28,10 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestHandlePg {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance();
 
     private Handle h;
 

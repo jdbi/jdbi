@@ -15,8 +15,6 @@ package org.jdbi.core.statement;
 
 import java.sql.SQLException;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.core.internal.testing.PgDatabaseExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,10 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class TestBatchExceptionRewrite {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg);
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance();
 
     @BeforeEach
     public void createTable() {

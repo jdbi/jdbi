@@ -23,7 +23,7 @@ import org.jdbi.core.statement.StatementContext;
 
 /**
  * Delegating mapper that implements the &#0064;PropagateNull semantics to check a specific column in the result set for null first. If that column is null,
- * return null as the value, otherwise executed the delegated mapper.
+ * return the null result (by default null), otherwise execute the delegated mapper.
  *
  * @param <T> The generic type for the row mapper.
  */
@@ -31,10 +31,24 @@ public final class NullDelegatingMapper<T> implements RowMapper<T> {
 
     private final int index;
     private final RowMapper<T> delegate;
+    private final T nullResult;
 
     public NullDelegatingMapper(int index, RowMapper<T> delegate) {
+        this(index, delegate, null);
+    }
+
+    /**
+     * Creates a mapper that returns the given value when the column is null.
+     *
+     * @param index      The column index to check for null.
+     * @param delegate   The mapper to call when the column is not null.
+     * @param nullResult The result when the column is null. A mapper that post-processes its value
+     *                   (for example, wraps it in an {@link java.util.Optional}) must pass the post-processed null here.
+     */
+    public NullDelegatingMapper(int index, RowMapper<T> delegate, T nullResult) {
         this.index = index;
         this.delegate = delegate;
+        this.nullResult = nullResult;
     }
 
     @Override
@@ -46,19 +60,14 @@ public final class NullDelegatingMapper<T> implements RowMapper<T> {
     public T map(ResultSet rs, StatementContext ctx) throws SQLException {
         rs.getObject(index);
         if (rs.wasNull()) {
-            return null;
+            return nullResult;
         }
         return delegate.map(rs, ctx);
     }
 
     @Override
     public RowMapper<T> specialize(ResultSet rs, StatementContext ctx) throws SQLException {
-        final RowMapper<T> newDelegate = delegate.specialize(rs, ctx);
-        if (newDelegate instanceof NullDelegatingMapper) {
-            return newDelegate;
-        } else {
-            return new NullDelegatingMapper<>(index, newDelegate);
-        }
+        return new NullDelegatingMapper<>(index, delegate.specialize(rs, ctx), nullResult);
     }
 
     @Override
@@ -66,6 +75,7 @@ public final class NullDelegatingMapper<T> implements RowMapper<T> {
         return new StringJoiner(", ", NullDelegatingMapper.class.getSimpleName() + "[", "]")
             .add("index=" + index)
             .add("delegate=" + delegate)
+            .add("nullResult=" + nullResult)
             .toString();
     }
 }
