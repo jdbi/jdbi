@@ -1,5 +1,7 @@
 # Unreleased
 
+# 3.55.0
+
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public
   constructor or `@JdbiConstructor` factory method, or a package-private Immutables value type. `mapToBean` now
   also uses a non-public no-arg constructor, e.g. a private one on a public bean. The `ReflectionMappers`
