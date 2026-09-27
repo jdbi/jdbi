@@ -75,7 +75,9 @@ public class Handle implements Closeable, Configurable<Handle> {
     // the fallback context. It is used when resetting the Handle state.
     private final ExtensionContext defaultExtensionContext;
 
-    private ExtensionContext currentExtensionContext;
+    // The context of the extension call in progress on each thread. Per thread, so that extensions attached to
+    // this handle and called from several threads each see their own configuration.
+    private final ThreadLocal<ExtensionContext> threadExtensionContext = new ThreadLocal<>();
 
     @GuardedBy("transactionCallbacks")
     private final List<TransactionCallback> transactionCallbacks = new ArrayList<>();
@@ -108,7 +110,6 @@ public class Handle implements Closeable, Configurable<Handle> {
 
         // create a copy to detach config from the jdbi to allow local changes.
         this.defaultExtensionContext = ExtensionContext.forConfig(jdbi.getConfig().createCopy());
-        this.currentExtensionContext = defaultExtensionContext;
 
         this.statementBuilder = statementBuilder;
         this.handleListeners = getConfig().get(Handles.class).copyListeners();
@@ -137,7 +138,7 @@ public class Handle implements Closeable, Configurable<Handle> {
      */
     @Override
     public ConfigRegistry getConfig() {
-        return currentExtensionContext.getConfig();
+        return currentExtensionContext().getConfig();
     }
 
     /**
@@ -910,18 +911,27 @@ public class Handle implements Closeable, Configurable<Handle> {
     }
 
     /**
-     * Returns the extension method currently bound to the handle's context.
+     * Returns the extension method that the current thread is executing on this handle.
      *
-     * @return the extension method currently bound to the handle's context
+     * @return the extension method that the current thread is executing on this handle, or null if there is none
      */
     public ExtensionMethod getExtensionMethod() {
-        return currentExtensionContext.getExtensionMethod();
+        return currentExtensionContext().getExtensionMethod();
     }
 
     Handle acceptExtensionContext(ExtensionContext extensionContext) {
-        this.currentExtensionContext = extensionContext == null ? defaultExtensionContext : extensionContext;
+        if (extensionContext == null) {
+            threadExtensionContext.remove();
+        } else {
+            threadExtensionContext.set(extensionContext);
+        }
 
         return this;
+    }
+
+    private ExtensionContext currentExtensionContext() {
+        final ExtensionContext extensionContext = threadExtensionContext.get();
+        return extensionContext == null ? defaultExtensionContext : extensionContext;
     }
 
     private void notifyHandleCreated() {
