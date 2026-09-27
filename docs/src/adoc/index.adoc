@@ -902,6 +902,10 @@ Handles and all attached query objects such as link:{jdbidocs}/core/statement/Ba
 They may be used by multiple threads as long as there is coordination that only one thread at a time is accessing them.
 Managing Handles and query objects across threads is error-prone and should be avoided.
 
+An extension such as a SQL Object that is attached to a handle applies its configuration, for example a `@RegisterRowMapper` annotation, only on the thread that calls it.
+Extensions that are called from different threads do not change the configuration of each other.
+Jdbi does not serialize access to the connection: if statements from multiple threads run on one handle at the same time, the JDBC driver must support it.
+
 ==== Obtaining a managed handle
 
 The most convenient way to get access to a handle is by using the link:{jdbidocs}/core/Jdbi.html#withHandle(org.jdbi.core.HandleCallback)[withHandle^] or link:{jdbidocs}/core/Jdbi.html#useHandle(org.jdbi.core.HandleConsumer)[useHandle^] methods on the link:{jdbidocs}/core/Jdbi.html[Jdbi^] class.

@@ -77,15 +77,17 @@ public class Handle implements Closeable, ConfigReader {
     // on this handle are attached to it for cleanup, regardless of the SqlStatements.attachAllStatementsForCleanup
     // policy. Held here rather than as per-handle config so an unmodified callback handle keeps sharing the Jdbi
     // root's copy-on-write config (and its warm resolvers) instead of forking a private copy on open. A plain
-    // field like the handle's other mutable state (statementBuilder, currentExtensionContext): a Handle wraps a
-    // JDBC Connection and is not thread-safe, so it is confined to one thread or handed off with a barrier that
-    // publishes this write along with the rest of its state.
+    // field like the handle's other mutable state (statementBuilder): a Handle wraps a JDBC Connection and is not
+    // thread-safe, so it is confined to one thread or handed off with a barrier that publishes this write along
+    // with the rest of its state.
     private boolean forceAttachStatements;
 
     // the fallback context. It is used when resetting the Handle state.
     private final ExtensionContext defaultExtensionContext;
 
-    private ExtensionContext currentExtensionContext;
+    // The context of the extension call in progress on each thread. Per thread, so that extensions attached to
+    // this handle and called from several threads each see their own configuration.
+    private final ThreadLocal<ExtensionContext> threadExtensionContext = new ThreadLocal<>();
 
     // Read-only view handed to callers via getConfig(): a distinct delegate that cannot be cast back to the mutable
     // ConfigRegistry, so a handle's config is not mutable post-open. It reads through to the current extension
@@ -132,7 +134,6 @@ public class Handle implements Closeable, ConfigReader {
         // they can read Jdbi-level config but cannot mutate the handle's config.
         jdbi.customizeHandleConnection(connection, ConfigView.readOnly(() -> handleConfig));
         this.defaultExtensionContext = ExtensionContext.forConfig(handleConfig);
-        this.currentExtensionContext = defaultExtensionContext;
 
         this.statementBuilder = statementBuilder;
         this.handleListeners = getConfig().get(Handles.class).copyListeners();
@@ -173,7 +174,7 @@ public class Handle implements Closeable, ConfigReader {
      * surface is read-only.
      */
     ConfigRegistry configRegistry() {
-        return currentExtensionContext.getConfig();
+        return currentExtensionContext().getConfig();
     }
 
     /**
@@ -907,18 +908,27 @@ public class Handle implements Closeable, ConfigReader {
     }
 
     /**
-     * Returns the extension method currently bound to the handle's context.
+     * Returns the extension method that the current thread is executing on this handle.
      *
-     * @return the extension method currently bound to the handle's context
+     * @return the extension method that the current thread is executing on this handle, or null if there is none
      */
     public ExtensionMethod getExtensionMethod() {
-        return currentExtensionContext.getExtensionMethod();
+        return currentExtensionContext().getExtensionMethod();
     }
 
     Handle acceptExtensionContext(final ExtensionContext extensionContext) {
-        this.currentExtensionContext = extensionContext == null ? defaultExtensionContext : extensionContext;
+        if (extensionContext == null) {
+            threadExtensionContext.remove();
+        } else {
+            threadExtensionContext.set(extensionContext);
+        }
 
         return this;
+    }
+
+    private ExtensionContext currentExtensionContext() {
+        final ExtensionContext extensionContext = threadExtensionContext.get();
+        return extensionContext == null ? defaultExtensionContext : extensionContext;
     }
 
     /**

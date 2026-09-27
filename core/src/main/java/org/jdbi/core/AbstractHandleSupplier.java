@@ -13,8 +13,6 @@
  */
 package org.jdbi.core;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -25,23 +23,27 @@ import org.jdbi.core.extension.HandleSupplier;
 abstract class AbstractHandleSupplier implements HandleSupplier {
 
     private final AtomicBoolean closed = new AtomicBoolean();
-    private final Deque<ExtensionContext> extensionContexts = new ArrayDeque<>();
+
+    // Per thread, because an attached extension can be called from several threads at once. Each call restores the
+    // context that was current on its thread when it started.
+    private final ThreadLocal<ExtensionContext> threadExtensionContext = new ThreadLocal<>();
 
     protected AbstractHandleSupplier() {}
 
     @Override
     public <V> V invokeInContext(ExtensionContext extensionContext, Callable<V> task) throws Exception {
+        final ExtensionContext previousExtensionContext = threadExtensionContext.get();
         try {
-            pushExtensionContext(extensionContext);
+            setExtensionContext(extensionContext);
             return task.call();
         } finally {
-            popExtensionContext();
+            setExtensionContext(previousExtensionContext);
         }
     }
 
-    /** Returns the current extension context or null if none exists. */
+    /** Returns the extension context of the current thread or null if none exists. */
     protected ExtensionContext currentExtensionContext() {
-        return extensionContexts.peek();
+        return threadExtensionContext.get();
     }
 
     protected abstract void withHandle(Consumer<Handle> handleConsumer);
@@ -51,18 +53,15 @@ abstract class AbstractHandleSupplier implements HandleSupplier {
         if (closed.getAndSet(true)) {
             throw new IllegalStateException("Handle is closed");
         }
-        extensionContexts.clear();
     }
 
-    private void pushExtensionContext(ExtensionContext extensionContext) {
-        extensionContexts.addFirst(extensionContext);
+    private void setExtensionContext(ExtensionContext extensionContext) {
+        if (extensionContext == null) {
+            threadExtensionContext.remove();
+        } else {
+            threadExtensionContext.set(extensionContext);
+        }
+        // a null context resets the handle to its default context
         withHandle(handle -> handle.acceptExtensionContext(extensionContext));
-    }
-
-    private void popExtensionContext() {
-        // pop the current context
-        extensionContexts.pollFirst();
-        // set to the previous context (or the default if no previous context exists)
-        withHandle(h -> h.acceptExtensionContext(currentExtensionContext()));
     }
 }

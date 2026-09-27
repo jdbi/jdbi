@@ -47,7 +47,8 @@ public interface HandleSupplier extends AutoCloseable {
     ConfigRegistry getConfig();
 
     /**
-     * Bind a new {@link ExtensionContext} to the Handle, invoke the given task, then restore the Handle's extension state.
+     * Bind a new {@link ExtensionContext} to the Handle for the current thread, invoke the given task, then restore the
+     * extension state that the current thread had before.
      *
      * @param <V>              the result type of the task
      * @param extensionContext An {@link ExtensionContext} object that manages the extension state.
