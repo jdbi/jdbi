@@ -13,6 +13,8 @@
  */
 package org.jdbi.v3.json;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,6 +22,7 @@ import java.util.Optional;
 import org.assertj.core.groups.Tuple;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifier;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.junit.jupiter.api.Test;
@@ -44,6 +47,19 @@ public abstract class AbstractJsonMapperTest {
                 .containsExactlyInAnyOrder(
                     new Tuple("yams", 42),
                     new Tuple("apples", 24));
+        });
+    }
+
+    @Test
+    public void testSqlObjectWithAdditionalQualifier() {
+        jdbi.useHandle(h -> {
+            h.execute("create table subjects (id serial primary key, subject json not null)");
+
+            JsonDao dao = h.attach(JsonDao.class);
+
+            dao.insertTagged(new JsonBean("yams", 42));
+
+            assertThat(dao.selectTagged()).containsExactly(new JsonBean("yams", 42));
         });
     }
 
@@ -172,7 +188,19 @@ public abstract class AbstractJsonMapperTest {
         @SqlQuery("select subject from subjects")
         @Json
         List<Optional<JsonBean>> selectOptional();
+
+        @SqlUpdate("insert into subjects (subject) values(?)")
+        int insertTagged(@Json @Tagged JsonBean value);
+
+        @SqlQuery("select subject from subjects")
+        @Json
+        @Tagged
+        List<JsonBean> selectTagged();
     }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Qualifier
+    public @interface Tagged {}
 
     public static class NestedJsonBean {
         private int id;

@@ -112,6 +112,24 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-json</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-moshi</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.moshi</groupId>
+            <artifactId>moshi</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>de.softwareforge.testing</groupId>
             <artifactId>pg-embedded</artifactId>
             <scope>test</scope>

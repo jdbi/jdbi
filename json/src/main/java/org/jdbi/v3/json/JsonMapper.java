@@ -16,6 +16,7 @@ package org.jdbi.v3.json;
 import java.lang.reflect.Type;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.qualifier.QualifiedType;
 
 /**
  * Deserializes JSON to Java objects, and serializes Java objects to JSON.
@@ -38,6 +39,20 @@ public interface JsonMapper {
     }
 
     TypedJsonMapper forType(Type type, ConfigRegistry config);
+
+    /**
+     * Returns a mapper for a {@code @Json} qualified type. The qualified type carries every qualifier of the
+     * bound or mapped type, including {@link Json} itself, so a mapper can select a serializer by qualifier.
+     * The default implementation ignores the qualifiers and calls {@link #forType(Type, ConfigRegistry)}.
+     *
+     * @param type the qualified type to serialize or deserialize
+     * @param config the config registry
+     * @return a mapper for the type
+     * @since 3.56.0
+     */
+    default TypedJsonMapper forType(QualifiedType<?> type, ConfigRegistry config) {
+        return forType(type.getType(), config);
+    }
 
     interface TypedJsonMapper {
         String toJson(Object value, ConfigRegistry config);

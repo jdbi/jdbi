@@ -15,19 +15,26 @@ package org.jdbi.v3.moshi;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
+import com.squareup.moshi.FromJson;
 import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.JsonQualifier;
 import com.squareup.moshi.JsonReader;
 import com.squareup.moshi.JsonWriter;
 import com.squareup.moshi.Moshi;
+import com.squareup.moshi.ToJson;
 import com.squareup.moshi.Types;
 import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
 import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Qualifier;
 import org.jdbi.v3.json.AbstractJsonMapperTest;
 import org.jdbi.v3.json.Json;
 import org.jdbi.v3.postgres.PostgresPlugin;
@@ -79,6 +86,43 @@ public class TestMoshiPlugin extends AbstractJsonMapperTest {
                 .describedAs("instead of being bound via getClass(), the object was bound according to the qualified type param")
                 .isEqualTo("super");
         });
+    }
+
+    @Test
+    public void jsonQualifierSelectsMoshiAdapter() {
+        pgExtension.getJdbi().useHandle(h -> {
+            h.createUpdate("create table shouts(shout json)").execute();
+            h.getConfig(MoshiConfig.class).setMoshi(new Moshi.Builder().add(new ShoutingAdapter()).build());
+
+            QualifiedType<String> shouting = QualifiedType.of(String.class).with(Json.class, Shouting.class);
+
+            h.createUpdate("insert into shouts(shout) values(:shout)")
+                .bindByType("shout", "hello", shouting)
+                .execute();
+
+            assertThat(h.createQuery("select shout::text from shouts").mapTo(String.class).one())
+                .isEqualTo("\"HELLO\"");
+            assertThat(h.createQuery("select shout from shouts").mapTo(shouting).one())
+                .isEqualTo("hello");
+        });
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @JsonQualifier
+    @Qualifier
+    public @interface Shouting {}
+
+    public static class ShoutingAdapter {
+        @ToJson
+        public String toJson(@Shouting String value) {
+            return value.toUpperCase(Locale.ROOT);
+        }
+
+        @FromJson
+        @Shouting
+        public String fromJson(String value) {
+            return value.toLowerCase(Locale.ROOT);
+        }
     }
 
     public static class User {
