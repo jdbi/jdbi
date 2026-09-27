@@ -27,6 +27,7 @@ import org.jdbi.v3.core.mapper.PropagateNullTest.Test24FKBean
 import org.jdbi.v3.core.mapper.PropagateNullTest.Test25Bean
 import org.jdbi.v3.core.mapper.PropagateNullTest.Test25FKBean
 import org.jdbi.v3.core.mapper.PropagateNullTest.Test26Bean
+import org.jdbi.v3.core.mapper.PropagateNullTest.Test27Bean
 import org.jdbi.v3.core.mapper.reflect.ColumnName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -301,5 +302,18 @@ class KotlinPropagateNullTest : AbstractPropagateNullTest() {
         data class NestedBean(private val id: String?) : TestBean.NestedBean {
             override fun getId(): String? = id
         }
+    }
+
+    @Test
+    fun testPropagateNullWithMapperPrefix() {
+        assertPropagateNullWithMapperPrefix { prefix -> KotlinMapper(Test7Bean::class, prefix) }
+
+        // also test the field bean from the Java test
+        assertPropagateNullWithMapperPrefix { prefix -> KotlinMapper(Test27Bean::class, prefix) }
+    }
+
+    @PropagateNull("fk")
+    data class Test7Bean(private val id: String?) : TestBean.NestedBean {
+        override fun getId(): String? = id
     }
 }

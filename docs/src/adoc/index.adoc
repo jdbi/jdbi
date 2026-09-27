@@ -2285,10 +2285,8 @@ Unless otherwise noted, all annotations are supported on bean getters and setter
 Without this annotation, any attribute is treated as mappable from a single column.
 This annotation creates a mapper for the nested bean.
 There is a limitation that only one type of mapper can be nested at a time; link:{jdbidocs}/core/mapper/reflect/BeanMapper.html[BeanMapper^] will create another link:{jdbidocs}/core/mapper/reflect/BeanMapper.html[BeanMapper^], `ConstructorMapper` will create another `ConstructorMapper` etc. link:{jdbidocs}/core/mapper/Nested.html[@Nested^] supports an optional prefix for all attributes in the nested bean (`@Nested("prefix")`).
-* Using `@PropagateNull` on a given attribute propagates a null value for a specific attribute up.
-If the attribute or column is null, the whole bean will be discarded and a null value will be used instead of the bean itself.
-This annotation can also be used on the bean class with a column name that must be present in the result set.
-When used on an attribute, no value must be set.
+* link:{jdbidocs}/core/mapper/PropagateNull.html[@PropagateNull^] on a class or an attribute maps a `null` value instead of the whole object when a specific column is null.
+See <<propagate-null,Using `@PropagateNull`>>.
 * `@Nullable` for `ConstructorMapper` arguments.
 If no column is mapped onto a specific constructor argument, don't fail but use `null` as value.
 * Using `@JdbiProperty(map=false)` allows configuring whether a discovered property is mapped in results.
@@ -2302,6 +2300,61 @@ When binding object properties (e.g. with link:{jdbidocs}/core/statement/SqlStat
 [NOTE]
 link:{jdbidocs}/core/mapper/Nested.html[@Nested^] also can be used in combination with link:{jdkdocs}/java.base/java/util/Optional.html[Optional^].
 When mapping a value `@Nested Optional<MyBean>` then it will wrapped inside an optional, and will be `Optional.empty()` when `MyBean` itself would be null (e.g. because `@PropagateNull` annotation is used on a `MyBean` field that was null).
+
+[#propagate-null]
+===== Using `@PropagateNull`
+
+The link:{jdbidocs}/core/mapper/PropagateNull.html[@PropagateNull^] annotation tells a reflection mapper to return `null` instead of an object when a specific column is null.
+A typical use is a nested object from a `LEFT OUTER JOIN`.
+When the join finds no row, the mapper returns `null` instead of an object with only null attributes.
+
+Put the annotation on the class or on an attribute:
+
+* On the class, set the value to the name of the column to examine.
+This column does not need to map to an attribute of the class.
+For example, it can be a foreign key.
+For the `ConstructorMapper`, the annotation with a value can also be on the factory method.
+* On an attribute, do not set a value.
+The mapper examines the value that the column mapper returns for this attribute.
+For the `BeanMapper`, put the annotation on the getter or the setter.
+For the `KotlinMapper`, put it on a constructor parameter or a `var` member property.
+
+The column name on the class is relative to the prefix of the mapper, and does not include that prefix.
+The prefix comes from `@Nested("prefix")`, or from a mapper that you make with a prefix, such as `ConstructorMapper.of(User.class, "receiver")`.
+Jdbi puts the prefix in front of the name (`sender.id`), and the default column name matchers match this name to the `sender_id` column.
+When a mapper with a prefix maps a `@Nested` attribute, the two prefixes add up.
+As a result, you can map the same class with different prefixes, and two times in the same row, as the next example shows.
+
+If no column matches the name, the annotation has no effect, and Jdbi does not show an error.
+Thus, `@PropagateNull("sender_id")` under the `sender` prefix does nothing, because Jdbi looks for `sender.sender_id`.
+If you enable strict matching with `ReflectionMappers.setStrictMatching(true)`, the examined column must also map to an attribute.
+Jdbi does not count the examined column as a matched column.
+
+This example maps a transfer with a sender and an optional receiver:
+
+[source,java,indent=0]
+----
+include::{exampledir}/PropagateNullTest.java[tag=types]
+----
+
+The query names the columns of the two users `sender_id`, `sender_name`, `receiver_id`, and `receiver_name`.
+When the transfer has no receiver, the `receiver_id` column is null, and the `receiver` attribute is `null`:
+
+[source,java,indent=0]
+----
+include::{exampledir}/PropagateNullTest.java[tag=nested]
+----
+
+A mapper that you make with a prefix uses the same rule:
+
+[source,java,indent=0]
+----
+include::{exampledir}/PropagateNullTest.java[tag=prefix]
+----
+
+Because the mapper examines the value that the column mapper returns, an `Optional<String>` attribute on a SQL `NULL` column is `Optional.empty()`, which is not `null`, and does not propagate.
+For a primitive attribute such as `int id`, the `BeanMapper`, `ConstructorMapper`, and `FieldMapper` also treat a SQL `NULL` as `null`.
+On a `@Nested` attribute, the mapper examines the nested object: if the nested object is `null`, the parent object is also `null`.
 
 ===== Using `@Nullable` annotations
 

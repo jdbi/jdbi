@@ -22,6 +22,9 @@
 - Document the transaction contract for connections with autocommit disabled: the handle joins the
   transaction that the connection owner manages. New "Transactions managed outside Jdbi" section in
   the User Guide, with tests that pin the contract. (#1039, #2663)
+- Document how `@PropagateNull` resolves its column: on a class, the column name is relative to the mapper
+  prefix (from `@Nested` or from a mapper made with a prefix), so one class maps under different prefixes.
+  New "Using `@PropagateNull`" section in the User Guide, with tests for mappers made with a prefix. (#1764)
 - Fix `JdbiExtension` losing its plugins and initializer after `afterAll`, so a static extension whose test
   class ran a second time in the same JVM (a Surefire rerun of a failed test, or a `@Nested` class selected
   as its own test class) restarted with a bare `Jdbi` and failed with `NoSuchMapperException` or

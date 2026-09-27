@@ -23,18 +23,29 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Signals that the annotated property signals the presence of the mapped type:
- * reflective mappers should map a null bean if this property is null, rather than a
- * present bean with a null property value.  This is useful e.g. for a {@code LEFT OUTER JOIN}
+ * Signals that a column shows the presence of the mapped type:
+ * reflective mappers map a {@code null} object if this column is null, rather than a
+ * present object with null properties.  This is useful e.g. for a {@code LEFT OUTER JOIN}
  * or an optionally-present compound value type.
+ * <p>
+ * On a type, {@link #value()} names the column to examine. The name is relative to the
+ * prefix of the mapper, which comes from {@link Nested#value()} or from a mapper made with a
+ * prefix, so the same type can be mapped with different prefixes. Do not include the prefix:
+ * if no column matches the name, the annotation has no effect and no error occurs. For the
+ * {@code ConstructorMapper}, the annotation with a value can also be on the factory method.
+ * <p>
+ * On a property (a bean getter or setter, a field, or a constructor parameter), leave
+ * {@link #value()} empty. The mapper examines the value that the column mapper returns for
+ * the property, so an {@code Optional} property on a null column does not propagate. On a
+ * {@link Nested} property, the mapper examines the nested object instead.
  */
 @Retention(RUNTIME)
 @Target({PARAMETER, FIELD, METHOD, TYPE})
 public @interface PropagateNull {
 
     /**
-     * When annotating a type, the {@code value} is the column name to check for null.
-     * When annotating a property, the {@code value} is unused: instead, the property value is tested against null.
+     * On a type, the name of the column to check for null, without the prefix of the mapper.
+     * On a property, the value must be empty.
      *
      * @return the column name whose null-ness shall be propagated
      */
