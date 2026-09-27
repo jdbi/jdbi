@@ -1,5 +1,10 @@
 # Unreleased
 
+- Fix extensions such as SQL Objects that are attached to one `Handle` and called from more than one thread.
+  A call could use the configuration of a different extension or the default configuration of the handle, so
+  it mapped rows with the incorrect mapper or failed with `NoSuchMapperException`. The handle now keeps the
+  extension context for each thread (#2754)
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public
