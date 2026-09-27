@@ -7920,7 +7920,7 @@ qryAll.mapTo<Thing>.useSequence {
 
 ==== Registering mappers for generic types
 
-Kotlin uses slightly different semantics for type reflection than Java.
+The Kotlin compiler writes different generic signatures for the same type depending on where the type is used.
 As a result, registering a mapper using the link:{jdbidocs}/core/generic/GenericType.html[GenericType^] in pure Kotlin may not work as expected:
 
 [source,kotlin]
@@ -7929,9 +7929,9 @@ As a result, registering a mapper using the link:{jdbidocs}/core/generic/Generic
 registerColumnMapper(object : GenericType<List<A>>() {}) { rs, col, _ -> rs.getStringArrayIntoList(col, A::findById).filterNotNull() }
 ----
 
-should register a column mapper for a list, but will result in an error message that no column mapper could be found.
+should register a column mapper for a list, but will result in an error message that no column mapper could be found if `A` is a final class, such as a data class.
 
-For Kotlin, it is necessary to use the `@JvmSuppressWildcards` annotation on the type to make this registration work:
+For a final class, it is necessary to use the `@JvmSuppressWildcards` annotation on the type to make this registration work:
 
 [source,kotlin]
 ----
@@ -7939,13 +7939,14 @@ For Kotlin, it is necessary to use the `@JvmSuppressWildcards` annotation on the
 registerColumnMapper(object : GenericType<List<@JvmSuppressWildcards A>>() {}) { rs, col, _ -> rs.getStringArrayIntoList(col, A::findById).filterNotNull() }
 ----
 
+Do not use the annotation if `A` is an interface, an open class, or an enum.
+The registration works without it, and the annotation prevents Jdbi from finding the mapper.
+
 See also https://kotlinlang.org/docs/java-to-kotlin-interop.html#variant-generics[the Kotlin documentation on calling Kotlin from Java^] for an explanation how this annotation works.
 
 [NOTE]
-Kotlin internally uses other types than Java for e.g. `List` or `String`.
-A string in Java is a `java.lang.String` and in Kotlin it is a `kotlin.String`.
-While there is tremendous effort to make this transparent to the developer when using Java and Kotlin together, this is one of the place where this difference is visible.
-In Kotlin, the generic type would translate to `List<? extends String>>` while the registered mapper is for a `List<String>`.
+When a type argument is a final class, the Kotlin compiler omits the wildcard from the generic signature of a constructor or property parameter, but keeps it in the generic signature of a supertype, such as the anonymous `GenericType` subclass.
+For a property of type `List<String>`, the generic type translates to `List<? extends String>` while the property type is `List<String>`.
 Those two types are incompatible for Jdbi.
 The annotation suppresses the wildcard and results in `List<String>` for the generic type.
 See https://youtrack.jetbrains.com/issue/KT-77120/Different-behavior-of-Java-wildcards-when-used-in-parameter-types-vs-arguments-of-supertypes[this bug report on the Kotlin issue tracker^] for a detailed explanation.
