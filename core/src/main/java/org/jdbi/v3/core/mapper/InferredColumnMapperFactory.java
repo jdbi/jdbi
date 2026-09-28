@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.RedundantWildcards;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 
@@ -31,6 +34,7 @@ import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
  */
 class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
     private final QualifiedType<?> maps;
+    private final Predicate<Type> matchesType;
     private final ColumnMapper<?> mapper;
 
     InferredColumnMapperFactory(ColumnMapper<?> mapper) {
@@ -38,12 +42,13 @@ class InferredColumnMapperFactory implements QualifiedColumnMapperFactory {
             findGenericParameter(mapper.getClass(), ColumnMapper.class)
                 .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed ColumnMapper here")))
             .withAnnotations(new Qualifiers().findFor(mapper.getClass()));
+        this.matchesType = RedundantWildcards.matcher(maps.getType());
         this.mapper = mapper;
     }
 
     @Override
     public Optional<ColumnMapper<?>> build(QualifiedType<?> type, ConfigRegistry config) {
-        return maps.equals(type)
+        return type.getQualifiers().equals(maps.getQualifiers()) && matchesType.test(type.getType())
                 ? Optional.of(mapper)
                 : Optional.empty();
     }

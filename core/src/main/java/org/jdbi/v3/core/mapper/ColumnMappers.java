@@ -103,7 +103,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
      * @param <T> the type
-     * @param type the generic type to match with equals.
+     * @param type the generic type to match, as described in {@link ColumnMapperFactory#of(Type, ColumnMapper)}.
      * @param mapper the column mapper
      * @return this
      */
@@ -115,7 +115,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Register a column mapper for a given explicit {@link Type}
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
-     * @param type the type to match with equals.
+     * @param type the type to match, as described in {@link ColumnMapperFactory#of(Type, ColumnMapper)}.
      * @param mapper the column mapper
      * @return this
      */
@@ -127,7 +127,7 @@ public class ColumnMappers implements JdbiConfig<ColumnMappers> {
      * Register a column mapper for a given {@link QualifiedType}
      * Column mappers may be reused by {@link RowMapper} to map individual columns.
      *
-     * @param type the type to match with equals.
+     * @param type the type to match, as described in {@link QualifiedColumnMapperFactory#of(QualifiedType, ColumnMapper)}.
      * @param mapper the column mapper
      * @return this
      */

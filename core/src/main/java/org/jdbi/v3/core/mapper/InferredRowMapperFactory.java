@@ -15,8 +15,10 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.RedundantWildcards;
 
 import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
 
@@ -28,12 +30,13 @@ import static org.jdbi.v3.core.generic.GenericTypes.findGenericParameter;
  * will be thrown.
  */
 class InferredRowMapperFactory implements RowMapperFactory {
-    private final Type maps;
+    private final Predicate<Type> matchesType;
     private final RowMapper<?> mapper;
 
     InferredRowMapperFactory(RowMapper<?> mapper) {
-        this.maps = detectType(mapper)
+        Type maps = detectType(mapper)
             .orElseThrow(() -> new UnsupportedOperationException("Must use a concretely typed RowMapper here"));
+        this.matchesType = RedundantWildcards.matcher(maps);
         this.mapper = mapper;
     }
 
@@ -45,7 +48,7 @@ class InferredRowMapperFactory implements RowMapperFactory {
 
     @Override
     public Optional<RowMapper<?>> build(Type type, ConfigRegistry config) {
-        return maps.equals(type)
+        return matchesType.test(type)
                 ? Optional.of(mapper)
                 : Optional.empty();
     }
