@@ -13,9 +13,12 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.RedundantWildcards;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.qualifier.Qualifiers;
 
@@ -50,7 +53,8 @@ public interface QualifiedColumnMapperFactory {
 
     /**
      * Create a QualifiedColumnMapperFactory from a given {@link ColumnMapper} that matches
-     * a single {@link QualifiedType} exactly.
+     * a single {@link QualifiedType}. A wildcard {@code ? extends B}, where no type other than {@code B} extends {@code B},
+     * matches {@code B}, so {@code List<? extends String>} matches {@code List<String>}.
      *
      * @param type the mapped type
      * @param mapper the mapper
@@ -58,6 +62,9 @@ public interface QualifiedColumnMapperFactory {
      * @return A {@link QualifiedColumnMapperFactory}
      */
     static <T> QualifiedColumnMapperFactory of(QualifiedType<T> type, ColumnMapper<T> mapper) {
-        return (t, config) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
+        Predicate<Type> matches = RedundantWildcards.matcher(type.getType());
+        return (t, config) -> t.getQualifiers().equals(type.getQualifiers()) && matches.test(t.getType())
+            ? Optional.of(mapper)
+            : Optional.empty();
     }
 }

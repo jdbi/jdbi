@@ -15,8 +15,10 @@ package org.jdbi.v3.core.mapper;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.jdbi.v3.core.config.ConfigRegistry;
+import org.jdbi.v3.core.internal.RedundantWildcards;
 
 /**
  * Factory interface used to produce column mappers.
@@ -35,13 +37,15 @@ public interface ColumnMapperFactory {
 
     /**
      * Create a ColumnMapperFactory from a given {@link ColumnMapper} that
-     * matches a single Type exactly.
+     * matches a single Type. A wildcard {@code ? extends B}, where no type other than {@code B} extends {@code B},
+     * matches {@code B}, so {@code List<? extends String>} matches {@code List<String>}.
      *
-     * @param type the type to match with equals.
+     * @param type the type to match.
      * @param mapper the mapper to return
      * @return the factory
      */
     static ColumnMapperFactory of(Type type, ColumnMapper<?> mapper) {
-        return (t, c) -> t.equals(type) ? Optional.of(mapper) : Optional.empty();
+        Predicate<Type> matches = RedundantWildcards.matcher(type);
+        return (t, c) -> matches.test(t) ? Optional.of(mapper) : Optional.empty();
     }
 }

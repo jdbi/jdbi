@@ -13,12 +13,20 @@
  */
 package org.jdbi.v3.core.mapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Optional;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.generic.GenericType;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.qualifier.QualifiedType;
+import org.jdbi.v3.core.qualifier.Reversed;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -59,5 +67,111 @@ public class TestRegisteredMappers {
 
         assertThat(db.getConfig(RowMappers.class).findFor(iterableOfCalendarType))
             .contains(mapper);
+    }
+
+    @Test
+    public void registerColumnMapperWithRedundantWildcard() {
+        Jdbi db = h2Extension.getJdbi();
+
+        db.registerColumnMapper(new GenericType<List<? extends String>>() {}, (rs, col, ctx) -> Arrays.asList(rs.getString(col).split(",")));
+
+        List<String> result = db.withHandle(h -> h.createQuery("select 'a,b'").mapTo(new GenericType<List<String>>() {}).one());
+
+        assertThat(result).containsExactly("a", "b");
+    }
+
+    @Test
+    public void registerColumnMapperMatchesRedundantWildcard() {
+        Jdbi db = h2Extension.getJdbi();
+
+        db.registerColumnMapper(new GenericType<List<String>>() {}, (rs, col, ctx) -> Arrays.asList(rs.getString(col).split(",")));
+
+        List<? extends String> result = db.withHandle(h -> h.createQuery("select 'a,b'").mapTo(new GenericType<List<? extends String>>() {}).one());
+
+        assertThat(result).isEqualTo(List.of("a", "b"));
+    }
+
+    @Test
+    public void registerQualifiedColumnMapperWithRedundantWildcard() {
+        Jdbi db = h2Extension.getJdbi();
+
+        db.registerColumnMapper(QualifiedType.of(new GenericType<List<? extends String>>() {}).with(Reversed.class),
+            (rs, col, ctx) -> Arrays.asList(rs.getString(col).split(",")));
+
+        List<String> result = db.withHandle(h -> h.createQuery("select 'a,b'")
+                .mapTo(QualifiedType.of(new GenericType<List<String>>() {}).with(Reversed.class))
+                .one());
+
+        assertThat(result).containsExactly("a", "b");
+    }
+
+    @Test
+    public void registerRowMapperWithRedundantWildcard() {
+        Jdbi db = h2Extension.getJdbi();
+
+        db.registerRowMapper(new GenericType<List<? extends String>>() {}, (rs, ctx) -> Arrays.asList(rs.getString(1).split(",")));
+
+        List<String> result = db.withHandle(h -> h.createQuery("select 'a,b'").mapTo(new GenericType<List<String>>() {}).one());
+
+        assertThat(result).containsExactly("a", "b");
+    }
+
+    @Test
+    public void registerColumnMapperKeepsOpenWildcard() {
+        Jdbi db = h2Extension.getJdbi();
+
+        ColumnMapper<List<? extends CharSequence>> mapper = (rs, col, ctx) -> Arrays.asList(rs.getString(col).split(","));
+        db.registerColumnMapper(new GenericType<List<? extends CharSequence>>() {}, mapper);
+
+        assertThat(db.getConfig(ColumnMappers.class).findFor(new GenericType<List<? extends CharSequence>>() {})).contains(mapper);
+        assertThat(db.getConfig(ColumnMappers.class).findFor(new GenericType<List<CharSequence>>() {})).isNotEqualTo(Optional.of(mapper));
+    }
+
+    static class WildcardListColumnMapper implements ColumnMapper<List<? extends String>> {
+        @Override
+        public List<? extends String> map(ResultSet r, int columnNumber, StatementContext ctx) throws SQLException {
+            return Arrays.asList(r.getString(columnNumber).split(","));
+        }
+    }
+
+    static class WildcardListRowMapper implements RowMapper<List<? extends String>> {
+        @Override
+        public List<? extends String> map(ResultSet rs, StatementContext ctx) throws SQLException {
+            return Arrays.asList(rs.getString(1).split(","));
+        }
+    }
+
+    @Test
+    public void registerInferredColumnMapperWithRedundantWildcard() {
+        Jdbi db = h2Extension.getJdbi();
+
+        db.registerColumnMapper(new WildcardListColumnMapper());
+
+        List<String> result = db.withHandle(h -> h.createQuery("select 'a,b'").mapTo(new GenericType<List<String>>() {}).one());
+
+        assertThat(result).containsExactly("a", "b");
+    }
+
+    @Test
+    public void registerInferredRowMapperWithRedundantWildcard() {
+        Jdbi db = h2Extension.getJdbi();
+
+        db.registerRowMapper(new WildcardListRowMapper());
+
+        List<String> result = db.withHandle(h -> h.createQuery("select 'a,b'").mapTo(new GenericType<List<String>>() {}).one());
+
+        assertThat(result).containsExactly("a", "b");
+    }
+
+    @Test
+    public void laterRegistrationWinsAcrossRedundantWildcard() {
+        Jdbi db = h2Extension.getJdbi();
+
+        ColumnMapper<List<String>> first = (rs, col, ctx) -> List.of("first");
+        ColumnMapper<List<? extends String>> second = (rs, col, ctx) -> List.of("second");
+        db.registerColumnMapper(new GenericType<List<String>>() {}, first);
+        db.registerColumnMapper(new GenericType<List<? extends String>>() {}, second);
+
+        assertThat(db.getConfig(ColumnMappers.class).findFor(new GenericType<List<String>>() {}).orElseThrow()).isSameAs(second);
     }
 }

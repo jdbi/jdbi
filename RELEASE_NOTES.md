@@ -1,5 +1,10 @@
 # Unreleased
 
+- A registered column or row mapper now matches types that differ only by a wildcard whose bound has no
+  subtypes, e.g. `List<? extends String>` and `List<String>`. Kotlin `GenericType` registrations for final element
+  types no longer need `@JvmSuppressWildcards`. Both spellings now share one registration, and the last one
+  registered wins. See "Registering mappers for generic types" for non-final element types (#2751)
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public
