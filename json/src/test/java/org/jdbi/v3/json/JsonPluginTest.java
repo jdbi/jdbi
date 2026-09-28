@@ -14,8 +14,12 @@
 package org.jdbi.v3.json;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.argument.ArgumentFactory;
+import org.jdbi.v3.core.argument.Arguments;
 import org.jdbi.v3.core.config.ConfigRegistry;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
@@ -74,6 +78,69 @@ public class JsonPluginTest {
         });
 
         assertThat(result).isSameAs(instance);
+    }
+
+    @Test
+    public void bindWithPreparedArgumentsDisabled() {
+        Jdbi jdbi = h2Extension.getJdbi();
+        jdbi.getConfig(JsonConfig.class).setJsonMapper(new ConstantJsonMapper("{}"));
+        jdbi.getConfig(Arguments.class).setPreparedArgumentsEnabled(false);
+
+        assertThat(insertJsonFoo(jdbi)).isEqualTo("{}");
+    }
+
+    @Test
+    public void preparedArgumentsDisabledUsesEncodedJsonFactory() {
+        Jdbi jdbi = h2Extension.getJdbi();
+        jdbi.getConfig(JsonConfig.class).setJsonMapper(new ConstantJsonMapper("{}"));
+        jdbi.getConfig(Arguments.class).setPreparedArgumentsEnabled(false);
+        jdbi.registerArgument(new PrefixingEncodedJsonArgumentFactory());
+
+        assertThat(insertJsonFoo(jdbi)).isEqualTo("encoded:{}");
+    }
+
+    private static String insertJsonFoo(Jdbi jdbi) {
+        return jdbi.withHandle(h -> {
+            h.createUpdate("insert into foo(bar) values(:foo)")
+                .bindByType("foo", new Foo(), QualifiedType.of(Foo.class).with(Json.class))
+                .execute();
+
+            return h.createQuery("select bar from foo").mapTo(String.class).one();
+        });
+    }
+
+    private static class ConstantJsonMapper implements JsonMapper {
+        private final String json;
+
+        ConstantJsonMapper(String json) {
+            this.json = json;
+        }
+
+        @Override
+        public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+            return new TypedJsonMapper() {
+                @Override
+                public String toJson(Object value, ConfigRegistry config) {
+                    return json;
+                }
+
+                @Override
+                public Object fromJson(String readJson, ConfigRegistry config) {
+                    throw new UnsupportedOperationException();
+                }
+            };
+        }
+    }
+
+    @EncodedJson
+    public static class PrefixingEncodedJsonArgumentFactory implements ArgumentFactory {
+        @Override
+        public Optional<Argument> build(Type type, Object value, ConfigRegistry config) {
+            if (type != String.class) {
+                return Optional.empty();
+            }
+            return Optional.of((position, statement, ctx) -> statement.setString(position, "encoded:" + value));
+        }
     }
 
     public static class Foo {

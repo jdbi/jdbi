@@ -1,5 +1,10 @@
 # Unreleased
 
+- Fix binding a `@Json` value when prepared arguments are disabled with `Arguments#setPreparedArgumentsEnabled(false)`.
+  Every such bind failed with "No argument factory found for `@EncodedJson String` or 'String'". The JSON argument
+  factory now looks up the `@EncodedJson String` or `String` argument for each value, so it also uses a factory that
+  is not preparable
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public
