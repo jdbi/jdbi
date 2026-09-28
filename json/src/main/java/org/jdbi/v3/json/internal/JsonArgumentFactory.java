@@ -46,14 +46,22 @@ public class JsonArgumentFactory implements ArgumentFactory.Preparable {
         TypedJsonMapper mapper = config.get(JsonConfig.class).getJsonMapper().forType(type, config);
         Arguments a = config.get(Arguments.class);
         // look for specialized json support first, revert to simple String binding if absent
+        // prepareFor is empty when prepared arguments are disabled, so look up each value in that case
         Function<Object, Argument> bindJson = JdbiOptionals.findFirstPresent(
                 () -> a.prepareFor(ENCODED_JSON),
                 () -> a.prepareFor(String.class))
-            .orElseThrow(() -> new UnableToCreateStatementException(JSON_NOT_STORABLE));
+            .orElse(json -> findArgument(a, json));
         return Optional.of((Function<Object, Argument>) value -> {
             String nullableJson = value == null ? null : mapper.toJson(value, config);
             String json = "null".equals(nullableJson) ? null : nullableJson; // json null -> sql null
             return bindJson.apply(json);
         });
+    }
+
+    private static Argument findArgument(Arguments a, Object json) {
+        return JdbiOptionals.findFirstPresent(
+                () -> a.findFor(ENCODED_JSON, json),
+                () -> a.findFor(String.class, json))
+            .orElseThrow(() -> new UnableToCreateStatementException(JSON_NOT_STORABLE));
     }
 }
