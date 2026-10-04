@@ -14,7 +14,9 @@
 package org.jdbi.v3.jackson2;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
@@ -27,7 +29,7 @@ import org.jdbi.v3.json.JsonMapper;
 
 class JacksonJsonMapper implements JsonMapper {
     @Override
-    public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+    public TypedJsonMapper forType(Type type, Set<? extends Annotation> annotations, ConfigRegistry config) {
         return new TypedJsonMapper() {
             private final Jackson2Config jacksonConfig = config.get(Jackson2Config.class);
             private final ObjectMapper mapper = jacksonConfig.getMapper();

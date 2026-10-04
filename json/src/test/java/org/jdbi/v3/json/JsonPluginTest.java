@@ -13,7 +13,9 @@
  */
 package org.jdbi.v3.json;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Set;
 
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -42,7 +44,7 @@ public class JsonPluginTest {
 
         jdbi.getConfig(JsonConfig.class).setJsonMapper(new JsonMapper() {
             @Override
-            public TypedJsonMapper forType(Type type, ConfigRegistry config) {
+            public TypedJsonMapper forType(Type type, Set<? extends Annotation> annotations, ConfigRegistry config) {
                 assertThat(type).isEqualTo(Foo.class);
                 return new TypedJsonMapper() {
                     @Override
