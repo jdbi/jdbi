@@ -53,6 +53,7 @@ public class Batch extends BaseStatement<Batch> {
      * @return the number of rows affected per batch part
      * @see Statement#executeBatch()
      */
+    @SuppressWarnings("PMD.ExceptionAsFlowControl")
     public int[] execute() {
         // short circuit empty batch
         if (parts.isEmpty()) {
@@ -87,6 +88,9 @@ public class Batch extends BaseStatement<Batch> {
             } catch (SQLException e) {
                 throw stmtConfig.handleException(mungeBatchException(e), getContext());
             }
+        } catch (RuntimeException e) {
+            getContext().recordFailure(e);
+            throw e;
         } finally {
             close();
         }

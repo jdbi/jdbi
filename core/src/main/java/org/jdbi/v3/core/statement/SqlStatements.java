@@ -69,7 +69,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private volatile int jfrSqlMaxLength = 512;
     private volatile int jfrParamMaxLength = 512;
 
-    private volatile boolean includeBindingsInTelemetry = true;
+    private volatile boolean includeBindingsInTelemetry = false;
 
     public SqlStatements() {
         attributes = Collections.synchronizedMap(new HashMap<>());
@@ -434,7 +434,10 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Toggle whether to include potentially sensitive bindins in telemetry data.
+     * Whether JFR events and OpenTelemetry spans record the values of bound arguments.
+     *
+     * @return true if telemetry records bound argument values
+     * @see #setIncludeBindingsInTelemetry(boolean)
      */
     @Beta
     public boolean getIncludeBindingsInTelemetry() {
@@ -459,7 +462,12 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     }
 
     /**
-     * Toggle whether to include potentially sensitive bindins in telemetry data.
+     * Set whether JFR events and OpenTelemetry spans record the values of bound arguments.
+     * The default is false, because bound values often contain personal data or secrets,
+     * and a trace backend usually has more readers and a different retention policy than the database.
+     *
+     * @param includeBindingsInTelemetry true to record bound argument values
+     * @return this
      */
     public SqlStatements setIncludeBindingsInTelemetry(boolean includeBindingsInTelemetry) {
         this.includeBindingsInTelemetry = includeBindingsInTelemetry;

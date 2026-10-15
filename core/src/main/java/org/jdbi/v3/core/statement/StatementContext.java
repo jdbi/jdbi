@@ -79,7 +79,7 @@ public class StatementContext implements Closeable {
     private String renderedSql;
     private ParsedSql parsedSql;
     private PreparedStatement statement;
-    private Connection connection;
+    private final Connection connection;
     private Binding binding = new Binding(this);
 
     private volatile boolean returningGeneratedKeys = false;
@@ -89,19 +89,27 @@ public class StatementContext implements Closeable {
     private Instant executionMoment;
     private Instant completionMoment;
     private Instant exceptionMoment;
+    private Exception failure;
     private volatile long mappedRows;
     private String traceId;
 
     static StatementContext create(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType) {
-        final StatementContext context = new StatementContext(config, extensionMethod, jdbiStatementType);
+        return create(config, extensionMethod, jdbiStatementType, null);
+    }
+
+    static StatementContext create(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType,
+            final Connection connection) {
+        final StatementContext context = new StatementContext(config, extensionMethod, jdbiStatementType, connection);
         context.notifyContextCreated();
         return context;
     }
 
-    private StatementContext(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType) {
+    private StatementContext(final ConfigRegistry config, final ExtensionMethod extensionMethod, final Type jdbiStatementType,
+            final Connection connection) {
         this.config = requireNonNull(config);
         this.extensionMethod = extensionMethod;
         this.jdbiStatementType = jdbiStatementType;
+        this.connection = connection;
     }
 
     /**
@@ -417,11 +425,6 @@ public class StatementContext implements Closeable {
         return statement;
     }
 
-    StatementContext setConnection(Connection connection) {
-        this.connection = connection;
-        return this;
-    }
-
     /**
      * Obtain the JDBC connection being used for this statement
      *
@@ -570,6 +573,26 @@ public class StatementContext implements Closeable {
      */
     public void setExceptionMoment(Instant exceptionMoment) {
         this.exceptionMoment = exceptionMoment;
+    }
+
+    /**
+     * Returns the first exception that failed the execution of this statement.
+     * When the database rejects the statement, this is the {@link java.sql.SQLException} from the driver,
+     * even if a {@link SqlExceptionHandler} replaced it.
+     * Exceptions from result mapping, after execution, are not included.
+     *
+     * @return the first exception that failed the statement execution, or null
+     */
+    @Alpha
+    @Nullable
+    public Exception getFailure() {
+        return failure;
+    }
+
+    void recordFailure(final Exception e) {
+        if (failure == null) {
+            failure = e;
+        }
     }
 
     /**
