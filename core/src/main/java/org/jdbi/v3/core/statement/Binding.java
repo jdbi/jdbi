@@ -29,6 +29,7 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.ArgumentBinder.ArgumentFactoryLocator;
+import org.jdbi.v3.meta.Alpha;
 
 import static org.jdbi.v3.core.statement.ArgumentBinder.unwrap;
 /**
@@ -177,7 +178,7 @@ public class Binding {
                 firstElem = false;
                 buf.append(e.getKey())
                     .append(':')
-                    .append(unwrap(e.getValue()));
+                    .append(describeValue(unwrap(e.getValue())));
                 if (buf.length() > maxLength) {
                     break;
                 }
@@ -198,7 +199,7 @@ public class Binding {
                 firstElem = false;
                 buf.append(e.getKey())
                     .append(':')
-                    .append(unwrap(e.getValue()));
+                    .append(describeValue(unwrap(e.getValue())));
                 if (buf.length() > maxLength) {
                     break;
                 }
@@ -216,7 +217,7 @@ public class Binding {
                     buf.append(',');
                 }
                 firstElem = false;
-                buf.append(naf);
+                buf.append(describeValue(naf));
                 if (buf.length() > maxLength) {
                     break;
                 }
@@ -228,6 +229,39 @@ public class Binding {
             buf.append('…');
         }
         return buf + "}";
+    }
+
+    /**
+     * Describe each positional and named argument as a string, for telemetry.
+     * The key of a positional argument is its 0-based position, and the key of a named argument is its name.
+     * Arguments from a {@link NamedArgumentFinder} are not included.
+     *
+     * @param maxLength The maximum length of each description
+     * @return the argument descriptions: positional arguments by position, then named arguments in bind order
+     */
+    @Alpha
+    public Map<String, String> describeArguments(final int maxLength) {
+        final Map<String, String> result = new LinkedHashMap<>();
+        positionals.forEach((position, value) -> result.put(String.valueOf(position), truncate(unwrap(value), maxLength)));
+        named.forEach((name, value) -> result.put(name, truncate(unwrap(value), maxLength)));
+        return result;
+    }
+
+    private static String truncate(final Object value, final int maxLength) {
+        final String description = describeValue(value);
+        if (description.length() <= maxLength) {
+            return description;
+        }
+        return description.substring(0, Math.max(0, maxLength - 1)) + '…';
+    }
+
+    // Descriptions go to logs, exception messages, and telemetry, so a failing toString() must not fail the statement.
+    private static String describeValue(final Object value) {
+        try {
+            return String.valueOf(value);
+        } catch (RuntimeException e) {
+            return "<" + value.getClass().getName() + ".toString() threw " + e.getClass().getName() + ">";
+        }
     }
 
     /**

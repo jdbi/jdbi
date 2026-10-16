@@ -37,6 +37,7 @@ class SqlLoggerUtil {
             return result;
         } catch (SQLException e) {
             ctx.setExceptionMoment(Instant.now());
+            ctx.recordFailure(e);
             logger.logException(ctx, e);
             throw e;
         }

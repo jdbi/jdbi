@@ -6724,16 +6724,48 @@ Jdbi provides support for collecting telemetry about executed database statement
 === JDK Flight Recorder
 
 The link:https://en.wikipedia.org/wiki/JDK_Flight_Recorder[JDK Flight Recorder^] provides a lightweight event recorder mechanism suitable to enable in production.
-When active, Jdbi will record a `jdbi.statement` event for every statement executed, indicating the timestamp, duration, executed sql, and parameters.
+When active, Jdbi will record a `jdbi.statement` event for every statement executed, indicating the timestamp, duration, executed sql, and number of mapped rows.
 
 Configuration to limit large amounts of data recorded is available on the `SqlStatements` configuration class.
+
+[#telemetry-bindings]
+=== Bound values
+
+Bound values often contain personal data or secrets.
+By default, JFR events and OpenTelemetry spans do not record them.
+To record them, set `includeBindingsInTelemetry`:
+
+[source,java,indent=0]
+----
+jdbi.getConfig(SqlStatements.class).setIncludeBindingsInTelemetry(true);
+----
+
+The SQL text is always recorded.
+Values that `@Define` or `define()` adds to the SQL text are part of the SQL text, and telemetry records them even when bound values are excluded.
+
+This setting does not change exception messages.
+By default, the message of a `StatementException` contains the bound values, so they can go to logs and to error trackers.
+To remove them, set the message rendering of `StatementExceptions` to `MessageRendering.NONE`.
+The OpenTelemetry spans do not record exception messages.
 
 === OpenTelemetry Tracing
 
 The link:https://opentelemetry.io/[OpenTelemetry^] project provides a SDK to implement distributed tracing.
 Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^]
-from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data similarly as JFR events above.
+from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans.
 Additionally, it will add the trace id to JFR events.
+
+The spans follow the link:https://opentelemetry.io/docs/specs/semconv/db/database-spans/[database client span semantic conventions^], so trace backends show them as database calls:
+
+* The span kind is `CLIENT`.
+* `db.system.name` identifies the database, from `DatabaseMetaData.getDatabaseProductName()`. Jdbi reads it once for each `Jdbi` instance.
+* `db.query.text` is the rendered SQL, with the named parameter placeholders.
+* `db.response.returned_rows` is the number of mapped rows of a query.
+* A statement from a SQL Object method has the `db.query.summary` `Type.method`, for example `UserDao.findById`. This summary is also the span name. Other spans have the `db.system.name` as their name.
+* When the statement execution fails, the span status is `ERROR`. If a `SQLException` caused the failure, `db.response.status_code` is its vendor error code for MySQL, MariaDB, Microsoft SQL Server, and Oracle (as `ORA-nnnnn`), and its SQLSTATE for other databases. `error.type` is the status code if there is one, else the exception class name. A `SqlExceptionHandler` that replaces the exception does not change these values. The span does not record the exception message, because a message can contain row data.
+* When <<telemetry-bindings,bound values>> are included, each positional or named argument is a `db.query.parameter.<key>` attribute. The key is the 0-based position or the name. Batches and arguments from `bindBean`, `bindMap`, and other argument finders are not recorded.
+
+Jdbi does not parse SQL, so the spans do not have `db.operation.name` or `db.collection.name`.
 
 == Third-Party Integration
 

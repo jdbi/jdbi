@@ -1,5 +1,25 @@
 # Unreleased
 
+- **Breaking change**: JFR events and OpenTelemetry spans no longer record bound values by default, because they often
+  contain personal data or secrets. To restore them, call `SqlStatements.setIncludeBindingsInTelemetry(true)`.
+- **Breaking change**: `JdbiOpenTelemetryPlugin` spans now follow the OpenTelemetry database client span semantic
+  conventions. Update dashboards, queries, and alerts that use the old names:
+  - The span kind is `CLIENT`, not `INTERNAL`.
+  - The span name is the SQL Object `Type.method` or the `db.system.name` (for example `postgresql`), not
+    `jdbi.<StatementType>`.
+  - `sql` is now `db.query.text`.
+  - `binding` is now one `db.query.parameter.<key>` attribute for each positional or named argument, and batches do
+    not have it.
+  - `rows` is now `db.response.returned_rows`, and only queries have it.
+  - New attributes: `db.system.name`, `db.query.summary`, and, for a failed statement, `error.type` and
+    `db.response.status_code` (the vendor error code or the SQLSTATE). A failed statement also sets the span status
+    to `ERROR`.
+  - The `SQL`, `BINDING`, and `NUM_ROWS` constants are deprecated.
+- Add `Binding.describeArguments` (alpha) to get a description of each positional and named argument.
+- Add `StatementContext.getFailure` (alpha) to get the first exception that failed a statement execution.
+- A statement whose SQL template fails to render or parse is now closed, as for other execution failures.
+- A bound value whose `toString()` throws no longer fails the statement when JFR, OpenTelemetry, or an exception
+  message describes it. The description shows a placeholder for that value.
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public

@@ -216,18 +216,17 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             add();
         }
 
-        beforeTemplating();
-
         final StatementContext ctx = getContext();
 
-        ParsedSql parsedSql = parseSql();
-        String sql = parsedSql.getSql();
-        ParsedParameters parsedParameters = parsedSql.getParameters();
-
         try {
+            beforeTemplating();
+
+            final ParsedSql parsedSql = parseSql();
+            final ParsedParameters parsedParameters = parsedSql.getParameters();
+
             final SqlStatements stmtConfig = getConfig(SqlStatements.class);
             try {
-                stmt = createStatement(sql);
+                stmt = createStatement(parsedSql.getSql());
 
                 getContext().addCleanable(() -> cleanupStatement(stmt));
                 stmtConfig.customize(stmt);
@@ -266,6 +265,7 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 throw stmtConfig.handleException(Batch.mungeBatchException(e), ctx);
             }
         } catch (Exception e) {
+            ctx.recordFailure(e);
             try {
                 close();
             } catch (Exception e1) {
