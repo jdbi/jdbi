@@ -129,11 +129,10 @@ public class BindBeanListTest {
 
     @Test
     public void testSomethingByArrayWithNonEmptyArray() {
-        final SomethingByVarargs s = handle.attach(SomethingByVarargs.class);
+        final SomethingByArray s = handle.attach(SomethingByArray.class);
 
-        final List<Something> out = s.get(
-                new SomethingKey(1, "1"),
-                new SomethingKey(2, "2"));
+        final SomethingKey[] keys = {new SomethingKey(1, "1"), new SomethingKey(2, "2")};
+        final List<Something> out = s.get(keys);
 
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }
@@ -172,6 +171,7 @@ public class BindBeanListTest {
 
     //
 
+    @Test
     public void testSomethingByIterator() {
         final SomethingByIterator s = handle.attach(SomethingByIterator.class);
 

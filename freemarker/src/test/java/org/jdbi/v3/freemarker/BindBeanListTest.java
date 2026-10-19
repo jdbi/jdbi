@@ -129,18 +129,17 @@ public class BindBeanListTest {
 
     @Test
     public void testSomethingByArrayWithNonEmptyArray() {
-        final SomethingByVarargs s = handle.attach(SomethingByVarargs.class);
+        final SomethingByArray s = handle.attach(SomethingByArray.class);
 
-        final List<Something> out = s.get(
-                new SomethingKey(1, "1"),
-                new SomethingKey(2, "2"));
+        final SomethingKey[] keys = {new SomethingKey(1, "1"), new SomethingKey(2, "2")};
+        final List<Something> out = s.get(keys);
 
         assertThat(out).hasSameElementsAs(expectedSomethings);
     }
 
     @UseFreemarkerEngine
     private interface SomethingByArray {
-        @SqlQuery("select id, name from something where (id, name) in (<keys>)")
+        @SqlQuery("select id, name from something where (id, name) in (${keys})")
         List<Something> get(@BindBeanList(propertyNames = {"id", "name"}) SomethingKey[] keys);
     }
 
@@ -172,6 +171,7 @@ public class BindBeanListTest {
 
     //
 
+    @Test
     public void testSomethingByIterator() {
         final SomethingByIterator s = handle.attach(SomethingByIterator.class);
 
@@ -184,7 +184,7 @@ public class BindBeanListTest {
 
     @UseFreemarkerEngine
     public interface SomethingByIterator {
-        @SqlQuery("select id, name from something where (id, name) in (<keys>)")
+        @SqlQuery("select id, name from something where (id, name) in (${keys})")
         List<Something> get(@BindBeanList(propertyNames = {"id", "name"}) Iterator<SomethingKey> keys);
     }
 
