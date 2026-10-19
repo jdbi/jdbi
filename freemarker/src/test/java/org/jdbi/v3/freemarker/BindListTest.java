@@ -153,7 +153,7 @@ public class BindListTest {
 
     @UseFreemarkerEngine
     private interface SomethingByArrayHandleThrow {
-        @SqlQuery("select id, name from something where id in (<ids>)")
+        @SqlQuery("select id, name from something where id in (${ids})")
         List<Something> get(@BindList(onEmpty = THROW) int[] ids);
     }
 
