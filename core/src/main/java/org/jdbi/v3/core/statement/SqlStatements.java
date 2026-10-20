@@ -38,6 +38,7 @@ import org.jdbi.v3.core.cache.JdbiCacheBuilder;
 import org.jdbi.v3.core.cache.JdbiCacheLoader;
 import org.jdbi.v3.core.cache.internal.DefaultJdbiCacheBuilder;
 import org.jdbi.v3.core.config.JdbiConfig;
+import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.meta.Beta;
 
 /**
@@ -58,6 +59,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
     private volatile boolean attachAllStatementsForCleanup;
     private volatile boolean attachCallbackStatementsForCleanup = true;
     private volatile boolean scriptStatementsNeedSemicolon = true;
+    private volatile BindListStyle bindListStyle = BindListStyle.PLAIN;
     private final Collection<StatementCustomizer> customizers;
     private final Deque<SqlExceptionHandler> exceptionHandlers;
 
@@ -91,6 +93,7 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
         this.attachAllStatementsForCleanup = that.attachAllStatementsForCleanup;
         this.attachCallbackStatementsForCleanup = that.attachCallbackStatementsForCleanup;
         this.scriptStatementsNeedSemicolon = that.scriptStatementsNeedSemicolon;
+        this.bindListStyle = that.bindListStyle;
         this.customizers = new CopyOnWriteArrayList<>(that.customizers);
         this.contextListeners = new CopyOnWriteArraySet<>(that.contextListeners);
         this.templateCache = that.templateCache;
@@ -379,6 +382,38 @@ public final class SqlStatements implements JdbiConfig<SqlStatements> {
      */
     public void setAttachCallbackStatementsForCleanup(boolean attachCallbackStatementsForCleanup) {
         this.attachCallbackStatementsForCleanup = attachCallbackStatementsForCleanup;
+    }
+
+    /**
+     * Returns how {@link SqlStatement#bindList} renders the bound parameter names. Defaults to {@link BindListStyle#PLAIN}.
+     *
+     * @return the current {@link BindListStyle}
+     */
+    @Alpha
+    public BindListStyle getBindListStyle() {
+        return bindListStyle;
+    }
+
+    /**
+     * Sets how {@link SqlStatement#bindList} renders the bound parameter names into the defined attribute.
+     * {@link BindListStyle#ROWS} wraps each element in parentheses, which is the syntax the SQL {@code VALUES}
+     * list constructor requires:
+     * <pre>
+     * handle.createQuery("select id from (values &lt;ids&gt;) as t(id)")
+     *     .configure(SqlStatements.class, c -&gt; c.setBindListStyle(BindListStyle.ROWS))
+     *     .bindList("ids", 1, 2, 3)
+     * </pre>
+     * The style must match the SQL around each attribute, so set it on the statement as above rather than on the
+     * {@link org.jdbi.v3.core.Jdbi} or {@link org.jdbi.v3.core.Handle}, unless every {@code bindList} attribute
+     * uses the same form.
+     *
+     * @param bindListStyle the {@link BindListStyle} to use
+     * @return this
+     */
+    @Alpha
+    public SqlStatements setBindListStyle(BindListStyle bindListStyle) {
+        this.bindListStyle = Objects.requireNonNull(bindListStyle, "bindListStyle");
+        return this;
     }
 
     /**

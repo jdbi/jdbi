@@ -27,6 +27,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.ValueType;
 import org.jdbi.v3.core.mapper.ValueTypeMapper;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.result.JoinRowReducer;
 import org.jdbi.v3.core.result.LinkedHashMapRowReducer;
 import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -302,6 +303,21 @@ public class TestBeanMapper {
         @UseRowReducer(FolderWithParentDocReducer.class)
         List<Folder> listFoldersWithParent();
 
+        @SqlQuery("select "
+            + "f.id, f.name, "
+            + "pf.id parent_id, pf.name parent_name, "
+            + "d.id document_id, d.name document_name, d.contents document_contents "
+            + "from folders f left join folders pf "
+            + "on f.parent_folder_id = pf.id "
+            + "left join documents d "
+            + "on f.id = d.folder_id "
+            + "order by f.name, d.name")
+        @RegisterBeanMapper(Folder.class)
+        @RegisterBeanMapper(value = Folder.class, prefix = "parent")
+        @RegisterBeanMapper(value = Document.class, prefix = "document")
+        @UseRowReducer(FolderJoinReducer.class)
+        List<Folder> listFoldersWithParentAndDocuments();
+
         class FolderDocReducer implements LinkedHashMapRowReducer<Integer, Folder> {
             @Override
             public void accumulate(Map<Integer, Folder> map, RowView rv) {
@@ -368,5 +384,45 @@ public class TestBeanMapper {
         dao.insertFolders(folder1, folder2, folder3);
 
         assertThat(dao.listFoldersWithParent()).containsExactly(folder1, folder2, folder3);
+    }
+
+    public static class FolderJoinReducer extends JoinRowReducer<Folder> {
+        public FolderJoinReducer() {
+            super(JoinRowReducer.of(Folder.class)
+                .one("parent", Folder.class, Folder::setParent)
+                .many("document", Document.class, (folder, document) -> folder.getDocuments().add(document)));
+        }
+    }
+
+    @Test
+    public void testJoinRowReducer() {
+        h.execute("create table folders (id identity primary key, name varchar(50), parent_folder_id integer)");
+        h.execute("create table documents (id identity primary key, folder_id integer, name varchar(50), contents varchar(1000))");
+
+        Folder folder1 = new Folder(1, "folder1");
+        Folder folder2 = new Folder(2, "folder2");
+        Folder folder3 = new Folder(3, "folder3");
+        folder2.setParent(folder1);
+        folder3.setParent(folder1);
+
+        Document doc1 = new Document(4, "doc1.txt", "hello");
+        Document doc2 = new Document(5, "doc2.txt", "foo");
+        Document doc3 = new Document(6, "doc3.txt", "bar");
+
+        DocumentDao dao = h.attach(DocumentDao.class);
+        dao.insertFolders(folder1, folder2, folder3);
+        dao.insertDocuments(folder2, doc1);
+        dao.insertDocuments(folder3, doc2, doc3);
+
+        List<Folder> folders = dao.listFoldersWithParentAndDocuments();
+
+        Folder expected1 = new Folder(1, "folder1");
+        Folder expected2 = new Folder(2, "folder2", doc1);
+        Folder expected3 = new Folder(3, "folder3", doc2, doc3);
+        expected2.setParent(expected1);
+        expected3.setParent(expected1);
+        assertThat(folders).containsExactly(expected1, expected2, expected3);
+        assertThat(folders.get(1).getParent()).isSameAs(folders.get(0));
+        assertThat(folders.get(2).getParent()).isSameAs(folders.get(0));
     }
 }

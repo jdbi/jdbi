@@ -14,6 +14,7 @@
 package org.jdbi.v3.core.transaction;
 
 import java.sql.BatchUpdateException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,9 +37,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TestSerializableTransactionRunner {
@@ -127,6 +132,30 @@ public class TestSerializableTransactionRunner {
         }
 
         assertThat(remaining.get()).isZero();
+    }
+
+    @Test
+    public void testCommitFailureFiresAfterRollbackBeforeRetry() throws Exception {
+        Connection c = mock(Connection.class);
+        when(c.getAutoCommit()).thenReturn(true);
+        doThrow(new SQLException("serialization failure", "40001")).doNothing().when(c).commit();
+
+        Jdbi jdbi = Jdbi.create(() -> c);
+        jdbi.setTransactionHandler(new SerializableTransactionRunner());
+
+        AtomicInteger attempts = new AtomicInteger();
+        AtomicInteger rollbacks = new AtomicInteger();
+
+        try (Handle handle = jdbi.open()) {
+            handle.inTransaction(conn -> {
+                attempts.incrementAndGet();
+                conn.afterRollback(rollbacks::incrementAndGet);
+                return null;
+            });
+        }
+
+        assertThat(attempts).hasValue(2);
+        assertThat(rollbacks).hasValue(1);
     }
 
     @Test

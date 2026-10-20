@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.55.0-SNAPSHOT</version>
+        <version>3.55.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -90,6 +90,11 @@
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-engine</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

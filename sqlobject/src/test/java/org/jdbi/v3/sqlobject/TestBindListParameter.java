@@ -13,12 +13,17 @@
  */
 package org.jdbi.v3.sqlobject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.statement.BindListStyle;
+import org.jdbi.v3.core.statement.SqlLogger;
+import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -69,6 +74,40 @@ public class TestBindListParameter {
         assertThat(result).isZero();
     }
 
+    @Test
+    public void testRowsStyle() {
+        handle.execute("insert into foo (id, bar) values (1, 'one'), (2, 'two'), (3, 'three')");
+
+        assertThat(dao.barsForIds(Lists.newArrayList(3, 1))).containsExactly("one", "three");
+    }
+
+    @Test
+    public void testMixedStylesOnOneMethod() {
+        handle.execute("insert into foo (id, bar) values (1, 'one'), (2, 'two'), (3, 'three')");
+
+        assertThat(dao.barsForIdsExcept(Lists.newArrayList(1, 2, 3), Lists.newArrayList(2))).containsExactly("one", "three");
+    }
+
+    @Test
+    public void testAnnotationStyleOverridesJdbiConfig() {
+        List<String> renderedSql = new ArrayList<>();
+        db.getConfig(SqlStatements.class)
+                .setBindListStyle(BindListStyle.ROWS)
+                .setSqlLogger(new SqlLogger() {
+                    @Override
+                    public void logAfterExecution(StatementContext context) {
+                        renderedSql.add(context.getRenderedSql());
+                    }
+                });
+        handle.execute("insert into foo (id, bar) values (1, 'one'), (2, 'two')");
+
+        assertThat(dao.ids(Lists.newArrayList(1, 2))).isEqualTo(2);
+        assertThat(dao.barsForIds(Lists.newArrayList(2))).containsExactly("two");
+        assertThat(renderedSql).containsExactly(
+                "select count(*) from foo where id in (:__ids_0,:__ids_1)",
+                "select f.bar from foo f join (values (:__ids_0)) as t(id) on f.id = t.id order by f.id");
+    }
+
     private interface MyDAO {
         @SqlQuery("select count(*) from foo where bar < 12 and id in (<ids>)")
         int broken();
@@ -78,5 +117,11 @@ public class TestBindListParameter {
 
         @SqlQuery("select count(*) from foo where id in (<ids>)")
         int ids(@BindList List<Integer> ids);
+
+        @SqlQuery("select f.bar from foo f join (values <ids>) as t(id) on f.id = t.id order by f.id")
+        List<String> barsForIds(@BindList(style = BindListStyle.ROWS) List<Integer> ids);
+
+        @SqlQuery("select f.bar from foo f join (values <ids>) as t(id) on f.id = t.id where f.id not in (<excluded>) order by f.id")
+        List<String> barsForIdsExcept(@BindList(style = BindListStyle.ROWS) List<Integer> ids, @BindList List<Integer> excluded);
     }
 }

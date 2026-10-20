@@ -22,6 +22,11 @@ import org.jdbi.v3.core.internal.SqlScriptParser.ScriptTokenHandler;
 
 /**
  * Represents a number of SQL statements delimited by semicolon which will be executed in order in a batch statement.
+ *
+ * <p>A script does not send bound arguments to the database. Each statement is rendered by the template engine
+ * and then passed to the driver as plain text, so a {@code :name} placeholder reaches the database unchanged.
+ * Arguments bound on a script are used only by {@link #defineNamedBindings()}. To bind arguments,
+ * run each statement as its own {@link Update}, or group several updates in one transaction.
  */
 public class Script extends SqlStatement<Script> {
     private final boolean requireSemicolon;

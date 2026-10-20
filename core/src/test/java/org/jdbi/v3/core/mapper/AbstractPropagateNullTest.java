@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.jdbi.v3.core.junit5.H2DatabaseExtension.SOMETHING_INITIALIZER;
 
 public abstract class AbstractPropagateNullTest {
@@ -47,12 +48,12 @@ public abstract class AbstractPropagateNullTest {
      * result set.
      */
     protected void propagateNullOnNested(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
-        try (Query select = handle.select("select 'fourty-two' as nestedid")) {
+        try (Query select = handle.select("select 'forty-two' as nestedid")) {
             TestBean testBean = mapFunction.apply(select).one();
 
             assertThat(testBean).isNotNull();
             assertThat(testBean.getNestedBean()).isNotNull();
-            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("forty-two");
 
             testBean = mapFunction.apply(handle.select("select NULL as nestedid"))
                 .one();
@@ -68,13 +69,13 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void testPropagateNullOnNestedWithPrefixCaseInsensitive(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        try (Query select = handle.select("select 'fourty-two' as beanID")) {
+        try (Query select = handle.select("select 'forty-two' as beanID")) {
             // use the case-insensitive column name mapper
             TestBean testBean = mapFunction.apply(select).one();
 
             assertThat(testBean).isNotNull();
             assertThat(testBean.getNestedBean()).isNotNull();
-            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("forty-two");
 
             testBean = mapFunction.apply(handle.select("select NULL as beanID"))
                 .one();
@@ -89,13 +90,13 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void propagateNullOnNestedColumn(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        try (Query select = handle.select("select 'fourty-two' as bean_id")) {
+        try (Query select = handle.select("select 'forty-two' as bean_id")) {
             // use the snake case column name mapper
             TestBean testBean = mapFunction.apply(select).one();
 
             assertThat(testBean).isNotNull();
             assertThat(testBean.getNestedBean()).isNotNull();
-            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("forty-two");
 
             testBean = mapFunction.apply(handle.select("select NULL as bean_id")).one();
 
@@ -109,13 +110,13 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void doubleNestedPropagateNull(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        try (Query select = handle.select("select 'fourty-two' as nid")) {
+        try (Query select = handle.select("select 'forty-two' as nid")) {
             TestBean testBean = mapFunction.apply(select)
                 .one();
 
             assertThat(testBean).isNotNull();
             assertThat(testBean.getNestedBean()).isNotNull();
-            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("forty-two");
 
             testBean = mapFunction.apply(handle.select("select NULL as nid")).one();
 
@@ -128,14 +129,14 @@ public abstract class AbstractPropagateNullTest {
      * result set. The tested key is different from the id key (and may not be mapped by the bean).
      */
     protected void propagateNullOnNestedWithFK(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
-        try (Query select = handle.select("select 'fourty-two' as nestedid, 1 as nestedfk")) {
+        try (Query select = handle.select("select 'forty-two' as nestedid, 1 as nestedfk")) {
             TestBean testBean = mapFunction.apply(select).one();
 
             assertThat(testBean).isNotNull();
             assertThat(testBean.getNestedBean()).isNotNull();
-            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("forty-two");
 
-            testBean = mapFunction.apply(handle.select("select 'fourty-two' as nestedid, NULL as nestedfk"))
+            testBean = mapFunction.apply(handle.select("select 'forty-two' as nestedid, NULL as nestedfk"))
                 .one();
 
             assertThat(testBean).isNotNull()
@@ -149,15 +150,15 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void testPropagateNullOnNestedWithPrefixCaseInsensitiveWithFK(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        try (Query select = handle.select("select 'fourty-two' as beanID, 1 as beanFK")) {
+        try (Query select = handle.select("select 'forty-two' as beanID, 1 as beanFK")) {
             // use the case-insensitive column name mapper
             TestBean testBean = mapFunction.apply(select).one();
 
             assertThat(testBean).isNotNull();
             assertThat(testBean.getNestedBean()).isNotNull();
-            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("forty-two");
 
-            testBean = mapFunction.apply(handle.select("select 'fourty-two' as beanID, NULL as beanFK"))
+            testBean = mapFunction.apply(handle.select("select 'forty-two' as beanID, NULL as beanFK"))
                 .one();
 
             assertThat(testBean).isNotNull()
@@ -170,15 +171,15 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void propagateNullOnNestedColumnWithFK(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        try (Query select = handle.select("select 'fourty-two' as bean_id, 1 as bean_fk")) {
+        try (Query select = handle.select("select 'forty-two' as bean_id, 1 as bean_fk")) {
             // use the snake case column name mapper
             TestBean testBean = mapFunction.apply(select).one();
 
             assertThat(testBean).isNotNull();
             assertThat(testBean.getNestedBean()).isNotNull();
-            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("forty-two");
 
-            testBean = mapFunction.apply(handle.select("select 'fourty-two' as bean_id, NULL as bean_fk"))
+            testBean = mapFunction.apply(handle.select("select 'forty-two' as bean_id, NULL as bean_fk"))
                 .one();
 
             assertThat(testBean).isNotNull()
@@ -191,16 +192,35 @@ public abstract class AbstractPropagateNullTest {
      */
     protected void doubleNestedPropagateNullWithFK(Function<Query, ResultIterable<? extends TestBean>> mapFunction) {
 
-        try (Query select = handle.select("select 'fourty-two' as nid, 1 as nfk")) {
+        try (Query select = handle.select("select 'forty-two' as nid, 1 as nfk")) {
             TestBean testBean = mapFunction.apply(select).one();
 
             assertThat(testBean).isNotNull();
             assertThat(testBean.getNestedBean()).isNotNull();
-            assertThat(testBean.getNestedBean().getId()).isEqualTo("fourty-two");
+            assertThat(testBean.getNestedBean().getId()).isEqualTo("forty-two");
 
-            testBean = mapFunction.apply(handle.select("select 'fourty-two' as nid, NULL as nfk")).one();
+            testBean = mapFunction.apply(handle.select("select 'forty-two' as nid, NULL as nfk")).one();
 
             assertThat(testBean).isNull();
+        }
+    }
+
+    /**
+     * Test that the propagateNull annotation on a bean class resolves its column name relative to the prefix of the mapper, so the same bean can be
+     * mapped with different prefixes. The tested key is different from the id key and is not mapped by the bean.
+     */
+    protected void assertPropagateNullWithMapperPrefix(Function<String, RowMapper<?>> mapperForPrefix) {
+        String sql = "select 'forty-two' as aa_id, 1 as aa_fk, 'forty-three' as bb_id, NULL as bb_fk";
+
+        try (Query select = handle.select(sql)) {
+            Object bean = select.map(mapperForPrefix.apply("aa")).one();
+
+            assertThat(bean).asInstanceOf(type(TestBean.NestedBean.class))
+                .extracting(TestBean.NestedBean::getId).isEqualTo("forty-two");
+        }
+
+        try (Query select = handle.select(sql)) {
+            assertThat(select.map(mapperForPrefix.apply("bb")).one()).isNull();
         }
     }
 

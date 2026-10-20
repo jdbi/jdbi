@@ -18,7 +18,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jdbi.v3.core.statement.BindListStyle;
 import org.jdbi.v3.core.statement.SqlStatement;
+import org.jdbi.v3.meta.Alpha;
 import org.jdbi.v3.sqlobject.customizer.internal.BindListFactory;
 
 import static org.jdbi.v3.core.statement.EmptyHandling.BLANK;
@@ -58,6 +60,21 @@ public @interface BindList {
      * @see EmptyHandling
      */
     EmptyHandling onEmpty() default BindList.EmptyHandling.THROW;
+
+    /**
+     * How to render each bound element into the defined attribute. {@link BindListStyle#ROWS} wraps each element
+     * in parentheses for use with the SQL {@code VALUES} list constructor:
+     * <pre>
+     * &#64;SqlQuery("select id from (values &lt;ids&gt;) as t(id)")
+     * List&lt;Integer&gt; ids(@BindList(style = BindListStyle.ROWS) List&lt;Integer&gt; ids)
+     * </pre>
+     * This value replaces any {@link BindListStyle} configured on the statement or handle, so a style set on the
+     * {@link org.jdbi.v3.core.Jdbi} has no effect on {@code @BindList} parameters.
+     *
+     * @return the rendering style. By default, a plain comma-separated list.
+     */
+    @Alpha
+    BindListStyle style() default BindListStyle.PLAIN;
 
     // TODO jdbi4 remove this duplicate of `core` EmptyHandling
     /**

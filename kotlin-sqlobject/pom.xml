@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.55.0-SNAPSHOT</version>
+        <version>3.55.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.jdbi</groupId>
@@ -114,4 +114,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.siom79.japicmp</groupId>
+                <artifactId>japicmp-maven-plugin</artifactId>
+                <configuration>
+                    <parameter combine.children="append">
+                        <excludes>
+                            <!-- Kotlin-generated repeatable container, replaced by RegisterKotlinMappers (#2961) -->
+                            <exclude>org.jdbi.v3.sqlobject.kotlin.RegisterKotlinMapper$Container</exclude>
+                        </excludes>
+                    </parameter>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

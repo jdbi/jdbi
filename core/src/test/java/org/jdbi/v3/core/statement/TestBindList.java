@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import static java.util.Collections.emptyList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.jdbi.v3.core.statement.EmptyHandling.NULL_KEYWORD;
 
@@ -80,6 +81,48 @@ public class TestBindList {
                 .containsExactly(
                         tuple(1, "foo1", null, null),
                         tuple(3, "abc", null, null));
+    }
+
+    @Test
+    public void testBindListRowsStyle() {
+        List<Integer> ids = handle.createQuery("select t.id from (values <ids>) as t(id) order by t.id")
+                .configure(SqlStatements.class, c -> c.setBindListStyle(BindListStyle.ROWS))
+                .bindList("ids", 3, 1, 2)
+                .mapTo(Integer.class)
+                .list();
+
+        assertThat(ids).containsExactly(1, 2, 3);
+    }
+
+    @Test
+    public void testBindListRowsStyleInClause() {
+        List<Thing> list = handle.createQuery("select id, foo from thing where id in (values <ids>)")
+                .configure(SqlStatements.class, c -> c.setBindListStyle(BindListStyle.ROWS))
+                .bindList("ids", 2, 4)
+                .mapTo(Thing.class)
+                .list();
+
+        assertThat(list)
+                .extracting(Thing::getId, Thing::getFoo)
+                .containsExactly(tuple(2, "foo2"));
+    }
+
+    @Test
+    public void testBindListRowsStyleFromHandleConfig() {
+        handle.getConfig(SqlStatements.class).setBindListStyle(BindListStyle.ROWS);
+
+        List<Integer> ids = handle.createQuery("select t.id from (values <ids>) as t(id) order by t.id")
+                .bindList("ids", 2, 1)
+                .mapTo(Integer.class)
+                .list();
+
+        assertThat(ids).containsExactly(1, 2);
+    }
+
+    @Test
+    public void testBindListStyleRejectsNull() {
+        assertThatThrownBy(() -> handle.getConfig(SqlStatements.class).setBindListStyle(null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test

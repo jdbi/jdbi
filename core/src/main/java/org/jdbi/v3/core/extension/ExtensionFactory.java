@@ -90,6 +90,10 @@ public interface ExtensionFactory {
      * addition to the factories that have been registered with {@link Extensions#registerHandlerFactory}.
      * <br>
      * Handler factories returned here can customize the behavior of the Extension factory itself.
+     * <br>
+     * The result is baked into the cached {@link ExtensionMetadata}. If it depends on mutable {@code config}
+     * state, that state's mutators must call {@link Extensions#invalidateMetadataCache()} to avoid serving
+     * stale metadata after a change.
      *
      * @param config A Configuration registry object that can be used to look up additional information
      * @return A collection of {@link ExtensionHandlerFactory} objects. Can be empty, must not be null
@@ -106,6 +110,10 @@ public interface ExtensionFactory {
      * in addition to the customizers that have been registered with {@link Extensions#registerHandlerCustomizer}.
      * <br>
      * Handler customizers returned here can customize the behavior of the Handlers returned by the handler factories.
+     * <br>
+     * The result is baked into the cached {@link ExtensionMetadata}. If it depends on mutable {@code config}
+     * state, that state's mutators must call {@link Extensions#invalidateMetadataCache()} to avoid serving
+     * stale metadata after a change.
      *
      * @param config A Configuration registry object that can be used to look up additional information
      * @return A collection of {@link ExtensionHandlerCustomizer} objects. Can be empty, must not be null
@@ -123,6 +131,11 @@ public interface ExtensionFactory {
      * Each factory is called once for every type that is attached by the factory and once for each method in the
      * type. They can return {@link ConfigCustomizer} instances that will affect the specific configuration for
      * each method and extension type.
+     * <br>
+     * Which factories are returned is baked into the cached {@link ExtensionMetadata} (though the per-instance
+     * configuration a {@link ConfigCustomizer} applies at attach time is not). If the set depends on mutable
+     * {@code config} state, that state's mutators must call {@link Extensions#invalidateMetadataCache()} to
+     * avoid serving stale metadata after a change.
      *
      * @param config A Configuration registry object that can be used to look up additional information
      * @return A collection of {@link ConfigCustomizerFactory} objects. Can be empty, must not be null

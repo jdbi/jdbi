@@ -224,7 +224,9 @@ public final class ClasspathSqlLocator {
                 .orElseGet(ClasspathSqlLocator.class::getClassLoader);
     }
 
-    static class Holder {
+    static final class Holder {
         static final ClasspathSqlLocator INSTANCE = removingComments();
+
+        private Holder() {}
     }
 }

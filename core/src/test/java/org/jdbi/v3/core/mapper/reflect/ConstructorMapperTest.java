@@ -636,6 +636,23 @@ public class ConstructorMapperTest {
             .hasMessageContaining("parameter '[i]' has no matching columns in the result set");
     }
 
+    @Test
+    public void testPrefixedMapperReportsUnprefixedColumns() {
+        handle.registerRowMapper(ConstructorMapper.factory(ConstructorBean.class, "b"));
+
+        assertThatThrownBy(() -> selectOne("select s, i from bean", ConstructorBean.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("could not match any parameter to any columns in the result set")
+            .hasMessageContaining("Result set columns: [s, i]")
+            .hasMessageContaining("prefix 'b'")
+            .hasMessageContaining("\"b.id AS b_id\" instead of \"b.*\"");
+
+        ConstructorBean bean = selectOne("select s as b_s, i as b_i from bean", ConstructorBean.class);
+
+        assertThat(bean.s).isEqualTo("3");
+        assertThat(bean.i).isEqualTo(2);
+    }
+
     static class TypeUseNullableParameterBean {
         private final String s;
         private final int i;

@@ -16,8 +16,6 @@ package org.jdbi.v3.core;
 import java.util.Arrays;
 import java.util.List;
 
-import de.softwareforge.testing.postgres.junit5.EmbeddedPgExtension;
-import de.softwareforge.testing.postgres.junit5.MultiDatabaseBuilder;
 import org.jdbi.v3.core.junit5.PgDatabaseExtension;
 import org.jdbi.v3.core.result.BatchResultBearing;
 import org.jdbi.v3.core.statement.PreparedBatch;
@@ -30,10 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestIssue2564 {
 
     @RegisterExtension
-    public static EmbeddedPgExtension pg = MultiDatabaseBuilder.instanceWithDefaults().build();
-
-    @RegisterExtension
-    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance(pg).withInitializer(
+    public PgDatabaseExtension pgExtension = PgDatabaseExtension.instance().withInitializer(
         h -> h.execute("create table something (id serial, name varchar(50), create_time timestamp default now())")
     );
 

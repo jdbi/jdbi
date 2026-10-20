@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.jdbi.internal</groupId>
         <artifactId>jdbi3-parent</artifactId>
-        <version>3.55.0-SNAPSHOT</version>
+        <version>3.55.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jdbi3-native-tests</artifactId>
@@ -60,6 +60,11 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-gson2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-generator</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -137,6 +142,14 @@
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-spring</artifactId>
             <scope>test</scope>
+            <!-- spring-jcl duplicates the commons-logging classes that jcl-over-slf4j
+                 (via pg-embedded's maven-loader) provides on the test classpath. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
@@ -193,6 +206,13 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-freemarker</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-generator</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
@@ -280,6 +300,12 @@
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
