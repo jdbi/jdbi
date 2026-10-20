@@ -1,5 +1,7 @@
 # Unreleased
 
+- add OSGi bundle manifests to all published modules (#2247)
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public

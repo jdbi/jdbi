@@ -103,4 +103,20 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <configuration>
+                    <bnd><![CDATA[
+                        Import-Package:\
+                            org.jdbi.v3.sqlobject*;resolution:=optional,\
+                            *
+                    ]]></bnd>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

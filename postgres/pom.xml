@@ -137,6 +137,18 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <configuration>
+                    <bnd><![CDATA[
+                        Import-Package:\
+                            com.pgvector.*;resolution:=optional,\
+                            org.jdbi.v3.json.*;resolution:=optional,\
+                            *
+                    ]]></bnd>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.github.siom79.japicmp</groupId>
                 <artifactId>japicmp-maven-plugin</artifactId>
                 <configuration>
