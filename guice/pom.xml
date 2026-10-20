@@ -135,6 +135,7 @@
                 <configuration>
                     <bnd><![CDATA[
                         Import-Package:\
+                            jakarta.annotation;resolution:=optional,\
                             jakarta.inject;resolution:=optional,\
                             javax.inject;resolution:=optional,\
                             *
