@@ -265,13 +265,35 @@ class ArgumentBinder {
                                 .apply(index + 1, stmt, ctx)));
                     }
                 } else {
-                    final Function<Object, Argument> binder = factoryLocator.argumentFactoryForType(factoryLocator.typeOf(value));
+                    final QualifiedType<?> templateType = factoryLocator.typeOf(value);
+                    final Function<Object, Argument> binder = factoryLocator.argumentFactoryForType(templateType);
+                    // Rows may bind a value of a different type than the template row
+                    // (non-uniform batches, #1968). Keep the template's argument factory as the
+                    // per-row fast path; the locator memoizes the factory for any other type.
+                    final Class<?> templateClass = value == null ? null : value.getClass();
                     innerBinders.add(wrapCheckedConsumer(name,
-                        binding -> binder.apply(unwrap(binding.named.get(name)))
-                            .apply(index + 1, stmt, ctx)));
+                        binding -> {
+                            Object bound = binding.named.get(name);
+                            rowArgumentFactory(bound, templateClass, templateType, binder)
+                                .apply(unwrap(bound))
+                                .apply(index + 1, stmt, ctx);
+                        }));
                 }
             }
             return binding -> innerBinders.forEach(b -> b.accept(binding));
+        }
+
+        /**
+         * Return the template row's argument factory if {@code bound} has the template's type,
+         * otherwise the (memoized) argument factory for the type of {@code bound}.
+         */
+        private Function<Object, Argument> rowArgumentFactory(@Nullable Object bound, @Nullable Class<?> templateClass,
+                QualifiedType<?> templateType, Function<Object, Argument> templateFactory) {
+            if (bound == null || bound.getClass().equals(templateClass) && !(bound instanceof TypedValue)) {
+                return templateFactory;
+            }
+            QualifiedType<?> rowType = factoryLocator.typeOf(bound);
+            return templateType.equals(rowType) ? templateFactory : factoryLocator.argumentFactoryForType(rowType);
         }
 
         /**

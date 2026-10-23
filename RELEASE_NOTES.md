@@ -1,5 +1,10 @@
 # Unreleased
 
+- Fix `PreparedBatch` failing when a named parameter is bound to values of different types across
+  batch rows, e.g. `bindNull` in the first row and a value in a later row, or an `Integer` in one row and
+  a `String` in the next. Each row now binds with the argument factory for its own value type, and rows that
+  match the first row keep using the cached factory (#1968, #2078)
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public
