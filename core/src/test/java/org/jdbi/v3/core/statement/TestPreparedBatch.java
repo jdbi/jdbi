@@ -276,6 +276,75 @@ public class TestPreparedBatch {
     }
 
     /**
+     * Regression for #1968: a null in the first batch row must not lock the
+     * argument type of that parameter to {@code Object} for all following rows.
+     */
+    @Test
+    public void testBindNullInFirstRowThenEnum() {
+        Handle h = h2Extension.getSharedHandle();
+
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        b.bind("id", 1).bind("name", (Object) null).add();
+        b.bind("id", 2).bind("name", BatchEnum.OTHER).add();
+        assertThat(b.execute()).containsExactly(1, 1);
+
+        assertThat(h.createQuery("select name from something order by id").mapTo(String.class).list())
+            .containsExactly(null, "OTHER");
+    }
+
+    /**
+     * Regression for #1968: rows of a batch may bind different value types for the same parameter.
+     */
+    @Test
+    public void testBindMapsWithNonUniformTypes() {
+        Handle h = h2Extension.getSharedHandle();
+
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        b.add(ImmutableMap.of("id", 1, "name", 1));
+        b.add(ImmutableMap.of("id", 2, "name", "two"));
+        b.add(ImmutableMap.of("id", 3, "name", BatchEnum.OTHER));
+        assertThat(b.execute()).containsExactly(1, 1, 1);
+
+        assertThat(h.createQuery("select name from something order by id").mapTo(String.class).list())
+            .containsExactly("1", "two", "OTHER");
+    }
+
+    /**
+     * Regression for #2078: binding a null first must not prevent binding values afterwards.
+     */
+    @Test
+    public void testBindNullThenValue() {
+        Handle handle = h2Extension.getSharedHandle();
+        handle.execute("CREATE TABLE record (b bool)");
+        assertThat(handle.prepareBatch("INSERT INTO record (b) VALUES (:bVal)")
+            .bindNull("bVal", Types.BOOLEAN).add()
+            .bind("bVal", false).add()
+            .bindByType("bVal", null, boolean.class).add()
+            .execute()).containsExactly(1, 1, 1);
+
+        assertThat(handle.createQuery("SELECT b FROM record").mapTo(Boolean.class).list())
+            .containsExactly(null, false, null);
+    }
+
+    @Test
+    public void testBindByTypeWithDifferentTypes() {
+        Handle h = h2Extension.getSharedHandle();
+
+        PreparedBatch b = h.prepareBatch("insert into something (id, name) values (:id, :name)");
+        b.bind("id", 1).bindByType("name", 1, Integer.class).add();
+        b.bind("id", 2).bindByType("name", "two", String.class).add();
+        b.bind("id", 3).bindByType("name", 3, Integer.class).add();
+        assertThat(b.execute()).containsExactly(1, 1, 1);
+
+        assertThat(h.createQuery("select name from something order by id").mapTo(String.class).list())
+            .containsExactly("1", "two", "3");
+    }
+
+    public enum BatchEnum {
+        OTHER
+    }
+
+    /**
      * Regression for #2974: PreparedBatch bindBean with mixed subclasses must not NPE
      * when the prepared binder was built from the first row's runtime type.
      */
