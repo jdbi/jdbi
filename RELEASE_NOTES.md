@@ -10,12 +10,15 @@
   - `sql` is now `db.query.text`.
   - `binding` is now one `db.query.parameter.<key>` attribute for each positional or named argument, and batches do
     not have it.
-  - `rows` is now `db.response.returned_rows`, and only queries have it.
+  - `rows` is now `db.response.returned_rows`. The semantic conventions make this attribute opt-in, so spans have it
+    only when `OpenTelemetryConfig.setIncludeReturnedRows(true)` enables it, and only for queries and statements that
+    return generated keys.
   - New attributes: `db.system.name`, `db.query.summary`, and, for a failed statement, `error.type` and
     `db.response.status_code` (the vendor error code or the SQLSTATE). A statement that fails, in its execution or
     in the reading or mapping of its results, also sets the span status to `ERROR`.
   - The `SQL`, `BINDING`, and `NUM_ROWS` constants are deprecated.
 - Add `Binding.describeArguments` (alpha) to get a description of each positional and named argument.
+- Add `OpenTelemetryConfig` (alpha) to configure the spans of `JdbiOpenTelemetryPlugin`.
 - Add `StatementContext.getFailure` and `StatementContext.recordFailure` (alpha) to get and record the first exception
   that failed a statement, in its execution or in the reading or mapping of its results.
 - A statement whose SQL template fails to render or parse is now closed, as for other execution failures.

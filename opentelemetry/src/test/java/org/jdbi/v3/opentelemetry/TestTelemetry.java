@@ -125,6 +125,11 @@ public class TestTelemetry {
     }
 
     @Test
+    void returnedRows() throws ReflectiveOperationException {
+        run("returnedRows");
+    }
+
+    @Test
     void noBindingsOnBatch() throws ReflectiveOperationException {
         run("noBindingsOnBatch");
     }
@@ -262,7 +267,7 @@ public class TestTelemetry {
                     tuple(traceId, "h2database", SpanKind.CLIENT, "h2database", CREATE, null),
                     tuple(traceId, "h2database", SpanKind.CLIENT, "h2database", INSERT, null),
                     tuple(traceId, "h2database", SpanKind.CLIENT, "h2database", INSERT, null),
-                    tuple(traceId, "h2database", SpanKind.CLIENT, "h2database", SELECT, 2L));
+                    tuple(traceId, "h2database", SpanKind.CLIENT, "h2database", SELECT, null));
             assertThat(spans)
                 .allSatisfy(sd -> {
                     assertThat(sd.getStatus().getStatusCode()).isEqualTo(StatusCode.UNSET);
@@ -306,6 +311,25 @@ public class TestTelemetry {
                 .containsExactlyInAnyOrderEntriesOf(Map.of(
                     DB_QUERY_PARAMETER_PREFIX + "0", "1",
                     DB_QUERY_PARAMETER_PREFIX + "1", "Zebra"));
+        }
+
+        public void returnedRows() {
+            ext.getJdbi().getConfig(OpenTelemetryConfig.class).setIncludeReturnedRows(true);
+
+            try (var h = ext.openHandle()) {
+                h.execute(CREATE);
+                h.createUpdate("insert into something (name) values ('Zebra')").execute();
+                assertThat(h.createUpdate("insert into something (name) values ('Bananas')")
+                    .executeAndReturnGeneratedKeys("id")
+                    .mapTo(Long.class)
+                    .one())
+                    .isEqualTo(2L);
+                assertThat(h.createQuery(SELECT).mapToMap().list()).hasSize(2);
+            }
+
+            assertThat(traces.getExported())
+                .extracting(sd -> sd.getAttributes().get(DB_RESPONSE_RETURNED_ROWS))
+                .containsExactly(null, null, 1L, 2L);
         }
 
         public void noBindingsOnBatch() {
@@ -513,6 +537,8 @@ public class TestTelemetry {
         }
 
         public void statementSubclass() {
+            ext.getJdbi().getConfig(OpenTelemetryConfig.class).setIncludeReturnedRows(true);
+
             try (var h = ext.openHandle()) {
                 h.execute(CREATE);
                 insertSomething(h, 1, "Zebra");
@@ -532,6 +558,7 @@ public class TestTelemetry {
 
         public void sqlObjectSummary() {
             ext.getJdbi().installPlugin(new SqlObjectPlugin());
+            ext.getJdbi().getConfig(OpenTelemetryConfig.class).setIncludeReturnedRows(true);
 
             try (var h = ext.openHandle()) {
                 h.execute(CREATE);

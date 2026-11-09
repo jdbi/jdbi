@@ -44,7 +44,8 @@ import org.jdbi.v3.core.statement.StatementContextListener;
  * Emits a {@code CLIENT} span for every statement executed by Jdbi, with the attributes of the
  * <a href="https://opentelemetry.io/docs/specs/semconv/db/database-spans/">database client span semantic conventions</a>.
  * <p>
- * The span records {@code db.system.name}, {@code db.query.text}, and, for queries, {@code db.response.returned_rows}.
+ * The span records {@code db.system.name} and {@code db.query.text}. With {@link OpenTelemetryConfig#setIncludeReturnedRows(boolean)},
+ * the span of a query, or of a statement that returns generated keys, also records {@code db.response.returned_rows}.
  * A statement from a SQL Object method sets {@code db.query.summary} to {@code Type.method}, which is also the span name.
  * Other statements use {@code db.system.name} as the span name.
  * <p>
@@ -70,7 +71,8 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     @Deprecated(since = "3.56.0", forRemoval = true)
     public static final AttributeKey<String> BINDING = AttributeKey.stringKey("binding");
     /**
-     * @deprecated Spans no longer have this attribute. The row count of a query is in {@code db.response.returned_rows}.
+     * @deprecated Spans no longer have this attribute. The row count of a query is in {@code db.response.returned_rows},
+     * which {@link OpenTelemetryConfig#setIncludeReturnedRows(boolean)} enables.
      */
     @Deprecated(since = "3.56.0", forRemoval = true)
     public static final AttributeKey<Long> NUM_ROWS = AttributeKey.longKey("rows");
@@ -198,9 +200,9 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
                             span.setAttribute(DB_QUERY_TEXT, renderedSql.substring(0,
                                     Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength())));
                         }
-                        final long mappedRows = ctx.getMappedRows();
-                        if (isStatementType(ctx, Query.class) || mappedRows > 0) {
-                            span.setAttribute(DB_RESPONSE_RETURNED_ROWS, mappedRows);
+                        if (ctx.getConfig(OpenTelemetryConfig.class).getIncludeReturnedRows()
+                                && (isStatementType(ctx, Query.class) || ctx.isReturningGeneratedKeys())) {
+                            span.setAttribute(DB_RESPONSE_RETURNED_ROWS, ctx.getMappedRows());
                         }
                         if (stmtConfig.getIncludeBindingsInTelemetry()
                                 && !isStatementType(ctx, Batch.class)
