@@ -12,11 +12,12 @@
     not have it.
   - `rows` is now `db.response.returned_rows`, and only queries have it.
   - New attributes: `db.system.name`, `db.query.summary`, and, for a failed statement, `error.type` and
-    `db.response.status_code` (the vendor error code or the SQLSTATE). A failed statement also sets the span status
-    to `ERROR`.
+    `db.response.status_code` (the vendor error code or the SQLSTATE). A statement that fails, in its execution or
+    in the reading or mapping of its results, also sets the span status to `ERROR`.
   - The `SQL`, `BINDING`, and `NUM_ROWS` constants are deprecated.
 - Add `Binding.describeArguments` (alpha) to get a description of each positional and named argument.
-- Add `StatementContext.getFailure` (alpha) to get the first exception that failed a statement execution.
+- Add `StatementContext.getFailure` and `StatementContext.recordFailure` (alpha) to get and record the first exception
+  that failed a statement, in its execution or in the reading or mapping of its results.
 - A statement whose SQL template fails to render or parse is now closed, as for other execution failures.
 - A bound value whose `toString()` throws no longer fails the statement when JFR, OpenTelemetry, or an exception
   message describes it. The description shows a placeholder for that value.

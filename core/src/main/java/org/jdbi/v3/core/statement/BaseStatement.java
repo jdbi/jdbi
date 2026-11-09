@@ -84,6 +84,7 @@ abstract class BaseStatement<This> implements Closeable, Configurable<This> {
     }
 
     protected final void cleanUpForException(SQLException e) {
+        ctx.recordFailure(e);
         try {
             close();
         } catch (CloseException ce) {

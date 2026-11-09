@@ -48,10 +48,11 @@ import org.jdbi.v3.core.statement.StatementContextListener;
  * A statement from a SQL Object method sets {@code db.query.summary} to {@code Type.method}, which is also the span name.
  * Other statements use {@code db.system.name} as the span name.
  * <p>
- * When the statement execution fails, the span status is {@code ERROR}. If a {@link SQLException} caused the failure,
- * {@code db.response.status_code} is its vendor error code for MySQL, MariaDB, Microsoft SQL Server, and Oracle
- * (as {@code ORA-nnnnn}), and its SQLSTATE for other databases. {@code error.type} is the status code if there is one,
- * else the class name of the {@code SQLException}, else the class name of the exception that failed the statement.
+ * When the statement fails, in its execution or in the reading or mapping of its results, the span status is {@code ERROR}.
+ * If a {@link SQLException} caused the failure, {@code db.response.status_code} is its vendor error code for MySQL, MariaDB,
+ * Microsoft SQL Server, and Oracle (as {@code ORA-nnnnn}), and its SQLSTATE for other databases.
+ * {@code error.type} is the status code if there is one, else the class name of the {@code SQLException},
+ * else the class name of the exception that failed the statement.
  * A {@link org.jdbi.v3.core.statement.SqlExceptionHandler} that replaces the exception does not change these values.
  * <p>
  * Bound values are recorded only when {@link SqlStatements#setIncludeBindingsInTelemetry(boolean)} is set,

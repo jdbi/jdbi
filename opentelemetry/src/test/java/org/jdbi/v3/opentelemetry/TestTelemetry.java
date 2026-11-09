@@ -33,6 +33,7 @@ import jdk.jfr.consumer.RecordedEvent;
 import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.JdbiStatementEvent;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.SqlStatements;
@@ -151,6 +152,16 @@ public class TestTelemetry {
     @Test
     void failureBeforeExecution() throws ReflectiveOperationException {
         run("failureBeforeExecution");
+    }
+
+    @Test
+    void mappingFailure() throws ReflectiveOperationException {
+        run("mappingFailure");
+    }
+
+    @Test
+    void resultSetFailure() throws ReflectiveOperationException {
+        run("resultSetFailure");
     }
 
     @Test
@@ -400,6 +411,36 @@ public class TestTelemetry {
             assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
             assertThat(failed.getAttributes().get(DB_RESPONSE_STATUS_CODE)).isEqualTo("42S04");
             assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo("42S04");
+        }
+
+        public void mappingFailure() {
+            final var boom = new IllegalStateException("boom");
+            try (var h = ext.openHandle()) {
+                h.execute(CREATE);
+                insertSomething(h, 1, "Zebra");
+                assertThatThrownBy(() -> h.createQuery(SELECT).map((rs, ctx) -> {
+                    throw boom;
+                }).list()).isSameAs(boom);
+            }
+
+            final var failed = traces.getExported().get(2);
+            assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
+            assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo(IllegalStateException.class.getName());
+            assertThat(failed.getAttributes().get(DB_RESPONSE_STATUS_CODE)).isNull();
+        }
+
+        public void resultSetFailure() {
+            try (var h = ext.openHandle()) {
+                h.execute(CREATE);
+                insertSomething(h, 1, "Zebra");
+                assertThatThrownBy(() -> h.createQuery(SELECT).reduceResultSet(0, (count, rs, ctx) -> rs.getInt("missing")))
+                    .isInstanceOf(UnableToProduceResultException.class);
+            }
+
+            final var failed = traces.getExported().get(2);
+            assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
+            assertThat(failed.getAttributes().get(DB_RESPONSE_STATUS_CODE)).isEqualTo("42S22");
+            assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo("42S22");
         }
 
         public void unprintableArgument() {

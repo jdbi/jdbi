@@ -576,12 +576,11 @@ public class StatementContext implements Closeable {
     }
 
     /**
-     * Returns the first exception that failed the execution of this statement.
+     * Returns the first exception that failed this statement: in its execution, or in the reading or mapping of its results.
      * When the database rejects the statement, this is the {@link java.sql.SQLException} from the driver,
      * even if a {@link SqlExceptionHandler} replaced it.
-     * Exceptions from result mapping, after execution, are not included.
      *
-     * @return the first exception that failed the statement execution, or null
+     * @return the first exception that failed the statement, or null
      */
     @Alpha
     @Nullable
@@ -589,7 +588,15 @@ public class StatementContext implements Closeable {
         return failure;
     }
 
-    void recordFailure(final Exception e) {
+    /**
+     * Records an exception that failed this statement, if no exception was recorded before.
+     * Only intended for Jdbi and for result producers to call, before they close this context.
+     *
+     * @param e the exception that failed the statement
+     * @see #getFailure()
+     */
+    @Alpha
+    public void recordFailure(final Exception e) {
         if (failure == null) {
             failure = e;
         }
