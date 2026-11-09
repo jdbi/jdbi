@@ -6743,10 +6743,15 @@ jdbi.getConfig(SqlStatements.class).setIncludeBindingsInTelemetry(true);
 The SQL text is always recorded.
 Values that `@Define` or `define()` adds to the SQL text are part of the SQL text, and telemetry records them even when bound values are excluded.
 
-This setting does not change exception messages.
+With this setting off, JFR events and OpenTelemetry spans do not hold bound values.
+The spans never record an exception message.
+
+Exception messages are separate, and this setting does not change them.
 By default, the message of a `StatementException` contains the bound values, so they can go to logs and to error trackers.
-To remove them, set the message rendering of `StatementExceptions` to `MessageRendering.NONE`.
-The OpenTelemetry spans do not record exception messages.
+The message rendering `MessageRendering.NONE` of `StatementExceptions` removes the statement details that Jdbi adds, but it does not keep all values out of exception messages:
+
+* The message still includes the message of the cause. A driver message can hold values. For example, the PostgreSQL JDBC driver adds the server `Detail`, which can show row values, unless the connection sets `logServerErrorDetail=false`.
+* A statement that misses a named or positional parameter fails with a message that contains the binding.
 
 === OpenTelemetry Tracing
 
