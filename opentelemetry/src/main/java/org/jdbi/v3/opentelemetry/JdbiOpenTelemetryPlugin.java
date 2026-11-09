@@ -57,7 +57,8 @@ import org.jdbi.v3.core.statement.StatementContextListener;
  * A {@link org.jdbi.v3.core.statement.SqlExceptionHandler} that replaces the exception does not change these values.
  * <p>
  * Bound values are recorded only when {@link SqlStatements#setIncludeBindingsInTelemetry(boolean)} is set,
- * as one {@code db.query.parameter.<key>} attribute per positional or named argument, and never for batches.
+ * as one {@code db.query.parameter.<key>} attribute for each parameter of the SQL, and never for batches.
+ * The key is the parameter name, or the 0-based position of a positional parameter.
  */
 public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     /**

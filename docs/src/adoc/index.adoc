@@ -6773,7 +6773,7 @@ jdbi.getConfig(OpenTelemetryConfig.class).setIncludeReturnedRows(true);
 ----
 * A statement from a SQL Object method has the `db.query.summary` `Type.method`, for example `UserDao.findById`. This summary is also the span name. Other spans have the `db.system.name` as their name.
 * When the statement fails, in its execution or in the reading or mapping of its results, the span status is `ERROR`. If a `SQLException` caused the failure, `db.response.status_code` is its vendor error code for MySQL, MariaDB, Microsoft SQL Server, and Oracle (as `ORA-nnnnn`), and its SQLSTATE for other databases. `error.type` is the status code if there is one, else the exception class name. A `SqlExceptionHandler` that replaces the exception does not change these values. The span does not record the exception message, because a message can contain row data.
-* When <<telemetry-bindings,bound values>> are included, each positional or named argument is a `db.query.parameter.<key>` attribute. The key is the 0-based position or the name. Batches and arguments from `bindBean`, `bindMap`, and other argument finders are not recorded.
+* When <<telemetry-bindings,bound values>> are included, the argument of each parameter of the SQL is a `db.query.parameter.<key>` attribute, so the keys match the placeholders in `db.query.text`. The key is the parameter name, or the 0-based position of a positional parameter. Arguments from `bindBean`, `bindMap`, and other argument finders are included, and the span asks the argument finders again when it ends. Arguments that the SQL does not use and the arguments of batches are not recorded.
 
 Jdbi does not parse SQL, so the spans do not have `db.operation.name` or `db.collection.name`.
 

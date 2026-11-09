@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jdbi.v3.core.argument.MapArguments;
@@ -26,28 +27,85 @@ public class TestBindingDescribeArguments {
     private final StatementContext ctx = StatementContextAccess.createContext();
     private final Binding binding = new Binding(ctx);
 
+    private void parsedNamed(final String... names) {
+        ctx.setParsedSql(ParsedSql.of("sql", ParsedParameters.named(List.of(names))));
+    }
+
+    private void parsedPositional(final int count) {
+        ctx.setParsedSql(ParsedSql.of("sql", ParsedParameters.positional(count)));
+    }
+
     @Test
     public void emptyBinding() {
+        parsedNamed();
+
         assertThat(binding.describeArguments(512)).isEmpty();
     }
 
     @Test
-    public void positionalBeforeNamed() {
+    public void notParsed() {
         binding.addNamed("name", "Zebra");
+        binding.addPositional(0, 1);
+
+        assertThat(binding.describeArguments(512)).isEmpty();
+    }
+
+    @Test
+    public void positionalParameters() {
+        parsedPositional(2);
         binding.addPositional(1, 2);
         binding.addPositional(0, null);
-        binding.addNamed("typed", 42L, QualifiedType.of(Long.class));
+        binding.addPositional(2, "unused");
+        binding.addNamed("name", "Zebra");
 
         assertThat(binding.describeArguments(512))
             .containsExactly(
                 entry("0", "null"),
-                entry("1", "2"),
+                entry("1", "2"));
+    }
+
+    @Test
+    public void namedParametersInSqlOrder() {
+        parsedNamed("typed", "name", "typed");
+        binding.addNamed("name", "Zebra");
+        binding.addNamed("typed", 42L, QualifiedType.of(Long.class));
+        binding.addNamed("unused", "Bananas");
+        binding.addPositional(0, "Zebra");
+
+        assertThat(binding.describeArguments(512))
+            .containsExactly(
+                entry("typed", "42"),
+                entry("name", "Zebra"));
+    }
+
+    @Test
+    public void namedArgumentFinder() {
+        parsedNamed("name", "id", "missing");
+        binding.addNamed("name", "Zebra");
+        binding.addNamedArgumentFinder(new MapArguments(Map.of("name", "Bananas", "id", 1)));
+
+        assertThat(binding.describeArguments(512))
+            .containsExactly(
                 entry("name", "Zebra"),
-                entry("typed", "42"));
+                entry("id", "1"));
+    }
+
+    @Test
+    public void failingArgumentFinder() {
+        parsedNamed("bad", "good");
+        binding.addNamedArgumentFinder((name, c) -> {
+            if ("bad".equals(name)) {
+                throw new IllegalStateException();
+            }
+            return c.findArgumentFor(String.class, "Zebra");
+        });
+
+        assertThat(binding.describeArguments(512)).containsExactly(entry("good", "Zebra"));
     }
 
     @Test
     public void truncateEachValue() {
+        parsedNamed("long", "short");
         binding.addNamed("long", "abcdefghij");
         binding.addNamed("short", "abc");
 
@@ -59,6 +117,7 @@ public class TestBindingDescribeArguments {
 
     @Test
     public void failingToString() {
+        parsedNamed("bad", "good");
         final Object unprintable = new Object() {
             @Override
             public String toString() {
@@ -74,12 +133,5 @@ public class TestBindingDescribeArguments {
                 entry("bad", description),
                 entry("good", "Zebra"));
         assertThat(binding.describe(512)).isEqualTo("{named:{bad:" + description + ",good:Zebra}}");
-    }
-
-    @Test
-    public void namedArgumentFinderNotIncluded() {
-        binding.addNamedArgumentFinder(new MapArguments(Map.of("secret", "value")));
-
-        assertThat(binding.describeArguments(512)).isEmpty();
     }
 }

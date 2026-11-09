@@ -42,7 +42,9 @@ import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Bind;
+import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
+import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -199,9 +201,38 @@ public class TestTelemetry {
         run("sqlObjectSummary");
     }
 
+    @Test
+    void sqlObjectParameters() throws ReflectiveOperationException {
+        run("sqlObjectParameters");
+    }
+
     public interface SomethingDao {
         @SqlQuery("select name from something where id = :id")
         String findName(@Bind("id") int id);
+
+        @SqlQuery("select name from something where id = ?")
+        String findNameByPosition(@Bind("id") int id);
+
+        @SqlUpdate(INSERT)
+        void insert(@BindBean Something something);
+    }
+
+    public static final class Something {
+        private final int id;
+        private final String name;
+
+        public Something(final int id, final String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
     public final class TestCode {
@@ -570,6 +601,27 @@ public class TestTelemetry {
             assertThat(query.getName()).isEqualTo("SomethingDao.findName");
             assertThat(query.getAttributes().get(DB_QUERY_SUMMARY)).isEqualTo("SomethingDao.findName");
             assertThat(query.getAttributes().get(DB_RESPONSE_RETURNED_ROWS)).isEqualTo(1L);
+        }
+
+        public void sqlObjectParameters() {
+            ext.getJdbi().installPlugin(new SqlObjectPlugin());
+            ext.getJdbi().getConfig(SqlStatements.class).setIncludeBindingsInTelemetry(true);
+
+            try (var h = ext.openHandle()) {
+                h.execute(CREATE);
+                final var dao = h.attach(SomethingDao.class);
+                dao.insert(new Something(1, "Zebra"));
+                assertThat(dao.findName(1)).isEqualTo("Zebra");
+                assertThat(dao.findNameByPosition(1)).isEqualTo("Zebra");
+            }
+
+            assertThat(traces.getExported())
+                .extracting(this::parameters)
+                .containsExactly(
+                    Map.of(),
+                    Map.of(DB_QUERY_PARAMETER_PREFIX + "id", "1", DB_QUERY_PARAMETER_PREFIX + "name", "Zebra"),
+                    Map.of(DB_QUERY_PARAMETER_PREFIX + "id", "1"),
+                    Map.of(DB_QUERY_PARAMETER_PREFIX + "0", "1"));
         }
 
         private Map<String, Object> parameters(final SpanData span) {

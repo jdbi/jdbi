@@ -39,9 +39,11 @@ public class Binding {
     protected final Map<Integer, Object> positionals = new TreeMap<>();
     protected final Map<String, Object> named = new LinkedHashMap<>();
     protected final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
+    private final StatementContext ctx;
     private final ArgumentFactoryLocator locator;
 
     protected Binding(StatementContext ctx) {
+        this.ctx = ctx;
         this.locator = new ArgumentFactoryLocator(ctx);
     }
 
@@ -232,19 +234,57 @@ public class Binding {
     }
 
     /**
-     * Describe each positional and named argument as a string, for telemetry.
-     * The key of a positional argument is its 0-based position, and the key of a named argument is its name.
-     * Arguments from a {@link NamedArgumentFinder} are not included.
+     * Describe the argument of each parameter in the parsed SQL of the statement as a string, for telemetry.
+     * The key of a positional parameter is its 0-based position, and the key of a named parameter is its name.
+     * A named parameter takes its argument from the named arguments, then from the {@link NamedArgumentFinder}s,
+     * as the statement binds it. This method asks the argument finders again, so a bean getter runs again.
+     * Arguments that the SQL does not use are not included.
      *
      * @param maxLength The maximum length of each description
-     * @return the argument descriptions: positional arguments by position, then named arguments in bind order
+     * @return the argument descriptions in parameter order, or an empty map if the statement has no parsed SQL
      */
     @Alpha
     public Map<String, String> describeArguments(final int maxLength) {
+        final ParsedSql parsedSql = ctx.getParsedSql();
+        if (parsedSql == null) {
+            return Collections.emptyMap();
+        }
+        final ParsedParameters parameters = parsedSql.getParameters();
         final Map<String, String> result = new LinkedHashMap<>();
-        positionals.forEach((position, value) -> result.put(String.valueOf(position), truncate(unwrap(value), maxLength)));
-        named.forEach((name, value) -> result.put(name, truncate(unwrap(value), maxLength)));
+        if (parameters.isPositional()) {
+            for (int position = 0; position < parameters.getParameterCount(); position++) {
+                if (positionals.containsKey(position)) {
+                    result.put(String.valueOf(position), truncate(unwrap(positionals.get(position)), maxLength));
+                }
+            }
+        } else {
+            for (final String name : parameters.getParameterNames()) {
+                if (result.containsKey(name)) {
+                    continue;
+                }
+                if (named.containsKey(name)) {
+                    result.put(name, truncate(unwrap(named.get(name)), maxLength));
+                } else {
+                    findArgument(name).ifPresent(argument -> result.put(name, truncate(argument, maxLength)));
+                }
+            }
+        }
         return result;
+    }
+
+    private Optional<Argument> findArgument(final String name) {
+        for (final NamedArgumentFinder finder : namedArgumentFinder) {
+            try {
+                final Optional<Argument> found = finder.find(name, ctx);
+                if (found.isPresent()) {
+                    return found;
+                }
+            } catch (RuntimeException e) {
+                // A description is for telemetry, so a finder that throws must not fail the statement or its close.
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     private static String truncate(final Object value, final int maxLength) {
