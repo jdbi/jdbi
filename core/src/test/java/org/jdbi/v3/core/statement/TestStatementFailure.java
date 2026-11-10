@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,8 @@ import java.util.stream.Collector;
 
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.result.LinkedHashMapRowReducer;
 import org.jdbi.v3.core.result.NoResultsException;
 import org.jdbi.v3.core.result.ResultSetException;
@@ -47,6 +50,7 @@ public class TestStatementFailure {
         h = h2Extension.getSharedHandle();
         h.execute("insert into something (id, name) values (1, 'Zebra'), (2, 'Bananas')");
         // A cleanable added at creation runs when the context closes, as the cleanable of a trace span does.
+        // The tests do not close their statements, so that only Jdbi can close the contexts.
         h.getConfig(SqlStatements.class).addContextListener(new StatementContextListener() {
             @Override
             public void contextCreated(final StatementContext ctx) {
@@ -93,11 +97,34 @@ public class TestStatementFailure {
 
     @Test
     public void noResults() {
-        assertThatThrownBy(() -> {
-            try (Query query = h.createQuery("commit")) {
-                query.mapTo(Integer.class).findFirst();
+        assertThatThrownBy(() -> h.createQuery("commit").mapTo(Integer.class).findFirst())
+            .isInstanceOf(NoResultsException.class)
+            .satisfies(e -> assertThat(failuresAtClose).containsExactly((Exception) e));
+    }
+
+    @Test
+    public void mapperSpecializeThrows() {
+        final RowMapper<String> mapper = new RowMapper<>() {
+            @Override
+            public String map(final ResultSet rs, final StatementContext ctx) throws SQLException {
+                return rs.getString("name");
             }
-        }).isInstanceOf(NoResultsException.class)
+
+            @Override
+            public RowMapper<String> specialize(final ResultSet rs, final StatementContext ctx) {
+                throw boom;
+            }
+        };
+
+        assertThatThrownBy(() -> h.createQuery(SELECT).map(mapper).one()).isSameAs(boom);
+
+        assertThat(failuresAtClose).containsExactly(boom);
+    }
+
+    @Test
+    public void constructorMapperWithoutColumn() {
+        assertThatThrownBy(() -> h.createQuery(SELECT).map(ConstructorMapper.of(MissingColumn.class)).list())
+            .isInstanceOf(IllegalArgumentException.class)
             .satisfies(e -> assertThat(failuresAtClose).containsExactly((Exception) e));
     }
 
@@ -149,4 +176,6 @@ public class TestStatementFailure {
 
         assertThat(ctx.getFailure()).isSameAs(first);
     }
+
+    public record MissingColumn(int id, String missing) {}
 }

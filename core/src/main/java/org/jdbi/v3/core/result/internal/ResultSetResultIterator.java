@@ -50,14 +50,28 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
             this.resultSetSupplier = ResultSetSupplier.closingContext(resultSetSupplier, context);
         }
 
-        this.resultSet = this.resultSetSupplier.get();
+        try {
+            this.resultSet = this.resultSetSupplier.get();
+            if (resultSet != null) {
+                context.addCleanable(resultSet::close);
+                this.rowMapper = rowMapper.specialize(resultSet, context);
+            } else {
+                this.rowMapper = null;
+            }
+        } catch (SQLException | RuntimeException e) {
+            // The caller gets no iterator to close, so close here.
+            // Record the failure first, because the context runs its cleanables, such as a trace span, on close.
+            context.recordFailure(e);
+            try {
+                close();
+            } catch (Exception closeFailure) {
+                e.addSuppressed(closeFailure);
+            }
+            throw e;
+        }
 
-        if (resultSet != null) {
-            context.addCleanable(resultSet::close);
-            this.rowMapper = rowMapper.specialize(resultSet, context);
-        } else {
+        if (resultSet == null) {
             close();
-            this.rowMapper = null;
         }
     }
 

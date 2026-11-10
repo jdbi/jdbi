@@ -49,11 +49,7 @@ public class ResultSetResultIterable<T> implements ResultIterable<T> {
         try {
             return new ResultSetResultIterator<>(resultSetSupplier, mapper, ctx);
         } catch (final SQLException e) {
-            ctx.recordFailure(e);
             throw new ResultSetException("Unable to iterate result set", e, ctx);
-        } catch (final RuntimeException e) {
-            ctx.recordFailure(e);
-            throw e;
         }
     }
 

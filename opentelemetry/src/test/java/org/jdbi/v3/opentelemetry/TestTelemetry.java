@@ -33,6 +33,7 @@ import jdk.jfr.consumer.RecordedEvent;
 import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.JdbiStatementEvent;
 import org.jdbi.v3.core.statement.Query;
@@ -167,6 +168,11 @@ public class TestTelemetry {
     }
 
     @Test
+    void failureBeforeIteration() throws ReflectiveOperationException {
+        run("failureBeforeIteration");
+    }
+
+    @Test
     void resultSetFailure() throws ReflectiveOperationException {
         run("resultSetFailure");
     }
@@ -216,6 +222,8 @@ public class TestTelemetry {
         @SqlUpdate(INSERT)
         void insert(@BindBean Something something);
     }
+
+    public record MissingColumn(int id, String missing) {}
 
     public static final class Something {
         private final int id;
@@ -482,6 +490,19 @@ public class TestTelemetry {
             assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
             assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo(IllegalStateException.class.getName());
             assertThat(failed.getAttributes().get(DB_RESPONSE_STATUS_CODE)).isNull();
+        }
+
+        public void failureBeforeIteration() {
+            try (var h = ext.openHandle()) {
+                h.execute(CREATE);
+                assertThatThrownBy(() -> h.createQuery(SELECT).map(ConstructorMapper.of(MissingColumn.class)).list())
+                    .isInstanceOf(IllegalArgumentException.class);
+
+                final var spans = traces.getExported();
+                assertThat(spans).hasSize(2);
+                assertThat(spans.get(1).getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
+                assertThat(spans.get(1).getAttributes().get(ERROR_TYPE)).isEqualTo(IllegalArgumentException.class.getName());
+            }
         }
 
         public void resultSetFailure() {
