@@ -21,7 +21,7 @@ import org.jdbi.v3.meta.Alpha;
  */
 @Alpha
 public final class OpenTelemetryConfig implements JdbiConfig<OpenTelemetryConfig> {
-    private volatile boolean includeReturnedRows;
+    private boolean includeReturnedRows;
 
     public OpenTelemetryConfig() {}
 
