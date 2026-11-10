@@ -30,6 +30,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.TracerProvider;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.extension.ExtensionMethod;
 import org.jdbi.v3.core.spi.JdbiPlugin;
@@ -65,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Telemetry never fails a statement: the plugin logs an exception from the database metadata or from OpenTelemetry
  * at debug level and continues without the span or the attribute.
+ * With the no-op OpenTelemetry, for example when no SDK sets {@link GlobalOpenTelemetry}, the plugin does nothing.
  */
 public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     /**
@@ -97,6 +99,7 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     static final String OTHER_SQL = "other_sql";
 
     private static final Logger LOG = LoggerFactory.getLogger(JdbiOpenTelemetryPlugin.class);
+    private static final String INSTRUMENTATION_NAME = "jdbi";
 
     // Prefixes of DatabaseMetaData.getDatabaseProductName(), lowercase, mapped to the well-known db.system.name values.
     private static final List<Map.Entry<String, String>> WELL_KNOWN_SYSTEMS = List.of(
@@ -135,12 +138,14 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
      * @param telemetry the OpenTelemetry to emit spans to
      */
     public JdbiOpenTelemetryPlugin(final OpenTelemetry telemetry) {
-        tracer = telemetry.getTracer("jdbi");
+        tracer = telemetry.getTracer(INSTRUMENTATION_NAME);
     }
 
     @Override
     public void customizeJdbi(final Jdbi jdbi) throws SQLException {
-        jdbi.getConfig(SqlStatements.class).addContextListener(new TracingListener());
+        if (!TracerProvider.noop().get(INSTRUMENTATION_NAME).equals(tracer)) {
+            jdbi.getConfig(SqlStatements.class).addContextListener(new TracingListener());
+        }
     }
 
     static String dbSystemName(final String productName) {

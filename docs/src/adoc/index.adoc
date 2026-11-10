@@ -6778,6 +6778,7 @@ jdbi.getConfig(OpenTelemetryConfig.class).setIncludeReturnedRows(true);
 Jdbi does not parse SQL, so the spans do not have `db.operation.name` or `db.collection.name`.
 
 Telemetry does not fail a statement. If the database metadata or OpenTelemetry throws an exception, the plugin logs it at debug level, and the statement continues without that span or attribute.
+With the no-op OpenTelemetry, for example when no SDK sets `GlobalOpenTelemetry`, the plugin does not register a listener, so statements do no tracing work.
 
 == Third-Party Integration
 

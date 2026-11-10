@@ -114,6 +114,16 @@ public class TestFailSafeTelemetry {
         jdbi.installPlugins();
 
         assertThat(selectTwice(jdbi)).containsExactly(1, 1);
+        assertThat(metaDataCalls).hasValue(0);
+    }
+
+    @Test
+    void noopOpenTelemetry() {
+        final Jdbi jdbi = jdbi(connection -> null);
+        jdbi.installPlugin(new JdbiOpenTelemetryPlugin(OpenTelemetry.noop()));
+
+        assertThat(selectTwice(jdbi)).containsExactly(1, 1);
+        assertThat(metaDataCalls).hasValue(0);
     }
 
     @Test

@@ -25,7 +25,7 @@
   or `ResultProducer` that closes the context must record its failure first, so that the span gets the `ERROR` status.
 - A statement whose SQL template fails to render or parse is now closed, as for other execution failures.
 - An exception from the database metadata or from OpenTelemetry no longer fails the statement. `JdbiOpenTelemetryPlugin`
-  logs it at debug level.
+  logs it at debug level. With the no-op OpenTelemetry, the plugin does nothing.
 - A bound value whose `toString()` throws no longer fails the statement when JFR, OpenTelemetry, or an exception
   message describes it. The description shows a placeholder for that value.
 
