@@ -41,7 +41,7 @@ public interface ResultProducer<R> {
      *         try {
      *             PreparedStatement statement = statementSupplier.get();
      *             // generate and return result from the statement
-     *         } catch (SQLException | RuntimeException e) {
+     *         } catch (Exception e) {
      *             context.recordFailure(e);
      *             throw e;
      *         }

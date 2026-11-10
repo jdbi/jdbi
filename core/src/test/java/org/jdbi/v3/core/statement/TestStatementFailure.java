@@ -15,11 +15,13 @@ package org.jdbi.v3.core.statement;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collector;
 
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
@@ -42,6 +44,7 @@ public class TestStatementFailure {
     public H2DatabaseExtension h2Extension = H2DatabaseExtension.instance().withInitializer(H2DatabaseExtension.SOMETHING_INITIALIZER);
 
     private final IllegalStateException boom = new IllegalStateException("boom");
+    private final ParseException checkedBoom = new ParseException("boom", 0);
     private final List<Exception> failuresAtClose = new ArrayList<>();
     private Handle h;
 
@@ -126,6 +129,25 @@ public class TestStatementFailure {
         assertThatThrownBy(() -> h.createQuery(SELECT).map(ConstructorMapper.of(MissingColumn.class)).list())
             .isInstanceOf(IllegalArgumentException.class)
             .satisfies(e -> assertThat(failuresAtClose).containsExactly((Exception) e));
+    }
+
+    @Test
+    public void constructorThrowsCheckedException() {
+        assertThatThrownBy(() -> h.createQuery(SELECT).map(ConstructorMapper.of(Unparseable.class)).list())
+            .isInstanceOf(ParseException.class)
+            .satisfies(e -> assertThat(failuresAtClose).containsExactly((Exception) e));
+    }
+
+    @Test
+    public void scannerThrowsCheckedException() {
+        try (Query query = h.createQuery(SELECT)) {
+            assertThatThrownBy(() -> query.scanResultSet((resultSetSupplier, ctx) -> {
+                resultSetSupplier.get();
+                throw Sneaky.throwAnyway(checkedBoom);
+            })).isSameAs(checkedBoom);
+        }
+
+        assertThat(failuresAtClose).containsExactly(checkedBoom);
     }
 
     @Test
@@ -220,6 +242,30 @@ public class TestStatementFailure {
     }
 
     @Test
+    public void resultProducerThrowsCheckedException() {
+        try (Update update = h.createUpdate("update something set name = 'Apple' where id = 1")) {
+            assertThatThrownBy(() -> update.execute((statementSupplier, ctx) -> {
+                statementSupplier.get();
+                throw Sneaky.throwAnyway(checkedBoom);
+            })).isSameAs(checkedBoom);
+        }
+
+        assertThat(failuresAtClose).containsExactly(checkedBoom);
+    }
+
+    @Test
+    public void batchTemplateThrowsCheckedException() {
+        assertThatThrownBy(() -> h.createBatch()
+            .setTemplateEngine((template, ctx) -> {
+                throw Sneaky.throwAnyway(checkedBoom);
+            })
+            .add("update something set name = 'Apple' where id = 1")
+            .execute()).isSameAs(checkedBoom);
+
+        assertThat(failuresAtClose).containsExactly(checkedBoom);
+    }
+
+    @Test
     public void firstFailureWins() {
         final StatementContext ctx = StatementContextAccess.createContext();
         final SQLException first = new SQLException("first");
@@ -230,4 +276,10 @@ public class TestStatementFailure {
     }
 
     public record MissingColumn(int id, String missing) {}
+
+    public static final class Unparseable {
+        public Unparseable(final int id, final String name) throws ParseException {
+            throw new ParseException(name, id);
+        }
+    }
 }

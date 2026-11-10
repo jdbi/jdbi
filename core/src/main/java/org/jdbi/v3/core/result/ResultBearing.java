@@ -60,7 +60,7 @@ public interface ResultBearing {
                 } catch (SQLException e) {
                     ctx.recordFailure(e);
                     throw new ResultSetException("Error reading result set", e, ctx);
-                } catch (RuntimeException e) {
+                } catch (Exception e) {
                     ctx.recordFailure(e);
                     throw e;
                 }
@@ -422,7 +422,7 @@ public interface ResultBearing {
             try (StatementContext ctx = context) {
                 try {
                     return scanner.scanResultSet(resultSetSupplier, ctx);
-                } catch (SQLException | RuntimeException e) {
+                } catch (Exception e) {
                     ctx.recordFailure(e);
                     throw e;
                 }

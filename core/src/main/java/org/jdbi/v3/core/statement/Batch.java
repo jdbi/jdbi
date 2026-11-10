@@ -88,7 +88,7 @@ public class Batch extends BaseStatement<Batch> {
             } catch (SQLException e) {
                 throw stmtConfig.handleException(mungeBatchException(e), getContext());
             }
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             getContext().recordFailure(e);
             throw e;
         } finally {

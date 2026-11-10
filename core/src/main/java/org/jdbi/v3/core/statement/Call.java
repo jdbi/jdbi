@@ -309,7 +309,7 @@ public class Call extends SqlStatement<Call> {
             } catch (SQLException e) {
                 getContext().recordFailure(e);
                 throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 getContext().recordFailure(e);
                 throw e;
             }
@@ -321,7 +321,7 @@ public class Call extends SqlStatement<Call> {
             } catch (SQLException e) {
                 getContext().recordFailure(e);
                 throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 getContext().recordFailure(e);
                 throw e;
             }

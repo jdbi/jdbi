@@ -58,7 +58,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
             } else {
                 this.rowMapper = null;
             }
-        } catch (SQLException | RuntimeException e) {
+        } catch (Exception e) {
             // The caller gets no iterator to close, so close here.
             // Record the failure first, because the context runs its cleanables, such as a trace span, on close.
             context.recordFailure(e);
@@ -121,7 +121,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
         } catch (SQLException e) {
             context.recordFailure(e);
             throw new ResultSetException("Exception thrown mapping result set into return type", e, context);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             context.recordFailure(e);
             throw e;
         } finally {

@@ -48,7 +48,7 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
             try (StatementContext unused = ctx) {
                 try {
                     return statementSupplier.get().getUpdateCount();
-                } catch (SQLException e) {
+                } catch (Exception e) {
                     ctx.recordFailure(e);
                     throw e;
                 }
@@ -68,7 +68,7 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
             try (StatementContext unused = ctx) {
                 try {
                     return statementSupplier.get().getLargeUpdateCount();
-                } catch (SQLException e) {
+                } catch (Exception e) {
                     ctx.recordFailure(e);
                     throw e;
                 }

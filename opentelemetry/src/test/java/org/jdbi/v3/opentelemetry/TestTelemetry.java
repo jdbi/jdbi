@@ -16,6 +16,7 @@ package org.jdbi.v3.opentelemetry;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -176,6 +177,11 @@ public class TestTelemetry {
     }
 
     @Test
+    void checkedMappingFailure() throws ReflectiveOperationException {
+        run("checkedMappingFailure");
+    }
+
+    @Test
     void failureBeforeIteration() throws ReflectiveOperationException {
         run("failureBeforeIteration");
     }
@@ -243,6 +249,12 @@ public class TestTelemetry {
     }
 
     public record MissingColumn(int id, String missing) {}
+
+    public static final class Unparseable {
+        public Unparseable(final int id, final String name) throws ParseException {
+            throw new ParseException(name, id);
+        }
+    }
 
     public static final class Something {
         private final int id;
@@ -528,6 +540,19 @@ public class TestTelemetry {
             assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
             assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo(IllegalStateException.class.getName());
             assertThat(failed.getAttributes().get(DB_RESPONSE_STATUS_CODE)).isNull();
+        }
+
+        public void checkedMappingFailure() {
+            try (var h = ext.openHandle()) {
+                h.execute(CREATE);
+                insertSomething(h, 1, "Zebra");
+                assertThatThrownBy(() -> h.createQuery(SELECT).map(ConstructorMapper.of(Unparseable.class)).list())
+                    .isInstanceOf(ParseException.class);
+            }
+
+            final var failed = traces.getExported().get(2);
+            assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
+            assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo(ParseException.class.getName());
         }
 
         public void failureBeforeIteration() {

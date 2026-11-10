@@ -10316,7 +10316,7 @@ public static ResultProducer<Integer> returningUpdateCount() {
         try (StatementContext context = ctx) {
             try {
                 return statementSupplier.get().getUpdateCount();
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 context.recordFailure(e);
                 throw e;
             }

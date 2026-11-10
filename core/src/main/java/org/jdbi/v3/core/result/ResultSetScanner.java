@@ -46,7 +46,7 @@ public interface ResultSetScanner<T> {
      *         try {
      *             ResultSet resultSet = resultSetSupplier.get();
      *             // generate and return result from the result set.
-     *         } catch (SQLException | RuntimeException e) {
+     *         } catch (Exception e) {
      *             context.recordFailure(e);
      *             throw e;
      *         }
