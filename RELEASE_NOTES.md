@@ -3,7 +3,8 @@
 - **Breaking change**: JFR events and OpenTelemetry spans no longer record bound values by default, because they often
   contain personal data or secrets. To restore them, call `SqlStatements.setIncludeBindingsInTelemetry(true)`.
 - **Breaking change**: `JdbiOpenTelemetryPlugin` spans now follow the OpenTelemetry database client span semantic
-  conventions. Update dashboards, queries, and alerts that use the old names:
+  conventions. No setting restores the old span names or attributes. Update dashboards, queries, and alerts that use
+  the old names:
   - The span kind is `CLIENT`, not `INTERNAL`.
   - The span name is the SQL Object `Type.method` or the `db.system.name` (for example `postgresql`), not
     `jdbi.<StatementType>`.
@@ -16,14 +17,16 @@
   - New attributes: `db.system.name`, `db.query.summary`, and, for a failed statement, `error.type` and
     `db.response.status_code` (the vendor error code or the SQLSTATE). A statement that fails, in its execution or
     in the reading or mapping of its results, also sets the span status to `ERROR`.
-  - The `SQL`, `BINDING`, and `NUM_ROWS` constants are deprecated.
+  - The `SQL`, `BINDING`, and `NUM_ROWS` constants are deprecated, and no span sets these attributes any more.
 - Add `Binding.describeArguments` (alpha) to get a description of the argument of each parameter of the SQL.
 - Add `OpenTelemetryConfig` (alpha) to configure the spans of `JdbiOpenTelemetryPlugin`.
 - Add `StatementContext.getFailure` and `StatementContext.recordFailure` (alpha) to get and record the first exception
-  that failed a statement, in its execution or in the reading or mapping of its results.
+  that failed a statement, in its execution or in the reading or mapping of its results. A custom `ResultSetScanner`
+  or `ResultProducer` that closes the context must record its failure first, so that the span gets the `ERROR` status.
 - A statement whose SQL template fails to render or parse is now closed, as for other execution failures.
 - A bound value whose `toString()` throws no longer fails the statement when JFR, OpenTelemetry, or an exception
   message describes it. The description shows a placeholder for that value.
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public

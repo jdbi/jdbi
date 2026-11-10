@@ -62,18 +62,20 @@ import org.jdbi.v3.core.statement.StatementContextListener;
  */
 public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     /**
-     * @deprecated Spans no longer have this attribute. The query text is in {@code db.query.text}.
+     * @deprecated No span sets this attribute any more. The replacement is {@code db.query.text}.
      */
     @Deprecated(since = "3.56.0", forRemoval = true)
     public static final AttributeKey<String> SQL = AttributeKey.stringKey("sql");
     /**
-     * @deprecated Spans no longer have this attribute. Bound values are in {@code db.query.parameter.<key>}.
+     * @deprecated No span sets this attribute any more. The replacement is one {@code db.query.parameter.<key>}
+     * attribute for each parameter of the SQL, which spans have only when
+     * {@link SqlStatements#setIncludeBindingsInTelemetry(boolean)} enables bound values.
      */
     @Deprecated(since = "3.56.0", forRemoval = true)
     public static final AttributeKey<String> BINDING = AttributeKey.stringKey("binding");
     /**
-     * @deprecated Spans no longer have this attribute. The row count of a query is in {@code db.response.returned_rows},
-     * which {@link OpenTelemetryConfig#setIncludeReturnedRows(boolean)} enables.
+     * @deprecated No span sets this attribute any more. The replacement is {@code db.response.returned_rows},
+     * which spans have only when {@link OpenTelemetryConfig#setIncludeReturnedRows(boolean)} enables it.
      */
     @Deprecated(since = "3.56.0", forRemoval = true)
     public static final AttributeKey<Long> NUM_ROWS = AttributeKey.longKey("rows");
