@@ -125,6 +125,25 @@ public class TestStatementFailure {
     }
 
     @Test
+    public void mapperSpecializeThrowsCheckedException() {
+        final RowMapper<String> mapper = new RowMapper<>() {
+            @Override
+            public String map(final ResultSet rs, final StatementContext ctx) throws SQLException {
+                return rs.getString("name");
+            }
+
+            @Override
+            public RowMapper<String> specialize(final ResultSet rs, final StatementContext ctx) {
+                throw Sneaky.throwAnyway(checkedBoom);
+            }
+        };
+
+        assertThatThrownBy(() -> h.createQuery(SELECT).map(mapper).one()).isSameAs(checkedBoom);
+
+        assertThat(failuresAtClose).containsExactly(checkedBoom);
+    }
+
+    @Test
     public void constructorMapperWithoutColumn() {
         assertThatThrownBy(() -> h.createQuery(SELECT).map(ConstructorMapper.of(MissingColumn.class)).list())
             .isInstanceOf(IllegalArgumentException.class)
@@ -157,6 +176,15 @@ public class TestStatementFailure {
         })).isSameAs(boom);
 
         assertThat(failuresAtClose).containsExactly(boom);
+    }
+
+    @Test
+    public void reduceRowsThrowsCheckedException() {
+        assertThatThrownBy(() -> h.createQuery(SELECT).reduceRows(0, (count, rowView) -> {
+            throw Sneaky.throwAnyway(checkedBoom);
+        })).isSameAs(checkedBoom);
+
+        assertThat(failuresAtClose).containsExactly(checkedBoom);
     }
 
     @Test
@@ -245,6 +273,31 @@ public class TestStatementFailure {
     public void resultProducerThrowsCheckedException() {
         try (Update update = h.createUpdate("update something set name = 'Apple' where id = 1")) {
             assertThatThrownBy(() -> update.execute((statementSupplier, ctx) -> {
+                statementSupplier.get();
+                throw Sneaky.throwAnyway(checkedBoom);
+            })).isSameAs(checkedBoom);
+        }
+
+        assertThat(failuresAtClose).containsExactly(checkedBoom);
+    }
+
+    @Test
+    public void queryResultProducerThrowsCheckedException() {
+        try (Query query = h.createQuery(SELECT)) {
+            assertThatThrownBy(() -> query.execute((statementSupplier, ctx) -> {
+                statementSupplier.get();
+                throw Sneaky.throwAnyway(checkedBoom);
+            })).isSameAs(checkedBoom);
+        }
+
+        assertThat(failuresAtClose).containsExactly(checkedBoom);
+    }
+
+    @Test
+    public void preparedBatchResultProducerThrowsCheckedException() {
+        try (PreparedBatch batch = h.prepareBatch("update something set name = :name where id = 1")) {
+            batch.bind("name", "Apple").add();
+            assertThatThrownBy(() -> batch.execute((statementSupplier, ctx) -> {
                 statementSupplier.get();
                 throw Sneaky.throwAnyway(checkedBoom);
             })).isSameAs(checkedBoom);

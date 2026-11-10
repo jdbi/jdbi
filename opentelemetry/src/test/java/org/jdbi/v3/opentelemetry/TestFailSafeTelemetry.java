@@ -23,14 +23,25 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.TraceFlags;
+import io.opentelemetry.api.trace.TraceState;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.ReadWriteSpan;
 import io.opentelemetry.sdk.trace.ReadableSpan;
@@ -228,6 +239,30 @@ public class TestFailSafeTelemetry {
     }
 
     @Test
+    void attributeThrowsCheckedException() {
+        final List<AttributeFailingSpan> spans = new CopyOnWriteArrayList<>();
+        final Tracer tracer = name -> (SpanBuilder) Proxy.newProxyInstance(getClass().getClassLoader(),
+            new Class<?>[] {SpanBuilder.class}, (proxy, method, args) -> {
+                if ("startSpan".equals(method.getName())) {
+                    final AttributeFailingSpan span = new AttributeFailingSpan();
+                    spans.add(span);
+                    return span;
+                }
+                return proxy;
+            });
+        ext.getJdbi().installPlugin(new JdbiOpenTelemetryPlugin(openTelemetry(tracer)));
+
+        try (Handle handle = ext.getJdbi().open()) {
+            assertThat(handle.createQuery(SELECT).mapTo(Integer.class).one()).isOne();
+        }
+
+        assertThat(spans).singleElement().satisfies(span -> {
+            assertThat(span.attributeCalls).hasValue(1);
+            assertThat(span.ends).hasValue(1);
+        });
+    }
+
+    @Test
     void sampledOutSpanDescribesNoArguments() {
         ext.getJdbi().getConfig(SqlStatements.class).setIncludeBindingsInTelemetry(true);
         ext.getJdbi().installPlugin(new JdbiOpenTelemetryPlugin(sdk(SimpleSpanProcessor.create(traces), Sampler.alwaysOff())));
@@ -275,6 +310,89 @@ public class TestFailSafeTelemetry {
         final SpanData failed = traces.getExported().get(1);
         assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
         assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo(GeneralSecurityException.class.getName());
+    }
+
+    private static OpenTelemetry openTelemetry(final Tracer tracer) {
+        final TracerProvider tracerProvider = new TracerProvider() {
+            @Override
+            public Tracer get(final String instrumentationScopeName) {
+                return tracer;
+            }
+
+            @Override
+            public Tracer get(final String instrumentationScopeName, final String instrumentationScopeVersion) {
+                return tracer;
+            }
+        };
+        return new OpenTelemetry() {
+            @Override
+            public TracerProvider getTracerProvider() {
+                return tracerProvider;
+            }
+
+            @Override
+            public ContextPropagators getPropagators() {
+                return ContextPropagators.noop();
+            }
+        };
+    }
+
+    private static final class AttributeFailingSpan implements Span {
+        private final SpanContext spanContext = SpanContext.create("0af7651916cd43dd8448eb211c80319c", "b7ad6b7169203331",
+            TraceFlags.getSampled(), TraceState.getDefault());
+        private final AtomicInteger attributeCalls = new AtomicInteger();
+        private final AtomicInteger ends = new AtomicInteger();
+
+        @Override
+        public <T> Span setAttribute(final AttributeKey<T> key, final T value) {
+            attributeCalls.incrementAndGet();
+            throw sneakyThrow(new IOException("attribute failed"));
+        }
+
+        @Override
+        public Span addEvent(final String name, final Attributes attributes) {
+            return this;
+        }
+
+        @Override
+        public Span addEvent(final String name, final Attributes attributes, final long timestamp, final TimeUnit unit) {
+            return this;
+        }
+
+        @Override
+        public Span setStatus(final StatusCode statusCode, final String description) {
+            return this;
+        }
+
+        @Override
+        public Span recordException(final Throwable exception, final Attributes additionalAttributes) {
+            return this;
+        }
+
+        @Override
+        public Span updateName(final String name) {
+            return this;
+        }
+
+        @Override
+        public void end() {
+            ends.incrementAndGet();
+        }
+
+        @Override
+        public void end(final long timestamp, final TimeUnit unit) {
+            ends.incrementAndGet();
+        }
+
+        @Override
+        public SpanContext getSpanContext() {
+            return spanContext;
+        }
+
+        @Override
+        public boolean isRecording() {
+            return true;
+        }
     }
 
     private CountingSpanProcessor installCountingPlugin() {
