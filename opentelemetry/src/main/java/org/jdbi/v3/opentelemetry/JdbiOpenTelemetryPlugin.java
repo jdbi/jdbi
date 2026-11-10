@@ -14,6 +14,7 @@
 package org.jdbi.v3.opentelemetry;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -38,6 +39,8 @@ import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.SqlStatements;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.core.statement.StatementContextListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Enable OpenTelemetry support.
@@ -59,6 +62,9 @@ import org.jdbi.v3.core.statement.StatementContextListener;
  * Bound values are recorded only when {@link SqlStatements#setIncludeBindingsInTelemetry(boolean)} is set,
  * as one {@code db.query.parameter.<key>} attribute for each parameter of the SQL, and never for batches.
  * The key is the parameter name, or the 0-based position of a positional parameter.
+ * <p>
+ * Telemetry never fails a statement: the plugin logs an exception from the database metadata or from OpenTelemetry
+ * at debug level and continues without the span or the attribute.
  */
 public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     /**
@@ -89,6 +95,8 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
     static final AttributeKey<String> ERROR_TYPE = AttributeKey.stringKey("error.type");
 
     static final String OTHER_SQL = "other_sql";
+
+    private static final Logger LOG = LoggerFactory.getLogger(JdbiOpenTelemetryPlugin.class);
 
     // Prefixes of DatabaseMetaData.getDatabaseProductName(), lowercase, mapped to the well-known db.system.name values.
     private static final List<Map.Entry<String, String>> WELL_KNOWN_SYSTEMS = List.of(
@@ -183,40 +191,71 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
         @Override
         public void contextCreated(final StatementContext ctx) {
             final String system = dbSystemName(ctx.getConnection());
-            final String summary = querySummary(ctx.getExtensionMethod());
+            final Span span;
+            try {
+                span = startSpan(system, querySummary(ctx.getExtensionMethod()));
+            } catch (RuntimeException e) {
+                LOG.debug("Cannot start the trace span of a statement", e);
+                return;
+            }
+            final String traceId;
+            try {
+                final var spanContext = span.getSpanContext();
+                if (!spanContext.isValid()) {
+                    return;
+                }
+                traceId = spanContext.getTraceId();
+            } catch (RuntimeException e) {
+                LOG.debug("Cannot read the context of a trace span", e);
+                endSpan(span);
+                return;
+            }
+            ctx.setTraceId(traceId);
+            ctx.addCleanable(() -> {
+                try {
+                    recordAttributes(ctx, span, system);
+                } catch (RuntimeException e) {
+                    LOG.debug("Cannot record the attributes of a trace span", e);
+                }
+                endSpan(span);
+            });
+        }
+
+        private Span startSpan(final String system, final String summary) {
             final var spanBuilder = tracer.spanBuilder(summary == null ? system : summary)
                     .setSpanKind(SpanKind.CLIENT)
                     .setAttribute(DB_SYSTEM_NAME, system);
             if (summary != null) {
                 spanBuilder.setAttribute(DB_QUERY_SUMMARY, summary);
             }
-            final var span = spanBuilder.startSpan();
-            final var spanContext = span.getSpanContext();
-            if (spanContext.isValid()) {
-                ctx.setTraceId(spanContext.getTraceId());
-                ctx.addCleanable(() -> {
-                    try {
-                        recordFailure(span, system, ctx.getFailure());
-                        final var stmtConfig = ctx.getConfig(SqlStatements.class);
-                        final String renderedSql = ctx.getRenderedSql();
-                        if (renderedSql != null) {
-                            span.setAttribute(DB_QUERY_TEXT, renderedSql.substring(0,
-                                    Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength())));
-                        }
-                        if (ctx.getConfig(OpenTelemetryConfig.class).getIncludeReturnedRows()
-                                && (isStatementType(ctx, Query.class) || ctx.isReturningGeneratedKeys())) {
-                            span.setAttribute(DB_RESPONSE_RETURNED_ROWS, ctx.getMappedRows());
-                        }
-                        if (stmtConfig.getIncludeBindingsInTelemetry()
-                                && !isStatementType(ctx, Batch.class)
-                                && !isStatementType(ctx, PreparedBatch.class)) {
-                            ctx.getBinding().describeArguments(stmtConfig.getJfrParamMaxLength())
-                                    .forEach((key, value) -> span.setAttribute(DB_QUERY_PARAMETER_PREFIX + key, value));
-                        }
-                    } finally {
-                        span.end();
-                    }
-                });
+            return spanBuilder.startSpan();
+        }
+
+        private void recordAttributes(final StatementContext ctx, final Span span, final String system) {
+            recordFailure(span, system, ctx.getFailure());
+            final var stmtConfig = ctx.getConfig(SqlStatements.class);
+            final String renderedSql = ctx.getRenderedSql();
+            if (renderedSql != null) {
+                span.setAttribute(DB_QUERY_TEXT, renderedSql.substring(0,
+                        Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength())));
+            }
+            if (ctx.getConfig(OpenTelemetryConfig.class).getIncludeReturnedRows()
+                    && (isStatementType(ctx, Query.class) || ctx.isReturningGeneratedKeys())) {
+                span.setAttribute(DB_RESPONSE_RETURNED_ROWS, ctx.getMappedRows());
+            }
+            if (stmtConfig.getIncludeBindingsInTelemetry()
+                    && !isStatementType(ctx, Batch.class)
+                    && !isStatementType(ctx, PreparedBatch.class)) {
+                ctx.getBinding().describeArguments(stmtConfig.getJfrParamMaxLength())
+                        .forEach((key, value) -> span.setAttribute(DB_QUERY_PARAMETER_PREFIX + key, value));
+            }
+        }
+
+        private void endSpan(final Span span) {
+            try {
+                span.end();
+            } catch (RuntimeException e) {
+                LOG.debug("Cannot end the trace span of a statement", e);
             }
         }
 
@@ -243,13 +282,18 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
             if (connection == null) {
                 return OTHER_SQL;
             }
+            String system = OTHER_SQL;
             try {
-                final String system = JdbiOpenTelemetryPlugin.dbSystemName(connection.getMetaData().getDatabaseProductName());
-                dbSystemName = system;
-                return system;
-            } catch (SQLException e) {
-                return OTHER_SQL;
+                final DatabaseMetaData metaData = connection.getMetaData();
+                if (metaData != null) {
+                    system = JdbiOpenTelemetryPlugin.dbSystemName(metaData.getDatabaseProductName());
+                }
+            } catch (SQLException | RuntimeException e) {
+                LOG.debug("Cannot read the database product name, spans use db.system.name {}", OTHER_SQL, e);
             }
+            // A failed read is not tried again, so a broken connection costs one attempt for each Jdbi, not for each statement.
+            dbSystemName = system;
+            return system;
         }
 
         private String querySummary(final ExtensionMethod extensionMethod) {

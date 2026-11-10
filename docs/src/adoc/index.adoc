@@ -6763,7 +6763,7 @@ Additionally, it will add the trace id to JFR events.
 The spans follow the link:https://opentelemetry.io/docs/specs/semconv/db/database-spans/[database client span semantic conventions^], so trace backends show them as database calls:
 
 * The span kind is `CLIENT`.
-* `db.system.name` identifies the database, from `DatabaseMetaData.getDatabaseProductName()`. Jdbi reads it once for each `Jdbi` instance.
+* `db.system.name` identifies the database, from `DatabaseMetaData.getDatabaseProductName()`. Jdbi reads it once for each `Jdbi` instance. If the read fails, the value is `other_sql`, and Jdbi does not try again.
 * `db.query.text` is the rendered SQL, with the named parameter placeholders.
 * `db.response.returned_rows` is the number of mapped rows of a query, or of a statement that returns generated keys. The semantic conventions make this attribute opt-in, so spans have it only when `OpenTelemetryConfig` enables it:
 +
@@ -6776,6 +6776,8 @@ jdbi.getConfig(OpenTelemetryConfig.class).setIncludeReturnedRows(true);
 * When <<telemetry-bindings,bound values>> are included, the argument of each parameter of the SQL is a `db.query.parameter.<key>` attribute, so the keys match the placeholders in `db.query.text`. The key is the parameter name, or the 0-based position of a positional parameter. Arguments from `bindBean`, `bindMap`, and other argument finders are included, and the span asks the argument finders again when it ends. Arguments that the SQL does not use and the arguments of batches are not recorded.
 
 Jdbi does not parse SQL, so the spans do not have `db.operation.name` or `db.collection.name`.
+
+Telemetry does not fail a statement. If the database metadata or OpenTelemetry throws an exception, the plugin logs it at debug level, and the statement continues without that span or attribute.
 
 == Third-Party Integration
 
