@@ -168,6 +168,17 @@ public class TestStatementFailure {
     }
 
     @Test
+    public void metaDataValueProviderThrows() {
+        final SQLException failure = new SQLException("no metadata");
+
+        assertThatThrownBy(() -> h.queryMetadata((MetaData.MetaDataValueProvider<String>) metaData -> {
+            throw failure;
+        })).isInstanceOf(UnableToRetrieveMetaDataException.class).hasCause(failure);
+
+        assertThat(failuresAtClose).containsExactly(failure);
+    }
+
+    @Test
     public void firstFailureWins() {
         final StatementContext ctx = StatementContextAccess.createContext();
         final SQLException first = new SQLException("first");
