@@ -304,12 +304,11 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
                 LOG.debug("Cannot read the database product name, the span uses db.system.name {}", OTHER_SQL, e);
                 return OTHER_SQL;
             }
-            if (productName == null || productName.isBlank()) {
-                return OTHER_SQL;
-            }
-            // Only a successful read is cached, so the statement after a failed read reads again.
             final String system = JdbiOpenTelemetryPlugin.dbSystemName(productName);
-            dbSystemName = system;
+            // Only a successful read is cached, so the statement after a failed read reads again.
+            if (!OTHER_SQL.equals(system)) {
+                dbSystemName = system;
+            }
             return system;
         }
 
