@@ -13,9 +13,11 @@
  */
 package org.jdbi.v3.opentelemetry;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -27,6 +29,7 @@ import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.ReadWriteSpan;
@@ -34,6 +37,7 @@ import io.opentelemetry.sdk.trace.ReadableSpan;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.data.LinkData;
+import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
 import io.opentelemetry.sdk.trace.samplers.SamplingResult;
@@ -47,9 +51,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.jdbi.v3.opentelemetry.JdbiOpenTelemetryPlugin.DB_QUERY_TEXT;
 import static org.jdbi.v3.opentelemetry.JdbiOpenTelemetryPlugin.DB_SYSTEM_NAME;
+import static org.jdbi.v3.opentelemetry.JdbiOpenTelemetryPlugin.ERROR_TYPE;
 import static org.jdbi.v3.opentelemetry.JdbiOpenTelemetryPlugin.OTHER_SQL;
 
 public class TestFailSafeTelemetry {
@@ -128,11 +134,20 @@ public class TestFailSafeTelemetry {
 
     @Test
     void samplerThrows() {
+        assertSamplerFailureIgnored(new IllegalStateException("sampler failed"));
+    }
+
+    @Test
+    void samplerThrowsCheckedException() {
+        assertSamplerFailureIgnored(new IOException("sampler failed"));
+    }
+
+    private void assertSamplerFailureIgnored(final Exception failure) {
         final Sampler sampler = new Sampler() {
             @Override
             public SamplingResult shouldSample(final Context parentContext, final String traceId, final String name,
                 final SpanKind spanKind, final Attributes attributes, final List<LinkData> parentLinks) {
-                throw new IllegalStateException("sampler failed");
+                throw sneakyThrow(failure);
             }
 
             @Override
@@ -148,6 +163,15 @@ public class TestFailSafeTelemetry {
 
     @Test
     void spanEndThrows() {
+        assertSpanEndFailureIgnored(new IllegalStateException("span processor failed"));
+    }
+
+    @Test
+    void spanEndThrowsCheckedException() {
+        assertSpanEndFailureIgnored(new IOException("span processor failed"));
+    }
+
+    private void assertSpanEndFailureIgnored(final Exception failure) {
         final SpanProcessor processor = new SpanProcessor() {
             @Override
             public void onStart(final Context parentContext, final ReadWriteSpan span) {}
@@ -159,7 +183,7 @@ public class TestFailSafeTelemetry {
 
             @Override
             public void onEnd(final ReadableSpan span) {
-                throw new IllegalStateException("span processor failed");
+                throw sneakyThrow(failure);
             }
 
             @Override
@@ -200,6 +224,90 @@ public class TestFailSafeTelemetry {
         assertThat(traces.getExported()).isEmpty();
     }
 
+    @Test
+    void describedBeanThrowsCheckedException() {
+        final CountingSpanProcessor counts = installCountingPlugin();
+        final FailingBean bean = new FailingBean(2);
+
+        try (Handle handle = ext.getJdbi().open()) {
+            handle.execute("create table something (name varchar(50))");
+            assertThat(handle.createUpdate("insert into something (name) values (:name)").bindBean(bean).execute()).isOne();
+            assertThat(handle.createQuery("select name from something").mapTo(String.class).list()).containsExactly("Alice");
+        }
+
+        assertThat(bean.reads).hasValue(2);
+        assertThat(counts.ended).hasValue(counts.started.get());
+        assertThat(traces.getExported())
+            .extracting(span -> span.getStatus().getStatusCode())
+            .containsExactly(StatusCode.UNSET, StatusCode.UNSET, StatusCode.UNSET);
+    }
+
+    @Test
+    void boundBeanThrowsCheckedException() {
+        final CountingSpanProcessor counts = installCountingPlugin();
+        final FailingBean bean = new FailingBean(1);
+
+        try (Handle handle = ext.getJdbi().open()) {
+            handle.execute("create table something (name varchar(50))");
+            assertThatThrownBy(() -> handle.createUpdate("insert into something (name) values (:name)").bindBean(bean).execute())
+                .isInstanceOf(GeneralSecurityException.class);
+        }
+
+        assertThat(counts.ended).hasValue(counts.started.get());
+        final SpanData failed = traces.getExported().get(1);
+        assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
+        assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo(GeneralSecurityException.class.getName());
+    }
+
+    private CountingSpanProcessor installCountingPlugin() {
+        final CountingSpanProcessor counts = new CountingSpanProcessor();
+        ext.getJdbi().getConfig(SqlStatements.class).setIncludeBindingsInTelemetry(true);
+        ext.getJdbi().installPlugin(new JdbiOpenTelemetryPlugin(
+            sdk(SpanProcessor.composite(counts, SimpleSpanProcessor.create(traces)), Sampler.alwaysOn())));
+        return counts;
+    }
+
+    private static final class CountingSpanProcessor implements SpanProcessor {
+        private final AtomicInteger started = new AtomicInteger();
+        private final AtomicInteger ended = new AtomicInteger();
+
+        @Override
+        public void onStart(final Context parentContext, final ReadWriteSpan span) {
+            started.incrementAndGet();
+        }
+
+        @Override
+        public boolean isStartRequired() {
+            return true;
+        }
+
+        @Override
+        public void onEnd(final ReadableSpan span) {
+            ended.incrementAndGet();
+        }
+
+        @Override
+        public boolean isEndRequired() {
+            return true;
+        }
+    }
+
+    public static final class FailingBean {
+        private final AtomicInteger reads = new AtomicInteger();
+        private final int failingRead;
+
+        FailingBean(final int failingRead) {
+            this.failingRead = failingRead;
+        }
+
+        public String getName() throws Exception {
+            if (reads.incrementAndGet() == failingRead) {
+                throw new GeneralSecurityException("unreadable");
+            }
+            return "Alice";
+        }
+    }
+
     public static final class CountingBean {
         private final AtomicInteger reads = new AtomicInteger();
 
@@ -215,6 +323,11 @@ public class TestFailSafeTelemetry {
                 handle.createQuery(SELECT).mapTo(Integer.class).one(),
                 handle.createQuery(SELECT).mapTo(Integer.class).one());
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Exception> RuntimeException sneakyThrow(final Exception e) throws E {
+        throw (E) e;
     }
 
     private static OpenTelemetry sdk(final SpanProcessor processor, final Sampler sampler) {

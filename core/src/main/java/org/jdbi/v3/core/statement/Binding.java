@@ -280,7 +280,7 @@ public class Binding {
                 if (found.isPresent()) {
                     return found;
                 }
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 // A description is for telemetry, so a finder that throws must not fail the statement or its close.
                 return Optional.empty();
             }
@@ -300,7 +300,7 @@ public class Binding {
     private static String describeValue(final Object value) {
         try {
             return String.valueOf(value);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return "<" + value.getClass().getName() + ".toString() threw " + e.getClass().getName() + ">";
         }
     }

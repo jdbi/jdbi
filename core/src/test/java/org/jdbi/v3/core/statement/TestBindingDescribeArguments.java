@@ -13,10 +13,12 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
 
 import org.jdbi.v3.core.argument.MapArguments;
+import org.jdbi.v3.core.internal.exceptions.Sneaky;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.junit.jupiter.api.Test;
 
@@ -92,10 +94,19 @@ public class TestBindingDescribeArguments {
 
     @Test
     public void failingArgumentFinder() {
+        assertFailingArgumentFinderSkipped(new IllegalStateException());
+    }
+
+    @Test
+    public void argumentFinderThrowsCheckedException() {
+        assertFailingArgumentFinderSkipped(new GeneralSecurityException());
+    }
+
+    private void assertFailingArgumentFinderSkipped(final Exception failure) {
         parsedNamed("bad", "good");
         binding.addNamedArgumentFinder((name, c) -> {
             if ("bad".equals(name)) {
-                throw new IllegalStateException();
+                throw Sneaky.throwAnyway(failure);
             }
             return c.findArgumentFor(String.class, "Zebra");
         });
@@ -117,16 +128,25 @@ public class TestBindingDescribeArguments {
 
     @Test
     public void failingToString() {
+        assertUnprintableValueDescribed(new IllegalStateException());
+    }
+
+    @Test
+    public void toStringThrowsCheckedException() {
+        assertUnprintableValueDescribed(new GeneralSecurityException());
+    }
+
+    private void assertUnprintableValueDescribed(final Exception failure) {
         parsedNamed("bad", "good");
         final Object unprintable = new Object() {
             @Override
             public String toString() {
-                throw new IllegalStateException();
+                throw Sneaky.throwAnyway(failure);
             }
         };
         binding.addNamed("bad", unprintable);
         binding.addNamed("good", "Zebra");
-        final String description = "<" + unprintable.getClass().getName() + ".toString() threw java.lang.IllegalStateException>";
+        final String description = "<" + unprintable.getClass().getName() + ".toString() threw " + failure.getClass().getName() + ">";
 
         assertThat(binding.describeArguments(512))
             .containsExactly(

@@ -201,7 +201,7 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
             final Span span;
             try {
                 span = startSpan(system, querySummary(ctx.getExtensionMethod()));
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 LOG.debug("Cannot start the trace span of a statement", e);
                 return;
             }
@@ -212,7 +212,7 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
                     return;
                 }
                 traceId = spanContext.getTraceId();
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 LOG.debug("Cannot read the context of a trace span", e);
                 endSpan(span);
                 return;
@@ -221,10 +221,11 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
             ctx.addCleanable(() -> {
                 try {
                     recordAttributes(ctx, span, system);
-                } catch (RuntimeException e) {
+                } catch (Exception e) {
                     LOG.debug("Cannot record the attributes of a trace span", e);
+                } finally {
+                    endSpan(span);
                 }
-                endSpan(span);
             });
         }
 
@@ -264,7 +265,7 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
         private void endSpan(final Span span) {
             try {
                 span.end();
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 LOG.debug("Cannot end the trace span of a statement", e);
             }
         }
@@ -298,7 +299,7 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
                 if (metaData != null) {
                     system = JdbiOpenTelemetryPlugin.dbSystemName(metaData.getDatabaseProductName());
                 }
-            } catch (SQLException | RuntimeException e) {
+            } catch (Exception e) {
                 LOG.debug("Cannot read the database product name, spans use db.system.name {}", OTHER_SQL, e);
             }
             // A failed read is not tried again, so a broken connection costs one attempt for each Jdbi, not for each statement.
