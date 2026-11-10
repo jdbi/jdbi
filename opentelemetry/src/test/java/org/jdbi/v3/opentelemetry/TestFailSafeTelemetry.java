@@ -185,6 +185,30 @@ public class TestFailSafeTelemetry {
                 tuple("h2database", null));
     }
 
+    @Test
+    void sampledOutSpanDescribesNoArguments() {
+        ext.getJdbi().getConfig(SqlStatements.class).setIncludeBindingsInTelemetry(true);
+        ext.getJdbi().installPlugin(new JdbiOpenTelemetryPlugin(sdk(SimpleSpanProcessor.create(traces), Sampler.alwaysOff())));
+        final CountingBean bean = new CountingBean();
+
+        try (Handle handle = ext.getJdbi().open()) {
+            assertThat(handle.createQuery("select cast(:name as varchar)").bindBean(bean).mapTo(String.class).one())
+                .isEqualTo("Alice");
+        }
+
+        assertThat(bean.reads).hasValue(1);
+        assertThat(traces.getExported()).isEmpty();
+    }
+
+    public static final class CountingBean {
+        private final AtomicInteger reads = new AtomicInteger();
+
+        public String getName() {
+            reads.incrementAndGet();
+            return "Alice";
+        }
+    }
+
     private static List<Integer> selectTwice(final Jdbi jdbi) {
         try (Handle handle = jdbi.open()) {
             return List.of(

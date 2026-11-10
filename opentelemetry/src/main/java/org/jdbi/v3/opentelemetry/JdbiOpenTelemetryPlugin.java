@@ -237,6 +237,9 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
         }
 
         private void recordAttributes(final StatementContext ctx, final Span span, final String system) {
+            if (!span.isRecording()) {
+                return;
+            }
             recordFailure(span, system, ctx.getFailure());
             final var stmtConfig = ctx.getConfig(SqlStatements.class);
             final String renderedSql = ctx.getRenderedSql();
