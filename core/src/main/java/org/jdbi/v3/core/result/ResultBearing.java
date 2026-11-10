@@ -235,10 +235,13 @@ public interface ResultBearing {
 
             C container = rowReducer.container();
             long rows = 0;
-            while (resultSet.next()) {
-                rows++;
+            try {
+                while (resultSet.next()) {
+                    rows++;
+                    rowReducer.accumulate(container, rowView);
+                }
+            } finally {
                 ctx.setMappedRows(rows);
-                rowReducer.accumulate(container, rowView);
             }
             return rowReducer.stream(container).onClose(ctx::close);
         }));
@@ -275,10 +278,13 @@ public interface ResultBearing {
 
             U result = seed;
             long rows = 0;
-            while (resultSet.next()) {
-                rows++;
+            try {
+                while (resultSet.next()) {
+                    rows++;
+                    result = accumulator.apply(result, rowView);
+                }
+            } finally {
                 ctx.setMappedRows(rows);
-                result = accumulator.apply(result, rowView);
             }
             return result;
         }));
@@ -299,10 +305,13 @@ public interface ResultBearing {
 
             U result = seed;
             long rows = 0;
-            while (resultSet.next()) {
-                rows++;
+            try {
+                while (resultSet.next()) {
+                    rows++;
+                    result = accumulator.apply(result, resultSet, ctx);
+                }
+            } finally {
                 ctx.setMappedRows(rows);
-                result = accumulator.apply(result, resultSet, ctx);
             }
             return result;
         }));
@@ -328,10 +337,13 @@ public interface ResultBearing {
 
             BiConsumer<A, RowView> consumer = collector.accumulator();
             long rows = 0;
-            while (resultSet.next()) {
-                rows++;
+            try {
+                while (resultSet.next()) {
+                    rows++;
+                    consumer.accept(accumulator, rowView);
+                }
+            } finally {
                 ctx.setMappedRows(rows);
-                consumer.accept(accumulator, rowView);
             }
 
             return collector.finisher().apply(accumulator);

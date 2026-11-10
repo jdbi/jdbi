@@ -168,6 +168,26 @@ public class TestStatementFailure {
     }
 
     @Test
+    public void reduceRowsCountsRowsBeforeFailure() {
+        final List<Long> rowsAtClose = new ArrayList<>();
+        h.getConfig(SqlStatements.class).addContextListener(new StatementContextListener() {
+            @Override
+            public void contextCreated(final StatementContext ctx) {
+                ctx.addCleanable(() -> rowsAtClose.add(ctx.getMappedRows()));
+            }
+        });
+
+        assertThatThrownBy(() -> h.createQuery(SELECT).reduceRows(0, (count, rowView) -> {
+            if (count == 1) {
+                throw boom;
+            }
+            return count + 1;
+        })).isSameAs(boom);
+
+        assertThat(rowsAtClose).containsExactly(2L);
+    }
+
+    @Test
     public void metaDataValueProviderThrows() {
         final SQLException failure = new SQLException("no metadata");
 
