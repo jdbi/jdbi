@@ -37,13 +37,19 @@ public interface ResultSetScanner<T> {
      * <p>
      * Implementors that call {@code resultSetSupplier.get()} must ensure that the statement context is closed when the
      * {@link ResultSetScanner#scanResultSet(Supplier, StatementContext)} method exits. Otherwise, database resource may not be freed.
+     * If the scan fails, they must call {@link StatementContext#recordFailure(Exception)} before the context closes,
+     * because the context cleanables, such as a trace span, read the failure when the context closes.
      *
      * <pre>
-     * public T scanResultSet(Supplier&lt;ResultSet&gt; resultSetSupplier, StatementContext ctx) {
-     *     ...
+     * public T scanResultSet(Supplier&lt;ResultSet&gt; resultSetSupplier, StatementContext ctx) throws SQLException {
      *     try (StatementContext context = ctx) {
-     *         ResultSet resultSet = resultSetSupplier.get();
-     *         // generate and return result from the result set.
+     *         try {
+     *             ResultSet resultSet = resultSetSupplier.get();
+     *             // generate and return result from the result set.
+     *         } catch (Exception e) {
+     *             context.recordFailure(e);
+     *             throw e;
+     *         }
      *     }
      * }
      * </pre>

@@ -6724,16 +6724,61 @@ Jdbi provides support for collecting telemetry about executed database statement
 === JDK Flight Recorder
 
 The link:https://en.wikipedia.org/wiki/JDK_Flight_Recorder[JDK Flight Recorder^] provides a lightweight event recorder mechanism suitable to enable in production.
-When active, Jdbi will record a `jdbi.statement` event for every statement executed, indicating the timestamp, duration, executed sql, and parameters.
+When active, Jdbi will record a `jdbi.statement` event for every statement executed, indicating the timestamp, duration, executed sql, and number of mapped rows.
 
 Configuration to limit large amounts of data recorded is available on the `SqlStatements` configuration class.
+
+[#telemetry-bindings]
+=== Bound values
+
+Bound values often contain personal data or secrets.
+By default, JFR events and OpenTelemetry spans do not record them.
+To record them, set `includeBindingsInTelemetry`:
+
+[source,java,indent=0]
+----
+jdbi.getConfig(SqlStatements.class).setIncludeBindingsInTelemetry(true);
+----
+
+The SQL text is always recorded.
+Values that `@Define` or `define()` adds to the SQL text are part of the SQL text, and telemetry records them even when bound values are excluded.
+
+With this setting off, JFR events and OpenTelemetry spans do not hold bound values.
+The spans never record an exception message.
+
+Exception messages are separate, and this setting does not change them.
+By default, the message of a `StatementException` contains the bound values, so they can go to logs and to error trackers.
+The message rendering `MessageRendering.NONE` of `StatementExceptions` removes the statement details that Jdbi adds, but it does not keep all values out of exception messages:
+
+* The message still includes the message of the cause. A driver message can hold values. For example, the PostgreSQL JDBC driver adds the server `Detail`, which can show row values, unless the connection sets `logServerErrorDetail=false`.
+* A statement that misses a named or positional parameter fails with a message that contains the binding.
 
 === OpenTelemetry Tracing
 
 The link:https://opentelemetry.io/[OpenTelemetry^] project provides a SDK to implement distributed tracing.
 Installing the link:{jdbidocs}/opentelemetry/JdbiOpenTelemetryPlugin.html[JdbiOpenTelemetryPlugin^]
-from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans recording data similarly as JFR events above.
+from the `jdbi3-opentelemetry` artifact will cause Jdbi statements to emit trace spans.
 Additionally, it will add the trace id to JFR events.
+
+The spans follow the link:https://opentelemetry.io/docs/specs/semconv/db/database-spans/[database client span semantic conventions^], so trace backends show them as database calls:
+
+* The span kind is `CLIENT`.
+* `db.system.name` identifies the database, from `DatabaseMetaData.getDatabaseProductName()`. Jdbi reads it before the span starts, so samplers can see it, and keeps the first successful read for each `Jdbi` instance. A known product has its well-known value, for example `postgresql` or `h2database`. For another product, the value is the product name in lowercase. If the metadata or the product name is null, the product name is blank, or the read fails, the span of that statement has the value `other_sql`, and the next statement reads the product name again.
+* `db.query.text` is the rendered SQL, with the named parameter placeholders.
+* `db.response.returned_rows` is the number of mapped rows of a query, or of a statement that returns generated keys. The semantic conventions make this attribute opt-in, so spans have it only when `OpenTelemetryConfig` enables it:
++
+[source,java,indent=0]
+----
+jdbi.getConfig(OpenTelemetryConfig.class).setIncludeReturnedRows(true);
+----
+* A statement from a SQL Object method has the `db.query.summary` `Type.method`, for example `UserDao.findById`. This summary is also the span name. Other spans have the `db.system.name` as their name.
+* When the statement fails, in its execution or in the reading or mapping of its results, the span status is `ERROR`. An exception from a callback that the caller gives to `collectRows`, `reduceRows`, `reduceResultSet`, or `scanResultSet` also marks the span, unless a custom `ResultSetScanner` closes the context before it records the failure. An exception from other code of the caller does not mark the span, for example from the code in `ResultIterable.forEach`, `collect`, `reduce`, `map`, `filter`, a stream operation, `useIterator`, `withIterator`, or `Call.invoke(Function)` or `invoke(Consumer)`. The checks of the result shape after mapping, for example `ResultIterable.one()` or `ResultIterable.collectInto(Optional)` on two rows, do not mark the span either. If a `SQLException` caused the failure, `db.response.status_code` is its vendor error code for MySQL, MariaDB, Microsoft SQL Server, and Oracle (as `ORA-nnnnn`), and its SQLSTATE for other databases. `error.type` is the status code if there is one, else the exception class name. A `SqlExceptionHandler` that replaces the exception does not change these values. The span does not record the exception message, because a message can contain row data.
+* When <<telemetry-bindings,bound values>> are included, the argument of each parameter of the SQL is a `db.query.parameter.<key>` attribute, so the keys match the placeholders in `db.query.text`. The key is the parameter name, or the 0-based position of a positional parameter. Arguments from `bindBean`, `bindMap`, and other argument finders are included. The span asks the argument finders again when it ends, so a bean getter runs again, and a recorded value can differ from the value that Jdbi sent to the database. A span that the sampler drops records no attributes and does not ask the argument finders again. Arguments that the SQL does not use and the arguments of batches are not recorded.
+
+Jdbi does not parse SQL, so the spans do not have `db.operation.name` or `db.collection.name`.
+
+An exception in telemetry does not fail a statement. If the database metadata or OpenTelemetry throws an exception, the plugin logs it at debug level, and the statement continues without that span or attribute.
+With the no-op OpenTelemetry, for example when no SDK sets `GlobalOpenTelemetry`, the plugin does not register a listener, so statements do no tracing work.
 
 == Third-Party Integration
 
@@ -10268,16 +10313,20 @@ An example alternate use is to just return the number of rows modified, as in an
 ----
 public static ResultProducer<Integer> returningUpdateCount() {
     return (statementSupplier, ctx) -> {
-        try {
-            return statementSupplier.get().getUpdateCount();
-        } finally {
-            ctx.close();
+        try (StatementContext context = ctx) {
+            try {
+                return statementSupplier.get().getUpdateCount();
+            } catch (Exception e) {
+                context.recordFailure(e);
+                throw e;
+            }
         }
     };
 }
 ----
 
 If you acquire the lazy statement, you are responsible for ensuring that the context is closed eventually to release database resources.
+If the production of the result fails, record the failure with `StatementContext.recordFailure()` before the context closes, so that telemetry such as a trace span sees it.
 
 Most users will not need to implement the *ResultProducer* interface.
 

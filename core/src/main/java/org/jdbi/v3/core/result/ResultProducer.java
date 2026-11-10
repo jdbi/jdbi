@@ -31,14 +31,20 @@ public interface ResultProducer<R> {
      * {@code statementSupplier.get()} is invoked.
      * <p>
      * Implementors that call {@code statementSupplier.get()} must ensure that the statement context is closed before
-     * returning, to ensure that database resources are freed:
+     * returning, to ensure that database resources are freed.
+     * If the production of the result fails, they must call {@link StatementContext#recordFailure(Exception)} before the
+     * context closes, because the context cleanables, such as a trace span, read the failure when the context closes:
      *
      * <pre>
-     * public R produce(Supplier&lt;PreparedStatement&gt; statementSupplier, StatementContext context) {
-     *     ...
+     * public R produce(Supplier&lt;PreparedStatement&gt; statementSupplier, StatementContext ctx) throws SQLException {
      *     try (StatementContext context = ctx) {
-     *         PreparedStatement statement = statementSupplier.get()
-     *         // generate and return result from the statement
+     *         try {
+     *             PreparedStatement statement = statementSupplier.get();
+     *             // generate and return result from the statement
+     *         } catch (Exception e) {
+     *             context.recordFailure(e);
+     *             throw e;
+     *         }
      *     }
      * }
      * </pre>
@@ -48,7 +54,7 @@ public interface ResultProducer<R> {
      * resources falls to whichever object ultimately calls {@code statementSupplier.get()}.
      *
      * <pre>
-     * public R produce(Supplier&lt;PreparedStatement&gt; statementSupplier, StatementContext context) {
+     * public R produce(Supplier&lt;PreparedStatement&gt; statementSupplier, StatementContext ctx) {
      *     ...
      *     // the implementation of SomeOtherClass.createResponse which may call statementSupplier.get()
      *     // is now responsible to close the StatementContext.

@@ -50,14 +50,28 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
             this.resultSetSupplier = ResultSetSupplier.closingContext(resultSetSupplier, context);
         }
 
-        this.resultSet = this.resultSetSupplier.get();
+        try {
+            this.resultSet = this.resultSetSupplier.get();
+            if (resultSet != null) {
+                context.addCleanable(resultSet::close);
+                this.rowMapper = rowMapper.specialize(resultSet, context);
+            } else {
+                this.rowMapper = null;
+            }
+        } catch (Exception e) {
+            // The caller gets no iterator to close, so close here.
+            // Record the failure first, because the context runs its cleanables, such as a trace span, on close.
+            context.recordFailure(e);
+            try {
+                close();
+            } catch (Exception closeFailure) {
+                e.addSuppressed(closeFailure);
+            }
+            throw e;
+        }
 
-        if (resultSet != null) {
-            context.addCleanable(resultSet::close);
-            this.rowMapper = rowMapper.specialize(resultSet, context);
-        } else {
+        if (resultSet == null) {
             close();
-            this.rowMapper = null;
         }
     }
 
@@ -105,7 +119,11 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
         try {
             return rowMapper.map(resultSet, context);
         } catch (SQLException e) {
+            context.recordFailure(e);
             throw new ResultSetException("Exception thrown mapping result set into return type", e, context);
+        } catch (Exception e) {
+            context.recordFailure(e);
+            throw e;
         } finally {
             alreadyAdvanced = safeNext();
             if (!alreadyAdvanced) {
@@ -128,6 +146,7 @@ class ResultSetResultIterator<T> implements ResultIterator<T> {
         try {
             return resultSet.next();
         } catch (SQLException e) {
+            context.recordFailure(e);
             throw new ResultSetException("Unable to advance result set", e, context);
         }
     }

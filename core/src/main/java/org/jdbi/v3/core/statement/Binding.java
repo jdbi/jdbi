@@ -29,6 +29,7 @@ import org.jdbi.v3.core.argument.NamedArgumentFinder;
 import org.jdbi.v3.core.argument.internal.TypedValue;
 import org.jdbi.v3.core.qualifier.QualifiedType;
 import org.jdbi.v3.core.statement.ArgumentBinder.ArgumentFactoryLocator;
+import org.jdbi.v3.meta.Alpha;
 
 import static org.jdbi.v3.core.statement.ArgumentBinder.unwrap;
 /**
@@ -38,9 +39,11 @@ public class Binding {
     protected final Map<Integer, Object> positionals = new TreeMap<>();
     protected final Map<String, Object> named = new LinkedHashMap<>();
     protected final List<NamedArgumentFinder> namedArgumentFinder = new ArrayList<>();
+    private final StatementContext ctx;
     private final ArgumentFactoryLocator locator;
 
     protected Binding(StatementContext ctx) {
+        this.ctx = ctx;
         this.locator = new ArgumentFactoryLocator(ctx);
     }
 
@@ -177,7 +180,7 @@ public class Binding {
                 firstElem = false;
                 buf.append(e.getKey())
                     .append(':')
-                    .append(unwrap(e.getValue()));
+                    .append(describeValue(unwrap(e.getValue())));
                 if (buf.length() > maxLength) {
                     break;
                 }
@@ -198,7 +201,7 @@ public class Binding {
                 firstElem = false;
                 buf.append(e.getKey())
                     .append(':')
-                    .append(unwrap(e.getValue()));
+                    .append(describeValue(unwrap(e.getValue())));
                 if (buf.length() > maxLength) {
                     break;
                 }
@@ -216,7 +219,7 @@ public class Binding {
                     buf.append(',');
                 }
                 firstElem = false;
-                buf.append(naf);
+                buf.append(describeValue(naf));
                 if (buf.length() > maxLength) {
                     break;
                 }
@@ -228,6 +231,78 @@ public class Binding {
             buf.append('…');
         }
         return buf + "}";
+    }
+
+    /**
+     * Describe the argument of each parameter in the parsed SQL of the statement as a string, for telemetry.
+     * The key of a positional parameter is its 0-based position, and the key of a named parameter is its name.
+     * A named parameter takes its argument from the named arguments, then from the {@link NamedArgumentFinder}s,
+     * as the statement binds it. This method asks the argument finders again, so a bean getter runs again,
+     * and a description can differ from the argument that the statement bound.
+     * Arguments that the SQL does not use are not included.
+     *
+     * @param maxLength The maximum length of each description
+     * @return the argument descriptions in parameter order, or an empty map if the statement has no parsed SQL
+     */
+    @Alpha
+    public Map<String, String> describeArguments(final int maxLength) {
+        final ParsedSql parsedSql = ctx.getParsedSql();
+        if (parsedSql == null) {
+            return Collections.emptyMap();
+        }
+        final ParsedParameters parameters = parsedSql.getParameters();
+        final Map<String, String> result = new LinkedHashMap<>();
+        if (parameters.isPositional()) {
+            for (int position = 0; position < parameters.getParameterCount(); position++) {
+                if (positionals.containsKey(position)) {
+                    result.put(String.valueOf(position), truncate(unwrap(positionals.get(position)), maxLength));
+                }
+            }
+        } else {
+            for (final String name : parameters.getParameterNames()) {
+                if (result.containsKey(name)) {
+                    continue;
+                }
+                if (named.containsKey(name)) {
+                    result.put(name, truncate(unwrap(named.get(name)), maxLength));
+                } else {
+                    findArgument(name).ifPresent(argument -> result.put(name, truncate(argument, maxLength)));
+                }
+            }
+        }
+        return result;
+    }
+
+    private Optional<Argument> findArgument(final String name) {
+        for (final NamedArgumentFinder finder : namedArgumentFinder) {
+            try {
+                final Optional<Argument> found = finder.find(name, ctx);
+                if (found.isPresent()) {
+                    return found;
+                }
+            } catch (Exception e) {
+                // A description is for telemetry, so a finder that throws must not fail the statement or its close.
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static String truncate(final Object value, final int maxLength) {
+        final String description = describeValue(value);
+        if (description.length() <= maxLength) {
+            return description;
+        }
+        return description.substring(0, Math.max(0, maxLength - 1)) + '…';
+    }
+
+    // Descriptions go to logs, exception messages, and telemetry, so a failing toString() must not fail the statement.
+    private static String describeValue(final Object value) {
+        try {
+            return String.valueOf(value);
+        } catch (Exception e) {
+            return "<" + value.getClass().getName() + ".toString() threw " + e.getClass().getName() + ">";
+        }
     }
 
     /**

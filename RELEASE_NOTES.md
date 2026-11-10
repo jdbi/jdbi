@@ -1,5 +1,43 @@
 # Unreleased
 
+- **Breaking change**: JFR events and OpenTelemetry spans no longer record bound values by default, because they often
+  contain personal data or secrets. To restore them, call `SqlStatements.setIncludeBindingsInTelemetry(true)`.
+- **Breaking change**: `JdbiOpenTelemetryPlugin` spans now follow the OpenTelemetry database client span semantic
+  conventions. No setting restores the old span names or attributes. Update dashboards, queries, and alerts that use
+  the old names:
+  - The span kind is `CLIENT`, not `INTERNAL`.
+  - The span name is the SQL Object `Type.method` or the `db.system.name` (for example `postgresql`), not
+    `jdbi.<StatementType>`.
+  - `sql` is now `db.query.text`.
+  - `binding` is now one `db.query.parameter.<key>` attribute for each parameter of the SQL. The key is the parameter
+    name, or the 0-based position of a positional parameter. Batches do not have these attributes. The span asks the
+    argument finders again when it ends, so a recorded value can differ from the value that Jdbi sent to the database.
+  - `rows` is now `db.response.returned_rows`. The semantic conventions make this attribute opt-in, so spans have it
+    only when `OpenTelemetryConfig.setIncludeReturnedRows(true)` enables it, and only for queries and statements that
+    return generated keys.
+  - New attributes: `db.system.name` (the well-known value of a known database, the product name in lowercase for
+    another database, or `other_sql` if the product name is null, blank, or cannot be read), `db.query.summary`,
+    and, for a failed statement, `error.type` and `db.response.status_code` (the vendor error code or the SQLSTATE).
+    A statement that fails, in its execution or in the reading or mapping of its results, also sets the span status
+    to `ERROR`, as does an exception from a callback that the caller gives to `collectRows`, `reduceRows`,
+    `reduceResultSet`, or `scanResultSet`, unless a custom `ResultSetScanner` closes the context before it records
+    the failure. An exception from other code of the caller does not set it, for example from the code in
+    `ResultIterable.forEach`, `collect`, `reduce`, `map`, `filter`, a stream operation, `useIterator`, `withIterator`,
+    or `Call.invoke(Function)` or `invoke(Consumer)`. The checks of the result shape after mapping, for example
+    `ResultIterable.one()` or `ResultIterable.collectInto(Optional)` on two rows, do not set it either.
+  - The `SQL`, `BINDING`, and `NUM_ROWS` constants are deprecated, and no span sets these attributes any more.
+- Add `Binding.describeArguments` (alpha) to get a description of the argument of each parameter of the SQL.
+- Add `OpenTelemetryConfig` (alpha) to configure the spans of `JdbiOpenTelemetryPlugin`.
+- Add `StatementContext.getFailure` and `StatementContext.recordFailure` (alpha) to get and record the first exception
+  that failed a statement, in its execution or in the reading or mapping of its results. A custom `ResultSetScanner`
+  or `ResultProducer` that closes the context must record its failure first, so that the span gets the `ERROR` status.
+- A statement whose SQL template fails to render or parse is now closed, as for other execution failures. A
+  `PreparedBatch` keeps its added bindings, as before, so it can run them after a fix such as `define`.
+- An exception from the database metadata or from OpenTelemetry no longer fails the statement. `JdbiOpenTelemetryPlugin`
+  logs it at debug level. With the no-op OpenTelemetry, the plugin does nothing.
+- A bound value whose `toString()` throws no longer fails the statement when JFR, OpenTelemetry, or an exception
+  message describes it. The description shows a placeholder for that value.
+
 # 3.55.0
 
 - Bind and map types that are not public: a package-private bean class with public accessors, a non-public

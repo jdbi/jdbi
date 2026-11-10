@@ -80,9 +80,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
         this.sql = sql.toString();
 
-        getContext()
-            .setConnection(handle.getConnection())
-            .setRawSql(this.sql);
+        getContext().setRawSql(this.sql);
     }
 
     protected Binding getBinding() {
@@ -1801,12 +1799,12 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
         final OptionalEvent evt = JfrSupport.newStatementEvent();
         evt.begin();
 
-        beforeTemplating();
-
-        ParsedSql parsedSql = parseSql();
-
         final SqlStatements stmtConfig = getConfig(SqlStatements.class);
         try {
+            beforeTemplating();
+
+            final ParsedSql parsedSql = parseSql();
+
             try {
                 stmt = createStatement(parsedSql.getSql());
                 // The statement builder might (or might not) clean up the statement when called. E.g. the
@@ -1837,6 +1835,7 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
 
             return stmt;
         } catch (Exception e) {
+            ctx.recordFailure(e);
             try {
                 close();
             } catch (Exception e1) {
@@ -1911,7 +1910,9 @@ public abstract class SqlStatement<This extends SqlStatement<This>> extends Base
                         evt.sql = renderedSql.substring(0,
                                 Math.min(renderedSql.length(), stmtConfig.getJfrSqlMaxLength()));
                     }
-                    evt.parameters = getBinding().describe(stmtConfig.getJfrParamMaxLength());
+                    if (stmtConfig.getIncludeBindingsInTelemetry()) {
+                        evt.parameters = getBinding().describe(stmtConfig.getJfrParamMaxLength());
+                    }
                     ctx.addCleanable(() -> {
                         evt.rowsMapped = ctx.getMappedRows();
                         evt.commit();

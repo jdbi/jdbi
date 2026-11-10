@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -225,6 +226,24 @@ public class TestPreparedBatch {
         final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
         assertThat(r).extracting(Something::getId, Something::getName)
                 .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"), tuple(3, "Keith"));
+    }
+
+    @Test
+    public void testTemplateFailureKeepsBindings() {
+        Handle h = h2Extension.getSharedHandle();
+
+        final PreparedBatch b = h.prepareBatch("insert into <table> (id, name) values (:id, :name)");
+
+        b.bind("id", 1).bind("name", "Eric").add();
+        b.bind("id", 2).bind("name", "Brian").add();
+        assertThatThrownBy(b::execute).isInstanceOf(UnableToCreateStatementException.class);
+        assertThat(b.size()).isEqualTo(2);
+
+        assertThat(b.define("table", "something").execute()).containsExactly(1, 1);
+
+        final List<Something> r = h.createQuery("select * from something order by id").mapToBean(Something.class).list();
+        assertThat(r).extracting(Something::getId, Something::getName)
+                .containsExactly(tuple(1, "Eric"), tuple(2, "Brian"));
     }
 
     @Test

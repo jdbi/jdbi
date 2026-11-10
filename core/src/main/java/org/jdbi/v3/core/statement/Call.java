@@ -307,7 +307,11 @@ public class Call extends SqlStatement<Call> {
                         return stmt.getObject(position);
                 }
             } catch (SQLException e) {
+                getContext().recordFailure(e);
                 throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
+            } catch (Exception e) {
+                getContext().recordFailure(e);
+                throw e;
             }
         }
 
@@ -315,7 +319,11 @@ public class Call extends SqlStatement<Call> {
             try {
                 return stmt.wasNull();
             } catch (SQLException e) {
+                getContext().recordFailure(e);
                 throw new UnableToExecuteStatementException("Could not get OUT parameter from statement", e, getContext());
+            } catch (Exception e) {
+                getContext().recordFailure(e);
+                throw e;
             }
         }
     }

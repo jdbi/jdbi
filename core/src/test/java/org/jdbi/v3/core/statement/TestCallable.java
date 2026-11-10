@@ -13,6 +13,7 @@
  */
 package org.jdbi.v3.core.statement;
 
+import java.sql.SQLException;
 import java.sql.Types;
 
 import de.softwareforge.testing.postgres.junit5.RequirePostgresVersion;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RequirePostgresVersion(atLeast = "14")
 public class TestCallable {
@@ -237,6 +239,41 @@ public class TestCallable {
                 .invoke();
 
             assertThat((Object) ret.getInt("v")).isNull();
+        }
+    }
+
+    @Test
+    public void testOutParameterReadFailure() {
+        final SQLException failure = new SQLException("cannot read");
+
+        try (Call call = h.createCall("CALL TO_DEGREES(?, ?)")) {
+            CallableStatementMapper failing = (position, stmt) -> {
+                throw failure;
+            };
+            OutParameters ret = call.registerOutParameter(0, Types.DOUBLE, failing)
+                .bind(1, 100.0d)
+                .invoke();
+
+            assertThatExceptionOfType(UnableToExecuteStatementException.class).isThrownBy(() -> ret.getDouble(0))
+                .withCause(failure);
+            assertThat(call.getContext().getFailure()).isSameAs(failure);
+        }
+    }
+
+    @Test
+    public void testOutParameterMapperThrows() {
+        final IllegalStateException failure = new IllegalStateException("cannot map");
+
+        try (Call call = h.createCall("CALL TO_DEGREES(?, ?)")) {
+            CallableStatementMapper failing = (position, stmt) -> {
+                throw failure;
+            };
+            OutParameters ret = call.registerOutParameter(0, Types.DOUBLE, failing)
+                .bind(1, 100.0d)
+                .invoke();
+
+            assertThatThrownBy(() -> ret.getDouble(0)).isSameAs(failure);
+            assertThat(call.getContext().getFailure()).isSameAs(failure);
         }
     }
 }

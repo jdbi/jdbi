@@ -80,6 +80,9 @@ public class Update extends SqlStatement<Update> {
         } catch (SQLException e) {
             cleanUpForException(e);
             throw new UnableToProduceResultException("Could not produce statement result", e, getContext());
+        } catch (Exception e) {
+            getContext().recordFailure(e);
+            throw e;
         }
     }
 

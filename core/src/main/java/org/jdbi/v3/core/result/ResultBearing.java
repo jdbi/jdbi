@@ -58,7 +58,11 @@ public interface ResultBearing {
                 try {
                     return resultSetScanner.scanResultSet(resultSetSupplier, ctx);
                 } catch (SQLException e) {
+                    ctx.recordFailure(e);
                     throw new ResultSetException("Error reading result set", e, ctx);
+                } catch (Exception e) {
+                    ctx.recordFailure(e);
+                    throw e;
                 }
             }
         };
@@ -225,20 +229,22 @@ public interface ResultBearing {
      * @see RowReducer
      */
     default <C, R> Stream<R> reduceRows(RowReducer<C, R> rowReducer) {
-        return scanResultSet((resultSetSupplier, context) -> {
-            try (StatementContext ctx = context) {
-                ResultSet resultSet = resultSetSupplier.get();
-                RowView rowView = new RowViewImpl(resultSet, ctx);
+        return scanResultSet(closingContext((resultSetSupplier, ctx) -> {
+            ResultSet resultSet = resultSetSupplier.get();
+            RowView rowView = new RowViewImpl(resultSet, ctx);
 
-                C container = rowReducer.container();
+            C container = rowReducer.container();
+            long rows = 0;
+            try {
                 while (resultSet.next()) {
+                    rows++;
                     rowReducer.accumulate(container, rowView);
                 }
-                return rowReducer.stream(container).onClose(ctx::close);
-            } catch (SQLException e) {
-                throw new UnableToProduceResultException(e, context);
+            } finally {
+                ctx.setMappedRows(rows);
             }
-        });
+            return rowReducer.stream(container).onClose(ctx::close);
+        }));
     }
 
     /**
@@ -266,20 +272,22 @@ public interface ResultBearing {
      * @return the final {@code U}
      */
     default <U> U reduceRows(U seed, BiFunction<U, RowView, U> accumulator) {
-        return scanResultSet((resultSetSupplier, context) -> {
-            try (StatementContext ctx = context) {
-                ResultSet resultSet = resultSetSupplier.get();
-                RowView rowView = new RowViewImpl(resultSet, ctx);
+        return scanResultSet(closingContext((resultSetSupplier, ctx) -> {
+            ResultSet resultSet = resultSetSupplier.get();
+            RowView rowView = new RowViewImpl(resultSet, ctx);
 
-                U result = seed;
+            U result = seed;
+            long rows = 0;
+            try {
                 while (resultSet.next()) {
+                    rows++;
                     result = accumulator.apply(result, rowView);
                 }
-                return result;
-            } catch (SQLException e) {
-                throw new UnableToProduceResultException(e, context);
+            } finally {
+                ctx.setMappedRows(rows);
             }
-        });
+            return result;
+        }));
     }
 
     /**
@@ -292,19 +300,21 @@ public interface ResultBearing {
      * @return the final {@code U}
      */
     default <U> U reduceResultSet(U seed, ResultSetAccumulator<U> accumulator) {
-        return scanResultSet((resultSetSupplier, context) -> {
-            try (StatementContext ctx = context) {
-                ResultSet resultSet = resultSetSupplier.get();
+        return scanResultSet(closingContext((resultSetSupplier, ctx) -> {
+            ResultSet resultSet = resultSetSupplier.get();
 
-                U result = seed;
+            U result = seed;
+            long rows = 0;
+            try {
                 while (resultSet.next()) {
+                    rows++;
                     result = accumulator.apply(result, resultSet, ctx);
                 }
-                return result;
-            } catch (SQLException e) {
-                throw new UnableToProduceResultException(e, context);
+            } finally {
+                ctx.setMappedRows(rows);
             }
-        });
+            return result;
+        }));
     }
 
     /**
@@ -319,23 +329,25 @@ public interface ResultBearing {
      * @return the result of the collection
      */
     default <A, R> R collectRows(Collector<RowView, A, R> collector) {
-        return scanResultSet((resultSetSupplier, context) -> {
-            try (StatementContext ctx = context) {
-                ResultSet resultSet = resultSetSupplier.get();
-                RowView rowView = new RowViewImpl(resultSet, ctx);
+        return scanResultSet(closingContext((resultSetSupplier, ctx) -> {
+            ResultSet resultSet = resultSetSupplier.get();
+            RowView rowView = new RowViewImpl(resultSet, ctx);
 
-                A accumulator = collector.supplier().get();
+            A accumulator = collector.supplier().get();
 
-                BiConsumer<A, RowView> consumer = collector.accumulator();
+            BiConsumer<A, RowView> consumer = collector.accumulator();
+            long rows = 0;
+            try {
                 while (resultSet.next()) {
+                    rows++;
                     consumer.accept(accumulator, rowView);
                 }
-
-                return collector.finisher().apply(accumulator);
-            } catch (SQLException e) {
-                throw new UnableToProduceResultException(e, context);
+            } finally {
+                ctx.setMappedRows(rows);
             }
-        });
+
+            return collector.finisher().apply(accumulator);
+        }));
     }
 
     /**
@@ -402,5 +414,21 @@ public interface ResultBearing {
 
             return ResultIterable.of(resultSetSupplier, rowMapper, ctx).collect(collector);
         });
+    }
+
+    // The context must record the failure before it closes, because its cleanables, such as a trace span, run on close.
+    private static <R> ResultSetScanner<R> closingContext(final ResultSetScanner<R> scanner) {
+        return (resultSetSupplier, context) -> {
+            try (StatementContext ctx = context) {
+                try {
+                    return scanner.scanResultSet(resultSetSupplier, ctx);
+                } catch (Exception e) {
+                    ctx.recordFailure(e);
+                    throw e;
+                }
+            } catch (SQLException e) {
+                throw new UnableToProduceResultException(e, context);
+            }
+        };
     }
 }

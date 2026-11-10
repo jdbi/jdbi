@@ -46,7 +46,12 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
         return (statementSupplier, ctx) -> {
             // suppress exception if ctx.close method raises
             try (StatementContext unused = ctx) {
-                return statementSupplier.get().getUpdateCount();
+                try {
+                    return statementSupplier.get().getUpdateCount();
+                } catch (Exception e) {
+                    ctx.recordFailure(e);
+                    throw e;
+                }
             }
         };
     }
@@ -61,7 +66,12 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
         return (statementSupplier, ctx) -> {
             // suppress exception if ctx.close method raises
             try (StatementContext unused = ctx) {
-                return statementSupplier.get().getLargeUpdateCount();
+                try {
+                    return statementSupplier.get().getLargeUpdateCount();
+                } catch (Exception e) {
+                    ctx.recordFailure(e);
+                    throw e;
+                }
             }
         };
     }
@@ -113,13 +123,16 @@ public class ResultProducers implements JdbiConfig<ResultProducers> {
                     if (ctx.getConfig(ResultProducers.class).allowNoResults) {
                         return new EmptyResultSet();
                     }
-                    throw new NoResultsException("Statement returned no results", ctx);
+                    final NoResultsException noResults = new NoResultsException("Statement returned no results", ctx);
+                    ctx.recordFailure(noResults);
+                    throw noResults;
                 }
 
                 ctx.addCleanable(resultSet::close);
 
                 return resultSet;
             } catch (SQLException e) {
+                ctx.recordFailure(e);
                 throw new ResultSetException("Could not process result set", e, ctx);
             }
         }, ctx);

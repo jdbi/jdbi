@@ -46,7 +46,11 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
             Connection connection = getHandle().getConnection();
             return (R) metaDataFunction.provideValue(connection.getMetaData());
         } catch (SQLException e) {
+            getContext().recordFailure(e);
             throw new UnableToRetrieveMetaDataException(e, getContext());
+        } catch (Exception e) {
+            getContext().recordFailure(e);
+            throw e;
         }
     }
 
