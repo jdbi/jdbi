@@ -237,7 +237,8 @@ public class Binding {
      * Describe the argument of each parameter in the parsed SQL of the statement as a string, for telemetry.
      * The key of a positional parameter is its 0-based position, and the key of a named parameter is its name.
      * A named parameter takes its argument from the named arguments, then from the {@link NamedArgumentFinder}s,
-     * as the statement binds it. This method asks the argument finders again, so a bean getter runs again.
+     * as the statement binds it. This method asks the argument finders again, so a bean getter runs again,
+     * and a description can differ from the argument that the statement bound.
      * Arguments that the SQL does not use are not included.
      *
      * @param maxLength The maximum length of each description

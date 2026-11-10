@@ -10,13 +10,16 @@
     `jdbi.<StatementType>`.
   - `sql` is now `db.query.text`.
   - `binding` is now one `db.query.parameter.<key>` attribute for each parameter of the SQL. The key is the parameter
-    name, or the 0-based position of a positional parameter. Batches do not have these attributes.
+    name, or the 0-based position of a positional parameter. Batches do not have these attributes. The span asks the
+    argument finders again when it ends, so a recorded value can differ from the value that Jdbi sent to the database.
   - `rows` is now `db.response.returned_rows`. The semantic conventions make this attribute opt-in, so spans have it
     only when `OpenTelemetryConfig.setIncludeReturnedRows(true)` enables it, and only for queries and statements that
     return generated keys.
-  - New attributes: `db.system.name`, `db.query.summary`, and, for a failed statement, `error.type` and
-    `db.response.status_code` (the vendor error code or the SQLSTATE). A statement that fails, in its execution or
-    in the reading or mapping of its results, also sets the span status to `ERROR`.
+  - New attributes: `db.system.name` (the well-known value of a known database, the product name in lowercase for
+    another database, or `other_sql` if the product name is null, blank, or cannot be read), `db.query.summary`,
+    and, for a failed statement, `error.type` and `db.response.status_code` (the vendor error code or the SQLSTATE).
+    A statement that fails, in its execution or in the reading or mapping of its results, also sets the span status
+    to `ERROR`.
   - The `SQL`, `BINDING`, and `NUM_ROWS` constants are deprecated, and no span sets these attributes any more.
 - Add `Binding.describeArguments` (alpha) to get a description of the argument of each parameter of the SQL.
 - Add `OpenTelemetryConfig` (alpha) to configure the spans of `JdbiOpenTelemetryPlugin`.

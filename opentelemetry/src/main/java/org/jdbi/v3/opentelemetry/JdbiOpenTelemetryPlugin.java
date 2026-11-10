@@ -63,9 +63,11 @@ import org.slf4j.LoggerFactory;
  * Bound values are recorded only when {@link SqlStatements#setIncludeBindingsInTelemetry(boolean)} is set,
  * as one {@code db.query.parameter.<key>} attribute for each parameter of the SQL, and never for batches.
  * The key is the parameter name, or the 0-based position of a positional parameter.
+ * The span asks the argument finders again when it ends, so a recorded value can differ from the value that Jdbi sent
+ * to the database. A span that the sampler drops records no attributes and does not ask the argument finders again.
  * <p>
- * Telemetry never fails a statement: the plugin logs an exception from the database metadata or from OpenTelemetry
- * at debug level and continues without the span or the attribute.
+ * Telemetry never fails a statement because of an exception: the plugin logs an exception from the database metadata
+ * or from OpenTelemetry at debug level and continues without the span or the attribute.
  * With the no-op OpenTelemetry, for example when no SDK sets {@link GlobalOpenTelemetry}, the plugin does nothing.
  */
 public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
