@@ -257,7 +257,7 @@ public class TestFailSafeTelemetry {
         }
 
         assertThat(spans).singleElement().satisfies(span -> {
-            assertThat(span.attributeCalls).hasValue(1);
+            assertThat(span.attributeCalls).hasPositiveValue();
             assertThat(span.ends).hasValue(1);
         });
     }

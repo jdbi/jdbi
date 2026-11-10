@@ -21,6 +21,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.opentelemetry.api.trace.SpanKind;
@@ -189,6 +191,11 @@ public class TestTelemetry {
     @Test
     void resultSetFailure() throws ReflectiveOperationException {
         assertThat(run("resultSetFailure")).isNull();
+    }
+
+    @Test
+    void callerCodeFailure() throws ReflectiveOperationException {
+        assertThat(run("callerCodeFailure")).isNull();
     }
 
     @Test
@@ -580,6 +587,32 @@ public class TestTelemetry {
             assertThat(failed.getStatus().getStatusCode()).isEqualTo(StatusCode.ERROR);
             assertThat(failed.getAttributes().get(DB_RESPONSE_STATUS_CODE)).isEqualTo("42S22");
             assertThat(failed.getAttributes().get(ERROR_TYPE)).isEqualTo("42S22");
+        }
+
+        public void callerCodeFailure() {
+            final var boom = new IllegalStateException("boom");
+            final List<Consumer<Handle>> callerCode = List.of(
+                handle -> handle.createQuery(SELECT).mapToMap().forEach(row -> {
+                    throw boom;
+                }),
+                handle -> handle.createQuery("select 1 from something").mapTo(Integer.class)
+                    .collect(Collectors.toMap(Function.identity(), Function.identity())),
+                handle -> handle.createQuery(SELECT).mapToMap().one());
+
+            try (var handle = ext.openHandle()) {
+                handle.execute(CREATE);
+                insertSomething(handle, 1, "Zebra");
+                insertSomething(handle, 2, "Yak");
+                callerCode.forEach(code -> assertThatThrownBy(() -> code.accept(handle))
+                    .isInstanceOf(IllegalStateException.class));
+            }
+
+            final var spans = traces.getExported();
+            assertThat(spans).hasSize(3 + callerCode.size());
+            assertThat(spans.subList(3, spans.size())).allSatisfy(span -> {
+                assertThat(span.getStatus().getStatusCode()).isEqualTo(StatusCode.UNSET);
+                assertThat(span.getAttributes().get(ERROR_TYPE)).isNull();
+            });
         }
 
         public void unprintableArgument() {

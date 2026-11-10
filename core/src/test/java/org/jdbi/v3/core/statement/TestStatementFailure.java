@@ -46,15 +46,15 @@ public class TestStatementFailure {
     private final IllegalStateException boom = new IllegalStateException("boom");
     private final ParseException checkedBoom = new ParseException("boom", 0);
     private final List<Exception> failuresAtClose = new ArrayList<>();
-    private Handle h;
+    private Handle handle;
 
     @BeforeEach
     public void setUp() {
-        h = h2Extension.getSharedHandle();
-        h.execute("insert into something (id, name) values (1, 'Zebra'), (2, 'Bananas')");
+        handle = h2Extension.getSharedHandle();
+        handle.execute("insert into something (id, name) values (1, 'Zebra'), (2, 'Bananas')");
         // A cleanable added at creation runs when the context closes, as the cleanable of a trace span does.
         // The tests do not close their statements, so that only Jdbi can close the contexts.
-        h.getConfig(SqlStatements.class).addContextListener(new StatementContextListener() {
+        handle.getConfig(SqlStatements.class).addContextListener(new StatementContextListener() {
             @Override
             public void contextCreated(final StatementContext ctx) {
                 ctx.addCleanable(() -> failuresAtClose.add(ctx.getFailure()));
@@ -64,14 +64,14 @@ public class TestStatementFailure {
 
     @Test
     public void success() {
-        assertThat(h.createQuery(SELECT).map((rs, ctx) -> rs.getString("name")).list()).containsExactly("Zebra", "Bananas");
+        assertThat(handle.createQuery(SELECT).map((rs, ctx) -> rs.getString("name")).list()).containsExactly("Zebra", "Bananas");
 
         assertThat(failuresAtClose).containsExactly((Exception) null);
     }
 
     @Test
     public void mapperThrowsSqlException() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).map((rs, ctx) -> rs.getString("missing")).list())
+        assertThatThrownBy(() -> handle.createQuery(SELECT).map((rs, ctx) -> rs.getString("missing")).list())
             .isInstanceOf(ResultSetException.class)
             .satisfies(e -> assertThat(failuresAtClose).singleElement().isSameAs(e.getCause()))
             .cause().isInstanceOf(SQLException.class);
@@ -79,7 +79,7 @@ public class TestStatementFailure {
 
     @Test
     public void mapperThrowsOnLastRow() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).map((rs, ctx) -> {
+        assertThatThrownBy(() -> handle.createQuery(SELECT).map((rs, ctx) -> {
             if (rs.getInt("id") == 2) {
                 throw boom;
             }
@@ -91,7 +91,7 @@ public class TestStatementFailure {
 
     @Test
     public void mapperThrowsBeforeLastRow() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).map((rs, ctx) -> {
+        assertThatThrownBy(() -> handle.createQuery(SELECT).map((rs, ctx) -> {
             throw boom;
         }).list()).isSameAs(boom);
 
@@ -100,7 +100,7 @@ public class TestStatementFailure {
 
     @Test
     public void noResults() {
-        assertThatThrownBy(() -> h.createQuery("commit").mapTo(Integer.class).findFirst())
+        assertThatThrownBy(() -> handle.createQuery("commit").mapTo(Integer.class).findFirst())
             .isInstanceOf(NoResultsException.class)
             .satisfies(e -> assertThat(failuresAtClose).containsExactly((Exception) e));
     }
@@ -119,7 +119,7 @@ public class TestStatementFailure {
             }
         };
 
-        assertThatThrownBy(() -> h.createQuery(SELECT).map(mapper).one()).isSameAs(boom);
+        assertThatThrownBy(() -> handle.createQuery(SELECT).map(mapper).one()).isSameAs(boom);
 
         assertThat(failuresAtClose).containsExactly(boom);
     }
@@ -138,28 +138,28 @@ public class TestStatementFailure {
             }
         };
 
-        assertThatThrownBy(() -> h.createQuery(SELECT).map(mapper).one()).isSameAs(checkedBoom);
+        assertThatThrownBy(() -> handle.createQuery(SELECT).map(mapper).one()).isSameAs(checkedBoom);
 
         assertThat(failuresAtClose).containsExactly(checkedBoom);
     }
 
     @Test
     public void constructorMapperWithoutColumn() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).map(ConstructorMapper.of(MissingColumn.class)).list())
+        assertThatThrownBy(() -> handle.createQuery(SELECT).map(ConstructorMapper.of(MissingColumn.class)).list())
             .isInstanceOf(IllegalArgumentException.class)
             .satisfies(e -> assertThat(failuresAtClose).containsExactly((Exception) e));
     }
 
     @Test
     public void constructorThrowsCheckedException() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).map(ConstructorMapper.of(Unparseable.class)).list())
+        assertThatThrownBy(() -> handle.createQuery(SELECT).map(ConstructorMapper.of(Unparseable.class)).list())
             .isInstanceOf(ParseException.class)
             .satisfies(e -> assertThat(failuresAtClose).containsExactly((Exception) e));
     }
 
     @Test
     public void scannerThrowsCheckedException() {
-        try (Query query = h.createQuery(SELECT)) {
+        try (Query query = handle.createQuery(SELECT)) {
             assertThatThrownBy(() -> query.scanResultSet((resultSetSupplier, ctx) -> {
                 resultSetSupplier.get();
                 throw Sneaky.throwAnyway(checkedBoom);
@@ -171,7 +171,7 @@ public class TestStatementFailure {
 
     @Test
     public void reduceRowsWithSeed() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).reduceRows(0, (count, rowView) -> {
+        assertThatThrownBy(() -> handle.createQuery(SELECT).reduceRows(0, (count, rowView) -> {
             throw boom;
         })).isSameAs(boom);
 
@@ -180,7 +180,7 @@ public class TestStatementFailure {
 
     @Test
     public void reduceRowsThrowsCheckedException() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).reduceRows(0, (count, rowView) -> {
+        assertThatThrownBy(() -> handle.createQuery(SELECT).reduceRows(0, (count, rowView) -> {
             throw Sneaky.throwAnyway(checkedBoom);
         })).isSameAs(checkedBoom);
 
@@ -189,7 +189,7 @@ public class TestStatementFailure {
 
     @Test
     public void reduceRowsWithReducer() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).reduceRows((LinkedHashMapRowReducer<Integer, String>) (map, rowView) -> {
+        assertThatThrownBy(() -> handle.createQuery(SELECT).reduceRows((LinkedHashMapRowReducer<Integer, String>) (map, rowView) -> {
             throw boom;
         })).isSameAs(boom);
 
@@ -198,7 +198,7 @@ public class TestStatementFailure {
 
     @Test
     public void reduceResultSet() {
-        assertThatThrownBy(() -> h.createQuery(SELECT).reduceResultSet(0, (count, rs, ctx) -> rs.getInt("missing")))
+        assertThatThrownBy(() -> handle.createQuery(SELECT).reduceResultSet(0, (count, rs, ctx) -> rs.getInt("missing")))
             .isInstanceOf(UnableToProduceResultException.class)
             .satisfies(e -> assertThat(failuresAtClose).singleElement().isSameAs(e.getCause()))
             .cause().isInstanceOf(SQLException.class);
@@ -212,7 +212,7 @@ public class TestStatementFailure {
             },
             (left, right) -> left);
 
-        assertThatThrownBy(() -> h.createQuery(SELECT).collectRows(failing)).isSameAs(boom);
+        assertThatThrownBy(() -> handle.createQuery(SELECT).collectRows(failing)).isSameAs(boom);
 
         assertThat(failuresAtClose).containsExactly(boom);
     }
@@ -220,14 +220,14 @@ public class TestStatementFailure {
     @Test
     public void reduceRowsCountsRowsBeforeFailure() {
         final List<Long> rowsAtClose = new ArrayList<>();
-        h.getConfig(SqlStatements.class).addContextListener(new StatementContextListener() {
+        handle.getConfig(SqlStatements.class).addContextListener(new StatementContextListener() {
             @Override
             public void contextCreated(final StatementContext ctx) {
                 ctx.addCleanable(() -> rowsAtClose.add(ctx.getMappedRows()));
             }
         });
 
-        assertThatThrownBy(() -> h.createQuery(SELECT).reduceRows(0, (count, rowView) -> {
+        assertThatThrownBy(() -> handle.createQuery(SELECT).reduceRows(0, (count, rowView) -> {
             if (count == 1) {
                 throw boom;
             }
@@ -241,7 +241,7 @@ public class TestStatementFailure {
     public void metaDataValueProviderThrows() {
         final SQLException failure = new SQLException("no metadata");
 
-        assertThatThrownBy(() -> h.queryMetadata((MetaData.MetaDataValueProvider<String>) metaData -> {
+        assertThatThrownBy(() -> handle.queryMetadata((MetaData.MetaDataValueProvider<String>) metaData -> {
             throw failure;
         })).isInstanceOf(UnableToRetrieveMetaDataException.class).hasCause(failure);
 
@@ -250,7 +250,7 @@ public class TestStatementFailure {
 
     @Test
     public void metaDataValueProviderThrowsRuntimeException() {
-        assertThatThrownBy(() -> h.queryMetadata((MetaData.MetaDataValueProvider<String>) metaData -> {
+        assertThatThrownBy(() -> handle.queryMetadata((MetaData.MetaDataValueProvider<String>) metaData -> {
             throw boom;
         })).isSameAs(boom);
 
@@ -259,7 +259,7 @@ public class TestStatementFailure {
 
     @Test
     public void resultProducerThrows() {
-        try (Update update = h.createUpdate("update something set name = 'Apple' where id = 1")) {
+        try (Update update = handle.createUpdate("update something set name = 'Apple' where id = 1")) {
             assertThatThrownBy(() -> update.execute((statementSupplier, ctx) -> {
                 statementSupplier.get();
                 throw boom;
@@ -271,7 +271,7 @@ public class TestStatementFailure {
 
     @Test
     public void resultProducerThrowsCheckedException() {
-        try (Update update = h.createUpdate("update something set name = 'Apple' where id = 1")) {
+        try (Update update = handle.createUpdate("update something set name = 'Apple' where id = 1")) {
             assertThatThrownBy(() -> update.execute((statementSupplier, ctx) -> {
                 statementSupplier.get();
                 throw Sneaky.throwAnyway(checkedBoom);
@@ -283,7 +283,7 @@ public class TestStatementFailure {
 
     @Test
     public void queryResultProducerThrowsCheckedException() {
-        try (Query query = h.createQuery(SELECT)) {
+        try (Query query = handle.createQuery(SELECT)) {
             assertThatThrownBy(() -> query.execute((statementSupplier, ctx) -> {
                 statementSupplier.get();
                 throw Sneaky.throwAnyway(checkedBoom);
@@ -295,7 +295,7 @@ public class TestStatementFailure {
 
     @Test
     public void preparedBatchResultProducerThrowsCheckedException() {
-        try (PreparedBatch batch = h.prepareBatch("update something set name = :name where id = 1")) {
+        try (PreparedBatch batch = handle.prepareBatch("update something set name = :name where id = 1")) {
             batch.bind("name", "Apple").add();
             assertThatThrownBy(() -> batch.execute((statementSupplier, ctx) -> {
                 statementSupplier.get();
@@ -308,7 +308,7 @@ public class TestStatementFailure {
 
     @Test
     public void batchTemplateThrowsCheckedException() {
-        assertThatThrownBy(() -> h.createBatch()
+        assertThatThrownBy(() -> handle.createBatch()
             .setTemplateEngine((template, ctx) -> {
                 throw Sneaky.throwAnyway(checkedBoom);
             })
