@@ -6763,7 +6763,7 @@ Additionally, it will add the trace id to JFR events.
 The spans follow the link:https://opentelemetry.io/docs/specs/semconv/db/database-spans/[database client span semantic conventions^], so trace backends show them as database calls:
 
 * The span kind is `CLIENT`.
-* `db.system.name` identifies the database, from `DatabaseMetaData.getDatabaseProductName()`. Jdbi reads it once for each `Jdbi` instance. A known product has its well-known value, for example `postgresql` or `h2database`. For another product, the value is the product name in lowercase. If the product name is null or blank, or the read fails, the value is `other_sql`, and Jdbi does not try again.
+* `db.system.name` identifies the database, from `DatabaseMetaData.getDatabaseProductName()`. Jdbi reads it before the span starts, so samplers can see it, and keeps the first successful read for each `Jdbi` instance. A known product has its well-known value, for example `postgresql` or `h2database`. For another product, the value is the product name in lowercase. If the metadata or the product name is null, the product name is blank, or the read fails, the span of that statement has the value `other_sql`, and the next statement reads the product name again.
 * `db.query.text` is the rendered SQL, with the named parameter placeholders.
 * `db.response.returned_rows` is the number of mapped rows of a query, or of a statement that returns generated keys. The semantic conventions make this attribute opt-in, so spans have it only when `OpenTelemetryConfig` enables it:
 +

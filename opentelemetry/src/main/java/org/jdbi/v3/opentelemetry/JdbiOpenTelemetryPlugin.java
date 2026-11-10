@@ -290,19 +290,19 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
             if (cached != null) {
                 return cached;
             }
-            if (connection == null) {
+            final String productName;
+            try {
+                final DatabaseMetaData metaData = connection == null ? null : connection.getMetaData();
+                productName = metaData == null ? null : metaData.getDatabaseProductName();
+            } catch (Exception e) {
+                LOG.debug("Cannot read the database product name, the span uses db.system.name {}", OTHER_SQL, e);
                 return OTHER_SQL;
             }
-            String system = OTHER_SQL;
-            try {
-                final DatabaseMetaData metaData = connection.getMetaData();
-                if (metaData != null) {
-                    system = JdbiOpenTelemetryPlugin.dbSystemName(metaData.getDatabaseProductName());
-                }
-            } catch (Exception e) {
-                LOG.debug("Cannot read the database product name, spans use db.system.name {}", OTHER_SQL, e);
+            if (productName == null || productName.isBlank()) {
+                return OTHER_SQL;
             }
-            // A failed read is not tried again, so a broken connection costs one attempt for each Jdbi, not for each statement.
+            // Only a successful read is cached, so the statement after a failed read reads again.
+            final String system = JdbiOpenTelemetryPlugin.dbSystemName(productName);
             dbSystemName = system;
             return system;
         }

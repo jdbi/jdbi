@@ -21,9 +21,9 @@ import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -79,7 +79,7 @@ public class TestFailSafeTelemetry {
         jdbi.installPlugin(new JdbiOpenTelemetryPlugin(sdk(SimpleSpanProcessor.create(traces), Sampler.alwaysOn())));
 
         assertThat(selectTwice(jdbi)).containsExactly(1, 1);
-        assertThat(metaDataCalls).hasValue(1);
+        assertThat(metaDataCalls).hasValue(2);
         assertThat(traces.getExported())
             .extracting(span -> span.getAttributes().get(DB_SYSTEM_NAME))
             .containsExactly(OTHER_SQL, OTHER_SQL);
@@ -92,7 +92,7 @@ public class TestFailSafeTelemetry {
         jdbi.installPlugin(new JdbiOpenTelemetryPlugin(sdk(SimpleSpanProcessor.create(traces), Sampler.alwaysOn())));
 
         assertThat(selectTwice(jdbi)).containsExactly(1, 1);
-        assertThat(metaDataCalls).hasValue(1);
+        assertThat(metaDataCalls).hasValue(2);
         assertThat(traces.getExported())
             .extracting(span -> span.getAttributes().get(DB_SYSTEM_NAME))
             .containsExactly(OTHER_SQL, OTHER_SQL);
@@ -106,10 +106,28 @@ public class TestFailSafeTelemetry {
         jdbi.installPlugin(new JdbiOpenTelemetryPlugin(sdk(SimpleSpanProcessor.create(traces), Sampler.alwaysOn())));
 
         assertThat(selectTwice(jdbi)).containsExactly(1, 1);
-        assertThat(metaDataCalls).hasValue(1);
+        assertThat(metaDataCalls).hasValue(2);
         assertThat(traces.getExported())
             .extracting(span -> span.getAttributes().get(DB_SYSTEM_NAME))
             .containsExactly(OTHER_SQL, OTHER_SQL);
+    }
+
+    @Test
+    void metaDataReadAgainAfterFailure() {
+        final Jdbi jdbi = jdbi(connection -> {
+            if (metaDataCalls.get() == 1) {
+                throw new SQLException("no metadata yet");
+            }
+            return connection.getMetaData();
+        });
+        jdbi.installPlugin(new JdbiOpenTelemetryPlugin(sdk(SimpleSpanProcessor.create(traces), Sampler.alwaysOn())));
+
+        assertThat(selectTwice(jdbi)).containsExactly(1, 1);
+        assertThat(selectTwice(jdbi)).containsExactly(1, 1);
+        assertThat(metaDataCalls).hasValue(2);
+        assertThat(traces.getExported())
+            .extracting(span -> span.getAttributes().get(DB_SYSTEM_NAME))
+            .containsExactly(OTHER_SQL, "h2database", "h2database", "h2database");
     }
 
     @Test
@@ -339,18 +357,23 @@ public class TestFailSafeTelemetry {
             .build();
     }
 
-    private Jdbi jdbi(final Function<Connection, DatabaseMetaData> metaData) {
+    private Jdbi jdbi(final MetaDataSource metaData) {
         return Jdbi.create(() -> {
             final Connection connection = DriverManager.getConnection(ext.getUrl());
             return (Connection) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] {Connection.class},
                 (proxy, method, args) -> {
                     if ("getMetaData".equals(method.getName())) {
                         metaDataCalls.incrementAndGet();
-                        return metaData.apply(connection);
+                        return metaData.get(connection);
                     }
                     return invoke(connection, method, args);
                 });
         });
+    }
+
+    @FunctionalInterface
+    private interface MetaDataSource {
+        DatabaseMetaData get(Connection connection) throws SQLException;
     }
 
     private static Object invoke(final Connection connection, final Method method, final Object[] args) throws Throwable {
