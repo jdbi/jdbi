@@ -34,6 +34,8 @@ import org.assertj.core.api.Assertions;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
+import org.jdbi.v3.core.result.LinkedHashMapRowReducer;
+import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.core.result.UnableToProduceResultException;
 import org.jdbi.v3.core.statement.JdbiStatementEvent;
 import org.jdbi.v3.core.statement.Query;
@@ -46,6 +48,7 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -130,6 +133,11 @@ public class TestTelemetry {
     @Test
     void returnedRows() throws ReflectiveOperationException {
         run("returnedRows");
+    }
+
+    @Test
+    void returnedRowsOfReducers() throws ReflectiveOperationException {
+        run("returnedRowsOfReducers");
     }
 
     @Test
@@ -221,6 +229,17 @@ public class TestTelemetry {
 
         @SqlUpdate(INSERT)
         void insert(@BindBean Something something);
+
+        @SqlQuery(SELECT)
+        @UseRowReducer(NameReducer.class)
+        List<String> names();
+    }
+
+    public static final class NameReducer implements LinkedHashMapRowReducer<Integer, String> {
+        @Override
+        public void accumulate(final Map<Integer, String> container, final RowView rowView) {
+            container.put(rowView.getColumn("id", Integer.class), rowView.getColumn("name", String.class));
+        }
     }
 
     public record MissingColumn(int id, String missing) {}
@@ -369,6 +388,25 @@ public class TestTelemetry {
             assertThat(traces.getExported())
                 .extracting(sd -> sd.getAttributes().get(DB_RESPONSE_RETURNED_ROWS))
                 .containsExactly(null, null, 1L, 2L);
+        }
+
+        public void returnedRowsOfReducers() {
+            ext.getJdbi().installPlugin(new SqlObjectPlugin());
+            ext.getJdbi().getConfig(OpenTelemetryConfig.class).setIncludeReturnedRows(true);
+
+            try (var h = ext.openHandle()) {
+                h.execute(CREATE);
+                insertSomething(h, 1, "Zebra");
+                insertSomething(h, 2, "Bananas");
+                assertThat(h.createQuery(SELECT).reduceRows(0, (count, rowView) -> count + 1)).isEqualTo(2);
+                assertThat(h.createQuery(SELECT).reduceResultSet(0, (count, rs, ctx) -> count + 1)).isEqualTo(2);
+                assertThat(h.createQuery(SELECT).collectRows(Collectors.<RowView>counting())).isEqualTo(2L);
+                assertThat(h.attach(SomethingDao.class).names()).containsExactly("Zebra", "Bananas");
+            }
+
+            assertThat(traces.getExported())
+                .extracting(sd -> sd.getAttributes().get(DB_RESPONSE_RETURNED_ROWS))
+                .containsExactly(null, null, null, 2L, 2L, 2L, 2L);
         }
 
         public void noBindingsOnBatch() {

@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jdbi.v3.core.Handle;
@@ -26,6 +27,9 @@ import org.jdbi.v3.core.Something;
 import org.jdbi.v3.core.junit5.H2DatabaseExtension;
 import org.jdbi.v3.core.mapper.SomethingMapper;
 import org.jdbi.v3.core.statement.Query;
+import org.jdbi.v3.core.statement.SqlStatements;
+import org.jdbi.v3.core.statement.StatementContext;
+import org.jdbi.v3.core.statement.StatementContextListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -135,6 +139,29 @@ public class TestReducing {
         assertThat(result).hasSize(2)
             .containsEntry(1, new SomethingWithLocations(new Something(1, "tree")).at("outside"))
             .containsEntry(2, new SomethingWithLocations(new Something(2, "apple")).at("tree").at("pie"));
+    }
+
+    @Test
+    public void testReducersCountRows() {
+        final Handle h = h2Extension.getSharedHandle();
+        final List<Long> rowsAtClose = new ArrayList<>();
+        h.getConfig(SqlStatements.class).addContextListener(new StatementContextListener() {
+            @Override
+            public void contextCreated(final StatementContext ctx) {
+                ctx.addCleanable(() -> rowsAtClose.add(ctx.getMappedRows()));
+            }
+        });
+        final String sql = "SELECT something.id, name, location FROM something NATURAL JOIN something_location";
+
+        assertThat(h.createQuery(sql).reduceRows(0, (count, rowView) -> count + 1)).isEqualTo(3);
+        assertThat(h.createQuery(sql).reduceResultSet(0, (count, rs, ctx) -> count + 1)).isEqualTo(3);
+        assertThat(h.createQuery(sql).collectRows(Collectors.<RowView>counting())).isEqualTo(3L);
+        try (Stream<String> stream = h.createQuery(sql).reduceRows((Map<Integer, String> map, RowView rv) ->
+                map.put(rv.getColumn("id", Integer.class), rv.getColumn("name", String.class)))) {
+            assertThat(stream).containsExactly("tree", "apple");
+        }
+
+        assertThat(rowsAtClose).containsExactly(3L, 3L, 3L, 3L);
     }
 
     static class SomethingWithLocations {

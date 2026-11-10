@@ -234,7 +234,10 @@ public interface ResultBearing {
             RowView rowView = new RowViewImpl(resultSet, ctx);
 
             C container = rowReducer.container();
+            long rows = 0;
             while (resultSet.next()) {
+                rows++;
+                ctx.setMappedRows(rows);
                 rowReducer.accumulate(container, rowView);
             }
             return rowReducer.stream(container).onClose(ctx::close);
@@ -271,7 +274,10 @@ public interface ResultBearing {
             RowView rowView = new RowViewImpl(resultSet, ctx);
 
             U result = seed;
+            long rows = 0;
             while (resultSet.next()) {
+                rows++;
+                ctx.setMappedRows(rows);
                 result = accumulator.apply(result, rowView);
             }
             return result;
@@ -292,7 +298,10 @@ public interface ResultBearing {
             ResultSet resultSet = resultSetSupplier.get();
 
             U result = seed;
+            long rows = 0;
             while (resultSet.next()) {
+                rows++;
+                ctx.setMappedRows(rows);
                 result = accumulator.apply(result, resultSet, ctx);
             }
             return result;
@@ -318,7 +327,10 @@ public interface ResultBearing {
             A accumulator = collector.supplier().get();
 
             BiConsumer<A, RowView> consumer = collector.accumulator();
+            long rows = 0;
             while (resultSet.next()) {
+                rows++;
+                ctx.setMappedRows(rows);
                 consumer.accept(accumulator, rowView);
             }
 
