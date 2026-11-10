@@ -10310,16 +10310,20 @@ An example alternate use is to just return the number of rows modified, as in an
 ----
 public static ResultProducer<Integer> returningUpdateCount() {
     return (statementSupplier, ctx) -> {
-        try {
-            return statementSupplier.get().getUpdateCount();
-        } finally {
-            ctx.close();
+        try (StatementContext context = ctx) {
+            try {
+                return statementSupplier.get().getUpdateCount();
+            } catch (SQLException e) {
+                context.recordFailure(e);
+                throw e;
+            }
         }
     };
 }
 ----
 
 If you acquire the lazy statement, you are responsible for ensuring that the context is closed eventually to release database resources.
+If the production of the result fails, record the failure with `StatementContext.recordFailure()` before the context closes, so that telemetry such as a trace span sees it.
 
 Most users will not need to implement the *ResultProducer* interface.
 
