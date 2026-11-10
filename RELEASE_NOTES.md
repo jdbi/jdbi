@@ -19,8 +19,10 @@
     another database, or `other_sql` if the product name is null, blank, or cannot be read), `db.query.summary`,
     and, for a failed statement, `error.type` and `db.response.status_code` (the vendor error code or the SQLSTATE).
     A statement that fails, in its execution or in the reading or mapping of its results, also sets the span status
-    to `ERROR`. An exception that the caller's code throws while it consumes the results, for example in `forEach` or
-    in a collector, does not set it.
+    to `ERROR`, as does an exception from a callback that the caller gives to `collectRows`, `reduceRows`,
+    `reduceResultSet`, or `scanResultSet`. An exception from the caller's code in `ResultIterable.forEach`, `collect`,
+    `reduce`, a stream operation, or `useIterator` or `withIterator` does not set it. The checks of the result shape
+    after mapping, for example `one()` or `collectInto(Optional)` on two rows, do not set it either.
   - The `SQL`, `BINDING`, and `NUM_ROWS` constants are deprecated, and no span sets these attributes any more.
 - Add `Binding.describeArguments` (alpha) to get a description of the argument of each parameter of the SQL.
 - Add `OpenTelemetryConfig` (alpha) to configure the spans of `JdbiOpenTelemetryPlugin`.
