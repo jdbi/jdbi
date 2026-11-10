@@ -224,45 +224,49 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
             final ParsedSql parsedSql = parseSql();
             final ParsedParameters parsedParameters = parsedSql.getParameters();
 
-            final SqlStatements stmtConfig = getConfig(SqlStatements.class);
             try {
-                stmt = createStatement(parsedSql.getSql());
+                final SqlStatements stmtConfig = getConfig(SqlStatements.class);
+                try {
+                    stmt = createStatement(parsedSql.getSql());
 
-                getContext().addCleanable(() -> cleanupStatement(stmt));
-                stmtConfig.customize(stmt);
-            } catch (SQLException e) {
-                throw new UnableToCreateStatementException(e, ctx);
-            }
-
-            if (bindings.isEmpty()) {
-                return new ExecutedBatch(stmt, new int[0]);
-            }
-
-            beforeBinding();
-
-            try {
-                ArgumentBinder binder = new ArgumentBinder.Prepared(this, parsedParameters, bindings.get(0));
-                for (Binding binding : bindings) {
-                    ctx.setBinding(binding);
-                    binder.bind(binding);
-                    stmt.addBatch();
+                    getContext().addCleanable(() -> cleanupStatement(stmt));
+                    stmtConfig.customize(stmt);
+                } catch (SQLException e) {
+                    throw new UnableToCreateStatementException(e, ctx);
                 }
-            } catch (SQLException e) {
-                throw new UnableToExecuteStatementException("Exception while binding parameters", e, ctx);
-            }
 
-            beforeExecution();
+                if (bindings.isEmpty()) {
+                    return new ExecutedBatch(stmt, new int[0]);
+                }
 
-            try {
-                final int[] modifiedRows = SqlLoggerUtil.wrap(stmt::executeBatch, ctx, stmtConfig.getSqlLogger());
+                beforeBinding();
 
-                afterExecution();
+                try {
+                    ArgumentBinder binder = new ArgumentBinder.Prepared(this, parsedParameters, bindings.get(0));
+                    for (Binding binding : bindings) {
+                        ctx.setBinding(binding);
+                        binder.bind(binding);
+                        stmt.addBatch();
+                    }
+                } catch (SQLException e) {
+                    throw new UnableToExecuteStatementException("Exception while binding parameters", e, ctx);
+                }
 
-                ctx.setBinding(new PreparedBinding(ctx));
+                beforeExecution();
 
-                return new ExecutedBatch(stmt, modifiedRows);
-            } catch (SQLException e) {
-                throw stmtConfig.handleException(Batch.mungeBatchException(e), ctx);
+                try {
+                    final int[] modifiedRows = SqlLoggerUtil.wrap(stmt::executeBatch, ctx, stmtConfig.getSqlLogger());
+
+                    afterExecution();
+
+                    ctx.setBinding(new PreparedBinding(ctx));
+
+                    return new ExecutedBatch(stmt, modifiedRows);
+                } catch (SQLException e) {
+                    throw stmtConfig.handleException(Batch.mungeBatchException(e), ctx);
+                }
+            } finally {
+                bindings.clear();
             }
         } catch (Exception e) {
             ctx.recordFailure(e);
@@ -272,8 +276,6 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
                 e.addSuppressed(e1);
             }
             throw e;
-        } finally {
-            bindings.clear();
         }
     }
 

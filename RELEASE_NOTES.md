@@ -23,7 +23,8 @@
 - Add `StatementContext.getFailure` and `StatementContext.recordFailure` (alpha) to get and record the first exception
   that failed a statement, in its execution or in the reading or mapping of its results. A custom `ResultSetScanner`
   or `ResultProducer` that closes the context must record its failure first, so that the span gets the `ERROR` status.
-- A statement whose SQL template fails to render or parse is now closed, as for other execution failures.
+- A statement whose SQL template fails to render or parse is now closed, as for other execution failures. A
+  `PreparedBatch` keeps its added bindings, as before, so it can run them after a fix such as `define`.
 - An exception from the database metadata or from OpenTelemetry no longer fails the statement. `JdbiOpenTelemetryPlugin`
   logs it at debug level. With the no-op OpenTelemetry, the plugin does nothing.
 - A bound value whose `toString()` throws no longer fails the statement when JFR, OpenTelemetry, or an exception
