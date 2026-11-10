@@ -207,6 +207,9 @@ public class PreparedBatch extends SqlStatement<PreparedBatch> implements Result
         } catch (SQLException e) {
             cleanUpForException(e);
             throw new UnableToProduceResultException("Exception producing batch result", e, getContext());
+        } catch (RuntimeException e) {
+            getContext().recordFailure(e);
+            throw e;
         }
     }
 

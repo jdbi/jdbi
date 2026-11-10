@@ -53,6 +53,9 @@ public class Query extends SqlStatement<Query> implements ResultBearing {
         } catch (SQLException e) {
             cleanUpForException(e);
             throw new UnableToProduceResultException(e, getContext());
+        } catch (RuntimeException e) {
+            getContext().recordFailure(e);
+            throw e;
         }
     }
 

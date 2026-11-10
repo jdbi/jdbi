@@ -48,6 +48,9 @@ public final class MetaData extends BaseStatement<MetaData> implements ResultBea
         } catch (SQLException e) {
             getContext().recordFailure(e);
             throw new UnableToRetrieveMetaDataException(e, getContext());
+        } catch (RuntimeException e) {
+            getContext().recordFailure(e);
+            throw e;
         }
     }
 

@@ -199,6 +199,27 @@ public class TestStatementFailure {
     }
 
     @Test
+    public void metaDataValueProviderThrowsRuntimeException() {
+        assertThatThrownBy(() -> h.queryMetadata((MetaData.MetaDataValueProvider<String>) metaData -> {
+            throw boom;
+        })).isSameAs(boom);
+
+        assertThat(failuresAtClose).containsExactly(boom);
+    }
+
+    @Test
+    public void resultProducerThrows() {
+        try (Update update = h.createUpdate("update something set name = 'Apple' where id = 1")) {
+            assertThatThrownBy(() -> update.execute((statementSupplier, ctx) -> {
+                statementSupplier.get();
+                throw boom;
+            })).isSameAs(boom);
+        }
+
+        assertThat(failuresAtClose).containsExactly(boom);
+    }
+
+    @Test
     public void firstFailureWins() {
         final StatementContext ctx = StatementContextAccess.createContext();
         final SQLException first = new SQLException("first");
