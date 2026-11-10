@@ -55,11 +55,13 @@ import org.slf4j.LoggerFactory;
  * <p>
  * When the statement fails, in its execution or in the reading or mapping of its results, the span status is {@code ERROR}.
  * An exception from a callback that the caller gives to {@code collectRows}, {@code reduceRows}, {@code reduceResultSet},
- * or {@code scanResultSet} also marks the span.
- * An exception from the caller's code in {@code ResultIterable.forEach}, {@code collect}, {@code reduce}, a stream
- * operation, or {@code useIterator} or {@code withIterator} does not mark the span.
- * The checks of the result shape after mapping, for example {@code one()} or {@code collectInto(Optional)} on two rows,
- * do not mark the span either.
+ * or {@code scanResultSet} also marks the span, unless a custom {@code ResultSetScanner} closes the context before it
+ * records the failure.
+ * An exception from other code of the caller does not mark the span, for example from the code in
+ * {@code ResultIterable.forEach}, {@code collect}, {@code reduce}, {@code map}, {@code filter}, a stream operation,
+ * {@code useIterator}, {@code withIterator}, or {@code Call.invoke(Function)} or {@code invoke(Consumer)}.
+ * The checks of the result shape after mapping, for example {@code ResultIterable.one()} or
+ * {@code ResultIterable.collectInto(Optional)} on two rows, do not mark the span either.
  * If a {@link SQLException} caused the failure, {@code db.response.status_code} is its vendor error code for MySQL, MariaDB,
  * Microsoft SQL Server, and Oracle (as {@code ORA-nnnnn}), and its SQLSTATE for other databases.
  * {@code error.type} is the status code if there is one, else the class name of the {@code SQLException},
@@ -305,7 +307,7 @@ public class JdbiOpenTelemetryPlugin extends JdbiPlugin.Singleton {
                 return OTHER_SQL;
             }
             final String system = JdbiOpenTelemetryPlugin.dbSystemName(productName);
-            // Only a successful read is cached, so the statement after a failed read reads again.
+            // Only a result other than other_sql is cached, so after other_sql the next statement reads again.
             if (!OTHER_SQL.equals(system)) {
                 dbSystemName = system;
             }
