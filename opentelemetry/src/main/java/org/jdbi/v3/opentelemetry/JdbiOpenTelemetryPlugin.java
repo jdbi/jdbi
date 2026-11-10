@@ -54,6 +54,8 @@ import org.slf4j.LoggerFactory;
  * Other statements use {@code db.system.name} as the span name.
  * <p>
  * When the statement fails, in its execution or in the reading or mapping of its results, the span status is {@code ERROR}.
+ * An exception that the caller's code throws while it consumes the results, for example in {@code forEach} or in a
+ * collector, does not mark the span.
  * If a {@link SQLException} caused the failure, {@code db.response.status_code} is its vendor error code for MySQL, MariaDB,
  * Microsoft SQL Server, and Oracle (as {@code ORA-nnnnn}), and its SQLSTATE for other databases.
  * {@code error.type} is the status code if there is one, else the class name of the {@code SQLException},
