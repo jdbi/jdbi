@@ -113,11 +113,11 @@ public class TestFailSafeTelemetry {
     }
 
     @Test
-    void installPluginsWithoutSdk() {
+    void globalOpenTelemetryWithoutSdk() {
         final Jdbi jdbi = jdbi(connection -> {
             throw new IllegalStateException("no metadata");
         });
-        jdbi.installPlugins();
+        jdbi.installPlugin(new JdbiOpenTelemetryPlugin());
 
         assertThat(selectTwice(jdbi)).containsExactly(1, 1);
         assertThat(metaDataCalls).hasValue(0);

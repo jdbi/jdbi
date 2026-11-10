@@ -95,9 +95,9 @@ public class TestTelemetry {
         this.instance = testCode.getDeclaredConstructors()[0].newInstance(this);
     }
 
-    private void run(final String testName) throws ReflectiveOperationException {
+    private Object run(final String testName) throws ReflectiveOperationException {
         try {
-            testCode.getMethod(testName).invoke(instance);
+            return testCode.getMethod(testName).invoke(instance);
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof Error error) {
                 throw error;
@@ -118,112 +118,112 @@ public class TestTelemetry {
 
     @Test
     void events() throws ReflectiveOperationException {
-        run("events");
+        assertThat(run("events")).isNull();
     }
 
     @Test
     void includeBindings() throws ReflectiveOperationException {
-        run("includeBindings");
+        assertThat(run("includeBindings")).isNull();
     }
 
     @Test
     void positionalBindings() throws ReflectiveOperationException {
-        run("positionalBindings");
+        assertThat(run("positionalBindings")).isNull();
     }
 
     @Test
     void returnedRows() throws ReflectiveOperationException {
-        run("returnedRows");
+        assertThat(run("returnedRows")).isNull();
     }
 
     @Test
     void returnedRowsOfReducers() throws ReflectiveOperationException {
-        run("returnedRowsOfReducers");
+        assertThat(run("returnedRowsOfReducers")).isNull();
     }
 
     @Test
     void noBindingsOnBatch() throws ReflectiveOperationException {
-        run("noBindingsOnBatch");
+        assertThat(run("noBindingsOnBatch")).isNull();
     }
 
     @Test
     void truncate() throws ReflectiveOperationException {
-        run("truncate");
+        assertThat(run("truncate")).isNull();
     }
 
     @Test
     void bindingsExcludedByDefault() throws ReflectiveOperationException {
-        run("bindingsExcludedByDefault");
+        assertThat(run("bindingsExcludedByDefault")).isNull();
     }
 
     @Test
     void failure() throws ReflectiveOperationException {
-        run("failure");
+        assertThat(run("failure")).isNull();
     }
 
     @Test
     void failureReplacedByLaterHandler() throws ReflectiveOperationException {
-        run("failureReplacedByLaterHandler");
+        assertThat(run("failureReplacedByLaterHandler")).isNull();
     }
 
     @Test
     void failureBeforeExecution() throws ReflectiveOperationException {
-        run("failureBeforeExecution");
+        assertThat(run("failureBeforeExecution")).isNull();
     }
 
     @Test
     void mappingFailure() throws ReflectiveOperationException {
-        run("mappingFailure");
+        assertThat(run("mappingFailure")).isNull();
     }
 
     @Test
     void checkedMappingFailure() throws ReflectiveOperationException {
-        run("checkedMappingFailure");
+        assertThat(run("checkedMappingFailure")).isNull();
     }
 
     @Test
     void failureBeforeIteration() throws ReflectiveOperationException {
-        run("failureBeforeIteration");
+        assertThat(run("failureBeforeIteration")).isNull();
     }
 
     @Test
     void resultSetFailure() throws ReflectiveOperationException {
-        run("resultSetFailure");
+        assertThat(run("resultSetFailure")).isNull();
     }
 
     @Test
     void unprintableArgument() throws ReflectiveOperationException {
-        run("unprintableArgument");
+        assertThat(run("unprintableArgument")).isNull();
     }
 
     @Test
     void templateFailure() throws ReflectiveOperationException {
-        run("templateFailure");
+        assertThat(run("templateFailure")).isNull();
     }
 
     @Test
     void batchFailure() throws ReflectiveOperationException {
-        run("batchFailure");
+        assertThat(run("batchFailure")).isNull();
     }
 
     @Test
     void preparedBatchFailure() throws ReflectiveOperationException {
-        run("preparedBatchFailure");
+        assertThat(run("preparedBatchFailure")).isNull();
     }
 
     @Test
     void statementSubclass() throws ReflectiveOperationException {
-        run("statementSubclass");
+        assertThat(run("statementSubclass")).isNull();
     }
 
     @Test
     void sqlObjectSummary() throws ReflectiveOperationException {
-        run("sqlObjectSummary");
+        assertThat(run("sqlObjectSummary")).isNull();
     }
 
     @Test
     void sqlObjectParameters() throws ReflectiveOperationException {
-        run("sqlObjectParameters");
+        assertThat(run("sqlObjectParameters")).isNull();
     }
 
     public interface SomethingDao {
