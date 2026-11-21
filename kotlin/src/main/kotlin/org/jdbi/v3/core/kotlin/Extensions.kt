@@ -162,8 +162,7 @@ fun getQualifiers(vararg elements: KAnnotatedElement?): Set<Annotation> = elemen
 fun Jdbi.inCoroutineContext(handle: Handle? = null): CoroutineContext.Element {
     val handleScope = this.handleScope
     if (handleScope is CoroutineHandleScope) {
-        handleScope.handle = handle
-        return handleScope
+        return handleScope.forHandle(handle)
     } else {
         throw IllegalStateException("Coroutine support was not enabled!")
     }
