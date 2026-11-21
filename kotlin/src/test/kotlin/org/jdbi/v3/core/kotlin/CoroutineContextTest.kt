@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.newSingleThreadContext
@@ -32,7 +33,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.lang.Boolean.TRUE
+import java.util.UUID
 import java.util.concurrent.ArrayBlockingQueue
+import kotlin.coroutines.CoroutineContext
 
 class CoroutineContextTest {
 
@@ -56,9 +59,9 @@ class CoroutineContextTest {
             // empty attach clears out a possible handle in the current thread
             runBlocking(Dispatchers.IO + jdbi.inCoroutineContext()) {
                 // empty attachToContext cleaned out the thread local
-                assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isNull()
+                assertThat(coroutineContext.handleFor(jdbi)).isNull()
                 withContext(jdbi.inCoroutineContext(transactionHandle)) {
-                    assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isSameAs(transactionHandle)
+                    assertThat(coroutineContext.handleFor(jdbi)).isSameAs(transactionHandle)
 
                     // all Jdbi operations will map onto the attached handle in this coroutine context
                     val handle1 = insertSomething()
@@ -87,11 +90,11 @@ class CoroutineContextTest {
             // empty attach clears out a possible handle in the current thread
             runBlocking(jdbi.inCoroutineContext()) {
                 // empty attachToContext cleaned out the thread local
-                assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isNull()
+                assertThat(coroutineContext.handleFor(jdbi)).isNull()
 
                 withContext(Dispatchers.Default + jdbi.inCoroutineContext(transactionHandle)) {
                     // all Jdbi operations will map onto the attached handle in this coroutine context
-                    assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isSameAs(transactionHandle)
+                    assertThat(coroutineContext.handleFor(jdbi)).isSameAs(transactionHandle)
 
                     val handle1 = insertSomething()
                     assertThat(handle1).isSameAs(transactionHandle)
@@ -137,7 +140,7 @@ class CoroutineContextTest {
         }
 
         runBlocking(jdbi.inCoroutineContext()) {
-            assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isNull()
+            assertThat(coroutineContext.handleFor(jdbi)).isNull()
 
             // run on separate threads, do not share handle
             val first = async {
@@ -168,7 +171,7 @@ class CoroutineContextTest {
 
         newSingleThreadContext("test-dispatcher").use { dispatcher ->
             runBlocking(dispatcher + jdbi.inCoroutineContext()) {
-                assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isNull()
+                assertThat(coroutineContext.handleFor(jdbi)).isNull()
 
                 // run on the same thread, but do not share handle
                 val handle1 = selectSomething(1, "first name")
@@ -188,7 +191,7 @@ class CoroutineContextTest {
         }
 
         runBlocking(Dispatchers.IO + jdbi.inCoroutineContext(h2Extension.sharedHandle)) {
-            assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isSameAs(h2Extension.sharedHandle)
+            assertThat(coroutineContext.handleFor(jdbi)).isSameAs(h2Extension.sharedHandle)
 
             val handle1 = selectSomething(1, "first name")
             val handle2 = selectSomething(2, "second name")
@@ -208,7 +211,7 @@ class CoroutineContextTest {
         }
 
         runBlocking(jdbi.inCoroutineContext(h2Extension.sharedHandle)) {
-            assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isSameAs(h2Extension.sharedHandle)
+            assertThat(coroutineContext.handleFor(jdbi)).isSameAs(h2Extension.sharedHandle)
 
             // run on separate threads, do not share handle
             val first = async {
@@ -238,7 +241,7 @@ class CoroutineContextTest {
         }
 
         runBlocking(Dispatchers.IO + jdbi.inCoroutineContext(h2Extension.sharedHandle)) {
-            assertThat(coroutineContext[CoroutineHandleScope.Key]?.handle).isSameAs(h2Extension.sharedHandle)
+            assertThat(coroutineContext.handleFor(jdbi)).isSameAs(h2Extension.sharedHandle)
 
             // collect all results from a flow asynchronously and ensure that
             // all operations use the same handle
@@ -262,4 +265,84 @@ class CoroutineContextTest {
             h
         }
     }
+
+    @Test
+    fun testNestedJdbiCoroutineContextsSurviveSuspension() {
+        val firstJdbi = newCoroutineJdbi("nested_first")
+        val secondJdbi = newCoroutineJdbi("nested_second")
+        createTestTable(firstJdbi)
+        createTestTable(secondJdbi)
+
+        val firstHandle = firstJdbi.open().also { it.begin() }
+        val secondHandle = secondJdbi.open().also { it.begin() }
+
+        try {
+            runBlocking(Dispatchers.Default + firstJdbi.inCoroutineContext(firstHandle)) {
+                withContext(secondJdbi.inCoroutineContext(secondHandle)) {
+                    assertHandleAndInsert(firstJdbi, firstHandle, "first-before")
+                    assertHandleAndInsert(secondJdbi, secondHandle, "second-before")
+
+                    delay(1)
+
+                    assertHandleAndInsert(firstJdbi, firstHandle, "first-after")
+                    assertHandleAndInsert(secondJdbi, secondHandle, "second-after")
+                }
+            }
+
+            firstHandle.rollback()
+            secondHandle.rollback()
+
+            assertThat(countRows(firstJdbi)).isZero()
+            assertThat(countRows(secondJdbi)).isZero()
+        } finally {
+            firstHandle.close()
+            secondHandle.close()
+        }
+    }
+
+    @Test
+    fun testInCoroutineContextKeepsTheHandleForEachCall() {
+        val scopedJdbi = newCoroutineJdbi("stable_context_handle")
+        val firstHandle = scopedJdbi.open()
+        val secondHandle = scopedJdbi.open()
+
+        try {
+            val firstContext = scopedJdbi.inCoroutineContext(firstHandle)
+            val secondContext = scopedJdbi.inCoroutineContext(secondHandle)
+
+            assertThat(firstContext).isNotSameAs(secondContext)
+
+            runBlocking(Dispatchers.Default + firstContext) {
+                delay(1)
+                scopedJdbi.withHandleUnchecked { handle -> assertThat(handle).isSameAs(firstHandle) }
+            }
+        } finally {
+            firstHandle.close()
+            secondHandle.close()
+        }
+    }
+
+    private fun newCoroutineJdbi(name: String): Jdbi =
+        Jdbi.create("jdbc:h2:mem:${name}_${UUID.randomUUID().toString().replace("-", "")};DB_CLOSE_DELAY=-1")
+            .installPlugin(KotlinPlugin(enableCoroutineSupport = true))
+
+    private fun createTestTable(jdbi: Jdbi) {
+        jdbi.useHandleUnchecked { handle -> handle.execute("CREATE TABLE something (name VARCHAR(100))") }
+    }
+
+    private fun assertHandleAndInsert(jdbi: Jdbi, expectedHandle: Handle, value: String) {
+        jdbi.withHandleUnchecked { handle ->
+            assertThat(handle).isSameAs(expectedHandle)
+            handle.execute("INSERT INTO something (name) VALUES (?)", value)
+        }
+    }
+
+    private fun countRows(jdbi: Jdbi): Int =
+        jdbi.withHandleUnchecked { handle -> handle.createQuery("SELECT COUNT(*) FROM something").mapTo(Int::class).one() }
+}
+
+private fun CoroutineContext.handleFor(jdbi: Jdbi): Handle? {
+    @Suppress("UNCHECKED_CAST")
+    val key = jdbi.inCoroutineContext().key as CoroutineContext.Key<CoroutineHandleScope>
+    return this[key]?.handle
 }

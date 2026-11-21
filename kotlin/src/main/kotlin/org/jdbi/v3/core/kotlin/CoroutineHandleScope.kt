@@ -23,13 +23,18 @@ import org.jdbi.v3.core.internal.ThreadLocalHandleScope
 import kotlin.coroutines.CoroutineContext
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-internal class CoroutineHandleScope private constructor(var handle: Handle?, private val delegate: HandleScope) :
+internal class CoroutineHandleScope private constructor(
+    val handle: Handle?,
+    private val delegate: HandleScope,
+    override val key: CoroutineContext.Key<CoroutineHandleScope>
+) :
     CopyableThreadContextElement<HandleSupplier?>,
     HandleScope {
 
-    override val key: CoroutineContext.Key<CoroutineHandleScope> = Key
+    // A separate key lets coroutine contexts for different Jdbi instances compose.
+    constructor() : this(handle = null, delegate = ThreadLocalHandleScope(), key = Key())
 
-    constructor() : this(handle = null, delegate = ThreadLocalHandleScope())
+    fun forHandle(handle: Handle?): CoroutineHandleScope = CoroutineHandleScope(handle, delegate, key)
 
     override fun updateThreadContext(context: CoroutineContext): HandleSupplier? {
         val oldState: HandleSupplier? = delegate.get()
@@ -56,7 +61,8 @@ internal class CoroutineHandleScope private constructor(var handle: Handle?, pri
     // Copy from the ThreadLocal source of truth at child coroutine launch time. This makes
     // ThreadLocal writes between resumption of the parent coroutine and the launch of the
     // child coroutine visible to the child.
-    override fun copyForChild(): CoroutineHandleScope = CoroutineHandleScope(handle = handle, delegate = delegate)
+    override fun copyForChild(): CoroutineHandleScope =
+        CoroutineHandleScope(handle = handle, delegate = delegate, key = key)
 
     override fun mergeForChild(overwritingElement: CoroutineContext.Element): CoroutineContext {
         // Merge operation defines how to handle situations when both
@@ -82,5 +88,5 @@ internal class CoroutineHandleScope private constructor(var handle: Handle?, pri
         delegate.clear()
     }
 
-    companion object Key : CoroutineContext.Key<CoroutineHandleScope>
+    private class Key : CoroutineContext.Key<CoroutineHandleScope>
 }
