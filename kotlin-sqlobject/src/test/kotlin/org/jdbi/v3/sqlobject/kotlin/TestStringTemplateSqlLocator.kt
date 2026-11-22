@@ -28,7 +28,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import org.jdbi.v3.stringtemplate4.UseStringTemplateSqlLocator
 import org.jdbi.v3.testing.junit5.JdbiExtension
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -40,7 +40,7 @@ class TestStringTemplateSqlLocator {
     @RegisterExtension
     var h2Extension: JdbiExtension = JdbiExtension.h2()
         .withPlugin(KotlinSqlObjectPlugin())
-        .withInitializer(TestingInitializers.something())
+        .withInitializer(JdbiExtensionInitializers.something())
 
     private lateinit var handle: Handle
     private lateinit var wombat: Wombat

@@ -20,7 +20,7 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.sqlobject.customizer.Define;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -31,7 +31,7 @@ class AttributeDefineTest {
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
-            .withInitializer(TestingInitializers.usersWithData())
+            .withInitializer(JdbiExtensionInitializers.usersWithData())
             .withPlugin(new SqlObjectPlugin());
 
     // tag::dao[]

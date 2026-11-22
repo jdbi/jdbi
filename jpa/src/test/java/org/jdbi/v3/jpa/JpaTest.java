@@ -33,7 +33,7 @@ import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -50,7 +50,7 @@ public class JpaTest {
     private static final String NAME_ANNOTATION_NAME = "bar";
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(JdbiExtensionInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     interface Thing {
 

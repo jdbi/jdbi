@@ -22,7 +22,7 @@ import org.jdbi.v3.core.h2.H2DatabasePlugin;
 import org.jdbi.v3.core.internal.IsolatingClassLoader;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -43,7 +43,7 @@ public class IsolatedClassLoaderTest {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
         .withPlugins(new H2DatabasePlugin(), new SqlObjectPlugin())
-        .withInitializer(TestingInitializers.something())
+        .withInitializer(JdbiExtensionInitializers.something())
         .withConfig(Extensions.class, c -> c.setAllowProxy(false));
 
     @Test

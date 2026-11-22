@@ -23,7 +23,7 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -38,7 +38,7 @@ public class AttachedHandleLeakTest {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
             .withPlugin(new SqlObjectPlugin())
-            .withInitializer(TestingInitializers.usersWithData())
+            .withInitializer(JdbiExtensionInitializers.usersWithData())
             .withConfig(RowMappers.class, r -> r.register(User.class, ConstructorMapper.of(User.class)));
 
     private UserDao dao;

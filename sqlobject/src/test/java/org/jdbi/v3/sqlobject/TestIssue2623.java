@@ -27,7 +27,7 @@ import org.jdbi.v3.sqlobject.config.KeyColumn;
 import org.jdbi.v3.sqlobject.config.RegisterConstructorMapper;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -38,7 +38,7 @@ public class TestIssue2623 {
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
-        .withInitializer(TestingInitializers.usersWithData())
+        .withInitializer(JdbiExtensionInitializers.usersWithData())
         .withPlugins(new SqlObjectPlugin(), new GuavaPlugin());
 
     @BeforeEach

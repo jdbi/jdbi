@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jdbi.v3.core.statement.Query;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -28,7 +28,7 @@ public class JdbiHsqldbExtensionTest {
     @RegisterExtension
     public JdbiExtension hsqldbExtension = new JdbiGenericExtension("jdbc:hsqldb:mem:" + UUID.randomUUID())
             .withCredentials("username", "password")
-            .withInitializer(TestingInitializers.usersWithData());
+            .withInitializer(JdbiExtensionInitializers.usersWithData());
 
     @Test
     public void testHsqldb() {

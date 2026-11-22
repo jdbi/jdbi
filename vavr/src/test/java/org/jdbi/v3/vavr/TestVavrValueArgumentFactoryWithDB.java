@@ -24,7 +24,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Something;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -41,7 +41,7 @@ public class TestVavrValueArgumentFactoryWithDB {
     private static final Something BRIANSOMETHING = new Something(2, "brian");
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something())
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(JdbiExtensionInitializers.something())
             .withPlugins(new SqlObjectPlugin(), new VavrPlugin());
 
     @BeforeEach

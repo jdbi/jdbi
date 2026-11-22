@@ -28,7 +28,7 @@ import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.UnableToCreateStatementException;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class TestGuavaOptional {
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new GuavaPlugin())
-            .withInitializer(TestingInitializers.something());
+            .withInitializer(JdbiExtensionInitializers.something());
 
     Handle handle;
 

@@ -20,7 +20,7 @@ import org.jdbi.v3.core.kotlin.bindKotlin
 import org.jdbi.v3.core.kotlin.mapTo
 import org.jdbi.v3.sqlobject.kotlin.KotlinSqlObjectPlugin
 import org.jdbi.v3.testing.junit5.JdbiExtension
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 class TestIssue2790 {
     @RegisterExtension
     var h2Extension: JdbiExtension = JdbiExtension.h2()
-        .withInitializer(TestingInitializers.something())
+        .withInitializer(JdbiExtensionInitializers.something())
         .withPlugins(KotlinSqlObjectPlugin(installKotlinMapperFactory = false))
 
     private lateinit var handle: Handle

@@ -20,7 +20,7 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestEnumMapping {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withInitializer(TestingInitializers.something());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withPlugin(new SqlObjectPlugin()).withInitializer(JdbiExtensionInitializers.something());
 
     @Test
     public void testEnums() {

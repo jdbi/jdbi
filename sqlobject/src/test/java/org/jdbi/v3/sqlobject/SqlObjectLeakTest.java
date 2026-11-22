@@ -24,7 +24,7 @@ import org.jdbi.v3.core.statement.StatementCustomizers;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -35,7 +35,7 @@ public class SqlObjectLeakTest {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
             .withPlugin(new SqlObjectPlugin())
-            .withInitializer(TestingInitializers.usersWithData())
+            .withInitializer(JdbiExtensionInitializers.usersWithData())
             .withConfig(RowMappers.class, r -> r.register(User.class, ConstructorMapper.of(User.class)));
 
     @Test

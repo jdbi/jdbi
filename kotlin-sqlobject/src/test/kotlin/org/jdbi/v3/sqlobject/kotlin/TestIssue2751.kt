@@ -20,7 +20,7 @@ import org.jdbi.v3.core.kotlin.withHandleUnchecked
 import org.jdbi.v3.core.qualifier.QualifiedType
 import org.jdbi.v3.core.qualifier.Qualifier
 import org.jdbi.v3.testing.junit5.JdbiExtension
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -30,7 +30,7 @@ import kotlin.reflect.jvm.javaType
 class TestIssue2751 {
     @RegisterExtension
     var h2Extension: JdbiExtension = JdbiExtension.h2()
-        .withInitializer(TestingInitializers.something())
+        .withInitializer(JdbiExtensionInitializers.something())
         .withPlugins(KotlinSqlObjectPlugin())
 
     data class TestClass(val param: List<String>)

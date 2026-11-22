@@ -31,7 +31,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import org.jdbi.v3.stringtemplate4.UseStringTemplateSqlLocator
 import org.jdbi.v3.testing.junit5.JdbiExtension
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -53,7 +53,7 @@ import java.util.stream.Stream
 class TestValueClasses {
     @RegisterExtension
     var h2Extension: JdbiExtension = JdbiExtension.h2()
-        .withInitializer(TestingInitializers.something())
+        .withInitializer(JdbiExtensionInitializers.something())
         .withPlugin(KotlinSqlObjectPlugin(installKotlinMapperFactory = false))
 
     private lateinit var handle: Handle

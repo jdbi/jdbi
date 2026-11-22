@@ -29,7 +29,7 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.statement.UseRowMapper;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestMixinInterfaces {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(JdbiExtensionInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private Jdbi jdbi;

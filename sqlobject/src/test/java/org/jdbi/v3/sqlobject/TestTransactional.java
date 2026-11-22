@@ -43,7 +43,7 @@ import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
 import org.jdbi.v3.testing.junit5.JdbiH2Extension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -59,7 +59,7 @@ public class TestTransactional {
         protected DataSource createDataSource() {
             return new DataSourceWrapper(super.createDataSource(), c -> createProxyHandler(c));
         }
-    }.withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    }.withInitializer(JdbiExtensionInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     private Jdbi jdbi;
 

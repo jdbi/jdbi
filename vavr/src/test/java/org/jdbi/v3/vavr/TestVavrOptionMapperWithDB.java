@@ -26,7 +26,7 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TestVavrOptionMapperWithDB {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something())
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(JdbiExtensionInitializers.something())
             .withPlugins(new SqlObjectPlugin(), new VavrPlugin());
 
     @BeforeEach
