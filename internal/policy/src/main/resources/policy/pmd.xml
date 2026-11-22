@@ -104,8 +104,6 @@
         <exclude name="UseLocaleWithCaseConversions"/>
         <exclude name="UseProperClassLoader"/>
         <exclude name="ReturnEmptyCollectionRatherThanNull"/>
-        <!-- exclude b/c TestingInitializers -->
-        <exclude name="TestClassWithoutTestCases"/>
         <!-- see https://github.com/pmd/pmd/issues/6025 -->
         <exclude name="ReplaceJavaUtilCalendar"/>
         <exclude name="ReplaceJavaUtilDate"/>

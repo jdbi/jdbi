@@ -28,7 +28,7 @@ import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -39,7 +39,7 @@ import static org.jdbi.v3.core.transaction.TransactionIsolationLevel.READ_UNCOMM
 public class TestModifiers {
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(JdbiExtensionInitializers.something()).withPlugin(new SqlObjectPlugin());
     private Handle handle;
 
     @BeforeEach

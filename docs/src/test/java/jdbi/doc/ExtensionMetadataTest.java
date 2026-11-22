@@ -33,7 +33,7 @@ import org.jdbi.v3.core.extension.HandleSupplier;
 import org.jdbi.v3.core.internal.JdbiClassUtils;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -45,7 +45,7 @@ class ExtensionMetadataTest {
 
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
-            .withInitializer(TestingInitializers.something())
+            .withInitializer(JdbiExtensionInitializers.something())
             .withPlugin(new SqlObjectPlugin());
 
     Jdbi jdbi;

@@ -26,7 +26,7 @@ import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.stringtemplate4.UseStringTemplateEngine;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ import static org.jdbi.v3.sqlobject.customizer.BindList.EmptyHandling.VOID;
 public class BindListTest {
 
     @RegisterExtension
-    public final JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public final JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(JdbiExtensionInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     private Handle handle;
     private List<Something> expectedSomethings;

@@ -20,7 +20,7 @@ import org.jdbi.v3.core.qualifier.Reversed
 import org.jdbi.v3.core.qualifier.ReversedStringArgumentFactory
 import org.jdbi.v3.core.qualifier.ReversedStringMapper
 import org.jdbi.v3.testing.junit5.JdbiExtension
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -32,7 +32,7 @@ class KotlinQualifierTest {
 
     @RegisterExtension
     @JvmField
-    val h2Extension: JdbiExtension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(KotlinPlugin())
+    val h2Extension: JdbiExtension = JdbiExtension.h2().withInitializer(JdbiExtensionInitializers.something()).withPlugin(KotlinPlugin())
 
     private lateinit var handle: Handle
 

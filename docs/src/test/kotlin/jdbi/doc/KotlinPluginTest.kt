@@ -21,7 +21,7 @@ import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 import org.jdbi.v3.testing.junit5.JdbiExtension
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -31,7 +31,7 @@ class KotlinPluginTest {
     @RegisterExtension
     @JvmField
     val h2Extension: JdbiExtension = JdbiExtension.h2()
-        .withInitializer(TestingInitializers.something())
+        .withInitializer(JdbiExtensionInitializers.something())
         .withPlugin(KotlinSqlObjectPlugin())
 
     // tag::dataClass[]

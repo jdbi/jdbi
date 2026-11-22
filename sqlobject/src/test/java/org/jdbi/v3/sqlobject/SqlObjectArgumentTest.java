@@ -22,7 +22,7 @@ import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -35,7 +35,7 @@ public class SqlObjectArgumentTest {
         + "\n VALUES (:id, :status)";
 
     @RegisterExtension
-    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(TestingInitializers.something()).withPlugin(new SqlObjectPlugin());
+    public JdbiExtension h2Extension = JdbiExtension.h2().withInitializer(JdbiExtensionInitializers.something()).withPlugin(new SqlObjectPlugin());
 
     @Test
     public void testInsertClass() {

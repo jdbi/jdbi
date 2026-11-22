@@ -29,7 +29,7 @@ import org.jdbi.v3.core.statement.Query;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class DontUseProxyExtensionFactoryTest {
 
     @RegisterExtension
     JdbiExtension h2Extension = JdbiExtension.h2()
-            .withInitializer(TestingInitializers.something())
+            .withInitializer(JdbiExtensionInitializers.something())
             .withPlugin(new SqlObjectPlugin());
 
     Jdbi jdbi;

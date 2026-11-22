@@ -38,7 +38,7 @@ import org.jdbi.v3.sqlobject.subpackage.BrokenDao;
 import org.jdbi.v3.sqlobject.subpackage.SomethingDao;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +72,7 @@ public class TestSqlObject {
                         h2Extension.getSharedHandle().getConnection())));
         jdbi = Jdbi.create(c).installPlugin(new SqlObjectPlugin());
         handle = jdbi.open();
-        TestingInitializers.something().initialize(null, handle);
+        JdbiExtensionInitializers.something().initialize(null, handle);
     }
 
     @AfterEach

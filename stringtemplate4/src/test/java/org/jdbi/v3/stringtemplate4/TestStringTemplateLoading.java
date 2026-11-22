@@ -29,7 +29,7 @@ import org.jdbi.v3.core.internal.exceptions.Unchecked;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.jdbi.v3.stringtemplate4.TestStringTemplateSqlLocator.Wombat;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ public class TestStringTemplateLoading {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
         .enableLeakChecker(false) // otherwise the test may run out of memory
-        .withInitializer(TestingInitializers.something())
+        .withInitializer(JdbiExtensionInitializers.something())
         .withPlugin(new SqlObjectPlugin());
 
     private Handle singleThreadedHandle;

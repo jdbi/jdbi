@@ -26,7 +26,7 @@ import org.jdbi.v3.sqlobject.transaction.Transaction;
 import org.jdbi.v3.sqlobject.transaction.Transactional;
 import org.jdbi.v3.sqlobject.transaction.TransactionalConsumer;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -38,7 +38,7 @@ public class TestSqlObjectTransactions {
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2()
             .withPlugin(new SqlObjectPlugin())
-            .withInitializer(TestingInitializers.users());
+            .withInitializer(JdbiExtensionInitializers.users());
 
     private Jdbi jdbi;
     private CountingTransactionHandler transactionHandler;

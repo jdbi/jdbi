@@ -27,7 +27,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.testing.junit5.JdbiExtension
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -39,7 +39,7 @@ class CoroutineContextTest {
     @RegisterExtension
     @JvmField
     val h2Extension: JdbiExtension = JdbiExtension.h2().withPlugin(KotlinPlugin(enableCoroutineSupport = true))
-        .withInitializer(TestingInitializers.something())
+        .withInitializer(JdbiExtensionInitializers.something())
 
     private lateinit var jdbi: Jdbi
 

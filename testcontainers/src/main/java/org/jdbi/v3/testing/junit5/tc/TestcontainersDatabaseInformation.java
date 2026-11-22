@@ -50,6 +50,7 @@ import static java.lang.String.format;
  * <br>
  */
 @Beta
+@SuppressWarnings("PMD.TestClassWithoutTestCases") // the name starts with "Test", but this is not a test class
 public final class TestcontainersDatabaseInformation {
 
     private static final TestcontainersDatabaseInformation CLICKHOUSE =

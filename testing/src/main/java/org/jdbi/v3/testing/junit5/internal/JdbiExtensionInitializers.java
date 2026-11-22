@@ -18,10 +18,10 @@ import org.jdbi.v3.testing.junit5.JdbiExtensionInitializer;
 /**
  * This class is used in the various Jdbi unit tests. It is not intended for any tests outside the Jdbi code.
  */
-public final class TestingInitializers {
+public final class JdbiExtensionInitializers {
 
-    private TestingInitializers() {
-        throw new AssertionError("TestingInitializers can not be instantiated");
+    private JdbiExtensionInitializers() {
+        throw new AssertionError("JdbiExtensionInitializers can not be instantiated");
     }
 
     public static JdbiExtensionInitializer something() {

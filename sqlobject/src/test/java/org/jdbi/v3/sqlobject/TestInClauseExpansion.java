@@ -21,7 +21,7 @@ import org.jdbi.v3.guava.GuavaPlugin;
 import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.testing.junit5.JdbiExtension;
-import org.jdbi.v3.testing.junit5.internal.TestingInitializers;
+import org.jdbi.v3.testing.junit5.internal.JdbiExtensionInitializers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -34,7 +34,7 @@ public class TestInClauseExpansion {
 
     @RegisterExtension
     public JdbiExtension h2Extension = JdbiExtension.h2().withPlugins(new SqlObjectPlugin(), new GuavaPlugin())
-            .withInitializer(TestingInitializers.something());
+            .withInitializer(JdbiExtensionInitializers.something());
 
     private Handle handle;
 
