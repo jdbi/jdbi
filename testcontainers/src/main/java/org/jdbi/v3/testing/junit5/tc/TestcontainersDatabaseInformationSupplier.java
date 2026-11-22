@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import static java.lang.String.format;
 
 
+@SuppressWarnings("PMD.TestClassWithoutTestCases") // the name starts with "Test", but this is not a test class
 final class TestcontainersDatabaseInformationSupplier implements Supplier<TestcontainersDatabaseInformation>, AutoCloseable, Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestcontainersDatabaseInformationSupplier.class);
