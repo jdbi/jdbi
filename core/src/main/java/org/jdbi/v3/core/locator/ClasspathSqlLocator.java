@@ -13,11 +13,14 @@
  */
 package org.jdbi.v3.core.locator;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.lang.module.ModuleReader;
+import java.lang.module.ResolvedModule;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
@@ -25,6 +28,8 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+
+import jakarta.annotation.Nullable;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.jdbi.v3.core.internal.SqlScriptParser;
@@ -131,7 +136,8 @@ public final class ClasspathSqlLocator {
     /**
      * Locates SQL for the given type and name. Example: Given a type <code>com.foo.Bar</code> and a name of
      * <code>baz</code>, looks for a resource named <code>com/foo/Bar/baz.sql</code> on the classpath and returns its
-     * contents as a String.
+     * contents as a String. A resource owned by a named module is read from that module, including when the
+     * resource's package is not open to the caller.
      *
      * @param type the type that "owns" the given SQL. Dictates the directory path to the SQL resource file on the
      *             classpath.
@@ -139,13 +145,24 @@ public final class ClasspathSqlLocator {
      * @return the located SQL.
      */
     public String locate(Class<?> type, String methodName) {
-        return getResource(
-                type.getClassLoader(),
-                new ClasspathBuilder()
-                    .appendFullyQualifiedClassName(type)
-                    .appendVerbatim(methodName)
-                    .setExtension(SQL_EXTENSION)
-                    .build());
+        String path = new ClasspathBuilder()
+                .appendFullyQualifiedClassName(type)
+                .appendVerbatim(methodName)
+                .setExtension(SQL_EXTENSION)
+                .build();
+
+        if (type.getModule().isNamed()) {
+            InputStream moduleStream = openNamedModuleStream(type, path);
+            if (moduleStream != null) {
+                return readStream(path, moduleStream);
+            }
+        }
+
+        ClassLoader classLoader = type.getClassLoader();
+        if (classLoader == null) {
+            throw new IllegalArgumentException("Cannot find classpath resource at " + path);
+        }
+        return getResource(classLoader, path);
     }
 
     /**
@@ -194,6 +211,51 @@ public final class ClasspathSqlLocator {
     private String readResource(ClassLoader classLoader, String path) {
         try (InputStream is = openStream(classLoader, path)) {
             return parser.apply(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Unable to read classpath resource at " + path, e);
+        }
+    }
+
+    private String readStream(String path, InputStream stream) {
+        try (InputStream in = stream) {
+            return parser.apply(in);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Unable to read classpath resource at " + path, e);
+        }
+    }
+
+    /**
+     * {@link Class#getResourceAsStream(String)} can see a module resource when this class is in that module, or when
+     * the resource package is open to this module. Otherwise the lookup is caller-sensitive and returns null.
+     * {@link ModuleReader} reads the module named by {@code type} without that check.
+     */
+    @Nullable
+    private static InputStream openNamedModuleStream(Class<?> type, String path) {
+        InputStream classStream = type.getResourceAsStream("/" + path);
+        if (classStream != null) {
+            return classStream;
+        }
+        return readModuleResource(type.getModule(), path);
+    }
+
+    @Nullable
+    private static InputStream readModuleResource(Module module, String path) {
+        ModuleLayer layer = module.getLayer();
+        if (layer == null) {
+            return null;
+        }
+        Optional<ResolvedModule> resolved = layer.configuration().findModule(module.getName());
+        if (resolved.isEmpty()) {
+            return null;
+        }
+        try (ModuleReader reader = resolved.get().reference().open()) {
+            Optional<InputStream> resource = reader.open(path);
+            if (resource.isEmpty()) {
+                return null;
+            }
+            try (InputStream in = resource.get()) {
+                return new ByteArrayInputStream(in.readAllBytes());
+            }
         } catch (IOException e) {
             throw new UncheckedIOException("Unable to read classpath resource at " + path, e);
         }
