@@ -30,6 +30,7 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * so {@code ClassLoader.getResourceAsStream} and a cross-module {@code Class.getResourceAsStream}
  * both miss it. {@link ClasspathSqlLocator#locate(Class, String)} must still return the file text.
  */
+@DisabledInNativeImage // native image has no javac and cannot define a module layer at run time
 public class TestClasspathSqlLocatorNamedModule {
 
     private static final String MODULE_NAME = "org.jdbi.locator.jpmstest";
